@@ -1,0 +1,571 @@
+#include <assert.h>
+#include <stdbool.h>
+#include "game_mechanics_mc.h"
+#include "aux.h"
+#include "button_bt.h"
+#include "stages.h"
+#include "list.h" 
+#include "code_window_cw.h"
+#include "instruction_window_iw.h"
+#include "buffers_bf.h"
+#include "registers_rg.h"
+#include "file_fl.h"
+#include "dimensions.h"
+#include "sdl_config.h"
+#include "stage_buttons.h"
+#include "levels.h"
+#include "mouse_ms.h"
+#include "dbg.h"
+
+#define STUDIO_SCREEN_DELAY 1000 // 1 sec
+
+int g_player;
+
+typedef struct level_flags_t{
+	bool play;
+	bool stop;
+	bool stop_enabled;
+	bool forward;
+	bool backward;
+	bool backward_enabled;
+	bool non_stop;
+} level_flags_t;
+
+static char *win_text = "The challenge is correct";
+static char *lose_text = "The challenge is incorrect";
+static SDL_Rect result_box;
+
+void display_level_inputs(int x, int y, List *l);
+void stage_drawings();
+static void pending_operand_handler();
+static void flag_handler(level_flags_t *flags, int clicked_button);
+static void edit_code(int level_id);
+void reset_level(int level_id, level_flags_t *flags, bool *run_finished);
+void display_run_result(bool win_check);
+
+
+/* Function: reset_level_flags
+ * -------------------------------------
+ * Arguments:
+ * 	flags: the flag levels that will be reset
+ *
+ * Return:
+ *	void.	
+ */
+void reset_level_flags(level_flags_t *flags)
+{
+	flags->play = false;
+	flags->stop = false;
+	flags->stop_enabled = false;
+	flags->forward = false;
+	flags->backward = false;
+	flags->backward_enabled = false;
+	flags->non_stop = false;
+}
+
+/* Function: level_initialization
+ * -------------------------------------
+ * Arguments:
+ * stage_id: the id for the specific stage that is going to be played
+ *
+ * Return:
+ *	true: used for the caller of the function.
+ */
+int level_initialization(int level_id)
+{
+	assert(level_id > LEVEL_MIN && level_id < LEVEL_MAX && "Invalid stage id");
+	initialize_stage_buttons();
+	set_input_box(BUFFER_BOX_X, INPUT_BUFFER_BOX_Y, BUFFER_BOX_W, BUFFER_BOX_H);
+	set_output_box(BUFFER_BOX_X, OUTPUT_BUFFER_BOX_Y, BUFFER_BOX_W, 
+				   BUFFER_BOX_H);
+
+	create_input_list();
+	create_output_list();
+	create_win_list();
+	fl_file_initialize_level(level_id);
+	set_input_buffer_button(BUFFER_BOX_X, INPUT_BUFFER_TEXT_Y, BUFFER_BOX_W, 
+							BUFFER_TEXT_H + BUFFER_BOX_H);
+	set_output_buffer_button(BUFFER_BOX_X, OUTPUT_BUFFER_BOX_Y, BUFFER_BOX_W, 
+							 BUFFER_TEXT_H + BUFFER_BOX_H);
+	bf_initialize_buffer_operands();
+
+	set_code_box(CODE_BOX_X, CODE_BOX_Y, CODE_BOX_W, CODE_BOX_H);
+	set_instruction_box(INS_BOX_X, INS_BOX_Y, INS_BOX_W, INS_BOX_H);
+	
+	generate_win_condition_list(level_id);
+	create_code_list();	
+	fl_load_save_file(g_player, level_id);
+	reset_avatar();
+
+	return true;
+}
+
+/* Function: stages_drawings
+ * -----------------------------------------------------------------------------
+ * Arguments:
+ *	input_list: the list of inputs that are going to be available to the player
+ *	instruction_list: the list of available instructions in the level
+ *	code: the developed code of the player
+ *
+ * Return:
+ *	Void.
+ */
+void stage_drawings()
+{
+	draw_buffers();
+	
+	draw_register_text(REG_TEXT_X, REG_TEXT_Y, REG_TEXT_H);
+
+	display_registers();
+	// The diplaying of the list of instructions that will be available
+	iw_display_instructions(INS_BOX_X, INS_BOX_Y);
+
+	draw_code_window();	
+
+	draw_stage_buttons(cw_get_code_list_size());
+
+	draw_avatar();
+}
+
+/* Function: stage_studio
+ * ----------------------------------------------------------------------------
+ * This function displays the stage where the name of the studio is shown.
+ *
+ * Arguments:
+ *	start_time: starting time that will be used for the delay of the screen.
+ *	cur_time: the current time used to calculate the delay of the screen.
+ *
+ * Return:
+ *	TITLE_SCREEN if the delay time is already finished
+ *	LEVEL_SELECTION if otherwise
+ */
+int stage_studio(Uint64 start_time, Uint64 cur_time)
+{
+	int delay = cur_time - start_time;	
+	draw_text_fit_width(STUDIO_NAME_X, STUDIO_NAME_Y, STUDIO_NAME_W, 
+						 COLOR_WHITE, STUDIO_NAME_TEXT);
+
+	if (delay > STUDIO_SCREEN_DELAY){
+		return TITLE_SCREEN;
+	} else {
+		return STUDIO_SCREEN;
+	}
+}
+
+/* Function: stage_select_player
+ * ----------------------------------------------------------------------------
+ * This function displays the screen where the player is selected
+ *
+ * Arguments:
+ *	None.
+ *
+ * Return:
+ *	SELECT_PLAYER_SCREEN if the user have not selected a player. 
+ *	LEVEL_SELECTION if a player has been chosen
+ */
+int stage_select_player()
+{
+	static bool buttons_created = false;
+	static button_t *player_1;
+	static button_t *player_2;
+	static button_t *player_3;
+
+	if (buttons_created == false){
+		buttons_created = true;
+		texture_t *b1_texture = load_texture_from_rendered_text(PLAYER_1_TEXT, 
+															COLOR_WHITE);
+		check_mem(b1_texture);
+		texture_t *b2_texture = load_texture_from_rendered_text(PLAYER_2_TEXT, 
+															COLOR_WHITE);
+		texture_t *b3_texture = load_texture_from_rendered_text(PLAYER_3_TEXT, 
+															COLOR_WHITE);
+
+		player_1 = create_button(P1_BUTTON_X, P1_BUTTON_Y, P_BUTTON_H, 
+								 P_BUTTON_W, false, true, b1_texture);
+		check_mem(player_1);
+		player_2 = create_button(P2_BUTTON_X, P2_BUTTON_Y, P_BUTTON_H, 
+								 P_BUTTON_W, false, true, b2_texture);
+		player_3 = create_button(P3_BUTTON_X, P3_BUTTON_Y, P_BUTTON_H, 
+								 P_BUTTON_W, false, true, b3_texture);
+	}
+	
+	draw_text_fit_height(SELECT_PLAYER_TEXT_X, SELECT_PLAYER_TEXT_Y, 
+						 SELECT_PLAYER_TEXT_H, COLOR_WHITE, SELECT_PLAYER_TEXT);
+	
+	bt_draw_button(player_1);
+	bt_draw_button(player_2);
+	bt_draw_button(player_3);
+
+	if (true == check_mouse_click_in_button(player_1)){
+		player_1->active = !player_1->active;
+		g_player = FL_PLAYER_1;
+		return LEVEL_SELECTION;
+	}
+	if (true == check_mouse_click_in_button(player_2)){
+		player_2->active = !player_2->active;
+		g_player = FL_PLAYER_2;
+		return LEVEL_SELECTION;
+	}
+	if (true == check_mouse_click_in_button(player_3)){
+		player_3->active = !player_3->active;
+		g_player = FL_PLAYER_3;
+		return LEVEL_SELECTION;
+	}
+
+	error:
+	return SELECT_PLAYER_SCREEN;
+}
+
+/* Function: stage_title
+ * -----------------------------------------------------------------------------
+ * This function renders the title screen of the game
+ *
+ * Arguments:
+ *	None;
+ *
+ * Return:
+ *	TITLE_SCREEN if user has not pressed spacebar, 
+ *	LEVEL_SELECTION if otherwise
+ */
+int stage_title(const Uint8 *keystate)
+{
+
+	draw_text_fit_width(GAME_TITLE_X, GAME_TITLE_Y, GAME_TITLE_W, COLOR_WHITE, 
+						 GAME_TITLE_TEXT);
+	draw_text_fit_width(SPACE_TEXT_X, SPACE_TEXT_Y, SPACE_TEXT_W, COLOR_WHITE, 
+						 PRESS_SPACE_TEXT);
+
+	if (keystate[SDL_SCANCODE_SPACE]){
+		return SELECT_PLAYER_SCREEN;
+	} else {
+		return TITLE_SCREEN;
+	}
+}
+
+
+/* Function: select_level_screen
+ * -----------------------------------------------------------------------------
+ * This function is used for selecting the level that is going to
+ * be played
+ * 	
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	The number of the level selected, if not valid press was performed
+ *	the number of the select label stage will be returned.
+ */
+int stage_select_level()
+{
+	static bool level_initialized = false;
+	static button_t *level_button = NULL;
+	
+	if (false == level_initialized){
+		level_initialized = true;
+		
+		texture_t *button_texture = load_texture_from_rendered_text(
+									"Level 1", COLOR_WHITE);
+		level_button = create_button(100, 200, 100, 100, false, false,
+									 button_texture);
+	} 
+	// Text: Select Level
+	draw_text(50, 25, 0.6, COLOR_WHITE, "Select the level");
+
+	// Level 1 button 
+	bt_draw_button(level_button);
+
+	if (true == check_mouse_click_in_button(level_button)){
+		level_button->active = !level_button->active;
+		return LEVEL_1;
+	}
+	return LEVEL_SELECTION;
+}
+
+/* Function: stage_button_handler
+ * ----------------------------------------------------------------------------
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	void.
+ */
+void stage_button_handler()
+{
+	int clicked_button = identify_clicked_stage_button();
+	
+	switch(clicked_button){
+		case STOP:
+			
+			break;
+		case BACKWARD:
+
+			break;
+
+		case PLAY:
+
+			break;
+
+		case FORWARD:
+
+			break;
+
+		case INVALID:
+
+			break;
+	}
+}
+
+/* Function: flag_handler
+ * ----------------------------------------------------------------------------
+ * Arguments:
+ * 	code: developed by the player.
+ *
+ * Return:
+ *	void.
+ */
+static void flag_handler(level_flags_t *flags, int clicked_button)
+{
+	assert(clicked_button != INVALID && "Invalid clicked button");
+	assert(flags != NULL && "The flags pointer is NULL");
+	
+	//reset_level_flags(flags);
+	
+	switch(clicked_button){
+		case PLAY: 
+			flags->play = true;
+			flags->non_stop = true;
+			flags->stop = false;
+			flags->stop_enabled = true;
+			flags->forward = false;
+			flags->backward = false;
+			flags->backward_enabled = true;
+			break;
+		case STOP:
+			flags->stop = true;
+			flags->non_stop = false;
+			flags->play = false;
+			flags->forward = false;
+			flags->backward = false;
+			flags->backward_enabled = false;
+			break;
+		case FORWARD:
+			flags->forward = true;
+			flags->play = true;
+			flags->stop = false;
+			flags->non_stop = true;
+			flags->stop_enabled = true;
+			flags->backward = false;
+			flags->backward_enabled = true;
+			break;
+		case BACKWARD:
+			flags->backward = true;
+			flags->stop = false;
+			flags->non_stop = true;
+			flags->stop_enabled = true;
+			flags->play = false;
+			flags->forward = false;
+			break;
+	}
+}
+
+/* Function: pending_operand_handler
+ * ----------------------------------------------------------------------------
+ * Arguments:
+ * 	code: developed by the player.
+ *
+ * Return:
+ *	void.
+ */
+static void pending_operand_handler()
+{
+	bool left_released = ms_check_mouse_left_released();
+	bool register_selected = rg_check_released_in_register();
+	bool buffer_selected = bf_check_released_in_buffer();
+	cw_highlight_code_pending_operand();
+
+	if (left_released == true && register_selected == true){
+		operand_t *r = rg_create_operand_of_selected_register();
+		code_line_t *l = cw_get_code_line_pending_operand();
+		cl_assign_operand_to_line(r, l);
+	} else if (left_released == true && buffer_selected == true){
+		operand_t *b = bf_create_operand_of_selected_buffer();
+		code_line_t *l = cw_get_code_line_pending_operand();
+		if (check_operand_compatilibity(b, l) == true){
+			cl_assign_operand_to_line(b, l);
+		} else {
+			destroy_operand(b);
+		}
+	} else if (left_released == true && register_selected == false && 
+			   buffer_selected == false){
+		code_line_t *l = cw_get_code_line_pending_operand();
+		operand_t *r = rg_get_default_operand_register();
+		cl_assign_operand_to_line(r, l);
+	}
+	return;
+}
+
+/* Function: edit_code
+ * ----------------------------------------------------------------------------
+ * This function is called when the player is able to edit or alter the code
+ * that is present in the code window.
+ *
+ * Arguments:
+ * 	level_id: Required for the save file when the code is saved.
+ *
+ * Return:
+ *	void.
+ */
+static void edit_code(int level_id)
+{
+	assert(level_id > 0 && level_id <= LV_LEVEL_QUANTITY && 
+		   "Incorrect level_id value");
+	static code_line_t *line = NULL;
+	bool left_pressed = ms_check_mouse_left_pressed();
+
+	if (cw_check_code_pending_operand() == true && 
+		cw_check_all_code_sorted() == true && cw_check_clicked_code() == false){
+		pending_operand_handler();	
+		if (cw_check_code_pending_operand() == false){
+			fl_save_level(g_player, level_id);
+		}
+	} else if (cw_check_clicked_code_operand() == true && line == NULL){
+		ms_disable_mouse_button();
+		cw_change_clicked_code_line_state();	
+	} else if (iw_check_clicked_instruction() == true && line == NULL){
+		line = cl_new_code_line(iw_get_clicked_instruction());
+	} else if (cw_check_clicked_code() == true && line == NULL){
+		line = cw_get_clicked_code();
+	} else if (left_pressed == true && line != NULL){
+		cw_player_holding_instruction(line);
+	} else if (left_pressed == false && NULL != line){
+		if (check_if_in_code_list(line) == false){
+			cl_destroy_code_line(line);
+		} 
+		if (cw_check_code_pending_operand() == false){
+			fl_save_level(g_player, level_id);
+		}
+		
+		line = NULL;
+	}
+}
+
+/* Function: reset_level
+ * ----------------------------------------------------------------------------
+ * Arguments:
+ * 	level_id: the level number that is going to be reset.
+ *	flags: the flags of the level that will be reset.
+ *
+ * Return:
+ *	void.
+ */
+void reset_level(int level_id, level_flags_t *flags, bool *run_finished)
+{
+	reset_avatar();			
+	reset_level_flags(flags);
+	reset_register_values();
+	reset_input_list();
+	reset_output_list();
+	reset_win_list();
+	generate_win_condition_list(level_id);
+	reset_code_execution();
+	*run_finished = false;
+}
+
+int stage_level(int level_id)
+{
+	static bool level_init = false;
+	static bool run_finished = false;
+	static level_flags_t flags;
+
+	if (level_init == false){
+		level_init = level_initialization(level_id);
+	}
+
+	if (check_clicked_stage_button() == true){
+		flag_handler(&flags, identify_clicked_stage_button());
+	}
+	
+	stage_drawings();
+	cw_sort_code();
+	
+	if (flags.non_stop == false || cw_check_code_pending_operand() == true){
+		edit_code(level_id);
+	}
+	if (run_finished == true){
+		display_run_result(check_if_win());
+	}
+	if (flags.play == true && cw_check_code_pending_operand() == false){
+		run_finished = mc_run_code();
+	} else if (flags.stop == true && flags.stop_enabled == true){
+		reset_level(level_id, &flags, &run_finished);		
+	}
+	 
+	return LEVEL_1;
+}
+
+/* Function: display_run_result
+ * 	
+ * Arguments:
+ *	win_check: the condition checking if the run was successful
+ *
+ * Return:
+ *	void
+ */
+void display_run_result(bool win_check)
+{
+	char *text_to_print;
+	int result_box_height;
+	if (win_check == true){
+		result_box_height = get_wrapped_text_height(RES_BOX_W, 
+												  	TEXT_BOX_HEIGHT,
+												  	win_text);
+		text_to_print = win_text;
+	} else {
+		result_box_height = get_wrapped_text_height(RES_BOX_W, 
+												  	TEXT_BOX_HEIGHT,
+												  	lose_text);
+		text_to_print = lose_text;
+
+	}
+	draw_wrapped_text_fits_height(RES_BOX_X, RES_BOX_Y, RES_BOX_W, 
+								  RES_BOX_H, COLOR_WHITE, text_to_print);
+
+	
+	draw_rectangle(RES_BOX_X, RES_BOX_Y, RES_BOX_W, result_box_height, 
+	               COLOR_WHITE);
+}
+
+/* Function: display_level_inputs
+ * This function receives the coordinates and the list of inputs from 
+ * a level in order to display it.
+ * 	
+ * Arguments:
+ *	x: x coordinate where the list will be located.
+ *  y: y coordinate whre the list will be located.
+ *	l: list with the inputs
+ *
+ * Return:
+ *	void
+ */
+void display_level_inputs(int x, int y, List *l)
+{
+	assert(NULL != l && "Invalid list with value NULL");
+	// The rectangle that contains the numbers from the input buffer
+	draw_rectangle(x, y, 100, 250, COLOR_WHITE);
+
+	//Display the numbers contained in the list
+
+	int first_input_element_x = x + 40;
+	int first_input_element_y = y + 20;
+
+	LIST_FOREACH(l, first, next, cur){
+
+		char *c = number_to_string(*(int *)cur->value);
+		draw_text(first_input_element_x, first_input_element_y, 
+				  M_SCALE_FACTOR, COLOR_WHITE, c);
+		first_input_element_y += 50;
+		free(c);
+	}
+}
+
+

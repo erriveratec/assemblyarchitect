@@ -1,0 +1,41 @@
+
++++LEVEL STARTS 01
+
+ChallengeTextBegin
+"Move the values from the input buffer to the output buffer."
+ChallengeTextEnd
+
+InputSize 3
+InputType Natural
+
+InstructionsBegin
+mov
+InstructionsEnd
+
+RegistersBegin
+rax
+RegistersEnd
+
++++LEVEL ENDS
+
++++ LEVEL STARTS 02
+
+ChallengeTextBegin
+"Dummy text for challenge 2"
+ChallengeTextEnd
+
+InputType Natural
+
+InstructionsBegin
+mov
+add
+InstructionsEnd
+
+RegistersBegin
+rax
+rdi
+RegistersEnd
+
++++LEVEL ENDS
+
+

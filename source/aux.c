@@ -1,0 +1,420 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <assert.h>
+#include "aux.h"
+#include "dbg.h"
+#include "texture.h"
+#include "dimensions.h"
+
+char *space_text =" ";
+char *comma_text =",";
+char *newline_text ="\n";
+
+
+/* Function: draw_value_box
+ *------------------------------------------------------------------------------
+ * Arguments:
+ *	None.
+ *
+ * Return:
+ *	Void.
+ */
+void draw_value_box(value_box_t *box){
+
+	char *text = number_to_string(box->value);
+	int text_width = get_text_width_fits_height(VALUE_H, text);
+	int x_offset = (VALUE_BOX_W - text_width)/2;
+	int y_offset = ((VALUE_BOX_H - VALUE_H)/2) + 
+				    (VALUE_H/5)/2;
+	draw_text_fit_height(box->box.x + x_offset, box->box.y + y_offset, 
+						 VALUE_H, COLOR_WHITE, text);
+	int box_offset = VALUE_H/6;
+	draw_rectangle(box->box.x, box->box.y, box->box.w , box->box.h, 
+				   COLOR_WHITE);
+}
+
+/* Function: get_text_width_fits_height
+ * -----------------------------------------------------------------------------
+ * This function receives a text string and a height value for that string and
+ * returns the 
+ *
+ * Arguments:
+ *	h: height dimension.
+ *	text: the text that will be checked
+ *
+ * Return:
+ *	width of the text.
+ */
+int get_text_width_fits_height(int h, char *text)
+{
+	texture_t *text_texture = NULL;
+
+	text_texture = load_texture_from_rendered_text(text, COLOR_WHITE);
+	assert(NULL != text_texture && 
+		   "Failed to load texture from rendered text");
+	
+	float scale = get_scale_fit_height(h, text_texture);
+	int text_width = (int)text_texture->w * scale;
+
+	free_texture(text_texture);
+
+	return text_width;
+
+}
+
+/* Function: get_scale_from_w_h
+ * -----------------------------------------------------------------------------
+ * This function receives as an argument width and height dimensions and a 
+ * texture. It calculates the scale factor needed for the texture to fit
+ * in those pixel dimensions. Returns the scale needed for the largest dimension
+ *
+ * Arguments:
+ *	w: width dimension.
+ *	h: height dimension.
+ *	t: texture that will be used for calculating the dimension.
+ *
+ * Return:
+ *	float with the calculated scale value
+ */
+float get_scale_from_w_h(int w, int h, texture_t *texture)
+{
+	float scale = 0;
+
+	float scale_w = (float)w/texture->w;
+	float scale_h = (float)h/texture->h;
+	
+	if (scale_w < scale_h){
+		scale = scale_w;
+	} else {
+		scale = scale_h;	
+	}
+	
+	return scale;
+
+}
+
+/* Function: get_scale_fit_height
+ * -----------------------------------------------------------------------------
+ * This function receives a texture and a height value and returns the 
+ * corresponding scale factor of the texture to fit the received height value.
+ * 
+ * Arguments:
+ *	h: height dimension.
+ *	t: texture that will be used for calculating the dimension.
+ *
+ * Return:
+ *	The calculated scale that fits the height for the texture
+ */
+float get_scale_fit_height(int h, texture_t *texture)
+{
+	assert(NULL != texture && "The texture pointer is NULL");
+
+	float scale_h = (float)h/texture->h;
+	return scale_h;
+}
+
+/* Function: get_scale_fit_width
+ * -----------------------------------------------------------------------------
+ * This function receives a texture and a width value and sets the 
+ * corresponding scale factor of the texture to fit the received width value.
+ * 
+ * Arguments:
+ *	w: width dimension.
+ *	t: texture that will be used for calculating the dimension.
+ *
+ * Return:
+ *	The calculated scale that fits the height for the texture
+ */
+float get_scale_fit_width(int w, texture_t *texture)
+{
+	assert(NULL != texture && "The texture pointer is NULL");
+
+	float scale_w = (float)w/texture->w;
+	return scale_w;
+}
+
+/* Function: get_movement_delta
+ * ----------------------------------------------------------------------------
+ * This function receives two values and returns a movement delta, according
+ * to the distance of the two values, higher the distance, higher de movement
+ * delta.
+ *
+ * Arguments:
+ *	v1: first value to be considered.
+ * 	v2: second value
+ *	max_delta: maximum delta value that the function will use.
+ *
+ * Return:
+ * 	The delta movement according to distance.
+ */
+int get_movement_delta(int v1, int v2, int max_delta)
+{
+	int distance = abs(v1 - v2);
+	float half_delta = (float)max_delta/2;
+
+	if(distance < 3){
+		return 1;
+	} else if (distance < half_delta/2){
+		return half_delta/4;
+	}else if (distance < half_delta){
+		return half_delta/2;
+	} else if (distance < max_delta){
+		return half_delta;
+	} else {
+		return max_delta;
+	}
+}
+
+
+
+/* Function: number_to_string_with_prepend_zero
+ * ----------------------------------------------------------------------------
+ * This function receives receives an integer and it returns it as a 
+ * string form with a prepend zero as the first character
+ *
+ * Arguments:
+ *	int number
+ *
+ * Return:
+ *	string with the converted number with a leading zero
+ */
+char *number_to_string_with_prepend_zero(int number)
+{
+	char *zero = number_to_string(0);
+	char *c = NULL;
+	char *final_string = NULL;
+	if (0 == number){
+		c = malloc(sizeof(char)*2);
+		sprintf(c, "%d", number);
+		final_string = malloc(sizeof(char)*(strlen(c)+1));
+		strcpy(final_string, zero);
+		strcat(final_string, c);
+	} else {
+		c = malloc(sizeof(char)*(int)log10(number)+2);
+		sprintf(c, "%d", number);
+		final_string = malloc(sizeof(char)*(strlen(c)+1));
+		strcpy(final_string, zero);
+		strcat(final_string, c);
+	}
+	return final_string;
+}
+
+/* Function: number_to_string
+ * -------------------------------------
+ * This function receives receives an integer and it returns it as a 
+ * string form that can be used to generate a texture and display it
+ * on screen.
+ *
+ * Arguments:
+ *	int number
+ *
+ * Return:
+ *	char *string_number
+ */
+
+char *number_to_string(int number)
+{
+	char *c = NULL;
+
+	if (number == 0){
+		c = malloc(sizeof(char)*2);
+		sprintf(c, "%d", number);
+	} else if (number < 0){
+		int absolute = abs(number);
+		char *abs_number = malloc(sizeof(char)*(int)log10(absolute)+2);
+		c = malloc(sizeof(char)*(int)log10(absolute)+3);
+		char negative[] = "-";
+		strcpy(c, negative);
+		strcat(c, abs_number);
+		free(abs_number);
+	} else {
+		c = malloc(sizeof(char)*(int)log10(number)+2);
+		sprintf(c, "%d", number);
+	}
+	return c;
+}
+
+
+
+/* Function: check_if_text_fits_in_width
+ * -------------------------------------
+ * This function receives receives a string and verifies if it fits in a
+ * given width using a scaling factor
+ *
+ * Arguments:
+ *	t: text that the comparison will be done
+ *	s: scaling factor to be used
+ *	w: width that is going to be verified if it fits
+ *
+ * Return:
+ *	true if it fits.
+ * 	false if it not fits
+ */
+
+bool check_if_text_fits_in_width(char *t, float s, int w)
+{
+	bool check = false;
+	texture_t *text_texture = NULL;
+
+	text_texture = load_texture_from_rendered_text(t, COLOR_WHITE);
+	assert(NULL != text_texture && 
+		   "Failed to load texture from rendered text");
+
+	float scaled_text_width = (float)text_texture->w * s;
+	if (scaled_text_width < w){
+		check = true;
+	}
+
+	free_texture(text_texture);
+	return check;
+}
+
+/* Function: check_if_text_fits_in_width_by_height
+ * -------------------------------------
+ * This function receives receives a string and verifies if it fits in a
+ * given width using a given height
+ *
+ * Arguments:
+ *	t: text that the comparison will be done
+ *	h: height to be used
+ *	w: width that is going to be verified if it fits
+ *
+ * Return:
+ *	true if it fits.
+ * 	false if it not fits
+ */
+
+bool check_if_text_fits_in_width_by_height(char *t, int h, int w)
+{
+	bool check = false;
+	texture_t *text_texture = NULL;
+
+	text_texture = load_texture_from_rendered_text(t, COLOR_WHITE);
+	assert(NULL != text_texture && 
+		   "Failed to load texture from rendered text");
+
+	float scale_by_height = (float)h/(float)text_texture->h;
+	float scaled_text_width = (float)text_texture->w * scale_by_height;
+	if (scaled_text_width < w){
+		check = true;
+	}
+
+	free_texture(text_texture);
+	return check;
+}
+/* Function: get_text_height
+ * -------------------------------------
+ * This function calculates the height of a text in pixels with a give scale 
+ * factor
+ *
+ * Arguments:
+ *	text: text that the will be display wrapped
+ *	scale: scaling factor to be used
+ *
+ * Return:
+ *	int value containign the adecuate y offset
+ * 	
+ */
+int get_text_height(char *text, float scale)
+{
+	texture_t *text_texture = NULL;
+
+	text_texture = load_texture_from_rendered_text(text, COLOR_WHITE);
+	assert(NULL != text_texture && 
+		   "Failed to load texture from rendered text");
+
+	int scaled_text_height = (float)text_texture->h * scale;
+
+	free_texture(text_texture);
+
+	return scaled_text_height;
+}
+
+/* Function: get_text_width
+ * -------------------------------------
+ * This functions receives a string parameter and returns the width in pixels
+ * of that string using an specified scale factor
+ *
+ * Arguments:
+ *	text: the text that is the width will be calculated
+ *	scale: the scale factor of that specific text
+ *
+ * Return:
+ *	An integer with the width of string
+ */
+
+int get_text_width(char *text, float scale)
+{
+	texture_t *text_texture = NULL;
+
+	text_texture = load_texture_from_rendered_text(text, COLOR_WHITE);
+	assert(NULL != text_texture && 
+		   "Failed to load texture from rendered text");
+
+	int scaled_text_width = (float)text_texture->w * scale;
+
+	free_texture(text_texture);
+
+	return scaled_text_width;
+
+}
+
+/* Function: get_wrapped_text_height
+ * -----------------------------------------------------------------------------
+ * This function calculates the height required for a warped text in a given 
+ * scale with a give width.
+ *
+ * Arguments:
+ *	w: width to the column of the text.
+ *	h: height of the text.
+ *	t: text to be measured.
+ *
+ * Return:
+ *	Returns the height value of the box
+ */
+int get_wrapped_text_height(int w, int h, char *t)
+{
+	assert(0 < w && "The width of the text is negative");
+	assert(0 < h && "The height of the text is negative");
+	assert( NULL != t && "Text pointer is NULL");
+
+	int x_pos = WRAPPED_TEXT_X_OFFSET;
+	int y_pos = WRAPPED_TEXT_Y_OFFSET;
+	int y_offset = h;
+	int string_size = strlen(t);
+	
+	char *text = malloc(sizeof(char)*string_size);
+	check_mem(text);
+	int last_successful_fit = 0;
+	int already_drawn_offset = 0;
+
+		for (int i = 0; i <= string_size; i++){
+			if (CHAR_SPACE == t[i] || CHAR_NULL == t[i]){
+				strncpy(text, t + already_drawn_offset, 
+						i - already_drawn_offset);
+			
+				if (true == check_if_text_fits_in_width_by_height(text, h, w)){
+					last_successful_fit = i;
+				}
+
+				if (false == check_if_text_fits_in_width_by_height(text, h, w)|| 
+					CHAR_NULL == t[i]){
+					memset(text, 0, string_size);
+					strncpy(text, t + already_drawn_offset, 
+						   	last_successful_fit - already_drawn_offset);
+					y_pos += y_offset;
+					already_drawn_offset = last_successful_fit;
+					i = last_successful_fit;
+					memset(text, 0, string_size);
+			}
+		}
+	} 
+	free(text);
+
+error:
+
+	return y_pos + WRAPPED_TEXT_Y_OFFSET;
+}
+
+

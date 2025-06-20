@@ -1,0 +1,12 @@
+#ifndef FILE_H
+#define FILE_H
+
+
+enum fl_player{FL_NO_PLAYER, FL_PLAYER_1, FL_PLAYER_2, FL_PLAYER_3};
+
+void fl_file_initialize_level(int level);
+void fl_save_file_init();
+void fl_save_level(int player_id, int level_id);
+void fl_load_save_file(int player_id, int level_id);
+
+#endif

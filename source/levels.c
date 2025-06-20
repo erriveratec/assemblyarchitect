@@ -1,0 +1,188 @@
+#include <assert.h>
+#include <stdbool.h>
+#include "levels.h"
+#include "list.h"
+#include "aux.h"
+#include "dbg.h"
+#include "buffers_bf.h"
+
+
+// At the end of the code execution, the output buffer must be compared 
+// against this list.
+static List *win_list = NULL;
+
+List *get_win_list();
+void add_to_win_list(int value, int type);
+
+
+/* Function: add_to_win_list
+ * -----------------------------------------------------------------------------
+ * Arguments:
+ * 	value: The input value to be added.
+ *	type: The type of input to be added.
+ *	
+ * Return:
+ *	void
+ */
+void add_to_win_list(int value, int type)
+{
+	List *win = get_win_list();
+
+	assert(win != NULL && "win pointer is NULL");
+	
+	value_box_t *new_input = malloc(sizeof(value_box_t));
+	check_mem(new_input);
+
+	new_input->value = value;
+	new_input->type = type;
+
+	List_push(win, new_input);
+
+error:
+	return;
+}
+
+/* Function: create_win_list
+ *------------------------------------------------------------------------------
+ * This function creates and initializes the input list.
+ *
+ * Arguments:
+ *	None.
+ *
+ * Return:
+ *	Void.
+ *
+ */
+void create_win_list()
+{
+	assert(win_list == NULL && "The register list is not NULL");
+	win_list = List_create();
+	check_mem(win_list);
+
+error:
+	return;
+}
+
+/* Function: reset_win_list
+ *------------------------------------------------------------------------------
+ * Arguments:
+ *	void.
+ *
+ * Return:
+ *	void.
+ */
+void reset_win_list()
+{
+	List_clear_destroy(win_list);
+	win_list = NULL;
+	create_win_list();
+}
+
+/* Function: get_win_list
+ *------------------------------------------------------------------------------
+ * Arguments:
+ *	None.
+ *
+ * Return:
+ *	Pointer to input list.
+ */
+List *get_win_list()
+{
+	return win_list;
+}
+
+/* Function: print_win_list
+ *------------------------------------------------------------------------------
+ * Arguments:
+ *	None.
+ *
+ * Return:
+ *	
+ */
+void print_win_list()
+{
+	List *win_list = get_win_list();
+
+	assert(win_list != NULL && "Win list pointer is NULL");
+
+	int win_list_size = List_count(win_list);
+
+	printf("The size of the list is %d\n", win_list_size);	
+
+	LIST_FOREACH(win_list, first, next, cur){
+		value_box_t *cur_input = cur->value;
+		printf("List value: %d\n", cur_input->value);
+	}
+}
+
+/* Function: set_level_1_win_list
+ *------------------------------------------------------------------------------
+ * Arguments:
+ *	None.
+ *
+ * Return:
+ *	Pointer to the object that will be assigned as a default reg operand.
+ */
+void set_level_1_win_list()
+{
+	List *input_list = get_input_list();
+	List *win_list = get_win_list();
+
+	assert(input_list != NULL && "Input list pointer is NULL");
+	assert(win_list != NULL && "Win list pointer is NULL");
+
+	int input_list_size = List_count(input_list);
+	int win_list_size = List_count(win_list);
+
+	assert(input_list_size > 0 && "The size of the input list is incorrect");
+	assert(win_list_size == 0 && "The win list has elements");
+
+	LIST_FOREACH(input_list, first, next, cur){
+		value_box_t *cur_input = cur->value;
+		value_box_t *new_win = malloc(sizeof(value_box_t));
+		new_win->value = cur_input->value;
+		new_win->type = cur_input->type;
+		List_push(win_list, new_win);
+	}
+}
+
+/* Function: check_if_win
+ *------------------------------------------------------------------------------
+ * Arguments:
+ *	None.
+ *
+ * Return:
+ *	True if the win condition is met, false if otherwise
+ */
+bool check_if_win()
+{
+	List *output_list = get_output_list();
+	List *win_list = get_win_list();
+
+	assert(output_list != NULL && "Output list pointer is NULL");
+	assert(win_list != NULL && "Win list pointer is NULL");
+
+	int output_list_size = List_count(output_list);
+	int win_list_size = List_count(win_list);
+
+	assert(win_list_size > 0 && "The win list has no elements");
+
+	if (output_list_size != win_list_size || output_list_size == 0){
+		return false;
+	}
+
+	ListNode *win_node = win_list->first;
+
+	LIST_FOREACH(output_list, first, next, cur){
+		value_box_t *output = cur->value;
+		value_box_t *win_val = win_node->value;
+//		printf("output val: %d\n", output->value);
+//		printf("win val: %d\n", win->value);
+
+		if (output->value != win_val->value){
+			return false;
+		}
+		win_node = win_node->next;
+	}
+	return true;
+}
