@@ -4,7 +4,7 @@
 #include <assert.h>
 #include "aux.h"
 #include "dbg.h"
-#include "texture.h"
+#include "draw_dw.h"
 #include "dimensions.h"
 
 char *space_text =" ";

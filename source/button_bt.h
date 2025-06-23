@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include "texture.h"
+#include "draw_dw.h"
 #include "aux.h"
 #include "list.h"
 #include "mouse_ms.h"

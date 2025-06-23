@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include "dbg.h"
 #include "registers_rg.h"
-#include "texture.h"
+#include "draw_dw.h"
 #include "aux.h"
 #include "code_line_cl.h"
 #include "dimensions.h"

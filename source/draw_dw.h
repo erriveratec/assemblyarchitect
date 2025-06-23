@@ -1,5 +1,5 @@
-#ifndef TEXTURE_H
-#define TEXTURE_H
+#ifndef DRAW_H
+#define DRAW_H
 #include <SDL.h>
 
 
@@ -23,10 +23,10 @@ void draw_text(int x, int y, float s, SDL_Color c, char *t);
 void draw_text_fit_height(int x, int y, int h, SDL_Color color, char *text);
 void draw_text_fit_width(int x, int y, int w, SDL_Color color, char *text);
 void draw_rectangle(int x, int y, int w, int h, SDL_Color c);
-void draw_filled_rectangle(int x, int y, int w, int h, SDL_Color c);
+void dw_draw_filled_rectangle(int x, int y, int w, int h, SDL_Color inside,
+						       SDL_Color outline);
 void draw_wrapped_text_fits_height(int x, int y, int w, int h, SDL_Color c, 
 								   char *t);
-
 
 extern SDL_Color COLOR_WHITE;
 extern SDL_Color COLOR_BLACK;

@@ -6,7 +6,7 @@
 #include <string.h>
 #include "sdl_config.h"
 #include "aux.h"
-#include "texture.h"
+#include "draw_dw.h"
 #include "stage_buttons.h"
 #include "registers_rg.h"
 #include "buffers_bf.h"

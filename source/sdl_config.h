@@ -3,7 +3,7 @@
 
 #include <SDL.h>
 #include <SDL_ttf.h>
-#include "texture.h"
+#include "draw_dw.h"
 #include "dimensions.h"
 
 extern SDL_Window *g_window;

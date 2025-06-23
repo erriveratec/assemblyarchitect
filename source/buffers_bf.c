@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include "buffers_bf.h"
-#include "texture.h"
+#include "draw_dw.h"
 #include "list.h"
 #include "dbg.h"
 #include "aux.h"

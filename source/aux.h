@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include "list.h"
-#include "texture.h"
+#include "draw_dw.h"
 
 // For values not assigned
 #define NO_VALUE 0x80000001

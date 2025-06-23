@@ -2,7 +2,7 @@
 #include <assert.h>
 #include "game_mechanics_mc.h"
 #include "aux.h"
-#include "texture.h"
+#include "draw_dw.h"
 #include "code_window_cw.h"
 #include "mouse_ms.h"
 #include "dimensions.h"
@@ -128,8 +128,8 @@ void draw_avatar()
 	if (g_avatar.value.visible_box == true){
 		draw_value_box(&g_avatar.value);
 	}
-	draw_filled_rectangle(g_avatar.box.x, g_avatar.box.y, 
-						  g_avatar.box.w, g_avatar.box.h, COLOR_WHITE);
+	dw_draw_filled_rectangle(g_avatar.box.x, g_avatar.box.y, g_avatar.box.w, 
+						  	 g_avatar.box.h, COLOR_WHITE, COLOR_WHITE);
 }
 
 /* Function: execution_counter

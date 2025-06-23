@@ -3,7 +3,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
-#include "texture.h"
+#include "draw_dw.h"
 #include "sdl_config.h"
 #include "aux.h"
 #include "dbg.h"
@@ -409,23 +409,31 @@ void draw_rectangle(int x, int y, int w, int h, SDL_Color c)
 	SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
 }
 
-/* Function: draw_filled_rectangle
+/* Function: dw_ draw_filled_rectangle
  *----------------------------------------------------------------------------- 
+ * Draw rectangle with filled content, a color for tthe outline can be 
+ * specified
+ *
  * Arguments:
  *	x: position x of the upper left corner.
  *	y: position y of the upper left corner.
  *	w: width of the rectangle.
  *  h: height of the rectangle.
- *	c: color of the rectangle.
+ *	inside: color of the inside of the rectangle.
+ * 	outline: color of the outline of the rectangle.
  *
  * Return:
  *	Void
  */
-void draw_filled_rectangle(int x, int y, int w, int h, SDL_Color c)
+void dw_draw_filled_rectangle(int x, int y, int w, int h, SDL_Color inside,
+							  SDL_Color outline)
 {
 	SDL_Rect rect = {x,y,w,h};
-	SDL_SetRenderDrawColor(g_renderer, c.r, c.g, c.b, c.a);
+	SDL_SetRenderDrawColor(g_renderer, inside.r, inside.g, inside.b, inside.a);
 	SDL_RenderFillRect(g_renderer, &rect);
+	SDL_SetRenderDrawColor(g_renderer, outline.r, outline.g, outline.b, 
+						   outline.a);
+	SDL_RenderDrawRect(g_renderer, &rect);
 	SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
 }
 

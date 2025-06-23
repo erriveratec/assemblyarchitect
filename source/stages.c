@@ -23,9 +23,11 @@
 #define ESC_MENU_TEXT2 "Toggle Full Screen"
 #define ESC_MENU_TEXT3 "Exit Game"
 
+// Escape option menu variables
+bool g_quit = false;
+
 int g_player;
 bool g_escape_menu = false;
-
 
 typedef struct level_flags_t{
 	bool play;
@@ -51,6 +53,36 @@ void display_run_result(bool win_check);
 bool get_escape_menu_state();
 void display_escape_menu(bool menu_variable_state);
 
+/* Function: set_quit_game_value
+ * ----------------------------------------------------------------------------
+ * Sets the quit game val to tru
+ *
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	void.	
+ */
+void set_quit_game()
+{
+	g_quit = true;
+}
+
+/* Function: get_quit_game_value
+ * ----------------------------------------------------------------------------
+ * Gets the quit game val to tru
+ *
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	Bool with the state of the quit game variable	
+ */
+bool get_quit_game_value()
+{
+	return g_quit;
+}
+
 /* Function: player_pressed_escape_key
  * ----------------------------------------------------------------------------
  * This function inverts the state of the escape menu flag in case that the 
@@ -62,7 +94,7 @@ void display_escape_menu(bool menu_variable_state);
  * Return:
  *	void.	
  */
-void player_pressed_escape_key()
+void toggle_escape_menu()
 {
 	g_escape_menu = !g_escape_menu;
 }
@@ -257,6 +289,7 @@ int stage_select_player()
 		bt_destroy_button(player_3);
 	}
 	
+	display_escape_menu(get_escape_menu_state());
 	error:
 	return ret_val;
 }
@@ -342,6 +375,9 @@ int stage_select_level()
 		level_button->active = !level_button->active;
 		return LEVEL_1;
 	}
+	
+	display_escape_menu(get_escape_menu_state());
+	
 	return LEVEL_SELECTION;
 }
 
@@ -564,6 +600,7 @@ int stage_level(int level_id)
 		reset_level(level_id, &flags, &run_finished);		
 	}
 	 
+	display_escape_menu(get_escape_menu_state());
 	return LEVEL_1;
 }
 
@@ -587,8 +624,8 @@ void display_escape_menu(bool menu_variable_state)
 
 	if (menu_variable_state == true){
 		
-		draw_rectangle(ESC_MENU_BOX_X, ESC_MENU_BOX_Y, ESC_MENU_BOX_W, 
-					   ESC_MENU_BOX_H, COLOR_WHITE);
+		dw_draw_filled_rectangle(ESC_MENU_BOX_X, ESC_MENU_BOX_Y, ESC_MENU_BOX_W, 
+					   ESC_MENU_BOX_H, COLOR_BLACK, COLOR_WHITE);
 
 		bool player_chosen = false;
 
@@ -625,23 +662,19 @@ void display_escape_menu(bool menu_variable_state)
 
 		if (true == check_mouse_click_in_button(player_1)){
 			player_chosen = true;
+			toggle_escape_menu();
 		} else if (true == check_mouse_click_in_button(player_2)){
 			player_chosen = true;
 		} else if (true == check_mouse_click_in_button(player_3)){
 			player_chosen = true;
+			set_quit_game();
 		}
 		if (player_chosen == true){
 			bt_destroy_button(player_1);
 			bt_destroy_button(player_2);
 			bt_destroy_button(player_3);
+			buttons_created = false;
 		}
-		
-		if (player_chosen == true){
-			bt_destroy_button(player_1);
-			bt_destroy_button(player_2);
-			bt_destroy_button(player_3);
-		}
-
 	}	
 	error:	
 	return;

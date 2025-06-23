@@ -25,7 +25,6 @@ int main(int argc, char *args[])
 	fl_save_file_init();
 
 	int sleep = 0;
-	int quit = false;
 	int state = STUDIO_SCREEN;
 
 	Uint64 next_game_tick = SDL_GetTicks64();
@@ -33,7 +32,7 @@ int main(int argc, char *args[])
 	ms_init_mouse();
 	// Render loop
 
-	while (false == quit){
+	while (get_quit_game_value() == false){
 		ms_clear_mouse_values();
 		
 		// Check for new events every frame
@@ -55,12 +54,12 @@ int main(int argc, char *args[])
 					ms_mouse_wheel_handler(event);
 					break;
 				case SDL_QUIT:
-					quit = true;
+					set_quit_game();
 					break;
 				case SDL_KEYDOWN:
 					if (event.key.repeat == 0 && event.key.keysym.sym ==
 					    SDLK_ESCAPE){
-						player_pressed_escape_key();
+						toggle_escape_menu();
 					}
 					break;
 				default:
@@ -119,3 +118,4 @@ int main(int argc, char *args[])
 	}
 
 }
+
