@@ -5,6 +5,26 @@
 #define SCREEN_WIDTH 1366
 #define SCREEN_HEIGHT 768
 
+/*******************************ESCAPE MENU************************************/
+#define ESC_MENU_BOX_W 600
+#define ESC_MENU_BOX_H 300
+#define ESC_MENU_BOX_X (SCREEN_WIDTH - ESC_MENU_BOX_W)/2
+#define ESC_MENU_BOX_Y (SCREEN_HEIGHT - ESC_MENU_BOX_H)/2
+
+
+#define ESC_MENU_BUTTON_W 500
+#define ESC_MENU_BUTTON_H 60
+#define ESC_MENU_BUTTON_X ESC_MENU_BOX_X + (ESC_MENU_BOX_W - \
+						  ESC_MENU_BUTTON_W)/2
+
+#define ESC_MENU_BUTTON1_Y ESC_MENU_BOX_Y + (ESC_MENU_BOX_H - \
+						   3*ESC_MENU_BUTTON_H)/4
+#define ESC_MENU_BUTTON2_Y ESC_MENU_BUTTON1_Y + (ESC_MENU_BOX_H - \
+						   3*ESC_MENU_BUTTON_H)/4 + ESC_MENU_BUTTON_H
+#define ESC_MENU_BUTTON3_Y ESC_MENU_BUTTON2_Y + (ESC_MENU_BOX_H - \
+						   3*ESC_MENU_BUTTON_H)/4 + ESC_MENU_BUTTON_H
+
+
 /*******************************STUDIO NAME SCREEN*****************************/
 #define STUDIO_NAME_TEXT "One Man Studio"
 #define STUDIO_NAME_X (SCREEN_WIDTH - STUDIO_NAME_W)/2

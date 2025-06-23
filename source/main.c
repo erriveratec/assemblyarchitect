@@ -54,6 +54,15 @@ int main(int argc, char *args[])
 				case SDL_MOUSEWHEEL:
 					ms_mouse_wheel_handler(event);
 					break;
+				case SDL_QUIT:
+					quit = true;
+					break;
+				case SDL_KEYDOWN:
+					if (event.key.repeat == 0 && event.key.keysym.sym ==
+					    SDLK_ESCAPE){
+						player_pressed_escape_key();
+					}
+					break;
 				default:
 					break;
 			}
@@ -62,12 +71,6 @@ int main(int argc, char *args[])
 		// I/O handling
 		const Uint8 *keystate = SDL_GetKeyboardState(NULL);
 		
-		//call the mouse handler
-	
-		if (keystate[SDL_SCANCODE_ESCAPE]){
-			quit = true;
-		}
-
 		// Draw background
 		SDL_RenderClear(g_renderer);
 		// before color define as 0x000000FF
@@ -78,23 +81,18 @@ int main(int argc, char *args[])
 			case STUDIO_SCREEN:
 				state = stage_studio(studio_screen_time, SDL_GetTicks64());
 				break;
-
 			case TITLE_SCREEN:
 				state = stage_title(keystate);
 				break;
-			
 			case SELECT_PLAYER_SCREEN:
 				state = stage_select_player();
 				break;
-
 			case LEVEL_SELECTION:
 				state = stage_select_level();	
 				break;
-
 			case LEVEL_1:
 				state = stage_level(LEVEL_1);
 				break;
-
 		}
 
 		SDL_UpdateTexture(g_screen_texture,

@@ -19,7 +19,13 @@
 
 #define STUDIO_SCREEN_DELAY 1000 // 1 sec
 
+#define ESC_MENU_TEXT1 "Return to Game"
+#define ESC_MENU_TEXT2 "Toggle Full Screen"
+#define ESC_MENU_TEXT3 "Exit Game"
+
 int g_player;
+bool g_escape_menu = false;
+
 
 typedef struct level_flags_t{
 	bool play;
@@ -42,7 +48,39 @@ static void flag_handler(level_flags_t *flags, int clicked_button);
 static void edit_code(int level_id);
 void reset_level(int level_id, level_flags_t *flags, bool *run_finished);
 void display_run_result(bool win_check);
+bool get_escape_menu_state();
+void display_escape_menu(bool menu_variable_state);
 
+/* Function: player_pressed_escape_key
+ * ----------------------------------------------------------------------------
+ * This function inverts the state of the escape menu flag in case that the 
+ * player has pressed the escape key.
+ *
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	void.	
+ */
+void player_pressed_escape_key()
+{
+	g_escape_menu = !g_escape_menu;
+}
+
+/* Function: get_escape_menu_state
+ * ----------------------------------------------------------------------------
+ * This function return the boolean state of the state.
+ *
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	Boolean with the state fo the escape_menu variable
+ */
+bool get_escape_menu_state()
+{
+	return g_escape_menu;
+}
 
 /* Function: reset_level_flags
  * -------------------------------------
@@ -169,24 +207,30 @@ int stage_select_player()
 	static button_t *player_1;
 	static button_t *player_2;
 	static button_t *player_3;
+	int ret_val = SELECT_PLAYER_SCREEN;
+	bool player_chosen = false;
 
 	if (buttons_created == false){
 		buttons_created = true;
 		texture_t *b1_texture = load_texture_from_rendered_text(PLAYER_1_TEXT, 
-															COLOR_WHITE);
+								COLOR_WHITE);
 		check_mem(b1_texture);
 		texture_t *b2_texture = load_texture_from_rendered_text(PLAYER_2_TEXT, 
-															COLOR_WHITE);
+								COLOR_WHITE);
+		check_mem(b2_texture);
 		texture_t *b3_texture = load_texture_from_rendered_text(PLAYER_3_TEXT, 
-															COLOR_WHITE);
+								COLOR_WHITE);
+		check_mem(b3_texture);
 
 		player_1 = create_button(P1_BUTTON_X, P1_BUTTON_Y, P_BUTTON_H, 
-								 P_BUTTON_W, false, true, b1_texture);
+				   P_BUTTON_W, false, true, b1_texture);
 		check_mem(player_1);
 		player_2 = create_button(P2_BUTTON_X, P2_BUTTON_Y, P_BUTTON_H, 
-								 P_BUTTON_W, false, true, b2_texture);
+				   P_BUTTON_W, false, true, b2_texture);
+		check_mem(player_2);
 		player_3 = create_button(P3_BUTTON_X, P3_BUTTON_Y, P_BUTTON_H, 
-								 P_BUTTON_W, false, true, b3_texture);
+			       P_BUTTON_W, false, true, b3_texture);
+		check_mem(player_3);
 	}
 	
 	draw_text_fit_height(SELECT_PLAYER_TEXT_X, SELECT_PLAYER_TEXT_Y, 
@@ -197,23 +241,40 @@ int stage_select_player()
 	bt_draw_button(player_3);
 
 	if (true == check_mouse_click_in_button(player_1)){
-		player_1->active = !player_1->active;
+		player_chosen = true;
 		g_player = FL_PLAYER_1;
-		return LEVEL_SELECTION;
-	}
-	if (true == check_mouse_click_in_button(player_2)){
-		player_2->active = !player_2->active;
+	} else if (true == check_mouse_click_in_button(player_2)){
+		player_chosen = true;
 		g_player = FL_PLAYER_2;
-		return LEVEL_SELECTION;
-	}
-	if (true == check_mouse_click_in_button(player_3)){
-		player_3->active = !player_3->active;
+	} else if (true == check_mouse_click_in_button(player_3)){
+		player_chosen = true;
 		g_player = FL_PLAYER_3;
-		return LEVEL_SELECTION;
 	}
-
+	if (player_chosen == true){
+		ret_val = LEVEL_SELECTION;		
+		bt_destroy_button(player_1);
+		bt_destroy_button(player_2);
+		bt_destroy_button(player_3);
+	}
+	
 	error:
-	return SELECT_PLAYER_SCREEN;
+	return ret_val;
+}
+
+/* Function: escape_menu
+ * -----------------------------------------------------------------------------
+ * This functioon displays on the screen the escape menu if the player pressed
+ * the escape key.
+ *
+ * Arguments:
+ *	None;
+ *
+ * Return:
+ *	Void.
+ */
+static void escape_menu(){
+
+
 }
 
 /* Function: stage_title
@@ -229,17 +290,20 @@ int stage_select_player()
  */
 int stage_title(const Uint8 *keystate)
 {
-
+	int ret_val;
 	draw_text_fit_width(GAME_TITLE_X, GAME_TITLE_Y, GAME_TITLE_W, COLOR_WHITE, 
 						 GAME_TITLE_TEXT);
 	draw_text_fit_width(SPACE_TEXT_X, SPACE_TEXT_Y, SPACE_TEXT_W, COLOR_WHITE, 
 						 PRESS_SPACE_TEXT);
 
 	if (keystate[SDL_SCANCODE_SPACE]){
-		return SELECT_PLAYER_SCREEN;
+		ret_val = SELECT_PLAYER_SCREEN;
 	} else {
-		return TITLE_SCREEN;
+		ret_val = TITLE_SCREEN;
 	}
+
+	display_escape_menu(get_escape_menu_state());
+	return ret_val;
 }
 
 
@@ -501,6 +565,86 @@ int stage_level(int level_id)
 	}
 	 
 	return LEVEL_1;
+}
+
+/* Function: display_escape_menu
+ * -----------------------------------------------------------------------------
+ * This function is called in all the stages, it will show the escape menu 
+ * according to the state of the g_escape_menu variable.
+ * 
+ * Arguments:
+ *	menu_variable_state: The state of the show menu variable.
+ *
+ * Return:
+ *	void
+ */
+void display_escape_menu(bool menu_variable_state)
+{
+	static bool buttons_created = false;
+	static button_t *player_1;
+	static button_t *player_2;
+	static button_t *player_3;
+
+	if (menu_variable_state == true){
+		
+		draw_rectangle(ESC_MENU_BOX_X, ESC_MENU_BOX_Y, ESC_MENU_BOX_W, 
+					   ESC_MENU_BOX_H, COLOR_WHITE);
+
+		bool player_chosen = false;
+
+		if (buttons_created == false){
+			buttons_created = true;
+			texture_t *b1_texture = load_texture_from_rendered_text(
+									ESC_MENU_TEXT1, COLOR_WHITE);
+			check_mem(b1_texture);
+			texture_t *b2_texture = load_texture_from_rendered_text(
+									ESC_MENU_TEXT2, COLOR_WHITE);
+			check_mem(b2_texture);
+			texture_t *b3_texture = load_texture_from_rendered_text(
+									ESC_MENU_TEXT3, COLOR_WHITE);
+			check_mem(b3_texture);
+
+			player_1 = create_button(ESC_MENU_BUTTON_X, ESC_MENU_BUTTON1_Y, 
+									 ESC_MENU_BUTTON_W, ESC_MENU_BUTTON_H, 
+									 false, true, b1_texture);
+			check_mem(player_1);
+			player_2 = create_button(ESC_MENU_BUTTON_X, ESC_MENU_BUTTON2_Y, 
+									 ESC_MENU_BUTTON_W, ESC_MENU_BUTTON_H, 
+									 false, true, b2_texture);
+			check_mem(player_2);
+			player_3 = create_button(ESC_MENU_BUTTON_X, ESC_MENU_BUTTON3_Y, 
+									 ESC_MENU_BUTTON_W, ESC_MENU_BUTTON_H, 
+									 false, true, b3_texture);
+			check_mem(player_3);
+		}
+		
+		
+		bt_draw_button(player_1);
+		bt_draw_button(player_2);
+		bt_draw_button(player_3);
+
+		if (true == check_mouse_click_in_button(player_1)){
+			player_chosen = true;
+		} else if (true == check_mouse_click_in_button(player_2)){
+			player_chosen = true;
+		} else if (true == check_mouse_click_in_button(player_3)){
+			player_chosen = true;
+		}
+		if (player_chosen == true){
+			bt_destroy_button(player_1);
+			bt_destroy_button(player_2);
+			bt_destroy_button(player_3);
+		}
+		
+		if (player_chosen == true){
+			bt_destroy_button(player_1);
+			bt_destroy_button(player_2);
+			bt_destroy_button(player_3);
+		}
+
+	}	
+	error:	
+	return;
 }
 
 /* Function: display_run_result
