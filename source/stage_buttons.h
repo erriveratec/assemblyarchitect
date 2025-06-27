@@ -23,6 +23,6 @@ extern texture_t *stop_button;
 extern texture_t *step_back_button;
 extern texture_t *play_button;
 extern texture_t *step_forward_button;
-
+extern texture_t *return_button;
 
 #endif

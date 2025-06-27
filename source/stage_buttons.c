@@ -10,7 +10,7 @@ texture_t *stop_button = NULL;
 texture_t *step_back_button = NULL;
 texture_t *play_button = NULL;
 texture_t *step_forward_button = NULL;
-
+texture_t *return_button = NULL;
 
 typedef struct stage_buttons_t {
 	button_t *stop;
@@ -73,8 +73,8 @@ void draw_stage_buttons(int code_size)
 	bt_draw_button(stage_buttons->step_forward);
 }
 
-/* Function: initialize_stage_levels
- * -------------------------------------
+/* Function: initialize_stage_buttons
+ * -----------------------------------------------------------------------------
  * Arguments:
  * 	None.
  *
@@ -86,7 +86,6 @@ void initialize_stage_buttons()
 	stage_buttons = malloc(sizeof(stage_buttons_t));
 
 	stage_buttons->stop = create_button(STAGE_BUTTON_X, STAGE_BUTTON_HIDDEN_Y,
-
 						  STAGE_BUTTON_W, STAGE_BUTTON_H, false, false, 
 						  stop_button);
 

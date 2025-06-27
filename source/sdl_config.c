@@ -142,6 +142,13 @@ int load_media()
 		return FAIL;
 	}
 
+	return_button = load_texture_from_file("img/return.png");
+	if (return_button == NULL){
+		printf("Could not load the level image SDL_Error: %s\n",
+				SDL_GetError());
+		return FAIL;
+	}
+
 	//Open the font
 	g_font = TTF_OpenFont("AnomalyMono.ttf", 130); //96 old value point size
 	//g_font = TTF_OpenFont("EnigmaSans.ttf", 96); //96 old value point size
