@@ -7,7 +7,7 @@
 #include "sdl_config.h"
 #include "aux.h"
 #include "draw_dw.h"
-#include "stage_buttons.h"
+#include "stage_buttons_sb.h"
 #include "registers_rg.h"
 #include "buffers_bf.h"
 

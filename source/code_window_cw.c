@@ -37,7 +37,6 @@ static void code_box_height_adjust();
 static void code_box_position_adjust();
 static int get_first_code_line_y();
 static int get_code_line_x();
-void create_code_list();
 List *get_code_list();
 
 /* Function: cw_add_saved_line
@@ -225,7 +224,7 @@ int cw_get_code_list_size()
 	return List_count(code_list);
 }
 
-/* Function: create_code_list
+/* Function: cw_create_code_list
  *------------------------------------------------------------------------------
  * This function creates and initializes the code list.
  *
@@ -236,7 +235,7 @@ int cw_get_code_list_size()
  *	Void.
  *
  */
-void create_code_list()
+void cw_create_code_list()
 {
 	assert(code_list == NULL && "The register list is not NULL");
 	code_list = List_create();
@@ -528,7 +527,7 @@ void set_challenge_text(char *text)
 	strcpy(challenge_text, text);
 }
 
-/* Function: set_code_box
+/* Function: cw_set_code_box
  * -----------------------------------------------------------------------------
  * This function is called to set the value on the code box object
  *
@@ -541,7 +540,7 @@ void set_challenge_text(char *text)
  * Return:
  *	void
  */
-void set_code_box(int x, int y, int w, int h)
+void cw_set_code_box(int x, int y, int w, int h)
 {
 	code_box.x = x;
 	code_box.y = y;

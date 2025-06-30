@@ -1,8 +1,8 @@
 vim -c ":edit main.c | vsplit TODO.txt |
 tabnew stages.c | vsplit stages.h | 
 tabnew game_mechanics_mc.c | vsplit game_mechanics_mc.h | 
-tabnew levels.c | vsplit levels.h | 
-tabnew stage_buttons.c | vsplit stage_buttons.h |
+tabnew levels_lv.c | vsplit levels_lv.h | 
+tabnew stage_buttons_sb.c | vsplit stage_buttons_sb.h |
 tabnew registers_rg.c | vsplit registers_rg.h |
 tabnew buffers_bf.c | vsplit buffers_bf.h |
 tabnew instruction_window_iw.c | vsplit instruction_window_iw.h |

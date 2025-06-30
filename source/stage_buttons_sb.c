@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "stage_buttons.h"
+#include "stage_buttons_sb.h"
 #include "button_bt.h"
 #include "dimensions.h"
 
@@ -85,7 +85,7 @@ void draw_return_button()
 	bt_draw_button(ret_button);
 }
 
-/* Function: initialize_stage_buttons
+/* Function: sb_initialize_return_buttons
  * -----------------------------------------------------------------------------
  * This function initialixses the return button that is used and present in 
  * several stages.
@@ -96,14 +96,14 @@ void draw_return_button()
  * Return:
  *	Void.
  */
-void initialize_return_button()
+void sb_initialize_return_button()
 {
 	ret_button = malloc(sizeof(button_t));
 	ret_button = create_button(RET_BUTTON_X, RET_BUTTON_Y, RET_BUTTON_W, 
 								  RET_BUTTON_H, false, true, return_button);
 	return;
 }
-/* Function: initialize_stage_buttons
+/* Function: sb_initialize_stage_buttons
  * -----------------------------------------------------------------------------
  * Arguments:
  * 	None.
@@ -111,7 +111,7 @@ void initialize_return_button()
  * Return:
  *	Void.
  */
-void initialize_stage_buttons()
+void sb_initialize_stage_buttons()
 {
 	stop = malloc(sizeof(button_t));
 	stop = create_button(STAGE_BUTTON_X, STAGE_BUTTON_HIDDEN_Y,STAGE_BUTTON_W, 

@@ -21,7 +21,7 @@ enum LevelStates{
 };
 
 void set_level_1_win_list();
-void create_win_list();
+void lv_create_win_list();
 void reset_win_list();
 void print_win_list();
 bool check_if_win();

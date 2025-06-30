@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <stdbool.h>
-#include "levels.h"
+#include "levels_lv.h"
 #include "list.h"
 #include "aux.h"
 #include "dbg.h"
@@ -42,7 +42,7 @@ error:
 	return;
 }
 
-/* Function: create_win_list
+/* Function: lv_create_win_list
  *------------------------------------------------------------------------------
  * This function creates and initializes the input list.
  *
@@ -53,7 +53,7 @@ error:
  *	Void.
  *
  */
-void create_win_list()
+void lv_create_win_list()
 {
 	assert(win_list == NULL && "The register list is not NULL");
 	win_list = List_create();
@@ -75,7 +75,7 @@ void reset_win_list()
 {
 	List_clear_destroy(win_list);
 	win_list = NULL;
-	create_win_list();
+	lv_create_win_list();
 }
 
 /* Function: get_win_list

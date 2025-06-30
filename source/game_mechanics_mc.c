@@ -9,7 +9,7 @@
 #include "registers_rg.h" 
 #include "buffers_bf.h"
 #include "dbg.h"
-#include "levels.h"
+#include "levels_lv.h"
 
 #define EMPTY 0
 
@@ -37,7 +37,6 @@ static void execute_instruction(code_line_t *line);
 bool move_avatar_to_operand(int op_id);
 int get_operand_x_dest(int op_id);
 int get_operand_y_dest(int op_id);
-void draw_avatar();
 static value_box_t get_operand_value_box(int op_id);
 void set_operand_value_box(int op_id, value_box_t val);
 void operate_instruction(code_line_t *line);
@@ -47,7 +46,7 @@ static void handle_destiny_operand(code_line_t *line);
 static bool retrieve_operand();
 static bool is_operand_retrievable(int id);
 
-/* Function: generate_win_condition_list
+/* Function: mc_generate_win_condition_list
  * -----------------------------------------------------------------------------
  * Arguments:
  * 	level: The level of the win condition that will be generated.
@@ -55,7 +54,7 @@ static bool is_operand_retrievable(int id);
  * Return:
  *	void
  */
-void generate_win_condition_list(int level)
+void mc_generate_win_condition_list(int level)
 {
 	switch (level){
 		case LEVEL_1:
@@ -67,7 +66,7 @@ void generate_win_condition_list(int level)
 
 }
 
-/* Function: reset_avatar
+/* Function: mc_reset_avatar
  * -------------------------------------
  * Arguments:
  * 	void.
@@ -75,7 +74,7 @@ void generate_win_condition_list(int level)
  * Return:
  *	true: used for the caller of the function.
  */
-void reset_avatar()
+void mc_reset_avatar()
 {
 	g_avatar.box.x = AVATAR_START_X;
 	g_avatar.box.y = AVATAR_START_Y;
@@ -115,7 +114,7 @@ void reset_avatar_no_pos()
 	g_avatar.value.box.y = g_avatar.box.y - AVATAR_H;
 }
 
-/* Function: draw_avatar
+/* Function: mc_draw_avatar
  * ----------------------------------------------------------------------------
  * Arguments:
  * 	avatar: the avatar that is going to be drawn
@@ -123,7 +122,7 @@ void reset_avatar_no_pos()
  * Return:
  *	void.
  */
-void draw_avatar()
+void mc_draw_avatar()
 {
 	if (g_avatar.value.visible_box == true){
 		draw_value_box(&g_avatar.value);

@@ -220,7 +220,7 @@ error:
 	return;
 }
 
-/* Function: set_input_buffer_button
+/* Function: bf_set_input_buffer_button
  *------------------------------------------------------------------------------
  * Arguments:
  *	x: x coordinate.
@@ -231,7 +231,7 @@ error:
  * Return:
  *	Void.
  */
-void set_input_buffer_button(int x, int y, int w, int h)
+void bf_set_input_buffer_button(int x, int y, int w, int h)
 {
 	assert(w > 0 && h > 0 && "Width and height must be > 0");
 	input_buffer_button.x = x;
@@ -240,7 +240,7 @@ void set_input_buffer_button(int x, int y, int w, int h)
 	input_buffer_button.h = h;
 }
 
-/* Function: set_output_buffer_button
+/* Function: bf_set_output_buffer_button
  *------------------------------------------------------------------------------
  * Arguments:
  *	x: x coordinate.
@@ -251,7 +251,7 @@ void set_input_buffer_button(int x, int y, int w, int h)
  * Return:
  *	Void.
  */
-void set_output_buffer_button(int x, int y, int w, int h)
+void bf_set_output_buffer_button(int x, int y, int w, int h)
 {
 	assert(w > 0 && h > 0 && "Width and height must be > 0");
 	output_buffer_button.x = x;

@@ -12,8 +12,8 @@
 #include "file_fl.h"
 #include "dimensions.h"
 #include "sdl_config.h"
-#include "stage_buttons.h"
-#include "levels.h"
+#include "stage_buttons_sb.h"
+#include "levels_lv.h"
 #include "mouse_ms.h"
 #include "dbg.h"
 
@@ -52,6 +52,7 @@ void reset_level(int level_id, level_flags_t *flags, bool *run_finished);
 void display_run_result(bool win_check);
 bool get_escape_menu_state();
 void display_escape_menu(bool menu_variable_state);
+void destroy_level();
 
 /* Function: set_quit_game_value
  * ----------------------------------------------------------------------------
@@ -144,32 +145,71 @@ void reset_level_flags(level_flags_t *flags)
 int level_initialization(int level_id)
 {
 	assert(level_id > LEVEL_MIN && level_id < LEVEL_MAX && "Invalid stage id");
-	initialize_stage_buttons();
+	
+	sb_initialize_stage_buttons();
 	bf_set_input_box(BUFFER_BOX_X, INPUT_BUFFER_BOX_Y, BUFFER_BOX_W, BUFFER_BOX_H);
 	bf_set_output_box(BUFFER_BOX_X, OUTPUT_BUFFER_BOX_Y, BUFFER_BOX_W, 
 				   BUFFER_BOX_H);
 
 	bf_create_input_list();
 	bf_create_output_list();
-	create_win_list();
+	lv_create_win_list();
 	fl_file_initialize_level(level_id);
-	set_input_buffer_button(BUFFER_BOX_X, INPUT_BUFFER_TEXT_Y, BUFFER_BOX_W, 
+	bf_set_input_buffer_button(BUFFER_BOX_X, INPUT_BUFFER_TEXT_Y, BUFFER_BOX_W, 
 							BUFFER_TEXT_H + BUFFER_BOX_H);
-	set_output_buffer_button(BUFFER_BOX_X, OUTPUT_BUFFER_BOX_Y, BUFFER_BOX_W, 
+	bf_set_output_buffer_button(BUFFER_BOX_X, OUTPUT_BUFFER_BOX_Y, BUFFER_BOX_W, 
 							 BUFFER_TEXT_H + BUFFER_BOX_H);
 	bf_initialize_buffer_operands();
 
-	set_code_box(CODE_BOX_X, CODE_BOX_Y, CODE_BOX_W, CODE_BOX_H);
-	set_instruction_box(INS_BOX_X, INS_BOX_Y, INS_BOX_W, INS_BOX_H);
+	cw_set_code_box(CODE_BOX_X, CODE_BOX_Y, CODE_BOX_W, CODE_BOX_H);
+	iw_set_instruction_box(INS_BOX_X, INS_BOX_Y, INS_BOX_W, INS_BOX_H);
 	
-	generate_win_condition_list(level_id);
-	create_code_list();	
+	mc_generate_win_condition_list(level_id);
+	cw_create_code_list();	
 	fl_load_save_file(g_player, level_id);
-	reset_avatar();
+	mc_reset_avatar();
 
 	return true;
 }
 
+/* Function: destroy_level
+ * -----------------------------------------------------------------------------
+ * This function should be called each time the player leaves a level as it
+ * should clean everything for the next invocation of the level.
+ * 
+ * Arguments:
+ * stage_id: the id for the specific stage that is going to be played
+ *
+ * Return:
+ *	void
+ */
+void destroy_level()
+{
+	
+	bf_set_input_box(BUFFER_BOX_X, INPUT_BUFFER_BOX_Y, BUFFER_BOX_W, BUFFER_BOX_H);
+	bf_set_output_box(BUFFER_BOX_X, OUTPUT_BUFFER_BOX_Y, BUFFER_BOX_W, 
+				   BUFFER_BOX_H);
+
+	bf_create_input_list();
+	bf_create_output_list();
+	lv_create_win_list();
+//	fl_file_initialize_level(level_id);
+	bf_set_input_buffer_button(BUFFER_BOX_X, INPUT_BUFFER_TEXT_Y, BUFFER_BOX_W, 
+							BUFFER_TEXT_H + BUFFER_BOX_H);
+	bf_set_output_buffer_button(BUFFER_BOX_X, OUTPUT_BUFFER_BOX_Y, BUFFER_BOX_W, 
+							 BUFFER_TEXT_H + BUFFER_BOX_H);
+	bf_initialize_buffer_operands();
+
+	cw_set_code_box(CODE_BOX_X, CODE_BOX_Y, CODE_BOX_W, CODE_BOX_H);
+	iw_set_instruction_box(INS_BOX_X, INS_BOX_Y, INS_BOX_W, INS_BOX_H);
+	
+//	mc_generate_win_condition_list(level_id);
+	cw_create_code_list();	
+//	fl_load_save_file(g_player, level_id);
+	mc_reset_avatar();
+
+	return ;
+}
 /* Function: stages_drawings
  * -----------------------------------------------------------------------------
  * Arguments:
@@ -194,7 +234,7 @@ void stage_drawings()
 
 	draw_stage_buttons(cw_get_code_list_size());
 
-	draw_avatar();
+	mc_draw_avatar();
 }
 
 /* Function: stage_studio
@@ -570,13 +610,13 @@ static void edit_code(int level_id)
  */
 void reset_level(int level_id, level_flags_t *flags, bool *run_finished)
 {
-	reset_avatar();			
+	mc_reset_avatar();			
 	reset_level_flags(flags);
 	reset_register_values();
 	bf_reset_input_list();
 	bf_reset_output_list();
 	reset_win_list();
-	generate_win_condition_list(level_id);
+	mc_generate_win_condition_list(level_id);
 	reset_code_execution();
 	*run_finished = false;
 }

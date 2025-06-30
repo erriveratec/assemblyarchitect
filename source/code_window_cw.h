@@ -12,9 +12,9 @@ enum operand_positions{
 	SECOND_OP
 };
 
-void create_code_list();
+void cw_create_code_list();
 void draw_code_window();
-void set_code_box(int x, int y, int w, int h);
+void cw_set_code_box(int x, int y, int w, int h);
 void set_challenge_text(char *text);
 void set_stage_name(char *text);
 void cw_player_holding_instruction(code_line_t *instruction);

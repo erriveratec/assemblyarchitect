@@ -11,7 +11,7 @@
 #include "registers_rg.h"
 #include "dimensions.h"
 #include "file_fl.h"
-#include "levels.h"
+#include "levels_lv.h"
 
 #define PLAYER_QUANTITY 3
 #define SAVE_FILE_LINE_LENGTH 15

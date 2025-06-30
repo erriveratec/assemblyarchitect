@@ -99,7 +99,7 @@ void set_instruction_box_member(int value, int member)
 	return;
 }
 
-/* Function: set_instruction_box
+/* Function: iw_set_instruction_box
  *------------------------------------------------------------------------------
  * This functions sets the parameters that will be used in the instruction
  * box
@@ -114,7 +114,7 @@ void set_instruction_box_member(int value, int member)
  *	Void.
  *
  */
-void set_instruction_box(int x, int y, int w, int h)
+void iw_set_instruction_box(int x, int y, int w, int h)
 {
 	assert(w > 0 && h > 0 && "Invalid width and height values");
 
