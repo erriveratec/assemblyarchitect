@@ -6,6 +6,7 @@
 #include "stages.h"
 #include "levels.h"
 #include "file_fl.h"
+#include "stage_buttons.h"
 
 #define BG_COLOR_BLACK 0x000000FF
 #define BG_COLOR_RED 0xFF0000FF
@@ -23,6 +24,7 @@ int main(int argc, char *args[])
 	
 	load_media();
 	fl_save_file_init();
+	initialize_return_button();
 
 	int sleep = 0;
 	int state = STUDIO_SCREEN;

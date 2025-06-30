@@ -366,7 +366,7 @@ void create_natural_numbers_input_list(int size)
 	}
 }
 
-/* Function: create_input_list
+/* Function: bf_create_input_list
  *------------------------------------------------------------------------------
  * This function creates and initializes the input list.
  *
@@ -377,7 +377,7 @@ void create_natural_numbers_input_list(int size)
  *	Void.
  *
  */
-void create_input_list()
+void bf_create_input_list()
 {
 	assert(input_list == NULL && "The register list is not NULL");
 	input_list = List_create();
@@ -387,7 +387,7 @@ error:
 	return;
 }
 
-/* Function: create_output_list
+/* Function: bf_create_output_list
  *------------------------------------------------------------------------------
  * Arguments:
  *	None.
@@ -396,7 +396,7 @@ error:
  *	Void.
  *
  */
-void create_output_list()
+void bf_create_output_list()
 {
 	assert(output_list == NULL && "The register list is not NULL");
 	output_list = List_create();
@@ -406,7 +406,7 @@ error:
 	return;
 }
 
-/* Function: set_input_box
+/* Function: bf_set_input_box
  *------------------------------------------------------------------------------
  * Arguments:
  *	x: x coordinate.
@@ -417,7 +417,7 @@ error:
  * Return:
  *	Void.
  */
-void set_input_box(int x, int y, int w, int h)
+void bf_set_input_box(int x, int y, int w, int h)
 {
 	assert(w > 0 && h > 0 && "Width and height must be > 0");
 	input_box.x = x;
@@ -426,7 +426,7 @@ void set_input_box(int x, int y, int w, int h)
 	input_box.h = h;
 }
 
-/* Function: set_output_box
+/* Function: bf_set_output_box
  *------------------------------------------------------------------------------
  * Arguments:
  *	x: x coordinate.
@@ -437,7 +437,7 @@ void set_input_box(int x, int y, int w, int h)
  * Return:
  *	Void.
  */
-void set_output_box(int x, int y, int w, int h)
+void bf_set_output_box(int x, int y, int w, int h)
 {
 	assert(w > 0 && h > 0 && "Width and height must be > 0");
 	output_box.x = x;
@@ -677,7 +677,7 @@ value_box_t bf_get_input_buffer_value_box()
 
 }
 
-/* Function: reset_input_list
+/* Function: bf_reset_input_list
  *------------------------------------------------------------------------------
  * Arguments:
  *	void.
@@ -685,16 +685,16 @@ value_box_t bf_get_input_buffer_value_box()
  * Return:
  *	void.
  */
-void reset_input_list()
+void bf_reset_input_list()
 {
 	List_clear_destroy(input_list);
 	input_list = NULL;
-	create_input_list();
+	bf_create_input_list();
 	create_natural_numbers_input_list(g_input_buffer_size);
 	g_input_list_x_pos = SCREEN_WIDTH;
 }
 
-/* Function: reset_output_list
+/* Function: bf_reset_output_list
  *------------------------------------------------------------------------------
  * Arguments:
  *	void.
@@ -702,11 +702,11 @@ void reset_input_list()
  * Return:
  *	void.
  */
-void reset_output_list()
+void bf_reset_output_list()
 {
 	List_clear_destroy(output_list);
 	output_list = NULL;
-	create_output_list();
+	bf_create_output_list();
 	g_output_list_x_pos = BUFFER_BOX_X + BUFFER_VALUE_OFFSET_X;
 }
 

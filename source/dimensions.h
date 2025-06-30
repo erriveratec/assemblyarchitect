@@ -24,6 +24,11 @@
 #define ESC_MENU_BUTTON3_Y ESC_MENU_BUTTON2_Y + (ESC_MENU_BOX_H - \
 						   3*ESC_MENU_BUTTON_H)/4 + ESC_MENU_BUTTON_H
 
+/*******************************RETURN BUTTON*********************************/
+#define RET_BUTTON_X 2
+#define RET_BUTTON_Y 690
+#define RET_BUTTON_W 90
+#define RET_BUTTON_H 75
 
 /*******************************STUDIO NAME SCREEN*****************************/
 #define STUDIO_NAME_TEXT "One Man Studio"

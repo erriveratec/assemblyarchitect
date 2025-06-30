@@ -145,12 +145,12 @@ int level_initialization(int level_id)
 {
 	assert(level_id > LEVEL_MIN && level_id < LEVEL_MAX && "Invalid stage id");
 	initialize_stage_buttons();
-	set_input_box(BUFFER_BOX_X, INPUT_BUFFER_BOX_Y, BUFFER_BOX_W, BUFFER_BOX_H);
-	set_output_box(BUFFER_BOX_X, OUTPUT_BUFFER_BOX_Y, BUFFER_BOX_W, 
+	bf_set_input_box(BUFFER_BOX_X, INPUT_BUFFER_BOX_Y, BUFFER_BOX_W, BUFFER_BOX_H);
+	bf_set_output_box(BUFFER_BOX_X, OUTPUT_BUFFER_BOX_Y, BUFFER_BOX_W, 
 				   BUFFER_BOX_H);
 
-	create_input_list();
-	create_output_list();
+	bf_create_input_list();
+	bf_create_output_list();
 	create_win_list();
 	fl_file_initialize_level(level_id);
 	set_input_buffer_button(BUFFER_BOX_X, INPUT_BUFFER_TEXT_Y, BUFFER_BOX_W, 
@@ -287,6 +287,7 @@ int stage_select_player()
 		bt_destroy_button(player_1);
 		bt_destroy_button(player_2);
 		bt_destroy_button(player_3);
+		buttons_created = false;
 	}
 	
 	display_escape_menu(get_escape_menu_state());
@@ -356,7 +357,8 @@ int stage_select_level()
 {
 	static bool level_initialized = false;
 	static button_t *level_button = NULL;
-	
+	int ret_val = LEVEL_SELECTION;
+
 	if (false == level_initialized){
 		level_initialized = true;
 		
@@ -370,15 +372,23 @@ int stage_select_level()
 
 	// Level 1 button 
 	bt_draw_button(level_button);
+	draw_return_button();
+	display_escape_menu(get_escape_menu_state());
 
 	if (true == check_mouse_click_in_button(level_button)){
-		level_button->active = !level_button->active;
-		return LEVEL_1;
+		ret_val = LEVEL_1;
+		level_initialized = false;
+		bt_destroy_button(level_button);
 	}
+	if (check_clicked_ret_button() == true){
+		ret_val = SELECT_PLAYER_SCREEN;	
+		level_initialized = false;
+		bt_destroy_button(level_button);
+
+	}	
 	
-	display_escape_menu(get_escape_menu_state());
 	
-	return LEVEL_SELECTION;
+	return ret_val;
 }
 
 /* Function: stage_button_handler
@@ -563,8 +573,8 @@ void reset_level(int level_id, level_flags_t *flags, bool *run_finished)
 	reset_avatar();			
 	reset_level_flags(flags);
 	reset_register_values();
-	reset_input_list();
-	reset_output_list();
+	bf_reset_input_list();
+	bf_reset_output_list();
 	reset_win_list();
 	generate_win_condition_list(level_id);
 	reset_code_execution();
@@ -573,6 +583,7 @@ void reset_level(int level_id, level_flags_t *flags, bool *run_finished)
 
 int stage_level(int level_id)
 {
+	int ret_val = LEVEL_1;
 	static bool level_init = false;
 	static bool run_finished = false;
 	static level_flags_t flags;
@@ -599,9 +610,14 @@ int stage_level(int level_id)
 	} else if (flags.stop == true && flags.stop_enabled == true){
 		reset_level(level_id, &flags, &run_finished);		
 	}
-	 
+	draw_return_button();
 	display_escape_menu(get_escape_menu_state());
-	return LEVEL_1;
+
+	if (check_clicked_ret_button() == true){
+		ret_val = LEVEL_SELECTION;	
+		level_init = false;
+	}
+	return ret_val;
 }
 
 /* Function: display_escape_menu

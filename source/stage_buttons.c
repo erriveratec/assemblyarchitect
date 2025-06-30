@@ -12,14 +12,11 @@ texture_t *play_button = NULL;
 texture_t *step_forward_button = NULL;
 texture_t *return_button = NULL;
 
-typedef struct stage_buttons_t {
-	button_t *stop;
-	button_t *step_back;
-	button_t *play;
-	button_t *step_forward;
-} stage_buttons_t;
-
-stage_buttons_t *stage_buttons = NULL;
+button_t *stop;
+button_t *step_back;
+button_t *play;
+button_t *step_forward;
+button_t *ret_button;
 
 
 /* Function: adjust_stage_buttons_position
@@ -39,19 +36,19 @@ void adjust_stage_buttons_position(int code_size)
 		y_final = STAGE_BUTTON_Y;
 	}
 
-	int delta = get_movement_delta(stage_buttons->stop->y, 
+	int delta = get_movement_delta(stop->y, 
 	 			y_final, MOVEMENT_DELTA);	
 
-	if (stage_buttons->stop->y < y_final){
-		stage_buttons->stop->y += delta;
-		stage_buttons->step_back->y += delta;
-		stage_buttons->play->y += delta;
-		stage_buttons->step_forward->y += delta;
-	} else if (stage_buttons->stop->y > y_final){
-		stage_buttons->stop->y -= delta;
-		stage_buttons->step_back->y -= delta;
-		stage_buttons->play->y -= delta;
-		stage_buttons->step_forward->y -= delta;
+	if (stop->y < y_final){
+		stop->y += delta;
+		step_back->y += delta;
+		play->y += delta;
+		step_forward->y += delta;
+	} else if (stop->y > y_final){
+		stop->y -= delta;
+		step_back->y -= delta;
+		play->y -= delta;
+		step_forward->y -= delta;
 	}
 
 }
@@ -67,12 +64,45 @@ void adjust_stage_buttons_position(int code_size)
 void draw_stage_buttons(int code_size)
 {
 	adjust_stage_buttons_position(code_size);
-	bt_draw_button(stage_buttons->stop);
-	bt_draw_button(stage_buttons->step_back);
-	bt_draw_button(stage_buttons->play);
-	bt_draw_button(stage_buttons->step_forward);
+	bt_draw_button(stop);
+	bt_draw_button(step_back);
+	bt_draw_button(play);
+	bt_draw_button(step_forward);
 }
 
+/* Function: draw_return_button
+ * ----------------------------------------------------------------------------
+ * This function draws the return button that will be shown on several displays
+ *
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	Void.
+ */
+void draw_return_button()
+{
+	bt_draw_button(ret_button);
+}
+
+/* Function: initialize_stage_buttons
+ * -----------------------------------------------------------------------------
+ * This function initialixses the return button that is used and present in 
+ * several stages.
+ *
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	Void.
+ */
+void initialize_return_button()
+{
+	ret_button = malloc(sizeof(button_t));
+	ret_button = create_button(RET_BUTTON_X, RET_BUTTON_Y, RET_BUTTON_W, 
+								  RET_BUTTON_H, false, true, return_button);
+	return;
+}
 /* Function: initialize_stage_buttons
  * -----------------------------------------------------------------------------
  * Arguments:
@@ -83,28 +113,52 @@ void draw_stage_buttons(int code_size)
  */
 void initialize_stage_buttons()
 {
-	stage_buttons = malloc(sizeof(stage_buttons_t));
+	stop = malloc(sizeof(button_t));
+	stop = create_button(STAGE_BUTTON_X, STAGE_BUTTON_HIDDEN_Y,STAGE_BUTTON_W, 
+						 STAGE_BUTTON_H, false, false, stop_button);
 
-	stage_buttons->stop = create_button(STAGE_BUTTON_X, STAGE_BUTTON_HIDDEN_Y,
-						  STAGE_BUTTON_W, STAGE_BUTTON_H, false, false, 
-						  stop_button);
+	step_back = malloc(sizeof(button_t));
+	step_back = create_button(STAGE_BUTTON_X + STAGE_BUTTON_W + BUTTONS_SPACE, 
+							  STAGE_BUTTON_HIDDEN_Y, STAGE_BUTTON_W, 
+							  STAGE_BUTTON_H, false, false, step_back_button);
 
-	stage_buttons->step_back = create_button(STAGE_BUTTON_X + STAGE_BUTTON_W + 
-							   BUTTONS_SPACE, STAGE_BUTTON_HIDDEN_Y, 
-							   STAGE_BUTTON_W, STAGE_BUTTON_H, false, false, 
-							   step_back_button);
+	play = malloc(sizeof(button_t));
+	play = create_button(STAGE_BUTTON_X + 2*STAGE_BUTTON_W + 2*BUTTONS_SPACE, 
+						 STAGE_BUTTON_HIDDEN_Y, STAGE_BUTTON_W, STAGE_BUTTON_H, 
+						 false, false, play_button);
 
-	stage_buttons->play = create_button(STAGE_BUTTON_X + 2*STAGE_BUTTON_W + 
-					      2*BUTTONS_SPACE, STAGE_BUTTON_HIDDEN_Y, 
-						  STAGE_BUTTON_W, STAGE_BUTTON_H, false, false, 
-						  play_button);
-
-	stage_buttons->step_forward = create_button(STAGE_BUTTON_X + 
-								  3*STAGE_BUTTON_W + 3*BUTTONS_SPACE, 
-								  STAGE_BUTTON_HIDDEN_Y, STAGE_BUTTON_W, 
-								  STAGE_BUTTON_H, false, false, 
-								  step_forward_button);
+	step_forward = malloc(sizeof(button_t));
+	step_forward = create_button(STAGE_BUTTON_X + 3*STAGE_BUTTON_W + 
+								 3*BUTTONS_SPACE, STAGE_BUTTON_HIDDEN_Y, 
+								 STAGE_BUTTON_W, STAGE_BUTTON_H, false, false, 
+								 step_forward_button);
 	return;
+}
+
+/* Function: check_clicked_ret_button
+ * -----------------------------------------------------------------------------
+ * This function verifies if the player has clicked on the return button
+ *
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	true if button clicked, false if otherwise.
+ */
+bool check_clicked_ret_button()
+{
+	int ret = false;
+
+	if (check_mouse_click_in_button(ret_button) == true && 
+		ret_button->active == false) {
+		ret_button->active = true;
+		ret = true;
+	}
+	if (ms_check_mouse_left_released() == true){
+		ret_button->active = false;	
+	}
+
+	return ret;
 }
 
 /* Function: check_clicked_stage_button
@@ -119,10 +173,10 @@ bool check_clicked_stage_button()
 {
 	int ret = false;
 
-	if (check_mouse_click_in_button(stage_buttons->stop) == true  ||
-		check_mouse_click_in_button(stage_buttons->step_back) == true ||
-		check_mouse_click_in_button(stage_buttons->play) == true ||
-		check_mouse_click_in_button(stage_buttons->step_forward) == true){
+	if (check_mouse_click_in_button(stop) == true  ||
+		check_mouse_click_in_button(step_back) == true ||
+		check_mouse_click_in_button(play) == true ||
+		check_mouse_click_in_button(step_forward) == true){
 		ret = true;
 	}
 
@@ -141,10 +195,10 @@ bool check_released_in_stage_button()
 {
 	int ret = false;
 
-	if (check_mouse_click_in_button(stage_buttons->stop) == true  ||
-		check_mouse_click_in_button(stage_buttons->step_back) == true ||
-		check_mouse_click_in_button(stage_buttons->play) == true ||
-		check_mouse_click_in_button(stage_buttons->step_forward) == true){
+	if (check_mouse_click_in_button(stop) == true  ||
+		check_mouse_click_in_button(step_back) == true ||
+		check_mouse_click_in_button(play) == true ||
+		check_mouse_click_in_button(step_forward) == true){
 		ret = true;
 	}
 
@@ -163,13 +217,13 @@ int identify_clicked_stage_button()
 {
 	int clicked_button = INVALID;
 	
-	if (check_mouse_click_in_button(stage_buttons->stop) == true){
+	if (check_mouse_click_in_button(stop) == true){
 		clicked_button = STOP;
-	} else if (check_mouse_click_in_button(stage_buttons->step_back) == true){
+	} else if (check_mouse_click_in_button(step_back) == true){
 		clicked_button = BACKWARD;
-	} else if (check_mouse_click_in_button(stage_buttons->play) == true){
+	} else if (check_mouse_click_in_button(play) == true){
 		clicked_button = PLAY;
-	} else if (check_mouse_click_in_button(stage_buttons->step_forward) 
+	} else if (check_mouse_click_in_button(step_forward) 
 			   == true){
 		clicked_button = FORWARD;
 	}
