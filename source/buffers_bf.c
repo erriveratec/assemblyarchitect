@@ -186,11 +186,10 @@ operand_t *bf_create_operand_of_selected_buffer()
 /* Function: bf_initialize_buffer_operands
  * -----------------------------------------------------------------------------
  * Arguments:
- * 	id: The id of the register that will be added to the list.
- *	list: The list of instructions that will be added.
+ * 	None.
  *	
  * Return:
- *	void
+ *	Void.
  *
  */
 void bf_initialize_buffer_operands()
@@ -710,6 +709,21 @@ void bf_reset_output_list()
 	g_output_list_x_pos = BUFFER_BOX_X + BUFFER_VALUE_OFFSET_X;
 }
 
+/* Function: bf_destroy_buffer_lists
+ *-----------------------------------------------------------------------------
+ * This buffer destroy buffer lists when leaving a level.
+ *
+ * Arguments:
+ *	void.
+ *
+ * Return:
+ *	void.
+ */
+void bf_destroy_buffer_lists()
+{
+	List_clear_destroy(input_list);
+	List_clear_destroy(output_list);
+}
 /* Function: print_output_list
  *------------------------------------------------------------------------------
  * Arguments:

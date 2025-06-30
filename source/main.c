@@ -24,8 +24,7 @@ int main(int argc, char *args[])
 	
 	load_media();
 	fl_save_file_init();
-	sb_initialize_stage_buttons();
-	sb_initialize_return_button();
+	initialize_stage_assets();
 
 	int sleep = 0;
 	int state = STUDIO_SCREEN;

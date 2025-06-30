@@ -46,25 +46,7 @@ static void handle_destiny_operand(code_line_t *line);
 static bool retrieve_operand();
 static bool is_operand_retrievable(int id);
 
-/* Function: mc_generate_win_condition_list
- * -----------------------------------------------------------------------------
- * Arguments:
- * 	level: The level of the win condition that will be generated.
- *	
- * Return:
- *	void
- */
-void mc_generate_win_condition_list(int level)
-{
-	switch (level){
-		case LEVEL_1:
-			set_level_1_win_list();
-			break;
-		default:
-			break;
-	}
 
-}
 
 /* Function: mc_reset_avatar
  * -------------------------------------

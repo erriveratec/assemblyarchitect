@@ -13,5 +13,5 @@ int stage_studio(Uint64 start_time, Uint64 cur_time);
 void toggle_escape_menu();
 void set_quit_game();
 bool get_quit_game_value();
-
+void initialize_stage_assets();
 #endif

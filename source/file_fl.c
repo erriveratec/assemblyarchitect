@@ -193,7 +193,7 @@ static void parse_challenge_text(FILE *fp)
 		if (strstr(line, "ChallengeTextEnd") != NULL){
 			break;
 		} else {
-			set_challenge_text(text);
+			cw_set_challenge_text(text);
 		}
 	}
 	return;
@@ -317,7 +317,7 @@ void fl_file_initialize_level(int level_id)
 			level_flag = true;
 			level_found = true;
 			char *name = create_string_with_number(STR_LEVEL, level_id);
-			set_stage_name(name);
+			cw_set_stage_name(name);
 			free(name);
 		} else if (strstr(line, "ChallengeTextBegin") != NULL &&
 				   level_flag == true){

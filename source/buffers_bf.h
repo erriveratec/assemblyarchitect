@@ -26,6 +26,7 @@ void bf_set_input_buffer_button(int x, int y, int w, int h);
 void bf_set_output_buffer_button(int x, int y, int w, int h);
 void bf_create_input_list();
 void bf_create_output_list();
+void bf_destroy_buffer_lists();
 void create_natural_numbers_input_list(int size);
 void bf_initialize_buffer_operands();
 void draw_buffers();

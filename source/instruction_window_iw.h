@@ -5,6 +5,7 @@
 #include "code_line_cl.h"
 
 void iw_create_instruction_list();
+void iw_destroy_instruction_list();
 void iw_add_instruction_to_list(int id);
 bool iw_check_clicked_instruction();
 instruction_t *iw_get_clicked_instruction();

@@ -12,9 +12,30 @@
 static List *win_list = NULL;
 
 List *get_win_list();
+
+
 void add_to_win_list(int value, int type);
+static void set_level_1_win_list();
 
+/* Function: lv_generate_win_condition_list
+ * -----------------------------------------------------------------------------
+ * Arguments:
+ * 	level: The level of the win condition that will be generated.
+ *	
+ * Return:
+ *	void
+ */
+void lv_generate_win_condition_list(int level)
+{
+	switch (level){
+		case LEVEL_1:
+			set_level_1_win_list();
+			break;
+		default:
+			break;
+	}
 
+}
 /* Function: add_to_win_list
  * -----------------------------------------------------------------------------
  * Arguments:
@@ -41,6 +62,24 @@ void add_to_win_list(int value, int type)
 error:
 	return;
 }
+
+/* Function: lv_destroy_win_list
+ *------------------------------------------------------------------------------
+ * Destroys the win list when finishing a level.
+ *
+ * Arguments:
+ *	None.
+ *
+ * Return:
+ *	Void.
+ *
+ */
+void lv_destroy_win_list()
+{
+	List_clear_destroy(win_list);
+	assert(win_list == NULL && "The win list was not destroyed");
+}
+
 
 /* Function: lv_create_win_list
  *------------------------------------------------------------------------------
@@ -123,7 +162,7 @@ void print_win_list()
  * Return:
  *	Pointer to the object that will be assigned as a default reg operand.
  */
-void set_level_1_win_list()
+static void set_level_1_win_list()
 {
 	List *input_list = get_input_list();
 	List *win_list = get_win_list();

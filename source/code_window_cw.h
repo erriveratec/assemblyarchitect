@@ -15,8 +15,8 @@ enum operand_positions{
 void cw_create_code_list();
 void draw_code_window();
 void cw_set_code_box(int x, int y, int w, int h);
-void set_challenge_text(char *text);
-void set_stage_name(char *text);
+void cw_set_challenge_text(char *text);
+void cw_set_stage_name(char *text);
 void cw_player_holding_instruction(code_line_t *instruction);
 bool check_if_in_code_list(code_line_t *instruction);
 bool cw_check_clicked_code();
@@ -34,4 +34,5 @@ int cw_get_instruction_operand(int position, int operand_number);
 code_line_t *get_code_line_at_pos(int pos);
 void reset_code_execution();
 void cw_add_saved_line(char *line);
+void cw_destroy_code_window_assets();
 #endif

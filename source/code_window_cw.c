@@ -318,7 +318,7 @@ bool cw_check_clicked_code()
 	return clicked;
 }
 
-/* Function: set_stage_name
+/* Function: cw_set_stage_name
  * -----------------------------------------------------------------------------
  * This function is called to set the string that will be displayed as the 
  * the stage name
@@ -329,7 +329,7 @@ bool cw_check_clicked_code()
  * Return:
  *	void
  */
-void set_stage_name(char *text)
+void cw_set_stage_name(char *text)
 {
 	assert(NULL != text && "The text pointer is NULL");
 	int text_length = strlen(text);
@@ -339,6 +339,23 @@ void set_stage_name(char *text)
 error:
 	return;
 }
+
+/* Function: cw_clear_code_window_assets
+ * -----------------------------------------------------------------------------
+ * Clears the whole assets related to the code window when leaving a level
+ *
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	Void.
+ */
+void cw_destroy_code_window_assets()
+{
+	free(stage_name);
+	free(challenge_text);
+}
+
 
 /* Function: get_code_box_member
  * -----------------------------------------------------------------------------
@@ -507,7 +524,7 @@ static bool check_if_inside_code_window(){
 	}
 }
 
-/* Function: set_challenge_text
+/* Function: cw_set_challenge_text
  * -----------------------------------------------------------------------------
  * This function is called to set the string that will be displayed as the 
  * challenge text.
@@ -518,7 +535,7 @@ static bool check_if_inside_code_window(){
  * Return:
  *	void
  */
-void set_challenge_text(char *text)
+void cw_set_challenge_text(char *text)
 {
 	assert(NULL != text && "The text pointer is NULL");
 	

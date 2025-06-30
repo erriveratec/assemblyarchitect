@@ -7,6 +7,5 @@
 void mc_draw_avatar();
 void mc_reset_avatar();
 bool mc_run_code();
-void mc_generate_win_condition_list(int level);
 
 #endif

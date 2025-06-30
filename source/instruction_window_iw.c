@@ -49,6 +49,22 @@ void iw_create_instruction_list()
 	return;
 }
 
+/* Function: iw_destroy_instruction_list
+ *------------------------------------------------------------------------------
+ * Destroys the instruction list when leaving a level.
+ *
+ * Arguments:
+ *	None.
+ *
+ * Return:
+ *	Void.
+ *
+ */
+void iw_destroy_instruction_list()
+{
+	List_clear_destroy(instruction_list);
+	assert(instruction_list == NULL && "The instruction list is not NULL");
+}
 /* Function: get_instruction_list
  *------------------------------------------------------------------------------
  * This function returns the pointer to the instruction list.
