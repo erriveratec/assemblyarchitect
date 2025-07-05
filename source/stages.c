@@ -205,10 +205,10 @@ int level_initialization(int level_id)
  */
 static void destroy_level(level_flags_t *flags)
 {
-	bf_destroy_buffer_lists();
-	lv_destroy_win_list();
-	cw_destroy_code_window_assets();
-	iw_destroy_instruction_list();
+	bf_destroy_buffer_lists(); //destruction of textures not needed
+	lv_destroy_win_list(); //destruction of textures not needed
+	cw_destroy_code_window_assets(); //destruction of textures done
+	iw_destroy_instruction_list(); //destruction of textures done
 	rg_destroy_register_list();
 	reset_level_flags(flags);
 	bf_reset_input_list_x_pos();

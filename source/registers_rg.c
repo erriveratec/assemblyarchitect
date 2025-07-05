@@ -20,6 +20,24 @@ static char REGISTER_TEXT[] = "Registers";
 void set_register_box_member(int value, int member);
 List *get_register_list();
 reg_t *create_register(int id, button_t *b);
+static void destroy_register_list();
+
+/* Function: destroy_register_list
+ *------------------------------------------------------------------------------
+ * Destroys the register list and assigns a NULL value;
+ *
+ * Arguments:
+ *	None.
+ *
+ * Return:
+ *	void.
+ */
+static void destroy_register_list()
+{
+	List_destroy(register_list);
+	register_list = NULL;
+}
+
 
 /* Function: rg_destroy_register_list
  *------------------------------------------------------------------------------
@@ -33,8 +51,14 @@ reg_t *create_register(int id, button_t *b);
  */
 void rg_destroy_register_list()
 {
-	List_clear_destroy(register_list);
-	register_list = NULL;
+	List *registers = get_register_list();
+   	
+	LIST_FOREACH(registers, first, next, cur){ 
+		reg_t *c = cur->value;
+		bt_destroy_button(c->b);
+		free(c);
+   	}
+	destroy_register_list();
 }
 
 /* Function: reset_register_values

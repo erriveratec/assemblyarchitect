@@ -62,7 +62,14 @@ void iw_create_instruction_list()
  */
 void iw_destroy_instruction_list()
 {
-	List_clear_destroy(instruction_list);
+	List *instructions = get_instruction_list();
+	LIST_FOREACH(instructions, first, next, cur){ 
+	   
+		instruction_t *c = cur->value;
+	  	bt_destroy_button(c->b);
+	  	free(c);
+   	}
+	List_destroy(instruction_list);
 	instruction_list = NULL;
 }
 /* Function: get_instruction_list
