@@ -23,7 +23,6 @@ enum box_member {INVALID_MEMBER, MEMBER_X, MEMBER_Y, MEMBER_W, MEMBER_H};
 void display_line_number();
 int get_code_line_position(int y);
 ListNode *get_list_node_by_value(code_line_t *line);
-
 static bool check_if_inside_code_window();
 static bool check_selected_line_in_position(code_line_t *line);
 static void set_text_box(int x, int y, int w, int h);
@@ -354,7 +353,13 @@ void cw_destroy_code_window_assets()
 {
 	free(stage_name);
 	free(challenge_text);
-	List_clear_destroy(code_list);
+	
+	List *code = get_code_list();
+	LIST_FOREACH(code, first, next, cur){
+		code_line_t *line = cur->value;	
+		cl_destroy_code_line(line);
+	}
+	List_destroy(code_list);
 	code_list = NULL;
 }
 
