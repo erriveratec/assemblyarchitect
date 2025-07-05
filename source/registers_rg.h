@@ -30,4 +30,5 @@ int get_register_value_box_y_coord_by_id(int id);
 value_box_t get_register_value_box_by_id(int id);
 void set_register_value_box(int id, value_box_t val);
 void reset_register_values();
+void rg_destroy_register_list();
 #endif

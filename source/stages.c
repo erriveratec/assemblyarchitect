@@ -48,11 +48,11 @@ void stage_drawings();
 static void pending_operand_handler();
 static void flag_handler(level_flags_t *flags, int clicked_button);
 static void edit_code(int level_id);
-void reset_level(int level_id, level_flags_t *flags, bool *run_finished);
-void display_run_result(bool win_check);
+static void reset_level(int level_id, level_flags_t *flags, bool *run_finished);
+static void display_run_result(bool win_check);
 bool get_escape_menu_state();
 void display_escape_menu(bool menu_variable_state);
-void destroy_level();
+static void destroy_level(level_flags_t *flags);
 
 /* Function: initialize_stage_assets
  * ----------------------------------------------------------------------------
@@ -203,20 +203,15 @@ int level_initialization(int level_id)
  * Return:
  *	void
  */
-void destroy_level()
+static void destroy_level(level_flags_t *flags)
 {
 	bf_destroy_buffer_lists();
 	lv_destroy_win_list();
-//	fl_file_initialize_level(level_id);
 	cw_destroy_code_window_assets();
 	iw_destroy_instruction_list();
-	
-
-	//	mc_generate_win_condition_list(level_id);
-	cw_create_code_list();	
-//	fl_load_save_file(g_player, level_id);
-	mc_reset_avatar();
-
+	rg_destroy_register_list();
+	reset_level_flags(flags);
+	bf_reset_input_list_x_pos();
 	return ;
 }
 /* Function: stages_drawings
@@ -344,21 +339,6 @@ int stage_select_player()
 	return ret_val;
 }
 
-/* Function: escape_menu
- * -----------------------------------------------------------------------------
- * This functioon displays on the screen the escape menu if the player pressed
- * the escape key.
- *
- * Arguments:
- *	None;
- *
- * Return:
- *	Void.
- */
-static void escape_menu(){
-
-
-}
 
 /* Function: stage_title
  * -----------------------------------------------------------------------------
@@ -617,7 +597,7 @@ static void edit_code(int level_id)
  * Return:
  *	void.
  */
-void reset_level(int level_id, level_flags_t *flags, bool *run_finished)
+static void reset_level(int level_id, level_flags_t *flags, bool *run_finished)
 {
 	mc_reset_avatar();			
 	reset_level_flags(flags);
@@ -626,7 +606,7 @@ void reset_level(int level_id, level_flags_t *flags, bool *run_finished)
 	bf_reset_output_list();
 	reset_win_list();
 	lv_generate_win_condition_list(level_id);
-	reset_code_execution();
+	cw_reset_code_execution();
 	*run_finished = false;
 }
 
@@ -665,6 +645,8 @@ int stage_level(int level_id)
 	if (check_clicked_ret_button() == true){
 		ret_val = LEVEL_SELECTION;	
 		level_init = false;
+		destroy_level(&flags);
+		run_finished = false;
 	}
 	return ret_val;
 }
@@ -753,7 +735,7 @@ void display_escape_menu(bool menu_variable_state)
  * Return:
  *	void
  */
-void display_run_result(bool win_check)
+static void display_run_result(bool win_check)
 {
 	char *text_to_print;
 	int result_box_height;

@@ -6,7 +6,6 @@ LEVEL ACTIVE TRUE
 
 CODE STARTS
 mov rax, [ib]
-mov rax, rax
 mov [ob], rax
 mov rax, [ib]
 mov [ob], rax
@@ -124,7 +123,6 @@ LEVEL ACTIVE TRUE
 
 CODE STARTS
 mov rax, [ib]
-mov rax, rax
 mov [ob], rax
 mov rax, [ib]
 mov [ob], rax
@@ -242,7 +240,6 @@ LEVEL ACTIVE TRUE
 
 CODE STARTS
 mov rax, [ib]
-mov rax, rax
 mov [ob], rax
 mov rax, [ib]
 mov [ob], rax

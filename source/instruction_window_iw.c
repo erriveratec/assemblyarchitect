@@ -63,7 +63,7 @@ void iw_create_instruction_list()
 void iw_destroy_instruction_list()
 {
 	List_clear_destroy(instruction_list);
-	assert(instruction_list == NULL && "The instruction list is not NULL");
+	instruction_list = NULL;
 }
 /* Function: get_instruction_list
  *------------------------------------------------------------------------------

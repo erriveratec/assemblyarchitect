@@ -77,7 +77,7 @@ error:
 void lv_destroy_win_list()
 {
 	List_clear_destroy(win_list);
-	assert(win_list == NULL && "The win list was not destroyed");
+	win_list = NULL;
 }
 
 
@@ -94,7 +94,7 @@ void lv_destroy_win_list()
  */
 void lv_create_win_list()
 {
-	assert(win_list == NULL && "The register list is not NULL");
+	assert(win_list == NULL && "The win list is not NULL");
 	win_list = List_create();
 	check_mem(win_list);
 

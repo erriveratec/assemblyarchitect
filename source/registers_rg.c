@@ -21,6 +21,22 @@ void set_register_box_member(int value, int member);
 List *get_register_list();
 reg_t *create_register(int id, button_t *b);
 
+/* Function: rg_destroy_register_list
+ *------------------------------------------------------------------------------
+ * Destroys the list of registers and assigns the value of the pointer to NULL.
+ *
+ * Arguments:
+ *	None.
+ *
+ * Return:
+ *	void.
+ */
+void rg_destroy_register_list()
+{
+	List_clear_destroy(register_list);
+	register_list = NULL;
+}
+
 /* Function: reset_register_values
  *------------------------------------------------------------------------------
  * Arguments:

@@ -327,7 +327,7 @@ void fl_file_initialize_level(int level_id)
 			g_input_buffer_size = atoi(size);
 		} else if (strstr(line, "InputType")){
 			if (strstr(line, "Natural")){
-				create_natural_numbers_input_list(g_input_buffer_size);
+				bf_create_natural_numbers_input_list(g_input_buffer_size);
 				g_input_list_type = NATURAL;
 			} else if (strstr(line, "Whole")){
 

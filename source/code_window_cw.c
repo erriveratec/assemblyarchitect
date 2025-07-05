@@ -354,6 +354,8 @@ void cw_destroy_code_window_assets()
 {
 	free(stage_name);
 	free(challenge_text);
+	List_clear_destroy(code_list);
+	code_list = NULL;
 }
 
 
@@ -1354,7 +1356,7 @@ void cw_change_clicked_code_line_state()
 	}
 }
 
-/* Function: reset_code_exectution
+/* Function: cw_reset_code_exectution
 *------------------------------------------------------------------------------
 * Arguments:
 * 	None.
@@ -1362,7 +1364,7 @@ void cw_change_clicked_code_line_state()
 * Return:
 *	Void.
 */
-void reset_code_execution()
+void cw_reset_code_execution()
 {
 	List *code = get_code_list();
    	int x = List_count(code);

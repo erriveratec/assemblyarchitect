@@ -32,7 +32,7 @@ int cw_get_code_list_size();
 int cw_get_instruction_at_code_pos(int position);
 int cw_get_instruction_operand(int position, int operand_number);
 code_line_t *get_code_line_at_pos(int pos);
-void reset_code_execution();
+void cw_reset_code_execution();
 void cw_add_saved_line(char *line);
 void cw_destroy_code_window_assets();
 #endif

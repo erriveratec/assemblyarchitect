@@ -349,7 +349,7 @@ error:
 	return;
 }
 
-/* Function: create_natural_input_list
+/* Function: bf_create_natural_input_list
  * -----------------------------------------------------------------------------
  * Arguments:
  *	Size: the size of the input list.
@@ -357,7 +357,7 @@ error:
  * Return:
  *	void
  */
-void create_natural_numbers_input_list(int size)
+void bf_create_natural_numbers_input_list(int size)
 {
 	for (int i = 0; i < size; i++){
 		int value = rand() % 10;
@@ -675,6 +675,18 @@ value_box_t bf_get_input_buffer_value_box()
 	return *first;	
 
 }
+/* Function: bf_reset_input_list_x_pos
+ *------------------------------------------------------------------------------
+ * Arguments:
+ *	void.
+ *
+ * Return:
+ *	void.
+ */
+void bf_reset_input_list_x_pos()
+{
+	g_input_list_x_pos = SCREEN_WIDTH;
+}
 
 /* Function: bf_reset_input_list
  *------------------------------------------------------------------------------
@@ -689,8 +701,8 @@ void bf_reset_input_list()
 	List_clear_destroy(input_list);
 	input_list = NULL;
 	bf_create_input_list();
-	create_natural_numbers_input_list(g_input_buffer_size);
-	g_input_list_x_pos = SCREEN_WIDTH;
+	bf_create_natural_numbers_input_list(g_input_buffer_size);
+	bf_reset_input_list_x_pos();
 }
 
 /* Function: bf_reset_output_list
@@ -723,6 +735,8 @@ void bf_destroy_buffer_lists()
 {
 	List_clear_destroy(input_list);
 	List_clear_destroy(output_list);
+	input_list = NULL;
+	output_list = NULL;
 }
 /* Function: print_output_list
  *------------------------------------------------------------------------------
