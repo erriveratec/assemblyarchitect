@@ -8,5 +8,6 @@ void fl_file_initialize_level(int level);
 void fl_save_file_init();
 void fl_save_level(int player_id, int level_id);
 void fl_load_save_file(int player_id, int level_id);
+void fl_enable_next_level(int player_id, int level_id);
 
 #endif

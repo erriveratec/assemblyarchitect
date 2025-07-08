@@ -21,19 +21,20 @@ RegistersEnd
 +++ LEVEL STARTS 02
 
 ChallengeTextBegin
-"Dummy text for challenge 2"
+"Move the value from the input buffer to the output buffer in reverse order."
 ChallengeTextEnd
 
+InputSize 3
 InputType Natural
 
 InstructionsBegin
 mov
-add
 InstructionsEnd
 
 RegistersBegin
 rax
-rdi
+rbx
+rcx
 RegistersEnd
 
 +++LEVEL ENDS

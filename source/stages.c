@@ -23,11 +23,20 @@
 #define ESC_MENU_TEXT2 "Toggle Full Screen"
 #define ESC_MENU_TEXT3 "Exit Game"
 
+#define WIN_MENU_TEXT1 "Back"
+#define WIN_MENU_TEXT2 "Continue"
+
 // Escape option menu variables
 bool g_quit = false;
 
-int g_player;
+int g_player = FL_NO_PLAYER;
 bool g_escape_menu = false;
+
+enum WinMenuStates{
+	NO_BUTTON_PRESSED,
+	BACK_BUTTON_PRESSED,
+	CONT_BUTTON_PRESSED
+};
 
 typedef struct level_flags_t{
 	bool play;
@@ -49,7 +58,7 @@ static void pending_operand_handler();
 static void flag_handler(level_flags_t *flags, int clicked_button);
 static void edit_code(int level_id);
 static void reset_level(int level_id, level_flags_t *flags, bool *run_finished);
-static void display_run_result(bool win_check);
+static int display_run_result(bool win_check);
 bool get_escape_menu_state();
 void display_escape_menu(bool menu_variable_state);
 static void destroy_level(level_flags_t *flags);
@@ -174,7 +183,8 @@ void reset_level_flags(level_flags_t *flags)
  */
 int level_initialization(int level_id)
 {
-	assert(level_id > LEVEL_MIN && level_id < LEVEL_MAX && "Invalid stage id");
+	assert(level_id > LV_LEVEL_MIN && level_id < LV_LEVEL_MAX && 	
+		   "Invalid stage id");
 
 	bf_create_input_list();
 	bf_create_output_list();
@@ -250,19 +260,19 @@ void stage_drawings()
  *	cur_time: the current time used to calculate the delay of the screen.
  *
  * Return:
- *	TITLE_SCREEN if the delay time is already finished
- *	LEVEL_SELECTION if otherwise
+ *	LV_TITLE_SCREEN if the delay time is already finished
+ *	LV_LEVEL_SELECTION if otherwise
  */
 int stage_studio(Uint64 start_time, Uint64 cur_time)
 {
 	int delay = cur_time - start_time;	
-	draw_text_fit_width(STUDIO_NAME_X, STUDIO_NAME_Y, STUDIO_NAME_W, 
+	dw_draw_text_fits_width(STUDIO_NAME_X, STUDIO_NAME_Y, STUDIO_NAME_W, 
 						 COLOR_WHITE, STUDIO_NAME_TEXT);
 
 	if (delay > STUDIO_SCREEN_DELAY){
-		return TITLE_SCREEN;
+		return LV_TITLE_SCREEN;
 	} else {
-		return STUDIO_SCREEN;
+		return LV_STUDIO_SCREEN;
 	}
 }
 
@@ -274,8 +284,8 @@ int stage_studio(Uint64 start_time, Uint64 cur_time)
  *	None.
  *
  * Return:
- *	SELECT_PLAYER_SCREEN if the user have not selected a player. 
- *	LEVEL_SELECTION if a player has been chosen
+ *	LV_SELECT_PLAYER_SCREEN if the user have not selected a player. 
+ *	LV_LEVEL_SELECTION if a player has been chosen
  */
 int stage_select_player()
 {
@@ -283,7 +293,7 @@ int stage_select_player()
 	static button_t *player_1;
 	static button_t *player_2;
 	static button_t *player_3;
-	int ret_val = SELECT_PLAYER_SCREEN;
+	int ret_val = LV_SELECT_PLAYER_SCREEN;
 	bool player_chosen = false;
 
 	if (buttons_created == false){
@@ -327,7 +337,7 @@ int stage_select_player()
 		g_player = FL_PLAYER_3;
 	}
 	if (player_chosen == true){
-		ret_val = LEVEL_SELECTION;		
+		ret_val = LV_LEVEL_SELECTION;		
 		bt_destroy_button(player_1);
 		bt_destroy_button(player_2);
 		bt_destroy_button(player_3);
@@ -348,21 +358,21 @@ int stage_select_player()
  *	None;
  *
  * Return:
- *	TITLE_SCREEN if user has not pressed spacebar, 
- *	LEVEL_SELECTION if otherwise
+ *	LV_TITLE_SCREEN if user has not pressed spacebar, 
+ *	LV_LEVEL_SELECTION if otherwise
  */
 int stage_title(const Uint8 *keystate)
 {
 	int ret_val;
-	draw_text_fit_width(GAME_TITLE_X, GAME_TITLE_Y, GAME_TITLE_W, COLOR_WHITE, 
+	dw_draw_text_fits_width(GAME_TITLE_X, GAME_TITLE_Y, GAME_TITLE_W, COLOR_WHITE, 
 						 GAME_TITLE_TEXT);
-	draw_text_fit_width(SPACE_TEXT_X, SPACE_TEXT_Y, SPACE_TEXT_W, COLOR_WHITE, 
+	dw_draw_text_fits_width(SPACE_TEXT_X, SPACE_TEXT_Y, SPACE_TEXT_W, COLOR_WHITE, 
 						 PRESS_SPACE_TEXT);
 
 	if (keystate[SDL_SCANCODE_SPACE]){
-		ret_val = SELECT_PLAYER_SCREEN;
+		ret_val = LV_SELECT_PLAYER_SCREEN;
 	} else {
-		ret_val = TITLE_SCREEN;
+		ret_val = LV_TITLE_SCREEN;
 	}
 
 	display_escape_menu(get_escape_menu_state());
@@ -386,7 +396,7 @@ int stage_select_level()
 {
 	static bool level_initialized = false;
 	static button_t *level_button = NULL;
-	int ret_val = LEVEL_SELECTION;
+	int ret_val = LV_LEVEL_SELECTION;
 
 	if (false == level_initialized){
 		level_initialized = true;
@@ -405,12 +415,12 @@ int stage_select_level()
 	display_escape_menu(get_escape_menu_state());
 
 	if (true == check_mouse_click_in_button(level_button)){
-		ret_val = LEVEL_1;
+		ret_val = LV_LEVEL_1;
 		level_initialized = false;
 		bt_destroy_button(level_button);
 	}
 	if (check_clicked_ret_button() == true){
-		ret_val = SELECT_PLAYER_SCREEN;	
+		ret_val = LV_SELECT_PLAYER_SCREEN;	
 		level_initialized = false;
 		bt_destroy_button(level_button);
 
@@ -612,7 +622,7 @@ static void reset_level(int level_id, level_flags_t *flags, bool *run_finished)
 
 int stage_level(int level_id)
 {
-	int ret_val = LEVEL_1;
+	int ret_val = LV_LEVEL_1;
 	static bool level_init = false;
 	static bool run_finished = false;
 	static level_flags_t flags;
@@ -632,7 +642,13 @@ int stage_level(int level_id)
 		edit_code(level_id);
 	}
 	if (run_finished == true){
-		display_run_result(check_if_win());
+		bool win = check_if_win();
+		int action_selected = display_run_result(win);
+		if (action_selected == BACK_BUTTON_PRESSED){
+			reset_level(level_id, &flags, &run_finished);		
+		} else if (action_selected == CONT_BUTTON_PRESSED){
+			fl_enable_next_level(g_player, level_id + 1);
+		} 
 	}
 	if (flags.play == true && cw_check_code_pending_operand() == false){
 		run_finished = mc_run_code();
@@ -643,7 +659,7 @@ int stage_level(int level_id)
 	display_escape_menu(get_escape_menu_state());
 
 	if (check_clicked_ret_button() == true){
-		ret_val = LEVEL_SELECTION;	
+		ret_val = LV_LEVEL_SELECTION;	
 		level_init = false;
 		destroy_level(&flags);
 		run_finished = false;
@@ -733,9 +749,9 @@ void display_escape_menu(bool menu_variable_state)
  *	win_check: the condition checking if the run was successful
  *
  * Return:
- *	void
+ *	The id of the button pressed by the player.
  */
-static void display_run_result(bool win_check)
+static int display_run_result(bool win_check)
 {
 	char *text_to_print;
 	int result_box_height;
@@ -751,12 +767,55 @@ static void display_run_result(bool win_check)
 		text_to_print = lose_text;
 
 	}
-	draw_wrapped_text_fits_height(RES_BOX_X, RES_BOX_Y, RES_BOX_W, 
-								  RES_BOX_H, COLOR_WHITE, text_to_print);
+		
+	dw_draw_filled_rectangle(RES_BOX_X, RES_BOX_Y, RES_BOX_W, RES_BOX_H, 
+	               			 COLOR_BLACK, COLOR_WHITE);
 
+	dw_draw_text_fits_width(RES_BOX_TEXT_X, RES_BOX_TEXT_Y, RES_BOX_TEXT_W, 
+							COLOR_WHITE, text_to_print);
 	
-	draw_rectangle(RES_BOX_X, RES_BOX_Y, RES_BOX_W, result_box_height, 
-	               COLOR_WHITE);
+	static bool buttons_created = false;
+	static button_t *ret;
+	static button_t *con;
+	bool button_pressed = false;
+	int action_selected = NO_BUTTON_PRESSED;
+
+	if (buttons_created == false){
+		buttons_created = true;
+		texture_t *ret_texture = load_texture_from_rendered_text(
+								 WIN_MENU_TEXT1, COLOR_WHITE);
+		check_mem(ret_texture);
+		texture_t *con_texture = load_texture_from_rendered_text(
+								 WIN_MENU_TEXT2, COLOR_WHITE);
+		check_mem(con_texture);
+
+		ret = create_button(WIN_MENU_BUTTON1_X, WIN_MENU_BUTTON_Y, 
+							WIN_MENU_BUTTON1_W, WIN_MENU_BUTTON_H, 
+							false, true, ret_texture);
+		check_mem(ret);
+		con = create_button(WIN_MENU_BUTTON2_X, WIN_MENU_BUTTON_Y, 
+							WIN_MENU_BUTTON2_W, WIN_MENU_BUTTON_H, 
+								 false, true, con_texture);
+	} 
+	bt_draw_button(ret);
+	bt_draw_button(con);
+
+		if (check_mouse_click_in_button(ret) == true){
+			button_pressed = true;
+			action_selected = BACK_BUTTON_PRESSED;
+		} else if (check_mouse_click_in_button(con) == true){
+			button_pressed = true;
+			action_selected = CONT_BUTTON_PRESSED;
+		} 
+		if (button_pressed == true){
+			bt_destroy_button(ret);
+			bt_destroy_button(con);
+			buttons_created = false;
+		}
+	
+	error:
+
+	return action_selected;
 }
 
 /* Function: display_level_inputs

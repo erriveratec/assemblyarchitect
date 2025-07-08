@@ -28,7 +28,7 @@ static void set_level_1_win_list();
 void lv_generate_win_condition_list(int level)
 {
 	switch (level){
-		case LEVEL_1:
+		case LV_LEVEL_1:
 			set_level_1_win_list();
 			break;
 		default:

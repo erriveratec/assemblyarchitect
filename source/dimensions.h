@@ -81,11 +81,30 @@
 #define INS_BOX_H 250
 
 /*******************************RESULT BOX*************************************/
+#define RES_BOX_W 500
+#define RES_BOX_H 300
 
-#define RES_BOX_X 500
-#define RES_BOX_Y 500
-#define RES_BOX_W 200
-#define RES_BOX_H 30
+#define RES_BOX_X (SCREEN_WIDTH - RES_BOX_W)/2 
+#define RES_BOX_Y 200
+
+#define RES_BOX_TEXT_BORDER_OFFSET 25
+#define RES_BOX_TEXT_W (RES_BOX_W - 2*RES_BOX_TEXT_BORDER_OFFSET)
+#define RES_BOX_TEXT_X RES_BOX_X + (RES_BOX_W - RES_BOX_TEXT_W)/2
+#define RES_BOX_TEXT_Y RES_BOX_Y + RES_BOX_TEXT_BORDER_OFFSET 
+#define RES_BOX_TEXT_H 30
+
+#define WIN_MENU_BUTTON1_W 100
+#define WIN_MENU_BUTTON2_W 200
+
+#define WIN_MENU_BUTTON_H 60
+
+
+#define WIN_MENU_BUTTON1_X RES_BOX_X + (RES_BOX_W - (WIN_MENU_BUTTON1_W + \
+						   WIN_MENU_BUTTON2_W))/3
+#define WIN_MENU_BUTTON2_X RES_BOX_X + WIN_MENU_BUTTON1_W + 2*(RES_BOX_W - \
+						   (WIN_MENU_BUTTON1_W + WIN_MENU_BUTTON2_W))/3
+#define WIN_MENU_BUTTON_Y RES_BOX_Y + RES_BOX_H - WIN_MENU_BUTTON_H - \
+						  RES_BOX_TEXT_BORDER_OFFSET 
 
 /***********************************CODE***************************************/
 

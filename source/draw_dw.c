@@ -355,7 +355,7 @@ void draw_text_fit_height(int x, int y, int h, SDL_Color color, char *text)
 	free_texture(text_texture);
 }
 
-/* Function: draw_text_fit_width
+/* Function: dw_draw_text_fits_width
  * -----------------------------------------------------------------------------
  * This function draws text as images, the scale of the image is adjusted
  * to fit the given width.
@@ -370,7 +370,7 @@ void draw_text_fit_height(int x, int y, int h, SDL_Color color, char *text)
  * Return:
  *	Void
  */
-void draw_text_fit_width(int x, int y, int w, SDL_Color color, char *text)
+void dw_draw_text_fits_width(int x, int y, int w, SDL_Color color, char *text)
 {
 	assert(text != NULL && "The text pointer is NULL");
 

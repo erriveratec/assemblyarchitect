@@ -27,7 +27,7 @@ int main(int argc, char *args[])
 	initialize_stage_assets();
 
 	int sleep = 0;
-	int state = STUDIO_SCREEN;
+	int state = LV_STUDIO_SCREEN;
 
 	Uint64 next_game_tick = SDL_GetTicks64();
 	Uint64 studio_screen_time = SDL_GetTicks64();
@@ -79,20 +79,20 @@ int main(int argc, char *args[])
 		SDL_FillRect(g_screen, NULL, color);
 
 		switch (state){
-			case STUDIO_SCREEN:
+			case LV_STUDIO_SCREEN:
 				state = stage_studio(studio_screen_time, SDL_GetTicks64());
 				break;
-			case TITLE_SCREEN:
+			case LV_TITLE_SCREEN:
 				state = stage_title(keystate);
 				break;
-			case SELECT_PLAYER_SCREEN:
+			case LV_SELECT_PLAYER_SCREEN:
 				state = stage_select_player();
 				break;
-			case LEVEL_SELECTION:
+			case LV_LEVEL_SELECTION:
 				state = stage_select_level();	
 				break;
-			case LEVEL_1:
-				state = stage_level(LEVEL_1);
+			case LV_LEVEL_1:
+				state = stage_level(LV_LEVEL_1);
 				break;
 		}
 

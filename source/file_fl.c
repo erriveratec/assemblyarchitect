@@ -28,6 +28,7 @@
 #define STR_CODE_ENDS "CODE ENDS\n"
 #define STR_LEVEL_ACTIVE_TRUE "LEVEL ACTIVE TRUE\n"
 #define STR_LEVEL_ACTIVE_FALSE "LEVEL ACTIVE FALSE\n"
+#define STR_LEVEL_ACTIVE "LEVEL ACTIVE"
 #define STR_LEVEL "Level"
 #define STR_PLAYER "PLAYER"
 
@@ -149,7 +150,7 @@ error:
 static char *get_delimeter_level_string(char *text, int level_id)
 {
 	char *number = number_to_string_with_prepend_zero(level_id - 
-								                     LEVEL_MIN);
+								                     LV_LEVEL_MIN);
 	check_mem(number);
 	char *string = malloc(sizeof(char)*(strlen(text) + 2*CHAR_SIZE + 
 						  strlen(number)+1));
@@ -376,7 +377,7 @@ void fl_load_save_file(int player_id, int level_id)
 {
 	assert(player_id >= FL_PLAYER_1 && player_id <= FL_PLAYER_3 &&
 		   "Invalid player id");
-	assert(level_id > LEVEL_MIN && level_id < LEVEL_MAX &&
+	assert(level_id > LV_LEVEL_MIN && level_id < LV_LEVEL_MAX &&
 		   "Invalid level id");
 
 	char *line = NULL;	
@@ -519,7 +520,11 @@ void write_player_code_to_file(FILE *fp)
  */
 void fl_save_level(int player_id, int level_id)
 {
-	assert(level_id > LEVEL_MIN && level_id < LEVEL_MAX && "Invalid level");
+	assert(level_id > LV_LEVEL_MIN && level_id < LV_LEVEL_MAX && 
+		   "Invalid level");
+	assert(player_id >= FL_PLAYER_1 && player_id <= FL_PLAYER_3 && 
+		   "player");
+	
 	FILE *fp = fopen(SAVE_FILE_PATH, "r");
 	FILE *fptemp = fopen(SAVE_FILE_PATH_TEMP, "w");
 	check_mem(fp);
@@ -556,6 +561,69 @@ void fl_save_level(int player_id, int level_id)
 			}
 		} 
 	}
+	free(level_start);
+	free(level_end);
+	fclose(fp);
+	fclose(fptemp);
+
+	copy_file(SAVE_FILE_PATH,SAVE_FILE_PATH_TEMP);
+	delete_file(SAVE_FILE_PATH_TEMP);
+	error:
+	return;
+}
+
+/* Function: fl_enable_next_level
+ *------------------------------------------------------------------------------
+ * When a player finishes a level, this function puts the level flag as 
+ * active fot eh next player. 
+ *
+ * Arguments:
+ *  player_id: The id of the player that is going to be changed.
+ *	level: The level number that will be looked in the text file.
+ *
+ * Return:
+ *	void.
+ *
+ */
+void fl_enable_next_level(int player_id, int level_id)
+{
+	assert(level_id > LV_LEVEL_MIN && level_id < LV_LEVEL_MAX && 
+		   "Invalid level");
+	assert(player_id >= FL_PLAYER_1 && player_id <= FL_PLAYER_3 && 
+		   "player");
+	
+
+	FILE *fp = fopen(SAVE_FILE_PATH, "r");
+	FILE *fptemp = fopen(SAVE_FILE_PATH_TEMP, "w");
+	check_mem(fp);
+	check_mem(fptemp);
+
+	char *line = NULL;	
+	size_t len = 0;
+	ssize_t read;
+
+	char *player = get_player_id_string(player_id);
+	char *level_start = get_delimeter_level_string(STR_LEVEL_STARTS, level_id);
+	char *level_end = get_delimeter_level_string(STR_LEVEL_ENDS, level_id);
+	bool level_found = false;
+	bool player_found = false;
+
+	while (READ_ERROR != (read = getline(&line, &len, fp))){
+		write_to_file(fptemp, line);
+	
+		if (strcmp(line, level_start) == STRING_EQUAL){
+			level_found = true;
+			write_to_file(fptemp, CHAR_NEWLINE);
+			write_to_file(fptemp, STR_LEVEL_ACTIVE_TRUE);
+			write_to_file(fptemp, CHAR_NEWLINE);
+			while (READ_ERROR != (read = getline(&line, &len, fp))){
+				if (strcmp(line, STR_CODE_STARTS) == STRING_EQUAL){
+					write_to_file(fptemp, STR_CODE_STARTS);
+					break;
+				}
+			}
+		}
+	} 
 	free(level_start);
 	free(level_end);
 	fclose(fp);
