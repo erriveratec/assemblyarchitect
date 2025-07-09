@@ -30,6 +30,8 @@
 bool g_quit = false;
 
 int g_player = FL_NO_PLAYER;
+bool g_player_levels[LV_LEVEL_QUANTITY];
+
 bool g_escape_menu = false;
 
 enum WinMenuStates{
@@ -380,10 +382,9 @@ int stage_title(const Uint8 *keystate)
 }
 
 
-/* Function: select_level_screen
+/* Function: stage_select_level
  * -----------------------------------------------------------------------------
- * This function is used for selecting the level that is going to
- * be played
+ * Displays the levels that a player has available according to its save file
  * 	
  * Arguments:
  * 	None.

@@ -13,7 +13,6 @@
 #include "file_fl.h"
 #include "levels_lv.h"
 
-#define PLAYER_QUANTITY 3
 #define SAVE_FILE_LINE_LENGTH 15
 
 #define READ_ERROR -1
@@ -31,10 +30,12 @@
 #define STR_LEVEL_ACTIVE "LEVEL ACTIVE"
 #define STR_LEVEL "Level"
 #define STR_PLAYER "PLAYER"
+#define STR_PLAYER_ENDS "PLAYER ENDS"
 
 
 static char *get_level_id_string(int level_id);
 static char *get_player_id_string(int player_id);
+static char *get_player_end_string(int player_id);
 static void parse_challenge_text(FILE *fp);
 static int get_level_id_number(int level_id);
 bool check_if_save_file_exists();
@@ -48,6 +49,7 @@ void delete_file(char *path);
 void write_player_code_to_file(FILE *fp);
 static void parse_saved_code(FILE *fp);
 static char *create_string_with_number(char *s,  int n);
+bool check_if_level_is_active(FILE *fp);
 
 /* Function: create_string_with_number
  *------------------------------------------------------------------------------
@@ -106,6 +108,35 @@ error:
 	return id;
 }
 
+/* Function: get_player_end_string
+ *------------------------------------------------------------------------------
+ * This function is called to generate a string that will be looked on to the 
+ * file to know when a a player info is finished
+ *
+ * Arguments:
+ *	player: The player id number.
+ *
+ * Return:
+ *	char * to the created string.
+ *
+ */
+static char *get_player_end_string(int player_id)
+{
+	char *number = number_to_string_with_prepend_zero(player_id);
+	check_mem(number);
+	char *id = malloc(sizeof(char)*(strlen(STR_PLAYER_ENDS) + 
+					  strlen(char_space) + strlen(number)));
+	check_mem(id);
+
+	strcpy(id, STR_PLAYER_ENDS);
+	strcat(id, char_space);
+	strcat(id, number);
+	free(number);
+
+error:
+	return id;
+}
+
 /* Function: get_player_id_string
  *------------------------------------------------------------------------------
  * This function is called to generate a string that will be looked on to the 
@@ -134,7 +165,6 @@ static char *get_player_id_string(int player_id)
 error:
 	return id;
 }
-
 /* Function: get_delimeter_level_string
  *------------------------------------------------------------------------------
  * This function is called to generate a string that will be looked on to the 
@@ -363,8 +393,7 @@ error:
 
 /* Function: fl_load_save_file
  *------------------------------------------------------------------------------
- * This function reads the save file and activates the levels and generates
- * the code for a given level
+ * Reads the save file to load dthe developed code for a level.
  *
  * Arguments:
  *	file: string containing the name of the save file
@@ -413,7 +442,97 @@ error:
 	return;
 
 }
+/* Function: check_if_level_is_active
+ *------------------------------------------------------------------------------
+ * Determines if the active flag for a given level is true or false
+ *
+ * Arguments:
+ *	fp: the file pointer of the level data
+ *
+ * Return:
+ *	boolean: true if the level was active, false if otherwise.
+ *
+ */
+bool check_if_level_is_active(FILE *fp)
+{
+	char *line = NULL;	
+	size_t len = 0;
+	ssize_t read;
 
+	char *saveptr1;
+	char *text;
+	bool level_is_active;
+
+	while ((read = getline(&line, &len, fp)) != READ_ERROR){
+		if (strstr(STR_LEVEL_ACTIVE_TRUE, line) != NULL){
+			level_is_active = true;
+			break;
+		} else if (strstr(STR_LEVEL_ACTIVE_FALSE, line) != NULL){
+			level_is_active = false;
+			break;
+		} 
+	}
+	return level_is_active;
+}
+/* Function: fl_load_player_levels
+ *------------------------------------------------------------------------------
+ * Fills an array passed as argument with the list of levels available for the
+ * player
+ *
+ * Arguments:
+ *	levels_array: an boolean array with the state of the available levels
+ *
+ * Return:
+ *	void.
+ *
+ */
+void fl_load_player_levels(int player_id, bool *levels_array)
+{
+	assert(player_id >= FL_PLAYER_1 && player_id <= FL_PLAYER_3 &&
+		   "Invalid player id");
+	assert(levels_array != NULL && "levels array pointer is NULL");
+
+	char *line = NULL;	
+	size_t len = 0;
+	ssize_t read;
+
+	FILE *fp = fopen(SAVE_FILE_PATH, "r");
+	check_mem(fp);
+	char *saveptr1;
+	char *text;
+
+	char *player = get_player_id_string(player_id);
+	char *player_end = get_player_end_string(player_id);
+	bool player_found = false;
+	bool level_found = false;
+	
+	char *level = NULL;
+	int level_num = 1;
+	while (READ_ERROR != (read = getline(&line, &len, fp))){
+		level = get_level_id_string(level_num);
+		
+		if (strstr(line, player) != NULL){
+			player_found = true;
+		} else if (strstr(line, player_end) != NULL){
+			player_found = false;
+		}
+		else if (strstr(line, level) != NULL && player_found == true){
+			level_found = true;
+		} else if (strstr(line, STR_CODE_STARTS) != NULL && 
+			level_found == true){
+			parse_saved_code(fp);
+			break;
+		} 
+		level_num++;
+	}
+
+error:
+	free(level);	
+	free(player);	
+	fclose(fp);	
+	return;
+
+}
 
 
 /* Function: copy_file
@@ -679,6 +798,7 @@ void fl_save_file_init()
 
 		for (int j = 1; j <= PLAYER_QUANTITY; j++){
 			char *player_number = number_to_string_with_prepend_zero(j);
+
 			strcpy(level, STR_PLAYER); 
 			strcat(level, " ");
 			strcat(level, player_number);
@@ -686,9 +806,14 @@ void fl_save_file_init()
 			write_to_file(fp, level);
 			strcpy(level, CHAR_NEWLINE);
 			write_to_file(fp, level);
-			free(player_number);
 			for (int i = 1; i <= LV_LEVEL_QUANTITY; i++){
-				char *number = number_to_string_with_prepend_zero(i);
+				char *number = NULL;
+				if (i<10){
+					number = number_to_string_with_prepend_zero(i);
+				} else {
+					number = number_to_string(i);
+				}
+
 				check_mem(number);
 				
 				strcpy(level, STR_LEVEL_STARTS); 
@@ -729,9 +854,17 @@ void fl_save_file_init()
 				write_to_file(fp, level);
 				strcpy(level, CHAR_NEWLINE);
 				write_to_file(fp, level);
-				write_to_file(fp, level);
 				free(number);
 			}
+			strcpy(level, STR_PLAYER_ENDS); 
+			strcat(level, " ");
+			strcat(level, player_number);
+			strcat(level, CHAR_NEWLINE);
+			write_to_file(fp, level);
+			strcpy(level, CHAR_NEWLINE);
+			write_to_file(fp, level);
+
+			free(player_number);
 		}
 		free(level);
 		fclose(fp);

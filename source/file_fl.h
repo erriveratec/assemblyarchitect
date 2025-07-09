@@ -2,6 +2,7 @@
 #define FILE_H
 
 
+#define PLAYER_QUANTITY 3
 enum fl_player{FL_NO_PLAYER, FL_PLAYER_1, FL_PLAYER_2, FL_PLAYER_3};
 
 void fl_file_initialize_level(int level);
