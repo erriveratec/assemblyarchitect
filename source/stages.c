@@ -30,7 +30,6 @@
 bool g_quit = false;
 
 int g_player = FL_NO_PLAYER;
-bool g_player_levels[LV_LEVEL_QUANTITY];
 
 bool g_escape_menu = false;
 
@@ -397,16 +396,25 @@ int stage_select_level()
 {
 	static bool level_initialized = false;
 	static button_t *level_button = NULL;
+	static bool player_levels[LV_LEVEL_QUANTITY];
 	int ret_val = LV_LEVEL_SELECTION;
-
-	if (false == level_initialized){
+	
+	if (level_initialized == false){
+		fl_load_player_levels(g_player, player_levels);
 		level_initialized = true;
 		
 		texture_t *button_texture = load_texture_from_rendered_text(
 									"Level 1", COLOR_WHITE);
 		level_button = create_button(100, 200, 100, 100, false, false,
 									 button_texture);
-	} 
+		puts("The state of the available registers is");
+		
+		for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
+			printf("i = %d [%d] \n", i, player_levels[i]);
+		}
+	}
+
+
 	// Text: Select Level
 	draw_text(50, 25, 0.6, COLOR_WHITE, "Select the level");
 

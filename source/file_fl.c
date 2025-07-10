@@ -93,7 +93,14 @@ error:
  */
 static char *get_level_id_string(int level_id)
 {
-	char *number = number_to_string_with_prepend_zero(level_id);
+	char *number = NULL;
+
+	if (level_id < 10){
+		number = number_to_string_with_prepend_zero(level_id);
+	} else {
+		number = number_to_string(level_id);
+	}
+	
 	check_mem(number);
 	char *id = malloc(sizeof(char)*(strlen(STR_LEVEL_STARTS) + 
 					  strlen(char_space) + strlen(number)));
@@ -461,13 +468,13 @@ bool check_if_level_is_active(FILE *fp)
 
 	char *saveptr1;
 	char *text;
-	bool level_is_active;
+	bool level_is_active = false;
 
 	while ((read = getline(&line, &len, fp)) != READ_ERROR){
-		if (strstr(STR_LEVEL_ACTIVE_TRUE, line) != NULL){
+		if (strstr(line, STR_LEVEL_ACTIVE_TRUE) != NULL){
 			level_is_active = true;
 			break;
-		} else if (strstr(STR_LEVEL_ACTIVE_FALSE, line) != NULL){
+		} else if (strstr(line, STR_LEVEL_ACTIVE_FALSE) != NULL){
 			level_is_active = false;
 			break;
 		} 
@@ -510,20 +517,17 @@ void fl_load_player_levels(int player_id, bool *levels_array)
 	int level_num = 1;
 	while (READ_ERROR != (read = getline(&line, &len, fp))){
 		level = get_level_id_string(level_num);
-		
 		if (strstr(line, player) != NULL){
 			player_found = true;
 		} else if (strstr(line, player_end) != NULL){
 			player_found = false;
+			break;
 		}
 		else if (strstr(line, level) != NULL && player_found == true){
-			level_found = true;
-		} else if (strstr(line, STR_CODE_STARTS) != NULL && 
-			level_found == true){
-			parse_saved_code(fp);
-			break;
+			bool is_level_active = check_if_level_is_active(fp);
+			levels_array[level_num - 1] = is_level_active;
+			level_num++;
 		} 
-		level_num++;
 	}
 
 error:

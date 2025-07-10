@@ -10,5 +10,5 @@ void fl_save_file_init();
 void fl_save_level(int player_id, int level_id);
 void fl_load_save_file(int player_id, int level_id);
 void fl_enable_next_level(int player_id, int level_id);
-
+void fl_load_player_levels(int player_id, bool *levels_array);
 #endif
