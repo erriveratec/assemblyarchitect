@@ -447,12 +447,6 @@ int stage_select_level()
 	if (level_initialized == false){
 		fl_load_player_levels(g_player, player_levels);
 		level_initialized = true;
-		
-		puts("The state of the available registers is");
-
-		for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
-			printf("i = %d [%d] \n", i, player_levels[i]);
-		}
 		create_select_level_buttons(level_buttons, player_levels);
 	}
 
@@ -461,8 +455,9 @@ int stage_select_level()
 
 	for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
 		bt_draw_button(level_buttons[i]);
-		if (check_mouse_click_in_button(level_buttons[i]) == true){
-			ret_val = LV_LEVEL_1;
+		if (check_mouse_click_in_button(level_buttons[i]) == true &&
+			level_buttons[i]->active == true){
+			ret_val = LV_LEVEL_1 + i;
 			level_initialized = false;
 			bt_destroy_button(level_buttons[i]);
 		}
@@ -673,7 +668,7 @@ static void reset_level(int level_id, level_flags_t *flags, bool *run_finished)
 
 int stage_level(int level_id)
 {
-	int ret_val = LV_LEVEL_1;
+	int ret_val = level_id;
 	static bool level_init = false;
 	static bool run_finished = false;
 	static level_flags_t flags;

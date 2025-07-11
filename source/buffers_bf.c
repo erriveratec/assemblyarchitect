@@ -43,6 +43,21 @@ void add_input_to_list(int value, int type);
 void draw_output_buffer();
 void draw_input_buffer();
 
+/* Function: bf_set_input_buffer_size
+*------------------------------------------------------------------------------
+* Sets a value to the input buffer
+*
+* Arguments:
+* 	size: The size that will be set
+*	
+* Return:
+*	void.
+*/
+void bf_set_input_buffer_size(int size)
+{
+	g_input_buffer_size = size;
+}
+
 /* Function: get_input_buffer_list_size
 *------------------------------------------------------------------------------
 * Arguments:

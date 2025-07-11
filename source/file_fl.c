@@ -318,12 +318,18 @@ static void parse_registers(FILE *fp)
 	while ((read = getline(&line, &len, fp)) != READ_ERROR){
 		if (strstr(line, "rax") != NULL){
 			rg_add_register_to_list(RAX);
+		} else if (strstr(line, "rbx") != NULL){
+			rg_add_register_to_list(RBX);
+		} else if (strstr(line, "rcx") != NULL){
+			rg_add_register_to_list(RCX);
+		} else if (strstr(line, "rdx") != NULL){
+			rg_add_register_to_list(RDX);
 		} else if (strstr(line, "rdi") != NULL){
 			rg_add_register_to_list(RDI);
 		} else if (strstr(line, "RegistersEnd")){
 			break;
 		} else {
-			printf("Error: a non valid instruction was read -> %s\n", line);
+			printf("Error: a non valid register was read -> %s\n", line);
 		}
 	}
 }
@@ -353,22 +359,20 @@ void fl_file_initialize_level(int level_id)
 	char *text;
 
 	char *level = get_level_id_string(level_id);
-	bool level_flag = false;
 	bool level_found = false;
 	while (READ_ERROR != (read = getline(&line, &len, fp))){
 		if (strstr(line, level) != NULL){
-			level_flag = true;
 			level_found = true;
 			char *name = create_string_with_number(STR_LEVEL, level_id);
 			cw_set_stage_name(name);
 			free(name);
 		} else if (strstr(line, "ChallengeTextBegin") != NULL &&
-				   level_flag == true){
+				   level_found == true){
 			parse_challenge_text(fp);
-		} else if (strstr(line, "InputSize")){
+		} else if (strstr(line, "InputSize") != NULL && level_found == true){
 			char *size = strchr(line, ' ');
-			g_input_buffer_size = atoi(size);
-		} else if (strstr(line, "InputType")){
+			bf_set_input_buffer_size(atoi(size));
+		} else if (strstr(line, "InputType") != NULL && level_found == true){
 			if (strstr(line, "Natural")){
 				bf_create_natural_numbers_input_list(g_input_buffer_size);
 				g_input_list_type = NATURAL;
@@ -381,18 +385,18 @@ void fl_file_initialize_level(int level_id)
 			}
 
 		} else if (strstr(line, "InstructionsBegin") != NULL &&
-				   level_flag == true){
+				   level_found == true){
 			iw_create_instruction_list();
 			parse_instructions(fp);
 		} else if (strstr(line, "RegistersBegin") != NULL &&
-				   level_flag == true){
+				   level_found == true){
 			int reg_box_w = get_registers_text_width(REG_TEXT_H);
 			set_register_box(REG_BOX_X, REG_BOX_Y, reg_box_w + 2*REG_BOX_OFFSET, 
 					         REG_BOX_H);
 			create_register_list();
 			parse_registers(fp);
-		}else if (strstr(line, STR_LEVEL_ENDS) != NULL && level_flag == true){
-			level_flag = false;
+		}else if (strstr(line, STR_LEVEL_ENDS) != NULL && level_found == true){
+			level_found= false;
 			break;
 		}
 

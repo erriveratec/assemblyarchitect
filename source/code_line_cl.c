@@ -17,6 +17,9 @@ bool check_is_register(int id);
 char *add_text = "add";
 char *mov_text = "mov";
 char *rax_text = "rax";
+char *rbx_text = "rbx";
+char *rcx_text = "rcx";
+char *rdx_text = "rdx";
 char *rdi_text = "rdi";
 char *ib_text = "[ib]";
 char *ob_text = "[ob]";
@@ -68,6 +71,15 @@ texture_t *cl_create_operand_texture(int id)
 		case RAX:
 			texture = load_texture_from_rendered_text(rax_text, COLOR_WHITE);
 			break;
+		case RBX:
+			texture = load_texture_from_rendered_text(rbx_text, COLOR_WHITE);
+			break;
+		case RCX:
+			texture = load_texture_from_rendered_text(rcx_text, COLOR_WHITE);
+			break;
+		case RDX:
+			texture = load_texture_from_rendered_text(rdx_text, COLOR_WHITE);
+			break;
 		case RDI:
 			texture = load_texture_from_rendered_text(rdi_text, COLOR_WHITE);
 			break;
@@ -95,17 +107,20 @@ texture_t *cl_create_operand_texture(int id)
 int cl_text_to_operand_id(char *text)
 {
 	int operand_id = INVALID_OPERAND;
-
+	printf("%s\n", text);
 	if (strstr(text, rax_text) != NULL){
 		operand_id = RAX;
-	}
-	else if (strstr(text, rdi_text)!= NULL){
+	} else if (strstr(text, rbx_text)!= NULL){
+		operand_id = RBX;
+	} else if (strstr(text, rcx_text)!= NULL){
+		operand_id = RCX;
+	} else if (strstr(text, rdx_text)!= NULL){
+		operand_id = RDX;
+	} else if (strstr(text, rdi_text)!= NULL){
 		operand_id = RDI;
-	}
-	else if (strstr(text, ib_text)!= NULL){
+	} else if (strstr(text, ib_text)!= NULL){
 		operand_id = IB;
-	}
-	else if (strstr(text, ob_text)!= NULL){
+	} else if (strstr(text, ob_text)!= NULL){
 		operand_id = OB;
 	} 
 	assert(operand_id != INVALID_OPERAND && "Operand id is invalid");

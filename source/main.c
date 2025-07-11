@@ -91,8 +91,8 @@ int main(int argc, char *args[])
 			case LV_LEVEL_SELECTION:
 				state = stage_select_level();	
 				break;
-			case LV_LEVEL_1:
-				state = stage_level(LV_LEVEL_1);
+			default:
+				state = stage_level(state);
 				break;
 		}
 

@@ -42,6 +42,9 @@ enum operands{
 	NO_OPERAND,
 	REGISTERS_MIN,
 	RAX,
+	RBX,
+	RCX,
+	RDX,
 	RDI,
 	REGISTERS_MAX,
 	MEMORY_MIN,
@@ -68,6 +71,9 @@ enum line_state{
 extern char *add_text;
 extern char *mov_text;
 extern char *rax_text;
+extern char *rbx_text;
+extern char *rcx_text;
+extern char *rdx_text;
 extern char *rdi_text;
 extern char *ib_text;
 extern char *ob_text;

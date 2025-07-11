@@ -46,4 +46,5 @@ void print_output_list();
 operand_t *bf_create_operand_of_selected_buffer();
 operand_t *bf_create_buffer_operand_by_id(int id);
 void bf_reset_input_list_x_pos();
+void bf_set_input_buffer_size(int size);
 #endif

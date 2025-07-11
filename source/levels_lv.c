@@ -16,6 +16,7 @@ List *get_win_list();
 
 void add_to_win_list(int value, int type);
 static void set_level_1_win_list();
+static void set_level_2_win_list();
 
 /* Function: lv_generate_win_condition_list
  * -----------------------------------------------------------------------------
@@ -30,6 +31,9 @@ void lv_generate_win_condition_list(int level)
 	switch (level){
 		case LV_LEVEL_1:
 			set_level_1_win_list();
+			break;
+		case LV_LEVEL_2:
+			set_level_2_win_list();
 			break;
 		default:
 			break;
@@ -182,6 +186,37 @@ static void set_level_1_win_list()
 		new_win->value = cur_input->value;
 		new_win->type = cur_input->type;
 		List_push(win_list, new_win);
+	}
+}
+
+/* Function: set_level_2_win_list
+ *------------------------------------------------------------------------------
+ * Arguments:
+ *	None.
+ *
+ * Return:
+ *	Pointer to the object that will be assigned as a default reg operand.
+ */
+static void set_level_2_win_list()
+{
+	List *input_list = get_input_list();
+	List *win_list = get_win_list();
+
+	assert(input_list != NULL && "Input list pointer is NULL");
+	assert(win_list != NULL && "Win list pointer is NULL");
+
+	int input_list_size = List_count(input_list);
+	int win_list_size = List_count(win_list);
+
+	assert(input_list_size > 0 && "The size of the input list is incorrect");
+	assert(win_list_size == 0 && "The win list has elements");
+
+	LIST_FOREACH(input_list, first, next, cur){
+		value_box_t *cur_input = cur->value;
+		value_box_t *new_win = malloc(sizeof(value_box_t));
+		new_win->value = cur_input->value;
+		new_win->type = cur_input->type;
+		List_unshift(win_list, new_win);
 	}
 }
 
