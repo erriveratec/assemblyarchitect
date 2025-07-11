@@ -320,7 +320,7 @@ int stage_select_player()
 		check_mem(player_3);
 	}
 	
-	draw_text_fit_height(SELECT_PLAYER_TEXT_X, SELECT_PLAYER_TEXT_Y, 
+	draw_text_fits_height(SELECT_PLAYER_TEXT_X, SELECT_PLAYER_TEXT_Y, 
 						 SELECT_PLAYER_TEXT_H, COLOR_WHITE, SELECT_PLAYER_TEXT);
 	
 	bt_draw_button(player_1);
@@ -400,17 +400,27 @@ static void create_select_level_buttons(button_t **buttons, bool *levels)
 	int x = SEL_LEVEL_BUTTON_X;
 	int y = SEL_LEVEL_BUTTON_Y;
 
-	for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
+	for (int i = 1; i <= LV_LEVEL_QUANTITY; i++){
 		char *button_text = create_string_append_number(level_text, i);
-		texture_t *button_texture = load_texture_from_rendered_text(
-									button_text, COLOR_WHITE);
+		texture_t *button_texture = NULL;
+		if (levels[i-1] == true){
+			button_texture = load_texture_from_rendered_text(button_text, 
+							 COLOR_WHITE);
+			buttons[i-1] = create_button(x, y, SEL_LEVEL_BUTTON_W, 
+									 SEL_LEVEL_BUTTON_H, true, true, 
+									 button_texture);
+		} else {
+			button_texture = load_texture_from_rendered_text(button_text, 
+							 COLOR_GREY);
+			buttons[i-1] = create_button(x, y, SEL_LEVEL_BUTTON_W, 
+									 SEL_LEVEL_BUTTON_H, false, true, 
+									 button_texture);
+		}
+				
+				y += SEL_LEVEL_OFFSET_Y;	
 		
-		buttons[i] = create_button(x, y, SEL_LEVEL_BUTTON_W, SEL_LEVEL_BUTTON_H, 
-								   false, true, button_texture);
-		y += SEL_LEVEL_OFFSET_Y;	
-		
-		if (i%10 == 0){
-			x += SEL_LEVEL_OFFSET_X;
+		if (i != 0 && i%8 == 0){
+			x += SEL_LEVEL_BUTTON_X + SEL_LEVEL_BUTTON_W;
 			y = SEL_LEVEL_BUTTON_Y;
 		}
 	}
@@ -430,7 +440,7 @@ static void create_select_level_buttons(button_t **buttons, bool *levels)
 int stage_select_level()
 {
 	static bool level_initialized = false;
-	static button_t *level_button = NULL;
+	static button_t *level_buttons[40];
 	static bool player_levels[LV_LEVEL_QUANTITY];
 	int ret_val = LV_LEVEL_SELECTION;
 	
@@ -438,40 +448,36 @@ int stage_select_level()
 		fl_load_player_levels(g_player, player_levels);
 		level_initialized = true;
 		
-		texture_t *button_texture = load_texture_from_rendered_text(
-									"Level 1", COLOR_WHITE);
-		level_button = create_button(100, 200, 100, 50, false, true,
-									 button_texture);
 		puts("The state of the available registers is");
+
 		for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
 			printf("i = %d [%d] \n", i, player_levels[i]);
 		}
-
-
+		create_select_level_buttons(level_buttons, player_levels);
 	}
-	//create_select_level_buttons(button_t **buttons, bool *levels)
 
-	// Text: Select Level
-	draw_text(50, 25, 0.6, COLOR_WHITE, "Select the level");
+	dw_draw_text_fits_width(SEL_LEVEL_TEXT_X, SEL_LEVEL_TEXT_Y, 
+							SEL_LEVEL_TEXT_W, COLOR_WHITE, SEL_LEVEL_TEXT);
 
-	// Level 1 button 
-	bt_draw_button(level_button);
+	for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
+		bt_draw_button(level_buttons[i]);
+		if (check_mouse_click_in_button(level_buttons[i]) == true){
+			ret_val = LV_LEVEL_1;
+			level_initialized = false;
+			bt_destroy_button(level_buttons[i]);
+		}
+	}
+
 	draw_return_button();
 	display_escape_menu(get_escape_menu_state());
 
-	if (true == check_mouse_click_in_button(level_button)){
-		ret_val = LV_LEVEL_1;
-		level_initialized = false;
-		bt_destroy_button(level_button);
-	}
 	if (check_clicked_ret_button() == true){
 		ret_val = LV_SELECT_PLAYER_SCREEN;	
 		level_initialized = false;
-		bt_destroy_button(level_button);
-
-	}	
-	
-	
+		for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
+			bt_destroy_button(level_buttons[i]);
+		}
+	}
 	return ret_val;
 }
 

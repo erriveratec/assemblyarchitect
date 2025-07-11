@@ -25,11 +25,18 @@ char *level_text = "level";
  *	char * to the created string.
  *
  */
-char *create_string_with_number(char *s,  int n)
+char *create_string_append_number(char *s,  int n)
 {
 	assert(s != NULL && "The string pointer is NULL");
+	
+	char *number = NULL;
 
-	char *number = number_to_string(n);
+	if (n<10){
+		number = number_to_string_with_prepend_zero(n);
+	} else {
+		number = number_to_string(n);
+	}
+
 	check_mem(number);
 	char *string = malloc(sizeof(char)*(strlen(s) + strlen(number)));
 	check_mem(string);
@@ -58,7 +65,7 @@ void draw_value_box(value_box_t *box){
 	int x_offset = (VALUE_BOX_W - text_width)/2;
 	int y_offset = ((VALUE_BOX_H - VALUE_H)/2) + 
 				    (VALUE_H/5)/2;
-	draw_text_fit_height(box->box.x + x_offset, box->box.y + y_offset, 
+	draw_text_fits_height(box->box.x + x_offset, box->box.y + y_offset, 
 						 VALUE_H, COLOR_WHITE, text);
 	int box_offset = VALUE_H/6;
 	draw_rectangle(box->box.x, box->box.y, box->box.w , box->box.h, 

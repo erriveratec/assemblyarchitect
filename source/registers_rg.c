@@ -379,7 +379,7 @@ void draw_register_box()
  */
 void draw_register_text(int x, int y, int h)
 {
-	draw_text_fit_height(x, y, h, COLOR_WHITE, REGISTER_TEXT);
+	draw_text_fits_height(x, y, h, COLOR_WHITE, REGISTER_TEXT);
 
 }
 

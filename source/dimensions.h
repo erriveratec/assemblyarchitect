@@ -48,12 +48,16 @@
 #define SPACE_TEXT_W 400
 #define PRESS_SPACE_TEXT "Press Space"
 
-/******************************SELECT PLAYER SCREEN****************************/
-#define SEL_LEVEL_BUTTON_X 150
-#define SEL_LEVEL_BUTTON_Y 200
+/******************************SELECT LEVEL SCREEN*****************************/
+#define SEL_LEVEL_TEXT "Select level"
+#define SEL_LEVEL_TEXT_W 500
+#define SEL_LEVEL_TEXT_X (SCREEN_WIDTH - SEL_LEVEL_TEXT_W)/2
+#define SEL_LEVEL_TEXT_Y 25
+#define SEL_LEVEL_BUTTON_Y 150
 #define SEL_LEVEL_BUTTON_W 100
 #define SEL_LEVEL_BUTTON_H 50
-#define SEL_LEVEL_OFFSET_X 400
+#define SEL_LEVEL_BUTTON_X (SCREEN_WIDTH - (5*SEL_LEVEL_BUTTON_W))/6
+#define SEL_LEVEL_OFFSET_X 200
 #define SEL_LEVEL_OFFSET_Y 75
 
 /******************************SELECT PLAYER SCREEN****************************/

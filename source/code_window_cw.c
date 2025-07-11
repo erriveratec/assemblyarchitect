@@ -812,7 +812,7 @@ static void display_player_code()
 		bool comma = check_instruction_has_two_operands(line);
 		if (true == comma && (MISSING_BOTH != line->state && 
 							  MISSING_OP1 != line->state)){
-			draw_text_fit_height(line->ins->b->x + 2*CODE_BUTTON_W + 
+			draw_text_fits_height(line->ins->b->x + 2*CODE_BUTTON_W + 
 								 LINE_NUMBER_OFFSET, line->ins->b->y, 
 								 CODE_BUTTON_H, COLOR_WHITE, ",");
 		}

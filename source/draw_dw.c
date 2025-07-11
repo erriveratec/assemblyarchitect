@@ -11,6 +11,7 @@
 SDL_Color COLOR_WHITE = {255,255,255,255};
 SDL_Color COLOR_BLACK = {0, 0, 0, 255};
 SDL_Color COLOR_RED = {255, 0, 0, 255};
+SDL_Color COLOR_GREY = {127, 127, 127, 255};
 
 /* Function: draw_scaled_texture
  * -------------------------------------------------------------
@@ -277,7 +278,7 @@ void draw_wrapped_text_fits_height(int x, int y, int w, int h, SDL_Color c,
 					memset(text, 0, string_size);
 					strncpy(text, t + already_drawn_offset, 
 						   	last_successful_fit - already_drawn_offset);
-					draw_text_fit_height(x_pos, y_pos, h, c, text);
+					draw_text_fits_height(x_pos, y_pos, h, c, text);
 					y_pos += y_offset;
 					already_drawn_offset = last_successful_fit;
 					i = last_successful_fit;
@@ -321,7 +322,7 @@ void draw_text(int x, int y, float s, SDL_Color c, char *t)
 	free_texture(text_texture);
 }
 
-/* Function: draw_text_fit_height
+/* Function: draw_text_fits_height
  * -----------------------------------------------------------------------------
  * This function draws text as images, the scale of the image is adjusted
  * to fit the given height.
@@ -336,7 +337,7 @@ void draw_text(int x, int y, float s, SDL_Color c, char *t)
  * Return:
  *	Void
  */
-void draw_text_fit_height(int x, int y, int h, SDL_Color color, char *text)
+void draw_text_fits_height(int x, int y, int h, SDL_Color color, char *text)
 {
 	assert(text != NULL && "The text pointer is NULL");
 
