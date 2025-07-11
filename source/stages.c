@@ -380,6 +380,41 @@ int stage_title(const Uint8 *keystate)
 	return ret_val;
 }
 
+/* Function: create_select_level_buttons
+ * -----------------------------------------------------------------------------
+ * Creates the total of buttons according to the numbers of levels that will be
+ * present in the game.
+ * 	
+ * Arguments:
+ * 	buttons_array: an array of buttons that will be created.
+ *  player_levels: the list of levels that the player will have available
+ *
+ * Return:
+ *	void
+ */
+static void create_select_level_buttons(button_t **buttons, bool *levels)
+{
+	assert(buttons != NULL && "The buttons pointer is NULL");
+	assert(levels != NULL && "The levels pointer is NULL");
+	
+	int x = SEL_LEVEL_BUTTON_X;
+	int y = SEL_LEVEL_BUTTON_Y;
+
+	for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
+		char *button_text = create_string_append_number(level_text, i);
+		texture_t *button_texture = load_texture_from_rendered_text(
+									button_text, COLOR_WHITE);
+		
+		buttons[i] = create_button(x, y, SEL_LEVEL_BUTTON_W, SEL_LEVEL_BUTTON_H, 
+								   false, true, button_texture);
+		y += SEL_LEVEL_OFFSET_Y;	
+		
+		if (i%10 == 0){
+			x += SEL_LEVEL_OFFSET_X;
+			y = SEL_LEVEL_BUTTON_Y;
+		}
+	}
+}
 
 /* Function: stage_select_level
  * -----------------------------------------------------------------------------
@@ -405,15 +440,16 @@ int stage_select_level()
 		
 		texture_t *button_texture = load_texture_from_rendered_text(
 									"Level 1", COLOR_WHITE);
-		level_button = create_button(100, 200, 100, 100, false, false,
+		level_button = create_button(100, 200, 100, 50, false, true,
 									 button_texture);
 		puts("The state of the available registers is");
-		
 		for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
 			printf("i = %d [%d] \n", i, player_levels[i]);
 		}
-	}
 
+
+	}
+	//create_select_level_buttons(button_t **buttons, bool *levels)
 
 	// Text: Select Level
 	draw_text(50, 25, 0.6, COLOR_WHITE, "Select the level");

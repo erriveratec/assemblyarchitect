@@ -53,7 +53,7 @@ bool check_if_level_is_active(FILE *fp);
 
 /* Function: create_string_with_number
  *------------------------------------------------------------------------------
- * This function is called to generate a string.
+ * Creates a string with a number attached to the end
  *
  * Arguments:
  * s: string to be used in the first part
@@ -65,6 +65,9 @@ bool check_if_level_is_active(FILE *fp);
  */
 static char *create_string_with_number(char *s,  int n)
 {
+	assert(s != NULL && "The string pointer is NULL");
+
+
 	char *number = number_to_string_with_prepend_zero(n);
 	check_mem(number);
 	char *string = malloc(sizeof(char)*(strlen(s) + strlen(number)));
@@ -324,6 +327,8 @@ static void parse_registers(FILE *fp)
 		}
 	}
 }
+
+
 /* Function: fl_file_initialize_level
  *------------------------------------------------------------------------------
  * Initializes level Lists (registers, instructions) and text based on what

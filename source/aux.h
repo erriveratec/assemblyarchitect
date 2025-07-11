@@ -36,6 +36,7 @@ float get_scale_fit_height(int h, texture_t *texture);
 float get_scale_fit_width(int w, texture_t *texture);
 int get_text_width_fits_height(int h, char *text);
 void draw_value_box(value_box_t *box);
+char *create_string_append_number(char *s,  int n);
 
 
 // ASCII characters
@@ -50,6 +51,7 @@ static char *char_space = " ";
 extern char *space_text;
 extern char *comma_text;
 extern char *newline_text;
+extern char *level_text;
 
 
 #endif

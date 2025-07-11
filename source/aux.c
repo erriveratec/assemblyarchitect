@@ -10,7 +10,38 @@
 char *space_text =" ";
 char *comma_text =",";
 char *newline_text ="\n";
+char *level_text = "level";
 
+/* Function: create_string_append_number
+ *------------------------------------------------------------------------------
+ * Creates a string with a number attached to the end, there is not prepend 
+ * zero value added.
+ *
+ * Arguments:
+ * s: string to be used in the first part
+ * n: number that will be used.
+ *
+ * Return:
+ *	char * to the created string.
+ *
+ */
+char *create_string_with_number(char *s,  int n)
+{
+	assert(s != NULL && "The string pointer is NULL");
+
+	char *number = number_to_string(n);
+	check_mem(number);
+	char *string = malloc(sizeof(char)*(strlen(s) + strlen(number)));
+	check_mem(string);
+
+	strcpy(string, s);
+	strcat(string, char_space);
+	strcat(string, number);
+	free(number);
+
+error:
+	return string;
+}
 
 /* Function: draw_value_box
  *------------------------------------------------------------------------------
