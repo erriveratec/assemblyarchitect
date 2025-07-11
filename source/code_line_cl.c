@@ -259,6 +259,15 @@ char *get_operand_text(int operand_id)
 		case RAX:
 			text = rax_text;
 			break;
+		case RBX:
+			text = rbx_text;
+			break;
+		case RCX:
+			text = rcx_text;
+			break;
+		case RDX:
+			text = rdx_text;
+			break;
 		case RDI:
 			text = rdi_text;
 			break;
