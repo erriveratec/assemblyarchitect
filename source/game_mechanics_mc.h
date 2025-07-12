@@ -13,5 +13,6 @@ void mc_draw_avatar();
 void mc_reset_avatar();
 bool mc_run_code();
 int mc_get_invalid_operation_flag();
+void mc_reset_invalid_operation_flag();
 
 #endif

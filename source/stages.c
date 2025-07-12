@@ -543,6 +543,7 @@ static void flag_handler(level_flags_t *flags, int clicked_button)
 			flags->forward = false;
 			flags->backward = false;
 			flags->backward_enabled = false;
+			mc_reset_invalid_operation_flag();	
 			break;
 		case FORWARD:
 			flags->forward = true;
@@ -708,6 +709,11 @@ int stage_level(int level_id)
 	} else if (flags.stop == true && flags.stop_enabled == true){
 		reset_level(level_id, &flags, &run_finished);		
 	}
+	if (mc_get_invalid_operation_flag() != NO_INVALID_OPERATION){
+		invalid_operation_handler(mc_get_invalid_operation_flag());
+		flags.play = false;
+	}
+
 	draw_return_button();
 	display_escape_menu(get_escape_menu_state());
 

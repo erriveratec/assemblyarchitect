@@ -107,7 +107,6 @@ texture_t *cl_create_operand_texture(int id)
 int cl_text_to_operand_id(char *text)
 {
 	int operand_id = INVALID_OPERAND;
-	printf("%s\n", text);
 	if (strstr(text, rax_text) != NULL){
 		operand_id = RAX;
 	} else if (strstr(text, rbx_text)!= NULL){

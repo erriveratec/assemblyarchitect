@@ -47,6 +47,21 @@ static bool retrieve_operand();
 static bool is_operand_retrievable(int id);
 static void set_invalid_operation_flag(int flag_id);
 
+/* Function: mc_reset_invalid_operation_flag
+ * -----------------------------------------------------------------------------
+ * Resets the invalid operation flag when the player has pressed stop
+ * 
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	void.
+ */
+void mc_reset_invalid_operation_flag()
+{
+	set_invalid_operation_flag(NO_INVALID_OPERATION);
+}
+
 /* Function: mc_get_invalid_operation_flag
  * -----------------------------------------------------------------------------
  * Returns the flag with the id of the invalid operation that was performed.
