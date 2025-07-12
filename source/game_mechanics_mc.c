@@ -13,6 +13,7 @@
 
 #define EMPTY 0
 
+static int g_invalid_operation_flag = NO_INVALID_OPERATION;
 
 typedef struct avatar_t{
 	SDL_Rect box;
@@ -32,21 +33,50 @@ enum counter_actions{
 	GET_COUNTER,
 };
 
-
 static void execute_instruction(code_line_t *line);
 bool move_avatar_to_operand(int op_id);
 int get_operand_x_dest(int op_id);
 int get_operand_y_dest(int op_id);
 static value_box_t get_operand_value_box(int op_id);
-void set_operand_value_box(int op_id, value_box_t val);
+bool set_operand_value_box(int op_id, value_box_t val);
 void operate_instruction(code_line_t *line);
 void reset_avatar_no_pos();
 static void handle_source_operand(code_line_t *line);
 static void handle_destiny_operand(code_line_t *line);
 static bool retrieve_operand();
 static bool is_operand_retrievable(int id);
+static void set_invalid_operation_flag(int flag_id);
 
+/* Function: mc_get_invalid_operation_flag
+ * -----------------------------------------------------------------------------
+ * Returns the flag with the id of the invalid operation that was performed.
+ * NO_INVALID_OPERATION is used if everything is ok.
+ * 
+ * Arguments:
+ * 	void.
+ *
+ * Return:
+ *	flag_id:  The id with the flag of the invalid operation.
+ */
+int mc_get_invalid_operation_flag()
+{
+	return g_invalid_operation_flag;
+}
 
+/* Function: mc_set_invalid_operation_flag
+ * -----------------------------------------------------------------------------
+ * Sets the value of the invalid_operation flag accordingly.
+ * 
+ * Arguments:
+ * 	flag_id: The id the invalidi operation.
+ *
+ * Return:
+ *	void.
+ */
+static void set_invalid_operation_flag(int flag_id)
+{
+	g_invalid_operation_flag = flag_id;
+}
 
 /* Function: mc_reset_avatar
  * -------------------------------------
@@ -269,24 +299,63 @@ static value_box_t get_operand_value_box(int op_id)
 
 /* Function: set_operand_value_box
  * -----------------------------------------------------------------------------
+ * This function sets the value of the operand with the value of the avatar.
+ *
+ * Arguments:
+ *	op_id: the id of the operand the avatar will set
+ *  val: the avatar value box that will modify the operand.
+ *
+ * Return:
+ *	bool indicating if the operation performed was valid
+ */
+bool set_operand_value_box(int op_id, value_box_t val)
+{
+	assert(op_id > REGISTERS_MIN && op_id < BUFFERS_MAX && 
+		   "The operand id is invalid");
+	
+	bool operation_valid = true;
+
+	if (op_id > REGISTERS_MIN && op_id < REGISTERS_MAX){
+		rg_set_register_value_box(op_id, val);	
+	} else if (op_id == OB){
+		set_output_buffer_value_box(val);	
+	}
+
+	return operation_valid;
+}
+
+/* Function: add_operand_value_box
+ * -----------------------------------------------------------------------------
+ * Adds the current value of the operand with the value provided by the avatar.
+ * if the operand value is not valid, it returns an invalid operation.
+ *  
  * Arguments:
  *	op_id: the id of the operand the avatar will retrieve
+ *  val: the avatar value box that will modify the operand.
  *
  * Return:
  *	bool indicating if part of the retriving is pending
  */
-void set_operand_value_box(int op_id, value_box_t val)
-{
+bool add_operand_value_box(int op_id, value_box_t val)
+{ 
 	assert(op_id > REGISTERS_MIN && op_id < BUFFERS_MAX && 
 		   "The operand id is invalid");
+	
+	bool operation_valid = true;
 
 	if (op_id > REGISTERS_MIN && op_id < REGISTERS_MAX){
-		set_register_value_box(op_id, val);	
+		value_box_t cur_val = get_register_value_box_by_id(op_id);
+		if (cur_val.value == NO_VALUE){
+			operation_valid = false;	
+		} else {
+			cur_val.value += val.value;
+			rg_set_register_value_box(op_id, cur_val);	
+		}
 	} else if (op_id == OB){
 		set_output_buffer_value_box(val);	
 	}
+	return operation_valid;
 }
-
 /* Function: operate_instruction
  * -----------------------------------------------------------------------------
  * Arguments:
@@ -297,10 +366,18 @@ void set_operand_value_box(int op_id, value_box_t val)
  */
 void operate_instruction(code_line_t *line)
 {
+	bool op_status;
 	switch (line->ins->id){
 		case MOV:
 			set_operand_value_box(line->op1->id, g_avatar.value);
 			break;
+		case ADD:
+			op_status = add_operand_value_box(line->op1->id, g_avatar.value);
+			if (op_status == false){
+				set_invalid_operation_flag(REG_VALUE_NOT_INITIALIZED);
+			}
+			break;
+
 	}
 }
 
@@ -517,7 +594,6 @@ bool mc_run_code()
 	for (int i = 0; i < code_size; i++){
 		code_line_t *line = get_code_line_at_pos(i);
 		if (line->state != EXECUTED){
-	//		print_code_line(line);
 			execute_instruction(line);	
 			return finished;
 		}

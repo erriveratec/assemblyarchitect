@@ -39,4 +39,23 @@ RegistersEnd
 
 +++LEVEL ENDS
 
++++LEVEL STARTS 03
+
+ChallengeTextBegin
+"Add the values received from the input buffer in pairs and put the result in the output buffer."
+ChallengeTextEnd
+
+InputSize 4
+InputType Natural
+
+InstructionsBegin
+mov
+add
+InstructionsEnd
+
+RegistersBegin
+rax
+RegistersEnd
+
++++LEVEL ENDS
 

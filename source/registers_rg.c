@@ -325,7 +325,7 @@ int get_registers_text_width(int h)
 	return width;
 }
 
-/* Function: set_register_box
+/* Function: rg_set_register_box
  *------------------------------------------------------------------------------
  * This funcion sets the dimensions of the register box
  *
@@ -338,7 +338,7 @@ int get_registers_text_width(int h)
  * Return:
  *	Void.
  */
-void set_register_box(int x, int y, int w, int h)
+void rg_set_register_box(int x, int y, int w, int h)
 {
 	assert(w > 0 && h > 0 && "Width and height must be > 0");
 	register_box.x = x;
@@ -511,16 +511,18 @@ value_box_t get_register_value_box_by_id(int id)
    return c->value;
 }
 
-/* Function: set_value_box_value
+/* Function: rg_set_value_box_value
  *------------------------------------------------------------------------------
+ * Puts a value in a register
+ *
  * Arguments:
  *	id: id of the operand that will be set
  *	value: the value that wll be set
  *
  * Return:
- *	Pointer to the object that will be assigned as a default reg operand.
+ *	void.
  */
-void set_register_value_box(int id, value_box_t val)
+void rg_set_register_value_box(int id, value_box_t val)
 {
 	assert(id > REGISTERS_MIN && id < REGISTERS_MAX && 
 		   "Invalid register id");

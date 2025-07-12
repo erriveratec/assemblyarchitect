@@ -60,9 +60,10 @@ static void flag_handler(level_flags_t *flags, int clicked_button);
 static void edit_code(int level_id);
 static void reset_level(int level_id, level_flags_t *flags, bool *run_finished);
 static int display_run_result(bool win_check);
-bool get_escape_menu_state();
-void display_escape_menu(bool menu_variable_state);
+static bool get_escape_menu_state();
+static void display_escape_menu(bool menu_variable_state);
 static void destroy_level(level_flags_t *flags);
+static void invalid_operation_handler(int id);
 
 /* Function: initialize_stage_assets
  * ----------------------------------------------------------------------------
@@ -150,7 +151,7 @@ void toggle_escape_menu()
  * Return:
  *	Boolean with the state fo the escape_menu variable
  */
-bool get_escape_menu_state()
+static bool get_escape_menu_state()
 {
 	return g_escape_menu;
 }
@@ -676,7 +677,6 @@ int stage_level(int level_id)
 	if (level_init == false){
 		level_init = level_initialization(level_id);
 	}
-
 	if (check_clicked_stage_button() == true){
 		flag_handler(&flags, identify_clicked_stage_button());
 	}
@@ -694,10 +694,17 @@ int stage_level(int level_id)
 			reset_level(level_id, &flags, &run_finished);		
 		} else if (action_selected == CONT_BUTTON_PRESSED){
 			fl_enable_next_level(g_player, level_id + 1);
+			ret_val = LV_LEVEL_SELECTION;	
+			level_init = false;
+			destroy_level(&flags);
+			run_finished = false;
 		} 
 	}
 	if (flags.play == true && cw_check_code_pending_operand() == false){
 		run_finished = mc_run_code();
+		if (mc_get_invalid_operation_flag() != NO_INVALID_OPERATION){
+			invalid_operation_handler(mc_get_invalid_operation_flag());
+		}
 	} else if (flags.stop == true && flags.stop_enabled == true){
 		reset_level(level_id, &flags, &run_finished);		
 	}
@@ -713,6 +720,30 @@ int stage_level(int level_id)
 	return ret_val;
 }
 
+/* Function: invalid_operation_handler
+ * -----------------------------------------------------------------------------
+ * This function is called in all the stages, an invalid operation message
+ * the nature of the message will depend accordingly to an identifier
+ * 
+ * Arguments:
+ *	id: The identifier of the exception that ocurred.
+ *
+ * Return:
+ *	void.
+ */
+static void invalid_operation_handler(int id)
+{
+	dw_draw_filled_rectangle(ESC_MENU_BOX_X, ESC_MENU_BOX_Y, ESC_MENU_BOX_W, 
+					   		 ESC_MENU_BOX_H, COLOR_BLACK, COLOR_WHITE);
+
+// This part of the code is place holder to entangle the whole logica
+	char *text = "The register had an invalid value";
+
+	dw_draw_text_fits_width(ESC_MENU_BOX_X, ESC_MENU_BOX_Y, ESC_MENU_BOX_W, 
+							COLOR_WHITE, text);
+
+}
+
 /* Function: display_escape_menu
  * -----------------------------------------------------------------------------
  * This function is called in all the stages, it will show the escape menu 
@@ -724,7 +755,7 @@ int stage_level(int level_id)
  * Return:
  *	void
  */
-void display_escape_menu(bool menu_variable_state)
+static void display_escape_menu(bool menu_variable_state)
 {
 	static bool buttons_created = false;
 	static button_t *player_1;
@@ -813,10 +844,8 @@ static int display_run_result(bool win_check)
 		text_to_print = lose_text;
 
 	}
-		
 	dw_draw_filled_rectangle(RES_BOX_X, RES_BOX_Y, RES_BOX_W, RES_BOX_H, 
 	               			 COLOR_BLACK, COLOR_WHITE);
-
 	dw_draw_text_fits_width(RES_BOX_TEXT_X, RES_BOX_TEXT_Y, RES_BOX_TEXT_W, 
 							COLOR_WHITE, text_to_print);
 	

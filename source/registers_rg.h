@@ -15,7 +15,7 @@ typedef struct reg_t{
 } reg_t;
 
 void create_register_list();
-void set_register_box(int x, int y, int w, int h);
+void rg_set_register_box(int x, int y, int w, int h);
 void draw_register_box();
 void draw_register_text(int x, int y, int h);
 int get_registers_text_width(int h);
@@ -28,7 +28,7 @@ operand_t *rg_create_register_operand_by_id(int id);
 int get_register_value_box_x_coord_by_id(int id);
 int get_register_value_box_y_coord_by_id(int id);
 value_box_t get_register_value_box_by_id(int id);
-void set_register_value_box(int id, value_box_t val);
+void rg_set_register_value_box(int id, value_box_t val);
 void reset_register_values();
 void rg_destroy_register_list();
 #endif
