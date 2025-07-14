@@ -62,7 +62,7 @@ void mc_reset_invalid_operation_flag()
 	set_invalid_operation_flag(NO_INVALID_OPERATION);
 }
 
-/* Function: mc_get_invalid_operation_flag
+/* Function: mc_get_operation_flag
  * -----------------------------------------------------------------------------
  * Returns the flag with the id of the invalid operation that was performed.
  * NO_INVALID_OPERATION is used if everything is ok.
@@ -73,7 +73,7 @@ void mc_reset_invalid_operation_flag()
  * Return:
  *	flag_id:  The id with the flag of the invalid operation.
  */
-int mc_get_invalid_operation_flag()
+int mc_get_operation_flag()
 {
 	return g_invalid_operation_flag;
 }

@@ -25,6 +25,19 @@
 						   3*ESC_MENU_BUTTON_H)/4 + ESC_MENU_BUTTON_H
 
 /*******************************RETURN BUTTON*********************************/
+#define MESSAGE_BOX_W 400
+#define MESSAGE_BOX_H 100
+#define MESSAGE_BOX_X (SCREEN_WIDTH - MESSAGE_BOX_W)/2
+#define MESSAGE_BOX_Y (SCREEN_HEIGHT - MESSAGE_BOX_H)/2
+
+#define MESSAGE_TEXT_W 350
+#define MESSAGE_TEXT_H 40
+#define MESSAGE_TEXT_X MESSAGE_BOX_X + (MESSAGE_BOX_W - MESSAGE_TEXT_W)/2
+#define MESSAGE_TEXT_Y (MESSAGE_BOX_Y + 10)
+
+#define REG_INVALID_VALUE_TEXT "The register had an invalid value"
+
+/*******************************RETURN BUTTON*********************************/
 #define RET_BUTTON_X 2
 #define RET_BUTTON_Y 690
 #define RET_BUTTON_W 90

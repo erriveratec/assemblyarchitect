@@ -63,7 +63,7 @@ static int display_run_result(bool win_check);
 static bool get_escape_menu_state();
 static void display_escape_menu(bool menu_variable_state);
 static void destroy_level(level_flags_t *flags);
-static void invalid_operation_handler(int id);
+static bool invalid_operation_handler(int id);
 
 /* Function: initialize_stage_assets
  * ----------------------------------------------------------------------------
@@ -674,6 +674,7 @@ int stage_level(int level_id)
 	static bool level_init = false;
 	static bool run_finished = false;
 	static level_flags_t flags;
+	static bool reset = false;
 
 	if (level_init == false){
 		level_init = level_initialization(level_id);
@@ -703,14 +704,13 @@ int stage_level(int level_id)
 	}
 	if (flags.play == true && cw_check_code_pending_operand() == false){
 		run_finished = mc_run_code();
-		if (mc_get_invalid_operation_flag() != NO_INVALID_OPERATION){
-			invalid_operation_handler(mc_get_invalid_operation_flag());
-		}
-	} else if (flags.stop == true && flags.stop_enabled == true){
-		reset_level(level_id, &flags, &run_finished);		
+	} else if ((flags.stop == true && flags.stop_enabled == true) ||
+				reset == true){
+		reset_level(level_id, &flags, &run_finished);	
+		reset = false;
 	}
-	if (mc_get_invalid_operation_flag() != NO_INVALID_OPERATION){
-		invalid_operation_handler(mc_get_invalid_operation_flag());
+	if (mc_get_operation_flag() != NO_INVALID_OPERATION){
+		reset = invalid_operation_handler(mc_get_operation_flag());
 		flags.play = false;
 	}
 
@@ -737,17 +737,21 @@ int stage_level(int level_id)
  * Return:
  *	void.
  */
-static void invalid_operation_handler(int id)
+static bool invalid_operation_handler(int id)
 {
-	dw_draw_filled_rectangle(ESC_MENU_BOX_X, ESC_MENU_BOX_Y, ESC_MENU_BOX_W, 
-					   		 ESC_MENU_BOX_H, COLOR_BLACK, COLOR_WHITE);
+	bool reset_level = false;
+	dw_draw_filled_rectangle(MESSAGE_BOX_X, MESSAGE_BOX_Y, MESSAGE_BOX_W, 
+					   		 MESSAGE_BOX_H, COLOR_BLACK, COLOR_WHITE);
 
-// This part of the code is place holder to entangle the whole logica
-	char *text = "The register had an invalid value";
+	dw_draw_wrapped_text_fits_height(MESSAGE_TEXT_X, MESSAGE_TEXT_Y, 
+									 MESSAGE_TEXT_W, MESSAGE_TEXT_H, 
+									 COLOR_WHITE, REG_INVALID_VALUE_TEXT);
 
-	dw_draw_text_fits_width(ESC_MENU_BOX_X, ESC_MENU_BOX_Y, ESC_MENU_BOX_W, 
-							COLOR_WHITE, text);
-
+	if (ms_check_mouse_left_released() == true){
+		mc_reset_invalid_operation_flag();
+		reset_level = true;
+	}
+	return reset_level;
 }
 
 /* Function: display_escape_menu

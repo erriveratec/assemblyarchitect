@@ -754,7 +754,7 @@ void draw_code_window()
 	//draw_wrapped_text(text_box.x, text_box.y, text_box.w, TEXT_BOX_SCALE, 
 	//			  	  COLOR_WHITE, challenge_text);
 	
-	draw_wrapped_text_fits_height(text_box.x, text_box.y, text_box.w, 
+	dw_draw_wrapped_text_fits_height(text_box.x, text_box.y, text_box.w, 
 								  TEXT_BOX_HEIGHT, COLOR_WHITE, challenge_text);
 
 	// Draw the rectangle where the text is gonna be contained

@@ -18,6 +18,7 @@ void add_to_win_list(int value, int type);
 static void set_level_1_win_list();
 static void set_level_2_win_list();
 static void set_level_3_win_list();
+static void set_level_4_win_list();
 
 /* Function: lv_generate_win_condition_list
  * -----------------------------------------------------------------------------
@@ -38,6 +39,9 @@ void lv_generate_win_condition_list(int level)
 			break;
 		case LV_LEVEL_3:
 			set_level_3_win_list();
+			break;
+		case LV_LEVEL_4:
+			set_level_4_win_list();
 			break;
 
 		default:
@@ -264,6 +268,40 @@ static void set_level_3_win_list()
 		i++;
 	}
 }
+
+/* Function: set_level_4_win_list
+ *------------------------------------------------------------------------------
+ * Arguments:
+ *	None.
+ *
+ * Return:
+ *	Void.
+ */
+static void set_level_4_win_list()
+{
+	List *input_list = get_input_list();
+	List *win_list = get_win_list();
+
+	assert(input_list != NULL && "Input list pointer is NULL");
+	assert(win_list != NULL && "Win list pointer is NULL");
+
+	int input_list_size = List_count(input_list);
+	
+	int win_list_size = List_count(win_list);
+	assert(input_list_size > 0 && "The size of the input list is incorrect");
+	assert(win_list_size == 0 && "The win list has elements");
+
+	
+	LIST_FOREACH(input_list, first, next, cur){
+		value_box_t *cur_input = cur->value;
+		
+		value_box_t *new_win = malloc(sizeof(value_box_t));
+		new_win->value = 5*cur_input->value;
+		new_win->type = cur_input->type;
+		List_push(win_list, new_win);
+	}
+}
+
 /* Function: check_if_win
  *------------------------------------------------------------------------------
  * Arguments:

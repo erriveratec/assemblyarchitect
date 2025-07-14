@@ -226,7 +226,7 @@ void free_texture(texture_t *texture)
 
 
 
-/* Function: draw_wrapped_text_fits_height
+/* Function: dw_draw_wrapped_text_fits_height
  * This function draws text wrapped as images in places in the screen, 
  * the function wraps text accordingly to the scaling factor needed.
  * It has the haight as a parameter to do the drawing
@@ -242,7 +242,7 @@ void free_texture(texture_t *texture)
  * Return:
  *	Void
  */
-void draw_wrapped_text_fits_height(int x, int y, int w, int h, SDL_Color c, 
+void dw_draw_wrapped_text_fits_height(int x, int y, int w, int h, SDL_Color c, 
 							       char *t)
 {
 	assert(0 < w && "The width of the text is negative");

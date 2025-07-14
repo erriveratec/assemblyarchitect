@@ -12,7 +12,7 @@ enum invalid_operatios{
 void mc_draw_avatar();
 void mc_reset_avatar();
 bool mc_run_code();
-int mc_get_invalid_operation_flag();
+int mc_get_operation_flag();
 void mc_reset_invalid_operation_flag();
 
 #endif
