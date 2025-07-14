@@ -13,6 +13,42 @@ SDL_Color COLOR_BLACK = {0, 0, 0, 255};
 SDL_Color COLOR_RED = {255, 0, 0, 255};
 SDL_Color COLOR_GREY = {127, 127, 127, 255};
 
+/* Function: dw_draw_texture_fits_height
+ * -----------------------------------------------------------------------------
+ * Draws a texture scaling it correctly to a given height
+ * 
+ * Arguments:
+ *	x: position x of the texture.
+ *	y: position y of the texture.
+ *	s: scaling factor of the texture.
+ *	t: texture object that is going to be drawn.
+ *
+ * Return:
+ *	SUCCESS or FAIL
+ */
+int draw_texture_fits_height(int x, int y, int h, texture_t *t)
+{
+	assert(h >= 0 && "The height value is invalid");
+	assert(t != NULL && "The texture pointer cannot be NULL");
+
+	// The scaling of the image resolution
+	float w = (float) (t->w * h)/t->w;
+
+	SDL_Rect d;
+
+	d.x = x;
+	d.y = y;
+	d.w = w;
+	d.h = h;
+	
+	if (SDL_RenderCopy(g_renderer, t->texture, NULL, &d) < 0){
+		printf("Texture could not be copied SDL_Error: %s\n", 
+				SDL_GetError());
+		return FAIL;
+	}
+	return SUCCESS;
+}
+
 /* Function: draw_scaled_texture
  * -------------------------------------------------------------
  * This function receives as a argument a texture, the positions

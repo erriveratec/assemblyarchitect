@@ -245,7 +245,7 @@ void stage_drawings()
 	display_registers();
 	iw_display_instructions(INS_BOX_X, INS_BOX_Y);
 
-	draw_code_window();	
+	cw_draw_code_window();	
 
 	draw_stage_buttons(cw_get_code_list_size());
 

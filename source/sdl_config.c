@@ -10,6 +10,7 @@
 #include "stage_buttons_sb.h"
 #include "registers_rg.h"
 #include "buffers_bf.h"
+#include "game_mechanics_mc.h"
 
 #define ERROR -1
 SDL_Window *g_window = NULL;
@@ -143,6 +144,13 @@ int load_media()
 	}
 
 	return_button = load_texture_from_file("img/return.png");
+	if (return_button == NULL){
+		printf("Could not load the level image SDL_Error: %s\n",
+				SDL_GetError());
+		return FAIL;
+	}
+
+	right_arrow = load_texture_from_file("img/rightarrow.png");
 	if (return_button == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());

@@ -732,7 +732,7 @@ static void adjust_code_box_position()
 	}
 }
 
-/* Function: draw_code_window
+/* Function: cw_draw_code_window
  * -----------------------------------------------------------------------------
  * This function is called to draw all the elements related to the code window
  *
@@ -742,7 +742,7 @@ static void adjust_code_box_position()
  * Return:
  *	void.
  */
-void draw_code_window()
+void cw_draw_code_window()
 {
 	List *code = get_code_list();
 
@@ -786,26 +786,26 @@ void draw_code_window()
 static void display_player_code()
 {
 	List *code = get_code_list();
-	assert(NULL != code && "The code list can't be NULL");
+	assert(code != NULL && "The code list can't be NULL");
 	
 	int list_size = List_count(code);
 	
-	if (0 == list_size){
+	if (list_size == 0){
 		return;
 	}
 	LIST_FOREACH(code, first, next, cur){
 		code_line_t *line = cur->value;	
 		bt_draw_button(line->ins->b);
 		
-		if (NULL != line->op1){
+		if (line->op1 != NULL){
 			bt_draw_button(line->op1->b);
 		}
-		if (NULL != line->op2){
+		if (line->op2 != NULL){
 			bt_draw_button(line->op2->b);
 		}
 	
 		bool comma = check_instruction_has_two_operands(line);
-		if (true == comma && (MISSING_BOTH != line->state && 
+		if (comma == true && (MISSING_BOTH != line->state && 
 							  MISSING_OP1 != line->state)){
 			draw_text_fits_height(line->ins->b->x + 2*CODE_BUTTON_W + 
 								 LINE_NUMBER_OFFSET, line->ins->b->y, 
@@ -862,10 +862,10 @@ int cw_get_instruction_y_coord(int instruction_position)
 void display_line_number()
 {
 	List *code = get_code_list();
-	assert(NULL != code && "The code list can't be NULL");
+	assert(code != NULL && "The code list can't be NULL");
 	
 	int list_size = List_count(code);
-	if (0 == list_size){
+	if (list_size == 0){
 		return;
 	}
 

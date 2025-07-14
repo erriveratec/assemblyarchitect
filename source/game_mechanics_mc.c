@@ -11,7 +11,7 @@
 #include "dbg.h"
 #include "levels_lv.h"
 
-#define EMPTY 0
+texture_t *right_arrow = NULL;
 
 static int g_invalid_operation_flag = NO_INVALID_OPERATION;
 
@@ -261,8 +261,8 @@ void mc_hide_execution_arrow()
 void mc_reset_execution_arrow()
 {
 	g_exec_arrow.box.x = CODE_BOX_X + EXEC_ARROW_X_COORD_OFFSET;
-	g_exec_arrow.box.y = cw_get_instruction_y_coord(0);
-						 //+ EXEC_ARROW_Y_COORD_OFFSET;
+	g_exec_arrow.box.y = cw_get_instruction_y_coord(0) + 
+						 EXEC_ARROW_Y_COORD_OFFSET;
 	g_exec_arrow.box.w = EXEC_ARROW_W;
 	g_exec_arrow.box.h = EXEC_ARROW_H;
 
@@ -282,9 +282,8 @@ void mc_reset_execution_arrow()
 void mc_draw_execution_arrow()
 {
 	if (g_exec_arrow.visible == true){
-		dw_draw_filled_rectangle(g_exec_arrow.box.x, g_exec_arrow.box.y, 
-								 g_exec_arrow.box.w, g_exec_arrow.box.h, 
-								 COLOR_WHITE, COLOR_WHITE);
+	draw_texture_fits_height(g_exec_arrow.box.x, g_exec_arrow.box.y, 
+							 g_exec_arrow.box.h, right_arrow);
 	}
 }
 
@@ -303,15 +302,17 @@ static void move_execution_arrow(int instruction_number)
 	assert(instruction_number <= code_size && 
 		   "Instruction number is incorrect");
 	
-	int y = cw_get_instruction_y_coord(instruction_number);// + EXEC_ARROW_Y_COORD_OFFSET;
+	int y = cw_get_instruction_y_coord(instruction_number);// + ;
 	
 	if (g_exec_arrow.box.y < y){
-		int delta = get_movement_delta(g_exec_arrow.box.y, y, 2*MOVEMENT_DELTA);
+		int delta = get_movement_delta(g_exec_arrow.box.y, y, MOVEMENT_DELTA/2);
 		g_exec_arrow.box.y += delta;
 	} else if (g_exec_arrow.box.y > y){
-		int delta = get_movement_delta(g_exec_arrow.box.y, y, 2*MOVEMENT_DELTA);
+		int delta = get_movement_delta(g_exec_arrow.box.y, y, MOVEMENT_DELTA/2);
 		g_exec_arrow.box.y -= delta;
 	}
+	g_exec_arrow.box.y = y + EXEC_ARROW_Y_COORD_OFFSET;
+
 }
 
 /* Function: move_avatar_to_operand
@@ -667,7 +668,7 @@ static void execute_instruction(code_line_t *line)
 	int buffer_inputs = get_input_buffer_list_size();
 
 
-	if (buffer_inputs != EMPTY || line->state == IN_EXECUTION || 
+	if (buffer_inputs != CW_EMPTY || line->state == IN_EXECUTION || 
 													 line->state == COMPLETE){
 		line->state = IN_EXECUTION;
 		handle_source_operand(line);

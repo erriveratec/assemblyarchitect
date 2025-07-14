@@ -27,6 +27,7 @@ void dw_draw_filled_rectangle(int x, int y, int w, int h, SDL_Color inside,
 						       SDL_Color outline);
 void dw_draw_wrapped_text_fits_height(int x, int y, int w, int h, SDL_Color c, 
 								   char *t);
+int draw_texture_fits_height(int x, int y, int h, texture_t *t);
 
 extern SDL_Color COLOR_WHITE;
 extern SDL_Color COLOR_BLACK;

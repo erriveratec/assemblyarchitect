@@ -4,6 +4,8 @@
 #include "button_bt.h"
 #include "code_window_cw.h"
 
+extern texture_t *right_arrow;
+
 enum invalid_operatios{
 	NO_INVALID_OPERATION,
 	REG_VALUE_NOT_INITIALIZED

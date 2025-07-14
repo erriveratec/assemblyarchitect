@@ -15,7 +15,7 @@ enum operand_positions{
 };
 
 void cw_create_code_list();
-void draw_code_window();
+void cw_draw_code_window();
 void cw_set_code_box(int x, int y, int w, int h);
 void cw_set_challenge_text(char *text);
 void cw_set_stage_name(char *text);
