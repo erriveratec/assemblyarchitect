@@ -33,7 +33,7 @@ static void set_text_box_member(int value, int member);
 static int get_code_box_member(int member);
 static int get_text_box_member(int member);
 static void code_box_height_adjust();
-static void code_box_position_adjust();
+static void adjust_code_box_position();
 static int get_first_code_line_y();
 static int get_code_line_x();
 List *get_code_list();
@@ -121,6 +121,9 @@ void cw_add_saved_line(char *line)
  */
 code_line_t *get_code_line_at_pos(int pos)
 {
+	int code_size = cw_get_code_list_size();
+	assert(pos >= 0 && pos < code_size && "Incorrect position value");
+
 	List *code = get_code_list();
 	code_line_t *c;
 	
@@ -680,7 +683,7 @@ static void code_box_height_adjust()
 	}
 }
 
-/* Function: code_box_position_adjust
+/* Function: adjust_code_box_position
  * -----------------------------------------------------------------------------
  * This function handles the length position of the code box according to mouse
  * scroll.
@@ -691,7 +694,7 @@ static void code_box_height_adjust()
  * Return:
  *	void.
  */
-static void code_box_position_adjust()
+static void adjust_code_box_position()
 {
 	static int y_pending_scroll = 0;
 	
@@ -743,36 +746,28 @@ void draw_code_window()
 {
 	List *code = get_code_list();
 
-	// The display of the code developed by the player
 	display_player_code();
-
-	// Display the line number according to the number of code lines
 	display_line_number();
 
-	// The text containted in the rectangle, and update the height value of
-	// the box that contains that.
-	//draw_wrapped_text(text_box.x, text_box.y, text_box.w, TEXT_BOX_SCALE, 
-	//			  	  COLOR_WHITE, challenge_text);
-	
+	// Challenge text
 	dw_draw_wrapped_text_fits_height(text_box.x, text_box.y, text_box.w, 
 								  TEXT_BOX_HEIGHT, COLOR_WHITE, challenge_text);
 
-	// Draw the rectangle where the text is gonna be contained
+	// Text rectangle
 	draw_rectangle(text_box.x, text_box.y, text_box.w, text_box.h, 
 	               COLOR_WHITE);
 	
 	// Adjust the height of the code box
 	code_box_height_adjust();
 
-	if (true == check_if_inside_code_window()){
-		//Adjust the position of the code box
-		code_box_position_adjust();
+	if (check_if_inside_code_window() == true){
+		adjust_code_box_position();
 	}
 	// Draw the rectangle of the code and instructions
 	draw_rectangle(code_box.x, code_box.y, code_box.w, code_box.h, 
 				   COLOR_WHITE);
 
-	// Text: Level 1
+	// Text of the level
 	draw_text(code_box.x + CODE_BOX_OFFSET, code_box.y + CODE_BOX_OFFSET, 
 						   STAGE_NAME_SCALE, COLOR_WHITE, stage_name);
 
@@ -819,6 +814,44 @@ static void display_player_code()
 	}
 	return;
 }
+
+
+/* Function: cw_get_instruction_y_coord
+ * -----------------------------------------------------------------------------
+ * Returns the y coordinaten of the instruction by its position
+ *
+ * Arguments:
+ * instruction_position: Instruction position in the code list
+ *
+ * Return:
+ *	y_coordinate: The y coordinate of the instruction in a given position.
+ */
+int cw_get_instruction_y_coord(int instruction_position)
+{
+	int code_size = cw_get_code_list_size();
+	assert(instruction_position >= 0 && instruction_position < code_size &&
+		   "Incorrect instruction position value");
+
+	int y;
+	List *code = get_code_list();
+	code_line_t *c;
+	
+	int i = 0;
+	LIST_FOREACH(code, first, next, cur){ 
+		c = cur->value;
+		if (i == instruction_position){
+			y = c->ins->b->y;
+			break;
+		}
+		i++;
+	}
+	return y;
+
+
+}
+
+
+
 
 /* Function: display_line_number
  * -------------------------------------

@@ -18,6 +18,8 @@
 #define ASCII 1
 #define DEFAULT_BUFFER_SIZE 5
 
+#define NATURAL_NMAX 9
+#define NATURAL_NMIN 1
 
 SDL_Rect input_box;
 SDL_Rect output_box;
@@ -375,7 +377,7 @@ error:
 void bf_create_natural_numbers_input_list(int size)
 {
 	for (int i = 0; i < size; i++){
-		int value = rand() % 10;
+		int value = rand() % NATURAL_NMAX - NATURAL_NMIN + NATURAL_NMIN;
 		add_input_to_list(value, WHOLE);
 	}
 }

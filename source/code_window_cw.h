@@ -7,6 +7,8 @@
 #include "button_bt.h"
 #include "mouse_ms.h"
 
+#define CW_EMPTY 0
+
 enum operand_positions{
 	FIRST_OP,
 	SECOND_OP
@@ -35,4 +37,5 @@ code_line_t *get_code_line_at_pos(int pos);
 void cw_reset_code_execution();
 void cw_add_saved_line(char *line);
 void cw_destroy_code_window_assets();
+int cw_get_instruction_y_coord(int instruction_position);
 #endif

@@ -80,3 +80,23 @@ RegistersEnd
 
 +++LEVEL ENDS
 
++++LEVEL STARTS 05
+
+ChallengeTextBegin
+"Take the value received from the input buffer and multiply it by 8"
+ChallengeTextEnd
+
+InputSize 1
+InputType Natural
+
+InstructionsBegin
+mov
+add
+InstructionsEnd
+
+RegistersBegin
+rax
+RegistersEnd
+
++++LEVEL ENDS
+

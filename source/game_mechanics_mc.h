@@ -14,5 +14,7 @@ void mc_reset_avatar();
 bool mc_run_code();
 int mc_get_operation_flag();
 void mc_reset_invalid_operation_flag();
+void mc_draw_execution_arrow();
+void mc_reset_execution_arrow();
 
 #endif

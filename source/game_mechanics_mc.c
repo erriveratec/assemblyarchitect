@@ -25,6 +25,14 @@ typedef struct avatar_t{
 
 static avatar_t g_avatar; 
 
+typedef struct execution_arrow_t{
+	SDL_Rect box;
+	bool in_place;
+	bool visible;
+} execution_arrow_t;
+
+static execution_arrow_t g_exec_arrow;
+
 enum counter_actions{
 	ADD_1,
 	SUB_1,
@@ -34,7 +42,7 @@ enum counter_actions{
 };
 
 static void execute_instruction(code_line_t *line);
-bool move_avatar_to_operand(int op_id);
+static bool move_avatar_to_operand(int op_id);
 int get_operand_x_dest(int op_id);
 int get_operand_y_dest(int op_id);
 static value_box_t get_operand_value_box(int op_id);
@@ -46,6 +54,7 @@ static void handle_destiny_operand(code_line_t *line);
 static bool retrieve_operand();
 static bool is_operand_retrievable(int id);
 static void set_invalid_operation_flag(int flag_id);
+static bool move_execution_arrow(int instruction_number);
 
 /* Function: mc_reset_invalid_operation_flag
  * -----------------------------------------------------------------------------
@@ -99,7 +108,7 @@ static void set_invalid_operation_flag(int flag_id)
  * 	void.
  *
  * Return:
- *	true: used for the caller of the function.
+ *	void.
  */
 void mc_reset_avatar()
 {
@@ -227,6 +236,62 @@ int get_operand_x_dest(int op_id)
 	return x;
 }
 
+/* Function: mc_reset_execution_arrow
+ * -------------------------------------
+ * Arguments:
+ * 	void.
+ *
+ * Return:
+ *	void.
+ */
+void mc_reset_execution_arrow()
+{
+	g_exec_arrow.box.x = AVATAR_START_X;
+	g_exec_arrow.box.y = AVATAR_START_Y;
+	g_exec_arrow.box.w = AVATAR_W;
+	g_exec_arrow.box.h = AVATAR_H;
+
+	g_exec_arrow.in_place = true;
+
+}
+
+/* Function: mc_draw_execution_arrow
+ * ----------------------------------------------------------------------------
+ * Arguments:
+ * 	Void.
+ *
+ * Return:
+ *	Void.
+ */
+void mc_draw_execution_arrow()
+{
+	if (g_exec_arrow.visible == true){
+		dw_draw_filled_rectangle(g_exec_arrow.box.x, g_exec_arrow.box.y, 
+								 g_exec_arrow.box.w, g_exec_arrow.box.h, 
+								 COLOR_WHITE, COLOR_WHITE);
+	}
+}
+
+/* Function: move_execution_arrow
+ * -----------------------------------------------------------------------------
+ * Arguments:
+ *	instruction_number: The number of the current instruction being executed
+ *
+ * Return:
+ *	bool indicanting if there still movement pending
+ */
+static bool move_execution_arrow(int instruction_number)
+{
+	int code_size = cw_get_code_list_size();	
+	assert(code_size > 0  && "Code size is invalid");
+	assert(instruction_number <= code_size && 
+		   "Instruction number is incorrect");
+	
+	bool in_place = true;
+
+	return in_place;
+}
+
 /* Function: move_avatar_to_operand
  * -----------------------------------------------------------------------------
  * Arguments:
@@ -235,7 +300,7 @@ int get_operand_x_dest(int op_id)
  * Return:
  *	bool indicanting if there still movement pending
  */
-bool move_avatar_to_operand(int op_id)
+static bool move_avatar_to_operand(int op_id)
 {
 	assert(op_id > REGISTERS_MIN && op_id < BUFFERS_MAX &&
 		   "Invalid operand");

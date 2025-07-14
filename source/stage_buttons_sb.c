@@ -3,8 +3,8 @@
 #include "stage_buttons_sb.h"
 #include "button_bt.h"
 #include "dimensions.h"
+#include "code_window_cw.h"
 
-#define EMPTY 0
 
 texture_t *stop_button = NULL;
 texture_t *step_back_button = NULL;
@@ -30,7 +30,7 @@ button_t *ret_button;
 void adjust_stage_buttons_position(int code_size)
 {
 	int y_final;
-	if (code_size == EMPTY){
+	if (code_size == CW_EMPTY){
 		y_final = STAGE_BUTTON_HIDDEN_Y;
 	} else {
 		y_final = STAGE_BUTTON_Y;
