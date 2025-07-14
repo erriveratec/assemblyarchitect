@@ -243,7 +243,6 @@ void stage_drawings()
 	draw_register_text(REG_TEXT_X, REG_TEXT_Y, REG_TEXT_H);
 
 	display_registers();
-	// The diplaying of the list of instructions that will be available
 	iw_display_instructions(INS_BOX_X, INS_BOX_Y);
 
 	draw_code_window();	
@@ -251,6 +250,12 @@ void stage_drawings()
 	draw_stage_buttons(cw_get_code_list_size());
 
 	mc_draw_avatar();
+	mc_draw_execution_arrow();
+
+	draw_return_button();
+	display_escape_menu(get_escape_menu_state());
+
+	return;
 }
 
 /* Function: stage_studio
@@ -535,6 +540,7 @@ static void flag_handler(level_flags_t *flags, int clicked_button)
 			flags->forward = false;
 			flags->backward = false;
 			flags->backward_enabled = true;
+			mc_reset_execution_arrow();
 			break;
 		case STOP:
 			flags->stop = true;
@@ -665,6 +671,7 @@ static void reset_level(int level_id, level_flags_t *flags, bool *run_finished)
 	reset_win_list();
 	lv_generate_win_condition_list(level_id);
 	cw_reset_code_execution();
+	mc_hide_execution_arrow();
 	*run_finished = false;
 }
 
@@ -690,8 +697,7 @@ int stage_level(int level_id)
 		edit_code(level_id);
 	}
 	if (run_finished == true){
-		bool win = check_if_win();
-		int action_selected = display_run_result(win);
+		int action_selected = display_run_result(check_if_win());
 		if (action_selected == BACK_BUTTON_PRESSED){
 			reset_level(level_id, &flags, &run_finished);		
 		} else if (action_selected == CONT_BUTTON_PRESSED){
@@ -713,10 +719,6 @@ int stage_level(int level_id)
 		reset = invalid_operation_handler(mc_get_operation_flag());
 		flags.play = false;
 	}
-
-	draw_return_button();
-	display_escape_menu(get_escape_menu_state());
-
 	if (check_clicked_ret_button() == true){
 		ret_val = LV_LEVEL_SELECTION;	
 		level_init = false;

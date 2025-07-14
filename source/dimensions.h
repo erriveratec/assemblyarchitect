@@ -37,7 +37,13 @@
 
 #define REG_INVALID_VALUE_TEXT "The register had an invalid value"
 
-/*******************************RETURN BUTTON*********************************/
+/*******************************EXECUTION ARROW********************************/
+#define EXEC_ARROW_X_COORD_OFFSET - 50
+#define EXEC_ARROW_Y_COORD_OFFSET 10
+#define EXEC_ARROW_W 30
+#define EXEC_ARROW_H 30
+
+/*******************************RETURN BUTTON**********************************/
 #define RET_BUTTON_X 2
 #define RET_BUTTON_Y 690
 #define RET_BUTTON_W 90

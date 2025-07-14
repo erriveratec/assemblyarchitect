@@ -54,7 +54,7 @@ static void handle_destiny_operand(code_line_t *line);
 static bool retrieve_operand();
 static bool is_operand_retrievable(int id);
 static void set_invalid_operation_flag(int flag_id);
-static bool move_execution_arrow(int instruction_number);
+static void move_execution_arrow(int instruction_number);
 
 /* Function: mc_reset_invalid_operation_flag
  * -----------------------------------------------------------------------------
@@ -236,6 +236,20 @@ int get_operand_x_dest(int op_id)
 	return x;
 }
 
+/* Function: mc_hide_execution_arrow
+ * -------------------------------------
+ * Arguments:
+ * 	void.
+ *
+ * Return:
+ *	void.
+ */
+void mc_hide_execution_arrow()
+{
+	g_exec_arrow.visible = false;
+
+}
+
 /* Function: mc_reset_execution_arrow
  * -------------------------------------
  * Arguments:
@@ -246,12 +260,14 @@ int get_operand_x_dest(int op_id)
  */
 void mc_reset_execution_arrow()
 {
-	g_exec_arrow.box.x = AVATAR_START_X;
-	g_exec_arrow.box.y = AVATAR_START_Y;
-	g_exec_arrow.box.w = AVATAR_W;
-	g_exec_arrow.box.h = AVATAR_H;
+	g_exec_arrow.box.x = CODE_BOX_X + EXEC_ARROW_X_COORD_OFFSET;
+	g_exec_arrow.box.y = cw_get_instruction_y_coord(0);
+						 //+ EXEC_ARROW_Y_COORD_OFFSET;
+	g_exec_arrow.box.w = EXEC_ARROW_W;
+	g_exec_arrow.box.h = EXEC_ARROW_H;
 
 	g_exec_arrow.in_place = true;
+	g_exec_arrow.visible = true;
 
 }
 
@@ -280,16 +296,22 @@ void mc_draw_execution_arrow()
  * Return:
  *	bool indicanting if there still movement pending
  */
-static bool move_execution_arrow(int instruction_number)
+static void move_execution_arrow(int instruction_number)
 {
 	int code_size = cw_get_code_list_size();	
 	assert(code_size > 0  && "Code size is invalid");
 	assert(instruction_number <= code_size && 
 		   "Instruction number is incorrect");
 	
-	bool in_place = true;
-
-	return in_place;
+	int y = cw_get_instruction_y_coord(instruction_number);// + EXEC_ARROW_Y_COORD_OFFSET;
+	
+	if (g_exec_arrow.box.y < y){
+		int delta = get_movement_delta(g_exec_arrow.box.y, y, 2*MOVEMENT_DELTA);
+		g_exec_arrow.box.y += delta;
+	} else if (g_exec_arrow.box.y > y){
+		int delta = get_movement_delta(g_exec_arrow.box.y, y, 2*MOVEMENT_DELTA);
+		g_exec_arrow.box.y -= delta;
+	}
 }
 
 /* Function: move_avatar_to_operand
@@ -672,6 +694,7 @@ bool mc_run_code()
 	int code_size = cw_get_code_list_size();	
 
 	for (int i = 0; i < code_size; i++){
+		move_execution_arrow(i);
 		code_line_t *line = get_code_line_at_pos(i);
 		if (line->state != EXECUTED){
 			execute_instruction(line);	

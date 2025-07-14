@@ -846,12 +846,7 @@ int cw_get_instruction_y_coord(int instruction_position)
 		i++;
 	}
 	return y;
-
-
 }
-
-
-
 
 /* Function: display_line_number
  * -------------------------------------
