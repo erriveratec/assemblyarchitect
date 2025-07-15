@@ -27,6 +27,7 @@ enum instructions{
 	INSTRUCTION_MIN,
 	MOV,
 	ADD,
+	LABEL,
 	INSTRUCTION_MAX
 };
 
@@ -70,6 +71,7 @@ enum line_state{
 
 extern char *add_text;
 extern char *mov_text;
+extern char *label_text;
 extern char *rax_text;
 extern char *rbx_text;
 extern char *rcx_text;
@@ -87,7 +89,7 @@ void cl_assign_operand_to_line(operand_t *op, code_line_t *line);
 bool check_instruction_has_two_operands(code_line_t *line);
 bool check_operand_compatilibity(operand_t *op, code_line_t *line);
 void destroy_operand(operand_t *op);
-int get_instruction_operand_quantity(int instruction_id);
+int cl_get_instruction_operand_quantity(int instruction_id);
 char *get_operand_text(int operand_id);
 void print_code_line(code_line_t *line);
 char *cl_create_code_line_text(int instruction_id, int op1_id, int op2_id);

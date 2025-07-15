@@ -75,7 +75,7 @@ static bool get_mouse_left_pressed()
  * Return:
  *	bool with the state of the button enable attribute.
  */
-static bool get_mouse_left_released()
+bool ms_get_mouse_left_released()
 {
 	return mouse.left_released;
 }
@@ -326,12 +326,12 @@ bool ms_check_mouse_left_pressed()
  */
 bool ms_check_mouse_left_released()
 {
-	bool released = get_mouse_left_released();
+	bool released =  ms_get_mouse_left_released();
 	bool enable = get_mouse_button_enable();
 
 	bool check = released & enable;
 	
-	if (true == released){
+	if (released == true){
 		set_mouse_button_enable(true);
 	}
 

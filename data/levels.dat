@@ -100,3 +100,24 @@ RegistersEnd
 
 +++LEVEL ENDS
 
++++LEVEL STARTS 06
+
+ChallengeTextBegin
+"Move the values from the input buffer to the output buffer, using four instructions maximum"
+ChallengeTextEnd
+
+InputSize 5
+InputType Natural
+
+InstructionsBegin
+label
+mov
+add
+InstructionsEnd
+
+RegistersBegin
+rax
+RegistersEnd
+
++++LEVEL ENDS
+

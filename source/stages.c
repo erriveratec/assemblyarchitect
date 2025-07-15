@@ -682,6 +682,7 @@ int stage_level(int level_id)
 	static bool run_finished = false;
 	static level_flags_t flags;
 	static bool reset = false;
+	bool back_to_level_selection = check_clicked_ret_button(); 
 
 	if (level_init == false){
 		level_init = level_initialization(level_id);
@@ -702,10 +703,8 @@ int stage_level(int level_id)
 			reset_level(level_id, &flags, &run_finished);		
 		} else if (action_selected == CONT_BUTTON_PRESSED){
 			fl_enable_next_level(g_player, level_id + 1);
-			ret_val = LV_LEVEL_SELECTION;	
-			level_init = false;
-			destroy_level(&flags);
-			run_finished = false;
+			mc_hide_execution_arrow();	
+			back_to_level_selection = true;
 		} 
 	}
 	if (flags.play == true && cw_check_code_pending_operand() == false){
@@ -719,7 +718,7 @@ int stage_level(int level_id)
 		reset = invalid_operation_handler(mc_get_operation_flag());
 		flags.play = false;
 	}
-	if (check_clicked_ret_button() == true){
+	if (back_to_level_selection == true){
 		ret_val = LV_LEVEL_SELECTION;	
 		level_init = false;
 		destroy_level(&flags);

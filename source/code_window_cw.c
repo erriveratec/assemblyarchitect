@@ -169,7 +169,7 @@ int cw_get_instruction_operand(int position, int operand_pos)
 		i++;
 	}
 	
-	int operand_quantity = get_instruction_operand_quantity(c->ins->id);
+	int operand_quantity = cl_get_instruction_operand_quantity(c->ins->id);
 	
 	if (operand_quantity == ZERO_OPERANDS){
 		operand = NO_OPERAND;
@@ -875,18 +875,17 @@ void display_line_number()
 	int h = CODE_BUTTON_H;
 	char *number = NULL;
 	int i = 1;
-	
-	LIST_FOREACH(code, first, next, cur){
+
+	for(int i = 0; i < list_size; i++){
+
 		if (i < 10){
-			number = number_to_string_with_prepend_zero(i);
-			draw_text(x, y, M_SCALE_FACTOR, COLOR_WHITE, number);
+			number = number_to_string_with_prepend_zero(i + 1);
 		} else {
-			number = number_to_string(i);
-			draw_text(x, y, M_SCALE_FACTOR, COLOR_WHITE, number);
+			number = number_to_string(i + 1);
 		}	
+			draw_text_fits_height(x, y, CODE_BUTTON_H, COLOR_WHITE, number);
 			free(number);
-			i++;
-			y += h;
+		y += CODE_BUTTON_H;
 	}
 }
 

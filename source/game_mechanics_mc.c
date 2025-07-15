@@ -601,7 +601,7 @@ static bool is_operand_retrievable(int id)
 static void handle_source_operand(code_line_t *line)
 {
 	assert(line != NULL && "The value of line cannot be NULL");
-	int operand_quantity = get_instruction_operand_quantity(line->ins->id);
+	int operand_quantity = cl_get_instruction_operand_quantity(line->ins->id);
 	int mov_pending = NO_VALUE;
 
 	if (operand_quantity == TWO_OPERANDS && g_avatar.op2_retrieved == false){

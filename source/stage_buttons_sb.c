@@ -154,7 +154,7 @@ bool check_clicked_ret_button()
 		ret_button->active = true;
 		ret = true;
 	}
-	if (ms_check_mouse_left_released() == true){
+	if (ms_get_mouse_left_released() == true){
 		ret_button->active = false;	
 	}
 

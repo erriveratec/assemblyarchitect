@@ -16,5 +16,5 @@ bool ms_check_mouse_left_released();
 void ms_disable_mouse_button();
 void ms_init_mouse();
 void ms_clear_mouse_values();
-
+bool ms_get_mouse_left_released(); //not_enables
 #endif

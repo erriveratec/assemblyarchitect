@@ -5,17 +5,15 @@
 #include "dimensions.h"
 #include "aux.h"
 
-
 #define INSTRUCTION_STRING_LENGTH 20
 
 static operand_t *copy_operand(operand_t *op);
 bool check_valid_operand(int id);
 bool check_is_register(int id);
 
-
-
 char *add_text = "add";
 char *mov_text = "mov";
+char *label_text = "label";
 char *rax_text = "rax";
 char *rbx_text = "rbx";
 char *rcx_text = "rcx";
@@ -44,6 +42,9 @@ texture_t *cl_create_instruction_texture(int id)
 			break;
 		case ADD:
 			texture = load_texture_from_rendered_text(add_text, COLOR_WHITE);
+			break;
+		case LABEL:
+			texture = load_texture_from_rendered_text(label_text, COLOR_WHITE);
 			break;
 		default:
 			printf("Error: the id of the register is invalid");
@@ -140,9 +141,10 @@ int cl_text_to_instruction_id(char *text)
 
 	if (strstr(text, mov_text) != NULL){
 		instruction_id = MOV;
-	}
-	else if (strstr(text, add_text)!= NULL){
+	} else if (strstr(text, add_text)!= NULL){
 		instruction_id = ADD;
+	} else if (strstr(text, label_text)!= NULL){
+		instruction_id = LABEL;
 	}
 	assert(instruction_id != INVALID_OPERAND && "Instruction id is invalid");
 	return instruction_id;
@@ -195,7 +197,7 @@ bool check_instruction_has_two_operands(code_line_t *line)
  * Return:
  *	int with the number of operands of the instruction
  */
-int get_instruction_operand_quantity(int instruction_id)
+int cl_get_instruction_operand_quantity(int instruction_id)
 {
 	assert(instruction_id > INSTRUCTION_MIN && 
 	       instruction_id < INSTRUCTION_MAX && "The instruction id is invalid");
@@ -208,6 +210,10 @@ int get_instruction_operand_quantity(int instruction_id)
 		case ADD:
 			number_of_operands = TWO_OPERANDS;
 			break;
+		case LABEL:
+			number_of_operands = ZERO_OPERANDS;
+			break;
+
 	}
 	return number_of_operands;
 }
@@ -233,6 +239,9 @@ char *cl_get_instruction_text(int instruction_id)
 			break;
 		case ADD:
 			text = add_text;
+			break;
+		case LABEL:
+			text = label_text;
 			break;
 	}
 error:
@@ -315,9 +324,8 @@ char *cl_create_code_line_text(int instruction_id, int op1_id, int op2_id)
 		strcat(line_text, comma_text);
 		strcat(line_text, space_text);
 		strcat(line_text, op2);
-		strcat(line_text, newline_text);
 	}
-	
+	strcat(line_text, newline_text);
 	return line_text;
 }
 
@@ -336,7 +344,8 @@ char *cl_create_code_line_text(int instruction_id, int op1_id, int op2_id)
 instruction_t *cl_create_instruction(int id, button_t *b)
 {
 	assert(NULL != b && "The button pointer is NULL");
-	assert(id >= MOV && id <= ADD && "Invalid instruction id");
+	assert(id > INSTRUCTION_MIN && id < INSTRUCTION_MAX && 
+		   "Invalid instruction id");
 	
 	instruction_t *ins = malloc(sizeof(instruction_t));	
 
@@ -366,7 +375,16 @@ code_line_t *cl_create_code_line(instruction_t *ins)
 	new_line->ins = ins;
 	new_line->op1 = NULL;
 	new_line->op2 = NULL;
-	new_line->state = MISSING_BOTH;
+
+	if (cl_get_instruction_operand_quantity(ins->id) == ZERO_OPERANDS){
+		new_line->state = COMPLETE;
+	} else if (cl_get_instruction_operand_quantity(ins->id) == ONE_OPERAND){
+		new_line->state = MISSING_OP1;
+	} else if (cl_get_instruction_operand_quantity(ins->id) == TWO_OPERANDS){
+		new_line->state = MISSING_BOTH;
+	} else{
+		assert("Invalid instruction operand quantity");
+	}
 
 error:
 	return new_line;
