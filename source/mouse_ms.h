@@ -8,12 +8,16 @@
 void ms_mouse_button_handler(SDL_Event e);
 void ms_mouse_motion_handler(SDL_Event e);
 void ms_mouse_wheel_handler(SDL_Event e);
+
 int ms_get_mouse_x();
 int ms_get_mouse_y();
 int ms_get_mouse_scroll_y();
+
 bool ms_check_mouse_left_pressed();
 bool ms_check_mouse_left_released();
 void ms_disable_mouse_button();
+
+bool ms_get_mouse_button_enable();
 void ms_init_mouse();
 void ms_clear_mouse_values();
 bool ms_get_mouse_left_released(); //not_enables

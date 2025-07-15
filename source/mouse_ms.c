@@ -29,13 +29,12 @@ static void set_mouse_button_enable(bool s);
 
 static void clear_mouse_left_released();
 
-static bool get_mouse_button_enable();
 static bool get_mouse_left_pressed();
 static bool get_mouse_left_released();
 
 
 
-/* Function: get_mouse_button_enable
+/* Function: ms_get_mouse_button_enable
  * -----------------------------------------------------------------------------
  * This function is used for obtaining the status of the mouse enable button
  *
@@ -45,7 +44,7 @@ static bool get_mouse_left_released();
  * Return:
  *	bool with the state of the button enable attribute.
  */
-static bool get_mouse_button_enable()
+bool ms_get_mouse_button_enable()
 {
 	return mouse.button_enable;
 }
@@ -310,7 +309,6 @@ int ms_get_mouse_scroll_y()
  */
 bool ms_check_mouse_left_pressed()
 {
-	
 	return mouse.left_pressed;
 }
 
@@ -327,7 +325,7 @@ bool ms_check_mouse_left_pressed()
 bool ms_check_mouse_left_released()
 {
 	bool released =  ms_get_mouse_left_released();
-	bool enable = get_mouse_button_enable();
+	bool enable = ms_get_mouse_button_enable();
 
 	bool check = released & enable;
 	

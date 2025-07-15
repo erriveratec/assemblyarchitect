@@ -125,7 +125,7 @@ bool check_mouse_click_in_button(button_t *button)
 	}
 
 	if (mouse_x > button->x && mouse_x < (button->x + button->w) &&
-		mouse_y > button->y && mouse_y < (button->y + button->h)) {
+		mouse_y > button->y && mouse_y < (button->y + button->h)){
 		return true;
 	} else {
 		return false;
