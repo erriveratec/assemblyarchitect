@@ -27,7 +27,9 @@ static void set_mouse_scroll_y(int y);
 static void set_mouse_left_pressed(bool s);
 static void set_mouse_left_released(bool s);
 static void set_mouse_button_enable(bool s);
-static void set_mouse_left_one_click(bool s);
+
+static void clear_mouse_left_released();
+
 static bool get_mouse_left_pressed();
 static bool get_mouse_left_released();
 
@@ -250,29 +252,21 @@ void ms_clear_mouse_values()
 	return;
 }
 
-/* Function: ms_reset_mouse_values
+/* Function: clear_mouse_left_released
  * -----------------------------------------------------------------------------
- * This function is used for clearing the values not used in the mouse for next
- * game cycles
+ * This function is used for clearing the released button of the mouse in
+ * external functions;
  *
  * Arguments:
  *
  * Return:
  *	void.
  */
-void ms_reset_mouse_values()
+static void clear_mouse_left_released()
 {
-	set_mouse_x(0);
-	set_mouse_y(0);
-	set_mouse_scroll_x(0);
-	set_mouse_scroll_y(0);
-	set_mouse_left_pressed(false);
 	set_mouse_left_released(false);
-	set_mouse_button_enable(false);
-	set_mouse_left_one_click(false);
 	return;
 }
-
 /* Function: ms_get_mouse_x
  * -----------------------------------------------------------------------------
  * This functions returns the x coordinate of the mouse object
@@ -334,22 +328,6 @@ bool ms_check_mouse_left_pressed()
 {
 	return mouse.left_pressed;
 }
-
-/* Function: ms_check_mouse_one_click
- * -----------------------------------------------------------------------------
- * Return the state of the left_one_click flag of the mouse object
- *
- * Arguments:
- *	None.
- *
- * Return:
- * 	State of the left_one_click_flag	
- */
-bool ms_check_mouse_left_one_click()
-{
-	return mouse.left_one_click;
-}
-
 
 /* Function: ms_check_mouse_left_released
  * -----------------------------------------------------------------------------

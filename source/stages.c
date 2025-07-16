@@ -353,6 +353,7 @@ int stage_select_player()
 	
 	display_escape_menu(get_escape_menu_state());
 	error:
+	ms_reset_mouse_values();
 	return ret_val;
 }
 
@@ -479,6 +480,7 @@ int stage_select_level()
 			bt_destroy_button(level_buttons[i]);
 		}
 	}
+	ms_reset_mouse_values();
 	return ret_val;
 }
 

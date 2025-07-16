@@ -177,17 +177,17 @@ void print_code_line(code_line_t *line)
  *	true if the instruction requires a comma.
  *	false if the instruction does not requires a comma.
  */
-bool check_instruction_has_two_operands(code_line_t *line)
-{
-	assert(NULL != line && "The line pointer cannot be NULL");
+//bool check_instruction_has_two_operands(code_line_t *line)
+//{
+//	assert(NULL != line && "The line pointer cannot be NULL");
 	
-	bool check = false;
+//	bool check = false;
 
-	if (line->ins->id > INSTRUCTION_MIN && line->ins->id < INSTRUCTION_MAX){
-		check = true;
-	}
-	return check;
-}
+//	if (line->ins->id > INSTRUCTION_MIN && line->ins->id < INSTRUCTION_MAX){
+//		check = true;
+//	}
+//	return check;
+//}
 
 /* Function: get_instruction_operand_quantity
  *------------------------------------------------------------------------------

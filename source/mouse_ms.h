@@ -15,10 +15,12 @@ int ms_get_mouse_scroll_y();
 
 bool ms_check_mouse_left_pressed();
 bool ms_check_mouse_left_released();
+bool ms_check_mouse_left_one_click();// worthless, must be probable deleted
 void ms_disable_mouse_button();
 
 bool ms_get_mouse_button_enable();
 void ms_init_mouse();
 void ms_clear_mouse_values();
+void ms_reset_mouse_values();
 bool ms_get_mouse_left_released(); //not_enables
 #endif

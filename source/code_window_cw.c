@@ -804,7 +804,8 @@ static void display_player_code()
 			bt_draw_button(line->op2->b);
 		}
 	
-		bool comma = check_instruction_has_two_operands(line);
+		int comma = cl_get_instruction_operand_quantity(line->ins->id);
+
 		if (comma == true && (MISSING_BOTH != line->state && 
 							  MISSING_OP1 != line->state)){
 			draw_text_fits_height(line->ins->b->x + 2*CODE_BUTTON_W + 
