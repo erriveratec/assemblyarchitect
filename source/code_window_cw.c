@@ -58,25 +58,31 @@ void cw_add_saved_line(char *line)
 	int op1_id;
 	int op2_id;
 
+
 	ins_text =  strtok_r(line, delim, &saveptr1);
 	ins_id = cl_text_to_instruction_id(ins_text);
-	op1_text =  strtok_r(NULL, delim, &saveptr1);
-	op1_id = cl_text_to_operand_id(op1_text);
-	op2_text =  strtok_r(NULL, delim, &saveptr1);
-	op2_id = cl_text_to_operand_id(op2_text);
+	
+	int operand_quantity = cl_get_instruction_operand_quantity(ins_id);
 
+	if (operand_quantity == ONE_OPERAND || operand_quantity == TWO_OPERANDS){
+		op1_text =  strtok_r(NULL, delim, &saveptr1);
+		op1_id = cl_text_to_operand_id(op1_text);
+	}
+	if (operand_quantity == TWO_OPERANDS){
+		op2_text =  strtok_r(NULL, delim, &saveptr1);
+		op2_id = cl_text_to_operand_id(op2_text);
+	}
+	
 	int list_size = cw_get_code_list_size();
 	ins_text = cl_get_instruction_text(ins_id);
 	texture_t *instruction_tex = load_texture_from_rendered_text(
 						  		  ins_text, COLOR_WHITE);
 	
-	int w = CODE_BOX_NUMBER_WIDTH;
-	int h = CODE_BUTTON_H;
 	int x = get_code_line_x();
 	int y = get_first_code_line_y();
 
 	for (int i = 0; i <= list_size; i++){
-		y += h;
+		y += CODE_BUTTON_H;
 	}
 
 	button_t *b = create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H,
@@ -85,21 +91,26 @@ void cw_add_saved_line(char *line)
 	instruction_t *new_ins = cl_create_instruction(ins_id, b);
 	code_line_t *new_line = cl_create_code_line(new_ins);
 	
-	operand_t *op1;
-	if (op1_id > REGISTERS_MIN && op1_id < REGISTERS_MAX){
-		op1 = rg_create_register_operand_by_id(op1_id);
-	} else if (op1_id > BUFFERS_MIN && op1_id < BUFFERS_MAX){
-		op1 = bf_create_buffer_operand_by_id(op1_id);
-	}
-	cl_assign_operand_to_line(op1, new_line);
 	
-	operand_t *op2;
-	if (op2_id > REGISTERS_MIN && op2_id < REGISTERS_MAX){
-		op2 = rg_create_register_operand_by_id(op2_id);
-	} else if (op2_id > BUFFERS_MIN && op2_id < BUFFERS_MAX){
-		op2 = bf_create_buffer_operand_by_id(op2_id);
+	if (operand_quantity == ONE_OPERAND || operand_quantity == TWO_OPERANDS){
+		operand_t *op1;
+		if (op1_id > REGISTERS_MIN && op1_id < REGISTERS_MAX){
+			op1 = rg_create_register_operand_by_id(op1_id);
+		} else if (op1_id > BUFFERS_MIN && op1_id < BUFFERS_MAX){
+			op1 = bf_create_buffer_operand_by_id(op1_id);
+		}
+		cl_assign_operand_to_line(op1, new_line);
 	}
-	cl_assign_operand_to_line(op2, new_line);
+	
+	if (operand_quantity == TWO_OPERANDS){
+		operand_t *op2;
+		if (op2_id > REGISTERS_MIN && op2_id < REGISTERS_MAX){
+			op2 = rg_create_register_operand_by_id(op2_id);
+		} else if (op2_id > BUFFERS_MIN && op2_id < BUFFERS_MAX){
+			op2 = bf_create_buffer_operand_by_id(op2_id);
+		}
+		cl_assign_operand_to_line(op2, new_line);
+	}
 
 	new_line->state = COMPLETE;
 
@@ -976,7 +987,7 @@ ListNode *get_list_node_by_value(code_line_t *line)
 	return NULL;
 }
 
-/* Function: check_if_in_code_list
+/* Function: cw_check_if_in_code_list
  * -----------------------------------------------------------------------------
  * This function verifies if a selected element of the screen is already in
  * a list, to avoide adding the same element multiple times.
@@ -989,7 +1000,7 @@ ListNode *get_list_node_by_value(code_line_t *line)
  *	true if already present, false if otherwise.
  */
 
-bool check_if_in_code_list(code_line_t *line)
+bool cw_check_if_in_code_list(code_line_t *line)
 {
 	List *code = get_code_list();
 	assert(NULL != code && "The code pointer is NULL");
@@ -1169,18 +1180,18 @@ void cw_player_holding_instruction(code_line_t *line)
 
 	if (check_if_inside_code_window() == true){
 		
-		if (check_if_in_code_list(line) == true){
+		if (cw_check_if_in_code_list(line) == true){
 			if (check_selected_line_in_position(line) == false){
 				ListNode *node = get_list_node_by_value(line);
 				List_remove(code, node);
 			}
 		} 
-		if (check_if_in_code_list(line) == false){
+		if (cw_check_if_in_code_list(line) == false){
 			add_code_line(line);
 		}
 
 	} else {
-		if (check_if_in_code_list(line) == true){
+		if (cw_check_if_in_code_list(line) == true){
 			ListNode *node = get_list_node_by_value(line);
 			List_remove(code, node);
 		}

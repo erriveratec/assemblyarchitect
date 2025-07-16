@@ -8,7 +8,7 @@ extern texture_t *right_arrow;
 
 enum invalid_operatios{
 	NO_INVALID_OPERATION,
-	REG_VALUE_NOT_INITIALIZED
+	SOURCE_VALUE_INVALID
 };
 
 void mc_draw_avatar();

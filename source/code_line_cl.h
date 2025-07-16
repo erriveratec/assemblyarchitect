@@ -86,7 +86,6 @@ code_line_t *cl_new_code_line(instruction_t *ins);
 instruction_t *cl_create_instruction(int id, button_t *b);
 operand_t *create_operand(int id, button_t *b);
 void cl_assign_operand_to_line(operand_t *op, code_line_t *line);
-//bool check_instruction_has_two_operands(code_line_t *line);
 bool check_operand_compatilibity(operand_t *op, code_line_t *line);
 void destroy_operand(operand_t *op);
 int cl_get_instruction_operand_quantity(int instruction_id);

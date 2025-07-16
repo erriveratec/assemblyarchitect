@@ -642,7 +642,7 @@ static void edit_code(int level_id)
 	} else if (left_pressed == true && line != NULL){
 		cw_player_holding_instruction(line);
 	} else if (left_pressed == false && NULL != line){
-		if (check_if_in_code_list(line) == false){
+		if (cw_check_if_in_code_list(line) == false){
 			cl_destroy_code_line(line);
 		} 
 		if (cw_check_code_pending_operand() == false){

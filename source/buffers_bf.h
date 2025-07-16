@@ -36,7 +36,7 @@ value_box_t bf_get_input_buffer_value_box();
 value_box_t bf_get_output_buffer_value_box();
 void bf_reset_input_list();
 void bf_reset_output_list();
-void add_output_to_list();
+void bf_add_output_to_list();
 void set_output_buffer_value_box(value_box_t val);
 bool check_if_output_buffer_position_set();
 int get_input_buffer_list_size();

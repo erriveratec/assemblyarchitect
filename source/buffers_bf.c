@@ -303,7 +303,7 @@ List *get_output_list()
 }
 
 
-/* Function: add_output_to_list
+/* Function: bf_add_output_to_list
  * -----------------------------------------------------------------------------
  * Arguments:
  *	None.
@@ -311,7 +311,7 @@ List *get_output_list()
  * Return:
  *	void
  */
-void add_output_to_list()
+void bf_add_output_to_list()
 {
 	List *outputs = get_output_list();
 

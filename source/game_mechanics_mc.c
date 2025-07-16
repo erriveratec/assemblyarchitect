@@ -55,7 +55,7 @@ static bool retrieve_operand();
 static bool is_operand_retrievable(int id);
 static void set_invalid_operation_flag(int flag_id);
 static void move_execution_arrow(int instruction_number);
-
+static bool check_operand_has_invalid_value(int op_id);
 /* Function: mc_reset_invalid_operation_flag
  * -----------------------------------------------------------------------------
  * Resets the invalid operation flag when the player has pressed stop
@@ -400,6 +400,38 @@ static value_box_t get_operand_value_box(int op_id)
 	return op_value_box;
 }
 
+/* Function: check_operand_has_invalid_value
+ * -----------------------------------------------------------------------------
+ * Checks if an operand does not has a valid value
+ * 
+ *	Arguments:
+ *	op_id: the id of the operand the avatar will retrieve
+ *
+ * Return:
+ *	bool indicating if part of the retriving is pending
+ */
+static bool check_operand_has_invalid_value(int op_id)
+{
+	assert((op_id > REGISTERS_MIN && op_id < REGISTERS_MAX) ||
+		   (op_id > BUFFERS_MIN &&  op_id < BUFFERS_MAX) && 
+		   "The operand id is invalid");
+
+	value_box_t op_value_box;
+
+	if (op_id > REGISTERS_MIN && op_id < REGISTERS_MAX){
+		op_value_box = get_register_value_box_by_id(op_id);	
+	} else if (op_id == IB){
+		op_value_box = bf_get_input_buffer_value_box();
+	} else if (op_id == OB){
+		op_value_box = bf_get_output_buffer_value_box();
+	}
+	bool value = true;
+	if (op_value_box.value == NO_VALUE){
+		value = false;
+	}
+	return value;
+}
+
 /* Function: set_operand_value_box
  * -----------------------------------------------------------------------------
  * This function sets the value of the operand with the value of the avatar.
@@ -472,12 +504,15 @@ void operate_instruction(code_line_t *line)
 	bool op_status;
 	switch (line->ins->id){
 		case MOV:
-			set_operand_value_box(line->op1->id, g_avatar.value);
+			op_status = set_operand_value_box(line->op1->id, g_avatar.value);
+			if (op_status == false){
+				set_invalid_operation_flag(SOURCE_VALUE_INVALID);
+			}
 			break;
 		case ADD:
 			op_status = add_operand_value_box(line->op1->id, g_avatar.value);
 			if (op_status == false){
-				set_invalid_operation_flag(REG_VALUE_NOT_INITIALIZED);
+				set_invalid_operation_flag(SOURCE_VALUE_INVALID);
 			}
 			break;
 
@@ -529,7 +564,8 @@ bool deliver_operand(int op_id)
 
 /* Function: retrieve_operand
  * -----------------------------------------------------------------------------
- * This function move the avatar value box.
+ * This function moves the avatar value box. Is an aesthetic functions
+ * as it does not changes the avatar box value
  *
  * Arguments:
  *	void
@@ -611,6 +647,8 @@ static void handle_source_operand(code_line_t *line)
 			if (is_operand_retrievable(line->op2->id) == true){	
 				g_avatar.value = get_operand_value_box(line->op2->id);
 				g_avatar.value.visible_box = true;
+			} else {
+				//The input list is empty
 			}
 		} 
 		if (mov_pending == false){
@@ -618,8 +656,12 @@ static void handle_source_operand(code_line_t *line)
 			if (retrieve_pending == false){
 				g_avatar.op2_retrieved = true;
 				g_avatar.in_place = false;
+
+				if (check_operand_has_invalid_value(line->op2->id) == true){
+					set_invalid_operation_flag(SOURCE_VALUE_INVALID);
+				}
 				if (line->op1->id == OB){
-					add_output_to_list();
+					bf_add_output_to_list();
 				}
 			}
 		}
