@@ -131,38 +131,6 @@ bool check_mouse_click_in_button(button_t *button)
 		return false;
 	} 
 }
-/* Function: check_mouse_one_click_in_button
- *------------------------------------------------------------------------------
- * Checks for the one click mouse flag if it was pressed inside a button
- *
- * Arguments:
- * 	button: the button to be verified
- *	
- * Return:
- *	true if the mouse clicked inside the button
- *	false if otherwise
- *
-*/
-bool check_mouse_one_click_in_button(button_t *button)
-{
-	assert(NULL != button && "The button pointer cannot be NULL");
-
-	int mouse_x = ms_get_mouse_x();
-	int mouse_y = ms_get_mouse_y();
-	int mouse_left_pressed = ms_check_mouse_left_one_click();
-	
-	if (mouse_left_pressed == false){
-		return false;
-	}
-
-	if (mouse_x > button->x && mouse_x < (button->x + button->w) &&
-		mouse_y > button->y && mouse_y < (button->y + button->h)){
-		return true;
-	} else {
-		return false;
-	} 
-}
-
 
 /* Function: check_mouse_released_in_button
  *------------------------------------------------------------------------------

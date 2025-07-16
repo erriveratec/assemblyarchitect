@@ -27,7 +27,6 @@ static void set_mouse_scroll_y(int y);
 static void set_mouse_left_pressed(bool s);
 static void set_mouse_left_released(bool s);
 static void set_mouse_button_enable(bool s);
-static void set_mouse_left_one_click(bool s);
 static bool get_mouse_left_pressed();
 static bool get_mouse_left_released();
 
@@ -183,21 +182,6 @@ static void set_mouse_left_pressed(bool s)
 	return;
 }
 
-/* Function: set_mouse_left_one_click
- * -----------------------------------------------------------------------------
- * Sets the one click flag of the mouse object
- *
- * Arguments:
- *	s: state that will be set for the left button;
- *
- * Return:
- *	void.
- */
-static void set_mouse_left_one_click(bool s)
-{
-	mouse.left_one_click = s;
-	return;
-}
 /* Function: set_mouse_left_released
  * -----------------------------------------------------------------------------
  * This function is used for setting the pressed attribute of the left button
@@ -246,7 +230,6 @@ void ms_clear_mouse_values()
 	set_mouse_scroll_x(0);
 	set_mouse_scroll_y(0);
 	set_mouse_left_released(false);
-	set_mouse_left_one_click(false);
 	return;
 }
 
@@ -269,7 +252,6 @@ void ms_reset_mouse_values()
 	set_mouse_left_pressed(false);
 	set_mouse_left_released(false);
 	set_mouse_button_enable(false);
-	set_mouse_left_one_click(false);
 	return;
 }
 
@@ -335,22 +317,6 @@ bool ms_check_mouse_left_pressed()
 	return mouse.left_pressed;
 }
 
-/* Function: ms_check_mouse_one_click
- * -----------------------------------------------------------------------------
- * Return the state of the left_one_click flag of the mouse object
- *
- * Arguments:
- *	None.
- *
- * Return:
- * 	State of the left_one_click_flag	
- */
-bool ms_check_mouse_left_one_click()
-{
-	return mouse.left_one_click;
-}
-
-
 /* Function: ms_check_mouse_left_released
  * -----------------------------------------------------------------------------
  * This functions verifies if the left button of the mouse is released.
@@ -395,7 +361,6 @@ void ms_mouse_button_handler(SDL_Event e)
 			if (SDL_PRESSED == e.button.state){
 				set_mouse_left_pressed(true);
 				set_mouse_left_released(false);
-				set_mouse_left_one_click(true);
 			} else if (SDL_RELEASED == e.button.state){
 				set_mouse_left_pressed(false);
 				set_mouse_left_released(true);

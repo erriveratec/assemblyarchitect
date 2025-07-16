@@ -253,7 +253,6 @@ void stage_drawings()
 	mc_draw_execution_arrow();
 
 	draw_return_button();
-	display_escape_menu(get_escape_menu_state());
 
 	return;
 }
@@ -705,7 +704,6 @@ int stage_level(int level_id)
 			reset_level(level_id, &flags, &run_finished);		
 		} else if (action_selected == CONT_BUTTON_PRESSED){
 			fl_enable_next_level(g_player, level_id + 1);
-			mc_hide_execution_arrow();	
 			back_to_level_selection = true;
 		} 
 	}
@@ -723,9 +721,11 @@ int stage_level(int level_id)
 	if (back_to_level_selection == true){
 		ret_val = LV_LEVEL_SELECTION;	
 		level_init = false;
+		reset_level(level_id, &flags, &run_finished);		
 		destroy_level(&flags);
 		run_finished = false;
 	}
+	display_escape_menu(get_escape_menu_state());
 	return ret_val;
 }
 
@@ -905,6 +905,7 @@ static int display_run_result(bool win_check)
 
 	return action_selected;
 }
+
 
 /* Function: display_level_inputs
  * This function receives the coordinates and the list of inputs from 

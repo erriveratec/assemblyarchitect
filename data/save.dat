@@ -55,8 +55,8 @@ mov rbx, rax
 add rbx, rax
 add rbx, rax
 add rbx, rax
-mov [ob], rbx
 add rbx, rax
+mov [ob], rbx
 CODE ENDS
 
 +++LEVEL ENDS 04
@@ -80,7 +80,7 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-label
+
 CODE ENDS
 
 +++LEVEL ENDS 06
@@ -484,8 +484,8 @@ mov rbx, rax
 add rbx, rax
 add rbx, rax
 add rbx, rax
-mov [ob], rbx
 add rbx, rax
+mov [ob], rbx
 CODE ENDS
 
 +++LEVEL ENDS 04
@@ -509,7 +509,7 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-label
+
 CODE ENDS
 
 +++LEVEL ENDS 06
@@ -913,8 +913,8 @@ mov rbx, rax
 add rbx, rax
 add rbx, rax
 add rbx, rax
-mov [ob], rbx
 add rbx, rax
+mov [ob], rbx
 CODE ENDS
 
 +++LEVEL ENDS 04
@@ -938,7 +938,7 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-label
+
 CODE ENDS
 
 +++LEVEL ENDS 06

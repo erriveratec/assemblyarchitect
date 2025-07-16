@@ -15,7 +15,6 @@ int ms_get_mouse_scroll_y();
 
 bool ms_check_mouse_left_pressed();
 bool ms_check_mouse_left_released();
-bool ms_check_mouse_left_one_click();// worthless, must be probable deleted
 void ms_disable_mouse_button();
 
 bool ms_get_mouse_button_enable();
