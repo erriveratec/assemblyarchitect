@@ -190,7 +190,7 @@ int cl_get_instruction_operand_quantity(int instruction_id)
 			number_of_operands = TWO_OPERANDS;
 			break;
 		case LABEL:
-			number_of_operands = ZERO_OPERANDS;
+			number_of_operands = ONE_OPERAND;
 			break;
 
 	}
@@ -363,6 +363,10 @@ code_line_t *cl_create_code_line(instruction_t *ins)
 		new_line->state = MISSING_BOTH;
 	} else{
 		assert("Invalid instruction operand quantity");
+	}
+
+	if (new_line->ins == LABEL){
+
 	}
 
 error:

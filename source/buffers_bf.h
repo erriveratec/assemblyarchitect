@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include "code_line_cl.h"
 
-
 enum input_list_type{
 	NOT_ASSIGNED,
 	NATURAL,
@@ -15,7 +14,6 @@ enum input_list_type{
 
 extern int g_input_list_type;
 extern int g_input_buffer_size;
-
 
 bool bf_check_released_in_buffer();
 void draw_input_buffer_text(int x, int y, int h);

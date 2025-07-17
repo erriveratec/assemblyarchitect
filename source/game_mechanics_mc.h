@@ -8,7 +8,8 @@ extern texture_t *right_arrow;
 
 enum invalid_operatios{
 	NO_INVALID_OPERATION,
-	SOURCE_VALUE_INVALID
+	INPUT_BUFFER_EMPTY,
+	REG_VALUE_INVALID
 };
 
 void mc_draw_avatar();
@@ -19,4 +20,5 @@ void mc_reset_invalid_operation_flag();
 void mc_draw_execution_arrow();
 void mc_reset_execution_arrow();
 void mc_hide_execution_arrow();
+bool mc_invalid_operation_handler(int id);
 #endif

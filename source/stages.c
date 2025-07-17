@@ -63,7 +63,6 @@ static int display_run_result(bool win_check);
 static bool get_escape_menu_state();
 static void display_escape_menu(bool menu_variable_state);
 static void destroy_level(level_flags_t *flags);
-static bool invalid_operation_handler(int id);
 
 /* Function: initialize_stage_assets
  * ----------------------------------------------------------------------------
@@ -673,6 +672,7 @@ static void reset_level(int level_id, level_flags_t *flags, bool *run_finished)
 	lv_generate_win_condition_list(level_id);
 	cw_reset_code_execution();
 	mc_hide_execution_arrow();
+	mc_reset_invalid_operation_flag();
 	*run_finished = false;
 }
 
@@ -715,7 +715,7 @@ int stage_level(int level_id)
 		reset = false;
 	}
 	if (mc_get_operation_flag() != NO_INVALID_OPERATION){
-		reset = invalid_operation_handler(mc_get_operation_flag());
+		reset = mc_invalid_operation_handler(mc_get_operation_flag());
 		flags.play = false;
 	}
 	if (back_to_level_selection == true){
@@ -727,34 +727,6 @@ int stage_level(int level_id)
 	}
 	display_escape_menu(get_escape_menu_state());
 	return ret_val;
-}
-
-/* Function: invalid_operation_handler
- * -----------------------------------------------------------------------------
- * This function is called in all the stages, an invalid operation message
- * the nature of the message will depend accordingly to an identifier
- * 
- * Arguments:
- *	id: The identifier of the exception that ocurred.
- *
- * Return:
- *	void.
- */
-static bool invalid_operation_handler(int id)
-{
-	bool reset_level = false;
-	dw_draw_filled_rectangle(MESSAGE_BOX_X, MESSAGE_BOX_Y, MESSAGE_BOX_W, 
-					   		 MESSAGE_BOX_H, COLOR_BLACK, COLOR_WHITE);
-
-	dw_draw_wrapped_text_fits_height(MESSAGE_TEXT_X, MESSAGE_TEXT_Y, 
-									 MESSAGE_TEXT_W, MESSAGE_TEXT_H, 
-									 COLOR_WHITE, REG_INVALID_VALUE_TEXT);
-
-	if (ms_check_mouse_left_released() == true){
-		mc_reset_invalid_operation_flag();
-		reset_level = true;
-	}
-	return reset_level;
 }
 
 /* Function: display_escape_menu

@@ -35,7 +35,6 @@
 #define MESSAGE_TEXT_X MESSAGE_BOX_X + (MESSAGE_BOX_W - MESSAGE_TEXT_W)/2
 #define MESSAGE_TEXT_Y (MESSAGE_BOX_Y + 10)
 
-#define REG_INVALID_VALUE_TEXT "The register had an invalid value"
 
 /*******************************EXECUTION ARROW********************************/
 #define EXEC_ARROW_X_COORD_OFFSET - 50

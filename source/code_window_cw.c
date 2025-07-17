@@ -886,17 +886,20 @@ void display_line_number()
 			CODE_BOX_OFFSET;
 	int h = CODE_BUTTON_H;
 	char *number = NULL;
-	int i = 1;
-
+	
+	int line_number = 1;
 	for(int i = 0; i < list_size; i++){
-
-		if (i < 10){
-			number = number_to_string_with_prepend_zero(i + 1);
-		} else {
-			number = number_to_string(i + 1);
-		}	
-			draw_text_fits_height(x, y, CODE_BUTTON_H, COLOR_WHITE, number);
-			free(number);
+	int instruction = cw_get_instruction_at_code_pos(i);
+		if (instruction != LABEL){
+			if (line_number < 10){
+				number = number_to_string_with_prepend_zero(line_number);
+			} else {
+				number = number_to_string(line_number);
+			}	
+				draw_text_fits_height(x, y, CODE_BUTTON_H, COLOR_WHITE, number);
+				free(number);
+			line_number++;
+		}
 		y += CODE_BUTTON_H;
 	}
 }

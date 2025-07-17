@@ -11,6 +11,9 @@
 #include "dbg.h"
 #include "levels_lv.h"
 
+#define INPUT_BUFFER_EMPTY_TEXT "The Input Buffer is empty"
+#define REG_VALUE_INVALID_TEXT "The register had an invalid value"
+
 texture_t *right_arrow = NULL;
 
 static int g_invalid_operation_flag = NO_INVALID_OPERATION;
@@ -55,7 +58,9 @@ static bool retrieve_operand();
 static bool is_operand_retrievable(int id);
 static void set_invalid_operation_flag(int flag_id);
 static void move_execution_arrow(int instruction_number);
-static bool check_operand_has_invalid_value(int op_id);
+static bool check_operand_has_valid_value(int op_id);
+
+
 /* Function: mc_reset_invalid_operation_flag
  * -----------------------------------------------------------------------------
  * Resets the invalid operation flag when the player has pressed stop
@@ -86,6 +91,52 @@ int mc_get_operation_flag()
 {
 	return g_invalid_operation_flag;
 }
+
+/* Function: invalid_operation_handler
+ * -----------------------------------------------------------------------------
+ * This function is called in all the stages, an invalid operation message
+ * the nature of the message will depend accordingly to an identifier
+ * 
+ * Arguments:
+ *	id: The identifier of the exception that ocurred.
+ *
+ * Return:
+ *	void.
+ */
+bool mc_invalid_operation_handler(int id)
+{
+	bool reset_level = false;
+
+	dw_draw_filled_rectangle(MESSAGE_BOX_X, MESSAGE_BOX_Y, MESSAGE_BOX_W, 
+					   		 MESSAGE_BOX_H, COLOR_BLACK, COLOR_WHITE);
+	char *message = NULL;
+
+	switch(id){
+		case INPUT_BUFFER_EMPTY:
+			message = malloc(sizeof(char)*strlen(INPUT_BUFFER_EMPTY_TEXT)+1);
+			strcpy(message, INPUT_BUFFER_EMPTY_TEXT);	
+			break;
+		case REG_VALUE_INVALID:
+			message = malloc(sizeof(char)*strlen(REG_VALUE_INVALID_TEXT)+1);
+			strcpy(message, REG_VALUE_INVALID_TEXT);	
+			break;
+		default: 
+			puts("TEST");
+	}
+
+	dw_draw_wrapped_text_fits_height(MESSAGE_TEXT_X, MESSAGE_TEXT_Y, 
+									 MESSAGE_TEXT_W, MESSAGE_TEXT_H, 
+									 COLOR_WHITE, message);
+	
+	free(message);
+
+	if (ms_check_mouse_left_released() == true){
+		mc_reset_invalid_operation_flag();
+		reset_level = true;
+	}
+	return reset_level;
+}
+
 
 /* Function: mc_set_invalid_operation_flag
  * -----------------------------------------------------------------------------
@@ -400,7 +451,7 @@ static value_box_t get_operand_value_box(int op_id)
 	return op_value_box;
 }
 
-/* Function: check_operand_has_invalid_value
+/* Function: check_operand_has_valid_value
  * -----------------------------------------------------------------------------
  * Checks if an operand does not has a valid value
  * 
@@ -410,7 +461,7 @@ static value_box_t get_operand_value_box(int op_id)
  * Return:
  *	bool indicating if part of the retriving is pending
  */
-static bool check_operand_has_invalid_value(int op_id)
+static bool check_operand_has_valid_value(int op_id)
 {
 	assert((op_id > REGISTERS_MIN && op_id < REGISTERS_MAX) ||
 		   (op_id > BUFFERS_MIN &&  op_id < BUFFERS_MAX) && 
@@ -506,13 +557,13 @@ void operate_instruction(code_line_t *line)
 		case MOV:
 			op_status = set_operand_value_box(line->op1->id, g_avatar.value);
 			if (op_status == false){
-				set_invalid_operation_flag(SOURCE_VALUE_INVALID);
+				set_invalid_operation_flag(REG_VALUE_INVALID);
 			}
 			break;
 		case ADD:
 			op_status = add_operand_value_box(line->op1->id, g_avatar.value);
 			if (op_status == false){
-				set_invalid_operation_flag(SOURCE_VALUE_INVALID);
+				set_invalid_operation_flag(REG_VALUE_INVALID);
 			}
 			break;
 
@@ -644,11 +695,15 @@ static void handle_source_operand(code_line_t *line)
 		mov_pending = move_avatar_to_operand(line->op2->id);
 		if (mov_pending == false && g_avatar.in_place == false){
 			g_avatar.in_place = true;
-			if (is_operand_retrievable(line->op2->id) == true){	
+			int op_id = line->op2->id;
+			if ((op_id == IB && is_operand_retrievable(op_id) == true) || 
+				(op_id != IB && check_operand_has_valid_value(op_id))){	
 				g_avatar.value = get_operand_value_box(line->op2->id);
 				g_avatar.value.visible_box = true;
+			} else if (op_id == IB && is_operand_retrievable(op_id) == false){
+					set_invalid_operation_flag(INPUT_BUFFER_EMPTY);
 			} else {
-				//The input list is empty
+					set_invalid_operation_flag(REG_VALUE_INVALID);
 			}
 		} 
 		if (mov_pending == false){
@@ -657,9 +712,6 @@ static void handle_source_operand(code_line_t *line)
 				g_avatar.op2_retrieved = true;
 				g_avatar.in_place = false;
 
-				if (check_operand_has_invalid_value(line->op2->id) == true){
-					set_invalid_operation_flag(SOURCE_VALUE_INVALID);
-				}
 				if (line->op1->id == OB){
 					bf_add_output_to_list();
 				}

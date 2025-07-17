@@ -54,6 +54,13 @@ enum operands{
 	IB,
 	OB,
 	BUFFERS_MAX,
+	LABELS_MIN,
+	LABEL_A,
+	LABEL_B, 
+	LABEL_C,
+	LABEL_D,
+	LABEL_E,
+	LABELS_MAX
 };
 
 enum line_state{
