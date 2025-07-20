@@ -54,13 +54,6 @@ enum operands{
 	IB,
 	OB,
 	BUFFERS_MAX,
-	LABELS_MIN,
-	LABEL_A,
-	LABEL_B, 
-	LABEL_C,
-	LABEL_D,
-	LABEL_E,
-	LABELS_MAX
 };
 
 enum line_state{
@@ -89,7 +82,6 @@ extern char *ob_text;
 
 code_line_t *cl_create_code_line(instruction_t *ins);
 void cl_destroy_code_line(code_line_t *line);
-code_line_t *cl_new_code_line(instruction_t *ins);
 instruction_t *cl_create_instruction(int id, button_t *b);
 operand_t *create_operand(int id, button_t *b);
 void cl_assign_operand_to_line(operand_t *op, code_line_t *line);
@@ -104,6 +96,6 @@ int cl_text_to_instruction_id(char *text);
 int cl_text_to_operand_id(char *text);
 texture_t *cl_create_operand_texture(int id);
 texture_t *cl_create_instruction_texture(int id);
-
+code_line_t *cl_new_code_line(instruction_t *ins);
 
 #endif

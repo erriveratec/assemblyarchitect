@@ -38,6 +38,86 @@ static int get_first_code_line_y();
 static int get_code_line_x();
 List *get_code_list();
 
+/* Function: cw_get_instruction_position
+ * -----------------------------------------------------------------------------
+ * This function traverses the list and determines the position in the list
+ * of a given instruction
+ *
+ * Arguments:
+ * 	line: Instruction that will be checked its position on the list
+ *
+ * Return:
+ *	int with the position of the line in the code list
+ */
+
+int cw_get_instruction_position(code_line_t *line)
+{
+	List *code = get_code_list();
+	assert(NULL != code && "The code pointer is NULL");
+	assert(NULL != line && "The line pointer is NULL");
+
+	bool in_code_list = cw_check_if_in_code_list(line);
+	int line_position = 0;
+
+	if (in_code_list == false){
+		line_position = NO_VALUE;
+	} else {
+		LIST_FOREACH(code, first, next, cur){
+			if (cur->value == line){
+				break;
+			}
+			line_position++;
+		} 
+	}
+	return line_position;
+}
+
+
+/* Function: cw_get_label_operand
+ * -----------------------------------------------------------------------------
+ * Traverses the code list to return the correct label position value. The
+ * instruction must be already added to the code list.
+ * 
+ * Arguments:
+ *  line: The label instruction that the operand will calculated.
+ *
+ * Return:
+ *	int with the label value that will be assigned to the instruction
+ */
+int cw_get_label_operand(code_line_t *line)
+{
+	List *code = get_code_list();
+	check_mem(code);
+	check_mem(line);
+
+	int label;
+	bool in_code_list = cw_check_if_in_code_list(line);
+	
+	if (in_code_list == false){
+		label = NO_VALUE;
+	} if (cw_get_code_list_size() == 1){
+		label = 1;
+	} else {
+		int i = 0;
+		label = cw_get_instruction_position(line);
+		code_line_t *c;
+		LIST_FOREACH(code, first, next, cur){ 
+			if (i > label){
+				c = cur->value;
+				if (c->ins->id != LABEL){
+					label = i;
+					break;
+				}
+			} else {
+				i++;
+			}
+		}
+	}
+error:
+	return label;
+}
+
+
 /* Function: cw_add_saved_line
  *------------------------------------------------------------------------------
  * Arguments:
@@ -817,7 +897,7 @@ static void display_player_code()
 	
 		int comma = cl_get_instruction_operand_quantity(line->ins->id);
 
-		if (comma == true && (MISSING_BOTH != line->state && 
+		if (comma == TWO_OPERANDS && (MISSING_BOTH != line->state && 
 							  MISSING_OP1 != line->state)){
 			draw_text_fits_height(line->ins->b->x + 2*CODE_BUTTON_W + 
 								 LINE_NUMBER_OFFSET, line->ins->b->y, 
@@ -1192,6 +1272,10 @@ void cw_player_holding_instruction(code_line_t *line)
 		if (cw_check_if_in_code_list(line) == false){
 			add_code_line(line);
 		}
+
+	//	if (line->ins->id == LABEL){
+
+//		}
 
 	} else {
 		if (cw_check_if_in_code_list(line) == true){

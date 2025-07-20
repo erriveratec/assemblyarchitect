@@ -22,6 +22,31 @@ char *rdi_text = "rdi";
 char *ib_text = "[ib]";
 char *ob_text = "[ob]";
 
+/* Function: cl_new_code_line
+ * -----------------------------------------------------------------------------
+ * This function generates a new code_line object of a pointer it creates a 
+ * different pointers that can be used on a list. It is used in the instruction
+ * window
+ *
+ * Arguments:
+ * 	instruction: the instruction of the new line that will be created
+ *	
+ * Return:
+ *	The new code_line_object
+ *
+ */
+code_line_t *cl_new_code_line(instruction_t *ins)
+{
+	texture_t *t = cl_create_instruction_texture(ins->id);	
+	button_t *b = create_button(ins->b->x, ins->b->y, ins->b->w, ins->b->h, 
+							  	ins->b->active, ins->b->rectangle, t);
+
+	instruction_t *i = cl_create_instruction(ins->id, b);
+	code_line_t *new = cl_create_code_line(i);
+
+	return new;
+}
+
 /* Function: cl_create_instruction_texture
  * -----------------------------------------------------------------------------
  * Arguments:
@@ -333,6 +358,7 @@ instruction_t *cl_create_instruction(int id, button_t *b)
 	return ins;
 }
 
+
 /* Function: cl_create_code_line
  * -----------------------------------------------------------------------------
  * This function creates a code line with a given instruction object, the other
@@ -365,8 +391,8 @@ code_line_t *cl_create_code_line(instruction_t *ins)
 		assert("Invalid instruction operand quantity");
 	}
 
-	if (new_line->ins == LABEL){
-
+	if (new_line->ins->id == LABEL){
+		new_line->state = COMPLETE;
 	}
 
 error:
@@ -400,29 +426,7 @@ void cl_destroy_code_line(code_line_t *line)
 	free(line);
 }
 
-/* Function: cl_new_code_line
- * -----------------------------------------------------------------------------
- * This function generates a new code_line object of a pointer it creates a 
- * different pointers that can be used on a list. It is used in the instruction
- * window
- *
- * Arguments:
- * 	instruction: the instruction of the new line that will be created
- *	
- * Return:
- *	The new code_line_object
- *
- */
-code_line_t *cl_new_code_line(instruction_t *ins)
-{
-	texture_t *t = cl_create_instruction_texture(ins->id);	
-	button_t *b = create_button(ins->b->x, ins->b->y, ins->b->w, ins->b->h, 
-							  	ins->b->active, ins->b->rectangle, t);
 
-	instruction_t *i = cl_create_instruction(ins->id, b);
-	code_line_t *new = cl_create_code_line(i);
-	return new;
-}
 
 /* Function: copy_operand
  * -----------------------------------------------------------------------------

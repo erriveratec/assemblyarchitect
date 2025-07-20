@@ -629,7 +629,9 @@ void write_player_code_to_file(FILE *fp)
 		int op1 = NO_OPERAND;
 		int op2 = NO_OPERAND;
 		if (cl_get_instruction_operand_quantity(instruction) > ZERO_OPERANDS){
-			op1 = cw_get_instruction_operand(i, FIRST_OP);
+			if (instruction != LABEL){		
+				op1 = cw_get_instruction_operand(i, FIRST_OP);
+			}
 		}
 		if (cl_get_instruction_operand_quantity(instruction) == TWO_OPERANDS){
 			op2 = cw_get_instruction_operand(i, SECOND_OP);
