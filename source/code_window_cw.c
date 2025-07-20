@@ -36,7 +36,39 @@ static void code_box_height_adjust();
 static void adjust_code_box_position();
 static int get_first_code_line_y();
 static int get_code_line_x();
+static int get_label_operand(code_line_t *line);
 List *get_code_list();
+
+/* Function: create_label_operand
+*------------------------------------------------------------------------------
+* Creates the label operand with the corresponding number that will be shown
+* in the code
+*
+* Arguments:
+* 	None.
+*	
+* Return:
+*	Pointer to the newly created operand
+*
+*/
+operand_t create_label_operand(code_line_t *line)
+{
+   	operand_t *b = NULL;
+
+	b = malloc(sizeof(operand_t));
+
+	int label = get_label_operand(code_line_t *line);
+	
+	texture_t *t = load_texture_from_rendered_text(rax_text, COLOR_WHITE);
+	b->b = create_button(input_buffer->b->x, input_buffer->b->y, 
+						 input_buffer->b->w, input_buffer->b->h, 
+						 input_buffer->b->active, 
+						 input_buffer->b->rectangle, t);
+
+	b->id = input_buffer->id;
+
+	return b;
+}
 
 /* Function: cw_get_instruction_position
  * -----------------------------------------------------------------------------
@@ -73,7 +105,7 @@ int cw_get_instruction_position(code_line_t *line)
 }
 
 
-/* Function: cw_get_label_operand
+/* Function: get_label_operand
  * -----------------------------------------------------------------------------
  * Traverses the code list to return the correct label position value. The
  * instruction must be already added to the code list.
@@ -84,7 +116,7 @@ int cw_get_instruction_position(code_line_t *line)
  * Return:
  *	int with the label value that will be assigned to the instruction
  */
-int cw_get_label_operand(code_line_t *line)
+static int get_label_operand(code_line_t *line)
 {
 	List *code = get_code_list();
 	check_mem(code);
@@ -1272,10 +1304,10 @@ void cw_player_holding_instruction(code_line_t *line)
 		if (cw_check_if_in_code_list(line) == false){
 			add_code_line(line);
 		}
-
-	//	if (line->ins->id == LABEL){
-
-//		}
+		if (line->ins->id == LABEL){
+			if (line->op1 == NULL){
+			operand_t *l = create_label_operand();
+		}
 
 	} else {
 		if (cw_check_if_in_code_list(line) == true){

@@ -26,7 +26,6 @@ void cw_player_holding_instruction(code_line_t *instruction);
 bool cw_check_if_in_code_list(code_line_t *instruction);
 int cw_get_instruction_position(code_line_t *line);
 
-int cw_get_label_operand(code_line_t *line);
 bool cw_check_clicked_code();
 code_line_t *cw_get_clicked_code();
 bool cw_check_all_code_sorted();
