@@ -236,7 +236,7 @@ void iw_add_instruction_to_list(int id)
 	int x = INS_BOX_X + INS_BOX_OFFSET;
 	int y = INS_BOX_Y + INS_BOX_OFFSET + list_size*CODE_BUTTON_H;
 	button_t *b = create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H,
-								false, false, instruction_text);
+								true, false, instruction_text);
 	check_mem(b);
 	set_instruction_box_member(2*INS_BOX_OFFSET + (list_size + 1)*CODE_BUTTON_H,
 							   H);

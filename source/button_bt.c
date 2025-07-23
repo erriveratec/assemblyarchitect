@@ -119,17 +119,17 @@ bool check_mouse_click_in_button(button_t *button)
 	int mouse_x = ms_get_mouse_x();
 	int mouse_y = ms_get_mouse_y();
 	int mouse_left_pressed = ms_check_mouse_left_pressed();
-	
-	if (mouse_left_pressed == false){
-		return false;
-	}
 
-	if (mouse_x > button->x && mouse_x < (button->x + button->w) &&
+	bool clicked_in_button;
+	if (mouse_left_pressed == false || button->active == false){
+		clicked_in_button = false;
+	} else if (mouse_x > button->x && mouse_x < (button->x + button->w) &&
 		mouse_y > button->y && mouse_y < (button->y + button->h)){
-		return true;
+		clicked_in_button = true;
 	} else {
-		return false;
+		clicked_in_button = false;
 	} 
+	return clicked_in_button;
 }
 
 /* Function: check_mouse_released_in_button

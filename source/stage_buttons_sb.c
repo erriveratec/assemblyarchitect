@@ -100,7 +100,7 @@ void sb_initialize_return_button()
 {
 	ret_button = malloc(sizeof(button_t));
 	ret_button = create_button(RET_BUTTON_X, RET_BUTTON_Y, RET_BUTTON_W, 
-								  RET_BUTTON_H, false, true, return_button);
+								  RET_BUTTON_H, true, true, return_button);
 	return;
 }
 /* Function: sb_initialize_stage_buttons
@@ -115,27 +115,27 @@ void sb_initialize_stage_buttons()
 {
 	stop = malloc(sizeof(button_t));
 	stop = create_button(STAGE_BUTTON_X, STAGE_BUTTON_HIDDEN_Y,STAGE_BUTTON_W, 
-						 STAGE_BUTTON_H, false, false, stop_button);
+						 STAGE_BUTTON_H, true, false, stop_button);
 
 	step_back = malloc(sizeof(button_t));
 	step_back = create_button(STAGE_BUTTON_X + STAGE_BUTTON_W + BUTTONS_SPACE, 
 							  STAGE_BUTTON_HIDDEN_Y, STAGE_BUTTON_W, 
-							  STAGE_BUTTON_H, false, false, step_back_button);
+							  STAGE_BUTTON_H, true, false, step_back_button);
 
 	play = malloc(sizeof(button_t));
 	play = create_button(STAGE_BUTTON_X + 2*STAGE_BUTTON_W + 2*BUTTONS_SPACE, 
 						 STAGE_BUTTON_HIDDEN_Y, STAGE_BUTTON_W, STAGE_BUTTON_H, 
-						 false, false, play_button);
+						 true, false, play_button);
 
 	step_forward = malloc(sizeof(button_t));
 	step_forward = create_button(STAGE_BUTTON_X + 3*STAGE_BUTTON_W + 
 								 3*BUTTONS_SPACE, STAGE_BUTTON_HIDDEN_Y, 
-								 STAGE_BUTTON_W, STAGE_BUTTON_H, false, false, 
+								 STAGE_BUTTON_W, STAGE_BUTTON_H, true, false, 
 								 step_forward_button);
 	return;
 }
 
-/* Function: check_clicked_ret_button
+/* Function: sb_check_clicked_ret_button
  * -----------------------------------------------------------------------------
  * This function verifies if the player has clicked on the return button
  *
@@ -145,19 +145,13 @@ void sb_initialize_stage_buttons()
  * Return:
  *	true if button clicked, false if otherwise.
  */
-bool check_clicked_ret_button()
+bool sb_check_clicked_ret_button()
 {
 	int ret = false;
 
-	if (check_mouse_click_in_button(ret_button) == true && 
-		ret_button->active == false) {
-		ret_button->active = true;
+	if (check_mouse_click_in_button(ret_button) == true) {
 		ret = true;
 	}
-	if (ms_get_mouse_left_released() == true){
-		ret_button->active = false;	
-	}
-
 	return ret;
 }
 

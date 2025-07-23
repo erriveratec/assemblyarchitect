@@ -622,7 +622,7 @@ void cl_assign_operand_to_line(operand_t *op, code_line_t *line)
 	}
 }
 
-/* Function: create_operand
+/* Function: cl_create_operand
  * -----------------------------------------------------------------------------
  * This function creates a operand object.
  *
@@ -633,7 +633,7 @@ void cl_assign_operand_to_line(operand_t *op, code_line_t *line)
  * Return:
  *	Pointer to the created code node
  */
-operand_t *create_operand(int id, button_t *b)
+operand_t *cl_create_operand(int id, button_t *b)
 {
 	assert(NULL != b && "The button pointer is NULL");
 	assert((id > REGISTERS_MIN && id < REGISTERS_MAX ||

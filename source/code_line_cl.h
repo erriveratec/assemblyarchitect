@@ -83,7 +83,7 @@ extern char *ob_text;
 code_line_t *cl_create_code_line(instruction_t *ins);
 void cl_destroy_code_line(code_line_t *line);
 instruction_t *cl_create_instruction(int id, button_t *b);
-operand_t *create_operand(int id, button_t *b);
+operand_t *cl_create_operand(int id, button_t *b);
 void cl_assign_operand_to_line(operand_t *op, code_line_t *line);
 bool check_operand_compatilibity(operand_t *op, code_line_t *line);
 void destroy_operand(operand_t *op);

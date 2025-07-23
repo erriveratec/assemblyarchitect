@@ -314,13 +314,13 @@ int stage_select_player()
 		check_mem(b3_texture);
 
 		player_1 = create_button(P1_BUTTON_X, P1_BUTTON_Y, P_BUTTON_H, 
-				   P_BUTTON_W, false, true, b1_texture);
+				   P_BUTTON_W, true, true, b1_texture);
 		check_mem(player_1);
 		player_2 = create_button(P2_BUTTON_X, P2_BUTTON_Y, P_BUTTON_H, 
-				   P_BUTTON_W, false, true, b2_texture);
+				   P_BUTTON_W, true, true, b2_texture);
 		check_mem(player_2);
 		player_3 = create_button(P3_BUTTON_X, P3_BUTTON_Y, P_BUTTON_H, 
-			       P_BUTTON_W, false, true, b3_texture);
+			       P_BUTTON_W, true, true, b3_texture);
 		check_mem(player_3);
 	}
 	
@@ -418,7 +418,7 @@ static void create_select_level_buttons(button_t **buttons, bool *levels)
 			button_texture = load_texture_from_rendered_text(button_text, 
 							 COLOR_GREY);
 			buttons[i-1] = create_button(x, y, SEL_LEVEL_BUTTON_W, 
-									 SEL_LEVEL_BUTTON_H, false, true, 
+									 SEL_LEVEL_BUTTON_H, true, true, 
 									 button_texture);
 		}
 				
@@ -460,8 +460,7 @@ int stage_select_level()
 
 	for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
 		bt_draw_button(level_buttons[i]);
-		if (check_mouse_click_in_button(level_buttons[i]) == true &&
-			level_buttons[i]->active == true){
+		if (check_mouse_click_in_button(level_buttons[i]) == true){
 			ret_val = LV_LEVEL_1 + i;
 			level_initialized = false;
 			bt_destroy_button(level_buttons[i]);
@@ -471,7 +470,7 @@ int stage_select_level()
 	draw_return_button();
 	display_escape_menu(get_escape_menu_state());
 
-	if (check_clicked_ret_button() == true){
+	if (sb_check_clicked_ret_button() == true){
 		ret_val = LV_SELECT_PLAYER_SCREEN;	
 		level_initialized = false;
 		for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
@@ -674,6 +673,7 @@ static void reset_level(int level_id, level_flags_t *flags, bool *run_finished)
 	mc_hide_execution_arrow();
 	mc_reset_invalid_operation_flag();
 	*run_finished = false;
+	ms_reset_mouse_values();
 }
 
 int stage_level(int level_id)
@@ -683,7 +683,7 @@ int stage_level(int level_id)
 	static bool run_finished = false;
 	static level_flags_t flags;
 	static bool reset = false;
-	bool back_to_level_selection = check_clicked_ret_button(); 
+	bool back_to_level_selection = sb_check_clicked_ret_button(); 
 
 	if (level_init == false){
 		level_init = level_initialization(level_id);
@@ -768,15 +768,15 @@ static void display_escape_menu(bool menu_variable_state)
 
 			player_1 = create_button(ESC_MENU_BUTTON_X, ESC_MENU_BUTTON1_Y, 
 									 ESC_MENU_BUTTON_W, ESC_MENU_BUTTON_H, 
-									 false, true, b1_texture);
+									 true, true, b1_texture);
 			check_mem(player_1);
 			player_2 = create_button(ESC_MENU_BUTTON_X, ESC_MENU_BUTTON2_Y, 
 									 ESC_MENU_BUTTON_W, ESC_MENU_BUTTON_H, 
-									 false, true, b2_texture);
+									 true, true, b2_texture);
 			check_mem(player_2);
 			player_3 = create_button(ESC_MENU_BUTTON_X, ESC_MENU_BUTTON3_Y, 
 									 ESC_MENU_BUTTON_W, ESC_MENU_BUTTON_H, 
-									 false, true, b3_texture);
+									 true, true, b3_texture);
 			check_mem(player_3);
 		}
 		
@@ -851,11 +851,11 @@ static int display_run_result(bool win_check)
 
 		ret = create_button(WIN_MENU_BUTTON1_X, WIN_MENU_BUTTON_Y, 
 							WIN_MENU_BUTTON1_W, WIN_MENU_BUTTON_H, 
-							false, true, ret_texture);
+							true, true, ret_texture);
 		check_mem(ret);
 		con = create_button(WIN_MENU_BUTTON2_X, WIN_MENU_BUTTON_Y, 
 							WIN_MENU_BUTTON2_W, WIN_MENU_BUTTON_H, 
-								 false, true, con_texture);
+								 true, true, con_texture);
 	} 
 	bt_draw_button(ret);
 	bt_draw_button(con);

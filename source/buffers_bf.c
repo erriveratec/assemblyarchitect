@@ -217,19 +217,19 @@ void bf_initialize_buffer_operands()
 	texture_t *ib = load_texture_from_rendered_text(ib_text, COLOR_WHITE);
 	check_mem(ib);
 	button_t *a = create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H,
-								false, false, ib);
+								true, false, ib);
 	check_mem(a);
 
-	input_buffer = create_operand(IB, a);
+	input_buffer = cl_create_operand(IB, a);
 	check_mem(input_buffer);
 
 	
 	texture_t *ob = load_texture_from_rendered_text(ob_text, COLOR_WHITE);
 	check_mem(ob);
 	button_t *b = create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H,
-								false, false, ob);
+								true, false, ob);
 	check_mem(b);
-	output_buffer = create_operand(OB, b);
+	output_buffer = cl_create_operand(OB, b);
 	check_mem(output_buffer);
 
 error:

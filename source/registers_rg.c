@@ -10,6 +10,8 @@
 #include "code_line_cl.h"
 #include "dimensions.h"
 
+#define DEFAULT_OPERAND RAX
+
 enum member {INVALID_MEMBER, X, Y, W, H};
 
 static List *register_list = NULL;
@@ -92,7 +94,7 @@ void reset_register_values()
  */
 operand_t *rg_get_default_operand_register()
 {
-	operand_t *r = rg_create_register_operand_by_id(RAX);
+	operand_t *r = rg_create_register_operand_by_id(DEFAULT_OPERAND);
 	return r;
 }
 
@@ -220,7 +222,7 @@ operand_t *rg_create_register_operand_by_id(int id)
 	int x = 0;
 	int y = 0;
 	button_t *b = create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H,
-								false, false, reg_text);
+								true, false, reg_text);
 	check_mem(b);
 
 	operand_t *op = malloc(sizeof(operand_t));
@@ -263,7 +265,7 @@ void rg_add_register_to_list(int id)
 		    REG_TEXT_H + CODE_BUTTON_H;
 	
 	button_t *b = create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H,
-								false, false, reg_text);
+								true, false, reg_text);
 	check_mem(b);
 
 	reg_t *new_register = create_register(id, b);

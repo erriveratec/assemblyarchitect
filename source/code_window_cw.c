@@ -36,8 +36,9 @@ static void code_box_height_adjust();
 static void adjust_code_box_position();
 static int get_first_code_line_y();
 static int get_code_line_x();
-static int get_label_operand(code_line_t *line);
+static int get_label_operand_value(code_line_t *line);
 List *get_code_list();
+static int get_instruction_position(code_line_t *line);
 
 /* Function: create_label_operand
 *------------------------------------------------------------------------------
@@ -51,21 +52,21 @@ List *get_code_list();
 *	Pointer to the newly created operand
 *
 */
-operand_t create_label_operand(code_line_t *line)
+operand_t *create_label_operand(code_line_t *line)
 {
    	operand_t *b = NULL;
 
 	b = malloc(sizeof(operand_t));
 
-	int label = get_label_operand(code_line_t *line);
+	int label = get_label_operand_value(line);
 	
 	texture_t *t = load_texture_from_rendered_text(rax_text, COLOR_WHITE);
-	b->b = create_button(input_buffer->b->x, input_buffer->b->y, 
-						 input_buffer->b->w, input_buffer->b->h, 
-						 input_buffer->b->active, 
-						 input_buffer->b->rectangle, t);
 
-	b->id = input_buffer->id;
+	int x = 0;
+	int y = 0;
+	b->b = create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H, false, false, t);
+
+	b->id = label;
 
 	return b;
 }
@@ -82,7 +83,7 @@ operand_t create_label_operand(code_line_t *line)
  *	int with the position of the line in the code list
  */
 
-int cw_get_instruction_position(code_line_t *line)
+static int get_instruction_position(code_line_t *line)
 {
 	List *code = get_code_list();
 	assert(NULL != code && "The code pointer is NULL");
@@ -105,7 +106,7 @@ int cw_get_instruction_position(code_line_t *line)
 }
 
 
-/* Function: get_label_operand
+/* Function: get_label_operand_value
  * -----------------------------------------------------------------------------
  * Traverses the code list to return the correct label position value. The
  * instruction must be already added to the code list.
@@ -116,7 +117,7 @@ int cw_get_instruction_position(code_line_t *line)
  * Return:
  *	int with the label value that will be assigned to the instruction
  */
-static int get_label_operand(code_line_t *line)
+static int get_label_operand_value(code_line_t *line)
 {
 	List *code = get_code_list();
 	check_mem(code);
@@ -131,7 +132,7 @@ static int get_label_operand(code_line_t *line)
 		label = 1;
 	} else {
 		int i = 0;
-		label = cw_get_instruction_position(line);
+		label = get_instruction_position(line);
 		code_line_t *c;
 		LIST_FOREACH(code, first, next, cur){ 
 			if (i > label){
@@ -198,7 +199,7 @@ void cw_add_saved_line(char *line)
 	}
 
 	button_t *b = create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H,
-								false, false, instruction_tex);
+								true, false, instruction_tex);
 	check_mem(b);
 	instruction_t *new_ins = cl_create_instruction(ins_id, b);
 	code_line_t *new_line = cl_create_code_line(new_ins);
@@ -1306,9 +1307,9 @@ void cw_player_holding_instruction(code_line_t *line)
 		}
 		if (line->ins->id == LABEL){
 			if (line->op1 == NULL){
-			operand_t *l = create_label_operand();
+		//	operand_t *l = create_label_operand();
 		}
-
+		}
 	} else {
 		if (cw_check_if_in_code_list(line) == true){
 			ListNode *node = get_list_node_by_value(line);
