@@ -171,31 +171,39 @@ static int get_label_operand_value(code_line_t *line)
 
 	int label;
 	bool in_code_list = cw_check_if_in_code_list(line);
-	
+	int list_size = cw_get_code_list_size();
+
 	if (in_code_list == false){
 		label = NO_VALUE;
-	} if (cw_get_code_list_size() == 1){
+	} else if (list_size == 1){
 		label = 1;
+	} else if (list_size == get_instruction_position(line) + 1){
+		label = list_size;
 	} else {
 		int i = 0;
-		label = get_instruction_position(line);
+		int label_counter = 1;
 		code_line_t *c;
+		label = get_instruction_position(line);
+		
 		LIST_FOREACH(code, first, next, cur){ 
-			if (i > label){
-				c = cur->value;
+			c = cur->value;
+			if (i < label){
 				if (c->ins->id != LABEL){
-					label = i;
+					label_counter++;	
+				}
+			}
+			if (i > label){
+				if (c->ins->id != LABEL){
+					label = label_counter;
 					break;
 				}
-			} else {
-				i++;
 			}
+			i++;
 		}
 	}
 error:
 	return label;
 }
-
 
 /* Function: cw_add_saved_line
  *------------------------------------------------------------------------------

@@ -80,11 +80,15 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
+label 01
 mov rax, [ib]
-label 02
 add rax, rax
+label 03
+label 03
+label 03
 mov rax, rax
 mov rax, rax
+label 09
 CODE ENDS
 
 +++LEVEL ENDS 06
@@ -513,11 +517,15 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
+label 01
 mov rax, [ib]
-label 02
 add rax, rax
+label 03
+label 03
+label 03
 mov rax, rax
 mov rax, rax
+label 09
 CODE ENDS
 
 +++LEVEL ENDS 06
@@ -946,11 +954,15 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
+label 01
 mov rax, [ib]
-label 02
 add rax, rax
+label 03
+label 03
+label 03
 mov rax, rax
 mov rax, rax
+label 09
 CODE ENDS
 
 +++LEVEL ENDS 06
