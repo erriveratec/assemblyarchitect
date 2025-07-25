@@ -28,6 +28,7 @@ enum instructions{
 	MOV,
 	ADD,
 	LABEL,
+	JMP,
 	INSTRUCTION_MAX
 };
 
@@ -72,6 +73,7 @@ enum line_state{
 extern char *add_text;
 extern char *mov_text;
 extern char *label_text;
+extern char *jmp_text;
 extern char *rax_text;
 extern char *rbx_text;
 extern char *rcx_text;

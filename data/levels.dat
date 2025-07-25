@@ -110,9 +110,10 @@ InputSize 5
 InputType Natural
 
 InstructionsBegin
-label
+LABEL
 mov
 add
+jmp
 InstructionsEnd
 
 RegistersBegin

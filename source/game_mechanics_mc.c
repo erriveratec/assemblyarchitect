@@ -761,8 +761,10 @@ static void execute_instruction(code_line_t *line)
 	assert(line != NULL && "The value of line cannot be NULL");
 	int buffer_inputs = get_input_buffer_list_size();
 
-
-	if (buffer_inputs != CW_EMPTY || line->state == IN_EXECUTION || 
+	if (line->ins->id == LABEL){
+		line->state = EXECUTED;
+		reset_avatar_no_pos();
+	} else if (buffer_inputs != CW_EMPTY || line->state == IN_EXECUTION || 
 													 line->state == COMPLETE){
 		line->state = IN_EXECUTION;
 		handle_source_operand(line);

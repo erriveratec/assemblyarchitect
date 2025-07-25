@@ -14,6 +14,7 @@ bool check_is_register(int id);
 char *add_text = "add";
 char *mov_text = "mov";
 char *label_text = "LABEL";
+char *jmp_text = "jmp";
 char *rax_text = "rax";
 char *rbx_text = "rbx";
 char *rcx_text = "rcx";
@@ -70,6 +71,9 @@ texture_t *cl_create_instruction_texture(int id)
 			break;
 		case LABEL:
 			texture = load_texture_from_rendered_text(label_text, COLOR_WHITE);
+			break;
+		case JMP:
+			texture = load_texture_from_rendered_text(jmp_text, COLOR_WHITE);
 			break;
 		default:
 			printf("Error: the id of the register is invalid");
@@ -217,6 +221,13 @@ int cl_get_instruction_operand_quantity(int instruction_id)
 		case LABEL:
 			number_of_operands = ONE_OPERAND;
 			break;
+		case JMP:
+			number_of_operands = ONE_OPERAND;
+			break;
+		default:
+			number_of_operands = ZERO_OPERANDS;
+			break;
+
 
 	}
 	return number_of_operands;
@@ -246,6 +257,9 @@ char *cl_get_instruction_text(int instruction_id)
 			break;
 		case LABEL:
 			text = label_text;
+			break;
+		case JMP:
+			text = jmp_text;
 			break;
 	}
 error:

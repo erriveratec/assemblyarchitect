@@ -289,12 +289,14 @@ static void parse_instructions(FILE *fp)
 	ssize_t read;
 
 	while ((read = getline(&line, &len, fp)) != READ_ERROR){
-		if (strstr(line, "add") != NULL){
+		if (strstr(line, add_text) != NULL){
 			iw_add_instruction_to_list(ADD);
-		} else if (strstr(line, "mov") != NULL){
+		} else if (strstr(line, mov_text) != NULL){
 			iw_add_instruction_to_list(MOV);
-		} else if (strstr(line, "label") != NULL){
+		} else if (strstr(line, label_text) != NULL){
 			iw_add_instruction_to_list(LABEL);
+		} else if (strstr(line, jmp_text) != NULL){
+			iw_add_instruction_to_list(JMP);
 		} else if (strstr(line, "InstructionsEnd")){
 			break;
 		} else {
@@ -369,7 +371,7 @@ void fl_file_initialize_level(int level_id)
 			cw_set_stage_name(name);
 			free(name);
 		} else if (strstr(line, "ChallengeTextBegin") != NULL &&
-				   level_found == true){
+			level_found == true){
 			parse_challenge_text(fp);
 		} else if (strstr(line, "InputSize") != NULL && level_found == true){
 			char *size = strchr(line, ' ');
