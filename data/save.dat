@@ -85,8 +85,8 @@ mov rax, [ib]
 add rax, rax
 label 03
 label 03
-label 03
 mov rax, rax
+label 04
 mov rax, rax
 label 09
 CODE ENDS
@@ -522,8 +522,8 @@ mov rax, [ib]
 add rax, rax
 label 03
 label 03
-label 03
 mov rax, rax
+label 04
 mov rax, rax
 label 09
 CODE ENDS
@@ -959,8 +959,8 @@ mov rax, [ib]
 add rax, rax
 label 03
 label 03
-label 03
 mov rax, rax
+label 04
 mov rax, rax
 label 09
 CODE ENDS

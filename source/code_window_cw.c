@@ -42,6 +42,7 @@ List *get_code_list();
 static int get_instruction_position(code_line_t *line);
 static operand_t *create_label_operand(code_line_t *line);
 static operand_t *create_saved_label_operand(int op1_id);
+static int label_counter_up_to_index(int index);
 
 /* Function: create_saved_label_operand
 *------------------------------------------------------------------------------
@@ -151,6 +152,42 @@ static int get_instruction_position(code_line_t *line)
 	return line_position;
 }
 
+/* Function: label_counter_up_to_index
+ * -----------------------------------------------------------------------------
+ * This function traverses the code up to an index and returns the value
+ * of label instructions up to that point
+ * 
+ * Arguments:
+ *  index: The index that the code list will be traversed up to
+ *
+ * Return:
+ *	int with the number of label instructions
+ */
+static int label_counter_up_to_index(int index)
+{
+	int list_size = cw_get_code_list_size();
+	assert(index < list_size && "index values is out of reach");
+
+	List *code = get_code_list();
+	check_mem(code);
+
+	int label_counter = 0;
+	int i = 0;
+	code_line_t *c;
+	
+	LIST_FOREACH(code, first, next, cur){ 
+		c = cur->value;
+			if (c->ins->id == LABEL){
+				label_counter++;	
+			}
+		if (i == index){
+			break;
+		}
+		i++;
+	}
+error:
+	return label_counter;
+}
 
 /* Function: get_label_operand_value
  * -----------------------------------------------------------------------------
