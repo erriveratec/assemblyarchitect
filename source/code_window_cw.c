@@ -1330,22 +1330,7 @@ void cw_player_holding_instruction(code_line_t *line)
 	List *code = get_code_list();
 	assert(code != NULL &&  "Code list is NULL");
 	assert(line != NULL &&  "The code line object is NULL");
-
-	line->ins->b->x = ms_get_mouse_x() - line->ins->b->w/2;
-	line->ins->b->y = ms_get_mouse_y() - line->ins->b->h/2;
-	bt_draw_button(line->ins->b);
 	
-	if (line->op1 != NULL){
-		line->op1->b->x = line->ins->b->x + OP1_X_OFFSET;
-		line->op1->b->y = line->ins->b->y;
-		bt_draw_button(line->op1->b);
-	}
-	if (line->op2 != NULL){
-		line->op2->b->x = line->ins->b->x + OP2_X_OFFSET;
-		line->op2->b->y = line->ins->b->y;
-		bt_draw_button(line->op2->b);
-	}
-
 	if (check_if_inside_code_window() == true){
 		if (cw_check_if_in_code_list(line) == true){
 			if (check_selected_line_in_position(line) == false){
@@ -1364,7 +1349,6 @@ void cw_player_holding_instruction(code_line_t *line)
 				cl_destroy_operand(line->op1);	
 				line->op1 = create_label_operand(line);
 				line->state = COMPLETE;
-				
 			}
 		}
 	} else {
@@ -1373,6 +1357,21 @@ void cw_player_holding_instruction(code_line_t *line)
 			List_remove(code, node);
 		}
 	}
+
+	line->ins->b->x = ms_get_mouse_x() - line->ins->b->w/2;
+	line->ins->b->y = ms_get_mouse_y() - line->ins->b->h/2;
+
+	if (line->op1 != NULL){
+		line->op1->b->x = line->ins->b->x + OP1_X_OFFSET;
+		line->op1->b->y = line->ins->b->y;
+		bt_draw_button(line->op1->b);
+	}
+	if (line->op2 != NULL){
+		line->op2->b->x = line->ins->b->x + OP2_X_OFFSET;
+		line->op2->b->y = line->ins->b->y;
+		bt_draw_button(line->op2->b);
+	}
+	bt_draw_button(line->ins->b);
 }
 
 /* Function: cw_check_code_pending_operand
