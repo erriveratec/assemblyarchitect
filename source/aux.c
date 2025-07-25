@@ -12,6 +12,7 @@ char *comma_text =",";
 char *newline_text ="\n";
 char *level_text = "level";
 
+
 /* Function: create_string_append_number
  *------------------------------------------------------------------------------
  * Creates a string with a number attached to the end, there is not prepend 

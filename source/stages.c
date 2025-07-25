@@ -583,15 +583,19 @@ static void pending_operand_handler()
 	bool left_released = ms_check_mouse_left_released();
 	bool register_selected = rg_check_released_in_register();
 	bool buffer_selected = bf_check_released_in_buffer();
+	bool label_selected = cw_check_released_in_label();
 	cw_highlight_code_pending_operand();
+	code_line_t *l = cw_get_code_line_pending_operand();
 
-	if (left_released == true && register_selected == true){
+	if (l->ins->id == JMP){
+		if (label_selected == true){
+			puts("identifies mouse click in label where it should");
+		}
+	} else if (left_released == true && register_selected == true){
 		operand_t *r = rg_create_operand_of_selected_register();
-		code_line_t *l = cw_get_code_line_pending_operand();
 		cl_assign_operand_to_line(r, l);
 	} else if (left_released == true && buffer_selected == true){
 		operand_t *b = bf_create_operand_of_selected_buffer();
-		code_line_t *l = cw_get_code_line_pending_operand();
 		if (check_operand_compatilibity(b, l) == true){
 			cl_assign_operand_to_line(b, l);
 		} else {
@@ -599,7 +603,6 @@ static void pending_operand_handler()
 		}
 	} else if (left_released == true && register_selected == false && 
 			   buffer_selected == false){
-		code_line_t *l = cw_get_code_line_pending_operand();
 		operand_t *r = rg_get_default_operand_register();
 		cl_assign_operand_to_line(r, l);
 	}

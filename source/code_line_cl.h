@@ -4,10 +4,12 @@
 #include <stdbool.h>
 #include "button_bt.h"
 
+typedef struct code_line_t code_line_t;
 
 typedef struct operand_t{
 	button_t *b;
 	int id;
+	code_line_t *jptr;
 } operand_t;
 
 typedef struct instruction_t{
@@ -15,12 +17,12 @@ typedef struct instruction_t{
 	int id;
 } instruction_t;
 
-typedef struct code_line_t{
+struct code_line_t{
 	instruction_t *ins;
 	operand_t *op1;
 	operand_t *op2;
 	int state;
-} code_line_t;
+};
 
 enum instructions{
 	INVALID_INSTRUCTION,
