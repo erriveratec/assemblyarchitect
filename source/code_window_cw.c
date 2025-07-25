@@ -193,6 +193,9 @@ error:
  * -----------------------------------------------------------------------------
  * Traverses the code list to return the correct label position value. The
  * instruction must be already added to the code list.
+ * The 2 tahs is added up to the value of label is because instruction 
+ * position stars from 0, and the number of counted instructions from 1. The
+ * extra one is because the i value of the instruction is counted.
  * 
  * Arguments:
  *  line: The label instruction that the operand will calculated.
@@ -222,8 +225,8 @@ static int get_label_operand_value(code_line_t *line)
 		LIST_FOREACH(code, first, next, cur){ 
 			c = cur->value;
 			if (i == pos){
-					label = i - label_counter_up_to_index(i) + 2;
-					break;
+				label = i - label_counter_up_to_index(i) + 2;
+				break;
 			}
 			i++;
 		}
@@ -1375,6 +1378,7 @@ void cw_player_holding_instruction(code_line_t *line)
 		} 
 		if (cw_check_if_in_code_list(line) == false){
 			add_code_line(line);
+			// UPDATE OF ALL LABELS MUST BE DONE HERE
 		}
 		if (line->ins->id == LABEL){
 			if (line->op1 == NULL){
