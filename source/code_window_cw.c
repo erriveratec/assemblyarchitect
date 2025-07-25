@@ -43,6 +43,39 @@ static int get_instruction_position(code_line_t *line);
 static operand_t *create_label_operand(code_line_t *line);
 static operand_t *create_saved_label_operand(int op1_id);
 static int label_counter_up_to_index(int index);
+static void update_label_instructions();
+
+/* Function: update_label_instructions
+ * -----------------------------------------------------------------------------
+ * Traverses the whole code list and updates all the label instructions
+ * 
+ * Arguments:
+ *  void.
+ *
+ * Return:
+ * 	void.
+ */
+static void update_label_instructions()
+{
+	List *code = get_code_list();
+	check_mem(code);
+
+	code_line_t *c;
+	LIST_FOREACH(code, first, next, cur){ 
+		c = cur->value;
+		if (c->ins->id == LABEL){
+			if (c->op1 != NULL){
+				cl_destroy_operand(c->op1);	
+				c->op1 = create_label_operand(c);
+				c->op1->b->x = c->ins->b->x + OP1_X_OFFSET;
+				c->op1->b->y = c->ins->b->y;
+			}
+
+		}
+	}
+error:
+	return;
+}
 
 /* Function: create_saved_label_operand
 *------------------------------------------------------------------------------
@@ -193,7 +226,7 @@ error:
  * -----------------------------------------------------------------------------
  * Traverses the code list to return the correct label position value. The
  * instruction must be already added to the code list.
- * The 2 tahs is added up to the value of label is because instruction 
+ * The 2 is added up to the value of label is because instruction 
  * position stars from 0, and the number of counted instructions from 1. The
  * extra one is because the i value of the instruction is counted.
  * 
@@ -1378,7 +1411,7 @@ void cw_player_holding_instruction(code_line_t *line)
 		} 
 		if (cw_check_if_in_code_list(line) == false){
 			add_code_line(line);
-			// UPDATE OF ALL LABELS MUST BE DONE HERE
+			update_label_instructions();
 		}
 		if (line->ins->id == LABEL){
 			if (line->op1 == NULL){
@@ -1394,6 +1427,7 @@ void cw_player_holding_instruction(code_line_t *line)
 		if (cw_check_if_in_code_list(line) == true){
 			ListNode *node = get_list_node_by_value(line);
 			List_remove(code, node);
+			update_label_instructions();
 		}
 	}
 
