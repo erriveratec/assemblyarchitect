@@ -13,7 +13,7 @@ bool check_is_register(int id);
 
 char *add_text = "add";
 char *mov_text = "mov";
-char *label_text = "label";
+char *label_text = "LABEL";
 char *rax_text = "rax";
 char *rbx_text = "rbx";
 char *rcx_text = "rcx";
