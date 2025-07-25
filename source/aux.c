@@ -204,8 +204,28 @@ int get_movement_delta(int v1, int v2, int max_delta)
 	}
 }
 
-
-
+/* Function: ax_number_to_string_two_digits
+ * ----------------------------------------------------------------------------
+ * Receives a number as a parameter and returns a string of two digits of the
+ * number
+ *
+ * Arguments:
+ *	int number
+ *
+ * Return:
+ *	string with the converted number with two digits nomenclature
+ */
+char *ax_number_to_string_two_digits(int number)
+{
+	assert(number >= 0 && number < 100 && "Invalid number value");	
+	char *number_text = NULL;
+	if (number < 10){
+			number_text = number_to_string_with_prepend_zero(number);
+		} else {
+			number_text = number_to_string(number);
+		}
+	return number_text;
+}
 /* Function: number_to_string_with_prepend_zero
  * ----------------------------------------------------------------------------
  * This function receives receives an integer and it returns it as a 

@@ -628,14 +628,14 @@ void write_player_code_to_file(FILE *fp)
 		int instruction = cw_get_instruction_at_code_pos(i);
 		int op1 = NO_OPERAND;
 		int op2 = NO_OPERAND;
+		
 		if (cl_get_instruction_operand_quantity(instruction) > ZERO_OPERANDS){
-			if (instruction != LABEL){		
-				op1 = cw_get_instruction_operand(i, FIRST_OP);
-			}
+			op1 = cw_get_instruction_operand(i, FIRST_OP);
 		}
 		if (cl_get_instruction_operand_quantity(instruction) == TWO_OPERANDS){
 			op2 = cw_get_instruction_operand(i, SECOND_OP);
 		}
+
 		char *line = cl_create_code_line_text(instruction, op1, op2);
 		write_to_file(fp, line);
 		free(line);

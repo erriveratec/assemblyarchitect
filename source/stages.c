@@ -595,7 +595,7 @@ static void pending_operand_handler()
 		if (check_operand_compatilibity(b, l) == true){
 			cl_assign_operand_to_line(b, l);
 		} else {
-			destroy_operand(b);
+			cl_destroy_operand(b);
 		}
 	} else if (left_released == true && register_selected == false && 
 			   buffer_selected == false){

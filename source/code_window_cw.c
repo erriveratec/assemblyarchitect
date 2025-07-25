@@ -8,6 +8,7 @@
 #include "dimensions.h"
 #include "buffers_bf.h"
 #include "registers_rg.h"
+#include "draw_dw.h"
 
 #define NOT_FOUND -1
 
@@ -35,10 +36,48 @@ static int get_text_box_member(int member);
 static void code_box_height_adjust();
 static void adjust_code_box_position();
 static int get_first_code_line_y();
-static int get_code_line_x();
+static int get_code_line_x(int instruction_id);
 static int get_label_operand_value(code_line_t *line);
 List *get_code_list();
 static int get_instruction_position(code_line_t *line);
+static operand_t *create_label_operand(code_line_t *line);
+static operand_t *create_saved_label_operand(int op1_id);
+
+/* Function: create_saved_label_operand
+*------------------------------------------------------------------------------
+* Creates the label operand with the corresponding number that will be shown
+* in the code
+*
+* Arguments:
+* 	None.
+*	
+* Return:
+*	Pointer to the newly created operand
+*
+*/
+static operand_t *create_saved_label_operand(int op1_id)
+{
+   	operand_t *b = NULL;
+
+	b = malloc(sizeof(operand_t));
+
+	char *line_text = ax_number_to_string_two_digits(op1_id);
+	char *op_text = malloc(sizeof(char)*(strlen(line_text)+1));
+	strcpy(op_text, line_text);
+	strcat(op_text, ":");
+	texture_t *t = load_texture_from_rendered_text(op_text, COLOR_WHITE);
+
+	int x = 0;
+	int y = 0;
+	b->b = create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H, false, false, t);
+
+	b->id = op1_id;
+
+	free(line_text);
+	free(op_text);
+
+	return b;
+}
 
 /* Function: create_label_operand
 *------------------------------------------------------------------------------
@@ -52,15 +91,19 @@ static int get_instruction_position(code_line_t *line);
 *	Pointer to the newly created operand
 *
 */
-operand_t *create_label_operand(code_line_t *line)
+static operand_t *create_label_operand(code_line_t *line)
 {
    	operand_t *b = NULL;
 
 	b = malloc(sizeof(operand_t));
 
 	int label = get_label_operand_value(line);
-	
-	texture_t *t = load_texture_from_rendered_text(rax_text, COLOR_WHITE);
+
+	char *line_text = ax_number_to_string_two_digits(label);
+	char *op_text = malloc(sizeof(char)*(strlen(line_text)+1));
+	strcpy(op_text, line_text);
+	strcat(op_text, ":");
+	texture_t *t = load_texture_from_rendered_text(op_text, COLOR_WHITE);
 
 	int x = 0;
 	int y = 0;
@@ -68,10 +111,13 @@ operand_t *create_label_operand(code_line_t *line)
 
 	b->id = label;
 
+	free(line_text);
+	free(op_text);
+
 	return b;
 }
 
-/* Function: cw_get_instruction_position
+/* Function: get_instruction_position
  * -----------------------------------------------------------------------------
  * This function traverses the list and determines the position in the list
  * of a given instruction
@@ -171,16 +217,21 @@ void cw_add_saved_line(char *line)
 	int op1_id;
 	int op2_id;
 
-
 	ins_text =  strtok_r(line, delim, &saveptr1);
 	ins_id = cl_text_to_instruction_id(ins_text);
 	
 	int operand_quantity = cl_get_instruction_operand_quantity(ins_id);
 
 	if (operand_quantity == ONE_OPERAND || operand_quantity == TWO_OPERANDS){
-		op1_text =  strtok_r(NULL, delim, &saveptr1);
-		op1_id = cl_text_to_operand_id(op1_text);
+		if (ins_id == LABEL){
+			op1_text =  strtok_r(NULL, delim, &saveptr1);
+			op1_id = atoi(op1_text);
+		} else {
+			op1_text =  strtok_r(NULL, delim, &saveptr1);
+			op1_id = cl_text_to_operand_id(op1_text);
+		}
 	}
+	
 	if (operand_quantity == TWO_OPERANDS){
 		op2_text =  strtok_r(NULL, delim, &saveptr1);
 		op2_id = cl_text_to_operand_id(op2_text);
@@ -191,7 +242,7 @@ void cw_add_saved_line(char *line)
 	texture_t *instruction_tex = load_texture_from_rendered_text(
 						  		  ins_text, COLOR_WHITE);
 	
-	int x = get_code_line_x();
+	int x = get_code_line_x(ins_id);
 	int y = get_first_code_line_y();
 
 	for (int i = 0; i <= list_size; i++){
@@ -204,17 +255,18 @@ void cw_add_saved_line(char *line)
 	instruction_t *new_ins = cl_create_instruction(ins_id, b);
 	code_line_t *new_line = cl_create_code_line(new_ins);
 	
-	
 	if (operand_quantity == ONE_OPERAND || operand_quantity == TWO_OPERANDS){
 		operand_t *op1;
-		if (op1_id > REGISTERS_MIN && op1_id < REGISTERS_MAX){
+		if (ins_id == LABEL){
+			op1 = create_saved_label_operand(op1_id);
+		} else if (op1_id > REGISTERS_MIN && op1_id < REGISTERS_MAX){
 			op1 = rg_create_register_operand_by_id(op1_id);
 		} else if (op1_id > BUFFERS_MIN && op1_id < BUFFERS_MAX){
 			op1 = bf_create_buffer_operand_by_id(op1_id);
 		}
 		cl_assign_operand_to_line(op1, new_line);
+
 	}
-	
 	if (operand_quantity == TWO_OPERANDS){
 		operand_t *op2;
 		if (op2_id > REGISTERS_MIN && op2_id < REGISTERS_MAX){
@@ -748,7 +800,8 @@ static int get_first_code_line_y()
 /* Function: get_code_line_x
  * -----------------------------------------------------------------------------
  * This function calculates and returns the x position of the lines of code
- * that will be incorporated in the code box.
+ * that will be incorporated in the code box. IF it is a label instruction
+ * it will provide the correct x value.
  *
  * Arguments:
  * 	none.
@@ -756,10 +809,16 @@ static int get_first_code_line_y()
  * Return:
  *	int with the coordinate of the x coordinates for the lines of code
  */
-static int get_code_line_x()
+static int get_code_line_x(int instruction_id)
 {
-	int x = get_code_box_member(MEMBER_X) + CODE_BOX_NUMBER_WIDTH + 
+	int x;  
+	
+	if (instruction_id == LABEL){
+		x = get_code_box_member(MEMBER_X) + LINE_NUMBER_OFFSET;
+	} else {
+		x = get_code_box_member(MEMBER_X) + CODE_BOX_NUMBER_WIDTH + 
 			2*LINE_NUMBER_OFFSET;	
+	}
 	return x;
 }
 
@@ -1004,13 +1063,9 @@ void display_line_number()
 	for(int i = 0; i < list_size; i++){
 	int instruction = cw_get_instruction_at_code_pos(i);
 		if (instruction != LABEL){
-			if (line_number < 10){
-				number = number_to_string_with_prepend_zero(line_number);
-			} else {
-				number = number_to_string(line_number);
-			}	
-				draw_text_fits_height(x, y, CODE_BUTTON_H, COLOR_WHITE, number);
-				free(number);
+			number = ax_number_to_string_two_digits(line_number);
+			draw_text_fits_height(x, y, CODE_BUTTON_H, COLOR_WHITE, number);
+			free(number);
 			line_number++;
 		}
 		y += CODE_BUTTON_H;
@@ -1040,13 +1095,12 @@ void cw_sort_code()
 	
 	int w = CODE_BOX_NUMBER_WIDTH;
 	int h = CODE_BUTTON_H; 
-	int x = get_code_line_x();
 	int y = get_first_code_line_y();
 
 	LIST_FOREACH(code, first, next, cur){
 
 		code_line_t *line = cur->value;
-		
+		int x = get_code_line_x(line->ins->id);
 		int delta = get_movement_delta(line->ins->b->x, x, MOVEMENT_DELTA);	
 		
 		if (line->ins->b->x < x){
@@ -1054,7 +1108,6 @@ void cw_sort_code()
 		} else if (line->ins->b->x > x){
 			line->ins->b->x -= delta;
 		}
-		
 		delta = get_movement_delta(line->ins->b->y, y, MOVEMENT_DELTA);	
 		
 		if (line->ins->b->y < y){
@@ -1062,7 +1115,6 @@ void cw_sort_code()
 		} else if (line->ins->b->y > y){
 			line->ins->b->y -= delta;
 		}
-
 		if (line->op1 != NULL){
 				line->op1->b->x = line->ins->b->x + OP1_X_OFFSET;
 				line->op1->b->y = line->ins->b->y;
@@ -1295,7 +1347,6 @@ void cw_player_holding_instruction(code_line_t *line)
 	}
 
 	if (check_if_inside_code_window() == true){
-		
 		if (cw_check_if_in_code_list(line) == true){
 			if (check_selected_line_in_position(line) == false){
 				ListNode *node = get_list_node_by_value(line);
@@ -1307,8 +1358,14 @@ void cw_player_holding_instruction(code_line_t *line)
 		}
 		if (line->ins->id == LABEL){
 			if (line->op1 == NULL){
-		//	operand_t *l = create_label_operand();
-		}
+				line->op1 = create_label_operand(line);
+				line->state = COMPLETE;
+			} else {
+				cl_destroy_operand(line->op1);	
+				line->op1 = create_label_operand(line);
+				line->state = COMPLETE;
+				
+			}
 		}
 	} else {
 		if (cw_check_if_in_code_list(line) == true){
@@ -1430,7 +1487,6 @@ bool cw_check_all_code_sorted()
 	
 	int w = CODE_BOX_NUMBER_WIDTH;
 	int h = CODE_BUTTON_H;
-	int x = get_code_line_x();
 	int y = get_first_code_line_y();
 
 	int retval = true;
@@ -1438,7 +1494,8 @@ bool cw_check_all_code_sorted()
 
 		code_line_t *value = cur->value;
 		button_t *b = value->ins->b;
-		
+		int x = get_code_line_x(value->ins->id);
+
 		if (b->x < x || b->x > x || b->y < y || b->y > y){
 			retval = false;
 			break;

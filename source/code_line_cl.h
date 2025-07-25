@@ -86,7 +86,6 @@ instruction_t *cl_create_instruction(int id, button_t *b);
 operand_t *cl_create_operand(int id, button_t *b);
 void cl_assign_operand_to_line(operand_t *op, code_line_t *line);
 bool check_operand_compatilibity(operand_t *op, code_line_t *line);
-void destroy_operand(operand_t *op);
 int cl_get_instruction_operand_quantity(int instruction_id);
 char *get_operand_text(int operand_id);
 void print_code_line(code_line_t *line);
@@ -97,5 +96,6 @@ int cl_text_to_operand_id(char *text);
 texture_t *cl_create_operand_texture(int id);
 texture_t *cl_create_instruction_texture(int id);
 code_line_t *cl_new_code_line(instruction_t *ins);
+void cl_destroy_operand(operand_t *op);
 
 #endif

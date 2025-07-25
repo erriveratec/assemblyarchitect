@@ -318,8 +318,14 @@ char *cl_create_code_line_text(int instruction_id, int op1_id, int op2_id)
 	char *instruction = cl_get_instruction_text(instruction_id);
 	strcpy(line_text, instruction);
 	
-	if (op1_id != NO_OPERAND){
-		char *op1 = get_operand_text(op1_id);
+	if (instruction_id == LABEL) {
+		char *op1 = NULL;
+		op1 = ax_number_to_string_two_digits(op1_id);
+		strcat(line_text, space_text);
+		strcat(line_text, op1);
+	} else if (op1_id != NO_OPERAND){
+		char *op1 = NULL;
+		op1 = get_operand_text(op1_id);
 		strcat(line_text, space_text);
 		strcat(line_text, op1);
 	}
@@ -389,10 +395,6 @@ code_line_t *cl_create_code_line(instruction_t *ins)
 		new_line->state = MISSING_BOTH;
 	} else{
 		assert("Invalid instruction operand quantity");
-	}
-
-	if (new_line->ins->id == LABEL){
-		new_line->state = COMPLETE;
 	}
 
 error:
@@ -599,22 +601,22 @@ void cl_assign_operand_to_line(operand_t *op, code_line_t *line)
 			line->state = COMPLETE;
 			break;
 		case CHANGING_OP1:
-			destroy_operand(line->op1);	
+			cl_destroy_operand(line->op1);	
 			line->op1 = op;
 			line->op1->b->x = line->ins->b->x + OP1_X_OFFSET;
 			line->op1->b->y = line->ins->b->y;
 			line->state = COMPLETE;
 			break;
 		case CHANGING_OP2:
-			destroy_operand(line->op2);	
+			cl_destroy_operand(line->op2);	
 			line->op2 = op;
 			line->op2->b->x = line->ins->b->x + OP2_X_OFFSET;
 			line->op2->b->y = line->ins->b->y;
 			line->state = COMPLETE;
 			break;
 		case COMPLETE:
-			printf("Error, there should not be an operand assigment to a "
-					"complete instruction. \n");
+			printf("cl_assign_operand_to line Error, there should not be an" 
+					"operand assigment to a complete instruction. \n");
 			break;
 		default:
 			printf("Error, the state of the code line is invalid\n");
@@ -653,7 +655,7 @@ error:
 	return op;
 }
 
-/* Function: destroy_operand
+/* Function: cl_destroy_operand
  * -----------------------------------------------------------------------------
  * This function destroys an operand object.
  *
@@ -663,7 +665,7 @@ error:
  * Return:
  *	void.
  */
-void destroy_operand(operand_t *op)
+void cl_destroy_operand(operand_t *op)
 {
 	assert(NULL != op && "The operand pointer is NULL");
 	

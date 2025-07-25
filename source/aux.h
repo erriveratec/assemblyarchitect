@@ -37,7 +37,7 @@ float get_scale_fit_width(int w, texture_t *texture);
 int get_text_width_fits_height(int h, char *text);
 void draw_value_box(value_box_t *box);
 char *create_string_append_number(char *s,  int n);
-
+char *ax_number_to_string_two_digits(int number);
 
 // ASCII characters
 #define CHAR_SPACE 32
