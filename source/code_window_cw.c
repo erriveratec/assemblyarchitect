@@ -206,26 +206,24 @@ static int get_label_operand_value(code_line_t *line)
 	check_mem(code);
 	check_mem(line);
 
-	int label = get_instruction_position(line);
+	int pos = get_instruction_position(line);
+	int label = pos;	
 
 	bool in_code_list = cw_check_if_in_code_list(line);
 	int list_size = cw_get_code_list_size();
 
 	if (in_code_list == false){
 		label = NO_VALUE;
-	} else if (label == 0){
+	} else if (pos == 0){
 		label = 1;
 	 } else {
-		
 		int i = 0;
 		code_line_t *c;
 		LIST_FOREACH(code, first, next, cur){ 
 			c = cur->value;
-			if (i > label){
-				if (c->ins->id != LABEL){
-					label = i - label_counter_up_to_index(i) + 1;
+			if (i == pos){
+					label = i - label_counter_up_to_index(i) + 2;
 					break;
-				}
 			}
 			i++;
 		}
