@@ -47,10 +47,10 @@ char *ax_number_to_string_two_digits(int number);
 // Text for the data reading of the levels
 #define CHAR_SIZE 1
 
-static char *char_space = " ";
-extern char *space_text;
-extern char *comma_text;
-extern char *newline_text;
+extern char *char_space;
+extern char *char_comma;
+extern char *char_newline;
+extern char *char_colon;
 extern char *level_text;
 
 

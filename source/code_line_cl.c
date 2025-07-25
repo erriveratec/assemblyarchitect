@@ -335,21 +335,21 @@ char *cl_create_code_line_text(int instruction_id, int op1_id, int op2_id)
 	if (instruction_id == LABEL) {
 		char *op1 = NULL;
 		op1 = ax_number_to_string_two_digits(op1_id);
-		strcat(line_text, space_text);
+		strcat(line_text, char_space);
 		strcat(line_text, op1);
 	} else if (op1_id != NO_OPERAND){
 		char *op1 = NULL;
 		op1 = get_operand_text(op1_id);
-		strcat(line_text, space_text);
+		strcat(line_text, char_space);
 		strcat(line_text, op1);
 	}
 	if (op2_id != NO_OPERAND){
 		char *op2 = get_operand_text(op2_id);
-		strcat(line_text, comma_text);
-		strcat(line_text, space_text);
+		strcat(line_text, char_comma);
+		strcat(line_text, char_space);
 		strcat(line_text, op2);
 	}
-	strcat(line_text, newline_text);
+	strcat(line_text, char_newline);
 	return line_text;
 }
 
@@ -594,7 +594,8 @@ void cl_assign_operand_to_line(operand_t *op, code_line_t *line)
 {
 	assert(NULL != op && "The operand cannot be NULL");
 	assert(NULL != line && "The line cannot be NULL");
-	
+
+	int operand_quantity = cl_get_instruction_operand_quantity(line->ins->id);
 	switch(line->state){
 		case MISSING_BOTH:
 			line->op1 = op;
@@ -606,7 +607,11 @@ void cl_assign_operand_to_line(operand_t *op, code_line_t *line)
 			line->op1 = op;
 			line->op1->b->x = line->ins->b->x + OP1_X_OFFSET;
 			line->op1->b->y = line->ins->b->y;
-			line->state = MISSING_OP2;
+			if (operand_quantity == ONE_OPERAND){
+				line->state = COMPLETE;
+			} else {
+				line->state = MISSING_OP2;
+			}
 			break;
 		case MISSING_OP2:
 			line->op2 = op;

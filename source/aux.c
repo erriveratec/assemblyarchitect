@@ -7,9 +7,10 @@
 #include "draw_dw.h"
 #include "dimensions.h"
 
-char *space_text =" ";
-char *comma_text =",";
-char *newline_text ="\n";
+char *char_space = " ";
+char *char_comma = ",";
+char *char_newline = "\n";
+char *char_colon = ":";
 char *level_text = "level";
 
 

@@ -43,4 +43,5 @@ void cw_add_saved_line(char *line);
 void cw_destroy_code_window_assets();
 int cw_get_instruction_y_coord(int instruction_position);
 bool cw_check_released_in_label();
+operand_t *cw_create_jump_operand();
 #endif

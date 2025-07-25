@@ -46,7 +46,7 @@ static int label_counter_up_to_index(int index);
 static void update_label_instructions();
 static code_line_t *get_clicked_label_code_line();
 
-/* Function: create_label_operand
+/* Function: cw_create_label_operand
 *------------------------------------------------------------------------------
 * Creates the label operand with the corresponding number that will be shown
 * in the code
@@ -58,11 +58,11 @@ static code_line_t *get_clicked_label_code_line();
 *	Pointer to the newly created operand
 *
 */
-/*static operand_t *create_jump_operand()
+operand_t *cw_create_jump_operand()
 {
-   	operand_t *b = NULL;
+   	operand_t *op = NULL;
 
-	b = malloc(sizeof(operand_t));
+	op = malloc(sizeof(operand_t));
 
 	code_line_t *addr = get_clicked_label_code_line();
 	check_mem(addr);
@@ -70,22 +70,25 @@ static code_line_t *get_clicked_label_code_line();
 	int addr_label_id = addr->op1->id;
 	char *line_text = ax_number_to_string_two_digits(addr_label_id);
 	char *op_text = malloc(sizeof(char)*(strlen(label_text) + 
-						 strl));
-	strcpy(op_text, line_text);
-	strcat(op_text, ":");
+						   strlen(char_space)+ strlen(line_text)));
+	
+	strcpy(op_text, label_text);
+	strcat(op_text, char_space);
+	strcat(op_text, line_text);
 	texture_t *t = load_texture_from_rendered_text(op_text, COLOR_WHITE);
 
 	int x = 0;
 	int y = 0;
-	b->b = create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H, false, false, t);
-
-	b->id = label;
+	op->b = create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H, false, false, t);
+	op->id = addr_label_id;
+	op->jptr = addr;
 
 	free(line_text);
 	free(op_text);
 
-	return b;
-} */
+error:
+	return op;
+} 
 
 /* Function: get_clicked_label_code_line
 *------------------------------------------------------------------------------
@@ -208,7 +211,7 @@ static operand_t *create_saved_label_operand(int op1_id)
 	char *line_text = ax_number_to_string_two_digits(op1_id);
 	char *op_text = malloc(sizeof(char)*(strlen(line_text)+1));
 	strcpy(op_text, line_text);
-	strcat(op_text, ":");
+	strcat(op_text, char_colon);
 	texture_t *t = load_texture_from_rendered_text(op_text, COLOR_WHITE);
 
 	int x = 0;

@@ -262,10 +262,10 @@ static void parse_saved_code(FILE *fp)
 	char *text;
 
 	while ((read = getline(&line, &len, fp)) != READ_ERROR){
-		text =  strtok_r(line, newline_text, &saveptr1);
+		text =  strtok_r(line, char_newline, &saveptr1);
 		if (strstr(STR_CODE_ENDS, line) != NULL){
 			break;
-		} else if (strcmp(line, newline_text) == STRING_EQUAL){
+		} else if (strcmp(line, char_newline) == STRING_EQUAL){
 		} else {
 			cw_add_saved_line(text);
 		}
