@@ -589,7 +589,6 @@ static void pending_operand_handler()
 
 	if (l->ins->id == JMP){
 		if (label_selected == true){
-			puts("identifies mouse click in label where it should");
 			operand_t *a = cw_create_jump_operand();
 			cl_assign_operand_to_line(a, l);
 		}

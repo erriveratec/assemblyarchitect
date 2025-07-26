@@ -325,14 +325,18 @@ char *cl_create_code_line_text(int instruction_id, int op1_id, int op2_id)
 {
 	assert(instruction_id > INSTRUCTION_MIN && instruction_id < INSTRUCTION_MAX
 		  && "The instruction id is invalid");
-	assert(op1_id >= NO_OPERAND && op1_id < BUFFERS_MAX && "OP1 is invalid");
-	assert(op2_id >= NO_OPERAND && op2_id < BUFFERS_MAX && "OP2 is invalid");
+	if (instruction_id == JMP){
+		assert(op1_id >=0 && "The operand id for a jump is negative");
+	} else {
+		assert(op1_id >= NO_OPERAND && op1_id < BUFFERS_MAX && "Invalid OP1");
+		assert(op2_id >= NO_OPERAND && op2_id < BUFFERS_MAX && "Invalid OP2");
+	}
 
 	char *line_text = malloc(sizeof(char)*INSTRUCTION_STRING_LENGTH);
 	char *instruction = cl_get_instruction_text(instruction_id);
 	strcpy(line_text, instruction);
 	
-	if (instruction_id == LABEL) {
+	if (instruction_id == LABEL || instruction_id == JMP) {
 		char *op1 = NULL;
 		op1 = ax_number_to_string_two_digits(op1_id);
 		strcat(line_text, char_space);

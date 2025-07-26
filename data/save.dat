@@ -83,8 +83,7 @@ CODE STARTS
 LABEL 01
 mov rax, [ib]
 mov rax, rax
-LABEL 03
-jmp rax
+jmp 00
 CODE ENDS
 
 +++LEVEL ENDS 06
@@ -516,8 +515,7 @@ CODE STARTS
 LABEL 01
 mov rax, [ib]
 mov rax, rax
-LABEL 03
-jmp rax
+jmp 00
 CODE ENDS
 
 +++LEVEL ENDS 06
@@ -949,8 +947,7 @@ CODE STARTS
 LABEL 01
 mov rax, [ib]
 mov rax, rax
-LABEL 03
-jmp rax
+jmp 00
 CODE ENDS
 
 +++LEVEL ENDS 06

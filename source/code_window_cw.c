@@ -44,9 +44,92 @@ static operand_t *create_label_operand(code_line_t *line);
 static operand_t *create_saved_label_operand(int op1_id);
 static int label_counter_up_to_index(int index);
 static void update_label_instructions();
+static void update_jump_instructions();
+static operand_t *create_updated_jump_operand(code_line_t *jmp_addr);
 static code_line_t *get_clicked_label_code_line();
 
-/* Function: cw_create_label_operand
+/* Function: create_updated_jump_operand
+*------------------------------------------------------------------------------
+* Creates the label operand with the corresponding number that will be shown
+* in the code
+*
+* Arguments:
+* 	None.
+*	
+* Return:
+*	Pointer to the newly created operand
+*
+*/
+static operand_t *create_updated_jump_operand(code_line_t *jmp_addr)
+{
+	assert(cw_check_if_in_code_list(jmp_addr) == true && "The code line is not"
+	"in the list and is probably destroyed");
+
+   	operand_t *op = NULL;
+	op = malloc(sizeof(operand_t));
+
+	int addr_label_id = jmp_addr->op1->id;
+	char *line_text = ax_number_to_string_two_digits(addr_label_id);
+	char *op_text = malloc(sizeof(char)*(strlen(label_text) + 
+						   strlen(char_space)+ strlen(line_text)));
+	
+	strcpy(op_text, label_text);
+	strcat(op_text, char_space);
+	strcat(op_text, line_text);
+	texture_t *t = load_texture_from_rendered_text(op_text, COLOR_WHITE);
+
+	int x = 0;
+	int y = 0;
+	op->b = create_button(x, y, ADDR_BUTTON_W, CODE_BUTTON_H, false, false, t);
+	op->id = get_instruction_position(jmp_addr);
+	op->jptr = jmp_addr;
+
+	free(line_text);
+	free(op_text);
+
+error:
+	return op;
+}
+
+/* Function: update_jump_instructions
+ * -----------------------------------------------------------------------------
+ * Traverses the whole code list and updates all the jump instructions
+ * to match the labels correctly
+ * 
+ * Arguments:
+ *  void.
+ *
+ * Return:
+ * 	void.
+ */
+static void update_jump_instructions()
+{
+	List *code = get_code_list();
+	check_mem(code);
+
+	code_line_t *c;
+	LIST_FOREACH(code, first, next, cur){ 
+		c = cur->value;
+		if (c->ins->id == JMP){
+			if (c->op1 != NULL){
+				code_line_t *jmp_addr = c->op1->jptr;
+				cl_destroy_operand(c->op1);	
+				if (cw_check_if_in_code_list(jmp_addr) == true){
+					c->op1 = create_updated_jump_operand(jmp_addr);
+					c->op1->b->x = c->ins->b->x + OP1_X_OFFSET;
+					c->op1->b->y = c->ins->b->y;
+				} else {
+					c->op1 = NULL;
+					c->state = MISSING_OP1;
+				}
+			}
+		}
+	}
+error:
+	return;
+}
+
+/* Function: cw_create_jump_operand
 *------------------------------------------------------------------------------
 * Creates the label operand with the corresponding number that will be shown
 * in the code
@@ -79,8 +162,8 @@ operand_t *cw_create_jump_operand()
 
 	int x = 0;
 	int y = 0;
-	op->b = create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H, false, false, t);
-	op->id = addr_label_id;
+	op->b = create_button(x, y, ADDR_BUTTON_W, CODE_BUTTON_H, false, false, t);
+	op->id = get_instruction_position(addr);
 	op->jptr = addr;
 
 	free(line_text);
@@ -1525,6 +1608,7 @@ void cw_player_holding_instruction(code_line_t *line)
 		if (cw_check_if_in_code_list(line) == false){
 			add_code_line(line);
 			update_label_instructions();
+			update_jump_instructions();
 		}
 		if (line->ins->id == LABEL){
 			if (line->op1 == NULL){
@@ -1541,6 +1625,7 @@ void cw_player_holding_instruction(code_line_t *line)
 			ListNode *node = get_list_node_by_value(line);
 			List_remove(code, node);
 			update_label_instructions();
+			update_jump_instructions();
 		}
 	}
 

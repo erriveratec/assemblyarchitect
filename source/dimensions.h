@@ -213,6 +213,7 @@
 // Dimensions of the buttons that will be used in code
 #define CODE_BUTTON_W 75
 #define CODE_BUTTON_H 40
+#define ADDR_BUTTON_W 120
 
 /*****************************SCALING FACTORS**********************************/
 // Should be deprecater in favor of pixels
