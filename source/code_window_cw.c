@@ -49,6 +49,40 @@ static operand_t *create_updated_jump_operand(code_line_t *jmp_addr);
 static code_line_t *get_clicked_label_code_line();
 static operand_t *create_saved_jump_operand(int op1_id);
 
+/* Function: cw_update_saved_jump_instructions
+ * -----------------------------------------------------------------------------
+ * Traverses the whole code list and updates all the jump instructions
+ * when all the saved instructions are completely loaded in the code.
+ * 
+ * Arguments:
+ *  void.
+ *
+ * Return:
+ * 	void.
+ */
+void cw_update_saved_jump_instructions()
+{
+	List *code = get_code_list();
+	check_mem(code);
+
+	code_line_t *c;
+	LIST_FOREACH(code, first, next, cur){ 
+		c = cur->value;
+		if (c->ins->id == JMP){
+			assert(c->op1 != NULL && "op1 should't be NULL");
+			code_line_t  *jmp_addr = get_code_line_at_pos(c->op1->id);
+			cl_destroy_operand(c->op1);	
+			assert(cw_check_if_in_code_list(jmp_addr) == true && "Instruction"
+				   "not present in code list");
+			c->op1 = create_updated_jump_operand(jmp_addr);
+			c->op1->b->x = c->ins->b->x + OP1_X_OFFSET;
+			c->op1->b->y = c->ins->b->y;
+		}
+	}
+error:
+	return;
+}
+
 /* Function: create_saved_jump_operand
 *------------------------------------------------------------------------------
 * Creates a placeholder jump operand in before the whole code loads

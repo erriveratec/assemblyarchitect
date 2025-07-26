@@ -264,6 +264,7 @@ static void parse_saved_code(FILE *fp)
 	while ((read = getline(&line, &len, fp)) != READ_ERROR){
 		text =  strtok_r(line, char_newline, &saveptr1);
 		if (strstr(STR_CODE_ENDS, line) != NULL){
+			cw_update_saved_jump_instructions();
 			break;
 		} else if (strcmp(line, char_newline) == STRING_EQUAL){
 		} else {

@@ -174,7 +174,10 @@ int cl_text_to_instruction_id(char *text)
 		instruction_id = ADD;
 	} else if (strstr(text, label_text)!= NULL){
 		instruction_id = LABEL;
+	} else if (strstr(text, jmp_text)!= NULL){
+		instruction_id = JMP;
 	}
+
 	assert(instruction_id != INVALID_OPERAND && "Instruction id is invalid");
 	return instruction_id;
 }
