@@ -353,7 +353,7 @@ static void move_execution_arrow(int instruction_number)
 	assert(instruction_number <= code_size && 
 		   "Instruction number is incorrect");
 	
-	int y = cw_get_instruction_y_coord(instruction_number);// + ;
+	int y = cw_get_instruction_y_coord(instruction_number); 
 	
 	if (g_exec_arrow.box.y < y){
 		int delta = get_movement_delta(g_exec_arrow.box.y, y, MOVEMENT_DELTA/2);
@@ -764,6 +764,8 @@ static void execute_instruction(code_line_t *line)
 	if (line->ins->id == LABEL){
 		line->state = EXECUTED;
 		reset_avatar_no_pos();
+	} else if (line->ins->id == JMP){
+		cw_operate_jump_instruction(line);
 	} else if (buffer_inputs != CW_EMPTY || line->state == IN_EXECUTION || 
 													 line->state == COMPLETE){
 		line->state = IN_EXECUTION;

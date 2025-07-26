@@ -112,7 +112,6 @@ InputType Natural
 InstructionsBegin
 LABEL
 mov
-add
 jmp
 InstructionsEnd
 

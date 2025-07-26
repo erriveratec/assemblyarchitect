@@ -39,7 +39,7 @@ static int get_first_code_line_y();
 static int get_code_line_x(int instruction_id);
 static int get_label_operand_value(code_line_t *line);
 List *get_code_list();
-static int get_instruction_position(code_line_t *line);
+static int get_code_line_pos_by_ptr(code_line_t *line);
 static operand_t *create_label_operand(code_line_t *line);
 static operand_t *create_saved_label_operand(int op1_id);
 static int label_counter_up_to_index(int index);
@@ -48,6 +48,52 @@ static void update_jump_instructions();
 static operand_t *create_updated_jump_operand(code_line_t *jmp_addr);
 static code_line_t *get_clicked_label_code_line();
 static operand_t *create_saved_jump_operand(int op1_id);
+
+/* Function: cw_operate_jump_instruction
+ * -----------------------------------------------------------------------------
+ * Changes the status of the code lines between the jump and the destiny label,
+ * if the destiny lable is previous to the jump instruction, the status is 
+ * change to COMPLETE, if the destiny label is after the jump instruction.
+ * all the instructions until that label are changed to EXECUTED
+ * 
+ * Arguments:
+ *  void.
+ *
+ * Return:
+ * 	void.
+ */
+void cw_operate_jump_instruction(code_line_t *line)
+{
+	assert(line->ins->id == JMP && "Invalid instruction for jump");
+
+	List *code = get_code_list();
+	check_mem(code);
+	
+	int jmp_pos = get_code_line_pos_by_ptr(line);
+	int dst_pos = get_code_line_pos_by_ptr(line->op1->jptr);
+
+	int i = 0;
+	code_line_t *c;
+	if (dst_pos < jmp_pos){
+		LIST_FOREACH(code, first, next, cur){ 
+			c = cur->value;
+			if (i >= dst_pos && i <= jmp_pos){
+				c->state = COMPLETE;
+			}
+			i++;
+		}
+	} else if (dst_pos > jmp_pos){
+		LIST_FOREACH(code, first, next, cur){ 
+			c = cur->value;
+			if (i < dst_pos && i >= jmp_pos){
+				c->state = EXECUTED;
+			}
+		}	
+		i++;
+	}
+error:
+	return;
+}
 
 /* Function: cw_update_saved_jump_instructions
  * -----------------------------------------------------------------------------
@@ -148,7 +194,7 @@ static operand_t *create_updated_jump_operand(code_line_t *jmp_addr)
 	int x = 0;
 	int y = 0;
 	op->b = create_button(x, y, ADDR_BUTTON_W, CODE_BUTTON_H, false, false, t);
-	op->id = get_instruction_position(jmp_addr);
+	op->id = get_code_line_pos_by_ptr(jmp_addr);
 	op->jptr = jmp_addr;
 
 	free(line_text);
@@ -230,7 +276,7 @@ operand_t *cw_create_jump_operand()
 	int x = 0;
 	int y = 0;
 	op->b = create_button(x, y, ADDR_BUTTON_W, CODE_BUTTON_H, false, false, t);
-	op->id = get_instruction_position(addr);
+	op->id = get_code_line_pos_by_ptr(addr);
 	op->jptr = addr;
 
 	free(line_text);
@@ -426,7 +472,7 @@ static operand_t *create_label_operand(code_line_t *line)
  *	int with the position of the line in the code list
  */
 
-static int get_instruction_position(code_line_t *line)
+static int get_code_line_pos_by_ptr(code_line_t *line)
 {
 	List *code = get_code_list();
 	assert(NULL != code && "The code pointer is NULL");
@@ -505,7 +551,7 @@ static int get_label_operand_value(code_line_t *line)
 	check_mem(code);
 	check_mem(line);
 
-	int pos = get_instruction_position(line);
+	int pos = get_code_line_pos_by_ptr(line);
 	int label = pos;	
 
 	bool in_code_list = cw_check_if_in_code_list(line);

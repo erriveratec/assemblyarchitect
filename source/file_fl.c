@@ -240,7 +240,6 @@ static void parse_challenge_text(FILE *fp)
 	return;
 }
 
-
 /* Function: parse_saved_code
  *------------------------------------------------------------------------------
  * This function processes the saved code for a level in the save file.
@@ -266,14 +265,12 @@ static void parse_saved_code(FILE *fp)
 		if (strstr(STR_CODE_ENDS, line) != NULL){
 			cw_update_saved_jump_instructions();
 			break;
-		} else if (strcmp(line, char_newline) == STRING_EQUAL){
-		} else {
+		} else if (strcmp(line, char_newline) != STRING_EQUAL){
 			cw_add_saved_line(text);
-		}
+		} 	
 	}
 	return;
 }
-
 
 /* Function: parse_instructions
  *------------------------------------------------------------------------------

@@ -45,4 +45,5 @@ int cw_get_instruction_y_coord(int instruction_position);
 bool cw_check_released_in_label();
 operand_t *cw_create_jump_operand();
 void cw_update_saved_jump_instructions();
+void cw_operate_jump_instruction(code_line_t *line);
 #endif

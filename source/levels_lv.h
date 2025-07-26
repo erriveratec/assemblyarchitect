@@ -63,7 +63,7 @@ void lv_create_win_list();
 void lv_destroy_win_list();
 void reset_win_list();
 void print_win_list();
-bool check_if_win();
+bool lv_check_if_win();
 void lv_generate_win_condition_list(int level);
 
 

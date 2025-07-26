@@ -373,15 +373,64 @@ static void set_level_6_win_list()
 		List_push(win_list, new_win);
 	}
 }
-/* Function: check_if_win
+
+/* Function: lv_evaluate_output_correctness
  *------------------------------------------------------------------------------
+ * Evaluates the correctness of the output as values are being added
+ *
+ * Arguments:
+ *	None.
+ *
+ * Return:
+ *	boolean stating if the output buffer contents are correct
+ */
+bool lv_evaluate_output_correctness()
+{
+	List *output_list = get_output_list();
+	List *win_list = get_win_list();
+
+	assert(output_list != NULL && "Output list pointer is NULL");
+	assert(win_list != NULL && "Win list pointer is NULL");
+
+	int output_list_size = List_count(output_list);
+	int win_list_size = List_count(win_list);
+
+	assert(win_list_size > 0 && "The win list has no elements");
+
+	if (output_list_size == 0){
+		return true;
+	}
+
+	ListNode *win_node = win_list->first;
+	int i = 0;
+	LIST_FOREACH(output_list, first, next, cur){
+		if (i == output_list_size){
+			break;
+		}
+		value_box_t *output = cur->value;
+		value_box_t *win_val = win_node->value;
+
+		if (output->value != win_val->value){
+			return false;
+		}
+		win_node = win_node->next;
+		i++
+	}
+	return true;
+}
+
+/* Function: lv_check_if_win
+ *------------------------------------------------------------------------------
+ * Evaluates the whole output list against the win list to verify if the 
+ * result is correct.
+ *
  * Arguments:
  *	None.
  *
  * Return:
  *	True if the win condition is met, false if otherwise
  */
-bool check_if_win()
+bool lv_check_if_win()
 {
 	List *output_list = get_output_list();
 	List *win_list = get_win_list();
@@ -403,8 +452,6 @@ bool check_if_win()
 	LIST_FOREACH(output_list, first, next, cur){
 		value_box_t *output = cur->value;
 		value_box_t *win_val = win_node->value;
-//		printf("output val: %d\n", output->value);
-//		printf("win val: %d\n", win->value);
 
 		if (output->value != win_val->value){
 			return false;

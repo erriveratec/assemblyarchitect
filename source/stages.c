@@ -703,7 +703,7 @@ int stage_level(int level_id)
 		edit_code(level_id);
 	}
 	if (run_finished == true){
-		int action_selected = display_run_result(check_if_win());
+		int action_selected = display_run_result(lv_check_if_win());
 		if (action_selected == BACK_BUTTON_PRESSED){
 			reset_level(level_id, &flags, &run_finished);		
 		} else if (action_selected == CONT_BUTTON_PRESSED){
