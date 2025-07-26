@@ -47,6 +47,39 @@ static void update_label_instructions();
 static void update_jump_instructions();
 static operand_t *create_updated_jump_operand(code_line_t *jmp_addr);
 static code_line_t *get_clicked_label_code_line();
+static operand_t *create_saved_jump_operand(int op1_id);
+
+/* Function: create_saved_jump_operand
+*------------------------------------------------------------------------------
+* Creates a placeholder jump operand in before the whole code loads
+*
+* Arguments:
+* 	op1_id: the id of the operand what will be created
+*	
+* Return:
+*	Pointer to the newly created operand
+*
+*/
+static operand_t *create_saved_jump_operand(int op1_id)
+{
+   	operand_t *b = NULL;
+
+	b = malloc(sizeof(operand_t));
+
+	char *line_text = ax_number_to_string_two_digits(op1_id);
+	char *op_text = malloc(sizeof(char)*(strlen(line_text)+1));
+	strcpy(op_text, line_text);
+	texture_t *t = load_texture_from_rendered_text(op_text, COLOR_WHITE);
+
+	int x = 0;
+	int y = 0;
+	b->b = create_button(x, y, ADDR_BUTTON_W, CODE_BUTTON_H, false, false, t);
+
+	b->id = op1_id;
+	free(line_text);
+	free(op_text);
+	return b;
+}
 
 /* Function: create_updated_jump_operand
 *------------------------------------------------------------------------------
@@ -479,7 +512,7 @@ void cw_add_saved_line(char *line)
 	char *ins_text;
 	char *op1_text;
 	char *op2_text;
-	char *delim = " ";
+	char *delim = char_space;
 	int ins_id;
 	int op1_id;
 	int op2_id;
@@ -490,7 +523,7 @@ void cw_add_saved_line(char *line)
 	int operand_quantity = cl_get_instruction_operand_quantity(ins_id);
 
 	if (operand_quantity == ONE_OPERAND || operand_quantity == TWO_OPERANDS){
-		if (ins_id == LABEL){
+		if (ins_id == LABEL || ins_id == JMP){
 			op1_text =  strtok_r(NULL, delim, &saveptr1);
 			op1_id = atoi(op1_text);
 		} else {
@@ -524,7 +557,9 @@ void cw_add_saved_line(char *line)
 	
 	if (operand_quantity == ONE_OPERAND || operand_quantity == TWO_OPERANDS){
 		operand_t *op1;
-		if (ins_id == LABEL){
+		if (ins_id == JMP){
+			op1 = create_saved_jump_operand(op1_id);
+		} else if (ins_id == LABEL){
 			op1 = create_saved_label_operand(op1_id);
 		} else if (op1_id > REGISTERS_MIN && op1_id < REGISTERS_MAX){
 			op1 = rg_create_register_operand_by_id(op1_id);
@@ -532,7 +567,6 @@ void cw_add_saved_line(char *line)
 			op1 = bf_create_buffer_operand_by_id(op1_id);
 		}
 		cl_assign_operand_to_line(op1, new_line);
-
 	}
 	if (operand_quantity == TWO_OPERANDS){
 		operand_t *op2;
