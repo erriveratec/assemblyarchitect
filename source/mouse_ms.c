@@ -26,7 +26,7 @@ static void set_mouse_scroll_x(int x);
 static void set_mouse_scroll_y(int y);
 static void set_mouse_left_pressed(bool s);
 static void set_mouse_left_released(bool s);
-static void set_mouse_button_enable(bool s);
+//static void set_mouse_button_enable(bool s);
 static bool get_mouse_left_pressed();
 static bool get_mouse_left_released();
 
@@ -94,7 +94,7 @@ void ms_init_mouse()
 	set_mouse_y(0);
 	set_mouse_left_pressed(false);
 	set_mouse_left_released(false);
-	set_mouse_button_enable(true);
+	//set_mouse_button_enable(true);
 
 	return;
 }
@@ -209,11 +209,11 @@ static void set_mouse_left_released(bool s)
  * Return:
  *	void.
  */
-static void set_mouse_button_enable(bool s)
+/*static void set_mouse_button_enable(bool s)
 {
 	mouse.button_enable = s;
 	return;
-}
+}*/
 
 /* Function: ms_clear_mouse_values
  * -----------------------------------------------------------------------------
@@ -251,7 +251,7 @@ void ms_reset_mouse_values()
 	set_mouse_scroll_y(0);
 	set_mouse_left_pressed(false);
 	set_mouse_left_released(false);
-	set_mouse_button_enable(false);
+//	set_mouse_button_enable(false);
 	return;
 }
 
@@ -330,13 +330,13 @@ bool ms_check_mouse_left_pressed()
 bool ms_check_mouse_left_released()
 {
 	bool released =  ms_get_mouse_left_released();
-	bool enable = ms_get_mouse_button_enable();
+//	bool enable = ms_get_mouse_button_enable();
 
-	bool check = released & enable;
+	bool check = released;// & enable;
 	
-	if (released == true){
-		set_mouse_button_enable(true);
-	}
+//	if (released == true){
+//		set_mouse_button_enable(true);
+//	}
 
 	return check;
 }
@@ -422,8 +422,8 @@ void ms_mouse_wheel_handler(SDL_Event e)
  * Return:
  *	void.
  */
-void ms_disable_mouse_button()
+/*void ms_disable_mouse_button()
 {
 	set_mouse_button_enable(false);
 	return;
-}
+}*/

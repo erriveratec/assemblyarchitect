@@ -871,6 +871,7 @@ bool mc_run_code()
 {
 	bool finished = false;
 	int code_size = cw_get_code_list_size();	
+	
 	if (check_run_finished() == true){
 		finished = true;	
 		return finished;

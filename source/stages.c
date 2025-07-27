@@ -587,12 +587,15 @@ static void pending_operand_handler()
 	cw_highlight_code_pending_operand();
 	code_line_t *l = cw_get_code_line_pending_operand();
 
+	if (left_released == true) puts("left released");
+
 	if (l->ins->id == JMP){
 		if (label_selected == true){
 			operand_t *a = cw_create_jump_operand();
 			cl_assign_operand_to_line(a, l);
 		}
 	} else if (left_released == true && register_selected == true){
+		puts("selects register");
 		operand_t *r = rg_create_operand_of_selected_register();
 		cl_assign_operand_to_line(r, l);
 	} else if (left_released == true && buffer_selected == true){
@@ -625,6 +628,7 @@ static void edit_code(int level_id)
 {
 	assert(level_id > 0 && level_id <= LV_LEVEL_QUANTITY && 
 		   "Incorrect level_id value");
+	
 	static code_line_t *line = NULL;
 	bool left_pressed = ms_check_mouse_left_pressed();
 
@@ -635,7 +639,7 @@ static void edit_code(int level_id)
 			fl_save_level(g_player, level_id);
 		}
 	} else if (cw_check_clicked_code_operand() == true && line == NULL){
-		ms_disable_mouse_button();
+//		ms_disable_mouse_button();
 		cw_change_clicked_code_line_state();	
 	} else if (iw_check_clicked_instruction() == true && line == NULL){
 		line = cl_new_code_line(iw_get_clicked_instruction());
