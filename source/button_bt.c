@@ -147,7 +147,7 @@ bool check_mouse_released_in_button(button_t *button)
 
 	int mouse_x = ms_get_mouse_x();
 	int mouse_y = ms_get_mouse_y();
-	int mouse_left_released = ms_check_mouse_left_released();
+	int mouse_left_released = ms_get_mouse_left_released();
 	
 	if (mouse_left_released == false){
 		return false;

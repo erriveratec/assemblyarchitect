@@ -11,7 +11,6 @@ typedef struct mouse_t{
 	int y;
 	int scroll_x;
 	int scroll_y;
-	bool button_enable;
 	bool left_pressed;
 	bool left_released;
 	bool left_one_click;
@@ -26,26 +25,8 @@ static void set_mouse_scroll_x(int x);
 static void set_mouse_scroll_y(int y);
 static void set_mouse_left_pressed(bool s);
 static void set_mouse_left_released(bool s);
-//static void set_mouse_button_enable(bool s);
 static bool get_mouse_left_pressed();
 static bool get_mouse_left_released();
-
-
-
-/* Function: ms_get_mouse_button_enable
- * -----------------------------------------------------------------------------
- * This function is used for obtaining the status of the mouse enable button
- *
- * Arguments:
- *	none.
- *
- * Return:
- *	bool with the state of the button enable attribute.
- */
-bool ms_get_mouse_button_enable()
-{
-	return mouse.button_enable;
-}
 
 /* Function: get_mouse_left_pressed
  * -----------------------------------------------------------------------------
@@ -94,7 +75,6 @@ void ms_init_mouse()
 	set_mouse_y(0);
 	set_mouse_left_pressed(false);
 	set_mouse_left_released(false);
-	//set_mouse_button_enable(true);
 
 	return;
 }
@@ -199,22 +179,6 @@ static void set_mouse_left_released(bool s)
 	return;
 }
 
-/* Function: set_mouse_button_enable
- * -----------------------------------------------------------------------------
- * This function is used for setting the enable attribute of the mouse object.
- *
- * Arguments:
- *	s: state that will be set the enable attribute of the mouse.
- *
- * Return:
- *	void.
- */
-/*static void set_mouse_button_enable(bool s)
-{
-	mouse.button_enable = s;
-	return;
-}*/
-
 /* Function: ms_clear_mouse_values
  * -----------------------------------------------------------------------------
  * This function is used for clearing the values not used in the mouse for next
@@ -251,7 +215,6 @@ void ms_reset_mouse_values()
 	set_mouse_scroll_y(0);
 	set_mouse_left_pressed(false);
 	set_mouse_left_released(false);
-//	set_mouse_button_enable(false);
 	return;
 }
 
@@ -317,29 +280,6 @@ bool ms_check_mouse_left_pressed()
 	return mouse.left_pressed;
 }
 
-/* Function: ms_check_mouse_left_released
- * -----------------------------------------------------------------------------
- * This functions verifies if the left button of the mouse is released.
- *
- * Arguments:
- *	None.
- *
- * Return:
- *	true if the left button of the mouse is released, false if otherwise
- */
-bool ms_check_mouse_left_released()
-{
-	bool released =  ms_get_mouse_left_released();
-//	bool enable = ms_get_mouse_button_enable();
-
-	bool check = released;// & enable;
-	
-//	if (released == true){
-//		set_mouse_button_enable(true);
-//	}
-
-	return check;
-}
 
 /* Function: ms_mouse_button_handler
  * -----------------------------------------------------------------------------
@@ -410,20 +350,3 @@ void ms_mouse_wheel_handler(SDL_Event e)
 	return;
 }
 
-/* Function: ms_disable_mouse_button
- * -----------------------------------------------------------------------------
- * This function sets the parameter attribute of the mouse to false. This is
- * used when a click is needed to perform just one action (a pressed or 
- * released but no both).
- *
- * Arguments:
- *	none.
- *
- * Return:
- *	void.
- */
-/*void ms_disable_mouse_button()
-{
-	set_mouse_button_enable(false);
-	return;
-}*/

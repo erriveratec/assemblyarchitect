@@ -151,7 +151,7 @@ bool mc_invalid_operation_handler(int id)
 	
 	free(message);
 
-	if (ms_check_mouse_left_released() == true){
+	if (ms_get_mouse_left_released() == true){
 		mc_reset_invalid_operation_flag();
 		reset_level = true;
 	}

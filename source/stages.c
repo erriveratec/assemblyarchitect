@@ -580,14 +580,12 @@ static void flag_handler(level_flags_t *flags, int clicked_button)
  */
 static void pending_operand_handler()
 {
-	bool left_released = ms_check_mouse_left_released();
+	bool left_released = ms_get_mouse_left_released();
 	bool register_selected = rg_check_released_in_register();
 	bool buffer_selected = bf_check_released_in_buffer();
 	bool label_selected = cw_check_released_in_label();
 	cw_highlight_code_pending_operand();
 	code_line_t *l = cw_get_code_line_pending_operand();
-
-	if (left_released == true) puts("left released");
 
 	if (l->ins->id == JMP){
 		if (label_selected == true){
@@ -595,7 +593,6 @@ static void pending_operand_handler()
 			cl_assign_operand_to_line(a, l);
 		}
 	} else if (left_released == true && register_selected == true){
-		puts("selects register");
 		operand_t *r = rg_create_operand_of_selected_register();
 		cl_assign_operand_to_line(r, l);
 	} else if (left_released == true && buffer_selected == true){
@@ -639,7 +636,6 @@ static void edit_code(int level_id)
 			fl_save_level(g_player, level_id);
 		}
 	} else if (cw_check_clicked_code_operand() == true && line == NULL){
-//		ms_disable_mouse_button();
 		cw_change_clicked_code_line_state();	
 	} else if (iw_check_clicked_instruction() == true && line == NULL){
 		line = cl_new_code_line(iw_get_clicked_instruction());
