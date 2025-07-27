@@ -65,6 +65,7 @@ void reset_win_list();
 void print_win_list();
 bool lv_check_if_win();
 void lv_generate_win_condition_list(int level);
+bool lv_evaluate_output_correctness();
 
 
 #endif

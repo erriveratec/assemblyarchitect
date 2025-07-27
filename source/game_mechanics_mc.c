@@ -13,6 +13,8 @@
 
 #define INPUT_BUFFER_EMPTY_TEXT "The Input Buffer is empty"
 #define REG_VALUE_INVALID_TEXT "The register had an invalid value"
+#define INVALID_OUTPUT_VALUE_TEXT "Incorrect value in the output buffer"
+
 
 texture_t *right_arrow = NULL;
 
@@ -105,6 +107,9 @@ int mc_get_operation_flag()
  */
 bool mc_invalid_operation_handler(int id)
 {
+	assert(id >= NO_INVALID_OPERATION && id < INVALID_OPERATION_MAX &&
+		   "Incorrect id for the invalid operation handler");
+
 	bool reset_level = false;
 
 	dw_draw_filled_rectangle(MESSAGE_BOX_X, MESSAGE_BOX_Y, MESSAGE_BOX_W, 
@@ -120,8 +125,12 @@ bool mc_invalid_operation_handler(int id)
 			message = malloc(sizeof(char)*strlen(REG_VALUE_INVALID_TEXT)+1);
 			strcpy(message, REG_VALUE_INVALID_TEXT);	
 			break;
+		case INVALID_OUTPUT_VALUE:
+			message = malloc(sizeof(char)*strlen(INVALID_OUTPUT_VALUE_TEXT)+1);
+			strcpy(message, INVALID_OUTPUT_VALUE_TEXT);	
+			break;
 		default: 
-			puts("TEST");
+			puts("ERROR: oeration not t");
 	}
 
 	dw_draw_wrapped_text_fits_height(MESSAGE_TEXT_X, MESSAGE_TEXT_Y, 
@@ -566,7 +575,9 @@ void operate_instruction(code_line_t *line)
 				set_invalid_operation_flag(REG_VALUE_INVALID);
 			}
 			break;
-
+	}
+	if (lv_evaluate_output_correctness() == false){
+		set_invalid_operation_flag(INVALID_OUTPUT_VALUE);
 	}
 }
 

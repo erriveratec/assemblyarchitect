@@ -409,12 +409,11 @@ bool lv_evaluate_output_correctness()
 		}
 		value_box_t *output = cur->value;
 		value_box_t *win_val = win_node->value;
-
 		if (output->value != win_val->value){
 			return false;
 		}
 		win_node = win_node->next;
-		i++
+		i++;
 	}
 	return true;
 }
