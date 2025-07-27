@@ -702,7 +702,7 @@ int stage_level(int level_id)
 	if (flags.non_stop == false || cw_check_code_pending_operand() == true){
 		edit_code(level_id);
 	}
-	if (run_finished == true){
+	if (run_finished == true || lv_check_if_win() == true){
 		int action_selected = display_run_result(lv_check_if_win());
 		if (action_selected == BACK_BUTTON_PRESSED){
 			reset_level(level_id, &flags, &run_finished);		

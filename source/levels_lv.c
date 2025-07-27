@@ -421,7 +421,8 @@ bool lv_evaluate_output_correctness()
 /* Function: lv_check_if_win
  *------------------------------------------------------------------------------
  * Evaluates the whole output list against the win list to verify if the 
- * result is correct.
+ * result is correct. Does not verifies if there are still elements in the
+ * output list. 
  *
  * Arguments:
  *	None.

@@ -14,7 +14,8 @@
 #define INPUT_BUFFER_EMPTY_TEXT "The Input Buffer is empty"
 #define REG_VALUE_INVALID_TEXT "The register had an invalid value"
 #define INVALID_OUTPUT_VALUE_TEXT "Incorrect value in the output buffer"
-
+#define UNPROCESSED_IB_VALUES_TEXT "Output is correct but only works by that" \
+							   "specific set of value"
 
 texture_t *right_arrow = NULL;
 
@@ -61,7 +62,7 @@ static bool is_operand_retrievable(int id);
 static void set_invalid_operation_flag(int flag_id);
 static void move_execution_arrow(int instruction_number);
 static bool check_operand_has_valid_value(int op_id);
-
+static bool input_processing_finished();
 
 /* Function: mc_reset_invalid_operation_flag
  * -----------------------------------------------------------------------------
@@ -129,6 +130,11 @@ bool mc_invalid_operation_handler(int id)
 			message = malloc(sizeof(char)*strlen(INVALID_OUTPUT_VALUE_TEXT)+1);
 			strcpy(message, INVALID_OUTPUT_VALUE_TEXT);	
 			break;
+		case UNPROCESSED_IB_VALUES:
+			message = malloc(sizeof(char)*strlen(UNPROCESSED_IB_VALUES_TEXT)+1);
+			strcpy(message, UNPROCESSED_IB_VALUES_TEXT);	
+			break;
+
 		default: 
 			puts("ERROR: oeration not t");
 	}
@@ -758,6 +764,31 @@ static void handle_destiny_operand(code_line_t *line)
 	}
 }
 
+/* Function: input_processing_finished
+ * -----------------------------------------------------------------------------
+ * Verifies if the elements in the output list are the same as the output list
+ * and if the input buffer still have values and if there are any values
+ * pending processing in the input buffer
+ *
+ * Arguments:
+ *	void.
+ *
+ * Return:
+ *	void.
+ */
+static bool input_processing_finished()
+{
+	bool finished = false;
+	
+	int input_buffer_size = get_input_buffer_list_size();
+
+	if (lv_check_if_win() == true && input_buffer_size == 0){
+		finished = true;
+	} else if (lv_check_if_win() == true && input_buffer_size !=0) {
+		set_invalid_operation_flag(UNPROCESSED_IB_VALUES);
+	}
+	return finished;	
+}
 
 /* Function: execute_instruction
  * -----------------------------------------------------------------------------
@@ -802,7 +833,10 @@ bool mc_run_code()
 {
 	bool finished = false;
 	int code_size = cw_get_code_list_size();	
-
+	if (input_processing_finished() == true){
+		finished = true;	
+		return finished;
+	}
 	for (int i = 0; i < code_size; i++){
 		move_execution_arrow(i);
 		code_line_t *line = get_code_line_at_pos(i);
