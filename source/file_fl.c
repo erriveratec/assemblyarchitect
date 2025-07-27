@@ -32,6 +32,17 @@
 #define STR_PLAYER "PLAYER"
 #define STR_PLAYER_ENDS "PLAYER ENDS"
 
+//Load level strings
+#define STR_CHALLENGE_TEXT_BEGIN "ChallengeTextBegin"
+#define STR_INPUT_SIZE "InputSize"
+#define STR_INSTRUCTION_LIMIT "InstructionLimit"
+#define STR_INPUT_TYPE "InputType"
+#define STR_NATURAL "Natural"
+#define STR_WHOLE "Whole"
+#define STR_CHAR "Char"
+#define STR_MIXED "Mixed"
+#define STR_INSTRUCTIONS_BEGIN "InstructionsBegin"
+#define STR_REGISTERS_BEGIN "RegistersBegin"
 
 static char *get_level_id_string(int level_id);
 static char *get_player_id_string(int player_id);
@@ -368,33 +379,37 @@ void fl_file_initialize_level(int level_id)
 			char *name = create_string_with_number(STR_LEVEL, level_id);
 			cw_set_stage_name(name);
 			free(name);
-		} else if (strstr(line, "ChallengeTextBegin") != NULL &&
+		} else if (strstr(line, STR_CHALLENGE_TEXT_BEGIN) != NULL &&
 			level_found == true){
 			parse_challenge_text(fp);
-		} else if (strstr(line, "InputSize") != NULL && level_found == true){
-			char *size = strchr(line, ' ');
+		} else if (strstr(line, STR_INPUT_SIZE) != NULL && level_found == true){
+			char *size = strchr(line, CHAR_SPACE);
 			bf_set_input_buffer_size(atoi(size));
-		} else if (strstr(line, "InputType") != NULL && level_found == true){
-			if (strstr(line, "Natural")){
+		} else if (strstr(line, STR_INSTRUCTION_LIMIT) != NULL && 
+				   								level_found == true){
+			char *size = strchr(line, CHAR_SPACE);
+			lv_set_level_instructions_limit(atoi(size));
+		} else if (strstr(line, STR_INPUT_TYPE) != NULL && level_found == true){
+			if (strstr(line, STR_NATURAL)){
 				bf_create_natural_numbers_input_list(g_input_buffer_size);
 				g_input_list_type = NATURAL;
-			} else if (strstr(line, "Whole")){
+			} else if (strstr(line, STR_WHOLE)){
 
-			} else if (strstr(line, "Char")){
+			} else if (strstr(line, STR_CHAR)){
 
-			} else if (strstr(line, "Mixed")){
+			} else if (strstr(line, STR_MIXED)){
 
 			}
 
-		} else if (strstr(line, "InstructionsBegin") != NULL &&
+		} else if (strstr(line, STR_INSTRUCTIONS_BEGIN) != NULL &&
 				   level_found == true){
 			iw_create_instruction_list();
 			parse_instructions(fp);
-		} else if (strstr(line, "RegistersBegin") != NULL &&
+		} else if (strstr(line, STR_REGISTERS_BEGIN) != NULL &&
 				   level_found == true){
 			int reg_box_w = get_registers_text_width(REG_TEXT_H);
-			rg_set_register_box(REG_BOX_X, REG_BOX_Y, reg_box_w + 2*REG_BOX_OFFSET, 
-					         REG_BOX_H);
+			rg_set_register_box(REG_BOX_X, REG_BOX_Y, reg_box_w + 
+								2*REG_BOX_OFFSET, REG_BOX_H);
 			create_register_list();
 			parse_registers(fp);
 		}else if (strstr(line, STR_LEVEL_ENDS) != NULL && level_found == true){

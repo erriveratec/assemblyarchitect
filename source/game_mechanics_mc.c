@@ -16,6 +16,8 @@
 #define INVALID_OUTPUT_VALUE_TEXT "Incorrect value in the output buffer"
 #define UNPROCESSED_IB_VALUES_TEXT "Output is correct but only works by that" \
 							   "specific set of value"
+#define EXCEEDS_CODE_LIMIT_TEXT "Correct output but exceeds code size limit"
+
 
 texture_t *right_arrow = NULL;
 
@@ -62,7 +64,8 @@ static bool is_operand_retrievable(int id);
 static void set_invalid_operation_flag(int flag_id);
 static void move_execution_arrow(int instruction_number);
 static bool check_operand_has_valid_value(int op_id);
-static bool input_processing_finished();
+static bool check_run_finished();
+static bool check_correct_code_size();
 
 /* Function: mc_reset_invalid_operation_flag
  * -----------------------------------------------------------------------------
@@ -134,9 +137,12 @@ bool mc_invalid_operation_handler(int id)
 			message = malloc(sizeof(char)*strlen(UNPROCESSED_IB_VALUES_TEXT)+1);
 			strcpy(message, UNPROCESSED_IB_VALUES_TEXT);	
 			break;
-
+		case EXCEEDS_CODE_LIMIT:
+			message = malloc(sizeof(char)*strlen(EXCEEDS_CODE_LIMIT_TEXT)+1);
+			strcpy(message, EXCEEDS_CODE_LIMIT_TEXT);	
+			break;
 		default: 
-			puts("ERROR: oeration not t");
+			puts("ERROR: Invalid operation incorrec id");
 	}
 
 	dw_draw_wrapped_text_fits_height(MESSAGE_TEXT_X, MESSAGE_TEXT_Y, 
@@ -764,11 +770,38 @@ static void handle_destiny_operand(code_line_t *line)
 	}
 }
 
-/* Function: input_processing_finished
+/* Function: check_code_size
+ * -----------------------------------------------------------------------------
+ * Verifies if the code develped by the player complies with the code size set
+ * for that given level
+ *
+ * Arguments:
+ *	void.
+ *
+ * Return:
+ *	bool with the state if the level complies with the code size.
+ */
+static bool check_correct_code_size()
+{
+	bool within_limit = false;
+	
+	int code_size = cw_get_code_list_size();
+	int instructions_limit = lv_get_level_instructions_limit();
+
+	if (code_size <= instructions_limit){
+		within_limit = true;
+	}
+	
+	return within_limit;
+}
+
+
+/* Function: check_run_finished
  * -----------------------------------------------------------------------------
  * Verifies if the elements in the output list are the same as the output list
  * and if the input buffer still have values and if there are any values
- * pending processing in the input buffer
+ * pending processing in the input buffer. Checks if code complies with 
+ * the limit of instructions set for the level
  *
  * Arguments:
  *	void.
@@ -776,17 +809,22 @@ static void handle_destiny_operand(code_line_t *line)
  * Return:
  *	void.
  */
-static bool input_processing_finished()
+static bool check_run_finished()
 {
 	bool finished = false;
 	
 	int input_buffer_size = get_input_buffer_list_size();
+	bool win = lv_check_if_win();
+	bool correct_code_size = check_correct_code_size();
 
-	if (lv_check_if_win() == true && input_buffer_size == 0){
-		finished = true;
-	} else if (lv_check_if_win() == true && input_buffer_size !=0) {
+	if (win == true && input_buffer_size !=0) {
 		set_invalid_operation_flag(UNPROCESSED_IB_VALUES);
-	}
+	} else if (win == true && correct_code_size == false) {
+		set_invalid_operation_flag(EXCEEDS_CODE_LIMIT);
+	} else if (win == true && input_buffer_size == 0){
+		finished = true;
+	} 
+
 	return finished;	
 }
 
@@ -833,7 +871,7 @@ bool mc_run_code()
 {
 	bool finished = false;
 	int code_size = cw_get_code_list_size();	
-	if (input_processing_finished() == true){
+	if (check_run_finished() == true){
 		finished = true;	
 		return finished;
 	}

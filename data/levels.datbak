@@ -18,12 +18,34 @@ RegistersEnd
 
 +++LEVEL ENDS
 
-+++ LEVEL STARTS 02
++++LEVEL STARTS 02
 
 ChallengeTextBegin
-"Dummy text for challenge 2"
+"Move the value from the input buffer to the output buffer in reverse order."
 ChallengeTextEnd
 
+InputSize 3
+InputType Natural
+
+InstructionsBegin
+mov
+InstructionsEnd
+
+RegistersBegin
+rax
+rbx
+rcx
+RegistersEnd
+
++++LEVEL ENDS
+
++++LEVEL STARTS 03
+
+ChallengeTextBegin
+"Add the values received from the input buffer in pairs and put the result in the output buffer."
+ChallengeTextEnd
+
+InputSize 4
 InputType Natural
 
 InstructionsBegin
@@ -33,9 +55,69 @@ InstructionsEnd
 
 RegistersBegin
 rax
-rdi
 RegistersEnd
 
 +++LEVEL ENDS
 
++++LEVEL STARTS 04
+
+ChallengeTextBegin
+"Take the value received from the input buffer and multiply it by 5"
+ChallengeTextEnd
+
+InputSize 1
+InputType Natural
+
+InstructionsBegin
+mov
+add
+InstructionsEnd
+
+RegistersBegin
+rax
+rbx
+RegistersEnd
+
++++LEVEL ENDS
+
++++LEVEL STARTS 05
+
+ChallengeTextBegin
+"Take the value received from the input buffer and multiply it by 8"
+ChallengeTextEnd
+
+InputSize 1
+InputType Natural
+
+InstructionsBegin
+mov
+add
+InstructionsEnd
+
+RegistersBegin
+rax
+RegistersEnd
+
++++LEVEL ENDS
+
++++LEVEL STARTS 06
+
+ChallengeTextBegin
+"Move the values from the input buffer to the output buffer, using four instructions maximum"
+ChallengeTextEnd
+
+InputSize 5
+InputType Natural
+
+InstructionsBegin
+LABEL
+mov
+jmp
+InstructionsEnd
+
+RegistersBegin
+rax
+RegistersEnd
+
++++LEVEL ENDS
 

@@ -80,11 +80,10 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-jmp 01
-LABEL 02
-mov rax, [ib]
+LABEL 01
 mov rax, [ib]
 mov [ob], rax
+jmp 00
 CODE ENDS
 
 +++LEVEL ENDS 06
@@ -513,11 +512,10 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-jmp 01
-LABEL 02
-mov rax, [ib]
+LABEL 01
 mov rax, [ib]
 mov [ob], rax
+jmp 00
 CODE ENDS
 
 +++LEVEL ENDS 06
@@ -946,11 +944,10 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-jmp 01
-LABEL 02
-mov rax, [ib]
+LABEL 01
 mov rax, [ib]
 mov [ob], rax
+jmp 00
 CODE ENDS
 
 +++LEVEL ENDS 06

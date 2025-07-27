@@ -88,8 +88,8 @@ void cw_operate_jump_instruction(code_line_t *line)
 			if (i < dst_pos && i >= jmp_pos){
 				c->state = EXECUTED;
 			}
+			i++;
 		}	
-		i++;
 	}
 error:
 	return;

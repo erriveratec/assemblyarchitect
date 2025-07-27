@@ -11,9 +11,9 @@
 // against this list.
 static List *win_list = NULL;
 
+static int level_instructions_limit;
+
 List *get_win_list();
-
-
 void add_to_win_list(int value, int type);
 static void set_level_1_win_list();
 static void set_level_2_win_list();
@@ -21,6 +21,33 @@ static void set_level_3_win_list();
 static void set_level_4_win_list();
 static void set_level_5_win_list();
 static void set_level_6_win_list();
+
+/* Function: lv_get_level_instructions_limit
+ * -----------------------------------------------------------------------------
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	The limit number of instructions for the level
+ */
+int lv_get_level_instructions_limit()
+{
+	return level_instructions_limit;
+}
+
+/* Function: lv_set_level_instructions_limit
+ * -----------------------------------------------------------------------------
+ * Arguments:
+ * 	Limit: The quantity of the instructions that the level will allow
+ *	
+ * Return:
+ *	void
+ */
+void lv_set_level_instructions_limit(int limit)
+{
+	level_instructions_limit = limit;
+}
+
 
 /* Function: lv_generate_win_condition_list
  * -----------------------------------------------------------------------------

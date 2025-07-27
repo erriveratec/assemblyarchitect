@@ -702,7 +702,10 @@ int stage_level(int level_id)
 	if (flags.non_stop == false || cw_check_code_pending_operand() == true){
 		edit_code(level_id);
 	}
-	if (run_finished == true || lv_check_if_win() == true){
+	if (mc_get_operation_flag() != NO_INVALID_OPERATION){
+		reset = mc_invalid_operation_handler(mc_get_operation_flag());
+		flags.play = false;
+	} else if (run_finished == true && flags.play == true){
 		int action_selected = display_run_result(lv_check_if_win());
 		if (action_selected == BACK_BUTTON_PRESSED){
 			reset_level(level_id, &flags, &run_finished);		
@@ -718,10 +721,7 @@ int stage_level(int level_id)
 		reset_level(level_id, &flags, &run_finished);	
 		reset = false;
 	}
-	if (mc_get_operation_flag() != NO_INVALID_OPERATION){
-		reset = mc_invalid_operation_handler(mc_get_operation_flag());
-		flags.play = false;
-	}
+	
 	if (back_to_level_selection == true){
 		ret_val = LV_LEVEL_SELECTION;	
 		level_init = false;
