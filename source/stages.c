@@ -418,7 +418,7 @@ static void create_select_level_buttons(button_t **buttons, bool *levels)
 			button_texture = load_texture_from_rendered_text(button_text, 
 							 COLOR_GREY);
 			buttons[i-1] = create_button(x, y, SEL_LEVEL_BUTTON_W, 
-									 SEL_LEVEL_BUTTON_H, true, true, 
+									 SEL_LEVEL_BUTTON_H, false, true, 
 									 button_texture);
 		}
 				
