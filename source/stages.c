@@ -528,8 +528,6 @@ static void flag_handler(level_flags_t *flags, int clicked_button)
 	assert(clicked_button != INVALID && "Invalid clicked button");
 	assert(flags != NULL && "The flags pointer is NULL");
 	
-	//reset_level_flags(flags);
-	
 	switch(clicked_button){
 		case PLAY: 
 			flags->play = true;
@@ -692,10 +690,9 @@ int stage_level(int level_id)
 	if (level_init == false){
 		level_init = level_initialization(level_id);
 	}
-	if (check_clicked_stage_button() == true){
+	if (sb_check_clicked_stage_button() == true){
 		flag_handler(&flags, identify_clicked_stage_button());
 	}
-	
 	stage_drawings();
 	cw_sort_code();
 	

@@ -155,7 +155,7 @@ bool sb_check_clicked_ret_button()
 	return ret;
 }
 
-/* Function: check_clicked_stage_button
+/* Function: sb_check_clicked_stage_button
  * -------------------------------------
  * Arguments:
  * 	None.
@@ -163,7 +163,7 @@ bool sb_check_clicked_ret_button()
  * Return:
  *	true if button clicked, false if otherwise.
  */
-bool check_clicked_stage_button()
+bool sb_check_clicked_stage_button()
 {
 	int ret = false;
 

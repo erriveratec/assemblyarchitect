@@ -49,7 +49,7 @@ enum counter_actions{
 	GET_COUNTER,
 };
 
-static void execute_instruction(code_line_t *line);
+static void execute_instruction(code_line_t *line, int line_pos);
 static bool move_avatar_to_operand(int op_id);
 int get_operand_x_dest(int op_id);
 int get_operand_y_dest(int op_id);
@@ -359,13 +359,40 @@ void mc_draw_execution_arrow()
 	}
 }
 
+/* Function: check_execution_arrow_in_place
+ * -----------------------------------------------------------------------------
+ * Arguments:
+ *	Evaluates if the execution arrow is it it's final posiition
+ *
+ * Return:
+ *	bool if the exectution arrow arrived to its final position
+ */
+static void check_execution_arrow_in_place(int instruction_number)
+{
+	int code_size = cw_get_code_list_size();	
+	assert(code_size > 0  && "Code size is invalid");
+	assert(instruction_number <= code_size && 
+		   "Instruction number is incorrect");
+
+	bool in_final_position = false;
+	
+	int y = cw_get_instruction_y_coord(instruction_number) + 
+			EXEC_ARROW_Y_COORD_OFFSET;
+	
+	if (g_exec_arrow.box.y == y){
+		int delta = get_movement_delta(g_exec_arrow.box.y, y, MOVEMENT_DELTA/6);
+		g_exec_arrow.box.y += delta;
+	} 
+}
+
+
 /* Function: move_execution_arrow
  * -----------------------------------------------------------------------------
  * Arguments:
  *	instruction_number: The number of the current instruction being executed
  *
  * Return:
- *	bool indicanting if there still movement pending
+ * 	Bool indicating if arrow is in final position
  */
 static bool move_execution_arrow(int instruction_number)
 {
@@ -373,23 +400,23 @@ static bool move_execution_arrow(int instruction_number)
 	assert(code_size > 0  && "Code size is invalid");
 	assert(instruction_number <= code_size && 
 		   "Instruction number is incorrect");
+	
+	bool in_final_position = false;
 
-	bool arrow_in_position = false;
 	int y = cw_get_instruction_y_coord(instruction_number) + 
 			EXEC_ARROW_Y_COORD_OFFSET;
-
 	
 	if (g_exec_arrow.box.y < y){
-		int delta = get_movement_delta(g_exec_arrow.box.y, y, MOVEMENT_DELTA/6);
+		int delta = get_movement_delta(g_exec_arrow.box.y, y, MOVEMENT_DELTA/3);
 		g_exec_arrow.box.y += delta;
 	} else if (g_exec_arrow.box.y > y){
-		int delta = get_movement_delta(g_exec_arrow.box.y, y, MOVEMENT_DELTA/6);
+		int delta = get_movement_delta(g_exec_arrow.box.y, y, MOVEMENT_DELTA/3);
 		g_exec_arrow.box.y -= delta;
 	}
 	if (g_exec_arrow.box.y == y){
-		arrow_in_position = true;	
-	}
-	return arrow_in_position;
+		in_final_position = true;
+	} 
+	return in_final_position;
 }
 
 /* Function: move_avatar_to_operand
@@ -841,26 +868,29 @@ static bool check_run_finished()
  * Return:
  *	void.
  */
-static void execute_instruction(code_line_t *line)
+static void execute_instruction(code_line_t *line, int line_pos)
 {
 	assert(line != NULL && "The value of line cannot be NULL");
 	int buffer_inputs = get_input_buffer_list_size();
 
-	if (line->ins->id == LABEL){
+	bool arrow_in_place = move_execution_arrow(line_pos);
+
+	if (line->ins->id == LABEL && arrow_in_place == true){
 		line->state = EXECUTED;
 		reset_avatar_no_pos();
-	} else if (line->ins->id == JMP){
+	} else if (line->ins->id == JMP && arrow_in_place == true){
 		cw_operate_jump_instruction(line);
 	} else if (buffer_inputs != CW_EMPTY || line->state == IN_EXECUTION || 
 													 line->state == COMPLETE){
 		line->state = IN_EXECUTION;
 		handle_source_operand(line);
 		handle_destiny_operand(line);
-		if (g_avatar.op2_retrieved == true && g_avatar.op1_delivered == true){
+		if (g_avatar.op2_retrieved == true && g_avatar.op1_delivered == true && 
+														arrow_in_place == true){
 			operate_instruction(line);
 			line->state = EXECUTED;
 			reset_avatar_no_pos();
-		}
+		}	
 	}
 }
 
@@ -884,8 +914,7 @@ bool mc_run_code()
 	for (int i = 0; i < code_size; i++){
 		code_line_t *line = get_code_line_at_pos(i);
 		if (line->state != EXECUTED){
-			move_execution_arrow(i);
-			execute_instruction(line);	
+			execute_instruction(line, i);	
 			return finished;
 		}
 	}
