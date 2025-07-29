@@ -27,7 +27,7 @@ void bf_create_output_list();
 void bf_destroy_buffer_lists();
 void bf_create_natural_numbers_input_list(int size);
 void bf_initialize_buffer_operands();
-void draw_buffers();
+void bf_draw_buffers();
 int get_buffer_value_box_x_coord_by_id(int op_id);
 int get_buffer_value_box_y_coord_by_id(int op_id);
 value_box_t bf_get_input_buffer_value_box();
@@ -45,4 +45,6 @@ operand_t *bf_create_operand_of_selected_buffer();
 operand_t *bf_create_buffer_operand_by_id(int id);
 void bf_reset_input_list_x_pos();
 void bf_set_input_buffer_size(int size);
+void bf_set_win_condition();
+void bf_reset_win_condition();
 #endif

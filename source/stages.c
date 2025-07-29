@@ -189,6 +189,7 @@ int level_initialization(int level_id)
 
 	bf_create_input_list();
 	bf_create_output_list();
+	bf_reset_win_condition();
 	lv_create_win_list();
 	fl_file_initialize_level(level_id);
 	
@@ -237,8 +238,7 @@ static void destroy_level(level_flags_t *flags)
  */
 void stage_drawings()
 {
-	draw_buffers();
-	
+	bf_draw_buffers();
 	draw_register_text(REG_TEXT_X, REG_TEXT_Y, REG_TEXT_H);
 
 	display_registers();
@@ -530,14 +530,16 @@ static void flag_handler(level_flags_t *flags, int clicked_button)
 	
 	switch(clicked_button){
 		case PLAY: 
-			flags->play = true;
-			flags->non_stop = true;
-			flags->stop = false;
-			flags->stop_enabled = true;
-			flags->forward = false;
-			flags->backward = false;
-			flags->backward_enabled = true;
-			mc_reset_execution_arrow();
+			if (flags->play != true){
+				flags->play = true;
+				flags->non_stop = true;
+				flags->stop = false;
+				flags->stop_enabled = true;
+				flags->forward = false;
+				flags->backward = false;
+				flags->backward_enabled = true;
+				mc_reset_execution_arrow();
+			}
 			break;
 		case STOP:
 			flags->stop = true;
@@ -669,6 +671,7 @@ static void reset_level(int level_id, level_flags_t *flags, bool *run_finished)
 	reset_register_values();
 	bf_reset_input_list();
 	bf_reset_output_list();
+	bf_reset_win_condition();
 	reset_win_list();
 	lv_generate_win_condition_list(level_id);
 	cw_reset_code_execution();
@@ -823,6 +826,7 @@ static int display_run_result(bool win_check)
 												  	TEXT_BOX_HEIGHT,
 												  	win_text);
 		text_to_print = win_text;
+		bf_set_win_condition();
 	} else {
 		result_box_height = get_wrapped_text_height(RES_BOX_W, 
 												  	TEXT_BOX_HEIGHT,

@@ -36,6 +36,8 @@ operand_t *output_buffer = NULL;
 static char input_text[] = "Input Buffer [IB]";
 static char output_text[] = "Output Buffer [OB]";
 
+static bool g_win_condition;
+
 static int g_input_list_x_pos = SCREEN_WIDTH;
 static int g_output_list_x_pos = BUFFER_BOX_X + BUFFER_VALUE_OFFSET_X;
 int g_input_list_type = NOT_ASSIGNED;  
@@ -44,6 +46,52 @@ int g_input_buffer_size = DEFAULT_BUFFER_SIZE;
 void add_input_to_list(int value, int type);
 void draw_output_buffer();
 void draw_input_buffer();
+static bool check_win_condition();
+
+/* Function: bf_set_win_condition
+*------------------------------------------------------------------------------
+* Sets the win condition variable for the output buffer
+*
+* Arguments:
+* 	Void.
+*	
+* Return:
+*	Void.
+*/
+void bf_set_win_condition()
+{
+	g_win_condition = true;
+}
+
+/* Function: bf_reset_win_condition
+*------------------------------------------------------------------------------
+* Resets the win condition variable for the output buffer
+*
+* Arguments:
+* 	Void.
+*	
+* Return:
+*	Void.
+*/
+void bf_reset_win_condition()
+{
+	g_win_condition = false;
+}
+
+/* Function: bf_reset_win_condition
+*------------------------------------------------------------------------------
+* Resets the win condition variable for the output buffer
+*
+* Arguments:
+* 	Void.
+*	
+* Return:
+*	Void.
+*/
+static bool check_win_condition()
+{
+	return g_win_condition;
+}
 
 /* Function: bf_set_input_buffer_size
 *------------------------------------------------------------------------------
@@ -470,7 +518,7 @@ void bf_set_output_box(int x, int y, int w, int h)
  * Return:
  *	Void.
  */
-void draw_buffers()
+void bf_draw_buffers()
 {
 	draw_input_buffer();
 	draw_output_buffer();
@@ -488,13 +536,17 @@ void draw_buffers()
  */
 void draw_output_buffer()
 {
-	int list_size = 0;
 	List *outputs = get_output_list();
-	if (outputs != NULL){
-		list_size = List_count(outputs);
+	check_mem(outputs);
+	int	list_size = List_count(outputs);
+
+	int x;
+	if (check_win_condition() == true){
+		x = OUTPUT_BUFFER_WIN_X;	
+	} else {
+		x = output_box.x + BUFFER_VALUE_OFFSET_X + (list_size-1)*(VALUE_W + 
+														BETWEEN_NUMBERS_OFFSET);
 	}
-	int x = output_box.x + BUFFER_VALUE_OFFSET_X + 
-			(list_size-1)*(VALUE_W + BETWEEN_NUMBERS_OFFSET);
 	int y = output_box.y + BUFFER_VALUE_OFFSET_Y;
 	if (outputs != NULL && list_size > 0){
 		int draw_x = g_output_list_x_pos;
@@ -509,13 +561,15 @@ void draw_output_buffer()
 		}
 		if (g_output_list_x_pos < x){
 			g_output_list_x_pos += get_movement_delta(x, g_output_list_x_pos, 
-								  BUFFER_MOVEMENT_DELTA);
+								   						BUFFER_MOVEMENT_DELTA);
 		}
 	}
 	draw_rectangle(output_box.x, output_box.y, output_box.w, output_box.h,
 				   COLOR_WHITE);
 	draw_text_fits_height(OUTPUT_BUFFER_TEXT_X, OUTPUT_BUFFER_TEXT_Y, 
 						 BUFFER_TEXT_H, COLOR_WHITE, output_text);
+error:
+	return;
 }
 
 /* Function: check_if_output_buffer_is_in_pos
@@ -588,6 +642,7 @@ void draw_input_buffer()
 				   COLOR_WHITE);
 	
 }
+
 /* Function: get_buffer_value_box_x_coord_by_id
  *------------------------------------------------------------------------------
  * Arguments:
