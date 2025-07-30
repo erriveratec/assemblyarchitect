@@ -25,6 +25,23 @@ reg_t *create_register(int id, button_t *b);
 static void destroy_register_list();
 static void draw_register_text();
 
+/* Function: rg_get_register_box_w
+ * -----------------------------------------------------------------------------
+ * Returns the value of the register box width
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ *
+ */
+int rg_get_register_box_w()
+{
+	return register_box.w;
+}
+
+
 /* Function: rg_update_register_box_position
  * -----------------------------------------------------------------------------
  * The final position of the register box will be calculated in the middle of
@@ -56,7 +73,7 @@ void rg_update_register_box_position()
 	LIST_FOREACH(registers, first, next, cur){ 
 		reg_t *c = cur->value;
 		c->b->y = register_box.y + REG_BOX_OFFSET + i*2*(CODE_BUTTON_H + 5) + 
-				  REG_TEXT_H + CODE_BUTTON_H;
+				  CODE_BUTTON_H;
 		c->value.box.y = c->b->y - CODE_BUTTON_H;
 		i++;
    	}
@@ -294,14 +311,14 @@ void rg_add_register_to_list(int id)
 		   "The operand id is invalid");
 	
 	int list_size = List_count(registers);
-	set_register_box_member(2*REG_BOX_OFFSET + (list_size + 1)*2*CODE_BUTTON_H +
-							REG_TEXT_H, H);
+	set_register_box_member(2*REG_BOX_OFFSET + (list_size + 1)*2*CODE_BUTTON_H, 
+							H);
 	
 	texture_t *reg_text = cl_create_operand_texture(id);
 	check_mem(reg_text);
 	
 	int register_text_w = get_text_width_fits_height(REG_TEXT_H, REGISTER_TEXT);
-	int x = register_box.x + register_box.w/2 - CODE_BUTTON_W/3;
+	int x = register_box.x + register_box.w/2 - CODE_BUTTON_W/2;
 	int y = register_box.y + REG_BOX_OFFSET + list_size*2*(CODE_BUTTON_H + 5) +
 		    REG_TEXT_H + CODE_BUTTON_H;
 	
@@ -350,7 +367,7 @@ void rg_display_registers()
 	}
 }
 
-/* Function: get_registers_text_width
+/* Function: rg_get_registers_text_width
  *------------------------------------------------------------------------------
  * This function returns the width of the registers text drawn with a specficic
  * height.
@@ -361,7 +378,7 @@ void rg_display_registers()
  * Return:
  *	The width of the text of the registers text
  */
-int get_registers_text_width(int h)
+int rg_get_registers_text_width(int h)
 {
 	assert(h > 0 && "Height value must be greater than zero.");
 	int width = get_text_width_fits_height(h, REGISTER_TEXT);
@@ -425,7 +442,7 @@ static void draw_register_text()
 {
 	int text_w = get_text_width_fits_height(REG_TEXT_H, REGISTER_TEXT);
 	int x = register_box.x + (register_box.w - text_w)/2;
-	int y = register_box.y + REG_TEXT_Y_OFFSET;
+	int y = register_box.y - REG_TEXT_H;
 
 	draw_text_fits_height(x, y, REG_TEXT_H, COLOR_WHITE, REGISTER_TEXT);
 

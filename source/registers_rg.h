@@ -17,7 +17,7 @@ typedef struct reg_t{
 void create_register_list();
 void rg_set_register_box(int x, int y, int w, int h);
 void draw_register_box();
-int get_registers_text_width(int h);
+int rg_get_registers_text_width(int h);
 void rg_add_register_to_list(int id);
 void rg_display_registers();
 bool rg_check_released_in_register();
@@ -31,4 +31,5 @@ void rg_set_register_value_box(int id, value_box_t val);
 void reset_register_values();
 void rg_destroy_register_list();
 void rg_update_register_box_position();
+int rg_get_register_box_w();
 #endif

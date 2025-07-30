@@ -5,7 +5,10 @@
 #include "aux.h"
 #include "dbg.h"
 #include "buffers_bf.h"
+#include "dimensions.h"
+#include "registers_rg.h"
 
+#define LEVEL_LINE_W 4
 
 // At the end of the code execution, the output buffer must be compared 
 // against this list.
@@ -444,6 +447,31 @@ bool lv_evaluate_output_correctness()
 	}
 	return true;
 }
+
+/* Function: lv_level_drawings
+ *------------------------------------------------------------------------------
+ * This functions draws the specific characteristics of a level, like where
+ * each of the avatars are able to reack.
+ *
+ * Arguments:
+ *	level: The spefici level that is goin to have the drawing.
+ *
+ * Return:
+ *	Void.
+ */
+void lv_level_drawings(int level)
+{
+	assert(level < LV_LEVEL_MAX && level > LV_LEVEL_MIN && 
+			          								"Invalid level value");
+
+	int x = REG_BOX_X + rg_get_register_box_w();
+	int y = SCREEN_HEIGHT/2 - LEVEL_LINE_W/2; 
+	int w = SCREEN_WIDTH - x;
+	int h = LEVEL_LINE_W;
+	
+	dw_draw_filled_rectangle(x, y, w, h, COLOR_GREY, COLOR_GREY);
+}
+
 
 /* Function: lv_check_if_win
  *------------------------------------------------------------------------------

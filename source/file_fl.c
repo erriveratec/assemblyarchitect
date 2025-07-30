@@ -407,7 +407,7 @@ void fl_file_initialize_level(int level_id)
 			parse_instructions(fp);
 		} else if (strstr(line, STR_REGISTERS_BEGIN) != NULL &&
 				   level_found == true){
-			int reg_box_w = get_registers_text_width(REG_TEXT_H);
+			int reg_box_w = rg_get_registers_text_width(REG_TEXT_H);
 			rg_set_register_box(REG_BOX_X, REG_BOX_Y, reg_box_w + 
 								2*REG_BOX_OFFSET, REG_BOX_H);
 			create_register_list();

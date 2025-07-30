@@ -54,7 +54,7 @@ static char *lose_text = "The challenge is incorrect";
 static SDL_Rect result_box;
 
 void display_level_inputs(int x, int y, List *l);
-void stage_drawings();
+void stage_drawings(int level);
 static void pending_operand_handler();
 static void flag_handler(level_flags_t *flags, int clicked_button);
 static void edit_code(int level_id);
@@ -236,20 +236,18 @@ static void destroy_level(level_flags_t *flags)
  * Return:
  *	Void.
  */
-void stage_drawings()
+void stage_drawings(int level)
 {
 	bf_draw_buffers();
 	rg_display_registers();
 	iw_display_instructions(INS_BOX_X, INS_BOX_Y);
-
 	cw_draw_code_window();	
-
 	draw_stage_buttons(cw_get_code_list_size());
-
 	mc_draw_avatar();
 	mc_draw_execution_arrow();
-
+	lv_level_drawings(level);
 	draw_return_button();
+
 
 	return;
 }
@@ -693,7 +691,7 @@ int stage_level(int level_id)
 	if (sb_check_clicked_stage_button() == true){
 		flag_handler(&flags, identify_clicked_stage_button());
 	}
-	stage_drawings();
+	stage_drawings(level_id);
 	cw_sort_code();
 	
 	if (flags.non_stop == false || cw_check_code_pending_operand() == true){
@@ -718,7 +716,6 @@ int stage_level(int level_id)
 		reset_level(level_id, &flags, &run_finished);	
 		reset = false;
 	}
-	
 	if (back_to_level_selection == true){
 		ret_val = LV_LEVEL_SELECTION;	
 		level_init = false;

@@ -246,6 +246,4 @@
 #define VALUE_W 50
 
 
-
-
 #endif

@@ -68,6 +68,6 @@ void lv_generate_win_condition_list(int level);
 bool lv_evaluate_output_correctness();
 void lv_set_level_instructions_limit(int limit);
 int lv_get_level_instructions_limit();
-
+void lv_level_drawings(int level);
 
 #endif
