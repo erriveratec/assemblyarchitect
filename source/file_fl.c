@@ -418,6 +418,7 @@ void fl_file_initialize_level(int level_id)
 		}
 
 	}
+	rg_update_register_box_position();
 error:
 	free(level);
 	fclose(fp);

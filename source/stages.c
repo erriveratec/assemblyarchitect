@@ -239,9 +239,7 @@ static void destroy_level(level_flags_t *flags)
 void stage_drawings()
 {
 	bf_draw_buffers();
-	draw_register_text(REG_TEXT_X, REG_TEXT_Y, REG_TEXT_H);
-
-	display_registers();
+	rg_display_registers();
 	iw_display_instructions(INS_BOX_X, INS_BOX_Y);
 
 	cw_draw_code_window();	

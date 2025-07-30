@@ -199,8 +199,7 @@
 #define REG_TEXT_H 40
 
 // The position of the register text
-#define REG_TEXT_X (CODE_BOX_X + CODE_BOX_W + REG_BOX_OFFSET)
-#define REG_TEXT_Y 5
+#define REG_TEXT_Y_OFFSET 5
 
 // The position of the registers box
 #define REG_BOX_X (CODE_BOX_X + CODE_BOX_W)
@@ -231,7 +230,7 @@
 #define BUTTONS_SPACE 20
 
 /******************************AVATAR******************************************/
-#define AVATAR_START_X 500
+#define AVATAR_START_X 900
 #define AVATAR_START_Y 500
 #define AVATAR_W 50
 #define AVATAR_H 50

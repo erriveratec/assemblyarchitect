@@ -23,6 +23,47 @@ void set_register_box_member(int value, int member);
 List *get_register_list();
 reg_t *create_register(int id, button_t *b);
 static void destroy_register_list();
+static void draw_register_text();
+
+/* Function: rg_update_register_box_position
+ * -----------------------------------------------------------------------------
+ * The final position of the register box will be calculated in the middle of
+ * the screen when all the level registers are added. This function calculates
+ * the final position that the register is going to have.
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ *
+ */
+void rg_update_register_box_position()
+{
+	List *registers = get_register_list();
+	check_mem(registers);	
+	int list_size = List_count(registers);
+
+
+	int h = register_box.h;	
+
+	int y = SCREEN_HEIGHT/2 - h/2;
+	
+	set_register_box_member(y, Y);
+
+	int i = 0;
+
+	LIST_FOREACH(registers, first, next, cur){ 
+		reg_t *c = cur->value;
+		c->b->y = register_box.y + REG_BOX_OFFSET + i*2*(CODE_BUTTON_H + 5) + 
+				  REG_TEXT_H + CODE_BUTTON_H;
+		c->value.box.y = c->b->y - CODE_BUTTON_H;
+		i++;
+   	}
+
+error:
+	return;
+}
 
 /* Function: destroy_register_list
  *------------------------------------------------------------------------------
@@ -277,7 +318,7 @@ error:
 	return;
 }
 
-/* Function: display_registers
+/* Function: rg_display_registers
  * -----------------------------------------------------------------------------
  * This function displays the list of register that will be available in a level
  *
@@ -288,13 +329,14 @@ error:
  *	void
  *
  */
-void display_registers()
+void rg_display_registers()
 {
 	List *registers = get_register_list();
 	
 	assert(registers != NULL && "Invalid pointer");
 
 	draw_register_box();
+	draw_register_text();
 	
 	LIST_FOREACH(registers, first, next, cur){
 		reg_t *reg = cur->value;
@@ -379,9 +421,13 @@ void draw_register_box()
  *	Void.
  *
  */
-void draw_register_text(int x, int y, int h)
+static void draw_register_text()
 {
-	draw_text_fits_height(x, y, h, COLOR_WHITE, REGISTER_TEXT);
+	int text_w = get_text_width_fits_height(REG_TEXT_H, REGISTER_TEXT);
+	int x = register_box.x + (register_box.w - text_w)/2;
+	int y = register_box.y + REG_TEXT_Y_OFFSET;
+
+	draw_text_fits_height(x, y, REG_TEXT_H, COLOR_WHITE, REGISTER_TEXT);
 
 }
 
