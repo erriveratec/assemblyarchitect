@@ -33,5 +33,7 @@ extern SDL_Color COLOR_WHITE;
 extern SDL_Color COLOR_BLACK;
 extern SDL_Color COLOR_RED;
 extern SDL_Color COLOR_GREY;
+extern SDL_Color COLOR_ORANGE;
+extern SDL_Color COLOR_CYAN;
 #endif
 

@@ -230,11 +230,6 @@
 #define BUTTONS_SPACE 20
 
 /******************************AVATAR******************************************/
-#define AVATAR_START_X 900
-#define AVATAR_START_Y 500
-#define AVATAR_W 50
-#define AVATAR_H 50
-#define AVATAR_X_POS_OFFSET (AVATAR_W + 20)
 
 /******************************VALUE BOXES*************************************/
 

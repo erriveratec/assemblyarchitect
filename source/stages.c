@@ -684,7 +684,8 @@ int stage_level(int level_id)
 	static level_flags_t flags;
 	static bool reset = false;
 	bool back_to_level_selection = sb_check_clicked_ret_button(); 
-
+	display_escape_menu(get_escape_menu_state());
+	
 	if (level_init == false){
 		level_init = level_initialization(level_id);
 	}

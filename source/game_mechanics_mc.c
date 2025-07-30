@@ -18,6 +18,20 @@
 							   "specific set of value"
 #define EXCEEDS_CODE_LIMIT_TEXT "Correct output but exceeds code size limit"
 
+#define AVATAR_BUFFER_OFFSET 50
+
+#define IAVATAR_X BUFFER_BOX_X
+#define IAVATAR_Y INPUT_BUFFER_BOX_Y + BUFFER_BOX_H + AVATAR_BUFFER_OFFSET
+
+#define OAVATAR_X BUFFER_BOX_X
+#define OAVATAR_Y OUTPUT_BUFFER_BOX_Y - BUFFER_BOX_H - AVATAR_BUFFER_OFFSET
+
+#define AVATAR_START_X 900
+#define AVATAR_START_Y 500
+#define AVATAR_W 50
+#define AVATAR_H 50
+#define AVATAR_X_POS_OFFSET (AVATAR_W + 20)
+
 
 texture_t *right_arrow = NULL;
 
@@ -31,6 +45,8 @@ typedef struct avatar_t{
 	value_box_t value;
 } avatar_t;
 
+static avatar_t g_iavatar;
+static avatar_t g_oavatar;
 static avatar_t g_avatar; 
 
 typedef struct execution_arrow_t{
@@ -50,7 +66,7 @@ enum counter_actions{
 };
 
 static void execute_instruction(code_line_t *line, int line_pos);
-static bool move_avatar_to_operand(int op_id);
+static bool move_avatar_to_operand(avatar_t *avatar, int op_id);
 int get_operand_x_dest(int op_id);
 int get_operand_y_dest(int op_id);
 static value_box_t get_operand_value_box(int op_id);
@@ -184,6 +200,38 @@ static void set_invalid_operation_flag(int flag_id)
  */
 void mc_reset_avatar()
 {
+	g_iavatar.box.x = IAVATAR_X;
+	g_iavatar.box.y = IAVATAR_Y;
+	g_iavatar.box.w = AVATAR_W;
+	g_iavatar.box.h = AVATAR_H;
+
+	g_iavatar.value.visible_box = false;
+	g_iavatar.in_place = false;
+	g_iavatar.op2_retrieved = false;
+	g_iavatar.op1_delivered = false;
+
+	g_iavatar.value.value = NO_VALUE;
+	g_iavatar.value.box.x = IAVATAR_X;
+	g_iavatar.value.box.y = IAVATAR_Y - AVATAR_H;
+	g_iavatar.value.box.w = VALUE_BOX_W;
+	g_iavatar.value.box.h = VALUE_BOX_H;
+
+	g_oavatar.box.x = OAVATAR_X;
+	g_oavatar.box.y = OAVATAR_Y;
+	g_oavatar.box.w = AVATAR_W;
+	g_oavatar.box.h = AVATAR_H;
+
+	g_oavatar.value.visible_box = false;
+	g_oavatar.in_place = false;
+	g_oavatar.op2_retrieved = false;
+	g_oavatar.op1_delivered = false;
+
+	g_oavatar.value.value = NO_VALUE;
+	g_oavatar.value.box.x = OAVATAR_X;
+	g_oavatar.value.box.y = OAVATAR_Y - AVATAR_H;
+	g_oavatar.value.box.w = VALUE_BOX_W;
+	g_oavatar.value.box.h = VALUE_BOX_H;
+
 	g_avatar.box.x = AVATAR_START_X;
 	g_avatar.box.y = AVATAR_START_Y;
 	g_avatar.box.w = AVATAR_W;
@@ -212,6 +260,24 @@ void mc_reset_avatar()
  */
 void reset_avatar_no_pos()
 {
+	g_iavatar.value.visible_box = false;
+	g_iavatar.in_place = false;
+	g_iavatar.op2_retrieved = false;
+	g_iavatar.op1_delivered = false;
+
+	g_iavatar.value.value = NO_VALUE;
+	g_iavatar.value.box.x = g_iavatar.box.x;
+	g_iavatar.value.box.y = g_iavatar.box.y - AVATAR_H;
+
+	g_oavatar.value.visible_box = false;
+	g_oavatar.in_place = false;
+	g_oavatar.op2_retrieved = false;
+	g_oavatar.op1_delivered = false;
+
+	g_oavatar.value.value = NO_VALUE;
+	g_oavatar.value.box.x = g_oavatar.box.x;
+	g_oavatar.value.box.y = g_oavatar.box.y - AVATAR_H;
+
 	g_avatar.value.visible_box = false;
 	g_avatar.in_place = false;
 	g_avatar.op2_retrieved = false;
@@ -232,6 +298,18 @@ void reset_avatar_no_pos()
  */
 void mc_draw_avatar()
 {
+	if (g_iavatar.value.visible_box == true){
+		draw_value_box(&g_iavatar.value);
+	}
+	dw_draw_filled_rectangle(g_iavatar.box.x, g_iavatar.box.y, g_iavatar.box.w, 
+						  	 g_iavatar.box.h, COLOR_ORANGE, COLOR_ORANGE);
+
+	if (g_oavatar.value.visible_box == true){
+		draw_value_box(&g_oavatar.value);
+	}
+	dw_draw_filled_rectangle(g_oavatar.box.x, g_oavatar.box.y, g_oavatar.box.w, 
+						  	 g_oavatar.box.h, COLOR_CYAN, COLOR_CYAN);
+
 	if (g_avatar.value.visible_box == true){
 		draw_value_box(&g_avatar.value);
 	}
@@ -427,7 +505,7 @@ static bool move_execution_arrow(int instruction_number)
  * Return:
  *	bool indicanting if there still movement pending
  */
-static bool move_avatar_to_operand(int op_id)
+static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 {
 	assert(op_id > REGISTERS_MIN && op_id < BUFFERS_MAX &&
 		   "Invalid operand");
@@ -450,28 +528,28 @@ static bool move_avatar_to_operand(int op_id)
 		y = get_operand_y_dest(op_id) - 2.5*VALUE_BOX_H;
 	}
 	
-	if (g_avatar.box.x < x){
-		int delta = get_movement_delta(g_avatar.value.box.x, x, MOVEMENT_DELTA);
-		g_avatar.box.x += delta;
-		g_avatar.value.box.x += delta;
+	if (avatar->box.x < x){
+		int delta = get_movement_delta(avatar->value.box.x, x, MOVEMENT_DELTA);
+		avatar->box.x += delta;
+		avatar->value.box.x += delta;
 		mov = true;
-	} else if (g_avatar.box.x > x){
-		int delta = get_movement_delta(g_avatar.value.box.x, x, MOVEMENT_DELTA);
-		g_avatar.box.x -= delta;
-		g_avatar.value.box.x -= delta;
+	} else if (avatar->box.x > x){
+		int delta = get_movement_delta(avatar->value.box.x, x, MOVEMENT_DELTA);
+		avatar->box.x -= delta;
+		avatar->value.box.x -= delta;
 		mov = true;
 	}
 	
-	int avatar_final_y = g_avatar.box.y - AVATAR_H;
+	int avatar_final_y = avatar->box.y - AVATAR_H;
 	if (avatar_final_y < y){
-		int delta = get_movement_delta(g_avatar.value.box.y, y, MOVEMENT_DELTA);
-		g_avatar.box.y += delta;
-		g_avatar.value.box.y += delta;
+		int delta = get_movement_delta(avatar->value.box.y, y, MOVEMENT_DELTA);
+		avatar->box.y += delta;
+		avatar->value.box.y += delta;
 		mov = true;
 	} else if (avatar_final_y > y){
-		int delta = get_movement_delta(g_avatar.value.box.y, y, MOVEMENT_DELTA);
-		g_avatar.box.y -= delta;
-		g_avatar.value.box.y -= delta;
+		int delta = get_movement_delta(avatar->value.box.y, y, MOVEMENT_DELTA);
+		avatar->box.y -= delta;
+		avatar->value.box.y -= delta;
 		mov = true;
 	}
 
@@ -734,6 +812,9 @@ static bool is_operand_retrievable(int id)
 
 /* Function: handle_source_operand
  * -----------------------------------------------------------------------------
+ * Moves the corresponding avatar depending of the kind of source operand that
+ * the instruction is using.
+ *
  * Arguments:
  *	line: the code line that will be executed
  *
@@ -747,7 +828,7 @@ static void handle_source_operand(code_line_t *line)
 	int mov_pending = NO_VALUE;
 
 	if (operand_quantity == TWO_OPERANDS && g_avatar.op2_retrieved == false){
-		mov_pending = move_avatar_to_operand(line->op2->id);
+		mov_pending = move_avatar_to_operand(&g_avatar, line->op2->id);
 		if (mov_pending == false && g_avatar.in_place == false){
 			g_avatar.in_place = true;
 			int op_id = line->op2->id;
@@ -788,7 +869,7 @@ static void handle_destiny_operand(code_line_t *line)
 	assert(line != NULL && "The value of line cannot be NULL");
 	int mov_pending = NO_VALUE;
 	if (g_avatar.op2_retrieved == true){
-		mov_pending = move_avatar_to_operand(line->op1->id);
+		mov_pending = move_avatar_to_operand(&g_avatar, line->op1->id);
 		if (mov_pending == false && g_avatar.in_place == false){
 			g_avatar.in_place = true;
 		}
@@ -880,6 +961,7 @@ static void execute_instruction(code_line_t *line, int line_pos)
 		reset_avatar_no_pos();
 	} else if (line->ins->id == JMP && arrow_in_place == true){
 		cw_operate_jump_instruction(line);
+		reset_avatar_no_pos();
 	} else if (buffer_inputs != CW_EMPTY || line->state == IN_EXECUTION || 
 													 line->state == COMPLETE){
 		line->state = IN_EXECUTION;
