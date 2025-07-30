@@ -75,13 +75,15 @@ void operate_instruction(code_line_t *line);
 void reset_avatar_no_pos();
 static void handle_source_operand(code_line_t *line);
 static void handle_destiny_operand(code_line_t *line);
-static bool retrieve_operand();
+static bool retrieve_operand(avatar_t *avatar);
 static bool is_operand_retrievable(int id);
 static void set_invalid_operation_flag(int flag_id);
 static bool move_execution_arrow(int instruction_number);
 static bool check_operand_has_valid_value(int op_id);
 static bool check_run_finished();
 static bool check_correct_code_size();
+static void handle_iavatar_source_operand(int op_id);
+static void handle_oavatar_source_operand(int op_id);
 
 /* Function: mc_reset_invalid_operation_flag
  * -----------------------------------------------------------------------------
@@ -757,10 +759,10 @@ bool deliver_operand(int op_id)
  * Return:
  *	bool indicating if part of the retriving is pending
  */
-static bool retrieve_operand()
+static bool retrieve_operand(avatar_t *avatar)
 {
-	int x = g_avatar.box.x;
-	int y = g_avatar.box.y - AVATAR_H;	
+	int x = avatar->box.x;
+	int y = avatar->box.y - AVATAR_H;	
 
 	bool mov = false;
 
@@ -810,6 +812,65 @@ static bool is_operand_retrievable(int id)
 	return retrievable;
 }
 
+/* Function: handle_ivatar_operand
+ * -----------------------------------------------------------------------------
+ * Performs the action of handling and moving the ivatar in the cases that are
+ * applicable
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Void.
+ */
+static bool handle_iavatar_source_operand(int op_id)
+{
+	bool mov_pending = true;
+
+	mov_pending = move_avatar_to_operand(&iavatar, op_id);
+	
+	if (mov_pending == false && g_iavatar.in_place == false){
+		g_iavatar.in_place = true;
+		if (op_id == IB && is_operand_retrievable(op_id) == true){
+			g_iavatar.value = get_operand_value_box(op_id);
+			g_iavatar.value.visible_box = true;
+		}
+		else if (op_id == IB && is_operand_retrievable(op_id) == false){
+			set_invalid_operation_flag(INPUT_BUFFER_EMPTY);
+		}
+	}
+	return mov_pending;
+}
+
+/* Function: handle_ovatar_operand
+ * -----------------------------------------------------------------------------
+ * Performs the action of handling and moving the ovatar in the cases that are
+ * applicable
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Void.
+ */
+static bool handle_oavatar_source_operand(int op_id)
+{
+	int mov_pending = true;
+
+	mov_pending = move_avatar_to_operand(&oavatar, op_id);
+	
+	if (mov_pending == false && g_oavatar.in_place == false){
+		g_oavatar.in_place = true;
+		if (check_operand_has_valid_value(op_id)){
+			g_iavatar.value = get_operand_value_box(op_id);
+			g_iavatar.value.visible_box = true;
+		}
+		else {
+			set_invalid_operation_flag(REG_VALUE_INVALID);
+		}
+	}
+	return mov_pending;
+}
 /* Function: handle_source_operand
  * -----------------------------------------------------------------------------
  * Moves the corresponding avatar depending of the kind of source operand that
@@ -821,6 +882,36 @@ static bool is_operand_retrievable(int id)
  * Return:
  *	void.
  */
+static void handle_source_operand(code_line_t *line)
+{
+	assert(line != NULL && "The value of line cannot be NULL");
+	int operand_quantity = cl_get_instruction_operand_quantity(line->ins->id);
+	int mov_pending = NO_VALUE;
+
+	if (operand_quantity == TWO_OPERANDS && line->op2->id == IB){
+		if (g_iavatar.in_place == false){
+			handle_iavatar_source_operand(line->op2->id);	
+		}	 
+	} else if (operand_quantity == TWO_OPERANDS){
+		if (g_oavatar.in_place == false){
+			handle_oavatar_source_operand(line->op2->id);	
+		}
+	}
+	if (mov_pending == false){
+		bool_retrieve_pending = retrieved_operand();
+	}
+}
+/* Function: handle_source_operand
+ * -----------------------------------------------------------------------------
+ * Moves the corresponding avatar depending of the kind of source operand that
+ * the instruction is using.
+ *
+ * Arguments:
+ *	line: the code line that will be executed
+ *
+ * Return:
+ *	void.
+ *
 static void handle_source_operand(code_line_t *line)
 {
 	assert(line != NULL && "The value of line cannot be NULL");
@@ -854,7 +945,7 @@ static void handle_source_operand(code_line_t *line)
 			}
 		}
 	}
-}
+}*/
 
 /* Function: handle_destiny_operand
  * -----------------------------------------------------------------------------
