@@ -308,8 +308,8 @@ static code_line_t *get_clicked_label_code_line()
 	LIST_FOREACH(code, first, next, cur){ 
 		c = cur->value;
 		if (c->ins->id == LABEL){
-			if (check_mouse_released_in_button(c->ins->b) == true ||
-				check_mouse_released_in_button(c->op1->b) == true){
+			if (bt_check_mouse_released_button(c->ins->b) == true ||
+				bt_check_mouse_released_button(c->op1->b) == true){
 				clicked_label = c;
 				break;
 			}
@@ -343,8 +343,8 @@ bool cw_check_released_in_label()
 	LIST_FOREACH(code, first, next, cur){ 
 		c = cur->value;
 		if (c->ins->id == LABEL){
-			if (check_mouse_released_in_button(c->ins->b) == true ||
-				check_mouse_released_in_button(c->op1->b) == true){
+			if (bt_check_mouse_released_button(c->ins->b) == true ||
+				bt_check_mouse_released_button(c->op1->b) == true){
 				selected = true;
 				break;
 			}
@@ -840,7 +840,7 @@ code_line_t *cw_get_clicked_code()
 		
 		code_line_t *c = cur->value;
 
-		if (true == check_mouse_click_in_button(c->ins->b)){
+		if (true == bt_check_mouse_click_button(c->ins->b)){
 			clicked = c;
 		} 
 	}
@@ -869,7 +869,7 @@ bool cw_check_clicked_code()
 		
 		code_line_t *c = cur->value;
 		
-		if (true == check_mouse_click_in_button(c->ins->b)){
+		if (true == bt_check_mouse_click_button(c->ins->b)){
 			clicked = true;
 			break;
 		} 
@@ -1912,13 +1912,13 @@ bool cw_check_clicked_code_operand()
 		
 		code_line_t *c = cur->value;
 		if (NULL != c->op1){
-			if (true == check_mouse_click_in_button(c->op1->b)){
+			if (true == bt_check_mouse_released_button(c->op1->b)){
 				clicked = true;
 				break;
 			}
 		} 
 		if (NULL != c->op2){
-			if (true == check_mouse_click_in_button(c->op2->b)){
+			if (true == bt_check_mouse_released_button(c->op2->b)){
 				clicked = true;
 				break;
 			}
@@ -1947,13 +1947,13 @@ void cw_change_clicked_code_line_state()
 		
 		code_line_t *c = cur->value;
 		if (NULL != c->op1){
-			if (true == check_mouse_click_in_button(c->op1->b)){
+			if (true == bt_check_mouse_released_button(c->op1->b)){
 				c->state = CHANGING_OP1;
 				break;
 			}
 		} 
 		if (NULL != c->op2){
-			if (true == check_mouse_click_in_button(c->op2->b)){
+			if (true == bt_check_mouse_released_button(c->op2->b)){
 				c->state = CHANGING_OP2;
 				break;
 			}

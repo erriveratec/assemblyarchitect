@@ -329,13 +329,13 @@ int stage_select_player()
 	bt_draw_button(player_2);
 	bt_draw_button(player_3);
 
-	if (true == check_mouse_click_in_button(player_1)){
+	if (true == bt_check_mouse_click_button(player_1)){
 		player_chosen = true;
 		g_player = FL_PLAYER_1;
-	} else if (true == check_mouse_click_in_button(player_2)){
+	} else if (true == bt_check_mouse_click_button(player_2)){
 		player_chosen = true;
 		g_player = FL_PLAYER_2;
-	} else if (true == check_mouse_click_in_button(player_3)){
+	} else if (true == bt_check_mouse_click_button(player_3)){
 		player_chosen = true;
 		g_player = FL_PLAYER_3;
 	}
@@ -458,7 +458,7 @@ int stage_select_level()
 
 	for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
 		bt_draw_button(level_buttons[i]);
-		if (check_mouse_click_in_button(level_buttons[i]) == true){
+		if (bt_check_mouse_click_button(level_buttons[i]) == true){
 			ret_val = LV_LEVEL_1 + i;
 			level_initialized = false;
 			bt_destroy_button(level_buttons[i]);
@@ -648,7 +648,6 @@ static void edit_code(int level_id)
 		if (cw_check_code_pending_operand() == false){
 			fl_save_level(g_player, level_id);
 		}
-		
 		line = NULL;
 	}
 }
@@ -787,12 +786,12 @@ static void display_escape_menu(bool menu_variable_state)
 		bt_draw_button(player_2);
 		bt_draw_button(player_3);
 
-		if (true == check_mouse_click_in_button(player_1)){
+		if (true == bt_check_mouse_click_button(player_1)){
 			player_chosen = true;
 			toggle_escape_menu();
-		} else if (true == check_mouse_click_in_button(player_2)){
+		} else if (true == bt_check_mouse_click_button(player_2)){
 			player_chosen = true;
-		} else if (true == check_mouse_click_in_button(player_3)){
+		} else if (true == bt_check_mouse_click_button(player_3)){
 			player_chosen = true;
 			set_quit_game();
 		}
@@ -863,10 +862,10 @@ static int display_run_result(bool win_check)
 	bt_draw_button(ret);
 	bt_draw_button(con);
 
-		if (check_mouse_click_in_button(ret) == true){
+		if (bt_check_mouse_click_button(ret) == true){
 			button_pressed = true;
 			action_selected = BACK_BUTTON_PRESSED;
-		} else if (check_mouse_click_in_button(con) == true){
+		} else if (bt_check_mouse_click_button(con) == true){
 			button_pressed = true;
 			action_selected = CONT_BUTTON_PRESSED;
 		} 

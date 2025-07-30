@@ -22,8 +22,8 @@ typedef struct button_t{
 button_t *create_button(int x, int y, int w, int h, bool active, bool rectangle,
  						texture_t *texture);
 void bt_draw_button(button_t *button);
-bool check_mouse_click_in_button(button_t *button);
-bool check_mouse_released_in_button(button_t *button);
+bool bt_check_mouse_click_button(button_t *button);
+bool bt_check_mouse_released_button(button_t *button);
 void assign_button_parameters(int x, int y, int w, int h, button_t *b);
 button_t *bt_copy_button(button_t *b);
 void bt_destroy_button(button_t *b);

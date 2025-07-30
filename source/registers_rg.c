@@ -455,7 +455,7 @@ bool rg_check_released_in_register()
 	   
 	   	reg_t *c = cur->value;
 	   
-	   	if (check_mouse_released_in_button(c->b) == true){
+	   	if (bt_check_mouse_released_button(c->b) == true){
 		   	selected = true;
 		   	break;
 	   	} 
@@ -481,7 +481,7 @@ operand_t *rg_create_operand_of_selected_register()
 
 		reg_t *c = cur->value;
 	   
-	   	if (true == check_mouse_released_in_button(c->b)){
+	   	if (true == bt_check_mouse_released_button(c->b)){
 			
 			texture_t *t = cl_create_operand_texture(c->id);
 			button_t *b = create_button(c->b->x, c->b->y, c->b->w, c->b->h, 

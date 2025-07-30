@@ -13,8 +13,6 @@ typedef struct mouse_t{
 	int scroll_y;
 	bool left_pressed;
 	bool left_released;
-	bool left_one_click;
-	
 } mouse_t;
 
 static mouse_t mouse;

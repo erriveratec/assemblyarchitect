@@ -172,7 +172,7 @@ bool iw_check_clicked_instruction()
 	   
 	   instruction_t *c = cur->value;
 	   
-	   if (check_mouse_click_in_button(c->b) == true){
+	   if (bt_check_mouse_click_button(c->b) == true){
 		   clicked = true;
 		   break;
 	   } 
@@ -201,7 +201,7 @@ instruction_t *iw_get_clicked_instruction()
 	LIST_FOREACH(instructions, first, next, cur){ 
 		
 		instruction_t *c = cur->value;
-		if (true == check_mouse_click_in_button(c->b)){
+		if (true == bt_check_mouse_click_button(c->b)){
 			return c;
 		} 
 	}

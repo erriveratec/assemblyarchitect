@@ -149,7 +149,7 @@ bool sb_check_clicked_ret_button()
 {
 	int ret = false;
 
-	if (check_mouse_click_in_button(ret_button) == true) {
+	if (bt_check_mouse_click_button(ret_button) == true) {
 		ret = true;
 	}
 	return ret;
@@ -167,10 +167,10 @@ bool sb_check_clicked_stage_button()
 {
 	int ret = false;
 
-	if (check_mouse_click_in_button(stop) == true  ||
-		check_mouse_click_in_button(step_back) == true ||
-		check_mouse_click_in_button(play) == true ||
-		check_mouse_click_in_button(step_forward) == true){
+	if (bt_check_mouse_click_button(stop) == true  ||
+		bt_check_mouse_click_button(step_back) == true ||
+		bt_check_mouse_click_button(play) == true ||
+		bt_check_mouse_click_button(step_forward) == true){
 		ret = true;
 	}
 
@@ -189,10 +189,10 @@ bool check_released_in_stage_button()
 {
 	int ret = false;
 
-	if (check_mouse_click_in_button(stop) == true  ||
-		check_mouse_click_in_button(step_back) == true ||
-		check_mouse_click_in_button(play) == true ||
-		check_mouse_click_in_button(step_forward) == true){
+	if (bt_check_mouse_click_button(stop) == true  ||
+		bt_check_mouse_click_button(step_back) == true ||
+		bt_check_mouse_click_button(play) == true ||
+		bt_check_mouse_click_button(step_forward) == true){
 		ret = true;
 	}
 
@@ -211,13 +211,13 @@ int identify_clicked_stage_button()
 {
 	int clicked_button = INVALID;
 	
-	if (check_mouse_click_in_button(stop) == true){
+	if (bt_check_mouse_click_button(stop) == true){
 		clicked_button = STOP;
-	} else if (check_mouse_click_in_button(step_back) == true){
+	} else if (bt_check_mouse_click_button(step_back) == true){
 		clicked_button = BACKWARD;
-	} else if (check_mouse_click_in_button(play) == true){
+	} else if (bt_check_mouse_click_button(play) == true){
 		clicked_button = PLAY;
-	} else if (check_mouse_click_in_button(step_forward) 
+	} else if (bt_check_mouse_click_button(step_forward) 
 			   == true){
 		clicked_button = FORWARD;
 	}

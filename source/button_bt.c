@@ -100,7 +100,7 @@ void assign_button_parameters(int x, int y, int w, int h, button_t *b)
 	b->h = h;
 }
 
-/* Function: check_mouse_click_in_button
+/* Function: bt_check_mouse_click_in_button
  *------------------------------------------------------------------------------
  * This function verifies is the mouse has clicked insiden a give button.
  *
@@ -112,7 +112,7 @@ void assign_button_parameters(int x, int y, int w, int h, button_t *b)
  *	false if otherwise
  *
 */
-bool check_mouse_click_in_button(button_t *button)
+bool bt_check_mouse_click_button(button_t *button)
 {
 	assert(NULL != button && "The button pointer cannot be NULL");
 
@@ -132,7 +132,7 @@ bool check_mouse_click_in_button(button_t *button)
 	return clicked_in_button;
 }
 
-/* Function: check_mouse_released_in_button
+/* Function: check_mouse_released_button
  *------------------------------------------------------------------------------
  * Arguments:
  * 	button: the button to be verified
@@ -141,7 +141,7 @@ bool check_mouse_click_in_button(button_t *button)
  *	true if the mouse clicked inside the button
  *	false if otherwise
 */
-bool check_mouse_released_in_button(button_t *button)
+bool bt_check_mouse_released_button(button_t *button)
 {
 	assert(button != NULL && "The button pointer cannot be NULL");
 

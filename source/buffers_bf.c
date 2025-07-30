@@ -138,11 +138,11 @@ bool bf_check_released_in_buffer()
 {
    	bool selected = false;
 
-	if (check_mouse_released_in_button(&input_buffer_button) == true){
+	if (bt_check_mouse_released_button(&input_buffer_button) == true){
 		selected = true;
 	} 
    	
-	if (check_mouse_released_in_button(&output_buffer_button) == true){
+	if (bt_check_mouse_released_button(&output_buffer_button) == true){
 		selected = true;
 	}
 	return selected;
@@ -201,7 +201,7 @@ operand_t *bf_create_operand_of_selected_buffer()
 {
    	operand_t *b = NULL;
 
-	if (check_mouse_released_in_button(&input_buffer_button) == true){
+	if (bt_check_mouse_released_button(&input_buffer_button) == true){
 		b = malloc(sizeof(operand_t));
 		texture_t *t = cl_create_operand_texture(IB);
 		b->b = create_button(input_buffer->b->x, input_buffer->b->y, 
@@ -212,7 +212,7 @@ operand_t *bf_create_operand_of_selected_buffer()
 		b->id = input_buffer->id;
 	} 
    	
-	if (check_mouse_released_in_button(&output_buffer_button) == true){
+	if (bt_check_mouse_released_button(&output_buffer_button) == true){
 		b = malloc(sizeof(operand_t));
 		texture_t *t = cl_create_operand_texture(OB);
 		b->b = create_button(output_buffer->b->x, output_buffer->b->y, 
@@ -237,11 +237,11 @@ operand_t *bf_create_operand_of_selected_buffer()
 {
    	operand_t *buffer = NULL;
 
-	if (check_mouse_released_in_button(&input_buffer_button) == true){
+	if (bt_check_mouse_released_button(&input_buffer_button) == true){
 		buffer = input_buffer;
 	} 
    	
-	if (check_mouse_released_in_button(&output_buffer_button) == true){
+	if (bt_check_mouse_released_button(&output_buffer_button) == true){
 		buffer = output_buffer;
 	}
 	return buffer;
