@@ -872,8 +872,8 @@ static bool handle_oavatar_source_operand(int op_id)
 
 		g_oavatar.in_place = true;
 		if (check_operand_has_valid_value(op_id)){
-			g_iavatar.value = get_operand_value_box(op_id);
-			g_iavatar.value.visible_box = true;
+			g_oavatar.value = get_operand_value_box(op_id);
+			g_oavatar.value.visible_box = true;
 		}
 		else {
 			set_invalid_operation_flag(REG_VALUE_INVALID);
