@@ -20,10 +20,10 @@
 
 #define AVATAR_BUFFER_OFFSET 50
 
-#define IAVATAR_X BUFFER_BOX_X
+#define IAVATAR_X BUFFER_BOX_X - 300
 #define IAVATAR_Y INPUT_BUFFER_BOX_Y + BUFFER_BOX_H + AVATAR_BUFFER_OFFSET
 
-#define OAVATAR_X BUFFER_BOX_X
+#define OAVATAR_X BUFFER_BOX_X - 300
 #define OAVATAR_Y OUTPUT_BUFFER_BOX_Y - BUFFER_BOX_H - AVATAR_BUFFER_OFFSET
 
 #define AVATAR_START_X 900
@@ -32,6 +32,11 @@
 #define AVATAR_H 50
 #define AVATAR_X_POS_OFFSET (AVATAR_W + 20)
 
+enum avatar_id{
+	NOAVATAR,
+	IAVATAR,
+	OAVATAR,
+};
 
 texture_t *right_arrow = NULL;
 
@@ -71,19 +76,20 @@ int get_operand_x_dest(int op_id);
 int get_operand_y_dest(int op_id);
 static value_box_t get_operand_value_box(int op_id);
 bool set_operand_value_box(int op_id, value_box_t val);
-void operate_instruction(code_line_t *line);
+void operate_instruction(code_line_t *line, value_box_t value);
 void reset_avatar_no_pos();
-static void handle_source_operand(code_line_t *line);
-static void handle_destiny_operand(code_line_t *line);
+static int handle_source_operand(code_line_t *line);
+static void handle_destiny_operand(code_line_t *line, int avatar_id);
 static bool retrieve_operand(avatar_t *avatar);
+static bool deliver_operand(avatar_t *avatar, int op_id);
 static bool is_operand_retrievable(int id);
 static void set_invalid_operation_flag(int flag_id);
 static bool move_execution_arrow(int instruction_number);
 static bool check_operand_has_valid_value(int op_id);
 static bool check_run_finished();
 static bool check_correct_code_size();
-static void handle_iavatar_source_operand(int op_id);
-static void handle_oavatar_source_operand(int op_id);
+static bool handle_iavatar_source_operand(int op_id);
+static bool handle_oavatar_source_operand(int op_id);
 
 /* Function: mc_reset_invalid_operation_flag
  * -----------------------------------------------------------------------------
@@ -683,18 +689,18 @@ bool add_operand_value_box(int op_id, value_box_t val)
  * Return:
  *	bool indicating if part of the retriving is pending
  */
-void operate_instruction(code_line_t *line)
+void operate_instruction(code_line_t *line, value_box_t value)
 {
 	bool op_status;
 	switch (line->ins->id){
 		case MOV:
-			op_status = set_operand_value_box(line->op1->id, g_avatar.value);
+			op_status = set_operand_value_box(line->op1->id, value);
 			if (op_status == false){
 				set_invalid_operation_flag(REG_VALUE_INVALID);
 			}
 			break;
 		case ADD:
-			op_status = add_operand_value_box(line->op1->id, g_avatar.value);
+			op_status = add_operand_value_box(line->op1->id, value);
 			if (op_status == false){
 				set_invalid_operation_flag(REG_VALUE_INVALID);
 			}
@@ -707,13 +713,15 @@ void operate_instruction(code_line_t *line)
 
 /* Function: deliver_operand
  * -----------------------------------------------------------------------------
+ * This function is merely aesthetic, and it makes the delivery of the operand
+ *
  * Arguments:
  *	op_id: the id of where the operand will be delivered
  *
  * Return:
  *	bool indicating if part of the retriving is pending
  */
-bool deliver_operand(int op_id)
+static bool deliver_operand(avatar_t *avatar, int op_id)
 {
 	value_box_t v = get_operand_value_box(op_id);
 
@@ -722,27 +730,27 @@ bool deliver_operand(int op_id)
 
 	bool mov = false;
 
-	if (g_avatar.value.box.x < x){
-		int delta = get_movement_delta(g_avatar.value.box.x, x, 
+	if (avatar->value.box.x < x){
+		int delta = get_movement_delta(avatar->value.box.x, x, 
 									   MOVEMENT_DELTA/2);
-		g_avatar.value.box.x += delta;
+		avatar->value.box.x += delta;
 		mov = true;
-	} else if (g_avatar.value.box.x > x){
-		int delta = get_movement_delta(g_avatar.value.box.x, x, 
+	} else if (avatar->value.box.x > x){
+		int delta = get_movement_delta(avatar->value.box.x, x, 
 									   MOVEMENT_DELTA/2);
-		g_avatar.value.box.x -= delta;
+		avatar->value.box.x -= delta;
 		mov = true;
 	}
 
-	if (g_avatar.value.box.y < y){
-		int delta = get_movement_delta(g_avatar.value.box.y, y, 
+	if (avatar->value.box.y < y){
+		int delta = get_movement_delta(avatar->value.box.y, y, 
 									   MOVEMENT_DELTA/2);
-		g_avatar.value.box.y += delta;
+		avatar->value.box.y += delta;
 		mov = true;
-	} else if (g_avatar.value.box.y > y){
-		int delta = get_movement_delta(g_avatar.value.box.y, y, 
+	} else if (avatar->value.box.y > y){
+		int delta = get_movement_delta(avatar->value.box.y, y, 
 									   MOVEMENT_DELTA/2);
-		g_avatar.value.box.y -= delta;
+		avatar->value.box.y -= delta;
 		mov = true;
 	}
 	return mov;
@@ -754,7 +762,7 @@ bool deliver_operand(int op_id)
  * as it does not changes the avatar box value
  *
  * Arguments:
- *	void
+ *	avatar: the avatar that will be animated
  *
  * Return:
  *	bool indicating if part of the retriving is pending
@@ -766,27 +774,27 @@ static bool retrieve_operand(avatar_t *avatar)
 
 	bool mov = false;
 
-	if (g_avatar.value.box.x < x){
-		int delta = get_movement_delta(g_avatar.value.box.x, x, 
+	if (avatar->value.box.x < x){
+		int delta = get_movement_delta(avatar->value.box.x, x, 
 									   MOVEMENT_DELTA/2);
-		g_avatar.value.box.x += delta;
+		avatar->value.box.x += delta;
 		mov = true;
-	} else if (g_avatar.value.box.x > x){
-		int delta = get_movement_delta(g_avatar.value.box.x, x, 
+	} else if (avatar->value.box.x > x){
+		int delta = get_movement_delta(avatar->value.box.x, x, 
 									   MOVEMENT_DELTA/2);
-		g_avatar.value.box.x -= delta;
+		avatar->value.box.x -= delta;
 		mov = true;
 	}
 
-	if (g_avatar.value.box.y < y){
-		int delta = get_movement_delta(g_avatar.value.box.y, y, 
+	if (avatar->value.box.y < y){
+		int delta = get_movement_delta(avatar->value.box.y, y, 
 									   MOVEMENT_DELTA/2);
-		g_avatar.value.box.y += delta;
+		avatar->value.box.y += delta;
 		mov = true;
-	} else if (g_avatar.value.box.y > y){
-		int delta = get_movement_delta(g_avatar.value.box.y, y, 
+	} else if (avatar->value.box.y > y){
+		int delta = get_movement_delta(avatar->value.box.y, y, 
 									   MOVEMENT_DELTA/2);
-		g_avatar.value.box.y -= delta;
+		avatar->value.box.y -= delta;
 		mov = true;
 	}
 	return mov;
@@ -827,9 +835,9 @@ static bool handle_iavatar_source_operand(int op_id)
 {
 	bool mov_pending = true;
 
-	mov_pending = move_avatar_to_operand(&iavatar, op_id);
-	
-	if (mov_pending == false && g_iavatar.in_place == false){
+	mov_pending = move_avatar_to_operand(&g_iavatar, op_id);
+	if (mov_pending == false && g_iavatar.in_place == false && 
+							  g_iavatar.op2_retrieved == false){
 		g_iavatar.in_place = true;
 		if (op_id == IB && is_operand_retrievable(op_id) == true){
 			g_iavatar.value = get_operand_value_box(op_id);
@@ -857,9 +865,11 @@ static bool handle_oavatar_source_operand(int op_id)
 {
 	int mov_pending = true;
 
-	mov_pending = move_avatar_to_operand(&oavatar, op_id);
+	mov_pending = move_avatar_to_operand(&g_oavatar, op_id);
 	
-	if (mov_pending == false && g_oavatar.in_place == false){
+	if (mov_pending == false && g_oavatar.in_place == false &&
+								g_oavatar.op2_retrieved == false){
+
 		g_oavatar.in_place = true;
 		if (check_operand_has_valid_value(op_id)){
 			g_iavatar.value = get_operand_value_box(op_id);
@@ -880,26 +890,46 @@ static bool handle_oavatar_source_operand(int op_id)
  *	line: the code line that will be executed
  *
  * Return:
- *	void.
+ *	Avatar id, the id of the avatar that is under movement
  */
-static void handle_source_operand(code_line_t *line)
+static int handle_source_operand(code_line_t *line)
 {
 	assert(line != NULL && "The value of line cannot be NULL");
 	int operand_quantity = cl_get_instruction_operand_quantity(line->ins->id);
 	int mov_pending = NO_VALUE;
+	int avatar_id = NOAVATAR;
 
 	if (operand_quantity == TWO_OPERANDS && line->op2->id == IB){
-		if (g_iavatar.in_place == false){
-			handle_iavatar_source_operand(line->op2->id);	
-		}	 
-	} else if (operand_quantity == TWO_OPERANDS){
-		if (g_oavatar.in_place == false){
-			handle_oavatar_source_operand(line->op2->id);	
+		if (g_iavatar.op2_retrieved == false){
+			mov_pending = handle_iavatar_source_operand(line->op2->id);	
 		}
+		avatar_id = IAVATAR;
+	} else if (operand_quantity == TWO_OPERANDS){
+		if (g_oavatar.op2_retrieved == false){
+			mov_pending = handle_oavatar_source_operand(line->op2->id);	
+		}
+		avatar_id = OAVATAR;
 	}
 	if (mov_pending == false){
-		bool_retrieve_pending = retrieved_operand();
+		bool retrieve_pending; 
+		if (avatar_id == IAVATAR){
+			retrieve_pending = retrieve_operand(&g_iavatar);
+			if (retrieve_pending == false){
+				g_iavatar.op2_retrieved = true;
+				g_iavatar.in_place = false;
+			}
+		} else if (avatar_id == OAVATAR){
+			retrieve_pending = retrieve_operand(&g_oavatar);
+			if (retrieve_pending == false){
+				g_oavatar.op2_retrieved = true;
+				g_oavatar.in_place = false;
+				if (line->op1->id == OB){
+					bf_add_output_to_list();
+				}
+			}
+		}
 	}
+	return avatar_id;
 }
 /* Function: handle_source_operand
  * -----------------------------------------------------------------------------
@@ -955,20 +985,33 @@ static void handle_source_operand(code_line_t *line)
  * Return:
  *	void.
  */
-static void handle_destiny_operand(code_line_t *line)
+static void handle_destiny_operand(code_line_t *line, int avatar_id)
 {
 	assert(line != NULL && "The value of line cannot be NULL");
 	int mov_pending = NO_VALUE;
-	if (g_avatar.op2_retrieved == true){
-		mov_pending = move_avatar_to_operand(&g_avatar, line->op1->id);
+	if (avatar_id == IAVATAR && g_iavatar.op2_retrieved == true){
+		mov_pending = move_avatar_to_operand(&g_iavatar, line->op1->id);
 		if (mov_pending == false && g_avatar.in_place == false){
-			g_avatar.in_place = true;
+			g_iavatar.in_place = true;
 		}
 		if (mov_pending == false){
-			int deliver_pending = deliver_operand(line->op1->id);
+			int deliver_pending = deliver_operand(&g_iavatar ,line->op1->id);
 			if (deliver_pending == false){
-				g_avatar.op1_delivered = true;
-				g_avatar.value.visible_box = false;
+				g_iavatar.op1_delivered = true;
+				g_iavatar.value.visible_box = false;
+			}
+		}
+	}
+	if (avatar_id == OAVATAR && g_oavatar.op2_retrieved == true){
+		mov_pending = move_avatar_to_operand(&g_oavatar, line->op1->id);
+		if (mov_pending == false && g_oavatar.in_place == false){
+			g_oavatar.in_place = true;
+		}
+		if (mov_pending == false){
+			int deliver_pending = deliver_operand(&g_oavatar ,line->op1->id);
+			if (deliver_pending == false){
+				g_oavatar.op1_delivered = true;
+				g_oavatar.value.visible_box = false;
 			}
 		}
 	}
@@ -1044,7 +1087,7 @@ static void execute_instruction(code_line_t *line, int line_pos)
 {
 	assert(line != NULL && "The value of line cannot be NULL");
 	int buffer_inputs = get_input_buffer_list_size();
-
+	int avatar_id = NOAVATAR;	
 	bool arrow_in_place = move_execution_arrow(line_pos);
 
 	if (line->ins->id == LABEL && arrow_in_place == true){
@@ -1056,11 +1099,18 @@ static void execute_instruction(code_line_t *line, int line_pos)
 	} else if (buffer_inputs != CW_EMPTY || line->state == IN_EXECUTION || 
 													 line->state == COMPLETE){
 		line->state = IN_EXECUTION;
-		handle_source_operand(line);
-		handle_destiny_operand(line);
-		if (g_avatar.op2_retrieved == true && g_avatar.op1_delivered == true && 
-														arrow_in_place == true){
-			operate_instruction(line);
+		avatar_id = handle_source_operand(line);
+		handle_destiny_operand(line, avatar_id);
+	
+		if (avatar_id == IAVATAR && g_iavatar.op2_retrieved == true && 
+			g_iavatar.op1_delivered == true && arrow_in_place == true){
+			operate_instruction(line, g_iavatar.value);
+			line->state = EXECUTED;
+			reset_avatar_no_pos();
+		}
+		if (avatar_id == OAVATAR && g_oavatar.op2_retrieved == true && 
+			g_oavatar.op1_delivered == true && arrow_in_place == true){
+			operate_instruction(line, g_oavatar.value);
 			line->state = EXECUTED;
 			reset_avatar_no_pos();
 		}	
