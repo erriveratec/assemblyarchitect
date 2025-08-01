@@ -101,5 +101,6 @@ texture_t *cl_create_operand_texture(int id);
 texture_t *cl_create_instruction_texture(int id);
 code_line_t *cl_new_code_line(instruction_t *ins);
 void cl_destroy_operand(operand_t *op);
+bool cl_operands_are_registers(code_line_t *line);
 
 #endif

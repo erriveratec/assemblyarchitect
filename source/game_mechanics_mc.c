@@ -35,6 +35,7 @@ enum avatar_id{
 	NOAVATAR,
 	IAVATAR,
 	OAVATAR,
+	RAVATAR
 };
 
 texture_t *right_arrow = NULL;
@@ -43,6 +44,7 @@ static int g_invalid_operation_flag = NO_INVALID_OPERATION;
 
 typedef struct avatar_t{
 	SDL_Rect box;
+	int id;
 	bool in_place;
 	bool op2_retrieved;
 	bool op1_delivered;
@@ -208,6 +210,8 @@ static void set_invalid_operation_flag(int flag_id)
  */
 void mc_reset_avatar()
 {
+		
+	g_iavatar.id = IAVATAR;
 	g_iavatar.box.x = IAVATAR_X;
 	g_iavatar.box.y = IAVATAR_Y;
 	g_iavatar.box.w = AVATAR_W;
@@ -224,6 +228,7 @@ void mc_reset_avatar()
 	g_iavatar.value.box.w = VALUE_BOX_W;
 	g_iavatar.value.box.h = VALUE_BOX_H;
 
+	g_oavatar.id = OAVATAR;
 	g_oavatar.box.x = OAVATAR_X;
 	g_oavatar.box.y = OAVATAR_Y;
 	g_oavatar.box.w = AVATAR_W;
@@ -240,6 +245,7 @@ void mc_reset_avatar()
 	g_oavatar.value.box.w = VALUE_BOX_W;
 	g_oavatar.value.box.h = VALUE_BOX_H;
 
+	g_ravatar.id = RAVATAR;
 	g_ravatar.box.x = rg_get_register_box_member(MEMBER_X) - REG_BOX_X_OFFSET +
 					  rg_get_register_box_member(MEMBER_W) - AVATAR_W;
 	g_ravatar.box.y = rg_get_register_box_member(MEMBER_Y) + AVATAR_H +
@@ -247,7 +253,7 @@ void mc_reset_avatar()
 	g_ravatar.box.w = AVATAR_W;
 	g_ravatar.box.h = AVATAR_H;
 
-	g_ravatar.value.visible_box = true;
+	g_ravatar.value.visible_box = false;
 	g_ravatar.in_place = false;
 	g_ravatar.op2_retrieved = false;
 	g_ravatar.op1_delivered = false;
@@ -288,7 +294,7 @@ void reset_avatar_no_pos()
 	g_oavatar.value.box.x = g_oavatar.box.x;
 	g_oavatar.value.box.y = g_oavatar.box.y - AVATAR_H;
 
-	g_ravatar.value.visible_box = true;
+	g_ravatar.value.visible_box = false;
 	g_ravatar.in_place = false;
 	g_ravatar.op2_retrieved = false;
 	g_ravatar.op1_delivered = false;
@@ -324,7 +330,7 @@ void mc_draw_avatar()
 		draw_value_box(&g_ravatar.value);
 	}
 	dw_draw_filled_rectangle(g_ravatar.box.x, g_ravatar.box.y, g_ravatar.box.w, 
-						  	 g_ravatar.box.h, COLOR_WHITE, COLOR_WHITE);
+						  	 g_ravatar.box.h, COLOR_RED, COLOR_RED);
 }
 
 /* Function: execution_counter
@@ -743,7 +749,6 @@ static bool deliver_operand(avatar_t *avatar, int op_id)
 		avatar->value.box.x -= delta;
 		mov = true;
 	}
-
 	if (avatar->value.box.y < y){
 		int delta = get_movement_delta(avatar->value.box.y, y, 
 									   MOVEMENT_DELTA/2);
@@ -869,14 +874,14 @@ static bool handle_ravatar_source_operand(int op_id)
 
 	mov_pending = move_avatar_to_operand(&g_ravatar, op_id);
 	if (mov_pending == false && g_ravatar.in_place == false && 
-							  g_ravatar.op2_retrieved == false){
+							  				 g_ravatar.op2_retrieved == false){
 		g_ravatar.in_place = true;
-		if (op_id == IB && is_operand_retrievable(op_id) == true){
+		if (check_operand_has_valid_value(op_id) == true){
 			g_ravatar.value = get_operand_value_box(op_id);
 			g_ravatar.value.visible_box = true;
 		}
-		else if (op_id == IB && is_operand_retrievable(op_id) == false){
-			set_invalid_operation_flag(INPUT_BUFFER_EMPTY);
+		else {
+			set_invalid_operation_flag(REG_VALUE_INVALID);
 		}
 	}
 	return mov_pending;
@@ -902,7 +907,7 @@ static bool handle_oavatar_source_operand(int op_id)
 								g_oavatar.op2_retrieved == false){
 
 		g_oavatar.in_place = true;
-		if (check_operand_has_valid_value(op_id)){
+		if (check_operand_has_valid_value(op_id) == true){
 			g_oavatar.value = get_operand_value_box(op_id);
 			g_oavatar.value.visible_box = true;
 		}
@@ -930,7 +935,13 @@ static int handle_source_operand(code_line_t *line)
 	int mov_pending = NO_VALUE;
 	int avatar_id = NOAVATAR;
 
-	if (operand_quantity == TWO_OPERANDS && line->op2->id == IB){
+	if(operand_quantity == TWO_OPERANDS && 
+									  cl_operands_are_registers(line) == true){
+		if (g_ravatar.op2_retrieved == false){
+			mov_pending = handle_ravatar_source_operand(line->op2->id);	
+		}
+		avatar_id = RAVATAR;
+	} else if (operand_quantity == TWO_OPERANDS && line->op2->id == IB){
 		if (g_iavatar.op2_retrieved == false){
 			mov_pending = handle_iavatar_source_operand(line->op2->id);	
 		}
@@ -943,7 +954,13 @@ static int handle_source_operand(code_line_t *line)
 	}
 	if (mov_pending == false){
 		bool retrieve_pending; 
-		if (avatar_id == IAVATAR){
+		if (avatar_id == RAVATAR && g_ravatar.op2_retrieved == false){
+			retrieve_pending = retrieve_operand(&g_ravatar);
+			if (retrieve_pending == false){
+				g_ravatar.op2_retrieved = true;
+				g_ravatar.in_place = false;
+			}
+		} else if (avatar_id == IAVATAR){
 			retrieve_pending = retrieve_operand(&g_iavatar);
 			if (retrieve_pending == false){
 				g_iavatar.op2_retrieved = true;
@@ -975,6 +992,21 @@ static void handle_destiny_operand(code_line_t *line, int avatar_id)
 {
 	assert(line != NULL && "The value of line cannot be NULL");
 	int mov_pending = NO_VALUE;
+	
+	if (avatar_id == RAVATAR && g_ravatar.op2_retrieved == true){
+		mov_pending = move_avatar_to_operand(&g_ravatar, line->op1->id);
+		printf("Move pending %d\n", mov_pending);
+		if (mov_pending == false && g_ravatar.in_place == false){
+			g_ravatar.in_place = true;
+		}
+		if (mov_pending == false){
+			int deliver_pending = deliver_operand(&g_ravatar, line->op1->id);
+			if (deliver_pending == false){
+				g_ravatar.op1_delivered = true;
+				g_ravatar.value.visible_box = false;
+			}
+		}
+	}
 	if (avatar_id == IAVATAR && g_iavatar.op2_retrieved == true){
 		mov_pending = move_avatar_to_operand(&g_iavatar, line->op1->id);
 		if (mov_pending == false && g_iavatar.in_place == false){
@@ -1072,6 +1104,7 @@ static bool check_run_finished()
 static void execute_instruction(code_line_t *line, int line_pos)
 {
 	assert(line != NULL && "The value of line cannot be NULL");
+	
 	int buffer_inputs = get_input_buffer_list_size();
 	int avatar_id = NOAVATAR;	
 	bool arrow_in_place = move_execution_arrow(line_pos);
@@ -1087,7 +1120,13 @@ static void execute_instruction(code_line_t *line, int line_pos)
 		line->state = IN_EXECUTION;
 		avatar_id = handle_source_operand(line);
 		handle_destiny_operand(line, avatar_id);
-	
+		
+		if (avatar_id == RAVATAR && g_ravatar.op2_retrieved == true && 
+			g_ravatar.op1_delivered == true && arrow_in_place == true){
+			operate_instruction(line, g_ravatar.value);
+			line->state = EXECUTED;
+			reset_avatar_no_pos();
+		}
 		if (avatar_id == IAVATAR && g_iavatar.op2_retrieved == true && 
 			g_iavatar.op1_delivered == true && arrow_in_place == true){
 			operate_instruction(line, g_iavatar.value);

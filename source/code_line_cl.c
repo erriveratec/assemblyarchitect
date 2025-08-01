@@ -23,6 +23,31 @@ char *rdi_text = "rdi";
 char *ib_text = "[ib]";
 char *ob_text = "[ob]";
 
+/* Function: cl_check_both_operands_are_registers
+ * -----------------------------------------------------------------------------
+ * Determines if the operands of a given line, both are registers.
+ *
+ * Arguments:
+ * 	line: the line object that will be analized
+ *	
+ * Return:
+ *	true if both operands are registers
+ *
+ */
+bool cl_operands_are_registers(code_line_t *line)
+{
+	bool op1 = false;
+	bool op2 = false;
+
+	if (line->op1->id > REGISTERS_MIN && line->op1->id < REGISTERS_MAX){
+		op1 = true;
+	}
+	if (line->op2->id > REGISTERS_MIN && line->op2->id < REGISTERS_MAX){
+		op2 = true;
+	} 
+	return op1 & op2;
+}
+
 /* Function: cl_new_code_line
  * -----------------------------------------------------------------------------
  * This function generates a new code_line object of a pointer it creates a 
