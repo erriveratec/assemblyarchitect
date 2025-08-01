@@ -19,7 +19,6 @@ static SDL_Rect text_box;
 static char *challenge_text;
 static char *stage_name;
 
-enum box_member {INVALID_MEMBER, MEMBER_X, MEMBER_Y, MEMBER_W, MEMBER_H};
 
 void display_line_number();
 int get_code_line_position(int y);

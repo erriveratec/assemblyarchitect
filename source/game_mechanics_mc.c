@@ -19,18 +19,17 @@
 #define EXCEEDS_CODE_LIMIT_TEXT "Correct output but exceeds code size limit"
 
 #define AVATAR_BUFFER_OFFSET 50
-
-#define IAVATAR_X BUFFER_BOX_X - 300
-#define IAVATAR_Y INPUT_BUFFER_BOX_Y + BUFFER_BOX_H + AVATAR_BUFFER_OFFSET
-
-#define OAVATAR_X BUFFER_BOX_X - 300
-#define OAVATAR_Y OUTPUT_BUFFER_BOX_Y - BUFFER_BOX_H - AVATAR_BUFFER_OFFSET
-
-#define AVATAR_START_X 900
-#define AVATAR_START_Y 500
 #define AVATAR_W 50
 #define AVATAR_H 50
-#define AVATAR_X_POS_OFFSET (AVATAR_W + 20)
+#define AVATAR_VALUE_BOX_DISTANCE 10
+
+#define IAVATAR_X BUFFER_BOX_X - 200
+#define IAVATAR_Y INPUT_BUFFER_BOX_Y + BUFFER_BOX_H + AVATAR_BUFFER_OFFSET
+
+#define OAVATAR_X BUFFER_BOX_X - 200
+#define OAVATAR_Y OUTPUT_BUFFER_BOX_Y - BUFFER_BOX_H - AVATAR_BUFFER_OFFSET
+
+#define RAVATAR_X_POS_OFFSET (AVATAR_W + 20)
 
 enum avatar_id{
 	NOAVATAR,
@@ -52,7 +51,7 @@ typedef struct avatar_t{
 
 static avatar_t g_iavatar;
 static avatar_t g_oavatar;
-static avatar_t g_avatar; 
+static avatar_t g_ravatar; 
 
 typedef struct execution_arrow_t{
 	SDL_Rect box;
@@ -90,6 +89,7 @@ static bool check_run_finished();
 static bool check_correct_code_size();
 static bool handle_iavatar_source_operand(int op_id);
 static bool handle_oavatar_source_operand(int op_id);
+static bool handle_ravatar_source_operand(int op_id);
 
 /* Function: mc_reset_invalid_operation_flag
  * -----------------------------------------------------------------------------
@@ -240,21 +240,23 @@ void mc_reset_avatar()
 	g_oavatar.value.box.w = VALUE_BOX_W;
 	g_oavatar.value.box.h = VALUE_BOX_H;
 
-	g_avatar.box.x = AVATAR_START_X;
-	g_avatar.box.y = AVATAR_START_Y;
-	g_avatar.box.w = AVATAR_W;
-	g_avatar.box.h = AVATAR_H;
+	g_ravatar.box.x = rg_get_register_box_member(MEMBER_X) - REG_BOX_X_OFFSET +
+					  rg_get_register_box_member(MEMBER_W) - AVATAR_W;
+	g_ravatar.box.y = rg_get_register_box_member(MEMBER_Y) + AVATAR_H +
+										      AVATAR_VALUE_BOX_DISTANCE;
+	g_ravatar.box.w = AVATAR_W;
+	g_ravatar.box.h = AVATAR_H;
 
-	g_avatar.value.visible_box = false;
-	g_avatar.in_place = false;
-	g_avatar.op2_retrieved = false;
-	g_avatar.op1_delivered = false;
+	g_ravatar.value.visible_box = true;
+	g_ravatar.in_place = false;
+	g_ravatar.op2_retrieved = false;
+	g_ravatar.op1_delivered = false;
 
-	g_avatar.value.value = NO_VALUE;
-	g_avatar.value.box.x = AVATAR_START_X;
-	g_avatar.value.box.y = AVATAR_START_Y - AVATAR_H;
-	g_avatar.value.box.w = VALUE_BOX_W;
-	g_avatar.value.box.h = VALUE_BOX_H;
+	g_ravatar.value.value = NO_VALUE;
+	g_ravatar.value.box.x = g_ravatar.box.x;
+	g_ravatar.value.box.y = g_ravatar.box.y - AVATAR_H;
+	g_ravatar.value.box.w = VALUE_BOX_W;
+	g_ravatar.value.box.h = VALUE_BOX_H;
 
 }
 
@@ -286,14 +288,14 @@ void reset_avatar_no_pos()
 	g_oavatar.value.box.x = g_oavatar.box.x;
 	g_oavatar.value.box.y = g_oavatar.box.y - AVATAR_H;
 
-	g_avatar.value.visible_box = false;
-	g_avatar.in_place = false;
-	g_avatar.op2_retrieved = false;
-	g_avatar.op1_delivered = false;
+	g_ravatar.value.visible_box = true;
+	g_ravatar.in_place = false;
+	g_ravatar.op2_retrieved = false;
+	g_ravatar.op1_delivered = false;
 
-	g_avatar.value.value = NO_VALUE;
-	g_avatar.value.box.x = g_avatar.box.x;
-	g_avatar.value.box.y = g_avatar.box.y - AVATAR_H;
+	g_ravatar.value.value = NO_VALUE;
+	g_ravatar.value.box.x = g_ravatar.box.x;
+	g_ravatar.value.box.y = g_ravatar.box.y - AVATAR_H;
 }
 
 /* Function: mc_draw_avatar
@@ -318,11 +320,11 @@ void mc_draw_avatar()
 	dw_draw_filled_rectangle(g_oavatar.box.x, g_oavatar.box.y, g_oavatar.box.w, 
 						  	 g_oavatar.box.h, COLOR_CYAN, COLOR_CYAN);
 
-	if (g_avatar.value.visible_box == true){
-		draw_value_box(&g_avatar.value);
+	if (g_ravatar.value.visible_box == true){
+		draw_value_box(&g_ravatar.value);
 	}
-	dw_draw_filled_rectangle(g_avatar.box.x, g_avatar.box.y, g_avatar.box.w, 
-						  	 g_avatar.box.h, COLOR_WHITE, COLOR_WHITE);
+	dw_draw_filled_rectangle(g_ravatar.box.x, g_ravatar.box.y, g_ravatar.box.w, 
+						  	 g_ravatar.box.h, COLOR_WHITE, COLOR_WHITE);
 }
 
 /* Function: execution_counter
@@ -368,9 +370,9 @@ int get_operand_y_dest(int op_id)
 {
 	int y;
 	if (op_id > REGISTERS_MIN && op_id < REGISTERS_MAX){
-		y = get_register_value_box_y_coord_by_id(op_id);
+		y = rg_get_register_value_box_y_coord_by_id(op_id);
 	} else if (op_id > BUFFERS_MIN && op_id < BUFFERS_MAX){
-		y = get_buffer_value_box_y_coord_by_id(op_id);	
+		y = bf_get_buffer_value_box_y_coord_by_id(op_id);	
 	}
 	return y;
 }
@@ -387,9 +389,9 @@ int get_operand_x_dest(int op_id)
 {
 	int x;
 	if (op_id > REGISTERS_MIN && op_id < REGISTERS_MAX){
-		x = get_register_value_box_x_coord_by_id(op_id);
+		x = rg_get_register_value_box_x_coord_by_id(op_id);
 	} else if (op_id > BUFFERS_MIN && op_id < BUFFERS_MAX){
-		x = get_buffer_value_box_x_coord_by_id(op_id);	
+		x = bf_get_buffer_value_box_x_coord_by_id(op_id);	
 	}
 	return x;
 }
@@ -523,7 +525,7 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 	int y;
 
 	if (op_id > REGISTERS_MIN && op_id < REGISTERS_MAX){
-		x = get_operand_x_dest(op_id) + AVATAR_X_POS_OFFSET;
+		x = get_operand_x_dest(op_id) + RAVATAR_X_POS_OFFSET;
 	} else{
 		x = get_operand_x_dest(op_id);
 	}
@@ -850,6 +852,35 @@ static bool handle_iavatar_source_operand(int op_id)
 	return mov_pending;
 }
 
+/* Function: handle_rvatar_operand
+ * -----------------------------------------------------------------------------
+ * Performs the action of handling and moving the rvatar in the cases that are
+ * applicable
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Void.
+ */
+static bool handle_ravatar_source_operand(int op_id)
+{
+	bool mov_pending = true;
+
+	mov_pending = move_avatar_to_operand(&g_ravatar, op_id);
+	if (mov_pending == false && g_ravatar.in_place == false && 
+							  g_ravatar.op2_retrieved == false){
+		g_ravatar.in_place = true;
+		if (op_id == IB && is_operand_retrievable(op_id) == true){
+			g_ravatar.value = get_operand_value_box(op_id);
+			g_ravatar.value.visible_box = true;
+		}
+		else if (op_id == IB && is_operand_retrievable(op_id) == false){
+			set_invalid_operation_flag(INPUT_BUFFER_EMPTY);
+		}
+	}
+	return mov_pending;
+}
 /* Function: handle_ovatar_operand
  * -----------------------------------------------------------------------------
  * Performs the action of handling and moving the ovatar in the cases that are
@@ -931,51 +962,6 @@ static int handle_source_operand(code_line_t *line)
 	}
 	return avatar_id;
 }
-/* Function: handle_source_operand
- * -----------------------------------------------------------------------------
- * Moves the corresponding avatar depending of the kind of source operand that
- * the instruction is using.
- *
- * Arguments:
- *	line: the code line that will be executed
- *
- * Return:
- *	void.
- *
-static void handle_source_operand(code_line_t *line)
-{
-	assert(line != NULL && "The value of line cannot be NULL");
-	int operand_quantity = cl_get_instruction_operand_quantity(line->ins->id);
-	int mov_pending = NO_VALUE;
-
-	if (operand_quantity == TWO_OPERANDS && g_avatar.op2_retrieved == false){
-		mov_pending = move_avatar_to_operand(&g_avatar, line->op2->id);
-		if (mov_pending == false && g_avatar.in_place == false){
-			g_avatar.in_place = true;
-			int op_id = line->op2->id;
-			if ((op_id == IB && is_operand_retrievable(op_id) == true) || 
-				(op_id != IB && check_operand_has_valid_value(op_id))){	
-				g_avatar.value = get_operand_value_box(line->op2->id);
-				g_avatar.value.visible_box = true;
-			} else if (op_id == IB && is_operand_retrievable(op_id) == false){
-					set_invalid_operation_flag(INPUT_BUFFER_EMPTY);
-			} else {
-					set_invalid_operation_flag(REG_VALUE_INVALID);
-			}
-		} 
-		if (mov_pending == false){
-			int retrieve_pending = retrieve_operand();
-			if (retrieve_pending == false){
-				g_avatar.op2_retrieved = true;
-				g_avatar.in_place = false;
-
-				if (line->op1->id == OB){
-					bf_add_output_to_list();
-				}
-			}
-		}
-	}
-}*/
 
 /* Function: handle_destiny_operand
  * -----------------------------------------------------------------------------
@@ -991,7 +977,7 @@ static void handle_destiny_operand(code_line_t *line, int avatar_id)
 	int mov_pending = NO_VALUE;
 	if (avatar_id == IAVATAR && g_iavatar.op2_retrieved == true){
 		mov_pending = move_avatar_to_operand(&g_iavatar, line->op1->id);
-		if (mov_pending == false && g_avatar.in_place == false){
+		if (mov_pending == false && g_iavatar.in_place == false){
 			g_iavatar.in_place = true;
 		}
 		if (mov_pending == false){

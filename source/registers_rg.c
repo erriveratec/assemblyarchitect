@@ -12,34 +12,16 @@
 
 #define DEFAULT_OPERAND RAX
 
-enum member {INVALID_MEMBER, X, Y, W, H};
-
 static List *register_list = NULL;
-
 static SDL_Rect register_box;
 static char REGISTER_TEXT[] = "Registers";
 
-void set_register_box_member(int value, int member);
+static void set_register_box_member(int value, int member);
 List *get_register_list();
 reg_t *create_register(int id, button_t *b);
 static void destroy_register_list();
 static void draw_register_text();
-
-/* Function: rg_get_register_box_w
- * -----------------------------------------------------------------------------
- * Returns the value of the register box width
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- *
- */
-int rg_get_register_box_w()
-{
-	return register_box.w;
-}
+static void draw_register_box();
 
 
 /* Function: rg_update_register_box_position
@@ -66,7 +48,7 @@ void rg_update_register_box_position()
 
 	int y = SCREEN_HEIGHT/2 - h/2;
 	
-	set_register_box_member(y, Y);
+	set_register_box_member(y, MEMBER_Y);
 
 	int i = 0;
 
@@ -194,6 +176,38 @@ error:
 	return;
 }
 
+/* Function: rg_get_register_box_member
+ *------------------------------------------------------------------------------
+ * This functions returns a specific member of the instruction_box
+ *
+ * Arguments:
+ *	member: the member of the instruction box that will be returned.
+ *
+ * Return:
+ *	box member requested value
+ *
+ */
+int rg_get_register_box_member(int member)
+{
+	assert(member >= MEMBER_X && MEMBER_H >= member && "Invalid member");
+
+	int box_member;
+	switch(member){
+		case MEMBER_X:
+			box_member = register_box.x;
+			break;
+		case MEMBER_Y:
+			box_member = register_box.y;
+			break;
+		case MEMBER_W:
+			box_member = register_box.w;
+			break;
+		case MEMBER_H:
+			box_member = register_box.h;
+			break;
+	}
+	return box_member;
+}
 
 /* Function: set_register_box_member
  *------------------------------------------------------------------------------
@@ -207,25 +221,24 @@ error:
  *	Void.
  *
  */
-void set_register_box_member(int value, int member)
+static void set_register_box_member(int value, int member)
 {
-	assert(member >= X && H >= member && "Invalid member");
+	assert(member >= MEMBER_X && MEMBER_H >= member && "Invalid member");
 
 	switch(member){
-		case X:
+		case MEMBER_X:
 			register_box.x = value;
 			break;
-		case Y:
+		case MEMBER_Y:
 			register_box.y = value;
 			break;
-		case W:
+		case MEMBER_W:
 			register_box.w = value;
 			break;
-		case H:
+		case MEMBER_H:
 			register_box.h = value;
 			break;
 	}
-
 	return;
 }
 
@@ -311,14 +324,15 @@ void rg_add_register_to_list(int id)
 		   "The operand id is invalid");
 	
 	int list_size = List_count(registers);
-	set_register_box_member(2*REG_BOX_OFFSET + (list_size + 1)*2*CODE_BUTTON_H, 
-							H);
+	set_register_box_member(REG_BOX_OFFSET + (list_size + 1)*2*CODE_BUTTON_H
+												  + REG_BOX_OFFSET, MEMBER_H);
 	
 	texture_t *reg_text = cl_create_operand_texture(id);
 	check_mem(reg_text);
 	
 	int register_text_w = get_text_width_fits_height(REG_TEXT_H, REGISTER_TEXT);
-	int x = register_box.x + register_box.w/2 - CODE_BUTTON_W/2;
+	int x = register_box.x + REG_BOX_X_OFFSET;
+
 	int y = register_box.y + REG_BOX_OFFSET + list_size*2*(CODE_BUTTON_H + 5) +
 		    REG_TEXT_H + CODE_BUTTON_H;
 	
@@ -418,7 +432,7 @@ void rg_set_register_box(int x, int y, int w, int h)
  * Return:
  *	Void.
  */
-void draw_register_box()
+static void draw_register_box()
 {
 	draw_rectangle(register_box.x, register_box.y, register_box.w, 
 				   register_box.h, COLOR_WHITE);
@@ -514,7 +528,7 @@ operand_t *rg_create_operand_of_selected_register()
    return o;
 }
 
-int get_register_value_box_x_coord_by_id(int id)
+int rg_get_register_value_box_x_coord_by_id(int id)
 {
 	assert(id > REGISTERS_MIN && id < REGISTERS_MAX && 
 		   "Invalid register id");
@@ -532,7 +546,7 @@ int get_register_value_box_x_coord_by_id(int id)
    return c->value.box.x;
 }
 
-int get_register_value_box_y_coord_by_id(int id)
+int rg_get_register_value_box_y_coord_by_id(int id)
 {
 	assert(id > REGISTERS_MIN && id < REGISTERS_MAX && 
 		   "Invalid register id");

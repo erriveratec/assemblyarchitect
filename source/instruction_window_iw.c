@@ -8,8 +8,6 @@
 #include "dbg.h"
 #include "dimensions.h"
 
-enum member {INVALID_MEMBER, X, Y, W, H};
-
 static List *instruction_list = NULL;
 SDL_Rect instruction_box;
 
@@ -102,23 +100,22 @@ static List *get_instruction_list()
  */
 void set_instruction_box_member(int value, int member)
 {
-	assert(member >= X && H >= member && "Invalid member");
+	assert(member >= MEMBER_X && MEMBER_H >= member && "Invalid member");
 
 	switch(member){
-		case X:
+		case MEMBER_X:
 			instruction_box.x = value;
 			break;
-		case Y:
+		case MEMBER_Y:
 			instruction_box.y = value;
 			break;
-		case W:
+		case MEMBER_W:
 			instruction_box.w = value;
 			break;
-		case H:
+		case MEMBER_H:
 			instruction_box.h = value;
 			break;
 	}
-
 	return;
 }
 
@@ -239,7 +236,7 @@ void iw_add_instruction_to_list(int id)
 								true, false, instruction_text);
 	check_mem(b);
 	set_instruction_box_member(2*INS_BOX_OFFSET + (list_size + 1)*CODE_BUTTON_H,
-							   H);
+							   MEMBER_H);
 
 	instruction_t *new_ins = cl_create_instruction(id, b);
 

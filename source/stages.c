@@ -242,13 +242,11 @@ void stage_drawings(int level)
 	rg_display_registers();
 	iw_display_instructions(INS_BOX_X, INS_BOX_Y);
 	cw_draw_code_window();	
-	draw_stage_buttons(cw_get_code_list_size());
+	sb_draw_stage_buttons(cw_get_code_list_size());
 	mc_draw_avatar();
 	mc_draw_execution_arrow();
 	lv_level_drawings(level);
-	draw_return_button();
-
-
+	sb_draw_return_button();
 	return;
 }
 
@@ -463,7 +461,7 @@ int stage_select_level()
 		}
 	}
 
-	draw_return_button();
+	sb_draw_return_button();
 	display_escape_menu(get_escape_menu_state());
 
 	if (sb_check_clicked_ret_button() == true){
@@ -667,7 +665,7 @@ static void reset_level(int level_id, level_flags_t *flags, bool *run_finished)
 	bf_reset_input_list();
 	bf_reset_output_list();
 	bf_reset_win_condition();
-	reset_win_list();
+	lv_reset_win_list();
 	lv_generate_win_condition_list(level_id);
 	cw_reset_code_execution();
 	mc_hide_execution_arrow();

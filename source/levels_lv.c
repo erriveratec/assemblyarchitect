@@ -152,7 +152,7 @@ error:
 	return;
 }
 
-/* Function: reset_win_list
+/* Function: lv_reset_win_list
  *------------------------------------------------------------------------------
  * Arguments:
  *	void.
@@ -160,7 +160,7 @@ error:
  * Return:
  *	void.
  */
-void reset_win_list()
+void lv_reset_win_list()
 {
 	List_clear_destroy(win_list);
 	win_list = NULL;
@@ -180,7 +180,7 @@ List *get_win_list()
 	return win_list;
 }
 
-/* Function: print_win_list
+/* Function: lv_print_win_list
  *------------------------------------------------------------------------------
  * Arguments:
  *	None.
@@ -188,7 +188,7 @@ List *get_win_list()
  * Return:
  *	
  */
-void print_win_list()
+void lv_print_win_list()
 {
 	List *win_list = get_win_list();
 
@@ -464,7 +464,7 @@ void lv_level_drawings(int level)
 	assert(level < LV_LEVEL_MAX && level > LV_LEVEL_MIN && 
 			          								"Invalid level value");
 
-	int x = REG_BOX_X + rg_get_register_box_w();
+	int x = REG_BOX_X + rg_get_register_box_member(MEMBER_W);
 	int y = SCREEN_HEIGHT/2 - LEVEL_LINE_W/2; 
 	int w = SCREEN_WIDTH - x;
 	int h = LEVEL_LINE_W;

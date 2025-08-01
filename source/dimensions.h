@@ -194,6 +194,8 @@
 /***************************REGISTER BOX***************************************/
 // The offset of the borders of the register box
 #define REG_BOX_OFFSET 25
+#define REG_BOX_X_OFFSET 30
+#define REG_BOX_Y_OFFSET 50
 
 // The height of the register text
 #define REG_TEXT_H 40
@@ -230,13 +232,12 @@
 #define BUTTONS_SPACE 20
 
 /******************************AVATAR******************************************/
-
 /******************************VALUE BOXES*************************************/
 
 //#define VALUE_BOX_H 56
 //#define VALUE_BOX_W 64
 #define VALUE_BOX_H 40
-#define VALUE_BOX_W 48
+#define VALUE_BOX_W 50
 #define VALUE_H 35
 #define VALUE_W 50
 

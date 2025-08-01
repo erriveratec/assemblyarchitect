@@ -224,30 +224,6 @@ operand_t *bf_create_operand_of_selected_buffer()
 	return b;
 }
 
-/* Function: get_selected_buffer
-*------------------------------------------------------------------------------
-* This returns the pointer to the buffer where the player clicked
-*
-* Arguments:
-* 	None.
-*	
-* Return:
-*	The pointer of the buffer that user selected.
-*
-{
-   	operand_t *buffer = NULL;
-
-	if (bt_check_mouse_released_button(&input_buffer_button) == true){
-		buffer = input_buffer;
-	} 
-   	
-	if (bt_check_mouse_released_button(&output_buffer_button) == true){
-		buffer = output_buffer;
-	}
-	return buffer;
-}*/
-
-
 /* Function: bf_initialize_buffer_operands
  * -----------------------------------------------------------------------------
  * Arguments:
@@ -643,7 +619,7 @@ void draw_input_buffer()
 	
 }
 
-/* Function: get_buffer_value_box_x_coord_by_id
+/* Function: bf_get_buffer_value_box_x_coord_by_id
  *------------------------------------------------------------------------------
  * Arguments:
  *	op_id: The id of the operand that the x value will get calculated
@@ -651,7 +627,7 @@ void draw_input_buffer()
  * Return:
  *	x coordinate of the first value box
  */
-int get_buffer_value_box_x_coord_by_id(int id)
+int bf_get_buffer_value_box_x_coord_by_id(int id)
 {
 	assert(id > BUFFERS_MIN && id < BUFFERS_MAX && "Invalid buffer id");
 	
@@ -666,7 +642,7 @@ int get_buffer_value_box_x_coord_by_id(int id)
 	return x;
 }
 
-/* Function: get_buffer_value_box_y_coord_by_id
+/* Function: bf_get_buffer_value_box_y_coord_by_id
  *------------------------------------------------------------------------------
  * Arguments:
  *	op_id: The id of the operand that the x value will get calculated
@@ -674,7 +650,7 @@ int get_buffer_value_box_x_coord_by_id(int id)
  * Return:
  *	x coordinate of the first value box
  */
-int get_buffer_value_box_y_coord_by_id(int id)
+int bf_get_buffer_value_box_y_coord_by_id(int id)
 {
 	assert(id > BUFFERS_MIN && id < BUFFERS_MAX && "Invalid buffer id");
 	

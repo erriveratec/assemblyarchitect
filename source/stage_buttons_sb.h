@@ -5,13 +5,12 @@
 #include <stdio.h>
 #include "button_bt.h"
 
-void draw_stage_buttons(int code_size);
-void draw_return_button();
+void sb_draw_stage_buttons(int code_size);
+void sb_draw_return_button();
 void sb_initialize_stage_buttons();
 void sb_initialize_return_button();
 bool sb_check_clicked_stage_button();
 bool sb_check_clicked_ret_button();
-bool check_released_in_stage_button();
 int identify_clicked_stage_button();
 
 enum stage_buttons_e {

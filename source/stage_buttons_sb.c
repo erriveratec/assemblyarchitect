@@ -18,6 +18,7 @@ button_t *play;
 button_t *step_forward;
 button_t *ret_button;
 
+static bool sb_check_released_in_stage_button(); // not used
 
 /* Function: adjust_stage_buttons_position
  * -------------------------------------
@@ -53,7 +54,7 @@ void adjust_stage_buttons_position(int code_size)
 
 }
 
-/* Function: draw_stage_buttons
+/* Function: sb_draw_stage_buttons
  * -------------------------------------
  * Arguments:
  * 	None.
@@ -61,7 +62,7 @@ void adjust_stage_buttons_position(int code_size)
  * Return:
  *	Void.
  */
-void draw_stage_buttons(int code_size)
+void sb_draw_stage_buttons(int code_size)
 {
 	adjust_stage_buttons_position(code_size);
 	bt_draw_button(stop);
@@ -70,7 +71,7 @@ void draw_stage_buttons(int code_size)
 	bt_draw_button(step_forward);
 }
 
-/* Function: draw_return_button
+/* Function: sb_draw_return_button
  * ----------------------------------------------------------------------------
  * This function draws the return button that will be shown on several displays
  *
@@ -80,7 +81,7 @@ void draw_stage_buttons(int code_size)
  * Return:
  *	Void.
  */
-void draw_return_button()
+void sb_draw_return_button()
 {
 	bt_draw_button(ret_button);
 }
@@ -177,7 +178,7 @@ bool sb_check_clicked_stage_button()
 	return ret;
 }
 
-/* Function: check_released_in_stage_button
+/* Function: sb_check_released_in_stage_button
  * -------------------------------------
  * Arguments:
  * 	None.
@@ -185,7 +186,7 @@ bool sb_check_clicked_stage_button()
  * Return:
  *	true if released in stage button, false if otherwise.
  */
-bool check_released_in_stage_button()
+static bool sb_check_released_in_stage_button()
 {
 	int ret = false;
 
