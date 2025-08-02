@@ -23,6 +23,40 @@ static void destroy_register_list();
 static void draw_register_text();
 static void draw_register_box();
 
+value_box_t g_ibox;
+value_box_t g_obox;
+
+/* Function: rg_initialize_value_boxes
+ * -----------------------------------------------------------------------------
+ * The value boxes that will serve as an interface for handling values to 
+ * the registers are initialized in this function
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ *
+ */
+void rg_initialize_value_boxes()
+{
+	g_ibox.box.x = REG_VBOX_X;
+	g_ibox.box.y = rg_get_register_box_member(MEMBER_Y) - VALUE_BOX_H - REG_VBOX_OFFSET;
+	g_ibox.box.w = VALUE_BOX_W;
+	g_ibox.box.h = VALUE_BOX_H;
+	g_ibox.value = NO_VALUE;
+	g_ibox.visible_box = true;
+	
+	g_obox.box.x = REG_VBOX_X;
+	g_obox.box.y = rg_get_register_box_member(MEMBER_Y) + rg_get_register_box_member(MEMBER_H)
+				   + REG_VBOX_OFFSET;
+	g_obox.box.w = VALUE_BOX_W;
+	g_obox.box.h = VALUE_BOX_H;
+	g_obox.value = NO_VALUE;
+	g_obox.visible_box = true;
+
+	return;
+}
 
 /* Function: rg_update_register_box_position
  * -----------------------------------------------------------------------------
@@ -455,7 +489,7 @@ static void draw_register_box()
 static void draw_register_text()
 {
 	int text_w = get_text_width_fits_height(REG_TEXT_H, REGISTER_TEXT);
-	int x = register_box.x + (register_box.w - text_w)/2;
+	int x = register_box.x;// + (register_box.w - text_w)/2;
 	int y = register_box.y - REG_TEXT_H;
 
 	draw_text_fits_height(x, y, REG_TEXT_H, COLOR_WHITE, REGISTER_TEXT);

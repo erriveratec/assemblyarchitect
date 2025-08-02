@@ -995,7 +995,6 @@ static void handle_destiny_operand(code_line_t *line, int avatar_id)
 	
 	if (avatar_id == RAVATAR && g_ravatar.op2_retrieved == true){
 		mov_pending = move_avatar_to_operand(&g_ravatar, line->op1->id);
-		printf("Move pending %d\n", mov_pending);
 		if (mov_pending == false && g_ravatar.in_place == false){
 			g_ravatar.in_place = true;
 		}

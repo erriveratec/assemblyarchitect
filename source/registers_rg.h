@@ -32,4 +32,5 @@ void reset_register_values();
 void rg_destroy_register_list();
 void rg_update_register_box_position();
 int rg_get_register_box_member(int member);
+void rg_initialize_value_boxes();
 #endif
