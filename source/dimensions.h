@@ -209,7 +209,7 @@
 #define REG_BOX_H 200
 #define REG_BOX_W 250
 
-#define REG_VBOX_X REG_BOX_X + 210
+#define REG_VBOX_X REG_BOX_X + 190
 #define REG_VBOX_OFFSET 10
 
 // The between registers offset

@@ -531,7 +531,7 @@ void draw_output_buffer()
 			cur_output->box.x = draw_x;
 
 			if (cur_output->visible_box != false){
-				draw_value_box(cur_output);
+				ax_draw_value_box(cur_output, COLOR_WHITE);
 			}
 			draw_x -= VALUE_W + BETWEEN_NUMBERS_OFFSET;
 		}
@@ -603,7 +603,7 @@ void draw_input_buffer()
 		LIST_FOREACH(inputs, first, next, cur){
 			value_box_t *cur_input = cur->value;
 			cur_input->box.x = draw_x;
-			draw_value_box(cur_input);
+			ax_draw_value_box(cur_input, COLOR_WHITE);
 			draw_x += VALUE_W + BETWEEN_NUMBERS_OFFSET;
 		}
 		if (g_input_list_x_pos > x){

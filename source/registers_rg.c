@@ -22,6 +22,7 @@ reg_t *create_register(int id, button_t *b);
 static void destroy_register_list();
 static void draw_register_text();
 static void draw_register_box();
+static void draw_value_boxes();
 
 value_box_t g_ibox;
 value_box_t g_obox;
@@ -57,7 +58,23 @@ void rg_initialize_value_boxes()
 
 	return;
 }
-
+/* Function: draw_value_boxes
+ * -----------------------------------------------------------------------------
+ * Draws the register value boxes with white color
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ *
+ */
+static void draw_value_boxes()
+{
+	ax_draw_value_box(&g_ibox, COLOR_ORANGE);
+	ax_draw_value_box(&g_obox, COLOR_CYAN);
+	return;
+}
 /* Function: rg_update_register_box_position
  * -----------------------------------------------------------------------------
  * The final position of the register box will be calculated in the middle of
@@ -402,6 +419,7 @@ void rg_display_registers()
 
 	draw_register_box();
 	draw_register_text();
+	draw_value_boxes();
 	
 	LIST_FOREACH(registers, first, next, cur){
 		reg_t *reg = cur->value;
@@ -409,7 +427,7 @@ void rg_display_registers()
 		bt_draw_button(button);
 
 		char *number = number_to_string(reg->value.value);
-		draw_value_box(&reg->value);
+		ax_draw_value_box(&reg->value, COLOR_WHITE);
 		free(number);
 
 	}

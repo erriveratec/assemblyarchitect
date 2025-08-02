@@ -38,7 +38,7 @@ float get_scale_from_w_h(int w, int h, texture_t *texture);
 float get_scale_fit_height(int h, texture_t *texture);
 float get_scale_fit_width(int w, texture_t *texture);
 int get_text_width_fits_height(int h, char *text);
-void draw_value_box(value_box_t *box);
+void ax_draw_value_box(value_box_t *box, SDL_Color color);
 char *create_string_append_number(char *s,  int n);
 char *ax_number_to_string_two_digits(int number);
 

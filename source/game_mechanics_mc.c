@@ -23,10 +23,10 @@
 #define AVATAR_H 50
 #define AVATAR_VALUE_BOX_DISTANCE 10
 
-#define IAVATAR_X BUFFER_BOX_X - 200
+#define IAVATAR_X BUFFER_BOX_X - 100
 #define IAVATAR_Y INPUT_BUFFER_BOX_Y + BUFFER_BOX_H + AVATAR_BUFFER_OFFSET
 
-#define OAVATAR_X BUFFER_BOX_X - 200
+#define OAVATAR_X BUFFER_BOX_X - 100
 #define OAVATAR_Y OUTPUT_BUFFER_BOX_Y - BUFFER_BOX_H - AVATAR_BUFFER_OFFSET
 
 #define RAVATAR_X_POS_OFFSET (AVATAR_W + 20)
@@ -49,6 +49,7 @@ typedef struct avatar_t{
 	bool op2_retrieved;
 	bool op1_delivered;
 	value_box_t value;
+	SDL_Color color;
 } avatar_t;
 
 static avatar_t g_iavatar;
@@ -228,6 +229,8 @@ void mc_reset_avatar()
 	g_iavatar.value.box.w = VALUE_BOX_W;
 	g_iavatar.value.box.h = VALUE_BOX_H;
 
+	g_iavatar.color = COLOR_ORANGE;
+
 	g_oavatar.id = OAVATAR;
 	g_oavatar.box.x = OAVATAR_X;
 	g_oavatar.box.y = OAVATAR_Y;
@@ -245,11 +248,13 @@ void mc_reset_avatar()
 	g_oavatar.value.box.w = VALUE_BOX_W;
 	g_oavatar.value.box.h = VALUE_BOX_H;
 
+	g_oavatar.color = COLOR_CYAN;
+
 	g_ravatar.id = RAVATAR;
 	g_ravatar.box.x = rg_get_register_box_member(MEMBER_X) - REG_BOX_X_OFFSET +
 					  rg_get_register_box_member(MEMBER_W) - AVATAR_W;
-	g_ravatar.box.y = rg_get_register_box_member(MEMBER_Y) + AVATAR_H +
-										      AVATAR_VALUE_BOX_DISTANCE;
+	g_ravatar.box.y = rg_get_register_box_member(MEMBER_Y) + 
+					  rg_get_register_box_member(MEMBER_H)/2 - AVATAR_H/2; 
 	g_ravatar.box.w = AVATAR_W;
 	g_ravatar.box.h = AVATAR_H;
 
@@ -263,6 +268,8 @@ void mc_reset_avatar()
 	g_ravatar.value.box.y = g_ravatar.box.y - AVATAR_H;
 	g_ravatar.value.box.w = VALUE_BOX_W;
 	g_ravatar.value.box.h = VALUE_BOX_H;
+	
+	g_ravatar.color = COLOR_RED;
 
 }
 
@@ -315,22 +322,22 @@ void reset_avatar_no_pos()
 void mc_draw_avatar()
 {
 	if (g_iavatar.value.visible_box == true){
-		draw_value_box(&g_iavatar.value);
+		ax_draw_value_box(&g_iavatar.value, g_iavatar.color);
 	}
 	dw_draw_filled_rectangle(g_iavatar.box.x, g_iavatar.box.y, g_iavatar.box.w, 
-						  	 g_iavatar.box.h, COLOR_ORANGE, COLOR_ORANGE);
+						  	 g_iavatar.box.h, g_iavatar.color, g_iavatar.color);
 
 	if (g_oavatar.value.visible_box == true){
-		draw_value_box(&g_oavatar.value);
+		ax_draw_value_box(&g_oavatar.value, g_oavatar.color);
 	}
 	dw_draw_filled_rectangle(g_oavatar.box.x, g_oavatar.box.y, g_oavatar.box.w, 
-						  	 g_oavatar.box.h, COLOR_CYAN, COLOR_CYAN);
+						  	 g_oavatar.box.h, g_oavatar.color, g_oavatar.color);
 
 	if (g_ravatar.value.visible_box == true){
-		draw_value_box(&g_ravatar.value);
+		ax_draw_value_box(&g_ravatar.value, g_ravatar.color);
 	}
 	dw_draw_filled_rectangle(g_ravatar.box.x, g_ravatar.box.y, g_ravatar.box.w, 
-						  	 g_ravatar.box.h, COLOR_RED, COLOR_RED);
+						  	 g_ravatar.box.h, g_ravatar.color, g_ravatar.color);
 }
 
 /* Function: execution_counter

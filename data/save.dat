@@ -24,10 +24,10 @@ CODE STARTS
 mov rax, [ib]
 mov rbx, [ib]
 mov rcx, [ib]
-mov rcx, rax
 mov [ob], rcx
 mov [ob], rbx
 mov [ob], rax
+mov rcx, rax
 CODE ENDS
 
 +++LEVEL ENDS 02
@@ -458,10 +458,10 @@ CODE STARTS
 mov rax, [ib]
 mov rbx, [ib]
 mov rcx, [ib]
-mov rcx, rax
 mov [ob], rcx
 mov [ob], rbx
 mov [ob], rax
+mov rcx, rax
 CODE ENDS
 
 +++LEVEL ENDS 02
@@ -892,10 +892,10 @@ CODE STARTS
 mov rax, [ib]
 mov rbx, [ib]
 mov rcx, [ib]
-mov rcx, rax
 mov [ob], rcx
 mov [ob], rbx
 mov [ob], rax
+mov rcx, rax
 CODE ENDS
 
 +++LEVEL ENDS 02
