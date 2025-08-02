@@ -60,7 +60,7 @@ error:
  * Return:
  *	Void.
  */
-void draw_value_box(value_box_t *box){
+void draw_value_box(value_box_t *box, SDL_Color color){
 
 	char *text = number_to_string(box->value);
 	int text_width = get_text_width_fits_height(VALUE_H, text);
