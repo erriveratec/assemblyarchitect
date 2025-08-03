@@ -567,7 +567,10 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 	} else if (op_id == OBOX){
 		if (avatar->id == RAVATAR){
 			y = get_operand_y_dest(op_id) - 2.5*VALUE_BOX_H - 2*REG_VBOX_OFFSET;
+		} else if (avatar->id == OAVATAR){
+			y = get_operand_y_dest(op_id) + REG_VBOX_OFFSET;
 		}
+
 	}
 	
 	if (avatar->box.x < x){
@@ -624,7 +627,7 @@ static value_box_t get_operand_value_box(int op_id)
 	} else if (op_id == IBOX){
 		op_value_box = rg_get_ibox_value_box();
 	} else if (op_id == OBOX){
-		op_value_box = rg_get_ibox_value_box();
+		op_value_box = rg_get_obox_value_box();
 	}
 	return op_value_box;
 }
@@ -677,7 +680,10 @@ static bool check_operand_has_value(int op_id)
 		op_value_box = bf_get_output_buffer_value_box();
 	} else if (op_id == IBOX){
 		op_value_box = rg_get_ibox_value_box();
+	} else if (op_id == OBOX){
+		op_value_box = rg_get_obox_value_box();
 	}
+
 	bool value = true;
 	if (op_value_box.value == NO_VALUE){
 		value = false;
@@ -795,7 +801,7 @@ static bool deliver_operand(avatar_t *avatar, int op_id)
 
 	int x = v.box.x;
 	int y = v.box.y;	
-
+	
 	bool mov = false;
 
 	if (avatar->value.box.x < x){
@@ -971,6 +977,7 @@ static bool handle_oavatar_source_operand(int op_id)
 		if (check_operand_has_value(op_id) == true){
 			g_oavatar.value = get_operand_value_box(op_id);
 			g_oavatar.value.visible_box = true;
+			rg_reset_obox();
 		}
 		else {
 			set_invalid_operation_flag(REG_VALUE_INVALID);
@@ -1003,8 +1010,10 @@ static int handle_source_operand(code_line_t *line)
 		} else if (check_avatar_has_value(&g_ravatar) == true){
 			mov_pending = false;
 			avatar_id = RAVATAR;
-		} else if (cl_check_op_is_register(line->op2->id)){
-			if (g_ravatar.op2_retrieved == false){
+		} else if (cl_check_op_is_register(line->op2->id)&& 
+				   check_operand_has_value(OBOX) == false &&
+				   check_avatar_has_value(&g_oavatar) == false){
+			if (g_ravatar.op2_retrieved == false) {
 				mov_pending = handle_ravatar_source_operand(line->op2->id);	
 			}
 			avatar_id = RAVATAR;
@@ -1013,10 +1022,14 @@ static int handle_source_operand(code_line_t *line)
 				mov_pending = handle_iavatar_source_operand(line->op2->id);	
 			}
 			avatar_id = IAVATAR;
-		} else if (g_oavatar.op2_retrieved == false){
-			mov_pending = handle_oavatar_source_operand(line->op2->id);	
+		} else if (check_operand_has_value(OBOX) == true){
+			mov_pending = handle_oavatar_source_operand(OBOX);	
+			avatar_id = OAVATAR;
+		} else if (check_avatar_has_value(&g_oavatar) == true){
+			mov_pending = false;
 			avatar_id = OAVATAR;
 		}
+
 	}
 	if (mov_pending == false){
 		bool retrieve_pending; 
@@ -1032,7 +1045,7 @@ static int handle_source_operand(code_line_t *line)
 				g_iavatar.op2_retrieved = true;
 				g_iavatar.in_place = false;
 			}
-		} else if (avatar_id == OAVATAR){
+		} else if (avatar_id == OAVATAR && g_oavatar.op2_retrieved == false){
 			retrieve_pending = retrieve_operand(&g_oavatar);
 			if (retrieve_pending == false){
 				g_oavatar.op2_retrieved = true;

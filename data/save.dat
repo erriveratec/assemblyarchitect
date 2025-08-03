@@ -7,7 +7,6 @@ LEVEL ACTIVE TRUE
 CODE STARTS
 mov rax, [ib]
 mov [ob], rax
-mov rax, rax
 mov rax, [ib]
 mov [ob], rax
 mov rax, [ib]
@@ -24,9 +23,6 @@ CODE STARTS
 mov rax, [ib]
 mov rbx, [ib]
 mov rcx, [ib]
-mov rax, rcx
-mov rbx, rbx
-mov rcx, rax
 mov [ob], rcx
 mov [ob], rbx
 mov [ob], rax
@@ -443,7 +439,6 @@ LEVEL ACTIVE TRUE
 CODE STARTS
 mov rax, [ib]
 mov [ob], rax
-mov rax, rax
 mov rax, [ib]
 mov [ob], rax
 mov rax, [ib]
@@ -460,9 +455,6 @@ CODE STARTS
 mov rax, [ib]
 mov rbx, [ib]
 mov rcx, [ib]
-mov rax, rcx
-mov rbx, rbx
-mov rcx, rax
 mov [ob], rcx
 mov [ob], rbx
 mov [ob], rax
@@ -879,7 +871,6 @@ LEVEL ACTIVE TRUE
 CODE STARTS
 mov rax, [ib]
 mov [ob], rax
-mov rax, rax
 mov rax, [ib]
 mov [ob], rax
 mov rax, [ib]
@@ -896,9 +887,6 @@ CODE STARTS
 mov rax, [ib]
 mov rbx, [ib]
 mov rcx, [ib]
-mov rax, rcx
-mov rbx, rbx
-mov rcx, rax
 mov [ob], rcx
 mov [ob], rbx
 mov [ob], rax
