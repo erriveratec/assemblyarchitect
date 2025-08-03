@@ -23,6 +23,33 @@ char *rdi_text = "rdi";
 char *ib_text = "[ib]";
 char *ob_text = "[ob]";
 
+/* Function: cl_check_op_is_register
+ * -----------------------------------------------------------------------------
+ * Verifies using the id of the operand if corresponds to a register
+ *
+ * Arguments:
+ * 	op_id: Te id of the operand that will be verified
+ *	
+ * Return:
+ *	true if the id of the operand corresponds to a register
+ *
+ */
+bool cl_check_op_is_register(int op_id)
+{
+	assert(((op_id > REGISTERS_MIN && op_id < REGISTERS_MAX) || 
+			(op_id > MEMORY_MIN && op_id < MEMORY_MAX) || 
+			(op_id > BUFFERS_MIN && op_id < BUFFERS_MAX) || 
+			(op_id > RGBOX_MIN && op_id < RGBOX_MAX)) &&
+			"Invalid operand id");
+	
+	bool is_register = false;	
+	
+	if (op_id > REGISTERS_MIN && op_id < REGISTERS_MAX){
+		is_register = true;		
+	}
+	return is_register;
+}
+
 /* Function: cl_check_both_operands_are_registers
  * -----------------------------------------------------------------------------
  * Determines if the operands of a given line, both are registers.

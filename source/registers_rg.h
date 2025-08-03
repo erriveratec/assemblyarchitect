@@ -9,6 +9,7 @@
 #include "aux.h"
 
 
+
 typedef struct reg_t{
 	button_t *b;
 	int id;
@@ -26,11 +27,20 @@ operand_t *rg_create_operand_of_selected_register();
 operand_t *rg_create_register_operand_by_id(int id);
 int rg_get_register_value_box_x_coord_by_id(int id);
 int rg_get_register_value_box_y_coord_by_id(int id);
-value_box_t get_register_value_box_by_id(int id);
+value_box_t rg_get_register_value_box_by_id(int id);
 void rg_set_register_value_box(int id, value_box_t val);
 void reset_register_values();
 void rg_destroy_register_list();
 void rg_update_register_box_position();
 int rg_get_register_box_member(int member);
 void rg_initialize_value_boxes();
+int rg_get_ibox_x();
+int rg_get_ibox_y();
+int rg_get_obox_y();
+value_box_t rg_get_ibox_value_box();
+value_box_t rg_get_obox_value_box();
+void rg_set_ibox_value_box(value_box_t value);	
+void rg_set_obox_value_box(value_box_t value);	
+void rg_reset_ibox();
+void rg_reset_obox();
 #endif

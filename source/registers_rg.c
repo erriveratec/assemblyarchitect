@@ -27,6 +27,154 @@ static void draw_value_boxes();
 value_box_t g_ibox;
 value_box_t g_obox;
 
+
+/* Function: rg_reset_ibox
+ * -----------------------------------------------------------------------------
+ * Assigns the value of the ibox to NO_VALUE
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ *
+ */
+void rg_reset_ibox()
+{
+	g_ibox.value = NO_VALUE;
+}
+
+/* Function: rg_reset_ibox
+ * -----------------------------------------------------------------------------
+ * Assigns the value of the ibox to NO_VALUE
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ *
+ */
+void rg_reset_obox()
+{
+	g_obox.value = NO_VALUE;
+}
+
+/* Function: rg_set_ibox_value_box
+ * -----------------------------------------------------------------------------
+ * Sets the ibox value box
+ *
+ * Arguments:
+ * 	The value box that will be set
+ *	
+ * Return:
+ *	Void.
+ *
+ */
+void rg_set_ibox_value_box(value_box_t value)
+{
+	g_ibox.value = value.value;
+	g_ibox.type = value.type;
+	return;
+}
+
+/* Function: rg_set_obox_value_box
+ * -----------------------------------------------------------------------------
+ * Sets the obox value box
+ *
+ * Arguments:
+ * 	The value box that will be set
+ *	
+ * Return:
+ *	Void.
+ *
+ */
+void rg_set_obox_value_box(value_box_t value)
+{
+	g_obox.value = value.value;
+	g_obox.type = value.type;
+	return;
+}
+/* Function: rg_get_ibox_value_box
+ * -----------------------------------------------------------------------------
+ * Returns the ibox value box
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	ibox value box
+ *
+ */
+value_box_t rg_get_ibox_value_box()
+{
+	return g_ibox;
+}
+
+/* Function: rg_get_ibox_value_box
+ * -----------------------------------------------------------------------------
+ * Returns the ibox value box
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	ibox value box
+ *
+ */
+value_box_t rg_get_obox_value_box()
+{
+	return g_obox;
+}
+
+/* Function: rg_get_ibox_x
+ * -----------------------------------------------------------------------------
+ * Returns the x value of the value boxes
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	x_coordinate_of the value box
+ *
+ */
+int rg_get_ibox_x()
+{
+	return g_ibox.box.x;
+}
+
+/* Function: rg_get_ibox_y
+ * -----------------------------------------------------------------------------
+ * Returns the y value of the ibox
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	y coordinate of the ibox
+ *
+ */
+int rg_get_ibox_y()
+{
+	return g_ibox.box.y;
+
+}
+/* Function: rg_get_obox_y
+ * -----------------------------------------------------------------------------
+ * Returns the y value of the obox
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	y coordinate of the ibox
+ *
+ */
+int rg_get_obox_y()
+{
+	return g_obox.box.y;
+
+}
 /* Function: rg_initialize_value_boxes
  * -----------------------------------------------------------------------------
  * The value boxes that will serve as an interface for handling values to 
@@ -616,7 +764,7 @@ int rg_get_register_value_box_y_coord_by_id(int id)
    return c->value.box.y;
 }
 
-/* Function: get_register_value_box_by_id
+/* Function: rg_get_register_value_box_by_id
 *------------------------------------------------------------------------------
 * Arguments:
 *	id: The id of the value box that will be retrieved	
@@ -624,7 +772,7 @@ int rg_get_register_value_box_y_coord_by_id(int id)
 * Return:
 *	The pointer to the clicked register in an operand form 
 */
-value_box_t get_register_value_box_by_id(int id)
+value_box_t rg_get_register_value_box_by_id(int id)
 {
 	assert(id > REGISTERS_MIN && id < REGISTERS_MAX && 
 		   "Invalid register id");

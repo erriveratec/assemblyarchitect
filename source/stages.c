@@ -675,6 +675,8 @@ static void reset_level(int level_id, level_flags_t *flags, bool *run_finished)
 	mc_reset_invalid_operation_flag();
 	*run_finished = false;
 	ms_reset_mouse_values();
+	rg_reset_ibox();
+	rg_reset_obox();
 }
 
 int stage_level(int level_id)

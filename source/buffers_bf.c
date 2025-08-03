@@ -665,7 +665,7 @@ int bf_get_buffer_value_box_y_coord_by_id(int id)
 	return y;
 }
 
-/* Function: set_output_buffer_value_box
+/* Function: bf_set_output_buffer_value_box
  *------------------------------------------------------------------------------
  * Arguments:
  *	op_id: The id of the operand that the x value will get calculated
@@ -673,7 +673,7 @@ int bf_get_buffer_value_box_y_coord_by_id(int id)
  * Return:
  *	value_box
  */
-void set_output_buffer_value_box(value_box_t val)
+void bf_set_output_buffer_value_box(value_box_t val)
 {
 	List *outputs = get_output_list();
 	value_box_t *last = outputs->last->value;
