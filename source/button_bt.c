@@ -64,19 +64,20 @@ void bt_draw_button(button_t *button)
 	
 	int status = SUCCESS;	
 
-/*	float scale_w = (float)button->w/texture->w;
-	float scale_h = (float)button->h/texture->h;
-	
+	float scale_w = (float)button->w/button->texture->w;
+	float scale_h = (float)button->h/button->texture->h;
 	if (scale_w < scale_h){
-		texture->scale = scale_w;
+		int y = button->y + (button->h - button->texture->h*scale_w)/2;
+		dw_draw_texture_fits_width(button->x, y, button->w, button->texture);
 	} else {
-		texture->scale = scale_h;	
-	}*/
+		int x = button->x + (button->w - button->texture->w*scale_h)/2;
+		dw_draw_texture_fits_height(x, button->y, button->h, button->texture);
+	}
 
-	status = draw_scaled_texture(button->x,
+/*	status = draw_scaled_texture(button->x,
 								 button->y, 
 								 button->texture->scale, 
-								 button->texture);
+								 button->texture);*/
 	assert(status != FAIL && "The texture could not be drawn");
 	
 	if (button->rectangle == true){
