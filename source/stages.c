@@ -53,7 +53,6 @@ static char *win_text = "The challenge is correct";
 static char *lose_text = "The challenge is incorrect";
 static SDL_Rect result_box;
 
-void display_level_inputs(int x, int y, List *l);
 void stage_drawings(int level);
 static void pending_operand_handler();
 static void flag_handler(level_flags_t *flags, int clicked_button);
@@ -321,7 +320,7 @@ int stage_select_player()
 		check_mem(player_3);
 	}
 	
-	draw_text_fits_height(SELECT_PLAYER_TEXT_X, SELECT_PLAYER_TEXT_Y, 
+	dw_draw_text_fits_height(SELECT_PLAYER_TEXT_X, SELECT_PLAYER_TEXT_Y, 
 						 SELECT_PLAYER_TEXT_H, COLOR_WHITE, SELECT_PLAYER_TEXT);
 	
 	bt_draw_button(player_1);
@@ -695,6 +694,9 @@ int stage_level(int level_id)
 	if (sb_check_clicked_stage_button() == true){
 		flag_handler(&flags, identify_clicked_stage_button());
 	}
+	if (level_id == LV_LEVEL_1){
+
+	}	
 	stage_drawings(level_id);
 	cw_sort_code();
 	
@@ -881,38 +883,5 @@ static int display_run_result(bool win_check)
 	return action_selected;
 }
 
-
-/* Function: display_level_inputs
- * This function receives the coordinates and the list of inputs from 
- * a level in order to display it.
- * 	
- * Arguments:
- *	x: x coordinate where the list will be located.
- *  y: y coordinate whre the list will be located.
- *	l: list with the inputs
- *
- * Return:
- *	void
- */
-void display_level_inputs(int x, int y, List *l)
-{
-	assert(NULL != l && "Invalid list with value NULL");
-	// The rectangle that contains the numbers from the input buffer
-	draw_rectangle(x, y, 100, 250, COLOR_WHITE);
-
-	//Display the numbers contained in the list
-
-	int first_input_element_x = x + 40;
-	int first_input_element_y = y + 20;
-
-	LIST_FOREACH(l, first, next, cur){
-
-		char *c = number_to_string(*(int *)cur->value);
-		draw_text(first_input_element_x, first_input_element_y, 
-				  M_SCALE_FACTOR, COLOR_WHITE, c);
-		first_input_element_y += 50;
-		free(c);
-	}
-}
 
 

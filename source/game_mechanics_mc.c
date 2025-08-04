@@ -464,7 +464,7 @@ void mc_reset_execution_arrow()
 void mc_draw_execution_arrow()
 {
 	if (g_exec_arrow.visible == true){
-	draw_texture_fits_height(g_exec_arrow.box.x, g_exec_arrow.box.y, 
+	dw_draw_texture_fits_height(g_exec_arrow.box.x, g_exec_arrow.box.y, 
 							 g_exec_arrow.box.h, right_arrow);
 	}
 }

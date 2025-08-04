@@ -634,7 +634,7 @@ void rg_set_register_box(int x, int y, int w, int h)
  */
 static void draw_register_box()
 {
-	draw_rectangle(register_box.x, register_box.y, register_box.w, 
+	dw_draw_rectangle(register_box.x, register_box.y, register_box.w, 
 				   register_box.h, COLOR_WHITE);
 }
 
@@ -658,7 +658,7 @@ static void draw_register_text()
 	int x = register_box.x;// + (register_box.w - text_w)/2;
 	int y = register_box.y - REG_TEXT_H;
 
-	draw_text_fits_height(x, y, REG_TEXT_H, COLOR_WHITE, REGISTER_TEXT);
+	dw_draw_text_fits_height(x, y, REG_TEXT_H, COLOR_WHITE, REGISTER_TEXT);
 
 }
 

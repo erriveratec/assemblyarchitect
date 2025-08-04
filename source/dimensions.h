@@ -161,7 +161,6 @@
 
 #define MAXIMUM_CODE_LINES 99
 
-//#define TEXT_BOX_SCALE 0.20		//Should be deprecated in favor of pixels
 #define TEXT_BOX_WIDTH 300
 #define TEXT_BOX_HEIGHT 30
 
@@ -224,22 +223,19 @@
 
 /*****************************CODE BUTTONS*************************************/
 // Dimensions of the buttons that will be used in code
+#define STAGE_NAME_H 55
 #define CODE_BUTTON_W 75
 #define CODE_BUTTON_H 40
 #define ADDR_BUTTON_W 120
-
-/*****************************SCALING FACTORS**********************************/
-// Should be deprecater in favor of pixels
-#define M_SCALE_FACTOR 0.3 
-#define STAGE_NAME_SCALE 0.45
 
 /******************************STAGE BUTTONS***********************************/
 #define STAGE_BUTTON_W 40
 #define STAGE_BUTTON_H 40
 #define STAGE_BUTTON_X ((SCREEN_WIDTH*2/6) + ((SCREEN_WIDTH/6) - \
 						4*STAGE_BUTTON_W)/4)
-#define STAGE_BUTTON_Y SCREEN_HEIGHT - 50
-#define STAGE_BUTTON_HIDDEN_Y 1000
+#define STAGE_BUTTON_Y SCREEN_HEIGHT - 60
+#define STAGE_BUTTON_HIDDEN_Y (SCREEN_HEIGHT) + 150
+#define STAGE_BUTTONS_MOVEMENT_DELTA 10
 #define BUTTONS_SPACE 20
 
 /******************************AVATAR******************************************/

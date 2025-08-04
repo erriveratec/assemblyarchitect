@@ -1133,8 +1133,7 @@ void cw_set_code_box(int x, int y, int w, int h)
 	int text_box_height = get_wrapped_text_height(TEXT_BOX_WIDTH, 
 												  TEXT_BOX_HEIGHT,
 												  challenge_text);
-	int stage_name_height = get_text_height(stage_name, STAGE_NAME_SCALE);
-	set_text_box(x + CODE_BOX_OFFSET, y + CODE_BOX_OFFSET + stage_name_height
+	set_text_box(x + CODE_BOX_OFFSET, y + CODE_BOX_OFFSET + STAGE_NAME_H
 				 + CODE_BOX_OFFSET, TEXT_BOX_WIDTH, text_box_height);
 }
 
@@ -1317,7 +1316,7 @@ void cw_draw_code_window()
 								  TEXT_BOX_HEIGHT, COLOR_WHITE, challenge_text);
 
 	// Text rectangle
-	draw_rectangle(text_box.x, text_box.y, text_box.w, text_box.h, 
+	dw_draw_rectangle(text_box.x, text_box.y, text_box.w, text_box.h, 
 	               COLOR_WHITE);
 	
 	// Adjust the height of the code box
@@ -1327,12 +1326,13 @@ void cw_draw_code_window()
 		adjust_code_box_position();
 	}
 	// Draw the rectangle of the code and instructions
-	draw_rectangle(code_box.x, code_box.y, code_box.w, code_box.h, 
+	dw_draw_rectangle(code_box.x, code_box.y, code_box.w, code_box.h, 
 				   COLOR_WHITE);
 
 	// Text of the level
-	draw_text(code_box.x + CODE_BOX_OFFSET, code_box.y + CODE_BOX_OFFSET, 
-						   STAGE_NAME_SCALE, COLOR_WHITE, stage_name);
+	dw_draw_text_fits_height(code_box.x + CODE_BOX_OFFSET, 
+						  code_box.y + CODE_BOX_OFFSET, 
+						  STAGE_NAME_H, COLOR_WHITE, stage_name);
 
 }
 
@@ -1371,7 +1371,7 @@ static void display_player_code()
 
 		if (comma == TWO_OPERANDS && (MISSING_BOTH != line->state && 
 							  MISSING_OP1 != line->state)){
-			draw_text_fits_height(line->ins->b->x + 2*CODE_BUTTON_W + 
+			dw_draw_text_fits_height(line->ins->b->x + 2*CODE_BUTTON_W + 
 								 LINE_NUMBER_OFFSET, line->ins->b->y, 
 								 CODE_BUTTON_H, COLOR_WHITE, ",");
 		}
@@ -1444,7 +1444,7 @@ void display_line_number()
 	int instruction = cw_get_instruction_at_code_pos(i);
 		if (instruction != LABEL){
 			number = ax_number_to_string_two_digits(line_number);
-			draw_text_fits_height(x, y, CODE_BUTTON_H, COLOR_WHITE, number);
+			dw_draw_text_fits_height(x, y, CODE_BUTTON_H, COLOR_WHITE, number);
 			free(number);
 			line_number++;
 		}
@@ -1837,11 +1837,11 @@ void cw_highlight_code_pending_operand()
 	if (MISSING_BOTH == line->state || MISSING_OP1 == line->state ||
 		CHANGING_OP1 == line->state){
 
-		draw_rectangle(line->ins->b->x+OP1_X_OFFSET, line->ins->b->y,
+		dw_draw_rectangle(line->ins->b->x+OP1_X_OFFSET, line->ins->b->y,
 				   	   line->ins->b->w, line->ins->b->h, COLOR_WHITE);
 
 	} else if (MISSING_OP2 == line->state || CHANGING_OP2 == line->state){
-		draw_rectangle(line->ins->b->x+OP2_X_OFFSET, line->ins->b->y,
+		dw_draw_rectangle(line->ins->b->x+OP2_X_OFFSET, line->ins->b->y,
 				   	   line->ins->b->w, line->ins->b->h, COLOR_WHITE);
 
 	}

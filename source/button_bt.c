@@ -50,7 +50,7 @@ button_t *create_button(int x, int y, int w, int h, bool active, bool rectangle,
 /* Function: bt_draw_button
  * -----------------------------------------------------------------------------
  * This function draws the image of a given button using the according
- * scale factor of the image to fit on the button.
+ * scale factor of the image to fit on the button. The texture is centered
  * 	
  * Arguments:
  *	button: The button that is going to be displayed
@@ -63,6 +63,16 @@ void bt_draw_button(button_t *button)
 	assert(button != NULL && "The button pointer is NULL");
 	
 	int status = SUCCESS;	
+
+/*	float scale_w = (float)button->w/texture->w;
+	float scale_h = (float)button->h/texture->h;
+	
+	if (scale_w < scale_h){
+		texture->scale = scale_w;
+	} else {
+		texture->scale = scale_h;	
+	}*/
+
 	status = draw_scaled_texture(button->x,
 								 button->y, 
 								 button->texture->scale, 

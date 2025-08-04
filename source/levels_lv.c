@@ -8,10 +8,22 @@
 #include "dimensions.h"
 #include "registers_rg.h"
 
+#define TUT_TEXT_SELECT_INSTRUCTION "Select and drag an instruction from the" \
+									"instruction box"
+
+#define TUT_TEXT_X INS_BOX_X
+#define TUT_TEXT_Y SCREEN_HEIGHT/2
+
+#define TUT_BOX_W INS_BOX_W
+#define TUT_BOX_H SCREEN_HEIGHT/8
+#define TUT_BOX_X INS_BOX_X
+#define TUT_BOX_Y SCREEN_HEIGHT/2
+
 #define LEVEL_LINE_W 4
 
 // At the end of the code execution, the output buffer must be compared 
 // against this list.
+
 static List *win_list = NULL;
 
 static int level_instructions_limit;
@@ -24,6 +36,22 @@ static void set_level_3_win_list();
 static void set_level_4_win_list();
 static void set_level_5_win_list();
 static void set_level_6_win_list();
+
+/* Function: lv_level_1_tutorial
+ * -----------------------------------------------------------------------------
+ * This function handles the tutorial part of level 1
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+int lv_level_1_tutorial()
+{
+	dw_draw_rectangle(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, TUT_BOX_H, COLOR_WHITE);
+	return 0;
+}
 
 /* Function: lv_get_level_instructions_limit
  * -----------------------------------------------------------------------------

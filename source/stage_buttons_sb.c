@@ -37,8 +37,7 @@ void adjust_stage_buttons_position(int code_size)
 		y_final = STAGE_BUTTON_Y;
 	}
 
-	int delta = get_movement_delta(stop->y, 
-	 			y_final, MOVEMENT_DELTA);	
+	int delta = STAGE_BUTTONS_MOVEMENT_DELTA;
 
 	if (stop->y < y_final){
 		stop->y += delta;

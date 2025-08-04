@@ -540,9 +540,9 @@ void draw_output_buffer()
 								   						BUFFER_MOVEMENT_DELTA);
 		}
 	}
-	draw_rectangle(output_box.x, output_box.y, output_box.w, output_box.h,
+	dw_draw_rectangle(output_box.x, output_box.y, output_box.w, output_box.h,
 				   COLOR_WHITE);
-	draw_text_fits_height(OUTPUT_BUFFER_TEXT_X, OUTPUT_BUFFER_TEXT_Y, 
+	dw_draw_text_fits_height(OUTPUT_BUFFER_TEXT_X, OUTPUT_BUFFER_TEXT_Y, 
 						 BUFFER_TEXT_H, COLOR_WHITE, output_text);
 error:
 	return;
@@ -612,9 +612,9 @@ void draw_input_buffer()
 		}
 	}
 
-	draw_text_fits_height(INPUT_BUFFER_TEXT_X, INPUT_BUFFER_TEXT_Y, 
+	dw_draw_text_fits_height(INPUT_BUFFER_TEXT_X, INPUT_BUFFER_TEXT_Y, 
 						 BUFFER_TEXT_H, COLOR_WHITE, input_text);
-	draw_rectangle(input_box.x, input_box.y, input_box.w, input_box.h, 
+	dw_draw_rectangle(input_box.x, input_box.y, input_box.w, input_box.h, 
 				   COLOR_WHITE);
 	
 }

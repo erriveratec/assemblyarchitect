@@ -67,10 +67,10 @@ void ax_draw_value_box(value_box_t *box, SDL_Color color){
 	int x_offset = (VALUE_BOX_W - text_width)/2;
 	int y_offset = ((VALUE_BOX_H - VALUE_H)/2) + 
 				    (VALUE_H/5)/2;
-	draw_text_fits_height(box->box.x + x_offset, box->box.y + y_offset, 
+	dw_draw_text_fits_height(box->box.x + x_offset, box->box.y + y_offset, 
 						 VALUE_H, COLOR_WHITE, text);
 	int box_offset = VALUE_H/6;
-	draw_rectangle(box->box.x, box->box.y, box->box.w , box->box.h, 
+	dw_draw_rectangle(box->box.x, box->box.y, box->box.w , box->box.h, 
 				   color);
 }
 
@@ -97,7 +97,7 @@ int get_text_height_fits_width(int w, char *text)
 	float scale = get_scale_fit_width(w, text_texture);
 	int text_height = (int)text_texture->h * scale;
 
-	free_texture(text_texture);
+	dw_free_texture(text_texture);
 
 	return text_height;
 
@@ -126,7 +126,7 @@ int get_text_width_fits_height(int h, char *text)
 	float scale = get_scale_fit_height(h, text_texture);
 	int text_width = (int)text_texture->w * scale;
 
-	free_texture(text_texture);
+	dw_free_texture(text_texture);
 
 	return text_width;
 
@@ -355,7 +355,7 @@ bool check_if_text_fits_in_width(char *t, float s, int w)
 		check = true;
 	}
 
-	free_texture(text_texture);
+	dw_free_texture(text_texture);
 	return check;
 }
 
@@ -389,7 +389,7 @@ bool check_if_text_fits_in_width_by_height(char *t, int h, int w)
 		check = true;
 	}
 
-	free_texture(text_texture);
+	dw_free_texture(text_texture);
 	return check;
 }
 /* Function: get_text_height
@@ -415,7 +415,7 @@ int get_text_height(char *text, float scale)
 
 	int scaled_text_height = (float)text_texture->h * scale;
 
-	free_texture(text_texture);
+	dw_free_texture(text_texture);
 
 	return scaled_text_height;
 }
@@ -443,7 +443,7 @@ int get_text_width(char *text, float scale)
 
 	int scaled_text_width = (float)text_texture->w * scale;
 
-	free_texture(text_texture);
+	dw_free_texture(text_texture);
 
 	return scaled_text_width;
 

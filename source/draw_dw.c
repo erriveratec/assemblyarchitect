@@ -15,6 +15,8 @@ SDL_Color COLOR_GREY = {127, 127, 127, 255};
 SDL_Color COLOR_ORANGE = {0xF8, 0x71, 0x3A, 255};
 SDL_Color COLOR_CYAN = {0, 255, 255, 255};
 
+static void draw_text(int x, int y, float s, SDL_Color c, char *t);
+
 /* Function: dw_draw_texture_fits_height
  * -----------------------------------------------------------------------------
  * Draws a texture scaling it correctly to a given height
@@ -28,20 +30,56 @@ SDL_Color COLOR_CYAN = {0, 255, 255, 255};
  * Return:
  *	SUCCESS or FAIL
  */
-int draw_texture_fits_height(int x, int y, int h, texture_t *t)
+int dw_draw_texture_fits_height(int x, int y, int h, texture_t *t)
 {
 	assert(h >= 0 && "The height value is invalid");
 	assert(t != NULL && "The texture pointer cannot be NULL");
 
 	// The scaling of the image resolution
-	float w = (float) (t->w * h)/t->w;
+	float w = (float) (t->w * h)/t->h;
+
+	SDL_Rect d;
+
+	d.x = x;
+	d.y = y;
+	d.w =(int)w;
+	d.h = h;
+	
+	if (SDL_RenderCopy(g_renderer, t->texture, NULL, &d) < 0){
+		printf("Texture could not be copied SDL_Error: %s\n", 
+				SDL_GetError());
+		return FAIL;
+	}
+	return SUCCESS;
+}
+
+/* Function: dw_draw_texture_fits_width
+ * -----------------------------------------------------------------------------
+ * Draws a texture scaling it correctly to a given height
+ * 
+ * Arguments:
+ *	x: position x of the texture.
+ *	y: position y of the texture.
+ *	s: scaling factor of the texture.
+ *	t: texture object that is going to be drawn.
+ *
+ * Return:
+ *	SUCCESS or FAIL
+ */
+int dw_draw_texture_fits_width(int x, int y, int w, texture_t *t)
+{
+	assert(w >= 0 && "The width value is invalid");
+	assert(t != NULL && "The texture pointer cannot be NULL");
+
+	// The scaling of the image resolution
+	float h = (float) (t->h * w)/t->w;
 
 	SDL_Rect d;
 
 	d.x = x;
 	d.y = y;
 	d.w = w;
-	d.h = h;
+	d.h = (int)h;
 	
 	if (SDL_RenderCopy(g_renderer, t->texture, NULL, &d) < 0){
 		printf("Texture could not be copied SDL_Error: %s\n", 
@@ -93,57 +131,6 @@ int draw_scaled_texture(int x, int y, float s, texture_t *t)
 	}
 	return SUCCESS;
 }
-
-/* Function: draw_scaled_number
- * --------------------------------------
- * This function displays on screen a number defined as argument,
- *
- * Arguments:
- *	x: position x of the texture.
- *	y: position y of the texture.
- *	s: scaling factor of the texture.
- *	t: texture object that is going to be drawn.
- *
- * Return: 
- * 	SUCCESS or FAIL
- * 	NOT USED, KEPT IF NEEDED THE LOGIC LATER
- */
-/*int draw_scaled_number(int x, int y, float s, int number)
-{
-	assert(x >= 0 && y >= 0 && s >= 0 && "A parameter is negative");
-	assert(number >= 0 && number < 10 &&
-		   "The number has an invalid value");
-
-	// image resolution
-	float w = (float) text_numbers->w/10;
-	float h = (float) text_numbers->h;
-	float ratio = w/h;
-
-	float scaled_w = (w - (h - h*s)*ratio);
-	float scaled_h = h*s;
-
-	SDL_Rect d;
-	SDL_Rect src;
-
-
-	src.x = 250*1;
-	src.y = 0;
-	src.w = 250;
-	src.h = 398;
-
-	d.x = x;
-	d.y = y;
-	d.w = scaled_w;
-	d.h = scaled_h;
-	
-	if (SDL_RenderCopy(g_renderer, text_numbers->texture, &src, &d) < 0){
-		printf("Texture could not be copied SDL_Error: %s\n", 
-				SDL_GetError());
-		return FAIL;
-	}
-	return SUCCESS;
-	
-}*/
 
 /* Function: load_texture_from_file
  * ----------------------------------------
@@ -240,7 +227,7 @@ texture_t *load_texture_from_rendered_text(char *texture_text,
 	return new_texture;
 }
 
-/* Function: free_texture
+/* Function: dw_free_texture
  * ----------------------------------------------------------------------------
  * This function receives as an argument the pointer of the texture that
  * is going to be free
@@ -251,7 +238,7 @@ texture_t *load_texture_from_rendered_text(char *texture_text,
  * Return:
  * 	Void
  */
-void free_texture(texture_t *texture)
+void dw_free_texture(texture_t *texture)
 {
 	if (NULL != texture->texture){
 		SDL_DestroyTexture(texture->texture);
@@ -316,7 +303,7 @@ void dw_draw_wrapped_text_fits_height(int x, int y, int w, int h, SDL_Color c,
 					memset(text, 0, string_size);
 					strncpy(text, t + already_drawn_offset, 
 						   	last_successful_fit - already_drawn_offset);
-					draw_text_fits_height(x_pos, y_pos, h, c, text);
+					dw_draw_text_fits_height(x_pos, y_pos, h, c, text);
 					y_pos += y_offset;
 					already_drawn_offset = last_successful_fit;
 					i = last_successful_fit;
@@ -344,7 +331,7 @@ error:
  * Return:
  *	Void
  */
-void draw_text(int x, int y, float s, SDL_Color c, char *t)
+static void draw_text(int x, int y, float s, SDL_Color c, char *t)
 {
 	assert(NULL != t && "The text pointer is NULL");
 
@@ -357,10 +344,10 @@ void draw_text(int x, int y, float s, SDL_Color c, char *t)
 	status = draw_scaled_texture(x, y, s, text_texture);
 	assert(FAIL != status && "The texture could not be drawn");
 
-	free_texture(text_texture);
+	dw_free_texture(text_texture);
 }
 
-/* Function: draw_text_fits_height
+/* Function: dw?draw_text_fits_height
  * -----------------------------------------------------------------------------
  * This function draws text as images, the scale of the image is adjusted
  * to fit the given height.
@@ -375,7 +362,7 @@ void draw_text(int x, int y, float s, SDL_Color c, char *t)
  * Return:
  *	Void
  */
-void draw_text_fits_height(int x, int y, int h, SDL_Color color, char *text)
+void dw_draw_text_fits_height(int x, int y, int h, SDL_Color color, char *text)
 {
 	assert(text != NULL && "The text pointer is NULL");
 
@@ -391,7 +378,7 @@ void draw_text_fits_height(int x, int y, int h, SDL_Color color, char *text)
 	status = draw_scaled_texture(x, y, scale, text_texture);
 	assert(FAIL != status && "The texture could not be drawn");
 
-	free_texture(text_texture);
+	dw_free_texture(text_texture);
 }
 
 /* Function: dw_draw_text_fits_width
@@ -425,10 +412,10 @@ void dw_draw_text_fits_width(int x, int y, int w, SDL_Color color, char *text)
 	status = draw_scaled_texture(x, y, scale, text_texture);
 	assert(FAIL != status && "The texture could not be drawn");
 
-	free_texture(text_texture);
+	dw_free_texture(text_texture);
 }
 
-/* Function: draw_rectangle
+/* Function: dw_draw_rectangle
  *----------------------------------------------------------------------------- 
  * Arguments:
  *	x: position x of the upper left corner.
@@ -440,7 +427,7 @@ void dw_draw_text_fits_width(int x, int y, int w, SDL_Color color, char *text)
  * Return:
  *	Void
  */
-void draw_rectangle(int x, int y, int w, int h, SDL_Color c)
+void dw_draw_rectangle(int x, int y, int w, int h, SDL_Color c)
 {
 	SDL_Rect rect = {x,y,w,h};
 	SDL_SetRenderDrawColor(g_renderer, c.r, c.g, c.b, c.a);

@@ -288,7 +288,7 @@ void iw_display_instructions(int x, int y)
 
 	draw_instruction_text();
 	// The rectangle the contains the list of buttons
-	draw_rectangle(instruction_box.x, instruction_box.y, 
+	dw_draw_rectangle(instruction_box.x, instruction_box.y, 
 				   instruction_box.w, instruction_box.h, COLOR_WHITE);
 	
 	LIST_FOREACH(instructions, first, next, cur){
