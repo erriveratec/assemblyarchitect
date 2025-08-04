@@ -74,6 +74,35 @@ void ax_draw_value_box(value_box_t *box, SDL_Color color){
 				   color);
 }
 
+/* Function: get_text_height_fits_width
+ * -----------------------------------------------------------------------------
+ * This function receives a text string and a width value for that string and
+ * returns the height that the text will need
+ *
+ * Arguments:
+ *	w: width dimension.
+ *	text: the text that will be checked
+ *
+ * Return:
+ *	height of the text.
+ */
+int get_text_height_fits_width(int w, char *text)
+{
+	texture_t *text_texture = NULL;
+
+	text_texture = load_texture_from_rendered_text(text, COLOR_WHITE);
+	assert(NULL != text_texture && 
+		   "Failed to load texture from rendered text");
+	
+	float scale = get_scale_fit_width(w, text_texture);
+	int text_height = (int)text_texture->h * scale;
+
+	free_texture(text_texture);
+
+	return text_height;
+
+}
+
 /* Function: get_text_width_fits_height
  * -----------------------------------------------------------------------------
  * This function receives a text string and a height value for that string and

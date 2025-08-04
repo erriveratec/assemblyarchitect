@@ -2,8 +2,10 @@
 #define DIMENSIONS_H
 
 /*******************************RESOLUTION*************************************/
-#define SCREEN_WIDTH 1366
-#define SCREEN_HEIGHT 768
+//#define SCREEN_WIDTH 1366
+//#define SCREEN_HEIGHT 768
+#define SCREEN_WIDTH 1600
+#define SCREEN_HEIGHT 900
 
 /*******************************ESCAPE MENU************************************/
 #define ESC_MENU_BOX_W 600
@@ -43,11 +45,11 @@
 #define EXEC_ARROW_H 30
 
 /*******************************RETURN BUTTON**********************************/
-#define RET_BUTTON_X 2
-#define RET_BUTTON_Y 690
+#define BORDERS_OFFSET 2
 #define RET_BUTTON_W 90
 #define RET_BUTTON_H 75
-
+#define RET_BUTTON_Y SCREEN_HEIGHT - RET_BUTTON_H - BORDERS_OFFSET
+#define RET_BUTTON_X BORDERS_OFFSET
 /*******************************STUDIO NAME SCREEN*****************************/
 #define STUDIO_NAME_TEXT "One Man Studio"
 #define STUDIO_NAME_X (SCREEN_WIDTH - STUDIO_NAME_W)/2
@@ -105,10 +107,14 @@
 #define INS_BOX_OFFSET 25
 
 // The instruction box where the player can select instructions
-#define INS_BOX_X 0
-#define INS_BOX_Y 75
-#define INS_BOX_W 125
+#define INS_BOX_W ((SCREEN_WIDTH*2/6)/3)
 #define INS_BOX_H 250
+
+#define INS_BOX_X 0
+#define INS_BOX_Y ((SCREEN_HEIGHT/2) - (INS_BOX_H))
+// Instruction box text
+
+#define INS_BOX_TEXT_W ((SCREEN_WIDTH*2/6)/3)
 
 /*******************************RESULT BOX*************************************/
 #define RES_BOX_W 500
@@ -141,7 +147,7 @@
 // The code box that contains level, description and developed code
 #define CODE_BOX_X (INS_BOX_X + INS_BOX_W)
 #define CODE_BOX_Y 50
-#define CODE_BOX_W 350
+#define CODE_BOX_W ((SCREEN_WIDTH*2/6)*2/3)
 #define CODE_BOX_H 625
 
 #define CODE_BOX_NUMBER_WIDTH 35
@@ -171,18 +177,19 @@
 // The height and width of the contents of the buffers
 
 // The position of the text of the input/output buffers
-#define INPUT_BUFFER_TEXT_X 900
-#define INPUT_BUFFER_TEXT_Y 0
-#define OUTPUT_BUFFER_TEXT_X 900
-#define OUTPUT_BUFFER_TEXT_Y 720
-
-// The dimensions of the input/output boxes
-#define BUFFER_BOX_X 900
-#define INPUT_BUFFER_BOX_Y 40
-#define OUTPUT_BUFFER_BOX_Y 640
-#define OUTPUT_BUFFER_WIN_X 10000
 #define	BUFFER_BOX_W 950
 #define BUFFER_BOX_H 75
+#define INPUT_BUFFER_TEXT_X (SCREEN_WIDTH*4/6)
+#define INPUT_BUFFER_TEXT_Y 0
+#define OUTPUT_BUFFER_TEXT_X (SCREEN_WIDTH*4/6)
+#define OUTPUT_BUFFER_TEXT_Y (SCREEN_HEIGHT - BUFFER_TEXT_H)
+
+// The dimensions of the input/output boxes
+#define BUFFER_BOX_X (SCREEN_WIDTH*4/6)
+#define INPUT_BUFFER_BOX_Y 40
+#define OUTPUT_BUFFER_BOX_Y (SCREEN_HEIGHT - BUFFER_TEXT_H - BUFFER_BOX_H)
+#define OUTPUT_BUFFER_WIN_X 10000
+
 
 // x and y offsets for the numbers and the box
 #define BUFFER_VALUE_OFFSET_X 20
@@ -207,7 +214,7 @@
 #define REG_BOX_X (CODE_BOX_X + CODE_BOX_W)
 #define REG_BOX_Y 0
 #define REG_BOX_H 200
-#define REG_BOX_W 250
+#define REG_BOX_W (SCREEN_WIDTH/6)
 
 #define REG_VBOX_X REG_BOX_X + 190
 #define REG_VBOX_OFFSET 10
@@ -227,12 +234,12 @@
 #define STAGE_NAME_SCALE 0.45
 
 /******************************STAGE BUTTONS***********************************/
-
-#define STAGE_BUTTON_X 550
-#define STAGE_BUTTON_Y 700
-#define STAGE_BUTTON_HIDDEN_Y 800
 #define STAGE_BUTTON_W 40
 #define STAGE_BUTTON_H 40
+#define STAGE_BUTTON_X ((SCREEN_WIDTH*2/6) + ((SCREEN_WIDTH/6) - \
+						4*STAGE_BUTTON_W)/4)
+#define STAGE_BUTTON_Y SCREEN_HEIGHT - 50
+#define STAGE_BUTTON_HIDDEN_Y 1000
 #define BUTTONS_SPACE 20
 
 /******************************AVATAR******************************************/

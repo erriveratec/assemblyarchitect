@@ -8,12 +8,34 @@
 #include "dbg.h"
 #include "dimensions.h"
 
+#define INSTRUCTIONS_TEXT "Instructions"
+
 static List *instruction_list = NULL;
 SDL_Rect instruction_box;
 
 void set_instruction_box_member(int value, int member);
 static List *get_instruction_list();
 static int get_instruction_list_size();
+static void draw_instruction_text();
+
+/* Function: draw_instruction_text
+ *------------------------------------------------------------------------------
+ * Drasw the instruction text that is above the instruction box.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Void.
+ */
+static void draw_instruction_text()
+{
+	int x = instruction_box.x;
+	int y = instruction_box.y  - get_text_height_fits_width(INS_BOX_TEXT_W, 
+															INSTRUCTIONS_TEXT);
+	dw_draw_text_fits_width(x, y, INS_BOX_TEXT_W, COLOR_WHITE, 
+															INSTRUCTIONS_TEXT);
+}
 
 /* Function: get_instruction_list_size
  *------------------------------------------------------------------------------
@@ -264,6 +286,7 @@ void iw_display_instructions(int x, int y)
 	assert(instructions != NULL && "Invalid pointer");
 	assert(x >= 0 && y >= 0 && "Invalid position coordinate"); 
 
+	draw_instruction_text();
 	// The rectangle the contains the list of buttons
 	draw_rectangle(instruction_box.x, instruction_box.y, 
 				   instruction_box.w, instruction_box.h, COLOR_WHITE);
