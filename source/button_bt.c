@@ -73,11 +73,6 @@ void bt_draw_button(button_t *button)
 		int x = button->x + (button->w - button->texture->w*scale_h)/2;
 		dw_draw_texture_fits_height(x, button->y, button->h, button->texture);
 	}
-
-/*	status = draw_scaled_texture(button->x,
-								 button->y, 
-								 button->texture->scale, 
-								 button->texture);*/
 	assert(status != FAIL && "The texture could not be drawn");
 	
 	if (button->rectangle == true){

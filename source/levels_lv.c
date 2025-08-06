@@ -9,15 +9,24 @@
 #include "registers_rg.h"
 
 #define TUT_TEXT_SELECT_INSTRUCTION "Select and drag an instruction from the" \
-									"instruction box"
+									" instruction box"
 
 #define TUT_TEXT_X INS_BOX_X
-#define TUT_TEXT_Y SCREEN_HEIGHT/2
+#define TUT_TEXT_Y SCREEN_HEIGHT/2 - TUT_BOX_H
 
-#define TUT_BOX_W INS_BOX_W
+#define TUT_TEXT_H 30
+
+#define TUT_BOX_W (INS_BOX_W + 100)
 #define TUT_BOX_H SCREEN_HEIGHT/8
+
 #define TUT_BOX_X INS_BOX_X
-#define TUT_BOX_Y SCREEN_HEIGHT/2
+#define TUT_BOX_Y SCREEN_HEIGHT/2 - TUT_BOX_H
+
+#define TUT_ARROW_X (INS_BOX_X + INS_BOX_W)/4
+#define TUT_ARROW_Y INS_BOX_Y + (TUT_BOX_Y - INS_BOX_Y)*3/4
+#define TUT_ARROW_H 30
+#define TUT_ARROW_W 30
+#define TUT_ARROW_TRAVEL 10
 
 #define LEVEL_LINE_W 4
 
@@ -49,7 +58,13 @@ static void set_level_6_win_list();
  */
 int lv_level_1_tutorial()
 {
-	dw_draw_rectangle(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, TUT_BOX_H, COLOR_WHITE);
+	dw_draw_animated_arrow(TUT_ARROW_X, TUT_ARROW_Y, TUT_ARROW_W, TUT_ARROW_H, 
+						   DW_UP, TUT_ARROW_TRAVEL);
+
+	dw_draw_filled_rectangle(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, TUT_BOX_H, 
+							 COLOR_BLACK, COLOR_WHITE);
+	dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
+					   	  TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_SELECT_INSTRUCTION);
 	return 0;
 }
 

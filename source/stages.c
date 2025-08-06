@@ -249,6 +249,9 @@ void stage_drawings(int level)
 	mc_draw_execution_arrow();
 	lv_level_drawings(level);
 	sb_draw_return_button();
+	if (level == LV_LEVEL_1){
+		lv_level_1_tutorial();
+	}	
 	return;
 }
 
@@ -694,9 +697,7 @@ int stage_level(int level_id)
 	if (sb_check_clicked_stage_button() == true){
 		flag_handler(&flags, identify_clicked_stage_button());
 	}
-	if (level_id == LV_LEVEL_1){
-
-	}	
+	
 	stage_drawings(level_id);
 	cw_sort_code();
 	

@@ -2,6 +2,8 @@
 #define DRAW_H
 #include <SDL.h>
 
+#define WRAPPED_TEXT_X_OFFSET 5
+#define WRAPPED_TEXT_Y_OFFSET 5
 
 typedef struct texture_t{
 	int w;
@@ -10,12 +12,17 @@ typedef struct texture_t{
 	SDL_Texture *texture;
 } texture_t;
 
-#define WRAPPED_TEXT_X_OFFSET 5
-#define WRAPPED_TEXT_Y_OFFSET 5
+enum movement{
+	DW_MOV_MIN,
+	DW_UP,
+	DW_DOWN,
+	DW_LEFT,
+	DW_RIGHT
+};
 
+extern texture_t *g_arrow;
 
 texture_t *load_texture_from_file(char *path);
-int draw_scaled_texture(int x, int y, float s, texture_t *t);
 texture_t *load_texture_from_rendered_text(char *texture_text, 
 									   	   SDL_Color text_color);
 void dw_free_texture(texture_t *texture);
@@ -28,6 +35,9 @@ void dw_draw_wrapped_text_fits_height(int x, int y, int w, int h, SDL_Color c,
 								   char *t);
 int dw_draw_texture_fits_height(int x, int y, int h, texture_t *t);
 int dw_draw_texture_fits_width(int x, int y, int w, texture_t *t);
+void dw_draw_animated_arrow(int x, int y, int w, int h, int dir, int travel);
+static void dw_draw_rotated_texture_fits_h(int x, int y, int h, double angle, 
+															     texture_t *t);
 
 extern SDL_Color COLOR_WHITE;
 extern SDL_Color COLOR_BLACK;

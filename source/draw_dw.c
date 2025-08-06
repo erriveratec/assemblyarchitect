@@ -15,7 +15,79 @@ SDL_Color COLOR_GREY = {127, 127, 127, 255};
 SDL_Color COLOR_ORANGE = {0xF8, 0x71, 0x3A, 255};
 SDL_Color COLOR_CYAN = {0, 255, 255, 255};
 
+texture_t *g_arrow = NULL;
+
 static void draw_text(int x, int y, float s, SDL_Color c, char *t);
+static int draw_scaled_texture(int x, int y, float s, texture_t *t);
+/* Function: dw_draw_animated_arrow
+ * -----------------------------------------------------------------------------
+ * Draw an arrow for a set of coordinates moves it in a direction   
+ *
+ * Arguments:
+ *	x: starting x position.
+ *	y: starting y position.
+ *	w: width of the box containing the arrow texture.
+ *	h: height of the box containing the arrow texture.
+ *  dir: direction of the movement of the arrow
+ *  travel: how long the animation will move on the screen
+ *
+ * Return:
+ *	Void.
+ */
+void dw_draw_animated_arrow(int x, int y, int w, int h, int dir, int travel)
+{
+	assert(h > 0 && w > 0 && "Wrong w and h dimensions");
+	
+	switch(dir){
+		case DW_UP:
+			dw_draw_rotated_texture_fits_h(x, y, h, -90.0, g_arrow);
+			break;
+		default:
+			break;
+	}
+	return;
+}
+
+/* Function: dw_draw_rotated_texture_fits_height
+ * -----------------------------------------------------------------------------
+ * Draws a texture that scales correctly to a given height, it has the 
+ * transform capabilities of rotating the texture from the center to a given
+ * angle
+ * 
+ * Arguments:
+ *	x: position x of the texture.
+ *	y: position y of the texture.
+ *	h: height to which the texture will be scaled proporcionally.
+ *	angle: angle to which the texture will be rotated to.
+ *	t: texture object that is going to be drawn.
+ *
+ * Return:
+ *	SUCCESS or FAIL
+ */
+static void dw_draw_rotated_texture_fits_h(int x, int y, int h, double angle, 
+															      texture_t *t)
+{
+	assert(h >= 0 && "The height value is invalid");
+	assert(t != NULL && "The texture pointer cannot be NULL");
+
+	// The scaling of the image resolution
+	float w = (float) (t->w * h)/t->h;
+
+	SDL_Rect d;
+
+	d.x = x;
+	d.y = y;
+	d.w =(int)w;
+	d.h = h;
+	
+	SDL_Point center = {d.w/2, d.h/2};
+	SDL_RendererFlip flip = SDL_FLIP_NONE;
+	
+	if (SDL_RenderCopyEx(g_renderer, t->texture, NULL, &d, angle, &center, 
+																	flip) < 0){
+		printf("Texture could not be copied SDL_Error: %s\n", SDL_GetError());
+	}
+}
 
 /* Function: dw_draw_texture_fits_height
  * -----------------------------------------------------------------------------
@@ -24,7 +96,7 @@ static void draw_text(int x, int y, float s, SDL_Color c, char *t);
  * Arguments:
  *	x: position x of the texture.
  *	y: position y of the texture.
- *	s: scaling factor of the texture.
+ *	h: height to which the texture will be scaled proporcionally.
  *	t: texture object that is going to be drawn.
  *
  * Return:
@@ -104,7 +176,7 @@ int dw_draw_texture_fits_width(int x, int y, int w, texture_t *t)
  * Return:
  *	SUCCESS or FAIL
  */
-int draw_scaled_texture(int x, int y, float s, texture_t *t)
+static int draw_scaled_texture(int x, int y, float s, texture_t *t)
 {
 	assert(s >= 0 && "The scaling factor is negative");
 	assert(t != NULL && "The texture pointer cannot be NULL");
