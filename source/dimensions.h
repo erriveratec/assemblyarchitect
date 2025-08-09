@@ -200,7 +200,7 @@
 /***************************REGISTER BOX***************************************/
 // The offset of the borders of the register box
 #define REG_BOX_OFFSET 25
-#define REG_BOX_X_OFFSET 30
+#define REG_BOX_X_OFFSET 20
 #define REG_BOX_Y_OFFSET 50
 
 // The height of the register text
@@ -238,7 +238,9 @@
 #define STAGE_BUTTONS_MOVEMENT_DELTA 10
 #define BUTTONS_SPACE 20
 
-/******************************AVATAR******************************************/
+/*****************************POINTING ARROWS**********************************/
+#define ARROW_H 30
+#define ARROW_W 30
 /******************************VALUE BOXES*************************************/
 
 //#define VALUE_BOX_H 56

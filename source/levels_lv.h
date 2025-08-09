@@ -71,5 +71,6 @@ int lv_get_level_instructions_limit();
 void lv_level_drawings(int level);
 int lv_level_1_tutorial_instruction_select();
 int lv_level_1_tutorial_drop_instruction();
+int lv_level_1_tutorial_select_operand(int operand_pos);
 
 #endif

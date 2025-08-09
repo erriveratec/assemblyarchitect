@@ -8,10 +8,13 @@
 #include "dimensions.h"
 #include "registers_rg.h"
 #include "instruction_window_iw.h"
+#include "code_window_cw.h"
 
 #define TUT_TEXT_SELECT_INSTRUCTION "Select and drag an instruction from the" \
 									" instruction box"
 #define TUT_TEXT_DROP_INSTRUCTION "Drop the instruction in the code box"
+#define TUT_TEXT_SELECT_OP1 "Select the destiny operand"
+#define TUT_TEXT_SELECT_OP2 "Select the source operand"
 
 #define TUT_TEXT_X INS_BOX_X
 #define TUT_TEXT_Y SCREEN_HEIGHT/2 - TUT_BOX_H
@@ -26,11 +29,9 @@
 
 #define ARROW_INS_X (INS_BOX_X + INS_BOX_W)/4
 #define ARROW_INS_Y INS_BOX_Y + (TUT_BOX_Y - INS_BOX_Y)*3/4
-#define ARROW_INS_H 30
-#define ARROW_INS_W 30
-
 
 #define ARROW_CODE_X (INS_BOX_X + INS_BOX_W)/2
+#define ARROW_CODE_Y (TUT_BOX_Y + TUT_BOX_H)
 
 #define LEVEL_LINE_W 4
 
@@ -65,19 +66,19 @@ arrow_t g_arrow_ins;
  */
 int lv_level_1_tutorial_instruction_select()
 {
-	arrow_t arrow;
+	static arrow_t arrow;
 	static bool arrow_initialized = false;
 	if (arrow_initialized == false){
-		g_tut_arrow.box.x = ARROW_INS_X;
-		g_tut_arrow.box.y = ARROW_INS_Y;
-		g_tut_arrow.box.w = ARROW_INS_W;
-		g_tut_arrow.box.h = ARROW_INS_H;
-		g_tut_arrow.texture = g_arrow;
-		g_tut_arrow.in_place = false;
+		arrow.box.x = ARROW_INS_X;
+		arrow.box.y = ARROW_INS_Y;
+		arrow.box.w = ARROW_W;
+		arrow.box.h = ARROW_H;
+		arrow.texture = g_arrow;
+		arrow.in_place = false;
 		arrow_initialized = true;
 	}
 	int travel = ARROW_INS_Y - iw_get_instruction_y_by_id(MOV);
-	dw_animate_arrow(ARROW_INS_X, ARROW_INS_Y, &g_tut_arrow, DW_UP, travel);
+	dw_animate_arrow(ARROW_INS_X, ARROW_INS_Y, &arrow, DW_UP, travel);
 	dw_draw_filled_rectangle(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, TUT_BOX_H, 
 							 COLOR_BLACK, COLOR_WHITE);
 	dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
@@ -86,7 +87,7 @@ int lv_level_1_tutorial_instruction_select()
 }
 /* Function: lv_level_1_tutorial_drop_instruction
  * -----------------------------------------------------------------------------
- * This function handles the tutorial part of level 1
+ * Handles the drop instruction part of the tutorial
  *
  * Arguments:
  * 	Void.
@@ -96,22 +97,51 @@ int lv_level_1_tutorial_instruction_select()
  */
 int lv_level_1_tutorial_drop_instruction()
 {
+	static arrow_t arrow;
 	static bool arrow_initialized = false;
 	if (arrow_initialized == false){
-		g_tut_arrow.box.x = ARROW_INS_X;
-		g_tut_arrow.box.y = ARROW_INS_Y;
-		g_tut_arrow.box.w = ARROW_INS_W;
-		g_tut_arrow.box.h = ARROW_INS_H;
-		g_tut_arrow.texture = g_arrow;
-		g_tut_arrow.in_place = false;
+		arrow.box.x = ARROW_CODE_X;
+		arrow.box.y = ARROW_CODE_Y;
+		arrow.box.w = ARROW_W;
+		arrow.box.h = ARROW_H;
+		arrow.texture = g_arrow;
+		arrow.in_place = false;
 		arrow_initialized = true;
 	}
-	int travel = ARROW_INS_Y - iw_get_instruction_y_by_id(MOV);
-	dw_animate_arrow(ARROW_INS_X, ARROW_INS_Y, &g_tut_arrow, DW_UP, travel);
+	int travel = cw_get_code_box_member(MEMBER_X) - ARROW_CODE_X - ARROW_W;
+	dw_animate_arrow(ARROW_CODE_X, ARROW_CODE_Y, &arrow, DW_RIGHT, travel);
 	dw_draw_filled_rectangle(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, TUT_BOX_H, 
 							 COLOR_BLACK, COLOR_WHITE);
 	dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
 					   	  TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_DROP_INSTRUCTION);
+	return 0;
+}
+
+/* Function: lv_level_1_tutorial_select_operand
+ * -----------------------------------------------------------------------------
+ * Points the player to the selection of the operands
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+int lv_level_1_tutorial_select_operand(int operand_pos)
+{
+	int w = cw_get_code_box_member(MEMBER_W);
+	int h = cw_get_code_box_member(MEMBER_H);
+	int x = cw_get_code_box_member(MEMBER_X) + (w - TUT_BOX_W)/2;
+	int y = (cw_get_code_box_member(MEMBER_Y)+ h)/2;
+	dw_draw_filled_rectangle(x, y, TUT_BOX_W, TUT_BOX_H, COLOR_BLACK, 
+																   COLOR_WHITE);
+	if (operand_pos == OP1){
+		dw_draw_wrapped_text_fits_height(x, y, TUT_BOX_W, TUT_TEXT_H, 
+										   	  COLOR_WHITE, TUT_TEXT_SELECT_OP1);
+	} else if (operand_pos == OP2){
+		dw_draw_wrapped_text_fits_height(x, y, TUT_BOX_W, TUT_TEXT_H, 
+										   	  COLOR_WHITE, TUT_TEXT_SELECT_OP2);
+	}
 	return 0;
 }
 

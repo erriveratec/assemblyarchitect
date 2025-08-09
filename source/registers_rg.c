@@ -23,10 +23,45 @@ static void destroy_register_list();
 static void draw_register_text();
 static void draw_register_box();
 static void draw_value_boxes();
+static void display_arrow_registers();
 
 value_box_t g_ibox;
 value_box_t g_obox;
 
+
+/* Function: display_arrow_registers
+ * -----------------------------------------------------------------------------
+ * Animate with a moving arrow the registers available for selection
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void display_arrow_registers()
+{
+	static arrow_t arrow;
+	static bool arrow_initialized = false;
+	int startx = REG_BOX_X + (REG_BOX_W)/2;
+	if (arrow_initialized == false){
+		arrow.box.x = startx;
+		arrow.box.w = ARROW_W;
+		arrow.box.h = ARROW_H;
+		arrow.texture = g_arrow;
+		arrow.in_place = false;
+		arrow_initialized = true;
+	}
+	SDL_SetTextureColorMod(arrow.texture->texture, 255, 255, 0);
+	List *registers = get_register_list();
+	assert(registers != NULL && "Invalid pointer");
+	LIST_FOREACH(registers, first, next, cur){ 
+		reg_t *c = cur->value;
+		arrow.box.y = c->b->y + (CODE_BUTTON_H - arrow.box.h)/2; 
+		int travel = startx - (c->b->x + c->b->w);
+		dw_animate_arrow(startx, arrow.box.y, &arrow, DW_LEFT, travel);
+   	}
+}
 
 /* Function: rg_reset_ibox
  * -----------------------------------------------------------------------------
@@ -220,7 +255,7 @@ void rg_initialize_value_boxes()
  */
 static void draw_value_boxes()
 {
-	ax_draw_value_box(&g_ibox, COLOR_ORANGE);
+	ax_draw_value_box(&g_ibox, COLOR_RED);
 	ax_draw_value_box(&g_obox, COLOR_CYAN);
 	return;
 }
@@ -463,7 +498,7 @@ reg_t *create_register(int id, button_t *b)
 
 	op->b = b;
 	op->id = id;
-	op->value.box.x = b->x;	
+	op->value.box.x = b->x + (b->w - VALUE_BOX_W)/2;	
 	op->value.box.y = b->y - CODE_BUTTON_H;
 	op->value.box.w = VALUE_BOX_W;
 	op->value.box.h = VALUE_BOX_H;
@@ -560,7 +595,7 @@ error:
  *	void
  *
  */
-void rg_display_registers()
+void rg_display_registers(bool show_arrows)
 {
 	List *registers = get_register_list();
 	
@@ -579,6 +614,9 @@ void rg_display_registers()
 		ax_draw_value_box(&reg->value, COLOR_WHITE);
 		free(number);
 
+	}
+	if (show_arrows == true){
+		display_arrow_registers();
 	}
 }
 

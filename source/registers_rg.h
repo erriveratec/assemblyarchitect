@@ -20,7 +20,7 @@ void create_register_list();
 void rg_set_register_box(int x, int y, int w, int h);
 int rg_get_registers_text_width(int h);
 void rg_add_register_to_list(int id);
-void rg_display_registers();
+void rg_display_registers(bool show_arrows);
 bool rg_check_released_in_register();
 operand_t *rg_get_default_operand_register();
 operand_t *rg_create_operand_of_selected_register();

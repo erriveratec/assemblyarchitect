@@ -241,7 +241,7 @@ static void destroy_level(level_flags_t *flags)
 void stage_drawings(int level, bool holding_line)
 {
 	bf_draw_buffers();
-	rg_display_registers();
+	rg_display_registers(true);
 	iw_display_instructions(INS_BOX_X, INS_BOX_Y);
 	cw_draw_code_window();	
 	sb_draw_stage_buttons(cw_get_code_list_size());
@@ -256,6 +256,12 @@ void stage_drawings(int level, bool holding_line)
 			lv_level_1_tutorial_instruction_select();
 		} else if (code_size == 0 && holding_line == true){
 			lv_level_1_tutorial_drop_instruction();
+		} else if (code_size == 1 && cw_check_all_code_sorted() == true &&
+									   cw_check_code_pending_op1() == true){
+			lv_level_1_tutorial_select_operand(OP1);
+		} else if(code_size == 1 && cw_check_all_code_sorted() == true &&
+				    				   cw_check_code_pending_operand() == true){
+			lv_level_1_tutorial_select_operand(OP2);
 		}
 	}	
 	return;

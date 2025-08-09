@@ -40,9 +40,10 @@ enum instruction_operand_quantity{
 	TWO_OPERANDS
 };
 
-
 enum operands{
-	INVALID_OPERAND,	
+	INVALID_OPERAND,
+	OP1,
+	OP2,
 	NO_OPERAND,
 	REGISTERS_MIN,
 	RAX,

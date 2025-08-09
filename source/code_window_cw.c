@@ -30,7 +30,7 @@ static void display_player_code();
 static void add_code_line(code_line_t *line);
 static void set_code_box_member(int value, int member);
 static void set_text_box_member(int value, int member);
-static int get_code_box_member(int member);
+int cw_get_code_box_member(int member);
 static int get_text_box_member(int member);
 static void code_box_height_adjust();
 static void adjust_code_box_position();
@@ -923,7 +923,7 @@ void cw_destroy_code_window_assets()
 }
 
 
-/* Function: get_code_box_member
+/* Function: cw_get_code_box_member
  * -----------------------------------------------------------------------------
  * This function access and returns the members of the code box object.
  *
@@ -933,7 +933,7 @@ void cw_destroy_code_window_assets()
  * Return:
  *	The accessed member.
  */
-static int get_code_box_member(int member)
+int cw_get_code_box_member(int member)
 {
 	assert(member >= MEMBER_X && member <= MEMBER_H &&  "Member is incorrect");
 
@@ -1193,9 +1193,9 @@ static int get_code_line_x(int instruction_id)
 	int x;  
 	
 	if (instruction_id == LABEL){
-		x = get_code_box_member(MEMBER_X) + LINE_NUMBER_OFFSET;
+		x = cw_get_code_box_member(MEMBER_X) + LINE_NUMBER_OFFSET;
 	} else {
-		x = get_code_box_member(MEMBER_X) + CODE_BOX_NUMBER_WIDTH + 
+		x = cw_get_code_box_member(MEMBER_X) + CODE_BOX_NUMBER_WIDTH + 
 			2*LINE_NUMBER_OFFSET;	
 	}
 	return x;
@@ -1223,11 +1223,11 @@ static void code_box_height_adjust()
 		
 		int increase_size = (list_size - CODE_LINES_SIZE)*CODE_BUTTON_H;
 		
-		int new_bottom_border = get_code_box_member(MEMBER_Y) + CODE_BOX_H + 
+		int new_bottom_border = cw_get_code_box_member(MEMBER_Y) + CODE_BOX_H + 
 							  	increase_size;
 
-		int cur_bottom_border = get_code_box_member(MEMBER_H) + 
-								get_code_box_member(MEMBER_Y);
+		int cur_bottom_border = cw_get_code_box_member(MEMBER_H) + 
+								cw_get_code_box_member(MEMBER_Y);
 
 		int delta = get_movement_delta(cur_bottom_border, new_bottom_border, 
 									   MOVEMENT_DELTA/2);
@@ -1235,11 +1235,11 @@ static void code_box_height_adjust()
 		if (new_bottom_border > cur_bottom_border){
 			cur_bottom_border += delta;
 			set_code_box_member(cur_bottom_border - 
-								get_code_box_member(MEMBER_Y), MEMBER_H);
+								cw_get_code_box_member(MEMBER_Y), MEMBER_H);
 		} else if (new_bottom_border < cur_bottom_border){
 			cur_bottom_border -= delta;
 			set_code_box_member(cur_bottom_border - 
-								get_code_box_member(MEMBER_Y), MEMBER_H);
+								cw_get_code_box_member(MEMBER_Y), MEMBER_H);
 		} 
 		
 	}
@@ -1261,14 +1261,14 @@ static void adjust_code_box_position()
 	static int y_pending_scroll = 0;
 	
 	y_pending_scroll += 3*ms_get_mouse_scroll_y();
-	int cur_y = get_code_box_member(MEMBER_Y);
+	int cur_y = cw_get_code_box_member(MEMBER_Y);
 	int max_upper_border_y = CODE_BOX_Y;
 	int min_lower_border_y = CODE_BOX_Y + CODE_BOX_H;
 
 	if (cur_y >= max_upper_border_y && y_pending_scroll > 0){
 		y_pending_scroll = 0;
 	} 
-	if ((cur_y + get_code_box_member(MEMBER_H)) <= min_lower_border_y 
+	if ((cur_y + cw_get_code_box_member(MEMBER_H)) <= min_lower_border_y 
 			   && y_pending_scroll < 0){
 		y_pending_scroll = 0;
 	}
@@ -1433,7 +1433,7 @@ void display_line_number()
 		return;
 	}
 
-	int x = get_code_box_member(MEMBER_X) + LINE_NUMBER_OFFSET;
+	int x = cw_get_code_box_member(MEMBER_X) + LINE_NUMBER_OFFSET;
 	int y = get_text_box_member(MEMBER_Y) + get_text_box_member(MEMBER_H) + 
 			CODE_BOX_OFFSET;
 	int h = CODE_BUTTON_H;
@@ -1757,6 +1757,32 @@ void cw_player_holding_instruction(code_line_t *line)
 	}
 	bt_draw_button(line->ins->b);
 }
+/* Function: cw_check_code_pending_operand
+ * -----------------------------------------------------------------------------
+ * This function verifies if any of the programmed lines is pending an operand
+ *
+ * Arguments:
+ * 	code: the list of code programmed by the player
+ *	
+ * Return:
+ * 	true if a line is pending operand, false if otherwise
+ *
+ */
+bool cw_check_code_pending_op1()
+{
+	List *code = get_code_list();
+
+	bool pending = false;
+	LIST_FOREACH(code, first, next, cur){
+		code_line_t *c = cur->value;
+		int s = c->state;
+		if (s == MISSING_BOTH || s == MISSING_OP1 || s == CHANGING_OP1){
+			pending = true;
+			break;
+		}
+	}
+	return pending;
+}
 
 /* Function: cw_check_code_pending_operand
  * -----------------------------------------------------------------------------
@@ -1777,8 +1803,8 @@ bool cw_check_code_pending_operand()
 	LIST_FOREACH(code, first, next, cur){
 		code_line_t *c = cur->value;
 		int s = c->state;
-		if (MISSING_BOTH == s || MISSING_OP1 == s || MISSING_OP2 == s ||
-			CHANGING_OP1 == s || CHANGING_OP2 == s){
+		if (s == MISSING_BOTH || s == MISSING_OP1 || s == MISSING_OP2 ||
+			s == CHANGING_OP1 || s == CHANGING_OP2){
 			pending = true;
 			break;
 		}

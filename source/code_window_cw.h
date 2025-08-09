@@ -27,6 +27,7 @@ bool cw_check_all_code_sorted();
 void cw_sort_code();
 void cw_highlight_code_pending_operand();
 bool cw_check_code_pending_operand();
+bool cw_check_code_pending_op1();
 code_line_t *cw_get_code_line_pending_operand();
 bool cw_check_clicked_code_operand();
 void cw_change_clicked_code_line_state();
@@ -42,4 +43,5 @@ bool cw_check_released_in_label();
 operand_t *cw_create_jump_operand();
 void cw_update_saved_jump_instructions();
 void cw_operate_jump_instruction(code_line_t *line);
+int cw_get_code_box_member(int member);
 #endif
