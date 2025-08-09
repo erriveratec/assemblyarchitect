@@ -18,6 +18,33 @@ static List *get_instruction_list();
 static int get_instruction_list_size();
 static void draw_instruction_text();
 
+/* Function: iw_get_instruction_y_by_id
+ *------------------------------------------------------------------------------
+ * This function returns THE LOWER y value of an instruction
+ *
+ * Arguments:
+ *	id: the id of the instruction 
+ *
+ * Return:
+ *	Lower y value of the instruction
+ */
+int iw_get_instruction_y_by_id(int id)
+{
+	assert(id > INSTRUCTION_MIN && id < INSTRUCTION_MAX && "Invalid id");
+
+	List *instructions = get_instruction_list();
+
+	instruction_t *i;
+	LIST_FOREACH(instructions, first, next, cur){ 
+		i = cur->value;
+		if (id == i->id){
+			break;
+	   	}
+   }
+   assert(i != NULL && "null pointer returned for instruction");
+   return i->b->y + i->b->h;
+}
+
 /* Function: draw_instruction_text
  *------------------------------------------------------------------------------
  * Drasw the instruction text that is above the instruction box.

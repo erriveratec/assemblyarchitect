@@ -3,6 +3,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
+#include <stdbool.h>
 #include "draw_dw.h"
 #include "sdl_config.h"
 #include "aux.h"
@@ -14,33 +15,47 @@ SDL_Color COLOR_RED = {255, 0, 0, 255};
 SDL_Color COLOR_GREY = {127, 127, 127, 255};
 SDL_Color COLOR_ORANGE = {0xF8, 0x71, 0x3A, 255};
 SDL_Color COLOR_CYAN = {0, 255, 255, 255};
+SDL_Color COLOR_YELLOW = {255, 255, 0, 255};
 
 texture_t *g_arrow = NULL;
 
 static void draw_text(int x, int y, float s, SDL_Color c, char *t);
 static int draw_scaled_texture(int x, int y, float s, texture_t *t);
-/* Function: dw_draw_animated_arrow
+
+/* Function: dw_animate_arrow
  * -----------------------------------------------------------------------------
- * Draw an arrow for a set of coordinates moves it in a direction   
+ * Animates the movement of an arrow object in a given direction
  *
  * Arguments:
  *	x: starting x position.
  *	y: starting y position.
- *	w: width of the box containing the arrow texture.
- *	h: height of the box containing the arrow texture.
+ *	arrow: arrow object that will be animated
  *  dir: direction of the movement of the arrow
  *  travel: how long the animation will move on the screen
  *
  * Return:
  *	Void.
  */
-void dw_draw_animated_arrow(int x, int y, int w, int h, int dir, int travel)
+void dw_animate_arrow(int start_x, int start_y, arrow_t *arrow, 
+														    int dir, int travel)
 {
-	assert(h > 0 && w > 0 && "Wrong w and h dimensions");
+	assert(arrow !=NULL && "arrow object is NULL");
+	assert(dir > DW_MOV_MIN && dir < DW_MOV_MAX && "invalid dir");
 	
 	switch(dir){
 		case DW_UP:
-			dw_draw_rotated_texture_fits_h(x, y, h, -90.0, g_arrow);
+			if (arrow->box.y <= start_y - travel){
+				arrow->in_place = true;	
+			} else if (arrow->box.y >= start_y){
+				arrow->in_place = false;
+			}
+			if (arrow->in_place == false){
+				arrow->box.y--;
+			}else if (arrow->in_place == true){
+				arrow->box.y++;
+			}
+			dw_draw_rotated_texture_fits_h(arrow->box.x, arrow->box.y, 
+										   arrow->box.h, -90.0, arrow->texture);
 			break;
 		default:
 			break;

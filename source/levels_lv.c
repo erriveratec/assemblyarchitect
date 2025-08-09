@@ -7,9 +7,11 @@
 #include "buffers_bf.h"
 #include "dimensions.h"
 #include "registers_rg.h"
+#include "instruction_window_iw.h"
 
 #define TUT_TEXT_SELECT_INSTRUCTION "Select and drag an instruction from the" \
 									" instruction box"
+#define TUT_TEXT_DROP_INSTRUCTION "Drop the instruction in the code box"
 
 #define TUT_TEXT_X INS_BOX_X
 #define TUT_TEXT_Y SCREEN_HEIGHT/2 - TUT_BOX_H
@@ -22,11 +24,13 @@
 #define TUT_BOX_X INS_BOX_X
 #define TUT_BOX_Y SCREEN_HEIGHT/2 - TUT_BOX_H
 
-#define TUT_ARROW_X (INS_BOX_X + INS_BOX_W)/4
-#define TUT_ARROW_Y INS_BOX_Y + (TUT_BOX_Y - INS_BOX_Y)*3/4
-#define TUT_ARROW_H 30
-#define TUT_ARROW_W 30
-#define TUT_ARROW_TRAVEL 10
+#define ARROW_INS_X (INS_BOX_X + INS_BOX_W)/4
+#define ARROW_INS_Y INS_BOX_Y + (TUT_BOX_Y - INS_BOX_Y)*3/4
+#define ARROW_INS_H 30
+#define ARROW_INS_W 30
+
+
+#define ARROW_CODE_X (INS_BOX_X + INS_BOX_W)/2
 
 #define LEVEL_LINE_W 4
 
@@ -46,7 +50,10 @@ static void set_level_4_win_list();
 static void set_level_5_win_list();
 static void set_level_6_win_list();
 
-/* Function: lv_level_1_tutorial
+arrow_t g_arrow_ins;
+
+
+/* Function: lv_level_1_tutorial_instruction_select
  * -----------------------------------------------------------------------------
  * This function handles the tutorial part of level 1
  *
@@ -56,15 +63,55 @@ static void set_level_6_win_list();
  * Return:
  *	Void.
  */
-int lv_level_1_tutorial()
+int lv_level_1_tutorial_instruction_select()
 {
-	dw_draw_animated_arrow(TUT_ARROW_X, TUT_ARROW_Y, TUT_ARROW_W, TUT_ARROW_H, 
-						   DW_UP, TUT_ARROW_TRAVEL);
-
+	arrow_t arrow;
+	static bool arrow_initialized = false;
+	if (arrow_initialized == false){
+		g_tut_arrow.box.x = ARROW_INS_X;
+		g_tut_arrow.box.y = ARROW_INS_Y;
+		g_tut_arrow.box.w = ARROW_INS_W;
+		g_tut_arrow.box.h = ARROW_INS_H;
+		g_tut_arrow.texture = g_arrow;
+		g_tut_arrow.in_place = false;
+		arrow_initialized = true;
+	}
+	int travel = ARROW_INS_Y - iw_get_instruction_y_by_id(MOV);
+	dw_animate_arrow(ARROW_INS_X, ARROW_INS_Y, &g_tut_arrow, DW_UP, travel);
 	dw_draw_filled_rectangle(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, TUT_BOX_H, 
 							 COLOR_BLACK, COLOR_WHITE);
 	dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
 					   	  TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_SELECT_INSTRUCTION);
+	return 0;
+}
+/* Function: lv_level_1_tutorial_drop_instruction
+ * -----------------------------------------------------------------------------
+ * This function handles the tutorial part of level 1
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+int lv_level_1_tutorial_drop_instruction()
+{
+	static bool arrow_initialized = false;
+	if (arrow_initialized == false){
+		g_tut_arrow.box.x = ARROW_INS_X;
+		g_tut_arrow.box.y = ARROW_INS_Y;
+		g_tut_arrow.box.w = ARROW_INS_W;
+		g_tut_arrow.box.h = ARROW_INS_H;
+		g_tut_arrow.texture = g_arrow;
+		g_tut_arrow.in_place = false;
+		arrow_initialized = true;
+	}
+	int travel = ARROW_INS_Y - iw_get_instruction_y_by_id(MOV);
+	dw_animate_arrow(ARROW_INS_X, ARROW_INS_Y, &g_tut_arrow, DW_UP, travel);
+	dw_draw_filled_rectangle(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, TUT_BOX_H, 
+							 COLOR_BLACK, COLOR_WHITE);
+	dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
+					   	  TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_DROP_INSTRUCTION);
 	return 0;
 }
 

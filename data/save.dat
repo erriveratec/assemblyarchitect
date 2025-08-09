@@ -20,6 +20,7 @@ mov rcx, [ib]
 mov [ob], rcx
 mov [ob], rbx
 mov [ob], rax
+mov rcx, rax
 CODE ENDS
 
 +++LEVEL ENDS 02
@@ -446,6 +447,7 @@ mov rcx, [ib]
 mov [ob], rcx
 mov [ob], rbx
 mov [ob], rax
+mov rcx, rax
 CODE ENDS
 
 +++LEVEL ENDS 02
@@ -872,6 +874,7 @@ mov rcx, [ib]
 mov [ob], rcx
 mov [ob], rbx
 mov [ob], rax
+mov rcx, rax
 CODE ENDS
 
 +++LEVEL ENDS 02

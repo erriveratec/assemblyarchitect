@@ -53,10 +53,10 @@ static char *win_text = "The challenge is correct";
 static char *lose_text = "The challenge is incorrect";
 static SDL_Rect result_box;
 
-void stage_drawings(int level);
+void stage_drawings(int level, bool holding_line);
 static void pending_operand_handler();
 static void flag_handler(level_flags_t *flags, int clicked_button);
-static void edit_code(int level_id);
+static bool edit_code(int level_id);
 static void reset_level(int level_id, level_flags_t *flags, bool *run_finished);
 static int display_run_result(bool win_check);
 static bool get_escape_menu_state();
@@ -238,7 +238,7 @@ static void destroy_level(level_flags_t *flags)
  * Return:
  *	Void.
  */
-void stage_drawings(int level)
+void stage_drawings(int level, bool holding_line)
 {
 	bf_draw_buffers();
 	rg_display_registers();
@@ -249,8 +249,14 @@ void stage_drawings(int level)
 	mc_draw_execution_arrow();
 	lv_level_drawings(level);
 	sb_draw_return_button();
+
 	if (level == LV_LEVEL_1){
-		lv_level_1_tutorial();
+		int code_size = cw_get_code_list_size();
+		if (code_size == 0 && holding_line == false){
+			lv_level_1_tutorial_instruction_select();
+		} else if (code_size == 0 && holding_line == true){
+			lv_level_1_tutorial_drop_instruction();
+		}
 	}	
 	return;
 }
@@ -618,16 +624,16 @@ static void pending_operand_handler()
  * 	level_id: Required for the save file when the code is saved.
  *
  * Return:
- *	void.
+ *	true if the player is holding a line, false if otherwise
  */
-static void edit_code(int level_id)
+static bool edit_code(int level_id)
 {
 	assert(level_id > 0 && level_id <= LV_LEVEL_QUANTITY && 
 		   "Incorrect level_id value");
-	
+		
 	static code_line_t *line = NULL;
 	bool left_pressed = ms_check_mouse_left_pressed();
-
+	bool holding_line = false;
 	if (cw_check_code_pending_operand() == true && 
 		cw_check_all_code_sorted() == true && cw_check_clicked_code() == false){
 		pending_operand_handler();	
@@ -642,6 +648,7 @@ static void edit_code(int level_id)
 		line = cw_get_clicked_code();
 	} else if (left_pressed == true && line != NULL){
 		cw_player_holding_instruction(line);
+		holding_line = true;
 	} else if (left_pressed == false && NULL != line){
 		if (cw_check_if_in_code_list(line) == false){
 			cl_destroy_code_line(line);
@@ -651,6 +658,7 @@ static void edit_code(int level_id)
 		}
 		line = NULL;
 	}
+	return holding_line;
 }
 
 /* Function: reset_level
@@ -686,9 +694,10 @@ int stage_level(int level_id)
 	int ret_val = level_id;
 	static bool level_init = false;
 	static bool run_finished = false;
-	static level_flags_t flags;
 	static bool reset = false;
+	static bool holding_line = false;
 	bool back_to_level_selection = sb_check_clicked_ret_button(); 
+	static level_flags_t flags;
 	display_escape_menu(get_escape_menu_state());
 	
 	if (level_init == false){
@@ -698,11 +707,11 @@ int stage_level(int level_id)
 		flag_handler(&flags, identify_clicked_stage_button());
 	}
 	
-	stage_drawings(level_id);
+	stage_drawings(level_id, holding_line);
 	cw_sort_code();
 	
 	if (flags.non_stop == false || cw_check_code_pending_operand() == true){
-		edit_code(level_id);
+		holding_line = edit_code(level_id);
 	}
 	if (mc_get_operation_flag() != NO_INVALID_OPERATION){
 		reset = mc_invalid_operation_handler(mc_get_operation_flag());

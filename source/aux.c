@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <assert.h>
+#include <stdbool.h>
 #include "aux.h"
 #include "dbg.h"
 #include "draw_dw.h"
@@ -12,6 +13,7 @@ char *char_comma = ",";
 char *char_newline = "\n";
 char *char_colon = ":";
 char *level_text = "level";
+
 
 
 /* Function: create_string_append_number

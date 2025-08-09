@@ -56,13 +56,7 @@ static avatar_t g_iavatar;
 static avatar_t g_oavatar;
 static avatar_t g_ravatar; 
 
-typedef struct execution_arrow_t{
-	SDL_Rect box;
-	bool in_place;
-	bool visible;
-} execution_arrow_t;
-
-static execution_arrow_t g_exec_arrow;
+static arrow_t g_exec_arrow;
 
 enum counter_actions{
 	ADD_1,
@@ -230,7 +224,7 @@ void mc_reset_avatar()
 	g_iavatar.value.box.w = VALUE_BOX_W;
 	g_iavatar.value.box.h = VALUE_BOX_H;
 
-	g_iavatar.color = COLOR_ORANGE;
+	g_iavatar.color = COLOR_RED;
 
 	g_oavatar.id = OAVATAR;
 	g_oavatar.box.x = OAVATAR_X;
@@ -270,7 +264,7 @@ void mc_reset_avatar()
 	g_ravatar.value.box.w = VALUE_BOX_W;
 	g_ravatar.value.box.h = VALUE_BOX_H;
 	
-	g_ravatar.color = COLOR_RED;
+	g_ravatar.color = COLOR_YELLOW;
 
 }
 

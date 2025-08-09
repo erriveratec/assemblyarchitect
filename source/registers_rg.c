@@ -190,15 +190,16 @@ int rg_get_obox_y()
 void rg_initialize_value_boxes()
 {
 	g_ibox.box.x = REG_VBOX_X;
-	g_ibox.box.y = rg_get_register_box_member(MEMBER_Y) - VALUE_BOX_H - REG_VBOX_OFFSET;
+	g_ibox.box.y = rg_get_register_box_member(MEMBER_Y) - VALUE_BOX_H - 
+																REG_VBOX_OFFSET;
 	g_ibox.box.w = VALUE_BOX_W;
 	g_ibox.box.h = VALUE_BOX_H;
 	g_ibox.value = NO_VALUE;
 	g_ibox.visible_box = true;
 	
 	g_obox.box.x = REG_VBOX_X;
-	g_obox.box.y = rg_get_register_box_member(MEMBER_Y) + rg_get_register_box_member(MEMBER_H)
-				   + REG_VBOX_OFFSET;
+	g_obox.box.y = rg_get_register_box_member(MEMBER_Y) + 
+					     rg_get_register_box_member(MEMBER_H) + REG_VBOX_OFFSET;
 	g_obox.box.w = VALUE_BOX_W;
 	g_obox.box.h = VALUE_BOX_H;
 	g_obox.value = NO_VALUE;
