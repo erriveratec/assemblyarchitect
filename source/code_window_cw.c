@@ -1757,12 +1757,40 @@ void cw_player_holding_instruction(code_line_t *line)
 	}
 	bt_draw_button(line->ins->b);
 }
-/* Function: cw_check_code_pending_operand
+
+/* Function: cw_check_code_pending_op1
  * -----------------------------------------------------------------------------
- * This function verifies if any of the programmed lines is pending an operand
+ * This function verifies if any of the programmed lines is pending op2
  *
  * Arguments:
- * 	code: the list of code programmed by the player
+ * 	Void.
+ *	
+ * Return:
+ * 	true if a line is pending operand, false if otherwise
+ *
+ */
+bool cw_check_code_pending_op2()
+{
+	List *code = get_code_list();
+
+	bool pending = false;
+	LIST_FOREACH(code, first, next, cur){
+		code_line_t *c = cur->value;
+		int s = c->state;
+		if (s == MISSING_BOTH || s == MISSING_OP2 || s == CHANGING_OP2){
+			pending = true;
+			break;
+		}
+	}
+	return pending;
+}
+
+/* Function: cw_check_code_pending_op1
+ * -----------------------------------------------------------------------------
+ * This function verifies if any of the programmed lines is pending op1
+ *
+ * Arguments:
+ * 	Void.
  *	
  * Return:
  * 	true if a line is pending operand, false if otherwise
@@ -1875,7 +1903,7 @@ error:
 	return;
 }
 
-/* Function: cw_check_all_code_sorted
+/* Function: cw_check_code_sorted
  * -----------------------------------------------------------------------------
  * This function verifies if all the lines of code are in their position
  *
@@ -1886,7 +1914,7 @@ error:
  * 	true if all code is in position, false if otherwise.
  *
  */
-bool cw_check_all_code_sorted()
+bool cw_check_code_sorted()
 {
 	List *code = get_code_list();
 	int list_size = List_count(code);

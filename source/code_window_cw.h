@@ -23,11 +23,12 @@ void cw_player_holding_instruction(code_line_t *instruction);
 bool cw_check_if_in_code_list(code_line_t *instruction);
 bool cw_check_clicked_code();
 code_line_t *cw_get_clicked_code();
-bool cw_check_all_code_sorted();
+bool cw_check_code_sorted();
 void cw_sort_code();
 void cw_highlight_code_pending_operand();
 bool cw_check_code_pending_operand();
 bool cw_check_code_pending_op1();
+bool cw_check_code_pending_op2();
 code_line_t *cw_get_code_line_pending_operand();
 bool cw_check_clicked_code_operand();
 void cw_change_clicked_code_line_state();
@@ -44,4 +45,5 @@ operand_t *cw_create_jump_operand();
 void cw_update_saved_jump_instructions();
 void cw_operate_jump_instruction(code_line_t *line);
 int cw_get_code_box_member(int member);
+
 #endif

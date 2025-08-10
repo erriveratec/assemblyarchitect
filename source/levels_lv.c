@@ -53,6 +53,36 @@ static void set_level_6_win_list();
 
 arrow_t g_arrow_ins;
 
+/* Function: level_1_tutorial
+ * -----------------------------------------------------------------------------
+ * This functions handles all the special cases of the tutorial of level 1
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+void level_1_tutorial()
+{
+	int code_size = cw_get_code_list_size();
+			bf_draw_buffers(NO_OPERAND);
+			rg_display_registers(false);
+		if (code_size == 0 && holding_line == false){
+			lv_level_1_tutorial_instruction_select();
+		} else if (code_size == 0 && holding_line == true){
+			lv_level_1_tutorial_drop_instruction();
+		} else if (code_size == 1 && cw_check_code_sorted() == true &&
+									   cw_check_code_pending_op1() == true){
+			lv_level_1_tutorial_select_operand(OP1);
+			rg_display_registers(true);
+		} else if(code_size == 1 && cw_check_code_sorted() == true &&
+				    				   cw_check_code_pending_operand() == true){
+			lv_level_1_tutorial_select_operand(OP2);
+			rg_display_registers(false);
+			bf_draw_buffers(IB);
+		}
+}
 
 /* Function: lv_level_1_tutorial_instruction_select
  * -----------------------------------------------------------------------------

@@ -4,7 +4,6 @@
 #include "button_bt.h"
 #include "code_window_cw.h"
 
-extern texture_t *right_arrow;
 
 enum invalid_operatios{
 	NO_INVALID_OPERATION,
@@ -25,4 +24,6 @@ void mc_draw_execution_arrow();
 void mc_reset_execution_arrow();
 void mc_hide_execution_arrow();
 bool mc_invalid_operation_handler(int id);
+bool mc_check_display_reg_arrow();
+int mc_check_display_buf_arrow();
 #endif

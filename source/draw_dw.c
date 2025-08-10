@@ -108,7 +108,7 @@ void dw_animate_arrow(int start_x, int start_y, arrow_t *arrow,
  * Return:
  *	SUCCESS or FAIL
  */
-static void dw_draw_rotated_texture_fits_h(int x, int y, int h, double angle, 
+void dw_draw_rotated_texture_fits_h(int x, int y, int h, double angle, 
 															      texture_t *t)
 {
 	assert(h >= 0 && "The height value is invalid");

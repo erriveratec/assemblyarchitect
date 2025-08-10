@@ -28,6 +28,7 @@ static void display_arrow_registers();
 value_box_t g_ibox;
 value_box_t g_obox;
 
+texture_t *g_reg_arrow = NULL;
 
 /* Function: display_arrow_registers
  * -----------------------------------------------------------------------------
@@ -48,19 +49,27 @@ static void display_arrow_registers()
 		arrow.box.x = startx;
 		arrow.box.w = ARROW_W;
 		arrow.box.h = ARROW_H;
-		arrow.texture = g_arrow;
+		arrow.texture = g_reg_arrow;
 		arrow.in_place = false;
 		arrow_initialized = true;
 	}
 	SDL_SetTextureColorMod(arrow.texture->texture, 255, 255, 0);
 	List *registers = get_register_list();
 	assert(registers != NULL && "Invalid pointer");
+	int i = 0;
 	LIST_FOREACH(registers, first, next, cur){ 
 		reg_t *c = cur->value;
 		arrow.box.y = c->b->y + (CODE_BUTTON_H - arrow.box.h)/2; 
 		int travel = startx - (c->b->x + c->b->w);
-		dw_animate_arrow(startx, arrow.box.y, &arrow, DW_LEFT, travel);
-   	}
+		if (i == 0){
+			dw_animate_arrow(startx, arrow.box.y, &arrow, DW_LEFT, travel);
+		} else {
+			dw_draw_rotated_texture_fits_h(arrow.box.x, arrow.box.y, 
+										arrow.box.h, -180.0, arrow.texture);
+		}
+		i++;
+	}
+	
 }
 
 /* Function: rg_reset_ibox
@@ -617,7 +626,7 @@ void rg_display_registers(bool show_arrows)
 	}
 	if (show_arrows == true){
 		display_arrow_registers();
-	}
+	} 
 }
 
 /* Function: rg_get_registers_text_width

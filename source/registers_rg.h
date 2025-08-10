@@ -8,13 +8,13 @@
 #include "code_line_cl.h"
 #include "aux.h"
 
-
-
 typedef struct reg_t{
 	button_t *b;
 	int id;
 	value_box_t value;
 } reg_t;
+
+extern texture_t *g_reg_arrow;
 
 void create_register_list();
 void rg_set_register_box(int x, int y, int w, int h);

@@ -21,6 +21,12 @@
 #define NATURAL_NMAX 9
 #define NATURAL_NMIN 1
 
+#define ARROW_INPUT_X (BUFFER_BOX_X - 3*ARROW_W)
+#define ARROW_INPUT_Y (INPUT_BUFFER_BOX_Y + (BUFFER_BOX_H - ARROW_H)/2)
+
+#define ARROW_OUTPUT_X (BUFFER_BOX_X - 3*ARROW_W)
+#define ARROW_OUTPUT_Y (OUTPUT_BUFFER_BOX_Y + (BUFFER_BOX_H - ARROW_H)/2)
+
 SDL_Rect input_box;
 SDL_Rect output_box;
 
@@ -42,11 +48,74 @@ static int g_input_list_x_pos = SCREEN_WIDTH;
 static int g_output_list_x_pos = BUFFER_BOX_X + BUFFER_VALUE_OFFSET_X;
 int g_input_list_type = NOT_ASSIGNED;  
 int g_input_buffer_size = DEFAULT_BUFFER_SIZE;
-
 void add_input_to_list(int value, int type);
 void draw_output_buffer();
 void draw_input_buffer();
 static bool check_win_condition();
+static void display_input_arrow();
+static void display_output_arrow();
+
+texture_t *g_input_arrow = NULL;
+texture_t *g_output_arrow = NULL;
+
+
+/* Function: display_output_arrow
+ * -----------------------------------------------------------------------------
+ * Animate with a moving arrow of the output buffer when available for selection
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void display_output_arrow()
+{
+	static arrow_t arrow;
+	static bool arrow_initialized = false;
+	int startx = ARROW_INPUT_X;
+	if (arrow_initialized == false){
+		arrow.box.x = startx;
+		arrow.box.y = ARROW_OUTPUT_Y;
+		arrow.box.w = ARROW_W;
+		arrow.box.h = ARROW_H;
+		arrow.texture = g_input_arrow;
+		arrow.in_place = false;
+		arrow_initialized = true;
+	}
+	int travel = BUFFER_BOX_X - startx - ARROW_W;
+	SDL_SetTextureColorMod(arrow.texture->texture, 0, 255, 255);
+	dw_animate_arrow(startx, arrow.box.y, &arrow, DW_RIGHT, travel);
+}
+
+/* Function: display_input_arrow_
+ * -----------------------------------------------------------------------------
+ * Animate with a moving arrow of the input buffer when available for selection
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void display_input_arrow()
+{
+	static arrow_t arrow;
+	static bool arrow_initialized = false;
+	int startx = ARROW_INPUT_X;
+	if (arrow_initialized == false){
+		arrow.box.x = startx;
+		arrow.box.y = ARROW_INPUT_Y;
+		arrow.box.w = ARROW_W;
+		arrow.box.h = ARROW_H;
+		arrow.texture = g_input_arrow;
+		arrow.in_place = false;
+		arrow_initialized = true;
+	}
+	int travel = BUFFER_BOX_X - startx - ARROW_W;
+	SDL_SetTextureColorMod(arrow.texture->texture, 255, 0, 0);
+	dw_animate_arrow(startx, arrow.box.y, &arrow, DW_RIGHT, travel);
+}
 
 /* Function: bf_set_win_condition
 *------------------------------------------------------------------------------
@@ -494,8 +563,14 @@ void bf_set_output_box(int x, int y, int w, int h)
  * Return:
  *	Void.
  */
-void bf_draw_buffers()
+void bf_draw_buffers(int operand_id)
 {
+	if (operand_id == IB){
+		display_input_arrow();
+	}
+	if (operand_id == OB){
+		display_output_arrow();
+	}
 	draw_input_buffer();
 	draw_output_buffer();
 }

@@ -45,7 +45,7 @@ void dw_draw_wrapped_text_fits_height(int x, int y, int w, int h, SDL_Color c,
 								   char *t);
 int dw_draw_texture_fits_height(int x, int y, int h, texture_t *t);
 int dw_draw_texture_fits_width(int x, int y, int w, texture_t *t);
-static void dw_draw_rotated_texture_fits_h(int x, int y, int h, double angle, 
+void dw_draw_rotated_texture_fits_h(int x, int y, int h, double angle, 
 															      texture_t *t);
 void dw_animate_arrow(int start_x, int start_y, arrow_t *arrow, 
 														   int dir, int travel);
