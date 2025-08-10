@@ -249,7 +249,7 @@ void stage_drawings(int level, bool holding_line)
 	sb_draw_return_button();
 
 	if (level == LV_LEVEL_1){
-		
+		lv_level_1_tutorial(holding_line);
 	} else {	
 		bf_draw_buffers(mc_check_display_buf_arrow());
 		rg_display_registers(mc_check_display_reg_arrow());

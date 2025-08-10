@@ -69,8 +69,5 @@ bool lv_evaluate_output_correctness();
 void lv_set_level_instructions_limit(int limit);
 int lv_get_level_instructions_limit();
 void lv_level_drawings(int level);
-int lv_level_1_tutorial_instruction_select();
-int lv_level_1_tutorial_drop_instruction();
-int lv_level_1_tutorial_select_operand(int operand_pos);
-
+void lv_level_1_tutorial(bool holding_line);
 #endif

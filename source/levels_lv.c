@@ -10,8 +10,11 @@
 #include "instruction_window_iw.h"
 #include "code_window_cw.h"
 
-#define TUT_TEXT_SELECT_INSTRUCTION "Select and drag an instruction from the" \
-									" instruction box"
+#define TUT_TEXT_SELECT_INSTRUCTION_1 "Select and drag an instruction from the" \
+									  " instruction box"
+#define TUT_TEXT_SELECT_INSTRUCTION_2 "Select another instruction from the" \
+									  "instruction box"
+
 #define TUT_TEXT_DROP_INSTRUCTION "Drop the instruction in the code box"
 #define TUT_TEXT_SELECT_OP1 "Select the destiny operand"
 #define TUT_TEXT_SELECT_OP2 "Select the source operand"
@@ -39,11 +42,19 @@
 // against this list.
 
 static List *win_list = NULL;
-
 static int level_instructions_limit;
+arrow_t g_arrow_ins;
+
+enum message{
+	MESSAGE_1,
+	MESSAGE_2
+};
 
 List *get_win_list();
 void add_to_win_list(int value, int type);
+static int level_1_tutorial_instruction_select(int message);
+static int level_1_tutorial_drop_instruction();
+static int level_1_tutorial_select_operand(int operand_pos);
 static void set_level_1_win_list();
 static void set_level_2_win_list();
 static void set_level_3_win_list();
@@ -51,9 +62,8 @@ static void set_level_4_win_list();
 static void set_level_5_win_list();
 static void set_level_6_win_list();
 
-arrow_t g_arrow_ins;
 
-/* Function: level_1_tutorial
+/* Function: lv_level_1_tutorial
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 1
  *
@@ -63,28 +73,30 @@ arrow_t g_arrow_ins;
  * Return:
  *	Void.
  */
-void level_1_tutorial()
+void lv_level_1_tutorial(bool holding_line)
 {
 	int code_size = cw_get_code_list_size();
 			bf_draw_buffers(NO_OPERAND);
 			rg_display_registers(false);
 		if (code_size == 0 && holding_line == false){
-			lv_level_1_tutorial_instruction_select();
+			level_1_tutorial_instruction_select(MESSAGE_1);
 		} else if (code_size == 0 && holding_line == true){
-			lv_level_1_tutorial_drop_instruction();
+			level_1_tutorial_drop_instruction();
 		} else if (code_size == 1 && cw_check_code_sorted() == true &&
 									   cw_check_code_pending_op1() == true){
-			lv_level_1_tutorial_select_operand(OP1);
+			level_1_tutorial_select_operand(OP1);
 			rg_display_registers(true);
 		} else if(code_size == 1 && cw_check_code_sorted() == true &&
 				    				   cw_check_code_pending_operand() == true){
-			lv_level_1_tutorial_select_operand(OP2);
+			level_1_tutorial_select_operand(OP2);
 			rg_display_registers(false);
 			bf_draw_buffers(IB);
+		} else if(code_size == 1 && cw_check_code_pending_operand() == false){
+			level_1_tutorial_instruction_select(MESSAGE_2);
 		}
 }
 
-/* Function: lv_level_1_tutorial_instruction_select
+/* Function: level_1_tutorial_instruction_select
  * -----------------------------------------------------------------------------
  * This function handles the tutorial part of level 1
  *
@@ -94,7 +106,7 @@ void level_1_tutorial()
  * Return:
  *	Void.
  */
-int lv_level_1_tutorial_instruction_select()
+static int level_1_tutorial_instruction_select(int message)
 {
 	static arrow_t arrow;
 	static bool arrow_initialized = false;
@@ -111,11 +123,16 @@ int lv_level_1_tutorial_instruction_select()
 	dw_animate_arrow(ARROW_INS_X, ARROW_INS_Y, &arrow, DW_UP, travel);
 	dw_draw_filled_rectangle(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, TUT_BOX_H, 
 							 COLOR_BLACK, COLOR_WHITE);
-	dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
-					   	  TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_SELECT_INSTRUCTION);
+	if (message == MESSAGE_1){
+		dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
+					   	TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_SELECT_INSTRUCTION_1);
+	} else if (message == MESSAGE_2){
+		dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
+					   	TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_SELECT_INSTRUCTION_2);
+	}	
 	return 0;
 }
-/* Function: lv_level_1_tutorial_drop_instruction
+/* Function: level_1_tutorial_drop_instruction
  * -----------------------------------------------------------------------------
  * Handles the drop instruction part of the tutorial
  *
@@ -125,7 +142,7 @@ int lv_level_1_tutorial_instruction_select()
  * Return:
  *	Void.
  */
-int lv_level_1_tutorial_drop_instruction()
+static int level_1_tutorial_drop_instruction()
 {
 	static arrow_t arrow;
 	static bool arrow_initialized = false;
@@ -147,7 +164,7 @@ int lv_level_1_tutorial_drop_instruction()
 	return 0;
 }
 
-/* Function: lv_level_1_tutorial_select_operand
+/* Function: level_1_tutorial_select_operand
  * -----------------------------------------------------------------------------
  * Points the player to the selection of the operands
  *
@@ -157,7 +174,7 @@ int lv_level_1_tutorial_drop_instruction()
  * Return:
  *	Void.
  */
-int lv_level_1_tutorial_select_operand(int operand_pos)
+static int level_1_tutorial_select_operand(int operand_pos)
 {
 	int w = cw_get_code_box_member(MEMBER_W);
 	int h = cw_get_code_box_member(MEMBER_H);
@@ -601,7 +618,7 @@ bool lv_evaluate_output_correctness()
 /* Function: lv_level_drawings
  *------------------------------------------------------------------------------
  * This functions draws the specific characteristics of a level, like where
- * each of the avatars are able to reack.
+ * each of the avatars are able to reach.
  *
  * Arguments:
  *	level: The spefici level that is goin to have the drawing.
