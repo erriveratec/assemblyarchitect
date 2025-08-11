@@ -64,6 +64,9 @@ static void set_level_3_win_list();
 static void set_level_4_win_list();
 static void set_level_5_win_list();
 static void set_level_6_win_list();
+static void set_level_7_win_list();
+static void set_level_8_win_list();
+static void set_level_9_win_list();
 
 
 /* Function: lv_level_1_tutorial
@@ -108,7 +111,47 @@ void lv_level_1_tutorial(bool holding_line)
 				    				   cw_check_code_pending_operand() == true){
 			level_1_tutorial_select_operand(OP2);
 			rg_display_registers(true);
+		} else if(code_size == 2 && cw_check_code_pending_operand() == false){
+		
 		} 
+
+}
+
+/* Function: level_1_tutorial_press_play
+ * -----------------------------------------------------------------------------
+ * Displays to the player to press the play button 
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void level_1_tutorial_press_play(int message)
+{
+	static arrow_t arrow;
+	static bool arrow_initialized = false;
+	if (arrow_initialized == false){
+		arrow.box.x = ARROW_INS_X;
+		arrow.box.y = ARROW_INS_Y;
+		arrow.box.w = ARROW_W;
+		arrow.box.h = ARROW_H;
+		arrow.texture = g_arrow;
+		arrow.in_place = false;
+		arrow_initialized = true;
+	}
+	int travel = ARROW_INS_Y - iw_get_instruction_y_by_id(MOV);
+	dw_animate_arrow(ARROW_INS_X, ARROW_INS_Y, &arrow, DW_UP, travel);
+	dw_draw_filled_rectangle(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, TUT_BOX_H, 
+							  						  COLOR_BLACK, COLOR_WHITE);
+	if (message == MESSAGE_1){
+		dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
+			 TUT_BOX_H, TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_SELECT_INSTRUCTION_1);
+	} else if (message == MESSAGE_2){
+		dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
+			  TUT_BOX_H,TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_SELECT_INSTRUCTION_2);
+	}	
+		return ;
 }
 
 /* Function: level_1_tutorial_instruction_select
@@ -271,6 +314,15 @@ void lv_generate_win_condition_list(int level)
 		case LV_LEVEL_6:
 			set_level_6_win_list();
 			break;
+		case LV_LEVEL_7:
+			set_level_7_win_list();
+			break;
+		case LV_LEVEL_8:
+			set_level_8_win_list();
+			break;
+		case LV_LEVEL_9:
+			set_level_9_win_list();
+			break;
 		default:
 			break;
 	}
@@ -393,7 +445,6 @@ void lv_print_win_list()
 		printf("List value: %d\n", cur_input->value);
 	}
 }
-
 /* Function: set_level_1_win_list
  *------------------------------------------------------------------------------
  * Arguments:
@@ -452,7 +503,7 @@ static void set_level_2_win_list()
 		value_box_t *new_win = malloc(sizeof(value_box_t));
 		new_win->value = cur_input->value;
 		new_win->type = cur_input->type;
-		List_unshift(win_list, new_win);
+		List_push(win_list, new_win);
 	}
 }
 
@@ -465,6 +516,100 @@ static void set_level_2_win_list()
  *	Pointer to the object that will be assigned as a default reg operand.
  */
 static void set_level_3_win_list()
+{
+	List *input_list = get_input_list();
+	List *win_list = get_win_list();
+
+	assert(input_list != NULL && "Input list pointer is NULL");
+	assert(win_list != NULL && "Win list pointer is NULL");
+
+	int input_list_size = List_count(input_list);
+	int win_list_size = List_count(win_list);
+
+	assert(input_list_size > 0 && "The size of the input list is incorrect");
+	assert(win_list_size == 0 && "The win list has elements");
+
+	LIST_FOREACH(input_list, first, next, cur){
+		value_box_t *cur_input = cur->value;
+		value_box_t *new_win = malloc(sizeof(value_box_t));
+		new_win->value = cur_input->value;
+		new_win->type = cur_input->type;
+		List_push(win_list, new_win);
+		List_push(win_list, new_win);
+		List_push(win_list, new_win);
+	}
+}
+/* Function: set_level_4_win_list
+ *------------------------------------------------------------------------------
+ * Arguments:
+ *	None.
+ *
+ * Return:
+ *	Pointer to the object that will be assigned as a default reg operand.
+ */
+static void set_level_4_win_list()
+{
+	List *input_list = get_input_list();
+	List *win_list = get_win_list();
+
+	assert(input_list != NULL && "Input list pointer is NULL");
+	assert(win_list != NULL && "Win list pointer is NULL");
+
+	int input_list_size = List_count(input_list);
+	int win_list_size = List_count(win_list);
+
+	assert(input_list_size > 0 && "The size of the input list is incorrect");
+	assert(win_list_size == 0 && "The win list has elements");
+
+	LIST_FOREACH(input_list, first, next, cur){
+		value_box_t *cur_input = cur->value;
+		value_box_t *new_win = malloc(sizeof(value_box_t));
+		new_win->value = cur_input->value;
+		new_win->type = cur_input->type;
+		List_push(win_list, new_win);
+	}
+}
+
+/* Function: set_level_5_win_list
+ *------------------------------------------------------------------------------
+ * Arguments:
+ *	None.
+ *
+ * Return:
+ *	Pointer to the object that will be assigned as a default reg operand.
+ */
+static void set_level_5_win_list()
+{
+	List *input_list = get_input_list();
+	List *win_list = get_win_list();
+
+	assert(input_list != NULL && "Input list pointer is NULL");
+	assert(win_list != NULL && "Win list pointer is NULL");
+
+	int input_list_size = List_count(input_list);
+	int win_list_size = List_count(win_list);
+
+	assert(input_list_size > 0 && "The size of the input list is incorrect");
+	assert(win_list_size == 0 && "The win list has elements");
+
+	LIST_FOREACH(input_list, first, next, cur){
+		value_box_t *cur_input = cur->value;
+		value_box_t *new_win = malloc(sizeof(value_box_t));
+		new_win->value = cur_input->value;
+		new_win->type = cur_input->type;
+		List_unshift(win_list, new_win);
+	}
+}
+
+/* Function: set_level_6_win_list
+ *------------------------------------------------------------------------------
+ * Arguments:
+ *	None.
+ *
+ * Return:
+ *	Pointer to the object that will be assigned as a default reg operand.
+ */
+static void set_level_6_win_list()
 {
 	List *input_list = get_input_list();
 	List *win_list = get_win_list();
@@ -496,7 +641,7 @@ static void set_level_3_win_list()
 	}
 }
 
-/* Function: set_level_4_win_list
+/* Function: set_level_7_win_list
  *------------------------------------------------------------------------------
  * Arguments:
  *	None.
@@ -504,7 +649,7 @@ static void set_level_3_win_list()
  * Return:
  *	Void.
  */
-static void set_level_4_win_list()
+static void set_level_7_win_list()
 {
 	List *input_list = get_input_list();
 	List *win_list = get_win_list();
@@ -529,7 +674,7 @@ static void set_level_4_win_list()
 	}
 }
 
-/* Function: set_level_5_win_list
+/* Function: set_level_8_win_list
  *------------------------------------------------------------------------------
  * Arguments:
  *	None.
@@ -537,7 +682,7 @@ static void set_level_4_win_list()
  * Return:
  *	Void.
  */
-static void set_level_5_win_list()
+static void set_level_8_win_list()
 {
 	List *input_list = get_input_list();
 	List *win_list = get_win_list();
@@ -562,7 +707,7 @@ static void set_level_5_win_list()
 	}
 }
 
-/* Function: set_level_6_win_list
+/* Function: set_level_9_win_list
  *------------------------------------------------------------------------------
  * Arguments:
  *	None.
@@ -570,7 +715,7 @@ static void set_level_5_win_list()
  * Return:
  *	Void.
  */
-static void set_level_6_win_list()
+static void set_level_9_win_list()
 {
 	List *input_list = get_input_list();
 	List *win_list = get_win_list();

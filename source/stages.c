@@ -605,8 +605,8 @@ static void pending_operand_handler()
 		}
 	} else if (left_released == true && register_selected == false && 
 			   buffer_selected == false){
-		operand_t *r = rg_get_default_operand_register();
-		cl_assign_operand_to_line(r, l);
+//		operand_t *r = rg_get_default_operand_register();
+//		cl_assign_operand_to_line(r, l);
 	}
 	return;
 }

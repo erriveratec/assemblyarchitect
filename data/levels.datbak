@@ -16,6 +16,8 @@ RegistersBegin
 rax
 RegistersEnd
 
+InstructionLimit 99
+
 +++LEVEL ENDS
 
 +++LEVEL STARTS 02
@@ -37,6 +39,8 @@ rbx
 rcx
 RegistersEnd
 
+InstructionLimit 99
+
 +++LEVEL ENDS
 
 +++LEVEL STARTS 03
@@ -56,6 +60,8 @@ InstructionsEnd
 RegistersBegin
 rax
 RegistersEnd
+
+InstructionLimit 99
 
 +++LEVEL ENDS
 
@@ -78,6 +84,8 @@ rax
 rbx
 RegistersEnd
 
+InstructionLimit 99
+
 +++LEVEL ENDS
 
 +++LEVEL STARTS 05
@@ -97,6 +105,8 @@ InstructionsEnd
 RegistersBegin
 rax
 RegistersEnd
+
+InstructionLimit 99
 
 +++LEVEL ENDS
 
@@ -118,6 +128,31 @@ InstructionsEnd
 RegistersBegin
 rax
 RegistersEnd
+
+InstructionLimit 4
+
++++LEVEL ENDS
+
++++LEVEL STARTS 07
+
+ChallengeTextBegin
+"Move the values from the input buffer to the output buffer, using four instructions maximum"
+ChallengeTextEnd
+
+InputSize 5
+InputType Natural
+
+InstructionsBegin
+LABEL
+mov
+jmp
+InstructionsEnd
+
+RegistersBegin
+rax
+RegistersEnd
+
+InstructionLimit 4
 
 +++LEVEL ENDS
 
