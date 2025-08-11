@@ -13,9 +13,12 @@
 #define TUT_TEXT_SELECT_INSTRUCTION_1 "Select and drag an instruction from the" \
 									  " instruction box"
 #define TUT_TEXT_SELECT_INSTRUCTION_2 "Select another instruction from the" \
-									  "instruction box"
+									  " instruction box"
 
-#define TUT_TEXT_DROP_INSTRUCTION "Drop the instruction in the code box"
+#define TUT_TEXT_DROP_INSTRUCTION_1 "Drop the instruction in the code box"
+#define TUT_TEXT_DROP_INSTRUCTION_2 "Drop the instruction in the code box"\
+									" below the previous instruction"
+
 #define TUT_TEXT_SELECT_OP1 "Select the destiny operand"
 #define TUT_TEXT_SELECT_OP2 "Select the source operand"
 
@@ -25,10 +28,10 @@
 #define TUT_TEXT_H 30
 
 #define TUT_BOX_W (INS_BOX_W + 100)
-#define TUT_BOX_H SCREEN_HEIGHT/8
+#define TUT_BOX_H (SCREEN_HEIGHT/7)
 
 #define TUT_BOX_X INS_BOX_X
-#define TUT_BOX_Y SCREEN_HEIGHT/2 - TUT_BOX_H
+#define TUT_BOX_Y SCREEN_HEIGHT/2 - TUT_BOX_H/2
 
 #define ARROW_INS_X (INS_BOX_X + INS_BOX_W)/4
 #define ARROW_INS_Y INS_BOX_Y + (TUT_BOX_Y - INS_BOX_Y)*3/4
@@ -52,8 +55,8 @@ enum message{
 
 List *get_win_list();
 void add_to_win_list(int value, int type);
-static int level_1_tutorial_instruction_select(int message);
-static int level_1_tutorial_drop_instruction();
+static void level_1_tutorial_instruction_select(int message);
+static void level_1_tutorial_drop_instruction(int message);
 static int level_1_tutorial_select_operand(int operand_pos);
 static void set_level_1_win_list();
 static void set_level_2_win_list();
@@ -81,7 +84,7 @@ void lv_level_1_tutorial(bool holding_line)
 		if (code_size == 0 && holding_line == false){
 			level_1_tutorial_instruction_select(MESSAGE_1);
 		} else if (code_size == 0 && holding_line == true){
-			level_1_tutorial_drop_instruction();
+			level_1_tutorial_drop_instruction(MESSAGE_1);
 		} else if (code_size == 1 && cw_check_code_sorted() == true &&
 									   cw_check_code_pending_op1() == true){
 			level_1_tutorial_select_operand(OP1);
@@ -91,9 +94,14 @@ void lv_level_1_tutorial(bool holding_line)
 			level_1_tutorial_select_operand(OP2);
 			rg_display_registers(false);
 			bf_draw_buffers(IB);
-		} else if(code_size == 1 && cw_check_code_pending_operand() == false){
+		} else if(code_size == 1 && holding_line == false &&
+ 									  cw_check_code_pending_operand() == false){
 			level_1_tutorial_instruction_select(MESSAGE_2);
+		} else if(code_size == 1 && holding_line == true &&
+ 									  cw_check_code_pending_operand() == false){
+			level_1_tutorial_drop_instruction(MESSAGE_2);
 		}
+
 }
 
 /* Function: level_1_tutorial_instruction_select
@@ -106,7 +114,7 @@ void lv_level_1_tutorial(bool holding_line)
  * Return:
  *	Void.
  */
-static int level_1_tutorial_instruction_select(int message)
+static void level_1_tutorial_instruction_select(int message)
 {
 	static arrow_t arrow;
 	static bool arrow_initialized = false;
@@ -122,7 +130,7 @@ static int level_1_tutorial_instruction_select(int message)
 	int travel = ARROW_INS_Y - iw_get_instruction_y_by_id(MOV);
 	dw_animate_arrow(ARROW_INS_X, ARROW_INS_Y, &arrow, DW_UP, travel);
 	dw_draw_filled_rectangle(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, TUT_BOX_H, 
-							 COLOR_BLACK, COLOR_WHITE);
+							  						  COLOR_BLACK, COLOR_WHITE);
 	if (message == MESSAGE_1){
 		dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
 					   	TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_SELECT_INSTRUCTION_1);
@@ -130,7 +138,7 @@ static int level_1_tutorial_instruction_select(int message)
 		dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
 					   	TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_SELECT_INSTRUCTION_2);
 	}	
-	return 0;
+		return ;
 }
 /* Function: level_1_tutorial_drop_instruction
  * -----------------------------------------------------------------------------
@@ -142,7 +150,7 @@ static int level_1_tutorial_instruction_select(int message)
  * Return:
  *	Void.
  */
-static int level_1_tutorial_drop_instruction()
+static void level_1_tutorial_drop_instruction(int message)
 {
 	static arrow_t arrow;
 	static bool arrow_initialized = false;
@@ -159,9 +167,17 @@ static int level_1_tutorial_drop_instruction()
 	dw_animate_arrow(ARROW_CODE_X, ARROW_CODE_Y, &arrow, DW_RIGHT, travel);
 	dw_draw_filled_rectangle(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, TUT_BOX_H, 
 							 COLOR_BLACK, COLOR_WHITE);
-	dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
-					   	  TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_DROP_INSTRUCTION);
-	return 0;
+
+	dw_draw_filled_rectangle(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, TUT_BOX_H, 
+							  						  COLOR_BLACK, COLOR_WHITE);
+	if (message == MESSAGE_1){
+		dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
+					   	  TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_DROP_INSTRUCTION_1);
+	} else if (message == MESSAGE_2){
+		dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
+					   	  TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_DROP_INSTRUCTION_2);
+	}	
+	return ;
 }
 
 /* Function: level_1_tutorial_select_operand

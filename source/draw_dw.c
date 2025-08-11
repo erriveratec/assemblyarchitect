@@ -370,13 +370,13 @@ void dw_free_texture(texture_t *texture)
 /* Function: dw_draw_wrapped_text_fits_height
  * This function draws text wrapped as images in places in the screen, 
  * the function wraps text accordingly to the scaling factor needed.
- * It has the haight as a parameter to do the drawing
+ * It has the height as a parameter to do the drawing
  *
  * Arguments:
  *	x: position x of the text.
  *	y: position y of the text.
  *	w: width to the column of the text.
- *	s: scaling factor of the text.
+ *	h: height of the text
  *  c: color of the drawn text
  *	t: text to be drawn on screen.
  *
