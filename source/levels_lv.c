@@ -28,16 +28,16 @@
 #define TUT_TEXT_H 30
 
 #define TUT_BOX_W (INS_BOX_W + 100)
-#define TUT_BOX_H (SCREEN_HEIGHT/7)
+#define TUT_BOX_H (SCREEN_HEIGHT/6)
 
 #define TUT_BOX_X INS_BOX_X
-#define TUT_BOX_Y SCREEN_HEIGHT/2 - TUT_BOX_H/2
+#define TUT_BOX_Y (SCREEN_HEIGHT/2 - TUT_BOX_H/2)
 
 #define ARROW_INS_X (INS_BOX_X + INS_BOX_W)/4
 #define ARROW_INS_Y INS_BOX_Y + (TUT_BOX_Y - INS_BOX_Y)*3/4
 
 #define ARROW_CODE_X (INS_BOX_X + INS_BOX_W)/2
-#define ARROW_CODE_Y (TUT_BOX_Y + TUT_BOX_H)
+#define ARROW_CODE_Y (TUT_BOX_Y + TUT_BOX_H*6/5)
 
 #define LEVEL_LINE_W 4
 
@@ -100,8 +100,15 @@ void lv_level_1_tutorial(bool holding_line)
 		} else if(code_size == 1 && holding_line == true &&
  									  cw_check_code_pending_operand() == false){
 			level_1_tutorial_drop_instruction(MESSAGE_2);
-		}
-
+		} else if (code_size == 2 && cw_check_code_sorted() == true &&
+									   cw_check_code_pending_op1() == true){
+			level_1_tutorial_select_operand(OP1);
+			bf_draw_buffers(OB);
+		} else if(code_size == 2 && cw_check_code_sorted() == true &&
+				    				   cw_check_code_pending_operand() == true){
+			level_1_tutorial_select_operand(OP2);
+			rg_display_registers(true);
+		} 
 }
 
 /* Function: level_1_tutorial_instruction_select
@@ -195,7 +202,7 @@ static int level_1_tutorial_select_operand(int operand_pos)
 	int w = cw_get_code_box_member(MEMBER_W);
 	int h = cw_get_code_box_member(MEMBER_H);
 	int x = cw_get_code_box_member(MEMBER_X) + (w - TUT_BOX_W)/2;
-	int y = (cw_get_code_box_member(MEMBER_Y)+ h)/2;
+	int y = TUT_BOX_Y;//(cw_get_code_box_member(MEMBER_Y)+ h)/2;
 	dw_draw_filled_rectangle(x, y, TUT_BOX_W, TUT_BOX_H, COLOR_BLACK, 
 																   COLOR_WHITE);
 	if (operand_pos == OP1){
