@@ -1313,7 +1313,7 @@ void cw_draw_code_window()
 
 	// Challenge text
 	dw_draw_wrapped_text_fits_height(text_box.x, text_box.y, text_box.w, 
-								  TEXT_BOX_HEIGHT, COLOR_WHITE, challenge_text);
+					  text_box.h, TEXT_BOX_HEIGHT, COLOR_WHITE, challenge_text);
 
 	// Text rectangle
 	dw_draw_rectangle(text_box.x, text_box.y, text_box.w, text_box.h, 

@@ -221,8 +221,7 @@ bool mc_invalid_operation_handler(int id)
 	}
 
 	dw_draw_wrapped_text_fits_height(MESSAGE_TEXT_X, MESSAGE_TEXT_Y, 
-									 MESSAGE_TEXT_W, MESSAGE_TEXT_H, 
-									 COLOR_WHITE, message);
+		  MESSAGE_TEXT_W, MESSAGE_TEXT_H, MESSAGE_TEXT_H, COLOR_WHITE, message);
 	
 	free(message);
 

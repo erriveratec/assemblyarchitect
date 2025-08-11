@@ -29,7 +29,7 @@ typedef struct value_box_t{
 
 char *number_to_string(int number);
 bool check_if_text_fits_in_width(char *t, float s, int w);
-bool check_if_text_fits_in_width_by_height(char *t, int h, int w);
+bool check_text_fits_width_by_height(char *t, int h, int w);
 char *number_to_string_with_prepend_zero(int number);
 int get_text_height(char *t, float s);
 int get_text_width(char *text, float scale);

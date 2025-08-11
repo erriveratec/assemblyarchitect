@@ -361,7 +361,7 @@ bool check_if_text_fits_in_width(char *t, float s, int w)
 	return check;
 }
 
-/* Function: check_if_text_fits_in_width_by_height
+/* Function: check_text_fits_width_by_height
  * -------------------------------------
  * This function receives receives a string and verifies if it fits in a
  * given width using a given height
@@ -376,7 +376,7 @@ bool check_if_text_fits_in_width(char *t, float s, int w)
  * 	false if it not fits
  */
 
-bool check_if_text_fits_in_width_by_height(char *t, int h, int w)
+bool check_text_fits_width_by_height(char *t, int h, int w)
 {
 	bool check = false;
 	texture_t *text_texture = NULL;
@@ -471,7 +471,7 @@ int get_wrapped_text_height(int w, int h, char *t)
 	assert( NULL != t && "Text pointer is NULL");
 
 	int x_pos = WRAPPED_TEXT_X_OFFSET;
-	int y_pos = WRAPPED_TEXT_Y_OFFSET;
+	int y_pos = 0;
 	int y_offset = h;
 	int string_size = strlen(t);
 	
@@ -485,11 +485,11 @@ int get_wrapped_text_height(int w, int h, char *t)
 				strncpy(text, t + already_drawn_offset, 
 						i - already_drawn_offset);
 			
-				if (true == check_if_text_fits_in_width_by_height(text, h, w)){
+				if (true == check_text_fits_width_by_height(text, h, w)){
 					last_successful_fit = i;
 				}
 
-				if (false == check_if_text_fits_in_width_by_height(text, h, w)|| 
+				if (false == check_text_fits_width_by_height(text, h, w)|| 
 					CHAR_NULL == t[i]){
 					memset(text, 0, string_size);
 					strncpy(text, t + already_drawn_offset, 
@@ -505,7 +505,7 @@ int get_wrapped_text_height(int w, int h, char *t)
 
 error:
 
-	return y_pos + WRAPPED_TEXT_Y_OFFSET;
+	return y_pos;
 }
 
 

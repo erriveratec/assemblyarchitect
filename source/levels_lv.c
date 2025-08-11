@@ -133,10 +133,10 @@ static void level_1_tutorial_instruction_select(int message)
 							  						  COLOR_BLACK, COLOR_WHITE);
 	if (message == MESSAGE_1){
 		dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
-					   	TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_SELECT_INSTRUCTION_1);
+			 TUT_BOX_H, TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_SELECT_INSTRUCTION_1);
 	} else if (message == MESSAGE_2){
 		dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
-					   	TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_SELECT_INSTRUCTION_2);
+			  TUT_BOX_H,TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_SELECT_INSTRUCTION_2);
 	}	
 		return ;
 }
@@ -172,10 +172,10 @@ static void level_1_tutorial_drop_instruction(int message)
 							  						  COLOR_BLACK, COLOR_WHITE);
 	if (message == MESSAGE_1){
 		dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
-					   	  TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_DROP_INSTRUCTION_1);
+			   TUT_BOX_H, TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_DROP_INSTRUCTION_1);
 	} else if (message == MESSAGE_2){
 		dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
-					   	  TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_DROP_INSTRUCTION_2);
+			   TUT_BOX_H, TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_DROP_INSTRUCTION_2);
 	}	
 	return ;
 }
@@ -199,10 +199,10 @@ static int level_1_tutorial_select_operand(int operand_pos)
 	dw_draw_filled_rectangle(x, y, TUT_BOX_W, TUT_BOX_H, COLOR_BLACK, 
 																   COLOR_WHITE);
 	if (operand_pos == OP1){
-		dw_draw_wrapped_text_fits_height(x, y, TUT_BOX_W, TUT_TEXT_H, 
+		dw_draw_wrapped_text_fits_height(x, y, TUT_BOX_W, TUT_BOX_H, TUT_TEXT_H, 
 										   	  COLOR_WHITE, TUT_TEXT_SELECT_OP1);
 	} else if (operand_pos == OP2){
-		dw_draw_wrapped_text_fits_height(x, y, TUT_BOX_W, TUT_TEXT_H, 
+		dw_draw_wrapped_text_fits_height(x, y, TUT_BOX_W, TUT_BOX_H, TUT_TEXT_H, 
 										   	  COLOR_WHITE, TUT_TEXT_SELECT_OP2);
 	}
 	return 0;
