@@ -88,59 +88,7 @@ static bool handle_oavatar_source_operand(int op_id);
 static bool handle_ravatar_source_operand(int op_id);
 static bool check_avatar_has_value(avatar_t *avatar);
 
-/* Function: mc_check_display_reg_arrow
- * -----------------------------------------------------------------------------
- * Analize the state of the operands to determine if the register arrow should
- * be displayedj
- * 
- * Arguments:
- * 	None.
- *
- * Return:
- *	The id of the operand that the arrow must be shown 
- */
-int mc_check_display_buf_arrow() 
-{
-	int display_arrow = NO_OPERAND;
-	if (cw_check_code_sorted() == true && 
-									   cw_check_code_pending_operand() == true){
-		code_line_t *l = cw_get_code_line_pending_operand();
-		operand_t o;
-		o.id = IB;
-		if (check_operand_compatilibity(&o, l) == true){
-			display_arrow = IB;
-		} 
-		o.id = OB;
-		if (check_operand_compatilibity(&o, l) == true){
-			display_arrow = OB;
-		}
-	}
-	return display_arrow;
-}
 
-/* Function: mc_check_display_reg_arrow
- * -----------------------------------------------------------------------------
- * Analize the state of the operands to determine if the register arrow should
- * be displayedj
- * 
- * Arguments:
- * 	None.
- *
- * Return:
- *	true if the pointing arrow to the registers should be displayed
- */
-bool mc_check_display_reg_arrow() 
-{
-	bool display_arrow = false;
-	if (cw_check_code_sorted() == true && 
-									   cw_check_code_pending_operand() == true){
-		code_line_t *l = cw_get_code_line_pending_operand();
-		operand_t o;
-		o.id = RAX;
-		display_arrow = check_operand_compatilibity(&o, l);
-	}
-	return display_arrow;
-}
 
 /* Function: mc_reset_invalid_operation_flag
  * -----------------------------------------------------------------------------

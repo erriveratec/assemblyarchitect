@@ -245,15 +245,9 @@ void stage_drawings(int level, bool holding_line, bool play)
 	sb_draw_stage_buttons(cw_get_code_list_size());
 	mc_draw_avatar();
 	mc_draw_execution_arrow();
-	lv_level_drawings(level);
+	lv_level_drawings(level, holding_line, play);
 	sb_draw_return_button();
-
-	if (level == LV_LEVEL_1){
-		lv_level_1_tutorial(holding_line, play);
-	} else {	
-		bf_draw_buffers(mc_check_display_buf_arrow());
-		rg_display_registers(mc_check_display_reg_arrow());
-	}
+	
 	return;
 }
 

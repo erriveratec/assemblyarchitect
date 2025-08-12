@@ -16,6 +16,7 @@ SDL_Color COLOR_GREY = {127, 127, 127, 255};
 SDL_Color COLOR_ORANGE = {0xF8, 0x71, 0x3A, 255};
 SDL_Color COLOR_CYAN = {0, 255, 255, 255};
 SDL_Color COLOR_YELLOW = {255, 255, 0, 255};
+SDL_Color COLOR_MAGENTA = {255, 0, 255, 255};
 
 texture_t *g_arrow = NULL;
 

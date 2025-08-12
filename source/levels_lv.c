@@ -58,10 +58,14 @@ enum message{
 
 List *get_win_list();
 void add_to_win_list(int value, int type);
+static void level_1_tutorial(bool holding_line, bool play);
 static void level_1_tutorial_instruction_select(int message);
 static void level_1_tutorial_drop_instruction(int message);
 static int level_1_tutorial_select_operand(int operand_pos);
 static void level_1_tutorial_press_play();
+static void level_2_tutorial();
+static bool check_display_reg_arrow();
+static int check_display_buf_arrow();
 static void set_level_1_win_list();
 static void set_level_2_win_list();
 static void set_level_3_win_list();
@@ -72,8 +76,7 @@ static void set_level_7_win_list();
 static void set_level_8_win_list();
 static void set_level_9_win_list();
 
-
-/* Function: lv_level_1_tutorial
+/* Function: level_2_tutorial
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 1
  *
@@ -83,7 +86,25 @@ static void set_level_9_win_list();
  * Return:
  *	Void.
  */
-void lv_level_1_tutorial(bool holding_line, bool play)
+static void level_2_tutorial(){
+	bf_draw_buffers(NO_OPERAND);
+	rg_display_registers(false);
+}
+
+
+
+/* Function: level_1_tutorial
+ * -----------------------------------------------------------------------------
+ * This functions handles all the special cases of the tutorial of level 1
+ *
+ * Arguments:
+ * 	holding_line: boolean that indicates if the player is holding a line
+ * 	play: boolean indicating if the player pressed play
+ *	
+ * Return:
+ *	Void.
+ */
+static void level_1_tutorial(bool holding_line, bool play)
 {
 	int code_size = cw_get_code_list_size();
 			bf_draw_buffers(NO_OPERAND);
@@ -267,6 +288,59 @@ static int level_1_tutorial_select_operand(int operand_pos)
 	return 0;
 }
 
+/* Function: check_display_reg_arrow
+ * -----------------------------------------------------------------------------
+ * Analize the state of the operands to determine if the register arrow should
+ * be displayed
+ * 
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	The id of the operand that the arrow must be shown 
+ */
+static int check_display_buf_arrow() 
+{
+	int display_arrow = NO_OPERAND;
+	if (cw_check_code_sorted() == true && 
+									   cw_check_code_pending_operand() == true){
+		code_line_t *l = cw_get_code_line_pending_operand();
+		operand_t o;
+		o.id = IB;
+		if (check_operand_compatilibity(&o, l) == true){
+			display_arrow = IB;
+		} 
+		o.id = OB;
+		if (check_operand_compatilibity(&o, l) == true){
+			display_arrow = OB;
+		}
+	}
+	return display_arrow;
+}
+
+/* Function: check_display_reg_arrow
+ * -----------------------------------------------------------------------------
+ * Analize the state of the operands to determine if the register arrow should
+ * be displayedj
+ * 
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	true if the pointing arrow to the registers should be displayed
+ */
+static bool check_display_reg_arrow() 
+{
+	bool display_arrow = false;
+	if (cw_check_code_sorted() == true && 
+									   cw_check_code_pending_operand() == true){
+		code_line_t *l = cw_get_code_line_pending_operand();
+		operand_t o;
+		o.id = RAX;
+		display_arrow = check_operand_compatilibity(&o, l);
+	}
+	return display_arrow;
+}
 /* Function: lv_get_level_instructions_limit
  * -----------------------------------------------------------------------------
  * Arguments:
@@ -803,7 +877,7 @@ bool lv_evaluate_output_correctness()
  * Return:
  *	Void.
  */
-void lv_level_drawings(int level)
+void lv_level_drawings(int level, bool holding_line, bool play)
 {
 	assert(level < LV_LEVEL_MAX && level > LV_LEVEL_MIN && 
 			          								"Invalid level value");
@@ -814,6 +888,21 @@ void lv_level_drawings(int level)
 	int h = LEVEL_LINE_W;
 	
 	dw_draw_filled_rectangle(x, y, w, h, COLOR_GREY, COLOR_GREY);
+
+	switch(level){
+		case LV_LEVEL_1:
+			level_1_tutorial(holding_line, play);
+			break;
+
+	case LV_LEVEL_2:
+			level_2_tutorial();
+			break;
+
+		default:
+			bf_draw_buffers(check_display_buf_arrow());
+			rg_display_registers(check_display_reg_arrow());
+	}
+
 }
 
 
