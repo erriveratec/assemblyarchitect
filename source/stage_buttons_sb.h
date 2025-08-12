@@ -12,6 +12,7 @@ void sb_initialize_return_button();
 bool sb_check_clicked_stage_button();
 bool sb_check_clicked_ret_button();
 int identify_clicked_stage_button();
+int sb_get_play_button_member(int member);
 
 enum stage_buttons_e {
 	INVALID,

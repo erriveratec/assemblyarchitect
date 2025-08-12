@@ -220,15 +220,39 @@ bool mc_invalid_operation_handler(int id)
 			puts("ERROR: Invalid operation incorrec id");
 	}
 
-	dw_draw_wrapped_text_fits_height(MESSAGE_TEXT_X, MESSAGE_TEXT_Y, 
-		  MESSAGE_TEXT_W, MESSAGE_TEXT_H, MESSAGE_TEXT_H, COLOR_WHITE, message);
+	dw_draw_wrapped_text_fits_height(MESSAGE_BOX_X, MESSAGE_BOX_Y, 
+	 MESSAGE_BOX_W, MESSAGE_TEXT_TOTAL_H, MESSAGE_TEXT_H, COLOR_WHITE, message);
 	
 	free(message);
 
-	if (ms_get_mouse_left_released() == true){
-		mc_reset_invalid_operation_flag();
-		reset_level = true;
-	}
+	static bool button_created = false;
+	static button_t *ret;
+	bool button_pressed = false;
+
+	if (button_created == false){
+		button_created = true;
+		texture_t *ret_texture = load_texture_from_rendered_text(STR_BACK, 
+																   COLOR_WHITE);
+		check_mem(ret_texture);
+		int x = MESSAGE_BOX_X + MESSAGE_BOX_W/2 - BACK_BUTTON_W/2;
+		int y = MESSAGE_BOX_Y + MESSAGE_BOX_H - BACK_CONT_BUTTON_H - 
+													 RES_BOX_TEXT_BORDER_OFFSET;
+		ret = create_button(x, y, BACK_BUTTON_W, BACK_CONT_BUTTON_H, true, true, 
+																   ret_texture);
+		check_mem(ret);
+	} 
+	bt_draw_button(ret);
+
+		if (bt_check_mouse_click_button(ret) == true){
+			reset_level = true;
+			button_pressed = true;
+		} 
+		if (button_pressed == true){
+			bt_destroy_button(ret);
+			button_created = false;
+		}
+
+	error:
 	return reset_level;
 }
 

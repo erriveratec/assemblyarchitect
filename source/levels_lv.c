@@ -9,6 +9,7 @@
 #include "registers_rg.h"
 #include "instruction_window_iw.h"
 #include "code_window_cw.h"
+#include "stage_buttons_sb.h"
 
 #define TUT_TEXT_SELECT_INSTRUCTION_1 "Select and drag an instruction from the" \
 									  " instruction box"
@@ -18,6 +19,8 @@
 #define TUT_TEXT_DROP_INSTRUCTION_1 "Drop the instruction in the code box"
 #define TUT_TEXT_DROP_INSTRUCTION_2 "Drop the instruction in the code box"\
 									" below the previous instruction"
+#define TUT_TEXT_PRESS_PLAY	"Press the play button"
+
 
 #define TUT_TEXT_SELECT_OP1 "Select the destiny operand"
 #define TUT_TEXT_SELECT_OP2 "Select the source operand"
@@ -58,6 +61,7 @@ void add_to_win_list(int value, int type);
 static void level_1_tutorial_instruction_select(int message);
 static void level_1_tutorial_drop_instruction(int message);
 static int level_1_tutorial_select_operand(int operand_pos);
+static void level_1_tutorial_press_play();
 static void set_level_1_win_list();
 static void set_level_2_win_list();
 static void set_level_3_win_list();
@@ -79,7 +83,7 @@ static void set_level_9_win_list();
  * Return:
  *	Void.
  */
-void lv_level_1_tutorial(bool holding_line)
+void lv_level_1_tutorial(bool holding_line, bool play)
 {
 	int code_size = cw_get_code_list_size();
 			bf_draw_buffers(NO_OPERAND);
@@ -111,8 +115,9 @@ void lv_level_1_tutorial(bool holding_line)
 				    				   cw_check_code_pending_operand() == true){
 			level_1_tutorial_select_operand(OP2);
 			rg_display_registers(true);
-		} else if(code_size == 2 && cw_check_code_pending_operand() == false){
-		
+		} else if(code_size == 2 && cw_check_code_pending_operand() == false &&
+																 play == false){
+			level_1_tutorial_press_play();
 		} 
 
 }
@@ -127,30 +132,34 @@ void lv_level_1_tutorial(bool holding_line)
  * Return:
  *	Void.
  */
-static void level_1_tutorial_press_play(int message)
+static void level_1_tutorial_press_play()
 {
+	int w = cw_get_code_box_member(MEMBER_W);
+	int h = cw_get_code_box_member(MEMBER_H);
+	int x = cw_get_code_box_member(MEMBER_X) + (w - TUT_BOX_W)/2;
+	int y = (cw_get_code_box_member(MEMBER_Y)+ h) - TUT_BOX_H/2;
+
 	static arrow_t arrow;
 	static bool arrow_initialized = false;
+	int startx = sb_get_play_button_member(MEMBER_X);
+	int starty = STAGE_BUTTON_Y - 2*ARROW_H;
 	if (arrow_initialized == false){
-		arrow.box.x = ARROW_INS_X;
-		arrow.box.y = ARROW_INS_Y;
-		arrow.box.w = ARROW_W;
+		arrow.box.w = ARROW_W;	
 		arrow.box.h = ARROW_H;
+		arrow.box.x = startx;
+		arrow.box.y = starty;
 		arrow.texture = g_arrow;
 		arrow.in_place = false;
 		arrow_initialized = true;
 	}
-	int travel = ARROW_INS_Y - iw_get_instruction_y_by_id(MOV);
-	dw_animate_arrow(ARROW_INS_X, ARROW_INS_Y, &arrow, DW_UP, travel);
-	dw_draw_filled_rectangle(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, TUT_BOX_H, 
-							  						  COLOR_BLACK, COLOR_WHITE);
-	if (message == MESSAGE_1){
-		dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
-			 TUT_BOX_H, TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_SELECT_INSTRUCTION_1);
-	} else if (message == MESSAGE_2){
-		dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
-			  TUT_BOX_H,TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_SELECT_INSTRUCTION_2);
-	}	
+	int travel = STAGE_BUTTON_Y - starty - ARROW_H;	
+	dw_animate_arrow(startx, starty, &arrow, DW_DOWN, travel);
+	
+
+	dw_draw_filled_rectangle(x, y, TUT_BOX_W, TUT_BOX_H, COLOR_BLACK, 
+																   COLOR_WHITE);
+	dw_draw_wrapped_text_fits_height(x, y, TUT_BOX_W, TUT_BOX_H, TUT_TEXT_H, 
+											  COLOR_WHITE, TUT_TEXT_PRESS_PLAY);
 		return ;
 }
 
@@ -789,7 +798,7 @@ bool lv_evaluate_output_correctness()
  * each of the avatars are able to reach.
  *
  * Arguments:
- *	level: The spefici level that is goin to have the drawing.
+ *	level: The speficic level that is goin to have the drawing.
  *
  * Return:
  *	Void.

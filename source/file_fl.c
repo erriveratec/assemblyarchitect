@@ -44,6 +44,11 @@
 #define STR_INSTRUCTIONS_BEGIN "InstructionsBegin"
 #define STR_REGISTERS_BEGIN "RegistersBegin"
 
+// Level specific instructions
+// ----- LEVEL 2 ----
+#define STR_L2_CODE_1 "mov [ob], rax\n"
+#define STR_L2_CODE_2 "mov rax, [ib]\n"
+
 static char *get_level_id_string(int level_id);
 static char *get_player_id_string(int player_id);
 static char *get_player_end_string(int player_id);
@@ -867,9 +872,16 @@ void fl_save_file_init()
 				
 				strcpy(level, STR_CODE_STARTS);
 				write_to_file(fp, level);
-
-				strcpy(level, CHAR_NEWLINE);
-				write_to_file(fp, level);
+				
+				if (i == 2){
+					strcpy(level, STR_L2_CODE_1);
+					write_to_file(fp, level);
+					strcpy(level, STR_L2_CODE_2);
+					write_to_file(fp, level);
+				} else {
+					strcpy(level, CHAR_NEWLINE);
+					write_to_file(fp, level);
+				}
 				
 				strcpy(level, STR_CODE_ENDS);
 				write_to_file(fp, level);

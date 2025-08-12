@@ -28,16 +28,12 @@
 
 /*******************************RETURN BUTTON*********************************/
 #define MESSAGE_BOX_W 400
-#define MESSAGE_BOX_H 100
+#define MESSAGE_BOX_H 200
 #define MESSAGE_BOX_X (SCREEN_WIDTH - MESSAGE_BOX_W)/2
 #define MESSAGE_BOX_Y (SCREEN_HEIGHT - MESSAGE_BOX_H)/2
 
-#define MESSAGE_TEXT_W 350
 #define MESSAGE_TEXT_H 40
-#define MESSAGE_TEXT_X MESSAGE_BOX_X + (MESSAGE_BOX_W - MESSAGE_TEXT_W)/2
-#define MESSAGE_TEXT_Y (MESSAGE_BOX_Y + 10)
-
-
+#define MESSAGE_TEXT_TOTAL_H 120
 /*******************************EXECUTION ARROW********************************/
 #define EXEC_ARROW_X_COORD_OFFSET - 50
 #define EXEC_ARROW_Y_COORD_OFFSET 10
@@ -129,18 +125,23 @@
 #define RES_BOX_TEXT_Y RES_BOX_Y + RES_BOX_TEXT_BORDER_OFFSET 
 #define RES_BOX_TEXT_H 30
 
-#define WIN_MENU_BUTTON1_W 100
-#define WIN_MENU_BUTTON2_W 200
+#define BACK_BUTTON_W 100
+#define CONT_BUTTON_W 200
 
-#define WIN_MENU_BUTTON_H 60
+#define BACK_CONT_BUTTON_H 60
 
 
-#define WIN_MENU_BUTTON1_X RES_BOX_X + (RES_BOX_W - (WIN_MENU_BUTTON1_W + \
-						   WIN_MENU_BUTTON2_W))/3
-#define WIN_MENU_BUTTON2_X RES_BOX_X + WIN_MENU_BUTTON1_W + 2*(RES_BOX_W - \
-						   (WIN_MENU_BUTTON1_W + WIN_MENU_BUTTON2_W))/3
-#define WIN_MENU_BUTTON_Y RES_BOX_Y + RES_BOX_H - WIN_MENU_BUTTON_H - \
+#define WIN_MENU_BUTTON1_X RES_BOX_X + (RES_BOX_W - (BACK_BUTTON_W + \
+						   CONT_BUTTON_W))/3
+#define WIN_MENU_BUTTON2_X RES_BOX_X + BACK_BUTTON_W + 2*(RES_BOX_W - \
+						   (BACK_BUTTON_W + CONT_BUTTON_W))/3
+#define WIN_MENU_BUTTON_Y RES_BOX_Y + RES_BOX_H - BACK_CONT_BUTTON_H - \
 						  RES_BOX_TEXT_BORDER_OFFSET 
+
+/****************************BACK-CONTINUE BUTTONS*****************************/
+#define STR_BACK "Back"
+#define STR_CONT "Continue"
+
 
 /***********************************CODE***************************************/
 

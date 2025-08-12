@@ -30,7 +30,6 @@ static void display_player_code();
 static void add_code_line(code_line_t *line);
 static void set_code_box_member(int value, int member);
 static void set_text_box_member(int value, int member);
-int cw_get_code_box_member(int member);
 static int get_text_box_member(int member);
 static void code_box_height_adjust();
 static void adjust_code_box_position();

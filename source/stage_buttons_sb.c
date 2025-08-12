@@ -4,6 +4,7 @@
 #include "button_bt.h"
 #include "dimensions.h"
 #include "code_window_cw.h"
+#include "assert.h"
 
 
 texture_t *stop_button = NULL;
@@ -17,6 +18,42 @@ button_t *step_back;
 button_t *play;
 button_t *step_forward;
 button_t *ret_button;
+
+/* Function: cw_get_play_button_member
+ * -----------------------------------------------------------------------------
+ * This function returns the solicited button value from the play button
+ *
+ * Arguments:
+ * member: The specific member that is being requested.
+ *
+ * Return:
+ *	The accessed member.
+ */
+int sb_get_play_button_member(int member)
+{
+	assert(member >= MEMBER_X && member <= MEMBER_H &&  "Member is incorrect");
+
+	int return_value;
+	switch (member){
+		
+		case MEMBER_X:
+			return_value = play->x;
+			break;
+		case MEMBER_Y:
+			return_value = play->y;
+			break;
+		case MEMBER_W:
+			return_value = play->w;
+			break;
+		case MEMBER_H:
+			return_value = play->h;
+			break;
+		default:
+			return_value = INVALID_MEMBER;
+			break;
+	}
+	return return_value;
+}
 
 static bool sb_check_released_in_stage_button(); // not used
 

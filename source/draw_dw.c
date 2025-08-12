@@ -57,6 +57,22 @@ void dw_animate_arrow(int start_x, int start_y, arrow_t *arrow,
 			dw_draw_rotated_texture_fits_h(arrow->box.x, arrow->box.y, 
 	     								   arrow->box.h, -90.0, arrow->texture);
 			break;
+
+		case DW_DOWN:
+			if (arrow->box.y >= start_y + travel){
+				arrow->in_place = true;	
+			} else if (arrow->box.y <= start_y){
+				arrow->in_place = false;
+			}
+			if (arrow->in_place == false){
+				arrow->box.y++;
+			}else if (arrow->in_place == true){
+				arrow->box.y--;
+			}
+			dw_draw_rotated_texture_fits_h(arrow->box.x, arrow->box.y, 
+	     								   arrow->box.h, 90.0, arrow->texture);
+			break;
+
 		case DW_RIGHT:
 			if (arrow->box.x >= start_x + travel){
 				arrow->in_place = true;	

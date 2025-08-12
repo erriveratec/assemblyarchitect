@@ -23,8 +23,6 @@
 #define ESC_MENU_TEXT2 "Toggle Full Screen"
 #define ESC_MENU_TEXT3 "Exit Game"
 
-#define WIN_MENU_TEXT1 "Back"
-#define WIN_MENU_TEXT2 "Continue"
 
 // Escape option menu variables
 bool g_quit = false;
@@ -53,7 +51,7 @@ static char *win_text = "The challenge is correct";
 static char *lose_text = "The challenge is incorrect";
 static SDL_Rect result_box;
 
-void stage_drawings(int level, bool holding_line);
+void stage_drawings(int level, bool holding_line, bool play);
 static void pending_operand_handler();
 static void flag_handler(level_flags_t *flags, int clicked_button);
 static bool edit_code(int level_id);
@@ -230,15 +228,17 @@ static void destroy_level(level_flags_t *flags)
 }
 /* Function: stages_drawings
  * -----------------------------------------------------------------------------
+ * Does all the drawings regarding a level
+ *
  * Arguments:
- *	input_list: the list of inputs that are going to be available to the player
- *	instruction_list: the list of available instructions in the level
- *	code: the developed code of the player
+ *	level: id of the level that is being rendered
+ *	holding_line: boolean indicating if the player is holding a line
+ *	play: boolean indicating if the play button is active
  *
  * Return:
  *	Void.
  */
-void stage_drawings(int level, bool holding_line)
+void stage_drawings(int level, bool holding_line, bool play)
 {
 	iw_display_instructions(INS_BOX_X, INS_BOX_Y);
 	cw_draw_code_window();	
@@ -249,7 +249,7 @@ void stage_drawings(int level, bool holding_line)
 	sb_draw_return_button();
 
 	if (level == LV_LEVEL_1){
-		lv_level_1_tutorial(holding_line);
+		lv_level_1_tutorial(holding_line, play);
 	} else {	
 		bf_draw_buffers(mc_check_display_buf_arrow());
 		rg_display_registers(mc_check_display_reg_arrow());
@@ -518,8 +518,11 @@ void stage_button_handler()
 
 /* Function: flag_handler
  * ----------------------------------------------------------------------------
+ * Sets the value of flags of the state of the game
+ *
  * Arguments:
- * 	code: developed by the player.
+ * 	flags: level flags.
+ *	clicked_button: ide of the stage button clicked by the player
  *
  * Return:
  *	void.
@@ -699,11 +702,12 @@ int stage_level(int level_id)
 	if (level_init == false){
 		level_init = level_initialization(level_id);
 	}
-	if (sb_check_clicked_stage_button() == true){
+	if (sb_check_clicked_stage_button() == true && 
+									  cw_check_code_pending_operand() == false){
 		flag_handler(&flags, identify_clicked_stage_button());
 	}
 	
-	stage_drawings(level_id, holding_line);
+	stage_drawings(level_id, holding_line, flags.play);
 	cw_sort_code();
 	
 	if (flags.non_stop == false || cw_check_code_pending_operand() == true){
@@ -854,19 +858,17 @@ static int display_run_result(bool win_check)
 	if (buttons_created == false){
 		buttons_created = true;
 		texture_t *ret_texture = load_texture_from_rendered_text(
-								 WIN_MENU_TEXT1, COLOR_WHITE);
+								 STR_BACK, COLOR_WHITE);
 		check_mem(ret_texture);
 		texture_t *con_texture = load_texture_from_rendered_text(
-								 WIN_MENU_TEXT2, COLOR_WHITE);
+								 STR_CONT, COLOR_WHITE);
 		check_mem(con_texture);
 
 		ret = create_button(WIN_MENU_BUTTON1_X, WIN_MENU_BUTTON_Y, 
-							WIN_MENU_BUTTON1_W, WIN_MENU_BUTTON_H, 
-							true, true, ret_texture);
+					BACK_BUTTON_W, BACK_CONT_BUTTON_H, true, true, ret_texture);
 		check_mem(ret);
 		con = create_button(WIN_MENU_BUTTON2_X, WIN_MENU_BUTTON_Y, 
-							WIN_MENU_BUTTON2_W, WIN_MENU_BUTTON_H, 
-								 true, true, con_texture);
+					CONT_BUTTON_W, BACK_CONT_BUTTON_H, true, true, con_texture);
 	} 
 	bt_draw_button(ret);
 	bt_draw_button(con);
