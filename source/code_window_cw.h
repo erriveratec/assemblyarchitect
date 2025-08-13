@@ -35,7 +35,7 @@ void cw_change_clicked_code_line_state();
 int cw_get_code_list_size();
 int cw_get_instruction_at_code_pos(int position);
 int cw_get_instruction_operand(int position, int operand_number);
-code_line_t *get_code_line_at_pos(int pos);
+code_line_t *cw_get_code_line_at_pos(int pos);
 void cw_reset_code_execution();
 void cw_add_saved_line(char *line);
 void cw_destroy_code_window_assets();
@@ -47,5 +47,6 @@ void cw_update_saved_jump_instructions();
 void cw_operate_jump_instruction(code_line_t *line);
 int cw_get_code_box_member(int member);
 int cw_get_line_y(int pos);
+int cw_get_text_box_member(int member);
 
 #endif

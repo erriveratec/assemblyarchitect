@@ -29,6 +29,9 @@
 									" by clicking in the instruction name"	
 #define TUT_TEXT_ELIMINATE_INSTRUCTION "Drag the instruction out of the code"\
 									" to delete it."
+#define TUT_TEXT_CHANGE_OPERAND "Change any operand by clicking on it. Click"\
+								" the source operand of the instruction."
+#define TUT_TEXT_SELECT_IB "Select the Input Buffer as the destiny operand."
 
 #define TUT_TEXT_X INS_BOX_X
 #define TUT_TEXT_Y SCREEN_HEIGHT/2 - TUT_BOX_H
@@ -71,6 +74,8 @@ static void level_1_tutorial_press_play();
 static void level_2_tutorial(bool holding_line, bool play);
 static void level_2_tutorial_select_instruction();
 static void level_2_tutorial_eliminate_instruction();
+static void level_2_tutorial_change_operand(int op_x);
+static void level_2_tutorial_select_output_buffer();
 static bool check_display_reg_arrow();
 static int check_display_buf_arrow();
 static void set_level_1_win_list();
@@ -93,20 +98,107 @@ static void set_level_9_win_list();
  * Return:
  *	Void.
  */
-static void level_2_tutorial(bool holding_line, bool playe){
+static void level_2_tutorial(bool holding_line, bool play){
 	bf_draw_buffers(NO_OPERAND);
 	rg_display_registers(false);
 	int code_size = cw_get_code_list_size();
+	
+	const int pos_two = 1;
+	const int two_instructions = 2;
+	bool change_op = false;
+	code_line_t *i = NULL;
 
+	if (code_size >= two_instructions && holding_line == false){
+		i = cw_get_code_line_at_pos(pos_two);
+	}
+	if (i != NULL && i->op1 != NULL && i->op2 != NULL){
+		if (i->op1->id == RAX && i->op2->id == RAX){
+			change_op = true;
+		}
+	}
 	if (code_size > level_instructions_limit && holding_line == false){
 		level_2_tutorial_select_instruction();
 	} else if (code_size > level_instructions_limit && holding_line == true){
 		level_2_tutorial_eliminate_instruction();
-	}
-
-
+	} else if (change_op == true && holding_line == false){
+		if (i->state != CHANGING_OP2){
+			level_2_tutorial_change_operand(i->op2->b->x);
+		} else if (i->state == CHANGING_OP2){
+			level_2_tutorial_select_output_buffer();
+			bf_draw_buffers(IB);
+		}
+	} 
+	
 }
 
+/* Function: level_2_tutorial_select_output_buffer
+ * -----------------------------------------------------------------------------
+ * Points the player to the selection of the operands
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void level_2_tutorial_select_output_buffer()
+{
+	int final_y = cw_get_line_y( cw_get_code_list_size()-1) + ARROW_H;
+	int w = cw_get_code_box_member(MEMBER_W);
+	int h = cw_get_code_box_member(MEMBER_H);
+	int x = SCREEN_WIDTH/2 - TUT_BOX_W/2;
+	int y = SCREEN_HEIGHT/4 - TUT_BOX_H;
+
+	dw_draw_filled_rectangle(x, y, TUT_BOX_W, TUT_BOX_H, COLOR_BLACK, 
+																   COLOR_WHITE);
+	dw_draw_wrapped_text_fits_height(x, y, TUT_BOX_W, TUT_BOX_H, TUT_TEXT_H, 
+								   	 	  	   COLOR_WHITE, TUT_TEXT_SELECT_IB);
+	return;
+}
+/* Function: level_2_tutorial_change_operand
+ * -----------------------------------------------------------------------------
+ * Points the player to the selection of the operands
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void level_2_tutorial_change_operand(int op_x)
+{
+	int final_y = cw_get_line_y( cw_get_code_list_size()-1) + ARROW_H;
+	int w = cw_get_code_box_member(MEMBER_W);
+	int h = cw_get_code_box_member(MEMBER_H);
+	int x = cw_get_code_box_member(MEMBER_X) + (w - TUT_BOX_W)/2;
+	int y = final_y + 2*ARROW_H;
+
+	dw_draw_filled_rectangle(x, y, TUT_BOX_W, TUT_BOX_H, COLOR_BLACK, 
+																   COLOR_WHITE);
+	dw_draw_wrapped_text_fits_height(x, y, TUT_BOX_W, TUT_BOX_H, TUT_TEXT_H, 
+								   	 	  COLOR_WHITE, TUT_TEXT_CHANGE_OPERAND);
+
+
+	int startx =  op_x + ARROW_W/2;
+	int starty = y - 2*ARROW_H;
+	static arrow_t arrow;
+	static bool arrow_initialized = false;
+	if (arrow_initialized == false){
+		arrow.box.w = ARROW_W;	
+		arrow.box.h = ARROW_H;
+		arrow.box.x = startx;		
+		arrow.box.y = starty;
+		arrow.texture = g_arrow;
+		arrow.in_place = false;
+		arrow_initialized = true;
+	}
+	int travel = ARROW_W;	
+	SDL_SetTextureColorMod(arrow.texture->texture, 255, 0, 255);
+	dw_animate_arrow(startx, starty, &arrow, DW_UP, travel);
+	SDL_SetTextureColorMod(arrow.texture->texture, 255, 255, 255);
+
+	return;
+}
 /* Function: level_2_tutorial_eliminate instruction
  * -----------------------------------------------------------------------------
  * Points the player to the selection of the operands
@@ -131,7 +223,7 @@ static void level_2_tutorial_eliminate_instruction()
 								   COLOR_WHITE, TUT_TEXT_ELIMINATE_INSTRUCTION);
 
 	int startx =  cw_get_code_box_member(MEMBER_X) + w;
-	int starty = y - ARROW_H;
+	int starty = cw_get_text_box_member(MEMBER_Y);
 	static arrow_t arrow;
 	static bool arrow_initialized = false;
 	if (arrow_initialized == false){
@@ -143,7 +235,7 @@ static void level_2_tutorial_eliminate_instruction()
 		arrow.in_place = false;
 		arrow_initialized = true;
 	}
-	int travel = starty - final_y;	
+	int travel = ARROW_W;	
 	SDL_SetTextureColorMod(arrow.texture->texture, 255, 0, 255);
 	dw_animate_arrow(startx, starty, &arrow, DW_RIGHT, travel);
 	SDL_SetTextureColorMod(arrow.texture->texture, 255, 255, 255);

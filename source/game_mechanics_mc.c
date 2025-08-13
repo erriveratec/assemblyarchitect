@@ -1270,7 +1270,7 @@ bool mc_run_code()
 		return finished;
 	}
 	for (int i = 0; i < code_size; i++){
-		code_line_t *line = get_code_line_at_pos(i);
+		code_line_t *line = cw_get_code_line_at_pos(i);
 		if (line->state != EXECUTED){
 			execute_instruction(line, i);	
 			return finished;

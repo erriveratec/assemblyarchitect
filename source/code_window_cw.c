@@ -30,7 +30,6 @@ static void display_player_code();
 static void add_code_line(code_line_t *line);
 static void set_code_box_member(int value, int member);
 static void set_text_box_member(int value, int member);
-static int get_text_box_member(int member);
 static void code_box_height_adjust();
 static void adjust_code_box_position();
 static int get_first_code_line_y();
@@ -113,7 +112,7 @@ void cw_update_saved_jump_instructions()
 		c = cur->value;
 		if (c->ins->id == JMP){
 			assert(c->op1 != NULL && "op1 should't be NULL");
-			code_line_t  *jmp_addr = get_code_line_at_pos(c->op1->id);
+			code_line_t  *jmp_addr = cw_get_code_line_at_pos(c->op1->id);
 			cl_destroy_operand(c->op1);	
 			assert(cw_check_if_in_code_list(jmp_addr) == true && "Instruction"
 				   "not present in code list");
@@ -665,7 +664,7 @@ void cw_add_saved_line(char *line)
 }
 
 
-/* Function: get_code_line_at_pos
+/* Function: cw_get_code_line_at_pos
  *------------------------------------------------------------------------------
  * Arguments:
  *	int: the position of the code_line that will be recovered.
@@ -673,7 +672,7 @@ void cw_add_saved_line(char *line)
  * Return:
  *	The code line at a given position 
  */
-code_line_t *get_code_line_at_pos(int pos)
+code_line_t *cw_get_code_line_at_pos(int pos)
 {
 	int code_size = cw_get_code_list_size();
 	assert(pos >= 0 && pos < code_size && "Incorrect position value");
@@ -1028,7 +1027,7 @@ static void set_text_box_member(int value, int member)
 	}
 	return;
 }
-/* Function: get_text_box_member
+/* Function: cw_get_text_box_member
  * -----------------------------------------------------------------------------
  * This function access and returns the members of the text box object.
  *
@@ -1038,7 +1037,7 @@ static void set_text_box_member(int value, int member)
  * Return:
  *	The accessed member.
  */
-static int get_text_box_member(int member)
+int cw_get_text_box_member(int member)
 {
 	assert(member >= MEMBER_X && member <= MEMBER_H &&  "Member is incorrect");
 
@@ -1168,7 +1167,7 @@ static void set_text_box(int x, int y, int w, int h)
  */
 static int get_first_code_line_y()
 {
-	int y = get_text_box_member(MEMBER_Y) + get_text_box_member(MEMBER_H) + 
+	int y = cw_get_text_box_member(MEMBER_Y) + cw_get_text_box_member(MEMBER_H) + 
 			CODE_BOX_OFFSET - ADJUSTING_OFFSET;
 	return y;
 }
@@ -1273,7 +1272,7 @@ static void adjust_code_box_position()
 	int delta = get_movement_delta(0, y_pending_scroll, MOVEMENT_DELTA);	
 
 	if (0 != y_pending_scroll){
-		int text_box_y = get_text_box_member(MEMBER_Y);
+		int text_box_y = cw_get_text_box_member(MEMBER_Y);
 		
 		if (y_pending_scroll < 0){
 			cur_y -= delta;
@@ -1431,7 +1430,7 @@ void display_line_number()
 	}
 
 	int x = cw_get_code_box_member(MEMBER_X) + LINE_NUMBER_OFFSET;
-	int y = get_text_box_member(MEMBER_Y) + get_text_box_member(MEMBER_H) + 
+	int y = cw_get_text_box_member(MEMBER_Y) + cw_get_text_box_member(MEMBER_H) + 
 			CODE_BOX_OFFSET;
 	int h = CODE_BUTTON_H;
 	char *number = NULL;
@@ -1465,7 +1464,7 @@ int cw_get_line_y(int pos)
 	assert(code != NULL && "The code list can't be NULL");
 	
 	int list_size = List_count(code);
-	int y = get_text_box_member(MEMBER_Y) + get_text_box_member(MEMBER_H) + 
+	int y = cw_get_text_box_member(MEMBER_Y) + cw_get_text_box_member(MEMBER_H) + 
 																CODE_BOX_OFFSET;
 	if (list_size == 0){
 		return y;
