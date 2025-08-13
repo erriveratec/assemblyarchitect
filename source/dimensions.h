@@ -142,7 +142,6 @@
 #define STR_BACK "Back"
 #define STR_CONT "Continue"
 
-
 /***********************************CODE***************************************/
 
 // The code box that contains level, description and developed code

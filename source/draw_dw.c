@@ -373,12 +373,12 @@ texture_t *load_texture_from_rendered_text(char *texture_text,
  */
 void dw_free_texture(texture_t *texture)
 {
-	if (NULL != texture->texture){
+	if (texture->texture != NULL){
 		SDL_DestroyTexture(texture->texture);
 		texture->texture = NULL;
 		texture->w = 0;
 		texture->h = 0;
-	} //end if
+	} 	
 	free(texture);
 }
 
@@ -408,7 +408,7 @@ void dw_draw_wrapped_text_fits_height(int x, int y, int w, int h, int text_h,
 	assert( NULL != t && "Text pointer is NULL");
 
 	int x_pos = x + WRAPPED_TEXT_X_OFFSET;
-	int y_pos = y + (h - get_wrapped_text_height(w, text_h, t))/2;
+	int y_pos = y + (h - ax_get_wrapped_text_height(w, text_h, t))/2;
 	int y_offset = text_h;
 	int string_size = strlen(t);
 	char *text = malloc(sizeof(char)*string_size);
@@ -511,7 +511,7 @@ void dw_draw_text_fits_height(int x, int y, int h, SDL_Color color, char *text)
 
 	int status = SUCCESS;	
 	status = draw_scaled_texture(x, y, scale, text_texture);
-	assert(FAIL != status && "The texture could not be drawn");
+	assert(status != FAIL && "The texture could not be drawn");
 
 	dw_free_texture(text_texture);
 }

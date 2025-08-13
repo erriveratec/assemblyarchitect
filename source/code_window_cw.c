@@ -34,7 +34,6 @@ static int get_text_box_member(int member);
 static void code_box_height_adjust();
 static void adjust_code_box_position();
 static int get_first_code_line_y();
-static int get_code_line_x(int instruction_id);
 static int get_label_operand_value(code_line_t *line);
 List *get_code_list();
 static int get_code_line_pos_by_ptr(code_line_t *line);
@@ -620,7 +619,7 @@ void cw_add_saved_line(char *line)
 	texture_t *instruction_tex = load_texture_from_rendered_text(
 						  		  ins_text, COLOR_WHITE);
 	
-	int x = get_code_line_x(ins_id);
+	int x = cw_get_code_line_x(ins_id);
 	int y = get_first_code_line_y();
 
 	for (int i = 0; i <= list_size; i++){
@@ -1129,9 +1128,8 @@ void cw_set_code_box(int x, int y, int w, int h)
 	code_box.w = w;
 	code_box.h = h;
 
-	int text_box_height = get_wrapped_text_height(TEXT_BOX_WIDTH, 
-												  TEXT_BOX_HEIGHT,
-												  challenge_text);
+	int text_box_height = ax_get_wrapped_text_height(TEXT_BOX_WIDTH, 
+											   TEXT_BOX_HEIGHT, challenge_text);
 	set_text_box(x + CODE_BOX_OFFSET, y + CODE_BOX_OFFSET + STAGE_NAME_H
 				 + CODE_BOX_OFFSET, TEXT_BOX_WIDTH, text_box_height);
 }
@@ -1175,7 +1173,7 @@ static int get_first_code_line_y()
 	return y;
 }
 
-/* Function: get_code_line_x
+/* Function: cw_get_code_line_x
  * -----------------------------------------------------------------------------
  * This function calculates and returns the x position of the lines of code
  * that will be incorporated in the code box. IF it is a label instruction
@@ -1187,7 +1185,7 @@ static int get_first_code_line_y()
  * Return:
  *	int with the coordinate of the x coordinates for the lines of code
  */
-static int get_code_line_x(int instruction_id)
+int cw_get_code_line_x(int instruction_id)
 {
 	int x;  
 	
@@ -1451,6 +1449,42 @@ void display_line_number()
 	}
 }
 
+/* Function: cw_get_line_y
+ * -------------------------------------
+ * Returns the y coodinate a instruction must be assigned
+ *
+ * Arguments:
+ * 	position: position of the line
+ *
+ * Return:
+ * 	The y coordinate the instruction must have 
+ */
+int cw_get_line_y(int pos)
+{
+	List *code = get_code_list();
+	assert(code != NULL && "The code list can't be NULL");
+	
+	int list_size = List_count(code);
+	int y = get_text_box_member(MEMBER_Y) + get_text_box_member(MEMBER_H) + 
+																CODE_BOX_OFFSET;
+	if (list_size == 0){
+		return y;
+	}
+
+	int x = cw_get_code_box_member(MEMBER_X) + LINE_NUMBER_OFFSET;
+		int h = CODE_BUTTON_H;
+	
+	int line_number = 1;
+	for(int i = 0; i < list_size; i++){
+	int instruction = cw_get_instruction_at_code_pos(i);
+		y += CODE_BUTTON_H;
+		if (pos == i){
+			break;
+		}
+	}
+	return y;
+}
+
 /* Function: cw_sort_code
  * -----------------------------------------------------------------------------
  * This function iterates throught the list of code done by the player to 
@@ -1479,7 +1513,7 @@ void cw_sort_code()
 	LIST_FOREACH(code, first, next, cur){
 
 		code_line_t *line = cur->value;
-		int x = get_code_line_x(line->ins->id);
+		int x = cw_get_code_line_x(line->ins->id);
 		int delta = get_movement_delta(line->ins->b->x, x, MOVEMENT_DELTA);	
 		
 		if (line->ins->b->x < x){
@@ -1930,7 +1964,7 @@ bool cw_check_code_sorted()
 
 		code_line_t *value = cur->value;
 		button_t *b = value->ins->b;
-		int x = get_code_line_x(value->ins->id);
+		int x = cw_get_code_line_x(value->ins->id);
 
 		if (b->x < x || b->x > x || b->y < y || b->y > y){
 			retval = false;

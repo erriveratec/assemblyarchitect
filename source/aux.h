@@ -34,7 +34,7 @@ char *number_to_string_with_prepend_zero(int number);
 int get_text_height(char *t, float s);
 int get_text_width(char *text, float scale);
 int get_movement_delta(int v1, int v2, int max_delta);
-int get_wrapped_text_height(int w, int h, char *t);
+int ax_get_wrapped_text_height(int w, int h, char *t);
 float get_scale_from_w_h(int w, int h, texture_t *texture);
 float get_scale_fit_height(int h, texture_t *texture);
 float get_scale_fit_width(int w, texture_t *texture);

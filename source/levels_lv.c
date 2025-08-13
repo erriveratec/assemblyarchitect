@@ -25,6 +25,11 @@
 #define TUT_TEXT_SELECT_OP1 "Select the destiny operand"
 #define TUT_TEXT_SELECT_OP2 "Select the source operand"
 
+#define TUT_TEXT_SELECT_LAST_INSTRUCTION "Select and drag the last instruction"\
+									" by clicking in the instruction name"	
+#define TUT_TEXT_ELIMINATE_INSTRUCTION "Drag the instruction out of the code"\
+									" to delete it."
+
 #define TUT_TEXT_X INS_BOX_X
 #define TUT_TEXT_Y SCREEN_HEIGHT/2 - TUT_BOX_H
 
@@ -63,7 +68,9 @@ static void level_1_tutorial_instruction_select(int message);
 static void level_1_tutorial_drop_instruction(int message);
 static int level_1_tutorial_select_operand(int operand_pos);
 static void level_1_tutorial_press_play();
-static void level_2_tutorial();
+static void level_2_tutorial(bool holding_line, bool play);
+static void level_2_tutorial_select_instruction();
+static void level_2_tutorial_eliminate_instruction();
 static bool check_display_reg_arrow();
 static int check_display_buf_arrow();
 static void set_level_1_win_list();
@@ -86,12 +93,108 @@ static void set_level_9_win_list();
  * Return:
  *	Void.
  */
-static void level_2_tutorial(){
+static void level_2_tutorial(bool holding_line, bool playe){
 	bf_draw_buffers(NO_OPERAND);
 	rg_display_registers(false);
+	int code_size = cw_get_code_list_size();
+
+	if (code_size > level_instructions_limit && holding_line == false){
+		level_2_tutorial_select_instruction();
+	} else if (code_size > level_instructions_limit && holding_line == true){
+		level_2_tutorial_eliminate_instruction();
+	}
+
+
 }
 
+/* Function: level_2_tutorial_eliminate instruction
+ * -----------------------------------------------------------------------------
+ * Points the player to the selection of the operands
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void level_2_tutorial_eliminate_instruction()
+{
+	int final_y = cw_get_line_y( cw_get_code_list_size()-1);
+	int w = cw_get_code_box_member(MEMBER_W);
+	int h = cw_get_code_box_member(MEMBER_H);
+	int x = cw_get_code_box_member(MEMBER_X) + (w - TUT_BOX_W)/2;
+	int y = final_y + 2*ARROW_H;
 
+	dw_draw_filled_rectangle(x, y, TUT_BOX_W, TUT_BOX_H, COLOR_BLACK, 
+																   COLOR_WHITE);
+	dw_draw_wrapped_text_fits_height(x, y, TUT_BOX_W, TUT_BOX_H, TUT_TEXT_H, 
+								   COLOR_WHITE, TUT_TEXT_ELIMINATE_INSTRUCTION);
+
+	int startx =  cw_get_code_box_member(MEMBER_X) + w;
+	int starty = y - ARROW_H;
+	static arrow_t arrow;
+	static bool arrow_initialized = false;
+	if (arrow_initialized == false){
+		arrow.box.w = ARROW_W;	
+		arrow.box.h = ARROW_H;
+		arrow.box.x = startx;		
+		arrow.box.y = starty;
+		arrow.texture = g_arrow;
+		arrow.in_place = false;
+		arrow_initialized = true;
+	}
+	int travel = starty - final_y;	
+	SDL_SetTextureColorMod(arrow.texture->texture, 255, 0, 255);
+	dw_animate_arrow(startx, starty, &arrow, DW_RIGHT, travel);
+	SDL_SetTextureColorMod(arrow.texture->texture, 255, 255, 255);
+
+	return;
+}
+
+/* Function: level_2_tutorial_select_instruction
+ * -----------------------------------------------------------------------------
+ * Points the player to the selection of the operands
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void level_2_tutorial_select_instruction()
+{
+
+	int final_y = cw_get_line_y( cw_get_code_list_size()-1);
+	int w = cw_get_code_box_member(MEMBER_W);
+	int h = cw_get_code_box_member(MEMBER_H);
+	int x = cw_get_code_box_member(MEMBER_X) + (w - TUT_BOX_W)/2;
+	int y = final_y + 2*ARROW_H;
+
+	dw_draw_filled_rectangle(x, y, TUT_BOX_W, TUT_BOX_H, COLOR_BLACK, 
+																   COLOR_WHITE);
+	dw_draw_wrapped_text_fits_height(x, y, TUT_BOX_W, TUT_BOX_H, TUT_TEXT_H, 
+								 COLOR_WHITE, TUT_TEXT_SELECT_LAST_INSTRUCTION);
+
+	int startx = cw_get_code_line_x(MOV) + ARROW_W/2;
+	int starty = y - ARROW_H;
+	static arrow_t arrow;
+	static bool arrow_initialized = false;
+	if (arrow_initialized == false){
+		arrow.box.w = ARROW_W;	
+		arrow.box.h = ARROW_H;
+		arrow.box.x = startx;		
+		arrow.box.y = starty;
+		arrow.texture = g_arrow;
+		arrow.in_place = false;
+		arrow_initialized = true;
+	}
+	int travel = starty - final_y;	
+	SDL_SetTextureColorMod(arrow.texture->texture, 255, 0, 255);
+	dw_animate_arrow(startx, starty, &arrow, DW_UP, travel);
+	SDL_SetTextureColorMod(arrow.texture->texture, 255, 255, 255);
+
+	return;
+}
 
 /* Function: level_1_tutorial
  * -----------------------------------------------------------------------------
@@ -895,7 +998,7 @@ void lv_level_drawings(int level, bool holding_line, bool play)
 			break;
 
 	case LV_LEVEL_2:
-			level_2_tutorial();
+			level_2_tutorial(holding_line, play);
 			break;
 
 		default:

@@ -826,13 +826,13 @@ static int display_run_result(bool win_check)
 	char *text_to_print;
 	int result_box_height;
 	if (win_check == true){
-		result_box_height = get_wrapped_text_height(RES_BOX_W, 
+		result_box_height = ax_get_wrapped_text_height(RES_BOX_W, 
 												  	TEXT_BOX_HEIGHT,
 												  	win_text);
 		text_to_print = win_text;
 		bf_set_win_condition();
 	} else {
-		result_box_height = get_wrapped_text_height(RES_BOX_W, 
+		result_box_height = ax_get_wrapped_text_height(RES_BOX_W, 
 												  	TEXT_BOX_HEIGHT,
 												  	lose_text);
 		text_to_print = lose_text;

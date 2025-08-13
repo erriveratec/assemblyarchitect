@@ -22,7 +22,7 @@ InstructionLimit 99
 +++LEVEL STARTS 02
 
 ChallengeTextBegin
-"Move the values from the input buffer to the output buffer."
+"Move the values from the input buffer to the output buffer, using maximun 2 instructions."
 ChallengeTextEnd
 
 InputSize 1
@@ -36,7 +36,7 @@ RegistersBegin
 rax
 RegistersEnd
 
-InstructionLimit 99
+InstructionLimit 2
 
 +++LEVEL ENDS
 

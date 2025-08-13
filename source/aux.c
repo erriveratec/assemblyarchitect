@@ -451,7 +451,7 @@ int get_text_width(char *text, float scale)
 
 }
 
-/* Function: get_wrapped_text_height
+/* Function: ax_get_wrapped_text_height
  * -----------------------------------------------------------------------------
  * This function calculates the height required for a warped text in a given 
  * scale with a give width.
@@ -464,7 +464,7 @@ int get_text_width(char *text, float scale)
  * Return:
  *	Returns the height value of the box
  */
-int get_wrapped_text_height(int w, int h, char *t)
+int ax_get_wrapped_text_height(int w, int h, char *t)
 {
 	assert(0 < w && "The width of the text is negative");
 	assert(0 < h && "The height of the text is negative");
@@ -502,9 +502,7 @@ int get_wrapped_text_height(int w, int h, char *t)
 		}
 	} 
 	free(text);
-
 error:
-
 	return y_pos;
 }
 

@@ -39,11 +39,13 @@ code_line_t *get_code_line_at_pos(int pos);
 void cw_reset_code_execution();
 void cw_add_saved_line(char *line);
 void cw_destroy_code_window_assets();
-int cw_get_instruction_y_coord(int instruction_position);
+int cw_get_instruction_y_coord(int instruction_position); //review usage
+int cw_get_code_line_x(int instruction_id);
 bool cw_check_released_in_label();
 operand_t *cw_create_jump_operand();
 void cw_update_saved_jump_instructions();
 void cw_operate_jump_instruction(code_line_t *line);
 int cw_get_code_box_member(int member);
+int cw_get_line_y(int pos);
 
 #endif
