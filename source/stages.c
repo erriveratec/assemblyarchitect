@@ -188,8 +188,9 @@ int level_initialization(int level_id)
 	bf_create_output_list();
 	bf_reset_win_condition();
 	lv_create_win_list();
-	
-	rg_set_register_box(REG_BOX_X, REG_BOX_Y, REG_BOX_W, REG_BOX_H); //goes before the load level
+
+	//goes before the load level
+	rg_set_register_box(REG_BOX_X, REG_BOX_Y, REG_BOX_W, REG_BOX_H); 	
 	fl_file_initialize_level(level_id);
 	rg_initialize_value_boxes(); // must go after level loading
 	

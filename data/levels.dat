@@ -43,7 +43,7 @@ InstructionLimit 2
 +++LEVEL STARTS 03
 
 ChallengeTextBegin
-"Take a value from the input buffer and copy it to the output buffer three times."
+"Move the value from the input buffer and copy it to the output buffer three times."
 ChallengeTextEnd
 
 InputSize 1
@@ -60,7 +60,6 @@ RegistersEnd
 InstructionLimit 99
 
 +++LEVEL ENDS
-
 
 +++LEVEL STARTS 04
 

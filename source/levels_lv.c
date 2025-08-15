@@ -27,11 +27,17 @@
 
 #define TUT_TEXT_SELECT_LAST_INSTRUCTION "Select and drag the last instruction"\
 									" by clicking in the instruction name"	
+
 #define TUT_TEXT_ELIMINATE_INSTRUCTION "Drag the instruction out of the code"\
 									" to delete it."
+
 #define TUT_TEXT_CHANGE_OPERAND "Change any operand by clicking on it. Click"\
 								" the source operand of the instruction."
-#define TUT_TEXT_SELECT_IB "Select the Input Buffer as the destiny operand."
+
+#define TUT_TEXT_SELECT_IB "Select the Input Buffer as the source operand."
+
+#define TUT_TEXT_MOV_INSTRUCTION "Select the second instruction and move in to"\
+								  " the first position."
 
 #define TUT_TEXT_X INS_BOX_X
 #define TUT_TEXT_Y SCREEN_HEIGHT/2 - TUT_BOX_H
@@ -70,7 +76,8 @@ static void level_1_tutorial(bool holding_line, bool play);
 static void level_1_tutorial_instruction_select(int message);
 static void level_1_tutorial_drop_instruction(int message);
 static int level_1_tutorial_select_operand(int operand_pos);
-static void level_1_tutorial_press_play();
+static void tutorial_press_play();
+static void level_2_tutorial_move_instruction(int ins_x);
 static void level_2_tutorial(bool holding_line, bool play);
 static void level_2_tutorial_select_instruction();
 static void level_2_tutorial_eliminate_instruction();
@@ -103,17 +110,32 @@ static void level_2_tutorial(bool holding_line, bool play){
 	rg_display_registers(false);
 	int code_size = cw_get_code_list_size();
 	
+	const int pos_one = 0;
 	const int pos_two = 1;
 	const int two_instructions = 2;
 	bool change_op = false;
-	code_line_t *i = NULL;
+	bool mov_instruction = false;
+	bool press_play = false;
+	code_line_t *i1= NULL;
+	code_line_t *i2 = NULL;
 
 	if (code_size >= two_instructions && holding_line == false){
-		i = cw_get_code_line_at_pos(pos_two);
+		i1 = cw_get_code_line_at_pos(pos_one);
+		i2 = cw_get_code_line_at_pos(pos_two);
 	}
-	if (i != NULL && i->op1 != NULL && i->op2 != NULL){
-		if (i->op1->id == RAX && i->op2->id == RAX){
+	if (i2 != NULL && i2->op1 != NULL && i2->op2 != NULL){
+		if (i2->op1->id == RAX && i2->op2->id == RAX){
 			change_op = true;
+		} 
+	}
+	if (i1 != NULL && i1->op1 != NULL && i1->op2 != NULL &&
+	    i2 != NULL && i2->op1 != NULL && i2->op2 != NULL) {
+		if (i1->op1->id == OB && i1->op2->id == RAX &&
+		    i2->op1->id == RAX && i2->op2->id == IB){
+			mov_instruction = true;
+		} else if (i1->op1->id == RAX && i1->op2->id == IB &&
+		    i2->op1->id == OB && i2->op2->id == RAX){
+			press_play = true;
 		}
 	}
 	if (code_size > level_instructions_limit && holding_line == false){
@@ -121,16 +143,63 @@ static void level_2_tutorial(bool holding_line, bool play){
 	} else if (code_size > level_instructions_limit && holding_line == true){
 		level_2_tutorial_eliminate_instruction();
 	} else if (change_op == true && holding_line == false){
-		if (i->state != CHANGING_OP2){
-			level_2_tutorial_change_operand(i->op2->b->x);
-		} else if (i->state == CHANGING_OP2){
+		if (i2->state != CHANGING_OP2){
+			level_2_tutorial_change_operand(i2->op2->b->x);
+		} else if (i2->state == CHANGING_OP2){
 			level_2_tutorial_select_output_buffer();
 			bf_draw_buffers(IB);
 		}
-	} 
+	} else if (mov_instruction == true){
+		level_2_tutorial_move_instruction(i1->ins->b->x);
+	} else if (press_play == true){
+		tutorial_press_play();		
+	}
 	
 }
 
+/* Function: level_2_tutorial_move_instruction
+ * -----------------------------------------------------------------------------
+ * Points the player to the selection of the operands
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void level_2_tutorial_move_instruction(int ins_x)
+{
+	int final_y = cw_get_line_y( cw_get_code_list_size()-1) + ARROW_H;
+	int w = cw_get_code_box_member(MEMBER_W);
+	int h = cw_get_code_box_member(MEMBER_H);
+	int x = cw_get_code_box_member(MEMBER_X) + (w - TUT_BOX_W)/2;
+	int y = final_y + 2*ARROW_H;
+
+	dw_draw_filled_rectangle(x, y, TUT_BOX_W, TUT_BOX_H, COLOR_BLACK, 
+																   COLOR_WHITE);
+	dw_draw_wrapped_text_fits_height(x, y, TUT_BOX_W, TUT_BOX_H, TUT_TEXT_H, 
+										 COLOR_WHITE, TUT_TEXT_MOV_INSTRUCTION);
+
+	int startx =  ins_x + ARROW_W/2;
+	int starty = y - 2*ARROW_H;
+	static arrow_t arrow;
+	static bool arrow_initialized = false;
+	if (arrow_initialized == false){
+		arrow.box.w = ARROW_W;	
+		arrow.box.h = ARROW_H;
+		arrow.box.x = startx;		
+		arrow.box.y = starty;
+		arrow.texture = g_arrow;
+		arrow.in_place = false;
+		arrow_initialized = true;
+	}
+	int travel = ARROW_W;	
+	SDL_SetTextureColorMod(arrow.texture->texture, 255, 0, 255);
+	dw_animate_arrow(startx, starty, &arrow, DW_UP, travel);
+	SDL_SetTextureColorMod(arrow.texture->texture, 255, 255, 255);
+
+	return;
+}
 /* Function: level_2_tutorial_select_output_buffer
  * -----------------------------------------------------------------------------
  * Points the player to the selection of the operands
@@ -333,12 +402,12 @@ static void level_1_tutorial(bool holding_line, bool play)
 			rg_display_registers(true);
 		} else if(code_size == 2 && cw_check_code_pending_operand() == false &&
 																 play == false){
-			level_1_tutorial_press_play();
+			tutorial_press_play();
 		} 
 
 }
 
-/* Function: level_1_tutorial_press_play
+/* Function: tutorial_press_play
  * -----------------------------------------------------------------------------
  * Displays to the player to press the play button 
  *
@@ -348,7 +417,7 @@ static void level_1_tutorial(bool holding_line, bool play)
  * Return:
  *	Void.
  */
-static void level_1_tutorial_press_play()
+static void tutorial_press_play()
 {
 	int w = cw_get_code_box_member(MEMBER_W);
 	int h = cw_get_code_box_member(MEMBER_H);
@@ -813,8 +882,14 @@ static void set_level_3_win_list()
 		new_win->value = cur_input->value;
 		new_win->type = cur_input->type;
 		List_push(win_list, new_win);
-		List_push(win_list, new_win);
-		List_push(win_list, new_win);
+//		new_win = malloc(sizeof(value_box_t));
+//		new_win->value = cur_input->value;
+//		new_win->type = cur_input->type;
+//		List_push(win_list, new_win);
+//		new_win = malloc(sizeof(value_box_t));
+//		new_win->value = cur_input->value;
+//		new_win->type = cur_input->type;
+//		List_push(win_list, new_win);
 	}
 }
 /* Function: set_level_4_win_list
