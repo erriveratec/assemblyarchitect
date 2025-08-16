@@ -1,5 +1,67 @@
-
 +++LEVEL STARTS 01
+
+ChallengeTextBegin
+"Move the value from the input buffer to the output buffer."
+ChallengeTextEnd
+
+InputSize 1
+InputType Natural
+
+InstructionsBegin
+mov
+InstructionsEnd
+
+RegistersBegin
+rax
+RegistersEnd
+
+InstructionLimit 99
+
++++LEVEL ENDS
+
++++LEVEL STARTS 02
+
+ChallengeTextBegin
+"Move the values from the input buffer to the output buffer, using maximun 2 instructions."
+ChallengeTextEnd
+
+InputSize 1
+InputType Natural
+
+InstructionsBegin
+mov
+InstructionsEnd
+
+RegistersBegin
+rax
+RegistersEnd
+
+InstructionLimit 2
+
++++LEVEL ENDS
+
++++LEVEL STARTS 03
+
+ChallengeTextBegin
+"Move the value from the input buffer and copy it to the output buffer three times."
+ChallengeTextEnd
+
+InputSize 1
+InputType Natural
+
+InstructionsBegin
+mov
+InstructionsEnd
+
+RegistersBegin
+rax
+RegistersEnd
+
+InstructionLimit 99
+
++++LEVEL ENDS
+
++++LEVEL STARTS 04
 
 ChallengeTextBegin
 "Move the values from the input buffer to the output buffer."
@@ -20,7 +82,7 @@ InstructionLimit 99
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 02
++++LEVEL STARTS 05
 
 ChallengeTextBegin
 "Move the value from the input buffer to the output buffer in reverse order."
@@ -43,7 +105,7 @@ InstructionLimit 99
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 03
++++LEVEL STARTS 06
 
 ChallengeTextBegin
 "Add the values received from the input buffer in pairs and put the result in the output buffer."
@@ -65,7 +127,7 @@ InstructionLimit 99
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 04
++++LEVEL STARTS 07
 
 ChallengeTextBegin
 "Take the value received from the input buffer and multiply it by 5"
@@ -88,7 +150,7 @@ InstructionLimit 99
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 05
++++LEVEL STARTS 08
 
 ChallengeTextBegin
 "Take the value received from the input buffer and multiply it by 8"
@@ -110,7 +172,7 @@ InstructionLimit 99
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 06
++++LEVEL STARTS 09
 
 ChallengeTextBegin
 "Move the values from the input buffer to the output buffer, using four instructions maximum"
@@ -133,7 +195,7 @@ InstructionLimit 4
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 07
++++LEVEL STARTS 10
 
 ChallengeTextBegin
 "Move the values from the input buffer to the output buffer, using four instructions maximum"

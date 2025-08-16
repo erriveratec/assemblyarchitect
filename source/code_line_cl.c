@@ -379,8 +379,9 @@ char *cl_create_code_line_text(int instruction_id, int op1_id, int op2_id)
 {
 	assert(instruction_id > INSTRUCTION_MIN && instruction_id < INSTRUCTION_MAX
 		  && "The instruction id is invalid");
-	if (instruction_id == JMP){
-		assert(op1_id >=0 && "The operand id for a jump is negative");
+	
+	if (instruction_id == JMP || instruction_id == LABEL){
+		assert(op1_id >=0 && "Label destitny is negative");
 	} else {
 		assert(op1_id >= NO_OPERAND && op1_id < BUFFERS_MAX && "Invalid OP1");
 		assert(op2_id >= NO_OPERAND && op2_id < BUFFERS_MAX && "Invalid OP2");

@@ -569,14 +569,16 @@ static int check_display_buf_arrow()
 	if (cw_check_code_sorted() == true && 
 									   cw_check_code_pending_operand() == true){
 		code_line_t *l = cw_get_code_line_pending_operand();
-		operand_t o;
-		o.id = IB;
-		if (check_operand_compatilibity(&o, l) == true){
-			display_arrow = IB;
-		} 
-		o.id = OB;
-		if (check_operand_compatilibity(&o, l) == true){
-			display_arrow = OB;
+		if (l->ins->id != JMP && l->ins->id !=LABEL){
+			operand_t o;
+			o.id = IB;
+			if (check_operand_compatilibity(&o, l) == true){
+				display_arrow = IB;
+			} 
+			o.id = OB;
+			if (check_operand_compatilibity(&o, l) == true){
+				display_arrow = OB;
+			}
 		}
 	}
 	return display_arrow;
@@ -599,9 +601,11 @@ static bool check_display_reg_arrow()
 	if (cw_check_code_sorted() == true && 
 									   cw_check_code_pending_operand() == true){
 		code_line_t *l = cw_get_code_line_pending_operand();
-		operand_t o;
-		o.id = RAX;
-		display_arrow = check_operand_compatilibity(&o, l);
+		if (l->ins->id != JMP && l->ins->id != LABEL){
+			operand_t o;
+			o.id = RAX;
+			display_arrow = check_operand_compatilibity(&o, l);
+		}
 	}
 	return display_arrow;
 }
@@ -882,14 +886,14 @@ static void set_level_3_win_list()
 		new_win->value = cur_input->value;
 		new_win->type = cur_input->type;
 		List_push(win_list, new_win);
-//		new_win = malloc(sizeof(value_box_t));
-//		new_win->value = cur_input->value;
-//		new_win->type = cur_input->type;
-//		List_push(win_list, new_win);
-//		new_win = malloc(sizeof(value_box_t));
-//		new_win->value = cur_input->value;
-//		new_win->type = cur_input->type;
-//		List_push(win_list, new_win);
+		new_win = malloc(sizeof(value_box_t));
+		new_win->value = cur_input->value;
+		new_win->type = cur_input->type;
+		List_push(win_list, new_win);
+		new_win = malloc(sizeof(value_box_t));
+		new_win->value = cur_input->value;
+		new_win->type = cur_input->type;
+		List_push(win_list, new_win);
 	}
 }
 /* Function: set_level_4_win_list
