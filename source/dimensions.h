@@ -56,7 +56,7 @@
 #define GAME_TITLE_X (SCREEN_WIDTH - GAME_TITLE_W)/2
 #define GAME_TITLE_Y 25
 #define GAME_TITLE_W 1100
-#define GAME_TITLE_TEXT "Computer Architecture Game"
+#define GAME_TITLE_TEXT "Assembly Architect"
 #define PRESS_SPACE_TEXT "Press Space"
 
 #define SPACE_TEXT_X (SCREEN_WIDTH - SPACE_TEXT_W)/2

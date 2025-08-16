@@ -73,16 +73,17 @@ enum message{
 List *get_win_list();
 void add_to_win_list(int value, int type);
 static void level_1_tutorial(bool holding_line, bool play);
-static void level_1_tutorial_instruction_select(int message);
-static void level_1_tutorial_drop_instruction(int message);
 static int level_1_tutorial_select_operand(int operand_pos);
-static void tutorial_press_play();
 static void level_2_tutorial_move_instruction(int ins_x);
 static void level_2_tutorial(bool holding_line, bool play);
 static void level_2_tutorial_select_instruction();
 static void level_2_tutorial_eliminate_instruction();
 static void level_2_tutorial_change_operand(int op_x);
 static void level_2_tutorial_select_output_buffer();
+static void level_3_tutorial(bool holding_line, bool play);
+static void tutorial_select_instruction(int message);
+static void tutorial_press_play();
+static void tutorial_drop_instruction_to_code_box(int message);
 static bool check_display_reg_arrow();
 static int check_display_buf_arrow();
 static void set_level_1_win_list();
@@ -95,6 +96,56 @@ static void set_level_7_win_list();
 static void set_level_8_win_list();
 static void set_level_9_win_list();
 
+
+/* Function: level_3_tutorial
+ * -----------------------------------------------------------------------------
+ * This functions handles all the special cases of the tutorial of level 3
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void level_3_tutorial(bool holding_line, bool play)
+{
+	bf_draw_buffers(NO_OPERAND);
+	rg_display_registers(false);
+	int code_size = cw_get_code_list_size();
+
+	if (code_size == 0 && holding_line == false){
+		tutorial_select_instruction(MESSAGE_1);
+	} else if (code_size == 0 && holding_line == true){
+		tutorial_drop_instruction_to_code_box(MESSAGE_1);
+	}
+
+}
+
+/* Function: level_3_tutorial_show_available_operands
+ * -----------------------------------------------------------------------------
+ * Points the player to the selection of the operands
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void level_3_tutorial_show_available_operands()
+{
+	int final_y = cw_get_line_y( cw_get_code_list_size()-1) + ARROW_H;
+	int w = cw_get_code_box_member(MEMBER_W);
+	int h = cw_get_code_box_member(MEMBER_H);
+	int x = SCREEN_WIDTH/2 - TUT_BOX_W/2;
+	int y = SCREEN_HEIGHT/4 - TUT_BOX_H;
+
+	dw_draw_filled_rectangle(x, y, TUT_BOX_W, TUT_BOX_H, COLOR_BLACK, 
+																   COLOR_WHITE);
+	dw_draw_wrapped_text_fits_height(x, y, TUT_BOX_W, TUT_BOX_H, TUT_TEXT_H, 
+								   	 	  	   COLOR_WHITE, TUT_TEXT_SELECT_IB);
+	return;
+}
+
 /* Function: level_2_tutorial
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 1
@@ -105,7 +156,8 @@ static void set_level_9_win_list();
  * Return:
  *	Void.
  */
-static void level_2_tutorial(bool holding_line, bool play){
+static void level_2_tutorial(bool holding_line, bool play)
+{
 	bf_draw_buffers(NO_OPERAND);
 	rg_display_registers(false);
 	int code_size = cw_get_code_list_size();
@@ -371,39 +423,39 @@ static void level_2_tutorial_select_instruction()
 static void level_1_tutorial(bool holding_line, bool play)
 {
 	int code_size = cw_get_code_list_size();
-			bf_draw_buffers(NO_OPERAND);
-			rg_display_registers(false);
-		if (code_size == 0 && holding_line == false){
-			level_1_tutorial_instruction_select(MESSAGE_1);
-		} else if (code_size == 0 && holding_line == true){
-			level_1_tutorial_drop_instruction(MESSAGE_1);
-		} else if (code_size == 1 && cw_check_code_sorted() == true &&
-									   cw_check_code_pending_op1() == true){
-			level_1_tutorial_select_operand(OP1);
-			rg_display_registers(true);
-		} else if(code_size == 1 && cw_check_code_sorted() == true &&
-				    				   cw_check_code_pending_operand() == true){
-			level_1_tutorial_select_operand(OP2);
-			rg_display_registers(false);
-			bf_draw_buffers(IB);
-		} else if(code_size == 1 && holding_line == false &&
- 									  cw_check_code_pending_operand() == false){
-			level_1_tutorial_instruction_select(MESSAGE_2);
-		} else if(code_size == 1 && holding_line == true &&
- 									  cw_check_code_pending_operand() == false){
-			level_1_tutorial_drop_instruction(MESSAGE_2);
-		} else if (code_size == 2 && cw_check_code_sorted() == true &&
-									   cw_check_code_pending_op1() == true){
-			level_1_tutorial_select_operand(OP1);
-			bf_draw_buffers(OB);
-		} else if(code_size == 2 && cw_check_code_sorted() == true &&
-				    				   cw_check_code_pending_operand() == true){
-			level_1_tutorial_select_operand(OP2);
-			rg_display_registers(true);
-		} else if(code_size == 2 && cw_check_code_pending_operand() == false &&
-																 play == false){
-			tutorial_press_play();
-		} 
+	bf_draw_buffers(NO_OPERAND);
+	rg_display_registers(false);
+	if (code_size == 0 && holding_line == false){
+		tutorial_select_instruction(MESSAGE_1);
+	} else if (code_size == 0 && holding_line == true){
+		tutorial_drop_instruction_to_code_box(MESSAGE_1);
+	} else if (code_size == 1 && cw_check_code_sorted() == true &&
+								   cw_check_code_pending_op1() == true){
+		level_1_tutorial_select_operand(OP1);
+		rg_display_registers(true);
+	} else if(code_size == 1 && cw_check_code_sorted() == true &&
+				    			   cw_check_code_pending_operand() == true){
+		level_1_tutorial_select_operand(OP2);
+		rg_display_registers(false);
+		bf_draw_buffers(IB);
+	} else if(code_size == 1 && holding_line == false &&
+ 								  cw_check_code_pending_operand() == false){
+		tutorial_select_instruction(MESSAGE_2);
+	} else if(code_size == 1 && holding_line == true &&
+ 								  cw_check_code_pending_operand() == false){
+		tutorial_drop_instruction_to_code_box(MESSAGE_2);
+	} else if (code_size == 2 && cw_check_code_sorted() == true &&
+								   cw_check_code_pending_op1() == true){
+		level_1_tutorial_select_operand(OP1);
+		bf_draw_buffers(OB);
+	} else if(code_size == 2 && cw_check_code_sorted() == true &&
+				    			   cw_check_code_pending_operand() == true){
+		level_1_tutorial_select_operand(OP2);
+		rg_display_registers(true);
+	} else if(code_size == 2 && cw_check_code_pending_operand() == false &&
+															 play == false){
+		tutorial_press_play();
+	} 
 
 }
 
@@ -448,7 +500,7 @@ static void tutorial_press_play()
 		return ;
 }
 
-/* Function: level_1_tutorial_instruction_select
+/* Function: tutorial_select_instruction
  * -----------------------------------------------------------------------------
  * This function handles the tutorial part of level 1
  *
@@ -458,7 +510,7 @@ static void tutorial_press_play()
  * Return:
  *	Void.
  */
-static void level_1_tutorial_instruction_select(int message)
+static void tutorial_select_instruction(int message)
 {
 	static arrow_t arrow;
 	static bool arrow_initialized = false;
@@ -484,7 +536,7 @@ static void level_1_tutorial_instruction_select(int message)
 	}	
 		return ;
 }
-/* Function: level_1_tutorial_drop_instruction
+/* Function: tutorial_drop_instruction_to_code_box
  * -----------------------------------------------------------------------------
  * Handles the drop instruction part of the tutorial
  *
@@ -494,7 +546,7 @@ static void level_1_tutorial_instruction_select(int message)
  * Return:
  *	Void.
  */
-static void level_1_tutorial_drop_instruction(int message)
+static void tutorial_drop_instruction_to_code_box(int message)
 {
 	static arrow_t arrow;
 	static bool arrow_initialized = false;
@@ -1170,6 +1222,10 @@ void lv_level_drawings(int level, bool holding_line, bool play)
 
 	case LV_LEVEL_2:
 			level_2_tutorial(holding_line, play);
+			break;
+	
+	case LV_LEVEL_3:
+			level_3_tutorial(holding_line, play);
 			break;
 
 		default:
