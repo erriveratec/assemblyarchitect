@@ -71,6 +71,8 @@ texture_t *g_lv_arrow;
 arrow_t g_arrow_ins; 
 arrow_t g_arrow_code;
 arrow_t g_arrow_play;
+arrow_t g_arrow_code;
+
 
 enum message{
 	MESSAGE_1,
@@ -117,7 +119,6 @@ static void level_3_tutorial(bool holding_line, bool play);
 static void level_3_tutorial_show_available_operands(int op_case);
 static void level_5_tutorial(bool holding_line, bool play);
 static void level_6_tutorial(bool holding_line, bool play);
-static void tutorial_press_play();
 static bool check_display_reg_lv_arrow();
 static int check_display_buf_arrow();
 static void set_level_1_win_list();
@@ -152,11 +153,45 @@ void lv_initialize_level_assets()
 
 	g_arrow_play.box.w = ARROW_W;	
 	g_arrow_play.box.h = ARROW_H;
-	g_arrow_play.box.x = STAGE_BUTTON_X;
+	g_arrow_play.box.x = sb_get_play_button_member(MEMBER_X);
 	g_arrow_play.box.y = STAGE_BUTTON_Y - 2*ARROW_H;
 	g_arrow_play.texture = g_lv_arrow;
 	g_arrow_play.in_place = false;
 	g_arrow_play.visible = true;
+
+	g_arrow_code.box.w = ARROW_W;	
+	g_arrow_code.box.h = ARROW_H;
+	g_arrow_code.box.x = sb_get_play_button_member(MEMBER_X);
+	g_arrow_code.box.y = STAGE_BUTTON_Y - 2*ARROW_H;
+	g_arrow_code.texture = g_lv_arrow;
+	g_arrow_code.in_place = false;
+	g_arrow_code.visible = true;
+
+/*	int final_y = cw_get_line_y( cw_get_code_list_size()-1);
+	int w = cw_get_code_box_member(MEMBER_W);
+	int h = cw_get_code_box_member(MEMBER_H);
+	int x = cw_get_code_box_member(MEMBER_X) + (w - MSG_BOX_W)/2;
+	int y = final_y + 2*ARROW_H;
+
+	dw_draw_filled_rectangle(x, y, MSG_BOX_W, MSG_BOX_H, COLOR_BLACK, 
+																   COLOR_WHITE);
+	dw_draw_wrapped_text_fits_height(x, y, MSG_BOX_W, MSG_BOX_H, MSG_TEXT_H, 
+								 COLOR_WHITE, MSG_SEL_LAST_INS);
+
+	int startx = cw_get_code_line_x(MOV) + ARROW_W/2;
+	int starty = y - ARROW_H;
+	static arrow_t arrow;
+	static bool arrow_initialized = false;
+	if (arrow_initialized == false){
+		arrow.box.w = ARROW_W;	
+		arrow.box.h = ARROW_H;
+		arrow.box.x = startx;		
+		arrow.box.y = starty;
+		arrow.texture = g_lv_arrow;
+		arrow.in_place = false;
+		arrow_initialized = true;
+	}*/
+
 }
 /* Function: display_arrow
  * -----------------------------------------------------------------------------
@@ -183,7 +218,6 @@ static void display_arrow(int arrow_id)
 			dir = DW_UP;
 			aptr = &g_arrow_ins;
 			break;
-	
 		case DROP_CODE_ARROW:
 			x = ARROW_CODE_X;
 			y = ARROW_CODE_Y;
@@ -446,7 +480,8 @@ static void level_2_tutorial(bool holding_line, bool play)
 	} else if (mov_instruction == true){
 		level_2_tutorial_move_instruction(i1->ins->b->x);
 	} else if (press_play == true){
-		tutorial_press_play();		
+		message_box(SB_BOX, MSG_PRESS_PLAY);	
+		display_arrow(PLAY_ARROW);
 	}
 }
 
@@ -701,54 +736,9 @@ static void level_1_tutorial(bool holding_line, bool play)
 															 play == false){
 		message_box(SB_BOX, MSG_PRESS_PLAY);	
 		display_arrow(PLAY_ARROW);
-	//	tutorial_press_play();
 	} 
 
 }
-
-/* Function: tutorial_press_play
- * -----------------------------------------------------------------------------
- * Displays to the player to press the play button 
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-static void tutorial_press_play()
-{
-	int w = cw_get_code_box_member(MEMBER_W);
-	int h = cw_get_code_box_member(MEMBER_H);
-	int x = cw_get_code_box_member(MEMBER_X) + (w - MSG_BOX_W)/2;
-	int y = (cw_get_code_box_member(MEMBER_Y)+ h) - MSG_BOX_H/2;
-
-	static arrow_t arrow;
-	static bool arrow_initialized = false;
-	int startx = sb_get_play_button_member(MEMBER_X);
-	int starty = STAGE_BUTTON_Y - 2*ARROW_H;
-	if (arrow_initialized == false){
-		arrow.box.w = ARROW_W;	
-		arrow.box.h = ARROW_H;
-		arrow.box.x = startx;
-		arrow.box.y = starty;
-		arrow.texture = g_lv_arrow;
-		arrow.in_place = false;
-		arrow_initialized = true;
-	}
-	int travel = STAGE_BUTTON_Y - starty - ARROW_H;	
-	dw_animate_arrow(startx, starty, &arrow, DW_DOWN, travel);
-	
-
-	dw_draw_filled_rectangle(x, y, MSG_BOX_W, MSG_BOX_H, COLOR_BLACK, 
-																   COLOR_WHITE);
-	dw_draw_wrapped_text_fits_height(x, y, MSG_BOX_W, MSG_BOX_H, MSG_TEXT_H, 
-											  COLOR_WHITE, MSG_PRESS_PLAY);
-		return ;
-}
-
-
-
 
 /* Function: check_display_reg_lv_arrow
  * -----------------------------------------------------------------------------
