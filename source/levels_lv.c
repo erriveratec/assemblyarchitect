@@ -68,8 +68,9 @@ static List *win_list = NULL;
 static int level_instructions_limit;
 
 texture_t *g_lv_arrow;
-arrow_t g_lv_arrow_ins; 
-arrow_t g_lv_arrow_code;
+arrow_t g_arrow_ins; 
+arrow_t g_arrow_code;
+arrow_t g_arrow_play;
 
 enum message{
 	MESSAGE_1,
@@ -88,7 +89,8 @@ enum positions{
 
 enum arrow_id{
 	INS_ARROW,
-	DROP_CODE_ARROW
+	DROP_CODE_ARROW,
+	PLAY_ARROW
 };
 
 
@@ -132,23 +134,30 @@ static void message_box(int pos, char *msg);
 
 void lv_initialize_level_assets()
 {
-	g_lv_arrow_ins.box.x = ARROW_INS_X; 
-	g_lv_arrow_ins.box.y = ARROW_INS_Y;
-	g_lv_arrow_ins.box.w = ARROW_W; 
-	g_lv_arrow_ins.box.h = ARROW_H;
-	g_lv_arrow_ins.texture =  g_lv_arrow;
-	g_lv_arrow_ins.in_place = false;
-	g_lv_arrow_ins.visible =  true;
+	g_arrow_ins.box.x = ARROW_INS_X; 
+	g_arrow_ins.box.y = ARROW_INS_Y;
+	g_arrow_ins.box.w = ARROW_W; 
+	g_arrow_ins.box.h = ARROW_H;
+	g_arrow_ins.texture =  g_lv_arrow;
+	g_arrow_ins.in_place = false;
+	g_arrow_ins.visible =  true;
 
-	g_lv_arrow_code.box.x = ARROW_CODE_X;
-	g_lv_arrow_code.box.y = ARROW_CODE_Y;
-	g_lv_arrow_code.box.w = ARROW_W;
-	g_lv_arrow_code.box.h = ARROW_H;
-	g_lv_arrow_code.texture = g_lv_arrow;
-	g_lv_arrow_code.in_place = false;
-	g_lv_arrow_code.visible = true;
+	g_arrow_code.box.x = ARROW_CODE_X;
+	g_arrow_code.box.y = ARROW_CODE_Y;
+	g_arrow_code.box.w = ARROW_W;
+	g_arrow_code.box.h = ARROW_H;
+	g_arrow_code.texture = g_lv_arrow;
+	g_arrow_code.in_place = false;
+	g_arrow_code.visible = true;
 
-	}
+	g_arrow_play.box.w = ARROW_W;	
+	g_arrow_play.box.h = ARROW_H;
+	g_arrow_play.box.x = STAGE_BUTTON_X;
+	g_arrow_play.box.y = STAGE_BUTTON_Y - 2*ARROW_H;
+	g_arrow_play.texture = g_lv_arrow;
+	g_arrow_play.in_place = false;
+	g_arrow_play.visible = true;
+}
 /* Function: display_arrow
  * -----------------------------------------------------------------------------
  * Animates the arrow that points to the first instruction
@@ -172,7 +181,7 @@ static void display_arrow(int arrow_id)
 			y = ARROW_INS_Y;
 			travel = ARROW_INS_Y - iw_get_instruction_y_by_id(MOV);
 			dir = DW_UP;
-			aptr = &g_lv_arrow_ins;
+			aptr = &g_arrow_ins;
 			break;
 	
 		case DROP_CODE_ARROW:
@@ -180,7 +189,14 @@ static void display_arrow(int arrow_id)
 			y = ARROW_CODE_Y;
 			travel = ARROW_INS_Y - iw_get_instruction_y_by_id(MOV);
 			dir = DW_RIGHT;
-			aptr = &g_lv_arrow_code;
+			aptr = &g_arrow_code;
+			break;
+		case PLAY_ARROW:
+			x = STAGE_BUTTON_X;
+			y = STAGE_BUTTON_Y - 2*ARROW_H;	
+			travel = STAGE_BUTTON_Y - y - ARROW_H;	
+			dir = DW_DOWN;
+			aptr = &g_arrow_play;
 			break;
 
 		default:
@@ -684,6 +700,7 @@ static void level_1_tutorial(bool holding_line, bool play)
 	} else if(code_size == 2 && cw_check_code_pending_operand() == false &&
 															 play == false){
 		message_box(SB_BOX, MSG_PRESS_PLAY);	
+		display_arrow(PLAY_ARROW);
 	//	tutorial_press_play();
 	} 
 
