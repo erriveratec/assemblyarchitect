@@ -55,6 +55,7 @@ static avatar_t g_iavatar;
 static avatar_t g_oavatar;
 static avatar_t g_ravatar; 
 
+texture_t *g_exec_arrow_texture;
 static arrow_t g_exec_arrow;
 
 enum counter_actions{
@@ -466,7 +467,7 @@ void mc_reset_execution_arrow()
 	g_exec_arrow.box.w = EXEC_ARROW_W;
 	g_exec_arrow.box.h = EXEC_ARROW_H;
 
-	g_exec_arrow.texture = g_arrow;
+	g_exec_arrow.texture = g_exec_arrow_texture;
 
 	g_exec_arrow.in_place = true;
 	g_exec_arrow.visible = true;

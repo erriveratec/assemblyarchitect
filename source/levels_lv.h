@@ -3,10 +3,13 @@
 
 #include <stdbool.h>
 #include "list.h"
+#include "draw_dw.h"
 
 // Multiple states of the game.
 
 #define LV_LEVEL_QUANTITY 40
+
+extern texture_t *g_lv_arrow;
 
 enum LevelStates{
 	LV_LEVEL_MIN,
@@ -59,6 +62,7 @@ enum LevelStates{
 
 };
 
+void lv_initialize_level_assets();
 void lv_create_win_list();
 void lv_destroy_win_list();
 void lv_reset_win_list();

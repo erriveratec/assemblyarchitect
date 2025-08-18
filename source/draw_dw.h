@@ -28,9 +28,6 @@ typedef struct arrow_t{
 	bool visible;
 } arrow_t;
 
-
-extern texture_t *g_arrow;
-
 texture_t *load_texture_from_file(char *path);
 texture_t *load_texture_from_rendered_text(char *texture_text, 
 									   	   SDL_Color text_color);

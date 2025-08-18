@@ -89,7 +89,8 @@ void initialize_stage_assets()
 	bf_set_output_buffer_button(BUFFER_BOX_X, OUTPUT_BUFFER_BOX_Y, BUFFER_BOX_W, 
 							 BUFFER_TEXT_H + BUFFER_BOX_H);
 	bf_initialize_buffer_operands();
-	}
+	lv_initialize_level_assets();
+}
 
 /* Function: set_quit_game_value
  * ----------------------------------------------------------------------------

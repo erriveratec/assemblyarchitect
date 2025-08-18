@@ -11,6 +11,7 @@
 #include "registers_rg.h"
 #include "buffers_bf.h"
 #include "game_mechanics_mc.h"
+#include "levels_lv.h"
 
 #define ERROR -1
 SDL_Window *g_window = NULL;
@@ -170,7 +171,13 @@ int load_media()
 				SDL_GetError());
 		return FAIL;
 	}
-	g_arrow = load_texture_from_file("img/rightarrow.png");
+	g_lv_arrow = load_texture_from_file("img/rightarrow.png");
+	if (return_button == NULL){
+		printf("Could not load the level image SDL_Error: %s\n",
+				SDL_GetError());
+		return FAIL;
+	}
+	g_exec_arrow_texture = load_texture_from_file("img/rightarrow.png");
 	if (return_button == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());

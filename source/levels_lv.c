@@ -11,98 +11,100 @@
 #include "code_window_cw.h"
 #include "stage_buttons_sb.h"
 
-#define TUT_TEXT_SELECT_INSTRUCTION_1 "Select and drag an instruction from the"\
+#define MSG_SEL_INS1 "Select and drag an instruction from the"\
 									  " instruction box"
-#define TUT_TEXT_SELECT_INSTRUCTION_2 "Select another instruction from the" \
+#define MSG_SEL_INS2 "Select another instruction from the" \
 									  " instruction box"
-
-#define TUT_TEXT_DROP_INSTRUCTION_1 "Drop the instruction in the code box"
-#define TUT_TEXT_DROP_INSTRUCTION_2 "Drop the instruction in the code box"\
+#define MSG_DROP_INS1 "Drop the instruction in the code box"
+#define MSG_DROP_INS2 "Drop the instruction in the code box"\
 									" below the previous instruction"
-#define TUT_TEXT_PRESS_PLAY	"Press the play button"
-
-
-#define TUT_TEXT_SELECT_OP1 "Select the destiny operand"
-#define TUT_TEXT_SELECT_OP2 "Select the source operand"
-
-#define TUT_TEXT_SELECT_LAST_INSTRUCTION "Select and drag the last instruction"\
+#define MSG_PRESS_PLAY	"Press the play button"
+#define MSG_SEL_OP1 "Select the destiny operand"
+#define MSG_SEL_OP2 "Select the source operand"
+#define MSG_SEL_LAST_INS "Select and drag the last instruction"\
 									" by clicking in the instruction name"	
-
-#define TUT_TEXT_ELIMINATE_INSTRUCTION "Drag the instruction out of the code"\
+#define MSG_DEL_INS "Drag the instruction out of the code"\
 									" to delete it."
-
-#define TUT_TEXT_CHANGE_OPERAND "Change any operand by clicking on it. Click"\
+#define MSG_CHANGE_OP "Change any operand by clicking on it. Click"\
 								" the source operand of the instruction."
-
-#define TUT_TEXT_SELECT_IB "Select the Input Buffer as the source operand."
-
-#define TUT_TEXT_MOV_INSTRUCTION "Select the second instruction and move in to"\
+#define MSG_SEL_IB "Select the Input Buffer as the source operand."
+#define MSG_MOV_INS "Select the second instruction and move in to"\
 								  " the first position."
-
-#define TUT_TEXT_AVAILABLE_OPERANDS "When selecting an instruction operand the"\
+#define MSG_AVAIL_OPS "When selecting an instruction operand the"\
 									" available operands will be pointed with"\
 									" an arrow."
-
-#define TUT_TEXT_COMPATIBLE_OPERANDS "Not all operands are compatible with"\
+#define MSG_COMPAT_OPS "Not all operands are compatible with"\
 									 " each other, for instance the"\
 									 " instruction:  mov [ob], [ib] have"\
 									 " operands not compatible."
-
-#define TUT_TEXT_TRY_YOURSELF "Now try to solve the challeng for yourself."
-
-#define TUT_TEXT_NEW_REGISTERS "Notice that now are more registers available"\
+#define MSG_TRY_YOURSELF "Now try to solve the challeng for yourself."
+#define MSG_NEW_REGS "Notice that now are more registers available"\
 								" try using them to solve the change."
-
-#define TUT_TEXT_NEW_INS_ADD "There is a new instruction \"add\" which adds"\
+#define MSG_NEW_INS_ADD "There is a new instruction \"add\" which adds"\
 							 " the contents of the two operands and it stores"\
 							 " it in the destiny operand."
-
-#define TUT_TEXT_NEW_INS_JMP "The \"jmp\" instruction jumps to a position"\
+#define MSG_NEW_INS_JMP "The \"jmp\" instruction jumps to a position"\
 							 " pointed by the label. The operand of the"\
 							 " instruction is the label."
 
 #define TUT_TEXT_X INS_BOX_X
-#define TUT_TEXT_Y SCREEN_HEIGHT/2 - TUT_BOX_H
+#define TUT_TEXT_Y SCREEN_HEIGHT/2 - MSG_BOX_H
 
-#define TUT_TEXT_H 30
+#define MSG_TEXT_H 30
 
-#define TUT_BOX_W (INS_BOX_W + 100)
-#define TUT_BOX_H (SCREEN_HEIGHT/6)
-#define TUT_MESSAGE_H 210
-
-
-#define TUT_BOX_X INS_BOX_X
-#define TUT_BOX_Y (SCREEN_HEIGHT/2 - TUT_BOX_H/2)
-
+#define MSG_BOX_W (INS_BOX_W + 100)
+#define MSG_BOX_H 210
+#define MSG_INS_BOX_X INS_BOX_X
+#define MSG_INS_BOX_Y (SCREEN_HEIGHT/2 - MSG_BOX_H/3)
 
 #define ARROW_INS_X (INS_BOX_X + INS_BOX_W)/4
-#define ARROW_INS_Y INS_BOX_Y + (TUT_BOX_Y - INS_BOX_Y)*3/4
-
+#define ARROW_INS_Y INS_BOX_Y + (MSG_INS_BOX_Y - INS_BOX_Y)*3/4
 #define ARROW_CODE_X (INS_BOX_X + INS_BOX_W)/2
-#define ARROW_CODE_Y (TUT_BOX_Y + TUT_BOX_H*6/5)
+#define ARROW_CODE_Y (MSG_INS_BOX_Y + MSG_BOX_H*6/5)
 
 #define LEVEL_LINE_W 4
 
-// At the end of the code execution, the output buffer must be compared 
-// against this list.
-
 static List *win_list = NULL;
 static int level_instructions_limit;
-arrow_t g_arrow_ins;
+
+texture_t *g_lv_arrow;
+arrow_t g_lv_arrow_ins; 
+arrow_t g_lv_arrow_code;
 
 enum message{
 	MESSAGE_1,
 	MESSAGE_2,
 	TRY_YOURSELF,
-	NEW_REGISTERS,
 	NEW_INS_ADD,
 	NEW_INS_JMP
 };
 
+enum positions{
+	INS_BOX,
+	INFO_BOX,
+	CODE_BOX,
+	SB_BOX
+};
+
+enum arrow_id{
+	INS_ARROW,
+	DROP_CODE_ARROW
+};
+
+
+SDL_Rect g_msg_ins_box = {MSG_INS_BOX_X, MSG_INS_BOX_Y, MSG_BOX_W, MSG_BOX_H};
+SDL_Rect g_msg_info_box = {SCREEN_WIDTH/2 - MSG_BOX_W/2, 
+							 SCREEN_HEIGHT/5 - MSG_BOX_H, MSG_BOX_W, MSG_BOX_H};
+SDL_Rect g_msg_code_box = {CODE_BOX_X + (CODE_BOX_W - MSG_BOX_W)/2, 
+						   MSG_INS_BOX_Y, MSG_BOX_W, MSG_BOX_H};
+SDL_Rect g_msg_sb_box = {CODE_BOX_X + (CODE_BOX_W - MSG_BOX_W)/2, 
+			     (CODE_BOX_Y + CODE_BOX_H) - MSG_BOX_H/2, MSG_BOX_W, MSG_BOX_H};
+
+
+
 List *get_win_list();
 void add_to_win_list(int value, int type);
 static void level_1_tutorial(bool holding_line, bool play);
-static int level_1_tutorial_select_operand(int operand_pos);
 static void level_2_tutorial_move_instruction(int ins_x);
 static void level_2_tutorial(bool holding_line, bool play);
 static void level_2_tutorial_select_instruction();
@@ -113,11 +115,8 @@ static void level_3_tutorial(bool holding_line, bool play);
 static void level_3_tutorial_show_available_operands(int op_case);
 static void level_5_tutorial(bool holding_line, bool play);
 static void level_6_tutorial(bool holding_line, bool play);
-static void tutorial_select_instruction(int message);
 static void tutorial_press_play();
-static void tutorial_drop_instruction_to_code_box(int message);
-static void tutorial_message(int message_id);
-static bool check_display_reg_arrow();
+static bool check_display_reg_lv_arrow();
 static int check_display_buf_arrow();
 static void set_level_1_win_list();
 static void set_level_2_win_list();
@@ -128,46 +127,114 @@ static void set_level_6_win_list();
 static void set_level_7_win_list();
 static void set_level_8_win_list();
 static void set_level_9_win_list();
+static void message_box(int pos, char *msg);
 
-/* Function: tutorial_message
+
+void lv_initialize_level_assets()
+{
+	g_lv_arrow_ins.box.x = ARROW_INS_X; 
+	g_lv_arrow_ins.box.y = ARROW_INS_Y;
+	g_lv_arrow_ins.box.w = ARROW_W; 
+	g_lv_arrow_ins.box.h = ARROW_H;
+	g_lv_arrow_ins.texture =  g_lv_arrow;
+	g_lv_arrow_ins.in_place = false;
+	g_lv_arrow_ins.visible =  true;
+
+	g_lv_arrow_code.box.x = ARROW_CODE_X;
+	g_lv_arrow_code.box.y = ARROW_CODE_Y;
+	g_lv_arrow_code.box.w = ARROW_W;
+	g_lv_arrow_code.box.h = ARROW_H;
+	g_lv_arrow_code.texture = g_lv_arrow;
+	g_lv_arrow_code.in_place = false;
+	g_lv_arrow_code.visible = true;
+
+	}
+/* Function: display_arrow
  * -----------------------------------------------------------------------------
- * Displays a tutorial message specified by the inpunt
+ * Animates the arrow that points to the first instruction
  *
  * Arguments:
- * 	message_id: The id of the message that will be displayed.
+ * 	Void.
  *	
  * Return:
  *	Void.
  */
-static void tutorial_message(int message_id)
+static void display_arrow(int arrow_id)
 {
-	int final_y = cw_get_line_y(cw_get_code_list_size()-1) + ARROW_H;
-	int h = TUT_MESSAGE_H;	
-	int x = SCREEN_WIDTH/2 - TUT_BOX_W/2;
-	int y = SCREEN_HEIGHT/5 - TUT_BOX_H;
-	dw_draw_filled_rectangle(x, y, TUT_BOX_W, h, COLOR_BLACK, COLOR_WHITE);
-	char *message_string;
+	int x;
+	int y;
+	int travel;
+	int dir;
+	arrow_t *aptr;
+	switch(arrow_id){
+		case INS_ARROW:
+			x = ARROW_INS_X;
+			y = ARROW_INS_Y;
+			travel = ARROW_INS_Y - iw_get_instruction_y_by_id(MOV);
+			dir = DW_UP;
+			aptr = &g_lv_arrow_ins;
+			break;
 	
-	switch(message_id){
-		case TRY_YOURSELF:
-			message_string = TUT_TEXT_TRY_YOURSELF;
+		case DROP_CODE_ARROW:
+			x = ARROW_CODE_X;
+			y = ARROW_CODE_Y;
+			travel = ARROW_INS_Y - iw_get_instruction_y_by_id(MOV);
+			dir = DW_RIGHT;
+			aptr = &g_lv_arrow_code;
 			break;
 
-		case NEW_REGISTERS:
-			message_string = TUT_TEXT_NEW_REGISTERS;
-			break;
-
-		case NEW_INS_ADD:
-			message_string = TUT_TEXT_NEW_INS_ADD;
-			break;
-
-		case NEW_INS_JMP:
-			message_string = TUT_TEXT_NEW_INS_JMP;
+		default:
 			break;
 	}
-	dw_draw_wrapped_text_fits_height(x, y, TUT_BOX_W, h, TUT_TEXT_H, 
-								   	 COLOR_WHITE, message_string);
-	return;
+	dw_animate_arrow(x, y, aptr, dir, travel);
+}
+
+/* Function: message_box
+ * -----------------------------------------------------------------------------
+ * This function displays a message box in differents part of the screen 
+ * according to an identifies
+ *
+ * Arguments:
+ * 	msg: The message id of what is going to be displayed.
+ *	pos: The position id of where is gonna be displayed.
+ *	
+ * Return:
+ *	Void.
+ */
+static void message_box(int pos, char *msg)
+{
+	SDL_Rect b;
+	switch(pos){
+		case INS_BOX:
+			b.x = g_msg_ins_box.x; 
+			b.y = g_msg_ins_box.y; 
+			b.w = g_msg_ins_box.w; 
+			b.h = g_msg_ins_box.h;	
+			break;
+		case INFO_BOX:
+			b.x = g_msg_info_box.x; 
+			b.y = g_msg_info_box.y; 
+			b.w = g_msg_info_box.w; 
+			b.h = g_msg_info_box.h;	
+			break;
+		case CODE_BOX:
+			b.x = g_msg_code_box.x; 
+			b.y = g_msg_code_box.y; 
+			b.w = g_msg_code_box.w; 
+			b.h = g_msg_code_box.h;	
+			break;
+		case SB_BOX:
+			b.x = g_msg_sb_box.x; 
+			b.y = g_msg_sb_box.y; 
+			b.w = g_msg_sb_box.w; 
+			b.h = g_msg_sb_box.h;	
+			break;
+
+
+	}
+	dw_draw_filled_rectangle(b.x, b.y, b.w, b.h, COLOR_BLACK, COLOR_WHITE);
+	dw_draw_wrapped_text_fits_height(b.x, b.y, b.w, b.h, MSG_TEXT_H, 
+															  COLOR_WHITE, msg);
 }
 
 /* Function: level_9_tutorial
@@ -183,12 +250,12 @@ static void tutorial_message(int message_id)
 static void level_9_tutorial(bool holding_line, bool play)
 {
 	bf_draw_buffers(check_display_buf_arrow());
-	rg_display_registers(check_display_reg_arrow());
+	rg_display_registers(check_display_reg_lv_arrow());
 
 	int code_size = cw_get_code_list_size();
 
 	if (code_size == 0 && holding_line == false){
-		tutorial_message(NEW_INS_JMP);
+		message_box(INFO_BOX, MSG_NEW_INS_JMP);
 	} 
 }
 
@@ -205,12 +272,12 @@ static void level_9_tutorial(bool holding_line, bool play)
 static void level_6_tutorial(bool holding_line, bool play)
 {
 	bf_draw_buffers(check_display_buf_arrow());
-	rg_display_registers(check_display_reg_arrow());
+	rg_display_registers(check_display_reg_lv_arrow());
 
 	int code_size = cw_get_code_list_size();
 
 	if (code_size == 0 && holding_line == false){
-		tutorial_message(NEW_INS_ADD);
+		message_box(INFO_BOX, MSG_NEW_INS_ADD);
 	} 
 }
 
@@ -227,12 +294,12 @@ static void level_6_tutorial(bool holding_line, bool play)
 static void level_5_tutorial(bool holding_line, bool play)
 {
 	bf_draw_buffers(check_display_buf_arrow());
-	rg_display_registers(check_display_reg_arrow());
+	rg_display_registers(check_display_reg_lv_arrow());
 
 	int code_size = cw_get_code_list_size();
 
 	if (code_size == 0 && holding_line == false){
-		tutorial_message(NEW_REGISTERS);
+		message_box(INFO_BOX, MSG_NEW_REGS);
 	} 
 }
 
@@ -249,14 +316,16 @@ static void level_5_tutorial(bool holding_line, bool play)
 static void level_3_tutorial(bool holding_line, bool play)
 {
 	bf_draw_buffers(check_display_buf_arrow());
-	rg_display_registers(check_display_reg_arrow());
+	rg_display_registers(check_display_reg_lv_arrow());
 
 	int code_size = cw_get_code_list_size();
 
 	if (code_size == 0 && holding_line == false){
-		tutorial_select_instruction(MESSAGE_1);
+		message_box(INS_BOX, MSG_SEL_INS1);
+		display_arrow(INS_ARROW);
 	} else if (code_size == 0 && holding_line == true){
-		tutorial_drop_instruction_to_code_box(MESSAGE_1);
+		message_box(INS_BOX, MSG_DROP_INS1);
+		display_arrow(DROP_CODE_ARROW);
 	} else if (code_size == 1 && cw_check_code_pending_op1() == true && 
 												cw_check_code_sorted() == true){
 		level_3_tutorial_show_available_operands(OP1);
@@ -264,7 +333,7 @@ static void level_3_tutorial(bool holding_line, bool play)
 												cw_check_code_sorted() == true){
 		level_3_tutorial_show_available_operands(OP2);
 	} else if (code_size == 1 && cw_check_code_pending_operand() == false){
-		tutorial_message(TRY_YOURSELF);
+		message_box(INFO_BOX, MSG_TRY_YOURSELF);
 	}
 }
 
@@ -282,23 +351,23 @@ static void level_3_tutorial_show_available_operands(int op_case)
 {
 	int final_y = cw_get_line_y(cw_get_code_list_size()-1) + ARROW_H;
 	int h;	
-	int x = SCREEN_WIDTH/2 - TUT_BOX_W/2;
+	int x = SCREEN_WIDTH/2 - MSG_BOX_W/2;
 	int y;
 
 	if (op_case == OP1){
-		y = SCREEN_HEIGHT*3/4 - TUT_BOX_H/2;
-		h = ax_get_wrapped_text_height(TUT_BOX_W, TUT_TEXT_H, 
-												   TUT_TEXT_AVAILABLE_OPERANDS);
-		dw_draw_filled_rectangle(x, y, TUT_BOX_W, h, COLOR_BLACK, COLOR_WHITE);
-		dw_draw_wrapped_text_fits_height(x, y, TUT_BOX_W, h, TUT_TEXT_H, 
-								   	  COLOR_WHITE, TUT_TEXT_AVAILABLE_OPERANDS);
+		y = SCREEN_HEIGHT*3/4 - MSG_BOX_H/2;
+		h = ax_get_wrapped_text_height(MSG_BOX_W, MSG_TEXT_H, 
+												   MSG_AVAIL_OPS);
+		dw_draw_filled_rectangle(x, y, MSG_BOX_W, h, COLOR_BLACK, COLOR_WHITE);
+		dw_draw_wrapped_text_fits_height(x, y, MSG_BOX_W, h, MSG_TEXT_H, 
+								   	  COLOR_WHITE, MSG_AVAIL_OPS);
 	} else if (op_case == OP2){
-		y = SCREEN_HEIGHT/4 - TUT_BOX_H;
-		h = ax_get_wrapped_text_height(TUT_BOX_W, TUT_TEXT_H, 
-												  TUT_TEXT_COMPATIBLE_OPERANDS);
-		dw_draw_filled_rectangle(x, y, TUT_BOX_W, h, COLOR_BLACK, COLOR_WHITE);
-		dw_draw_wrapped_text_fits_height(x, y, TUT_BOX_W, h, TUT_TEXT_H, 
-								   	 COLOR_WHITE, TUT_TEXT_COMPATIBLE_OPERANDS);
+		y = SCREEN_HEIGHT/4 - MSG_BOX_H;
+		h = ax_get_wrapped_text_height(MSG_BOX_W, MSG_TEXT_H, 
+												  MSG_COMPAT_OPS);
+		dw_draw_filled_rectangle(x, y, MSG_BOX_W, h, COLOR_BLACK, COLOR_WHITE);
+		dw_draw_wrapped_text_fits_height(x, y, MSG_BOX_W, h, MSG_TEXT_H, 
+								   	 COLOR_WHITE, MSG_COMPAT_OPS);
 	}
 	return;
 }
@@ -380,13 +449,13 @@ static void level_2_tutorial_move_instruction(int ins_x)
 	int final_y = cw_get_line_y( cw_get_code_list_size()-1) + ARROW_H;
 	int w = cw_get_code_box_member(MEMBER_W);
 	int h = cw_get_code_box_member(MEMBER_H);
-	int x = cw_get_code_box_member(MEMBER_X) + (w - TUT_BOX_W)/2;
+	int x = cw_get_code_box_member(MEMBER_X) + (w - MSG_BOX_W)/2;
 	int y = final_y + 2*ARROW_H;
 
-	dw_draw_filled_rectangle(x, y, TUT_BOX_W, TUT_BOX_H, COLOR_BLACK, 
+	dw_draw_filled_rectangle(x, y, MSG_BOX_W, MSG_BOX_H, COLOR_BLACK, 
 																   COLOR_WHITE);
-	dw_draw_wrapped_text_fits_height(x, y, TUT_BOX_W, TUT_BOX_H, TUT_TEXT_H, 
-										 COLOR_WHITE, TUT_TEXT_MOV_INSTRUCTION);
+	dw_draw_wrapped_text_fits_height(x, y, MSG_BOX_W, MSG_BOX_H, MSG_TEXT_H, 
+										 COLOR_WHITE, MSG_MOV_INS);
 
 	int startx =  ins_x + ARROW_W/2;
 	int starty = y - 2*ARROW_H;
@@ -397,7 +466,7 @@ static void level_2_tutorial_move_instruction(int ins_x)
 		arrow.box.h = ARROW_H;
 		arrow.box.x = startx;		
 		arrow.box.y = starty;
-		arrow.texture = g_arrow;
+		arrow.texture = g_lv_arrow;
 		arrow.in_place = false;
 		arrow_initialized = true;
 	}
@@ -423,13 +492,13 @@ static void level_2_tutorial_select_output_buffer()
 	int final_y = cw_get_line_y( cw_get_code_list_size()-1) + ARROW_H;
 	int w = cw_get_code_box_member(MEMBER_W);
 	int h = cw_get_code_box_member(MEMBER_H);
-	int x = SCREEN_WIDTH/2 - TUT_BOX_W/2;
-	int y = SCREEN_HEIGHT/4 - TUT_BOX_H;
+	int x = SCREEN_WIDTH/2 - MSG_BOX_W/2;
+	int y = SCREEN_HEIGHT/4 - MSG_BOX_H;
 
-	dw_draw_filled_rectangle(x, y, TUT_BOX_W, TUT_BOX_H, COLOR_BLACK, 
+	dw_draw_filled_rectangle(x, y, MSG_BOX_W, MSG_BOX_H, COLOR_BLACK, 
 																   COLOR_WHITE);
-	dw_draw_wrapped_text_fits_height(x, y, TUT_BOX_W, TUT_BOX_H, TUT_TEXT_H, 
-								   	 	  	   COLOR_WHITE, TUT_TEXT_SELECT_IB);
+	dw_draw_wrapped_text_fits_height(x, y, MSG_BOX_W, MSG_BOX_H, MSG_TEXT_H, 
+								   	 	  	   COLOR_WHITE, MSG_SEL_IB);
 	return;
 }
 /* Function: level_2_tutorial_change_operand
@@ -447,13 +516,13 @@ static void level_2_tutorial_change_operand(int op_x)
 	int final_y = cw_get_line_y( cw_get_code_list_size()-1) + ARROW_H;
 	int w = cw_get_code_box_member(MEMBER_W);
 	int h = cw_get_code_box_member(MEMBER_H);
-	int x = cw_get_code_box_member(MEMBER_X) + (w - TUT_BOX_W)/2;
+	int x = cw_get_code_box_member(MEMBER_X) + (w - MSG_BOX_W)/2;
 	int y = final_y + 2*ARROW_H;
 
-	dw_draw_filled_rectangle(x, y, TUT_BOX_W, TUT_BOX_H, COLOR_BLACK, 
+	dw_draw_filled_rectangle(x, y, MSG_BOX_W, MSG_BOX_H, COLOR_BLACK, 
 																   COLOR_WHITE);
-	dw_draw_wrapped_text_fits_height(x, y, TUT_BOX_W, TUT_BOX_H, TUT_TEXT_H, 
-								   	 	  COLOR_WHITE, TUT_TEXT_CHANGE_OPERAND);
+	dw_draw_wrapped_text_fits_height(x, y, MSG_BOX_W, MSG_BOX_H, MSG_TEXT_H, 
+								   	 	  COLOR_WHITE, MSG_CHANGE_OP);
 
 
 	int startx =  op_x + ARROW_W/2;
@@ -465,7 +534,7 @@ static void level_2_tutorial_change_operand(int op_x)
 		arrow.box.h = ARROW_H;
 		arrow.box.x = startx;		
 		arrow.box.y = starty;
-		arrow.texture = g_arrow;
+		arrow.texture = g_lv_arrow;
 		arrow.in_place = false;
 		arrow_initialized = true;
 	}
@@ -491,13 +560,13 @@ static void level_2_tutorial_eliminate_instruction()
 	int final_y = cw_get_line_y( cw_get_code_list_size()-1);
 	int w = cw_get_code_box_member(MEMBER_W);
 	int h = cw_get_code_box_member(MEMBER_H);
-	int x = cw_get_code_box_member(MEMBER_X) + (w - TUT_BOX_W)/2;
+	int x = cw_get_code_box_member(MEMBER_X) + (w - MSG_BOX_W)/2;
 	int y = final_y + 2*ARROW_H;
 
-	dw_draw_filled_rectangle(x, y, TUT_BOX_W, TUT_BOX_H, COLOR_BLACK, 
+	dw_draw_filled_rectangle(x, y, MSG_BOX_W, MSG_BOX_H, COLOR_BLACK, 
 																   COLOR_WHITE);
-	dw_draw_wrapped_text_fits_height(x, y, TUT_BOX_W, TUT_BOX_H, TUT_TEXT_H, 
-								   COLOR_WHITE, TUT_TEXT_ELIMINATE_INSTRUCTION);
+	dw_draw_wrapped_text_fits_height(x, y, MSG_BOX_W, MSG_BOX_H, MSG_TEXT_H, 
+								   COLOR_WHITE, MSG_DEL_INS);
 
 	int startx =  cw_get_code_box_member(MEMBER_X) + w;
 	int starty = cw_get_text_box_member(MEMBER_Y);
@@ -508,7 +577,7 @@ static void level_2_tutorial_eliminate_instruction()
 		arrow.box.h = ARROW_H;
 		arrow.box.x = startx;		
 		arrow.box.y = starty;
-		arrow.texture = g_arrow;
+		arrow.texture = g_lv_arrow;
 		arrow.in_place = false;
 		arrow_initialized = true;
 	}
@@ -536,13 +605,13 @@ static void level_2_tutorial_select_instruction()
 	int final_y = cw_get_line_y( cw_get_code_list_size()-1);
 	int w = cw_get_code_box_member(MEMBER_W);
 	int h = cw_get_code_box_member(MEMBER_H);
-	int x = cw_get_code_box_member(MEMBER_X) + (w - TUT_BOX_W)/2;
+	int x = cw_get_code_box_member(MEMBER_X) + (w - MSG_BOX_W)/2;
 	int y = final_y + 2*ARROW_H;
 
-	dw_draw_filled_rectangle(x, y, TUT_BOX_W, TUT_BOX_H, COLOR_BLACK, 
+	dw_draw_filled_rectangle(x, y, MSG_BOX_W, MSG_BOX_H, COLOR_BLACK, 
 																   COLOR_WHITE);
-	dw_draw_wrapped_text_fits_height(x, y, TUT_BOX_W, TUT_BOX_H, TUT_TEXT_H, 
-								 COLOR_WHITE, TUT_TEXT_SELECT_LAST_INSTRUCTION);
+	dw_draw_wrapped_text_fits_height(x, y, MSG_BOX_W, MSG_BOX_H, MSG_TEXT_H, 
+								 COLOR_WHITE, MSG_SEL_LAST_INS);
 
 	int startx = cw_get_code_line_x(MOV) + ARROW_W/2;
 	int starty = y - ARROW_H;
@@ -553,7 +622,7 @@ static void level_2_tutorial_select_instruction()
 		arrow.box.h = ARROW_H;
 		arrow.box.x = startx;		
 		arrow.box.y = starty;
-		arrow.texture = g_arrow;
+		arrow.texture = g_lv_arrow;
 		arrow.in_place = false;
 		arrow_initialized = true;
 	}
@@ -582,35 +651,40 @@ static void level_1_tutorial(bool holding_line, bool play)
 	bf_draw_buffers(NO_OPERAND);
 	rg_display_registers(false);
 	if (code_size == 0 && holding_line == false){
-		tutorial_select_instruction(MESSAGE_1);
+		message_box(INS_BOX, MSG_SEL_INS1);
+		display_arrow(INS_ARROW);
 	} else if (code_size == 0 && holding_line == true){
-		tutorial_drop_instruction_to_code_box(MESSAGE_1);
+		message_box(INS_BOX, MSG_DROP_INS1);
+		display_arrow(DROP_CODE_ARROW);
 	} else if (code_size == 1 && cw_check_code_sorted() == true &&
 								   cw_check_code_pending_op1() == true){
-		level_1_tutorial_select_operand(OP1);
+		message_box(CODE_BOX, MSG_SEL_OP1);	
 		rg_display_registers(true);
 	} else if(code_size == 1 && cw_check_code_sorted() == true &&
 				    			   cw_check_code_pending_operand() == true){
-		level_1_tutorial_select_operand(OP2);
+		message_box(CODE_BOX, MSG_SEL_OP2);	
 		rg_display_registers(false);
 		bf_draw_buffers(IB);
 	} else if(code_size == 1 && holding_line == false &&
  								  cw_check_code_pending_operand() == false){
-		tutorial_select_instruction(MESSAGE_2);
+		message_box(INS_BOX, MSG_SEL_INS2);
+		display_arrow(INS_ARROW);
 	} else if(code_size == 1 && holding_line == true &&
  								  cw_check_code_pending_operand() == false){
-		tutorial_drop_instruction_to_code_box(MESSAGE_2);
+		message_box(INS_BOX, MSG_DROP_INS2);
+		display_arrow(DROP_CODE_ARROW);
 	} else if (code_size == 2 && cw_check_code_sorted() == true &&
 								   cw_check_code_pending_op1() == true){
-		level_1_tutorial_select_operand(OP1);
+		message_box(CODE_BOX, MSG_SEL_OP1);	
 		bf_draw_buffers(OB);
 	} else if(code_size == 2 && cw_check_code_sorted() == true &&
 				    			   cw_check_code_pending_operand() == true){
-		level_1_tutorial_select_operand(OP2);
+		message_box(CODE_BOX, MSG_SEL_OP2);	
 		rg_display_registers(true);
 	} else if(code_size == 2 && cw_check_code_pending_operand() == false &&
 															 play == false){
-		tutorial_press_play();
+		message_box(SB_BOX, MSG_PRESS_PLAY);	
+	//	tutorial_press_play();
 	} 
 
 }
@@ -629,8 +703,8 @@ static void tutorial_press_play()
 {
 	int w = cw_get_code_box_member(MEMBER_W);
 	int h = cw_get_code_box_member(MEMBER_H);
-	int x = cw_get_code_box_member(MEMBER_X) + (w - TUT_BOX_W)/2;
-	int y = (cw_get_code_box_member(MEMBER_Y)+ h) - TUT_BOX_H/2;
+	int x = cw_get_code_box_member(MEMBER_X) + (w - MSG_BOX_W)/2;
+	int y = (cw_get_code_box_member(MEMBER_Y)+ h) - MSG_BOX_H/2;
 
 	static arrow_t arrow;
 	static bool arrow_initialized = false;
@@ -641,7 +715,7 @@ static void tutorial_press_play()
 		arrow.box.h = ARROW_H;
 		arrow.box.x = startx;
 		arrow.box.y = starty;
-		arrow.texture = g_arrow;
+		arrow.texture = g_lv_arrow;
 		arrow.in_place = false;
 		arrow_initialized = true;
 	}
@@ -649,118 +723,17 @@ static void tutorial_press_play()
 	dw_animate_arrow(startx, starty, &arrow, DW_DOWN, travel);
 	
 
-	dw_draw_filled_rectangle(x, y, TUT_BOX_W, TUT_BOX_H, COLOR_BLACK, 
+	dw_draw_filled_rectangle(x, y, MSG_BOX_W, MSG_BOX_H, COLOR_BLACK, 
 																   COLOR_WHITE);
-	dw_draw_wrapped_text_fits_height(x, y, TUT_BOX_W, TUT_BOX_H, TUT_TEXT_H, 
-											  COLOR_WHITE, TUT_TEXT_PRESS_PLAY);
+	dw_draw_wrapped_text_fits_height(x, y, MSG_BOX_W, MSG_BOX_H, MSG_TEXT_H, 
+											  COLOR_WHITE, MSG_PRESS_PLAY);
 		return ;
 }
 
-/* Function: tutorial_select_instruction
- * -----------------------------------------------------------------------------
- * This function handles the tutorial part of level 1
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-static void tutorial_select_instruction(int message)
-{
-	static arrow_t arrow;
-	static bool arrow_initialized = false;
-	if (arrow_initialized == false){
-		arrow.box.x = ARROW_INS_X;
-		arrow.box.y = ARROW_INS_Y;
-		arrow.box.w = ARROW_W;
-		arrow.box.h = ARROW_H;
-		arrow.texture = g_arrow;
-		arrow.in_place = false;
-		arrow_initialized = true;
-	}
-	int travel = ARROW_INS_Y - iw_get_instruction_y_by_id(MOV);
-	dw_animate_arrow(ARROW_INS_X, ARROW_INS_Y, &arrow, DW_UP, travel);
-	dw_draw_filled_rectangle(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, TUT_BOX_H, 
-							  						  COLOR_BLACK, COLOR_WHITE);
-	if (message == MESSAGE_1){
-		dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
-			 TUT_BOX_H, TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_SELECT_INSTRUCTION_1);
-	} else if (message == MESSAGE_2){
-		dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
-			  TUT_BOX_H,TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_SELECT_INSTRUCTION_2);
-	}	
-		return ;
-}
-/* Function: tutorial_drop_instruction_to_code_box
- * -----------------------------------------------------------------------------
- * Handles the drop instruction part of the tutorial
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-static void tutorial_drop_instruction_to_code_box(int message)
-{
-	static arrow_t arrow;
-	static bool arrow_initialized = false;
-	if (arrow_initialized == false){
-		arrow.box.x = ARROW_CODE_X;
-		arrow.box.y = ARROW_CODE_Y;
-		arrow.box.w = ARROW_W;
-		arrow.box.h = ARROW_H;
-		arrow.texture = g_arrow;
-		arrow.in_place = false;
-		arrow_initialized = true;
-	}
-	int travel = cw_get_code_box_member(MEMBER_X) - ARROW_CODE_X - ARROW_W;
-	dw_animate_arrow(ARROW_CODE_X, ARROW_CODE_Y, &arrow, DW_RIGHT, travel);
-	dw_draw_filled_rectangle(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, TUT_BOX_H, 
-							 COLOR_BLACK, COLOR_WHITE);
 
-	dw_draw_filled_rectangle(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, TUT_BOX_H, 
-							  						  COLOR_BLACK, COLOR_WHITE);
-	if (message == MESSAGE_1){
-		dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
-			   TUT_BOX_H, TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_DROP_INSTRUCTION_1);
-	} else if (message == MESSAGE_2){
-		dw_draw_wrapped_text_fits_height(TUT_BOX_X, TUT_BOX_Y, TUT_BOX_W, 
-			   TUT_BOX_H, TUT_TEXT_H, COLOR_WHITE, TUT_TEXT_DROP_INSTRUCTION_2);
-	}	
-	return ;
-}
 
-/* Function: level_1_tutorial_select_operand
- * -----------------------------------------------------------------------------
- * Points the player to the selection of the operands
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-static int level_1_tutorial_select_operand(int operand_pos)
-{
-	int w = cw_get_code_box_member(MEMBER_W);
-	int h = cw_get_code_box_member(MEMBER_H);
-	int x = cw_get_code_box_member(MEMBER_X) + (w - TUT_BOX_W)/2;
-	int y = TUT_BOX_Y;//(cw_get_code_box_member(MEMBER_Y)+ h)/2;
-	dw_draw_filled_rectangle(x, y, TUT_BOX_W, TUT_BOX_H, COLOR_BLACK, 
-																   COLOR_WHITE);
-	if (operand_pos == OP1){
-		dw_draw_wrapped_text_fits_height(x, y, TUT_BOX_W, TUT_BOX_H, TUT_TEXT_H, 
-										   	  COLOR_WHITE, TUT_TEXT_SELECT_OP1);
-	} else if (operand_pos == OP2){
-		dw_draw_wrapped_text_fits_height(x, y, TUT_BOX_W, TUT_BOX_H, TUT_TEXT_H, 
-										   	  COLOR_WHITE, TUT_TEXT_SELECT_OP2);
-	}
-	return 0;
-}
 
-/* Function: check_display_reg_arrow
+/* Function: check_display_reg_lv_arrow
  * -----------------------------------------------------------------------------
  * Analize the state of the operands to determine if the register arrow should
  * be displayed
@@ -792,7 +765,7 @@ static int check_display_buf_arrow()
 	return display_arrow;
 }
 
-/* Function: check_display_reg_arrow
+/* Function: check_display_reg_lv_arrow
  * -----------------------------------------------------------------------------
  * Analize the state of the operands to determine if the register arrow should
  * be displayedj
@@ -803,7 +776,7 @@ static int check_display_buf_arrow()
  * Return:
  *	true if the pointing arrow to the registers should be displayed
  */
-static bool check_display_reg_arrow() 
+static bool check_display_reg_lv_arrow() 
 {
 	bool display_arrow = false;
 	if (cw_check_code_sorted() == true && 
@@ -1398,7 +1371,7 @@ void lv_level_drawings(int level, bool holding_line, bool play)
 
 		default:
 			bf_draw_buffers(check_display_buf_arrow());
-			rg_display_registers(check_display_reg_arrow());
+			rg_display_registers(check_display_reg_lv_arrow());
 	}
 
 }

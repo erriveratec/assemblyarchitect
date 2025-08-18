@@ -4,6 +4,7 @@
 #include "button_bt.h"
 #include "code_window_cw.h"
 
+extern texture_t *g_exec_arrow_texture;
 
 enum invalid_operatios{
 	NO_INVALID_OPERATION,
