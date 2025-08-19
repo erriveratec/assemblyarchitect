@@ -101,6 +101,7 @@ int main(int argc, char *args[])
 				} else {
 					state = stage;
 				}
+				printf("The value of level is %d\n", level);
 				break;
 			case INITIALIZE_LEVEL:
 				level_initialization(level);

@@ -122,9 +122,7 @@ static void level_5_tutorial(bool holding_line, bool play);
 static void level_6_tutorial(bool holding_line, bool play);
 static bool check_display_reg_lv_arrow();
 static int check_display_buf_arrow();
-static void set_level_1_win_list();
-static void set_level_2_win_list();
-static void set_level_3_win_list();
+static void win_move_input_to_output(int rep, int mul);
 static void set_level_4_win_list();
 static void set_level_5_win_list();
 static void set_level_6_win_list();
@@ -641,13 +639,13 @@ void lv_generate_win_condition_list(int level)
 {
 	switch (level){
 		case LV_LEVEL_1:
-			set_level_1_win_list();
+			win_move_input_to_output(1, 1);
 			break;
 		case LV_LEVEL_2:
-			set_level_2_win_list();
+			win_move_input_to_output(1, 1);
 			break;
 		case LV_LEVEL_3:
-			set_level_3_win_list();
+			win_move_input_to_output(3, 1);
 			break;
 		case LV_LEVEL_4:
 			set_level_4_win_list();
@@ -789,19 +787,26 @@ void lv_print_win_list()
 		printf("List value: %d\n", cur_input->value);
 	}
 }
-/* Function: set_level_1_win_list
+/* Function: win_move_input_to_output
  *------------------------------------------------------------------------------
+ * Generates a win condition that is achieved by moving the elements from the
+ * input buffer to the output buffer in order. Can apply repetitions and 
+ * transformations to the output list if needed as its implementation is easy.
+ *
  * Arguments:
- *	None.
+ *	rep: number of times a element of the IB will be copied to the OB.
+ *  mul: multiplication transformation to the output buffer.
  *
  * Return:
  *	Pointer to the object that will be assigned as a default reg operand.
  */
-static void set_level_1_win_list()
+static void win_move_input_to_output(int rep, int mul)
 {
 	List *input_list = get_input_list();
 	List *win_list = get_win_list();
 
+	assert(rep > 0 && "The number of repetitions is less than 1");
+	assert(mul > 0 && "The mul factor es less than 1");
 	assert(input_list != NULL && "Input list pointer is NULL");
 	assert(win_list != NULL && "Win list pointer is NULL");
 
@@ -813,82 +818,18 @@ static void set_level_1_win_list()
 
 	LIST_FOREACH(input_list, first, next, cur){
 		value_box_t *cur_input = cur->value;
-		value_box_t *new_win = malloc(sizeof(value_box_t));
-		new_win->value = cur_input->value;
-		new_win->type = cur_input->type;
-		List_push(win_list, new_win);
+		value_box_t *new_win; 
+		for (int i = 0; i < rep; i++){
+			new_win = malloc(sizeof(value_box_t));
+			new_win->value = mul*cur_input->value;
+			new_win->type = cur_input->type;
+			List_push(win_list, new_win);
+		}
 	}
 }
 
-/* Function: set_level_2_win_list
- *------------------------------------------------------------------------------
- * Arguments:
- *	None.
- *
- * Return:
- *	Pointer to the object that will be assigned as a default reg operand.
- */
-static void set_level_2_win_list()
-{
-	List *input_list = get_input_list();
-	List *win_list = get_win_list();
 
-	assert(input_list != NULL && "Input list pointer is NULL");
-	assert(win_list != NULL && "Win list pointer is NULL");
 
-	int input_list_size = List_count(input_list);
-	int win_list_size = List_count(win_list);
-
-	assert(input_list_size > 0 && "The size of the input list is incorrect");
-	assert(win_list_size == 0 && "The win list has elements");
-
-	LIST_FOREACH(input_list, first, next, cur){
-		value_box_t *cur_input = cur->value;
-		value_box_t *new_win = malloc(sizeof(value_box_t));
-		new_win->value = cur_input->value;
-		new_win->type = cur_input->type;
-		List_push(win_list, new_win);
-	}
-}
-
-/* Function: set_level_3_win_list
- *------------------------------------------------------------------------------
- * Arguments:
- *	None.
- *
- * Return:
- *	Pointer to the object that will be assigned as a default reg operand.
- */
-static void set_level_3_win_list()
-{
-	List *input_list = get_input_list();
-	List *win_list = get_win_list();
-
-	assert(input_list != NULL && "Input list pointer is NULL");
-	assert(win_list != NULL && "Win list pointer is NULL");
-
-	int input_list_size = List_count(input_list);
-	int win_list_size = List_count(win_list);
-
-	assert(input_list_size > 0 && "The size of the input list is incorrect");
-	assert(win_list_size == 0 && "The win list has elements");
-
-	LIST_FOREACH(input_list, first, next, cur){
-		value_box_t *cur_input = cur->value;
-		value_box_t *new_win = malloc(sizeof(value_box_t));
-		new_win->value = cur_input->value;
-		new_win->type = cur_input->type;
-		List_push(win_list, new_win);
-		new_win = malloc(sizeof(value_box_t));
-		new_win->value = cur_input->value;
-		new_win->type = cur_input->type;
-		List_push(win_list, new_win);
-		new_win = malloc(sizeof(value_box_t));
-		new_win->value = cur_input->value;
-		new_win->type = cur_input->type;
-		List_push(win_list, new_win);
-	}
-}
 /* Function: set_level_4_win_list
  *------------------------------------------------------------------------------
  * Arguments:
