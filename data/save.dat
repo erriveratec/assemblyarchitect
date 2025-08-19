@@ -40,14 +40,19 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-
+mov rax, [ib]
+mov [ob], rax
+mov rax, [ib]
+mov [ob], rax
+mov rax, [ib]
+mov [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 04
 
 +++LEVEL STARTS 05
 
-LEVEL ACTIVE FALSE
+LEVEL ACTIVE TRUE
 
 CODE STARTS
 
@@ -449,14 +454,19 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-
+mov rax, [ib]
+mov [ob], rax
+mov rax, [ib]
+mov [ob], rax
+mov rax, [ib]
+mov [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 04
 
 +++LEVEL STARTS 05
 
-LEVEL ACTIVE FALSE
+LEVEL ACTIVE TRUE
 
 CODE STARTS
 
@@ -858,14 +868,19 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-
+mov rax, [ib]
+mov [ob], rax
+mov rax, [ib]
+mov [ob], rax
+mov rax, [ib]
+mov [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 04
 
 +++LEVEL STARTS 05
 
-LEVEL ACTIVE FALSE
+LEVEL ACTIVE TRUE
 
 CODE STARTS
 

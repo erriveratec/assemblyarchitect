@@ -26,9 +26,9 @@ int main(int argc, char *args[])
 	fl_save_file_init();
 
 	int sleep = 0;
-	int state = STUDIO_SCREEN;
+	int state = LV_STUDIO_SCREEN;
 	int level = LV_NO_LEVEL;
-	int stage = NO_STAGE;
+	int stage = LV_NO_STAGE;
 	Uint64 next_game_tick = SDL_GetTicks64();
 	Uint64 studio_screen_time = SDL_GetTicks64();
 	ms_init_mouse();
@@ -79,35 +79,34 @@ int main(int argc, char *args[])
 		SDL_FillRect(g_screen, NULL, color);
 
 		switch (state){
-			case STUDIO_SCREEN:
+			case LV_STUDIO_SCREEN:
 				state = stage_studio(studio_screen_time, SDL_GetTicks64());
 				break;
-			case TITLE_SCREEN:
+			case LV_TITLE_SCREEN:
 				state = stage_title(keystate);
 				break;
-			case SELECT_PLAYER_SCREEN:
+			case LV_SELECT_PLAYER_SCREEN:
 				state = stage_select_player();
 				break;
-			case INIT_LEVEL_SELECTION:
+			case LV_INIT_LEVEL_SELECTION:
 				sb_initialize_return_button();
-				state = LEVEL_SELECTION;
+				state = LV_LEVEL_SELECTION;
 				break;
-			case LEVEL_SELECTION:
+			case LV_LEVEL_SELECTION:
 				stage = stage_select_level();
-				if (stage != SELECT_PLAYER_SCREEN &&
-					stage != LEVEL_SELECTION){
-					state = INITIALIZE_LEVEL;
+				if (stage != LV_SELECT_PLAYER_SCREEN &&
+					stage != LV_LEVEL_SELECTION){
+					state = LV_INITIALIZE_LEVEL;
 					level = stage;
 				} else {
 					state = stage;
 				}
-				printf("The value of level is %d\n", level);
 				break;
-			case INITIALIZE_LEVEL:
+			case LV_INITIALIZE_LEVEL:
 				level_initialization(level);
-				state = PLAY_LEVEL;
+				state = LV_PLAY_LEVEL;
 				break;
-			case PLAY_LEVEL:
+			case LV_PLAY_LEVEL:
 				state = stage_level(level);
 				break;
 		}

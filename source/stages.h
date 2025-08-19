@@ -15,15 +15,5 @@ void set_quit_game();
 bool get_quit_game_value();
 void level_initialization(int level_id);
 
-enum stageStates{
-	NO_STAGE,
-	QUIT,
-	STUDIO_SCREEN,
-	TITLE_SCREEN,
-	SELECT_PLAYER_SCREEN,
-	INIT_LEVEL_SELECTION,
-	LEVEL_SELECTION,
-	INITIALIZE_LEVEL,
-	PLAY_LEVEL
-};
+
 #endif

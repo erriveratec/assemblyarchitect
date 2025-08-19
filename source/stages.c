@@ -274,9 +274,9 @@ int stage_studio(Uint64 start_time, Uint64 cur_time)
 						 COLOR_WHITE, STUDIO_NAME_TEXT);
 
 	if (delay > STUDIO_SCREEN_DELAY){
-		return TITLE_SCREEN;
+		return LV_TITLE_SCREEN;
 	} else {
-		return STUDIO_SCREEN;
+		return LV_STUDIO_SCREEN;
 	}
 }
 
@@ -297,7 +297,7 @@ int stage_select_player()
 	static button_t *player_1;
 	static button_t *player_2;
 	static button_t *player_3;
-	int ret_val = SELECT_PLAYER_SCREEN;
+	int ret_val = LV_SELECT_PLAYER_SCREEN;
 	bool player_chosen = false;
 
 	if (buttons_created == false){
@@ -341,7 +341,7 @@ int stage_select_player()
 		g_player = FL_PLAYER_3;
 	}
 	if (player_chosen == true){
-		ret_val = INIT_LEVEL_SELECTION;		
+		ret_val = LV_INIT_LEVEL_SELECTION;		
 		bt_destroy_button(player_1);
 		bt_destroy_button(player_2);
 		bt_destroy_button(player_3);
@@ -375,9 +375,9 @@ int stage_title(const Uint8 *keystate)
 						 PRESS_SPACE_TEXT);
 
 	if (keystate[SDL_SCANCODE_SPACE]){
-		ret_val = SELECT_PLAYER_SCREEN;
+		ret_val = LV_SELECT_PLAYER_SCREEN;
 	} else {
-		ret_val = TITLE_SCREEN;
+		ret_val = LV_TITLE_SCREEN;
 	}
 
 	display_escape_menu(get_escape_menu_state());
@@ -446,7 +446,7 @@ int stage_select_level()
 	static bool level_initialized = false;
 	static button_t *level_buttons[40];
 	static bool player_levels[LV_LEVEL_QUANTITY];
-	int ret_val = LEVEL_SELECTION;
+	int ret_val = LV_LEVEL_SELECTION;
 	
 	if (level_initialized == false){
 		fl_load_player_levels(g_player, player_levels);
@@ -470,7 +470,7 @@ int stage_select_level()
 	display_escape_menu(get_escape_menu_state());
 
 	if (sb_check_clicked_ret_button() == true){
-		ret_val = SELECT_PLAYER_SCREEN;	
+		ret_val = LV_SELECT_PLAYER_SCREEN;	
 		level_initialized = false;
 		for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
 			bt_destroy_button(level_buttons[i]);
@@ -686,7 +686,7 @@ static void reset_level(int level_id, level_flags_t *flags, bool *run_finished)
 
 int stage_level(int level_id)
 {
-	int ret_val = PLAY_LEVEL;
+	int ret_val = LV_PLAY_LEVEL;
 	static bool run_finished = false;
 	static bool reset = false;
 	static bool holding_line = false;
@@ -725,7 +725,7 @@ int stage_level(int level_id)
 		reset = false;
 	}
 	if (back_to_level_selection == true){
-		ret_val = LEVEL_SELECTION;	
+		ret_val = LV_LEVEL_SELECTION;	
 		reset_level(level_id, &flags, &run_finished);		
 		destroy_level(&flags);
 		run_finished = false;

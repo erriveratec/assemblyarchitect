@@ -39,7 +39,7 @@
 									 " operands not compatible."
 #define MSG_TRY_YOURSELF "Now try to solve the challeng for yourself."
 #define MSG_NEW_REGS "Notice that now are more registers available"\
-								" try using them to solve the change."
+								" try using them to solve the challenge."
 #define MSG_NEW_INS_ADD "There is a new instruction \"add\" which adds"\
 							 " the contents of the two operands and it stores"\
 							 " it in the destiny operand."
@@ -103,7 +103,7 @@ enum arrow_id{
 
 SDL_Rect g_msg_ins_box = {MSG_INS_BOX_X, MSG_INS_BOX_Y, MSG_BOX_W, MSG_BOX_H};
 SDL_Rect g_msg_upper_box = {SCREEN_WIDTH/2 - MSG_BOX_W/2, 
-							 SCREEN_HEIGHT/3 - MSG_BOX_H, MSG_BOX_W, MSG_BOX_H};
+							 SCREEN_HEIGHT/4 - MSG_BOX_H, MSG_BOX_W, MSG_BOX_H};
 SDL_Rect g_msg_lower_box = {SCREEN_WIDTH/2 - MSG_BOX_W/2, 
 						   SCREEN_HEIGHT*8/9 - MSG_BOX_H, MSG_BOX_W, MSG_BOX_H};
 SDL_Rect g_msg_code_box = {CODE_BOX_X + (CODE_BOX_W - MSG_BOX_W)/2, 
@@ -122,8 +122,7 @@ static void level_5_tutorial(bool holding_line, bool play);
 static void level_6_tutorial(bool holding_line, bool play);
 static bool check_display_reg_lv_arrow();
 static int check_display_buf_arrow();
-static void win_move_input_to_output(int rep, int mul);
-static void set_level_4_win_list();
+static void win_move_input_to_output(int rep, int mul, bool reversed);
 static void set_level_5_win_list();
 static void set_level_6_win_list();
 static void set_level_7_win_list();
@@ -639,16 +638,16 @@ void lv_generate_win_condition_list(int level)
 {
 	switch (level){
 		case LV_LEVEL_1:
-			win_move_input_to_output(1, 1);
+			win_move_input_to_output(1, 1, false);
 			break;
 		case LV_LEVEL_2:
-			win_move_input_to_output(1, 1);
+			win_move_input_to_output(1, 1, false);
 			break;
 		case LV_LEVEL_3:
-			win_move_input_to_output(3, 1);
+			win_move_input_to_output(3, 1, false);
 			break;
 		case LV_LEVEL_4:
-			set_level_4_win_list();
+			win_move_input_to_output(1, 1, false);
 			break;
 		case LV_LEVEL_5:
 			set_level_5_win_list();
@@ -800,7 +799,7 @@ void lv_print_win_list()
  * Return:
  *	Pointer to the object that will be assigned as a default reg operand.
  */
-static void win_move_input_to_output(int rep, int mul)
+static void win_move_input_to_output(int rep, int mul, bool reversed)
 {
 	List *input_list = get_input_list();
 	List *win_list = get_win_list();
@@ -823,43 +822,15 @@ static void win_move_input_to_output(int rep, int mul)
 			new_win = malloc(sizeof(value_box_t));
 			new_win->value = mul*cur_input->value;
 			new_win->type = cur_input->type;
-			List_push(win_list, new_win);
+			if (reversed == false){
+				List_push(win_list, new_win);
+			} else if (reversed == true){
+				List_unshift(win_list, new_win);
+			}
 		}
 	}
 }
 
-
-
-/* Function: set_level_4_win_list
- *------------------------------------------------------------------------------
- * Arguments:
- *	None.
- *
- * Return:
- *	Pointer to the object that will be assigned as a default reg operand.
- */
-static void set_level_4_win_list()
-{
-	List *input_list = get_input_list();
-	List *win_list = get_win_list();
-
-	assert(input_list != NULL && "Input list pointer is NULL");
-	assert(win_list != NULL && "Win list pointer is NULL");
-
-	int input_list_size = List_count(input_list);
-	int win_list_size = List_count(win_list);
-
-	assert(input_list_size > 0 && "The size of the input list is incorrect");
-	assert(win_list_size == 0 && "The win list has elements");
-
-	LIST_FOREACH(input_list, first, next, cur){
-		value_box_t *cur_input = cur->value;
-		value_box_t *new_win = malloc(sizeof(value_box_t));
-		new_win->value = cur_input->value;
-		new_win->type = cur_input->type;
-		List_push(win_list, new_win);
-	}
-}
 
 /* Function: set_level_5_win_list
  *------------------------------------------------------------------------------
