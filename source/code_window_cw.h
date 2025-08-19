@@ -46,8 +46,8 @@ operand_t *cw_create_jump_operand();
 void cw_update_saved_jump_instructions();
 void cw_operate_jump_instruction(code_line_t *line);
 int cw_get_code_box_member(int member);
-int cw_get_line_y(int pos);
 int cw_get_text_box_member(int member);
 int cw_get_first_code_line_y();
+int cw_get_line_y(int pos);
 
 #endif
