@@ -72,6 +72,7 @@ arrow_t g_arrow_ins;
 arrow_t g_arrow_code_box;
 arrow_t g_arrow_play;
 arrow_t g_arrow_code_line;
+arrow_t g_arrow_del;
 
 enum message{
 	MESSAGE_1,
@@ -92,7 +93,8 @@ enum arrow_id{
 	INS_ARROW,
 	DROP_CODE_ARROW,
 	PLAY_ARROW,
-	CODE_LINE_ARROW
+	CODE_LINE_ARROW,
+	DEL_ARROW
 };
 
 
@@ -109,9 +111,7 @@ SDL_Rect g_msg_sb_box = {CODE_BOX_X + (CODE_BOX_W - MSG_BOX_W)/2,
 List *get_win_list();
 void add_to_win_list(int value, int type);
 static void level_1_tutorial(bool holding_line, bool play);
-static void level_2_tutorial_move_instruction(int ins_x);
 static void level_2_tutorial(bool holding_line, bool play);
-static void level_2_tutorial_select_instruction();
 static void level_2_tutorial_eliminate_instruction();
 static void level_2_tutorial_change_operand(int op_x);
 static void level_2_tutorial_select_output_buffer();
@@ -168,11 +168,20 @@ void lv_initialize_level_assets()
 	g_arrow_code_line.in_place = false;
 	g_arrow_code_line.visible = true;
 
+	g_arrow_del.box.x = cw_get_code_box_member(MEMBER_X) +
+											   cw_get_code_box_member(MEMBER_W);
+	g_arrow_del.box.y = cw_get_text_box_member(MEMBER_Y);
+	g_arrow_del.box.w = ARROW_W;
+	g_arrow_del.box.h = ARROW_H;
+	g_arrow_del.texture = g_lv_arrow;
+	g_arrow_del.in_place = false;
+	g_arrow_del.visible = true;
+
 	//The code box will accommodate according to the number of instructions
 	g_msg_code_box.y = g_arrow_code_line.box.y + ARROW_H; 
 
 }
-
+	
 /* Function: display_arrow
  * -----------------------------------------------------------------------------
  * Animates the arrow that points to the first instruction
@@ -220,6 +229,14 @@ static void display_arrow(int arrow_id)
 			travel = y - cw_get_line_y(cw_get_code_list_size()-1);	
 			dir = DW_UP;
 			aptr = &g_arrow_code_line;
+			break;
+		case DEL_ARROW:
+			x = cw_get_code_box_member(MEMBER_X) + 
+											   cw_get_code_box_member(MEMBER_W);
+			y = cw_get_text_box_member(MEMBER_Y);
+			travel = ARROW_W;
+			dir = DW_RIGHT;
+			aptr = &g_arrow_del;
 			break;
 		default:
 			break;
@@ -462,9 +479,10 @@ static void level_2_tutorial(bool holding_line, bool play)
 	if (code_size > level_instructions_limit && holding_line == false){
 		message_box(CODE_BOX, MSG_SEL_LAST_INS);
 		display_arrow(CODE_LINE_ARROW);
-	//	level_2_tutorial_select_instruction();
 	} else if (code_size > level_instructions_limit && holding_line == true){
-		level_2_tutorial_eliminate_instruction();
+		message_box(CODE_BOX, MSG_DEL_INS);
+		display_arrow(DEL_ARROW);
+		//level_2_tutorial_eliminate_instruction();
 	} else if (change_op == true && holding_line == false){
 		if (i2->state != CHANGING_OP2){
 			level_2_tutorial_change_operand(i2->op2->b->x);
@@ -473,56 +491,15 @@ static void level_2_tutorial(bool holding_line, bool play)
 			bf_draw_buffers(IB);
 		}
 	} else if (mov_instruction == true){
-		level_2_tutorial_move_instruction(i1->ins->b->x);
+		message_box(CODE_BOX, MSG_MOV_INS);
+		display_arrow(CODE_LINE_ARROW);
 	} else if (press_play == true){
 		message_box(SB_BOX, MSG_PRESS_PLAY);	
 		display_arrow(PLAY_ARROW);
 	}
 }
 
-/* Function: level_2_tutorial_move_instruction
- * -----------------------------------------------------------------------------
- * Points the player to the selection of the operands
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-static void level_2_tutorial_move_instruction(int ins_x)
-{
-	int final_y = cw_get_line_y( cw_get_code_list_size()-1) + ARROW_H;
-	int w = cw_get_code_box_member(MEMBER_W);
-	int h = cw_get_code_box_member(MEMBER_H);
-	int x = cw_get_code_box_member(MEMBER_X) + (w - MSG_BOX_W)/2;
-	int y = final_y + 2*ARROW_H;
 
-	dw_draw_filled_rectangle(x, y, MSG_BOX_W, MSG_BOX_H, COLOR_BLACK, 
-																   COLOR_WHITE);
-	dw_draw_wrapped_text_fits_height(x, y, MSG_BOX_W, MSG_BOX_H, MSG_TEXT_H, 
-										 COLOR_WHITE, MSG_MOV_INS);
-
-	int startx =  ins_x + ARROW_W/2;
-	int starty = y - 2*ARROW_H;
-	static arrow_t arrow;
-	static bool arrow_initialized = false;
-	if (arrow_initialized == false){
-		arrow.box.w = ARROW_W;	
-		arrow.box.h = ARROW_H;
-		arrow.box.x = startx;		
-		arrow.box.y = starty;
-		arrow.texture = g_lv_arrow;
-		arrow.in_place = false;
-		arrow_initialized = true;
-	}
-	int travel = ARROW_W;	
-	SDL_SetTextureColorMod(arrow.texture->texture, 255, 0, 255);
-	dw_animate_arrow(startx, starty, &arrow, DW_UP, travel);
-	SDL_SetTextureColorMod(arrow.texture->texture, 255, 255, 255);
-
-	return;
-}
 /* Function: level_2_tutorial_select_output_buffer
  * -----------------------------------------------------------------------------
  * Points the player to the selection of the operands
@@ -630,51 +607,6 @@ static void level_2_tutorial_eliminate_instruction()
 	int travel = ARROW_W;	
 	SDL_SetTextureColorMod(arrow.texture->texture, 255, 0, 255);
 	dw_animate_arrow(startx, starty, &arrow, DW_RIGHT, travel);
-	SDL_SetTextureColorMod(arrow.texture->texture, 255, 255, 255);
-
-	return;
-}
-
-/* Function: level_2_tutorial_select_instruction
- * -----------------------------------------------------------------------------
- * Points the player to the selection of the operands
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-static void level_2_tutorial_select_instruction()
-{
-
-	int final_y = cw_get_line_y( cw_get_code_list_size()-1);
-	int w = cw_get_code_box_member(MEMBER_W);
-	int h = cw_get_code_box_member(MEMBER_H);
-	int x = cw_get_code_box_member(MEMBER_X) + (w - MSG_BOX_W)/2;
-	int y = final_y + 2*ARROW_H;
-
-	dw_draw_filled_rectangle(x, y, MSG_BOX_W, MSG_BOX_H, COLOR_BLACK, 
-																   COLOR_WHITE);
-	dw_draw_wrapped_text_fits_height(x, y, MSG_BOX_W, MSG_BOX_H, MSG_TEXT_H, 
-								 COLOR_WHITE, MSG_SEL_LAST_INS);
-
-	int startx = cw_get_code_line_x(MOV) + ARROW_W/2;
-	int starty = y - ARROW_H;
-	static arrow_t arrow;
-	static bool arrow_initialized = false;
-	if (arrow_initialized == false){
-		arrow.box.w = ARROW_W;	
-		arrow.box.h = ARROW_H;
-		arrow.box.x = startx;		
-		arrow.box.y = starty;
-		arrow.texture = g_lv_arrow;
-		arrow.in_place = false;
-		arrow_initialized = true;
-	}
-	int travel = starty - final_y;	
-	SDL_SetTextureColorMod(arrow.texture->texture, 255, 0, 255);
-	dw_animate_arrow(startx, starty, &arrow, DW_UP, travel);
 	SDL_SetTextureColorMod(arrow.texture->texture, 255, 255, 255);
 
 	return;
