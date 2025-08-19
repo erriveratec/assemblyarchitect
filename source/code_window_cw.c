@@ -32,7 +32,6 @@ static void set_code_box_member(int value, int member);
 static void set_text_box_member(int value, int member);
 static void code_box_height_adjust();
 static void adjust_code_box_position();
-static int get_first_code_line_y();
 static int get_label_operand_value(code_line_t *line);
 List *get_code_list();
 static int get_code_line_pos_by_ptr(code_line_t *line);
@@ -619,7 +618,7 @@ void cw_add_saved_line(char *line)
 						  		  ins_text, COLOR_WHITE);
 	
 	int x = cw_get_code_line_x(ins_id);
-	int y = get_first_code_line_y();
+	int y = cw_get_first_code_line_y();
 
 	for (int i = 0; i <= list_size; i++){
 		y += CODE_BUTTON_H;
@@ -1154,7 +1153,7 @@ static void set_text_box(int x, int y, int w, int h)
 	text_box.h = h;
 }
 
-/* Function: get_first_code_line_y
+/* Function: cw_get_first_code_line_y
  * -----------------------------------------------------------------------------
  * This function calculates and returns the y position of the first line of 
  * code.
@@ -1165,10 +1164,10 @@ static void set_text_box(int x, int y, int w, int h)
  * Return:
  *	int with the coordinate of the first line of code
  */
-static int get_first_code_line_y()
+int cw_get_first_code_line_y()
 {
-	int y = cw_get_text_box_member(MEMBER_Y) + cw_get_text_box_member(MEMBER_H) + 
-			CODE_BOX_OFFSET - ADJUSTING_OFFSET;
+	int y = cw_get_text_box_member(MEMBER_Y) + cw_get_text_box_member(MEMBER_H)
+										   + CODE_BOX_OFFSET;// - ADJUSTING_OFFSET;
 	return y;
 }
 
@@ -1430,8 +1429,7 @@ void display_line_number()
 	}
 
 	int x = cw_get_code_box_member(MEMBER_X) + LINE_NUMBER_OFFSET;
-	int y = cw_get_text_box_member(MEMBER_Y) + cw_get_text_box_member(MEMBER_H) + 
-			CODE_BOX_OFFSET;
+	int y = cw_get_first_code_line_y();
 	int h = CODE_BUTTON_H;
 	char *number = NULL;
 	
@@ -1464,8 +1462,8 @@ int cw_get_line_y(int pos)
 	assert(code != NULL && "The code list can't be NULL");
 	
 	int list_size = List_count(code);
-	int y = cw_get_text_box_member(MEMBER_Y) + cw_get_text_box_member(MEMBER_H) + 
-																CODE_BOX_OFFSET;
+	int y = cw_get_first_code_line_y();
+
 	if (list_size == 0){
 		return y;
 	}
@@ -1507,7 +1505,7 @@ void cw_sort_code()
 	
 	int w = CODE_BOX_NUMBER_WIDTH;
 	int h = CODE_BUTTON_H; 
-	int y = get_first_code_line_y();
+	int y = cw_get_first_code_line_y();
 
 	LIST_FOREACH(code, first, next, cur){
 
@@ -1611,7 +1609,7 @@ bool cw_check_if_in_code_list(code_line_t *line)
 int get_code_line_position(int y)
 {
 	List *code = get_code_list();
-	int first_y = get_first_code_line_y();
+	int first_y = cw_get_first_code_line_y();
 
 	int h = CODE_BUTTON_H;
 	int list_size = List_count(code);
@@ -1705,7 +1703,7 @@ static bool check_selected_line_in_position(code_line_t *line)
 		return false;
 	}
 	
-	int y = get_first_code_line_y();
+	int y = cw_get_first_code_line_y();
 
 	int mouse_y = ms_get_mouse_y();
 	bool ret = false;
@@ -1956,7 +1954,7 @@ bool cw_check_code_sorted()
 	
 	int w = CODE_BOX_NUMBER_WIDTH;
 	int h = CODE_BUTTON_H;
-	int y = get_first_code_line_y();
+	int y = cw_get_first_code_line_y();
 
 	int retval = true;
 	LIST_FOREACH(code, first, next, cur){

@@ -60,7 +60,7 @@
 #define ARROW_INS_X (INS_BOX_X + INS_BOX_W)/4
 #define ARROW_INS_Y INS_BOX_Y + (MSG_INS_BOX_Y - INS_BOX_Y)*3/4
 #define ARROW_CODE_X (INS_BOX_X + INS_BOX_W)/2
-#define ARROW_CODE_Y (MSG_INS_BOX_Y + MSG_BOX_H*6/5)
+#define ARROW_CODE_Y (MSG_INS_BOX_Y + MSG_BOX_H + ARROW_H)
 
 #define LEVEL_LINE_W 4
 
@@ -69,10 +69,9 @@ static int level_instructions_limit;
 
 texture_t *g_lv_arrow;
 arrow_t g_arrow_ins; 
-arrow_t g_arrow_code;
+arrow_t g_arrow_code_box;
 arrow_t g_arrow_play;
-arrow_t g_arrow_code;
-
+arrow_t g_arrow_code_line;
 
 enum message{
 	MESSAGE_1,
@@ -92,7 +91,8 @@ enum positions{
 enum arrow_id{
 	INS_ARROW,
 	DROP_CODE_ARROW,
-	PLAY_ARROW
+	PLAY_ARROW,
+	CODE_LINE_ARROW
 };
 
 
@@ -143,13 +143,13 @@ void lv_initialize_level_assets()
 	g_arrow_ins.in_place = false;
 	g_arrow_ins.visible =  true;
 
-	g_arrow_code.box.x = ARROW_CODE_X;
-	g_arrow_code.box.y = ARROW_CODE_Y;
-	g_arrow_code.box.w = ARROW_W;
-	g_arrow_code.box.h = ARROW_H;
-	g_arrow_code.texture = g_lv_arrow;
-	g_arrow_code.in_place = false;
-	g_arrow_code.visible = true;
+	g_arrow_code_box.box.x = ARROW_CODE_X;
+	g_arrow_code_box.box.y = ARROW_CODE_Y;
+	g_arrow_code_box.box.w = ARROW_W;
+	g_arrow_code_box.box.h = ARROW_H;
+	g_arrow_code_box.texture = g_lv_arrow;
+	g_arrow_code_box.in_place = false;
+	g_arrow_code_box.visible = true;
 
 	g_arrow_play.box.w = ARROW_W;	
 	g_arrow_play.box.h = ARROW_H;
@@ -159,40 +159,20 @@ void lv_initialize_level_assets()
 	g_arrow_play.in_place = false;
 	g_arrow_play.visible = true;
 
-	g_arrow_code.box.w = ARROW_W;	
-	g_arrow_code.box.h = ARROW_H;
-	g_arrow_code.box.x = sb_get_play_button_member(MEMBER_X);
-	g_arrow_code.box.y = STAGE_BUTTON_Y - 2*ARROW_H;
-	g_arrow_code.texture = g_lv_arrow;
-	g_arrow_code.in_place = false;
-	g_arrow_code.visible = true;
+	g_arrow_code_line.box.w = ARROW_W;	
+	g_arrow_code_line.box.h = ARROW_H;
+	g_arrow_code_line.box.x = cw_get_code_line_x(MOV) + ARROW_W/2;
+	g_arrow_code_line.box.y = cw_get_line_y(cw_get_code_list_size()-1) + 
+													    CODE_BUTTON_H + ARROW_H;
+	g_arrow_code_line.texture = g_lv_arrow;
+	g_arrow_code_line.in_place = false;
+	g_arrow_code_line.visible = true;
 
-/*	int final_y = cw_get_line_y( cw_get_code_list_size()-1);
-	int w = cw_get_code_box_member(MEMBER_W);
-	int h = cw_get_code_box_member(MEMBER_H);
-	int x = cw_get_code_box_member(MEMBER_X) + (w - MSG_BOX_W)/2;
-	int y = final_y + 2*ARROW_H;
-
-	dw_draw_filled_rectangle(x, y, MSG_BOX_W, MSG_BOX_H, COLOR_BLACK, 
-																   COLOR_WHITE);
-	dw_draw_wrapped_text_fits_height(x, y, MSG_BOX_W, MSG_BOX_H, MSG_TEXT_H, 
-								 COLOR_WHITE, MSG_SEL_LAST_INS);
-
-	int startx = cw_get_code_line_x(MOV) + ARROW_W/2;
-	int starty = y - ARROW_H;
-	static arrow_t arrow;
-	static bool arrow_initialized = false;
-	if (arrow_initialized == false){
-		arrow.box.w = ARROW_W;	
-		arrow.box.h = ARROW_H;
-		arrow.box.x = startx;		
-		arrow.box.y = starty;
-		arrow.texture = g_lv_arrow;
-		arrow.in_place = false;
-		arrow_initialized = true;
-	}*/
+	//The code box will accommodate according to the number of instructions
+	g_msg_code_box.y = g_arrow_code_line.box.y + ARROW_H; 
 
 }
+
 /* Function: display_arrow
  * -----------------------------------------------------------------------------
  * Animates the arrow that points to the first instruction
@@ -221,9 +201,10 @@ static void display_arrow(int arrow_id)
 		case DROP_CODE_ARROW:
 			x = ARROW_CODE_X;
 			y = ARROW_CODE_Y;
-			travel = ARROW_INS_Y - iw_get_instruction_y_by_id(MOV);
+			travel = cw_get_code_box_member(MEMBER_X) - 
+													   (ARROW_CODE_X + ARROW_W); 
 			dir = DW_RIGHT;
-			aptr = &g_arrow_code;
+			aptr = &g_arrow_code_box;
 			break;
 		case PLAY_ARROW:
 			x = STAGE_BUTTON_X;
@@ -232,12 +213,24 @@ static void display_arrow(int arrow_id)
 			dir = DW_DOWN;
 			aptr = &g_arrow_play;
 			break;
-
+		case CODE_LINE_ARROW:
+			x = cw_get_code_line_x(MOV) + ARROW_W/2;
+			y = cw_get_line_y(cw_get_code_list_size()-1) + CODE_BUTTON_H + 
+																	    ARROW_H;
+			travel = y - cw_get_line_y(cw_get_code_list_size()-1);	
+			dir = DW_UP;
+			aptr = &g_arrow_code_line;
+			break;
 		default:
 			break;
 	}
 	dw_animate_arrow(x, y, aptr, dir, travel);
 }
+
+/*	SDL_SetTextureColorMod(arrow.texture->texture, 255, 0, 255);
+	dw_animate_arrow(startx, starty, &arrow, DW_UP, travel);
+	SDL_SetTextureColorMod(arrow.texture->texture, 255, 255, 255);
+*/
 
 /* Function: message_box
  * -----------------------------------------------------------------------------
@@ -467,7 +460,9 @@ static void level_2_tutorial(bool holding_line, bool play)
 		}
 	}
 	if (code_size > level_instructions_limit && holding_line == false){
-		level_2_tutorial_select_instruction();
+		message_box(CODE_BOX, MSG_SEL_LAST_INS);
+		display_arrow(CODE_LINE_ARROW);
+	//	level_2_tutorial_select_instruction();
 	} else if (code_size > level_instructions_limit && holding_line == true){
 		level_2_tutorial_eliminate_instruction();
 	} else if (change_op == true && holding_line == false){

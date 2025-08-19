@@ -135,9 +135,11 @@ void sb_draw_return_button()
  */
 void sb_initialize_return_button()
 {
-	ret_button = malloc(sizeof(button_t));
-	ret_button = create_button(RET_BUTTON_X, RET_BUTTON_Y, RET_BUTTON_W, 
-								  RET_BUTTON_H, true, true, return_button);
+	if (ret_button == NULL){
+		ret_button = malloc(sizeof(button_t));
+		ret_button = create_button(RET_BUTTON_X, RET_BUTTON_Y, RET_BUTTON_W, 
+									  RET_BUTTON_H, true, true, return_button);
+	}
 	return;
 }
 /* Function: sb_initialize_stage_buttons

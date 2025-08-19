@@ -24,11 +24,11 @@ int main(int argc, char *args[])
 	
 	load_media();
 	fl_save_file_init();
-	initialize_stage_assets();
 
 	int sleep = 0;
-	int state = LV_STUDIO_SCREEN;
-
+	int state = STUDIO_SCREEN;
+	int level = LV_NO_LEVEL;
+	int stage = NO_STAGE;
 	Uint64 next_game_tick = SDL_GetTicks64();
 	Uint64 studio_screen_time = SDL_GetTicks64();
 	ms_init_mouse();
@@ -79,23 +79,35 @@ int main(int argc, char *args[])
 		SDL_FillRect(g_screen, NULL, color);
 
 		switch (state){
-			case LV_STUDIO_SCREEN:
+			case STUDIO_SCREEN:
 				state = stage_studio(studio_screen_time, SDL_GetTicks64());
 				break;
-			case LV_TITLE_SCREEN:
+			case TITLE_SCREEN:
 				state = stage_title(keystate);
 				break;
-			case LV_SELECT_PLAYER_SCREEN:
+			case SELECT_PLAYER_SCREEN:
 				state = stage_select_player();
 				break;
-			case LV_LEVEL_SELECTION:
-				state = stage_select_level();	
+			case INIT_LEVEL_SELECTION:
+				sb_initialize_return_button();
+				state = LEVEL_SELECTION;
 				break;
-		//	case LV_INITIALIZE_LEVEL:
-
-		//		break;
-			default:
-				state = stage_level(state);
+			case LEVEL_SELECTION:
+				stage = stage_select_level();
+				if (stage != SELECT_PLAYER_SCREEN &&
+					stage != LEVEL_SELECTION){
+					state = INITIALIZE_LEVEL;
+					level = stage;
+				} else {
+					state = stage;
+				}
+				break;
+			case INITIALIZE_LEVEL:
+				level_initialization(level);
+				state = PLAY_LEVEL;
+				break;
+			case PLAY_LEVEL:
+				state = stage_level(level);
 				break;
 		}
 

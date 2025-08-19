@@ -710,7 +710,7 @@ static void draw_register_text()
 
 }
 
-/* Function: rg_check_released_in_register
+/* Function: rg_check_mouse_released_in_register
 *------------------------------------------------------------------------------
 * This functions verifies if the user clicked one of the registers available
 * in the screen
@@ -723,7 +723,7 @@ static void draw_register_text()
 *
 */
 
-bool rg_check_released_in_register()
+bool rg_check_mouse_released_in_register()
 {
 	List *registers = get_register_list();
 	assert(registers != NULL && "The registers pointer cannot be NULL");
@@ -733,8 +733,10 @@ bool rg_check_released_in_register()
    	LIST_FOREACH(registers, first, next, cur){ 
 	   
 	   	reg_t *c = cur->value;
-	   
-	   	if (bt_check_mouse_released_button(c->b) == true){
+	  	button_t b = {.x = c->value.box.x, .y = c->value.box.y, 
+									  .w = c->value.box.w, .h = c->value.box.h};
+	   	if (bt_check_mouse_released_button(c->b) == true ||
+									bt_check_mouse_released_button(&b) == true){
 		   	selected = true;
 		   	break;
 	   	} 
@@ -759,8 +761,11 @@ operand_t *rg_create_operand_of_selected_register()
    	LIST_FOREACH(registers, first, next, cur){ 
 
 		reg_t *c = cur->value;
-	   
-	   	if (true == bt_check_mouse_released_button(c->b)){
+		button_t b = {.x = c->value.box.x, .y = c->value.box.y, 
+									  .w = c->value.box.w, .h = c->value.box.h};
+
+	   	if (bt_check_mouse_released_button(c->b) == true||
+									bt_check_mouse_released_button(&b) == true){
 			
 			texture_t *t = cl_create_operand_texture(c->id);
 			button_t *b = create_button(c->b->x, c->b->y, c->b->w, c->b->h, 

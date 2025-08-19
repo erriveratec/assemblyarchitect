@@ -60,6 +60,7 @@ static int display_run_result(bool win_check);
 static bool get_escape_menu_state();
 static void display_escape_menu(bool menu_variable_state);
 static void destroy_level(level_flags_t *flags);
+static void initialize_stage_assets();
 
 /* Function: initialize_stage_assets
  * ----------------------------------------------------------------------------
@@ -74,7 +75,7 @@ static void destroy_level(level_flags_t *flags);
  * Return:
  *	void.	
  */
-void initialize_stage_assets()
+static void initialize_stage_assets()
 {
 	sb_initialize_stage_buttons();
 	sb_initialize_return_button();
@@ -89,7 +90,6 @@ void initialize_stage_assets()
 	bf_set_output_buffer_button(BUFFER_BOX_X, OUTPUT_BUFFER_BOX_Y, BUFFER_BOX_W, 
 							 BUFFER_TEXT_H + BUFFER_BOX_H);
 	bf_initialize_buffer_operands();
-	lv_initialize_level_assets();
 }
 
 /* Function: set_quit_game_value
@@ -180,10 +180,11 @@ void reset_level_flags(level_flags_t *flags)
  * Return:
  *	true: used for the caller of the function.
  */
-int level_initialization(int level_id)
+void level_initialization(int level_id)
 {
 	assert(level_id > LV_LEVEL_MIN && level_id < LV_LEVEL_MAX && 	
 		   "Invalid stage id");
+	initialize_stage_assets();
 
 	bf_create_input_list();
 	bf_create_output_list();
@@ -203,7 +204,8 @@ int level_initialization(int level_id)
 	fl_load_save_file(g_player, level_id);
 	mc_reset_avatar();
 
-	return true;
+	lv_initialize_level_assets();
+	return ;
 }
 
 /* Function: destroy_level
@@ -262,8 +264,8 @@ void stage_drawings(int level, bool holding_line, bool play)
  *	cur_time: the current time used to calculate the delay of the screen.
  *
  * Return:
- *	LV_TITLE_SCREEN if the delay time is already finished
- *	LV_LEVEL_SELECTION if otherwise
+ *	TITLE_SCREEN if the delay time is already finished
+ *	LEVEL_SELECTION if otherwise
  */
 int stage_studio(Uint64 start_time, Uint64 cur_time)
 {
@@ -272,9 +274,9 @@ int stage_studio(Uint64 start_time, Uint64 cur_time)
 						 COLOR_WHITE, STUDIO_NAME_TEXT);
 
 	if (delay > STUDIO_SCREEN_DELAY){
-		return LV_TITLE_SCREEN;
+		return TITLE_SCREEN;
 	} else {
-		return LV_STUDIO_SCREEN;
+		return STUDIO_SCREEN;
 	}
 }
 
@@ -286,8 +288,8 @@ int stage_studio(Uint64 start_time, Uint64 cur_time)
  *	None.
  *
  * Return:
- *	LV_SELECT_PLAYER_SCREEN if the user have not selected a player. 
- *	LV_LEVEL_SELECTION if a player has been chosen
+ *	SELECT_PLAYER_SCREEN if the user have not selected a player. 
+ *	LEVEL_SELECTION if a player has been chosen
  */
 int stage_select_player()
 {
@@ -295,7 +297,7 @@ int stage_select_player()
 	static button_t *player_1;
 	static button_t *player_2;
 	static button_t *player_3;
-	int ret_val = LV_SELECT_PLAYER_SCREEN;
+	int ret_val = SELECT_PLAYER_SCREEN;
 	bool player_chosen = false;
 
 	if (buttons_created == false){
@@ -339,7 +341,7 @@ int stage_select_player()
 		g_player = FL_PLAYER_3;
 	}
 	if (player_chosen == true){
-		ret_val = LV_LEVEL_SELECTION;		
+		ret_val = INIT_LEVEL_SELECTION;		
 		bt_destroy_button(player_1);
 		bt_destroy_button(player_2);
 		bt_destroy_button(player_3);
@@ -361,8 +363,8 @@ int stage_select_player()
  *	None;
  *
  * Return:
- *	LV_TITLE_SCREEN if user has not pressed spacebar, 
- *	LV_LEVEL_SELECTION if otherwise
+ *	TITLE_SCREEN if user has not pressed spacebar, 
+ *	LEVEL_SELECTION if otherwise
  */
 int stage_title(const Uint8 *keystate)
 {
@@ -373,9 +375,9 @@ int stage_title(const Uint8 *keystate)
 						 PRESS_SPACE_TEXT);
 
 	if (keystate[SDL_SCANCODE_SPACE]){
-		ret_val = LV_SELECT_PLAYER_SCREEN;
+		ret_val = SELECT_PLAYER_SCREEN;
 	} else {
-		ret_val = LV_TITLE_SCREEN;
+		ret_val = TITLE_SCREEN;
 	}
 
 	display_escape_menu(get_escape_menu_state());
@@ -444,7 +446,7 @@ int stage_select_level()
 	static bool level_initialized = false;
 	static button_t *level_buttons[40];
 	static bool player_levels[LV_LEVEL_QUANTITY];
-	int ret_val = LV_LEVEL_SELECTION;
+	int ret_val = LEVEL_SELECTION;
 	
 	if (level_initialized == false){
 		fl_load_player_levels(g_player, player_levels);
@@ -468,7 +470,7 @@ int stage_select_level()
 	display_escape_menu(get_escape_menu_state());
 
 	if (sb_check_clicked_ret_button() == true){
-		ret_val = LV_SELECT_PLAYER_SCREEN;	
+		ret_val = SELECT_PLAYER_SCREEN;	
 		level_initialized = false;
 		for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
 			bt_destroy_button(level_buttons[i]);
@@ -581,7 +583,7 @@ static void flag_handler(level_flags_t *flags, int clicked_button)
 static void pending_operand_handler()
 {
 	bool left_released = ms_get_mouse_left_released();
-	bool register_selected = rg_check_released_in_register();
+	bool register_selected = rg_check_mouse_released_in_register();
 	bool buffer_selected = bf_check_released_in_buffer();
 	bool label_selected = cw_check_released_in_label();
 	cw_highlight_code_pending_operand();
@@ -604,8 +606,6 @@ static void pending_operand_handler()
 		}
 	} else if (left_released == true && register_selected == false && 
 			   buffer_selected == false){
-//		operand_t *r = rg_get_default_operand_register();
-//		cl_assign_operand_to_line(r, l);
 	}
 	return;
 }
@@ -686,8 +686,7 @@ static void reset_level(int level_id, level_flags_t *flags, bool *run_finished)
 
 int stage_level(int level_id)
 {
-	int ret_val = level_id;
-	static bool level_init = false;
+	int ret_val = PLAY_LEVEL;
 	static bool run_finished = false;
 	static bool reset = false;
 	static bool holding_line = false;
@@ -695,9 +694,6 @@ int stage_level(int level_id)
 	static level_flags_t flags;
 	display_escape_menu(get_escape_menu_state());
 	
-	if (level_init == false){
-		level_init = level_initialization(level_id);
-	}
 	if (sb_check_clicked_stage_button() == true && 
 									  cw_check_code_pending_operand() == false){
 		flag_handler(&flags, identify_clicked_stage_button());
@@ -729,8 +725,7 @@ int stage_level(int level_id)
 		reset = false;
 	}
 	if (back_to_level_selection == true){
-		ret_val = LV_LEVEL_SELECTION;	
-		level_init = false;
+		ret_val = LEVEL_SELECTION;	
 		reset_level(level_id, &flags, &run_finished);		
 		destroy_level(&flags);
 		run_finished = false;

@@ -54,13 +54,10 @@ enum LevelStates{
 	LV_LEVEL_39,
 	LV_LEVEL_40,
 	LV_LEVEL_MAX,
-	LV_QUIT,
-	LV_STUDIO_SCREEN,
-	LV_TITLE_SCREEN,
-	LV_SELECT_PLAYER_SCREEN,
-	LV_LEVEL_SELECTION
-
+	LV_NO_LEVEL
 };
+
+
 
 void lv_initialize_level_assets();
 void lv_create_win_list();
