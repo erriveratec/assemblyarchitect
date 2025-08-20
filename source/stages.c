@@ -199,7 +199,7 @@ void level_initialization(int level_id)
 	cw_set_code_box(CODE_BOX_X, CODE_BOX_Y, CODE_BOX_W, CODE_BOX_H);
 	iw_set_instruction_box(INS_BOX_X, INS_BOX_Y, INS_BOX_W, INS_BOX_H);
 	
-	lv_generate_win_condition_list(level_id);
+	//lv_generate_win_condition_list(level_id);
 	cw_create_code_list();	
 	fl_load_save_file(g_player, level_id);
 	mc_reset_avatar();
@@ -674,7 +674,7 @@ static void reset_level(int level_id, level_flags_t *flags, bool *run_finished)
 	bf_reset_output_list();
 	bf_reset_win_condition();
 	lv_reset_win_list();
-	lv_generate_win_condition_list(level_id);
+	lv_reset_level_win_condition();
 	cw_reset_code_execution();
 	mc_hide_execution_arrow();
 	mc_reset_invalid_operation_flag();

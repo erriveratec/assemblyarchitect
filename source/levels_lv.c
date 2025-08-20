@@ -64,8 +64,16 @@
 
 #define LEVEL_LINE_W 4
 
+//Strings for the win condition
+#define STR_WIN1 "WIN1"
+#define STR_WIN2 "WIN2"
+
+#define WIN_CONDITION_LENGTH 30
+
 static List *win_list = NULL;
 static int level_instructions_limit;
+static char level_win_condition[WIN_CONDITION_LENGTH];
+
 
 texture_t *g_lv_arrow;
 arrow_t g_arrow_ins; 
@@ -126,6 +134,7 @@ static void win1_move_input_to_output(int rep, int mul, bool reversed);
 static void win2_add_inputs_in_groups(int group_size);
 static void set_level_9_win_list();
 static void message_box(int pos, char *msg);
+static void set_win_condition(char *win_condition);
 
 void lv_initialize_level_assets()
 {
@@ -622,6 +631,78 @@ void lv_set_level_instructions_limit(int limit)
 	level_instructions_limit = limit;
 }
 
+/* Function: lv_reset_win_condition
+ * -----------------------------------------------------------------------------
+ * This function resets the win condition when the player resets the level
+ *  
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+void lv_reset_level_win_condition()
+{
+	set_win_condition(level_win_condition);
+}
+
+/* Function: lv_level_win_condition
+ * -----------------------------------------------------------------------------
+ * Copies the win condition to the level variable and creates the win condition
+ *  
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+void lv_set_level_win_condition(char *win_condition)
+{
+	strcpy(level_win_condition, win_condition);
+	set_win_condition(level_win_condition);
+}
+
+/* Function: set_win_condition
+ * -----------------------------------------------------------------------------
+ * This function creates the win condition according to what is in the levels
+ * file. 
+ *
+ * Arguments:
+ * 	text: The text with the description of the win condition.
+ *	
+ * Return:
+ *	void
+ */
+static void set_win_condition(char *win_condition)
+{
+	assert(win_condition != NULL && "NULL win condition text");
+	char win_condition_cpy[WIN_CONDITION_LENGTH];
+	strcpy(win_condition_cpy, win_condition);
+	char *saveptr1;
+	char *delim = char_space;
+	char *win_cond;
+	
+	win_cond =  strtok_r(win_condition_cpy, delim, &saveptr1);
+	if (strstr(win_cond, STR_WIN1) != NULL){
+		char *rep_text = strtok_r(NULL, delim, &saveptr1);
+		int rep = atoi(rep_text);
+		char *mul_text = strtok_r(NULL, delim, &saveptr1);
+		int mul = atoi(mul_text);
+		char *reversed = strtok_r(NULL, delim, &saveptr1);
+		bool rev;
+		if (strstr(reversed, "true") != NULL){
+			rev = true;
+		} else if (strstr(reversed, "false") != NULL){
+			rev = false;
+		}
+		win1_move_input_to_output(rep, mul, rev);
+	} else if (strstr(win_cond, STR_WIN2) != NULL){
+		char *group_size_text = strtok_r(NULL, delim, &saveptr1);
+		int group_size = atoi(group_size_text);
+		win2_add_inputs_in_groups(group_size);
+	}
+	return;
+}
 
 /* Function: lv_generate_win_condition_list
  * -----------------------------------------------------------------------------
@@ -630,7 +711,7 @@ void lv_set_level_instructions_limit(int limit)
  *	
  * Return:
  *	void
- */
+ *
 void lv_generate_win_condition_list(int level)
 {
 	switch (level){
@@ -665,7 +746,7 @@ void lv_generate_win_condition_list(int level)
 			break;
 	}
 
-}
+}*/
 /* Function: add_to_win_list
  * -----------------------------------------------------------------------------
  * Arguments:

@@ -34,6 +34,7 @@
 
 //Load level strings
 #define STR_CHALLENGE_TEXT_BEGIN "ChallengeTextBegin"
+#define STR_CHALLENGE_TEXT_END "ChallengeTextEnd"
 #define STR_INPUT_SIZE "InputSize"
 #define STR_INSTRUCTION_LIMIT "InstructionLimit"
 #define STR_INPUT_TYPE "InputType"
@@ -42,7 +43,12 @@
 #define STR_CHAR "Char"
 #define STR_MIXED "Mixed"
 #define STR_INSTRUCTIONS_BEGIN "InstructionsBegin"
+#define STR_INSTRUCTIONS_END "InstructionsEnd"
 #define STR_REGISTERS_BEGIN "RegistersBegin"
+#define STR_REGISTERS_END "RegistersEnd"
+#define STR_WIN_CONDITION_BEGIN "WinConditionBegin"
+#define STR_WIN_CONDITION_END "WinConditionEnd"
+
 
 // Level specific instructions
 // ----- LEVEL 2 ----
@@ -67,6 +73,7 @@ void write_player_code_to_file(FILE *fp);
 static void parse_saved_code(FILE *fp);
 static char *create_string_with_number(char *s,  int n);
 bool check_if_level_is_active(FILE *fp);
+static void parse_win_condition(FILE *fp);
 
 /* Function: create_string_with_number
  *------------------------------------------------------------------------------
@@ -244,15 +251,44 @@ static void parse_challenge_text(FILE *fp)
 	char *text;
 	char *delim = "\"";
 
-
 	while ((read = getline(&line, &len, fp)) != READ_ERROR){
 		
 		text =  strtok_r(line, delim, &saveptr1);
-		if (strstr(line, "ChallengeTextEnd") != NULL){
+		if (strstr(line, STR_CHALLENGE_TEXT_END) != NULL){
 			break;
 		} else {
 			cw_set_challenge_text(text);
 		}
+	}
+	return;
+}
+/* Function: parse_win_condition
+ *------------------------------------------------------------------------------
+ * Processes the win condition specified in the text file
+ *
+ * Arguments:
+ *	fp: the file pointer of the level data
+ *
+ * Return:
+ *	Void.
+ *
+ */
+static void parse_win_condition(FILE *fp)
+{
+	char *line = NULL;	
+	size_t len = 0;
+	ssize_t read;
+
+	char *saveptr1;
+	char *text;
+
+	while ((read = getline(&line, &len, fp)) != READ_ERROR){
+		text =  strtok_r(line, char_newline, &saveptr1);
+		if (strstr(STR_WIN_CONDITION_END, line) != NULL){
+			break;
+		} else if (strcmp(line, char_newline) != STRING_EQUAL){
+			lv_set_level_win_condition(text);			
+		} 	
 	}
 	return;
 }
@@ -312,7 +348,7 @@ static void parse_instructions(FILE *fp)
 			iw_add_instruction_to_list(LABEL);
 		} else if (strstr(line, jmp_text) != NULL){
 			iw_add_instruction_to_list(JMP);
-		} else if (strstr(line, "InstructionsEnd")){
+		} else if (strstr(line, STR_INSTRUCTIONS_END)){
 			break;
 		} else {
 			printf("Error: a non valid instruction was read -> %s\n", line);
@@ -345,7 +381,7 @@ static void parse_registers(FILE *fp)
 			rg_add_register_to_list(RDX);
 		} else if (strstr(line, "rdi") != NULL){
 			rg_add_register_to_list(RDI);
-		} else if (strstr(line, "RegistersEnd")){
+		} else if (strstr(line, STR_REGISTERS_END)){
 			break;
 		} else {
 			printf("Error: a non valid register was read -> %s\n", line);
@@ -386,13 +422,13 @@ void fl_file_initialize_level(int level_id)
 			cw_set_stage_name(name);
 			free(name);
 		} else if (strstr(line, STR_CHALLENGE_TEXT_BEGIN) != NULL &&
-			level_found == true){
+														   level_found == true){
 			parse_challenge_text(fp);
 		} else if (strstr(line, STR_INPUT_SIZE) != NULL && level_found == true){
 			char *size = strchr(line, CHAR_SPACE);
 			bf_set_input_buffer_size(atoi(size));
 		} else if (strstr(line, STR_INSTRUCTION_LIMIT) != NULL && 
-				   								level_found == true){
+				   										   level_found == true){
 			char *size = strchr(line, CHAR_SPACE);
 			lv_set_level_instructions_limit(atoi(size));
 		} else if (strstr(line, STR_INPUT_TYPE) != NULL && level_found == true){
@@ -408,14 +444,17 @@ void fl_file_initialize_level(int level_id)
 			}
 
 		} else if (strstr(line, STR_INSTRUCTIONS_BEGIN) != NULL &&
-				   level_found == true){
+				   										   level_found == true){
 			iw_create_instruction_list();
 			parse_instructions(fp);
 		} else if (strstr(line, STR_REGISTERS_BEGIN) != NULL &&
-				   level_found == true){
+				   										   level_found == true){
 			create_register_list();
 			parse_registers(fp);
-		}else if (strstr(line, STR_LEVEL_ENDS) != NULL && level_found == true){
+		} else if (strstr(line, STR_WIN_CONDITION_BEGIN) != NULL &&
+				   										   level_found == true){
+			parse_win_condition(fp);
+		} else if (strstr(line, STR_LEVEL_ENDS) != NULL && level_found == true){
 			level_found= false;
 			break;
 		}
@@ -756,19 +795,16 @@ void fl_enable_next_level(int player_id, int level_id)
 	size_t len = 0;
 	ssize_t read;
 
-	printf("The value of level is %d\n", level_id);
 	char *player = get_player_id_string(player_id);
 	char *level_start = get_delimeter_level_string(STR_LEVEL_STARTS, level_id);
 	char *level_end = get_delimeter_level_string(STR_LEVEL_ENDS, level_id);
 	bool level_found = false;
 	bool player_found = false;
 
-	printf("level start %s\n", level_start);
 	while (READ_ERROR != (read = getline(&line, &len, fp))){
 		write_to_file(fptemp, line);
 	
 		if (strcmp(line, level_start) == STRING_EQUAL){
-			puts("this happens");
 			level_found = true;
 			write_to_file(fptemp, CHAR_NEWLINE);
 			write_to_file(fptemp, STR_LEVEL_ACTIVE_TRUE);
