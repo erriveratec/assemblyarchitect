@@ -124,7 +124,6 @@ static bool check_display_reg_lv_arrow();
 static int check_display_buf_arrow();
 static void win_move_input_to_output(int rep, int mul, bool reversed);
 static void win_add_inputs_in_groups(int group_size);
-static void set_level_8_win_list();
 static void set_level_9_win_list();
 static void message_box(int pos, char *msg);
 
@@ -658,10 +657,9 @@ void lv_generate_win_condition_list(int level)
 			break;
 		case LV_LEVEL_8:
 			win_move_input_to_output(1, 8, false);
-			//set_level_8_win_list();
 			break;
 		case LV_LEVEL_9:
-			set_level_9_win_list();
+			win_move_input_to_output(1, 1, false);
 			break;
 		default:
 			break;
@@ -877,40 +875,6 @@ static void win_add_inputs_in_groups(int group_size)
 		}
 		res++;
 		array_index++;
-	}
-}
-
-
-/* Function: set_level_8_win_list
- *------------------------------------------------------------------------------
- * Arguments:
- *	None.
- *
- * Return:
- *	Void.
- */
-static void set_level_8_win_list()
-{
-	List *input_list = get_input_list();
-	List *win_list = get_win_list();
-
-	assert(input_list != NULL && "Input list pointer is NULL");
-	assert(win_list != NULL && "Win list pointer is NULL");
-
-	int input_list_size = List_count(input_list);
-	
-	int win_list_size = List_count(win_list);
-	assert(input_list_size > 0 && "The size of the input list is incorrect");
-	assert(win_list_size == 0 && "The win list has elements");
-
-	
-	LIST_FOREACH(input_list, first, next, cur){
-		value_box_t *cur_input = cur->value;
-		
-		value_box_t *new_win = malloc(sizeof(value_box_t));
-		new_win->value = 8*cur_input->value;
-		new_win->type = cur_input->type;
-		List_push(win_list, new_win);
 	}
 }
 
