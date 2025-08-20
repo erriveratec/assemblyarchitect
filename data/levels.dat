@@ -17,6 +17,10 @@ RegistersEnd
 
 InstructionLimit 99
 
+WinConditionBegin
+WIN1 1 1 false
+WinConditionEnd
+
 +++LEVEL ENDS
 
 +++LEVEL STARTS 02
@@ -37,6 +41,10 @@ rax
 RegistersEnd
 
 InstructionLimit 2
+
+WinConditionBegin
+WIN1 1 1 false
+WinConditionEnd
 
 +++LEVEL ENDS
 
@@ -59,6 +67,10 @@ RegistersEnd
 
 InstructionLimit 99
 
+WinConditionBegin
+WIN1 3 1 false
+WinConditionEnd
+
 +++LEVEL ENDS
 
 +++LEVEL STARTS 04
@@ -77,6 +89,10 @@ InstructionsEnd
 RegistersBegin
 rax
 RegistersEnd
+
+WinConditionBegin
+WIN1 1 1 false
+WinConditionEnd
 
 InstructionLimit 99
 
@@ -103,6 +119,10 @@ RegistersEnd
 
 InstructionLimit 99
 
+WinConditionBegin
+WIN1 1 1 true
+WinConditionEnd
+
 +++LEVEL ENDS
 
 +++LEVEL STARTS 06
@@ -124,6 +144,10 @@ rax
 RegistersEnd
 
 InstructionLimit 99
+
+WinConditionBegin
+WIN2 2
+WinConditionEnd
 
 +++LEVEL ENDS
 
@@ -148,6 +172,10 @@ RegistersEnd
 
 InstructionLimit 99
 
+WinConditionBegin
+WIN1 1 5 false
+WinConditionEnd
+
 +++LEVEL ENDS
 
 +++LEVEL STARTS 08
@@ -170,6 +198,10 @@ RegistersEnd
 
 InstructionLimit 99
 
+WinConditionBegin
+WIN1 1 8 false
+WinConditionEnd
+
 +++LEVEL ENDS
 
 +++LEVEL STARTS 09
@@ -178,7 +210,7 @@ ChallengeTextBegin
 "Move the values from the input buffer to the output buffer, using four instructions maximum"
 ChallengeTextEnd
 
-InputSize 5
+InputSize 2
 InputType Natural
 
 InstructionsBegin
@@ -192,6 +224,10 @@ rax
 RegistersEnd
 
 InstructionLimit 4
+
+WinConditionBegin
+WIN1 1 8 false
+WinConditionEnd
 
 +++LEVEL ENDS
 
@@ -215,6 +251,10 @@ rax
 RegistersEnd
 
 InstructionLimit 4
+
+WinConditionBegin
+WIN1 1 8 false
+WinConditionEnd
 
 +++LEVEL ENDS
 

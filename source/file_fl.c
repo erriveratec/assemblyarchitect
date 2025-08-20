@@ -85,7 +85,7 @@ static char *create_string_with_number(char *s,  int n)
 	assert(s != NULL && "The string pointer is NULL");
 
 
-	char *number = number_to_string_with_prepend_zero(n);
+	char *number = ax_number_to_string_prepend_zero(n);
 	check_mem(number);
 	char *string = malloc(sizeof(char)*(strlen(s) + strlen(number)));
 	check_mem(string);
@@ -116,7 +116,7 @@ static char *get_level_id_string(int level_id)
 	char *number = NULL;
 
 	if (level_id < 10){
-		number = number_to_string_with_prepend_zero(level_id);
+		number = ax_number_to_string_prepend_zero(level_id);
 	} else {
 		number = number_to_string(level_id);
 	}
@@ -149,7 +149,7 @@ error:
  */
 static char *get_player_end_string(int player_id)
 {
-	char *number = number_to_string_with_prepend_zero(player_id);
+	char *number = ax_number_to_string_prepend_zero(player_id);
 	check_mem(number);
 	char *id = malloc(sizeof(char)*(strlen(STR_PLAYER_ENDS) + 
 					  strlen(char_space) + strlen(number)));
@@ -178,7 +178,7 @@ error:
  */
 static char *get_player_id_string(int player_id)
 {
-	char *number = number_to_string_with_prepend_zero(player_id);
+	char *number = ax_number_to_string_prepend_zero(player_id);
 	check_mem(number);
 	char *id = malloc(sizeof(char)*(strlen(STR_PLAYER) + strlen(char_space) + 
 					  strlen(number)));
@@ -206,7 +206,7 @@ error:
  */
 static char *get_delimeter_level_string(char *text, int level_id)
 {
-	char *number = number_to_string_with_prepend_zero(level_id - 
+	char *number = ax_number_to_string_two_digits(level_id - 
 								                     LV_LEVEL_MIN);
 	check_mem(number);
 	char *string = malloc(sizeof(char)*(strlen(text) + 2*CHAR_SIZE + 
@@ -747,7 +747,6 @@ void fl_enable_next_level(int player_id, int level_id)
 	assert(player_id >= FL_PLAYER_1 && player_id <= FL_PLAYER_3 && 
 		   "player");
 	
-
 	FILE *fp = fopen(SAVE_FILE_PATH, "r");
 	FILE *fptemp = fopen(SAVE_FILE_PATH_TEMP, "w");
 	check_mem(fp);
@@ -757,16 +756,19 @@ void fl_enable_next_level(int player_id, int level_id)
 	size_t len = 0;
 	ssize_t read;
 
+	printf("The value of level is %d\n", level_id);
 	char *player = get_player_id_string(player_id);
 	char *level_start = get_delimeter_level_string(STR_LEVEL_STARTS, level_id);
 	char *level_end = get_delimeter_level_string(STR_LEVEL_ENDS, level_id);
 	bool level_found = false;
 	bool player_found = false;
 
+	printf("level start %s\n", level_start);
 	while (READ_ERROR != (read = getline(&line, &len, fp))){
 		write_to_file(fptemp, line);
 	
 		if (strcmp(line, level_start) == STRING_EQUAL){
+			puts("this happens");
 			level_found = true;
 			write_to_file(fptemp, CHAR_NEWLINE);
 			write_to_file(fptemp, STR_LEVEL_ACTIVE_TRUE);
@@ -833,7 +835,7 @@ void fl_save_file_init()
 		check_mem(level);
 
 		for (int j = 1; j <= PLAYER_QUANTITY; j++){
-			char *player_number = number_to_string_with_prepend_zero(j);
+			char *player_number = ax_number_to_string_prepend_zero(j);
 
 			strcpy(level, STR_PLAYER); 
 			strcat(level, " ");
@@ -845,7 +847,7 @@ void fl_save_file_init()
 			for (int i = 1; i <= LV_LEVEL_QUANTITY; i++){
 				char *number = NULL;
 				if (i<10){
-					number = number_to_string_with_prepend_zero(i);
+					number = ax_number_to_string_prepend_zero(i);
 				} else {
 					number = number_to_string(i);
 				}

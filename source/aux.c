@@ -36,7 +36,7 @@ char *create_string_append_number(char *s,  int n)
 	char *number = NULL;
 
 	if (n<10){
-		number = number_to_string_with_prepend_zero(n);
+		number = ax_number_to_string_prepend_zero(n);
 	} else {
 		number = number_to_string(n);
 	}
@@ -253,13 +253,13 @@ char *ax_number_to_string_two_digits(int number)
 	assert(number >= 0 && number < 100 && "Invalid number value");	
 	char *number_text = NULL;
 	if (number < 10){
-			number_text = number_to_string_with_prepend_zero(number);
+			number_text = ax_number_to_string_prepend_zero(number);
 		} else {
 			number_text = number_to_string(number);
 		}
 	return number_text;
 }
-/* Function: number_to_string_with_prepend_zero
+/* Function: ax_number_to_string_prepend_zero
  * ----------------------------------------------------------------------------
  * This function receives receives an integer and it returns it as a 
  * string form with a prepend zero as the first character
@@ -270,7 +270,7 @@ char *ax_number_to_string_two_digits(int number)
  * Return:
  *	string with the converted number with a leading zero
  */
-char *number_to_string_with_prepend_zero(int number)
+char *ax_number_to_string_prepend_zero(int number)
 {
 	char *zero = number_to_string(0);
 	char *c = NULL;

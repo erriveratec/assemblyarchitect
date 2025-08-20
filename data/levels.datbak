@@ -182,9 +182,9 @@ InputSize 5
 InputType Natural
 
 InstructionsBegin
-LABEL
 mov
 jmp
+LABEL
 InstructionsEnd
 
 RegistersBegin

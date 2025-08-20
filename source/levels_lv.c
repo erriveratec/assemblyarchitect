@@ -122,8 +122,8 @@ static void level_5_tutorial(bool holding_line, bool play);
 static void level_6_tutorial(bool holding_line, bool play);
 static bool check_display_reg_lv_arrow();
 static int check_display_buf_arrow();
-static void win_move_input_to_output(int rep, int mul, bool reversed);
-static void win_add_inputs_in_groups(int group_size);
+static void win1_move_input_to_output(int rep, int mul, bool reversed);
+static void win2_add_inputs_in_groups(int group_size);
 static void set_level_9_win_list();
 static void message_box(int pos, char *msg);
 
@@ -635,31 +635,31 @@ void lv_generate_win_condition_list(int level)
 {
 	switch (level){
 		case LV_LEVEL_1:
-			win_move_input_to_output(1, 1, false);
+			win1_move_input_to_output(1, 1, false);
 			break;
 		case LV_LEVEL_2:
-			win_move_input_to_output(1, 1, false);
+			win1_move_input_to_output(1, 1, false);
 			break;
 		case LV_LEVEL_3:
-			win_move_input_to_output(3, 1, false);
+			win1_move_input_to_output(3, 1, false);
 			break;
 		case LV_LEVEL_4:
-			win_move_input_to_output(1, 1, false);
+			win1_move_input_to_output(1, 1, false);
 			break;
 		case LV_LEVEL_5:
-			win_move_input_to_output(1, 1, true);
+			win1_move_input_to_output(1, 1, true);
 			break;
 		case LV_LEVEL_6:
-			win_add_inputs_in_groups(2);
+			win2_add_inputs_in_groups(2);
 			break;
 		case LV_LEVEL_7:
-			win_move_input_to_output(1, 5, false);
+			win1_move_input_to_output(1, 5, false);
 			break;
 		case LV_LEVEL_8:
-			win_move_input_to_output(1, 8, false);
+			win1_move_input_to_output(1, 8, false);
 			break;
 		case LV_LEVEL_9:
-			win_move_input_to_output(1, 1, false);
+			win1_move_input_to_output(1, 1, false);
 			break;
 		default:
 			break;
@@ -783,7 +783,7 @@ void lv_print_win_list()
 		printf("List value: %d\n", cur_input->value);
 	}
 }
-/* Function: win_move_input_to_output
+/* Function: win1_move_input_to_output
  *------------------------------------------------------------------------------
  * Generates a win condition that is achieved by moving the elements from the
  * input buffer to the output buffer in order. Can apply repetitions and 
@@ -796,7 +796,7 @@ void lv_print_win_list()
  * Return:
  *	Void.
  */
-static void win_move_input_to_output(int rep, int mul, bool reversed)
+static void win1_move_input_to_output(int rep, int mul, bool reversed)
 {
 	List *input_list = get_input_list();
 	List *win_list = get_win_list();
@@ -829,7 +829,7 @@ static void win_move_input_to_output(int rep, int mul, bool reversed)
 }
 
 
-/* Function: win_add_inputs_in_groups
+/* Function: win2_add_inputs_in_groups
  *------------------------------------------------------------------------------
  * The solution of the challenge will be achieved is the player adds the inputs
  * in groups
@@ -840,7 +840,7 @@ static void win_move_input_to_output(int rep, int mul, bool reversed)
  * Return:
  *	Void.
  */
-static void win_add_inputs_in_groups(int group_size)
+static void win2_add_inputs_in_groups(int group_size)
 {
 	List *input_list = get_input_list();
 	List *win_list = get_win_list();
