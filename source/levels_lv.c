@@ -123,9 +123,7 @@ static void level_6_tutorial(bool holding_line, bool play);
 static bool check_display_reg_lv_arrow();
 static int check_display_buf_arrow();
 static void win_move_input_to_output(int rep, int mul, bool reversed);
-static void set_level_5_win_list();
-static void set_level_6_win_list();
-static void set_level_7_win_list();
+static void win_add_inputs_in_groups(int group_size);
 static void set_level_8_win_list();
 static void set_level_9_win_list();
 static void message_box(int pos, char *msg);
@@ -650,16 +648,17 @@ void lv_generate_win_condition_list(int level)
 			win_move_input_to_output(1, 1, false);
 			break;
 		case LV_LEVEL_5:
-			set_level_5_win_list();
+			win_move_input_to_output(1, 1, true);
 			break;
 		case LV_LEVEL_6:
-			set_level_6_win_list();
+			win_add_inputs_in_groups(2);
 			break;
 		case LV_LEVEL_7:
-			set_level_7_win_list();
+			win_move_input_to_output(1, 5, false);
 			break;
 		case LV_LEVEL_8:
-			set_level_8_win_list();
+			win_move_input_to_output(1, 8, false);
+			//set_level_8_win_list();
 			break;
 		case LV_LEVEL_9:
 			set_level_9_win_list();
@@ -797,7 +796,7 @@ void lv_print_win_list()
  *  mul: multiplication transformation to the output buffer.
  *
  * Return:
- *	Pointer to the object that will be assigned as a default reg operand.
+ *	Void.
  */
 static void win_move_input_to_output(int rep, int mul, bool reversed)
 {
@@ -832,86 +831,18 @@ static void win_move_input_to_output(int rep, int mul, bool reversed)
 }
 
 
-/* Function: set_level_5_win_list
+/* Function: win_add_inputs_in_groups
  *------------------------------------------------------------------------------
- * Arguments:
- *	None.
+ * The solution of the challenge will be achieved is the player adds the inputs
+ * in groups
  *
- * Return:
- *	Pointer to the object that will be assigned as a default reg operand.
- */
-static void set_level_5_win_list()
-{
-	List *input_list = get_input_list();
-	List *win_list = get_win_list();
-
-	assert(input_list != NULL && "Input list pointer is NULL");
-	assert(win_list != NULL && "Win list pointer is NULL");
-
-	int input_list_size = List_count(input_list);
-	int win_list_size = List_count(win_list);
-
-	assert(input_list_size > 0 && "The size of the input list is incorrect");
-	assert(win_list_size == 0 && "The win list has elements");
-
-	LIST_FOREACH(input_list, first, next, cur){
-		value_box_t *cur_input = cur->value;
-		value_box_t *new_win = malloc(sizeof(value_box_t));
-		new_win->value = cur_input->value;
-		new_win->type = cur_input->type;
-		List_unshift(win_list, new_win);
-	}
-}
-
-/* Function: set_level_6_win_list
- *------------------------------------------------------------------------------
  * Arguments:
- *	None.
- *
- * Return:
- *	Pointer to the object that will be assigned as a default reg operand.
- */
-static void set_level_6_win_list()
-{
-	List *input_list = get_input_list();
-	List *win_list = get_win_list();
-
-	assert(input_list != NULL && "Input list pointer is NULL");
-	assert(win_list != NULL && "Win list pointer is NULL");
-
-	int input_list_size = List_count(input_list);
-	assert(input_list_size % 2 == 0 && "For this challenge the list size must\
-		   be an even number");
-	
-	int win_list_size = List_count(win_list);
-	assert(input_list_size > 0 && "The size of the input list is incorrect");
-	assert(win_list_size == 0 && "The win list has elements");
-
-	int i = 1;
-	int prev_val = 0;
-	LIST_FOREACH(input_list, first, next, cur){
-		value_box_t *cur_input = cur->value;
-		
-		if (i % 2 == 0){
-			value_box_t *new_win = malloc(sizeof(value_box_t));
-			new_win->value = cur_input->value + prev_val;
-			new_win->type = cur_input->type;
-			List_push(win_list, new_win);
-		}
-		prev_val = cur_input->value;
-		i++;
-	}
-}
-
-/* Function: set_level_7_win_list
- *------------------------------------------------------------------------------
- * Arguments:
- *	None.
+ *	group_size: The size of the input group tha will be added
  *
  * Return:
  *	Void.
  */
-static void set_level_7_win_list()
+static void win_add_inputs_in_groups(int group_size)
 {
 	List *input_list = get_input_list();
 	List *win_list = get_win_list();
@@ -920,21 +851,35 @@ static void set_level_7_win_list()
 	assert(win_list != NULL && "Win list pointer is NULL");
 
 	int input_list_size = List_count(input_list);
+	assert(input_list_size % group_size == 0 && 
+					"The input size must be a multiple of group size");
 	
 	int win_list_size = List_count(win_list);
 	assert(input_list_size > 0 && "The size of the input list is incorrect");
 	assert(win_list_size == 0 && "The win list has elements");
 
-	
+	int res = 1;
+	int array_index = 0;
+	int *values = malloc(sizeof(int)*win_list_size);
+			
 	LIST_FOREACH(input_list, first, next, cur){
 		value_box_t *cur_input = cur->value;
-		
-		value_box_t *new_win = malloc(sizeof(value_box_t));
-		new_win->value = 5*cur_input->value;
-		new_win->type = cur_input->type;
-		List_push(win_list, new_win);
+		values[array_index] = cur_input->value;
+		if (res % group_size == 0){
+			value_box_t *new_win = malloc(sizeof(value_box_t));
+			int val = 0;
+			for (int i = 0; i < group_size; i++){
+				val += values[array_index - i];
+			}
+			new_win->value = val;
+			new_win->type = cur_input->type;
+			List_push(win_list, new_win);
+		}
+		res++;
+		array_index++;
 	}
 }
+
 
 /* Function: set_level_8_win_list
  *------------------------------------------------------------------------------
