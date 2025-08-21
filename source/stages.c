@@ -582,7 +582,7 @@ static void flag_handler(level_flags_t *flags, int clicked_button)
  */
 static void pending_operand_handler()
 {
-	bool left_released = ms_get_mouse_left_released();
+	bool left_released = ms_chk_mouse_left_released();
 	bool register_selected = rg_check_mouse_released_in_register();
 	bool buffer_selected = bf_check_released_in_buffer();
 	bool label_selected = cw_check_released_in_label();
@@ -627,7 +627,7 @@ static bool edit_code(int level_id)
 		   "Incorrect level_id value");
 		
 	static code_line_t *line = NULL;
-	bool left_pressed = ms_check_mouse_left_pressed();
+	bool left_pressed = ms_chk_mouse_left_pressed();
 	bool holding_line = false;
 	if (cw_check_code_pending_operand() == true && 
 		cw_check_code_sorted() == true && cw_check_clicked_code() == false){

@@ -47,6 +47,14 @@
 							 " pointed by the label. The operand of the"\
 							 " instruction is the label."
 
+#define MSG_FST_CHALLENGE "Welcome to the first challenge, click"\
+							" anywhere to continue"
+
+#define MSG_OBJECTIVE1 "The objective of the challenge is to move items from"\
+						" the Input Buffer [IB] (press click to continue)."
+#define MSG_OBJECTIVE2 "To the Output Buffer [OB] (press click to continue)."
+
+
 #define TUT_TEXT_X INS_BOX_X
 #define TUT_TEXT_Y SCREEN_HEIGHT/2 - MSG_BOX_H
 
@@ -62,7 +70,14 @@
 #define ARROW_CODE_X (INS_BOX_X + INS_BOX_W)/2
 #define ARROW_CODE_Y (MSG_INS_BOX_Y + MSG_BOX_H + ARROW_H)
 
-#define LEVEL_LINE_W 4
+#define BIG_MSG_BOX_X (SCREEN_WIDTH*3/5)
+#define BIG_MSG_BOX_Y (SCREEN_HEIGHT/4)
+#define BIG_MSG_BOX_W (SCREEN_WIDTH/3)
+#define BIG_MSG_BOX_H (SCREEN_HEIGHT/2)
+#define BIG_MSG_TEXT_H 50
+
+
+
 
 //Strings for the win condition
 #define STR_WIN1 "WIN1"
@@ -96,7 +111,8 @@ enum positions{
 	UPPER_BOX,
 	LOWER_BOX,
 	CODE_BOX,
-	SB_BOX
+	SB_BOX,
+	BIG_BOX
 };
 
 enum arrow_id{
@@ -119,7 +135,8 @@ SDL_Rect g_msg_code_box = {CODE_BOX_X + (CODE_BOX_W - MSG_BOX_W)/2,
 SDL_Rect g_msg_sb_box = {CODE_BOX_X + (CODE_BOX_W - MSG_BOX_W)/2, 
 			     (CODE_BOX_Y + CODE_BOX_H) - MSG_BOX_H/2, MSG_BOX_W, MSG_BOX_H};
 
-
+SDL_Rect g_msg_big_box = {BIG_MSG_BOX_X, BIG_MSG_BOX_Y, BIG_MSG_BOX_W, 
+																 BIG_MSG_BOX_H};
 
 List *get_win_list();
 void add_to_win_list(int value, int type);
@@ -132,7 +149,6 @@ static bool check_display_reg_lv_arrow();
 static int check_display_buf_arrow();
 static void win1_move_input_to_output(int rep, int mul, bool reversed);
 static void win2_add_inputs_in_groups(int group_size);
-static void set_level_9_win_list();
 static void message_box(int pos, char *msg);
 static void set_win_condition(char *win_condition);
 
@@ -283,43 +299,61 @@ static void display_arrow(int arrow_id)
 static void message_box(int pos, char *msg)
 {
 	SDL_Rect b;
+	int text_h;
+	SDL_Color color;
 	switch(pos){
 		case INS_BOX:
 			b.x = g_msg_ins_box.x; 
 			b.y = g_msg_ins_box.y; 
 			b.w = g_msg_ins_box.w; 
-			b.h = g_msg_ins_box.h;	
+			b.h = g_msg_ins_box.h;
+			text_h = MSG_TEXT_H;
+			color = COLOR_WHITE;
 			break;
 		case UPPER_BOX:
 			b.x = g_msg_upper_box.x; 
 			b.y = g_msg_upper_box.y; 
 			b.w = g_msg_upper_box.w; 
 			b.h = g_msg_upper_box.h;	
+			text_h = MSG_TEXT_H;
+			color = COLOR_WHITE;
 			break;
 		case LOWER_BOX:
 			b.x = g_msg_lower_box.x; 
 			b.y = g_msg_lower_box.y; 
 			b.w = g_msg_lower_box.w; 
 			b.h = g_msg_lower_box.h;	
+			text_h = MSG_TEXT_H;
+			color = COLOR_WHITE;
 			break;
 		case CODE_BOX:
 			b.x = g_msg_code_box.x; 
 			b.y = g_msg_code_box.y; 
 			b.w = g_msg_code_box.w; 
 			b.h = g_msg_code_box.h;	
+			text_h = MSG_TEXT_H;
+			color = COLOR_WHITE;
 			break;
 		case SB_BOX:
 			b.x = g_msg_sb_box.x; 
 			b.y = g_msg_sb_box.y; 
 			b.w = g_msg_sb_box.w; 
 			b.h = g_msg_sb_box.h;	
+			text_h = MSG_TEXT_H;
+			color = COLOR_WHITE;
 			break;
-
+		case BIG_BOX:
+			b.x = g_msg_big_box.x; 
+			b.y = g_msg_big_box.y; 
+			b.w = g_msg_big_box.w; 
+			b.h = g_msg_big_box.h;	
+			text_h = BIG_MSG_TEXT_H;
+			color = COLOR_ORANGE;
+			break;
 
 	}
 	dw_draw_filled_rectangle(b.x, b.y, b.w, b.h, COLOR_BLACK, COLOR_WHITE);
-	dw_draw_wrapped_text_fits_height(b.x, b.y, b.w, b.h, MSG_TEXT_H, 
-															  COLOR_WHITE, msg);
+	dw_draw_wrapped_text_fits_height(b.x, b.y, b.w, b.h, text_h, color, msg);
 }
 
 /* Function: level_9_tutorial
@@ -506,10 +540,36 @@ static void level_2_tutorial(bool holding_line, bool play)
  */
 static void level_1_tutorial(bool holding_line, bool play)
 {
+
 	int code_size = cw_get_code_list_size();
 	bf_draw_buffers(NO_OPERAND);
 	rg_display_registers(false);
-	if (code_size == 0 && holding_line == false){
+	static bool fst_message = true;	
+	static bool snd_message = true;	
+	static bool trd_message = true;	
+
+	if (fst_message == true){
+		message_box(BIG_BOX, MSG_FST_CHALLENGE);
+		if (ms_chk_mouse_left_pressed() == true){
+			fst_message = false;
+			ms_reset_mouse_values();
+		}
+	} else if (snd_message == true){
+		message_box(UPPER_BOX, MSG_OBJECTIVE1);
+		if (ms_chk_mouse_left_pressed() == true){
+			snd_message = false;
+		}
+		bf_draw_buffers(IB);
+		ms_reset_mouse_values();
+	} else if (trd_message == true){
+		message_box(LOWER_BOX, MSG_OBJECTIVE2);
+		if (ms_chk_mouse_left_pressed() == true){
+			trd_message = false;
+		}
+		bf_draw_buffers(OB);
+		ms_reset_mouse_values();
+	} else if (trd_message == true){
+	} else if (code_size == 0 && holding_line == false){
 		message_box(INS_BOX, MSG_SEL_INS1);
 		display_arrow(INS_ARROW);
 	} else if (code_size == 0 && holding_line == true){
@@ -704,49 +764,6 @@ static void set_win_condition(char *win_condition)
 	return;
 }
 
-/* Function: lv_generate_win_condition_list
- * -----------------------------------------------------------------------------
- * Arguments:
- * 	level: The level of the win condition that will be generated.
- *	
- * Return:
- *	void
- *
-void lv_generate_win_condition_list(int level)
-{
-	switch (level){
-		case LV_LEVEL_1:
-			win1_move_input_to_output(1, 1, false);
-			break;
-		case LV_LEVEL_2:
-			win1_move_input_to_output(1, 1, false);
-			break;
-		case LV_LEVEL_3:
-			win1_move_input_to_output(3, 1, false);
-			break;
-		case LV_LEVEL_4:
-			win1_move_input_to_output(1, 1, false);
-			break;
-		case LV_LEVEL_5:
-			win1_move_input_to_output(1, 1, true);
-			break;
-		case LV_LEVEL_6:
-			win2_add_inputs_in_groups(2);
-			break;
-		case LV_LEVEL_7:
-			win1_move_input_to_output(1, 5, false);
-			break;
-		case LV_LEVEL_8:
-			win1_move_input_to_output(1, 8, false);
-			break;
-		case LV_LEVEL_9:
-			win1_move_input_to_output(1, 1, false);
-			break;
-		default:
-			break;
-	}
-
-}*/
 /* Function: add_to_win_list
  * -----------------------------------------------------------------------------
  * Arguments:
@@ -959,38 +976,6 @@ static void win2_add_inputs_in_groups(int group_size)
 	}
 }
 
-/* Function: set_level_9_win_list
- *------------------------------------------------------------------------------
- * Arguments:
- *	None.
- *
- * Return:
- *	Void.
- */
-static void set_level_9_win_list()
-{
-	List *input_list = get_input_list();
-	List *win_list = get_win_list();
-
-	assert(input_list != NULL && "Input list pointer is NULL");
-	assert(win_list != NULL && "Win list pointer is NULL");
-
-	int input_list_size = List_count(input_list);
-	
-	int win_list_size = List_count(win_list);
-	assert(input_list_size > 0 && "The size of the input list is incorrect");
-	assert(win_list_size == 0 && "The win list has elements");
-
-	
-	LIST_FOREACH(input_list, first, next, cur){
-		value_box_t *cur_input = cur->value;
-		value_box_t *new_win = malloc(sizeof(value_box_t));
-		new_win->value = cur_input->value;
-		new_win->type = cur_input->type;
-		List_push(win_list, new_win);
-	}
-}
-
 /* Function: lv_evaluate_output_correctness
  *------------------------------------------------------------------------------
  * Evaluates the correctness of the output as values are being added
@@ -1051,13 +1036,7 @@ void lv_level_drawings(int level, bool holding_line, bool play)
 	assert(level < LV_LEVEL_MAX && level > LV_LEVEL_MIN && 
 			          								"Invalid level value");
 
-	int x = REG_BOX_X + rg_get_register_box_member(MEMBER_W);
-	int y = SCREEN_HEIGHT/2 - LEVEL_LINE_W/2; 
-	int w = SCREEN_WIDTH - x;
-	int h = LEVEL_LINE_W;
 	
-	dw_draw_filled_rectangle(x, y, w, h, COLOR_GREY, COLOR_GREY);
-
 	switch(level){
 		case LV_LEVEL_1:
 			level_1_tutorial(holding_line, play);

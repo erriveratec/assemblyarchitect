@@ -22,6 +22,7 @@ void bf_set_input_box(int x, int y, int w, int h);
 void bf_set_output_box(int x, int y, int w, int h);
 void bf_set_input_buffer_button(int x, int y, int w, int h);
 void bf_set_output_buffer_button(int x, int y, int w, int h);
+int bf_get_input_buffer_box_member(int member);
 void bf_create_input_list();
 void bf_create_output_list();
 void bf_destroy_buffer_lists();

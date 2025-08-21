@@ -515,6 +515,42 @@ error:
 	return;
 }
 
+/* Function: bf_get_input_buffer_box_member
+ * -----------------------------------------------------------------------------
+ * This function access and returns the members of the input box object.
+ *
+ * Arguments:
+ * member: The specific member that is being requested.
+ *
+ * Return:
+ *	The accessed member.
+ */
+int bf_get_input_buffer_box_member(int member)
+{
+	assert(member >= MEMBER_X && member <= MEMBER_H &&  "Member is incorrect");
+
+	int return_value;
+	switch (member){
+		
+		case MEMBER_X:
+			return_value = input_box.x;
+			break;
+		case MEMBER_Y:
+			return_value = input_box.y;
+			break;
+		case MEMBER_W:
+			return_value = input_box.w;
+			break;
+		case MEMBER_H:
+			return_value = input_box.h;
+			break;
+		default:
+			return_value = INVALID_MEMBER;
+			break;
+	}
+	return return_value;
+}
+
 /* Function: bf_set_input_box
  *------------------------------------------------------------------------------
  * Arguments:

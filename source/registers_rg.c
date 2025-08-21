@@ -264,7 +264,7 @@ void rg_initialize_value_boxes()
  */
 static void draw_value_boxes()
 {
-	ax_draw_value_box(&g_ibox, COLOR_RED);
+	ax_draw_value_box(&g_ibox, COLOR_MAGENTA);
 	ax_draw_value_box(&g_obox, COLOR_CYAN);
 	return;
 }

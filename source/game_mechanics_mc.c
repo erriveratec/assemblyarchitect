@@ -27,9 +27,11 @@
 #define IAVATAR_Y INPUT_BUFFER_BOX_Y + BUFFER_BOX_H + AVATAR_BUFFER_OFFSET
 
 #define OAVATAR_X BUFFER_BOX_X //(SCREEN_WIDTH*5)/8
-#define OAVATAR_Y OUTPUT_BUFFER_BOX_Y - BUFFER_BOX_H - AVATAR_BUFFER_OFFSET
+#define OAVATAR_Y OUTPUT_BUFFER_BOX_Y - 2*AVATAR_BUFFER_OFFSET
 
 #define RAVATAR_X_POS_OFFSET (AVATAR_W + 20)
+
+#define AVATAR_RAIL_W 4
 
 enum avatar_id{
 	NOAVATAR,
@@ -88,7 +90,7 @@ static bool handle_iavatar_source_operand(int op_id);
 static bool handle_oavatar_source_operand(int op_id);
 static bool handle_ravatar_source_operand(int op_id);
 static bool check_avatar_has_value(avatar_t *avatar);
-
+static void draw_iavatar();
 
 
 /* Function: mc_reset_invalid_operation_flag
@@ -233,7 +235,7 @@ void mc_reset_avatar()
 {
 		
 	g_iavatar.id = IAVATAR;
-	g_iavatar.box.x = IAVATAR_X;
+	g_iavatar.box.x = bf_get_buffer_value_box_x_coord_by_id(IB);	
 	g_iavatar.box.y = IAVATAR_Y;
 	g_iavatar.box.w = AVATAR_W;
 	g_iavatar.box.h = AVATAR_H;
@@ -249,10 +251,10 @@ void mc_reset_avatar()
 	g_iavatar.value.box.w = VALUE_BOX_W;
 	g_iavatar.value.box.h = VALUE_BOX_H;
 
-	g_iavatar.color = COLOR_RED;
+	g_iavatar.color = COLOR_MAGENTA;
 
 	g_oavatar.id = OAVATAR;
-	g_oavatar.box.x = OAVATAR_X;
+	g_oavatar.box.x = bf_get_buffer_value_box_x_coord_by_id(OB);	
 	g_oavatar.box.y = OAVATAR_Y;
 	g_oavatar.box.w = AVATAR_W;
 	g_oavatar.box.h = AVATAR_H;
@@ -330,16 +332,17 @@ void reset_avatar_no_pos()
 	g_ravatar.value.box.x = g_ravatar.box.x;
 	g_ravatar.value.box.y = g_ravatar.box.y - AVATAR_H;
 }
-
-/* Function: mc_draw_avatar
+/* Function: draw_iavatar
  * ----------------------------------------------------------------------------
+ * Draws the iavatar and its corresponding rail
+ *
  * Arguments:
- * 	avatar: the avatar that is going to be drawn
+ * 	Void.
  *
  * Return:
- *	void.
+ *	Void.
  */
-void mc_draw_avatar()
+static void draw_iavatar()
 {
 	if (g_iavatar.value.visible_box == true){
 		ax_draw_value_box(&g_iavatar.value, g_iavatar.color);
@@ -347,6 +350,49 @@ void mc_draw_avatar()
 	dw_draw_filled_rectangle(g_iavatar.box.x, g_iavatar.box.y, g_iavatar.box.w, 
 						  	 g_iavatar.box.h, g_iavatar.color, g_iavatar.color);
 
+	int bf_y_lower = bf_get_input_buffer_box_member(MEMBER_Y) + 
+					 bf_get_input_buffer_box_member(MEMBER_H);
+	int medium = (rg_get_register_box_member(MEMBER_Y) - bf_y_lower)/2;
+
+	int x = REG_VBOX_X + VALUE_BOX_W/2;
+	int y = rg_get_register_box_member(MEMBER_Y) - medium - AVATAR_RAIL_W/2;
+	int w = bf_get_input_buffer_box_member(MEMBER_X) + VALUE_BOX_W/2 - x + 
+														  BUFFER_VALUE_OFFSET_X;
+	int h = AVATAR_RAIL_W;
+	
+	dw_draw_filled_rectangle(x, y, w, h, COLOR_MAGENTA, COLOR_MAGENTA);
+
+	// The connecting line from the center to the rail
+
+	int xc = g_iavatar.box.x + g_iavatar.box.w/2 - AVATAR_RAIL_W/2; 
+	int yc = g_iavatar.box.y + g_iavatar.box.h/2;
+	int wf = AVATAR_RAIL_W;
+	int yf;
+	int hf;
+	if (yc > y){
+	 	yf = y;
+		hf = yc - y + AVATAR_RAIL_W;
+	} else {
+		yf = yc;
+		hf = y - yc + AVATAR_RAIL_W;
+	}
+	dw_draw_filled_rectangle(xc, yf, wf, hf, COLOR_MAGENTA, COLOR_MAGENTA);
+}
+
+/* Function: mc_draw_avatar
+ * ----------------------------------------------------------------------------
+ * Draws all avatars of the screen
+ *
+ * Arguments:
+ * 	Void.
+ *
+ * Return:
+ *	Void.
+ */
+void mc_draw_avatar()
+{
+	draw_iavatar();
+	
 	if (g_oavatar.value.visible_box == true){
 		ax_draw_value_box(&g_oavatar.value, g_oavatar.color);
 	}

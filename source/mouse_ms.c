@@ -51,7 +51,7 @@ static bool get_mouse_left_pressed()
  * Return:
  *	bool with the state of the button enable attribute.
  */
-bool ms_get_mouse_left_released()
+bool ms_chk_mouse_left_released()
 {
 	return mouse.left_released;
 }
@@ -263,7 +263,7 @@ int ms_get_mouse_scroll_y()
 	return cur_y;
 }
 
-/* Function: ms_check_mouse_left_pressed
+/* Function: ms_chk_mouse_left_pressed
  * -----------------------------------------------------------------------------
  * This functions verifies if the left button of the mouse is pressed.
  *
@@ -273,7 +273,7 @@ int ms_get_mouse_scroll_y()
  * Return:
  *	true if the left button of the mouse is pressed, false if otherwise
  */
-bool ms_check_mouse_left_pressed()
+bool ms_chk_mouse_left_pressed()
 {
 	return mouse.left_pressed;
 }

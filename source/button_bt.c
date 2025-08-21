@@ -124,7 +124,7 @@ bool bt_check_mouse_click_button(button_t *button)
 
 	int mouse_x = ms_get_mouse_x();
 	int mouse_y = ms_get_mouse_y();
-	int mouse_left_pressed = ms_check_mouse_left_pressed();
+	int mouse_left_pressed = ms_chk_mouse_left_pressed();
 
 	bool clicked_in_button;
 	if (mouse_left_pressed == false || button->active == false){
@@ -153,7 +153,7 @@ bool bt_check_mouse_released_button(button_t *button)
 
 	int mouse_x = ms_get_mouse_x();
 	int mouse_y = ms_get_mouse_y();
-	int mouse_left_released = ms_get_mouse_left_released();
+	int mouse_left_released = ms_chk_mouse_left_released();
 	
 	if (mouse_left_released == false){
 		return false;
