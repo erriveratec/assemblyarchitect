@@ -11,16 +11,23 @@
 #include "code_window_cw.h"
 #include "stage_buttons_sb.h"
 
-#define MSG_SEL_INS1 "Select and drag an instruction from the"\
+#define MSG_SEL_INS1 "Let's move the value from the Input Buffer [IB] to the"\
+					 " register. Select and drag an instruction from the"\
 									  " instruction box"
 #define MSG_SEL_INS2 "Select another instruction from the" \
 									  " instruction box"
 #define MSG_DROP_INS1 "Drop the instruction in the code box"
 #define MSG_DROP_INS2 "Drop the instruction in the code box"\
 									" below the previous instruction"
+#define MSG_SEL_OP1 "The destiny operand is where the"\
+					" recovered value will be stored."\
+					" Select \"rax\" as the destiny operand."
+#define MSG_SEL_OP2 "The secondd operand is from where the value will be"\
+					" recovered. Select the Input Buffer [IB] as the source"\
+					" operand."
+#define MSG_PLAY_TUT "Let's see what that instruction does. Press the play"\
+					 " button."
 #define MSG_PRESS_PLAY	"Press the play button"
-#define MSG_SEL_OP1 "Select the destiny operand"
-#define MSG_SEL_OP2 "Select the source operand"
 #define MSG_SEL_LAST_INS "Select and drag the last instruction"\
 									" by clicking in the instruction name"	
 #define MSG_DEL_INS "Drag the instruction out of the code"\
@@ -51,8 +58,12 @@
 							" anywhere to continue"
 
 #define MSG_OBJECTIVE1 "The objective of the challenge is to move items from"\
-						" the Input Buffer [IB] (press click to continue)."
-#define MSG_OBJECTIVE2 "To the Output Buffer [OB] (press click to continue)."
+						" the Input Buffer [IB]. (Press click to continue)."
+#define MSG_OBJECTIVE2 "To the Output Buffer [OB]. (Press click to continue)."
+
+#define MSG_OBJECTIVE3 "All values recovered from the Input Buffer, must go"\
+					   " to a register first, in this case \"rax\"."\
+					   " (Press click to continue)."
 
 
 #define TUT_TEXT_X INS_BOX_X
@@ -547,6 +558,7 @@ static void level_1_tutorial(bool holding_line, bool play)
 	static bool fst_message = true;	
 	static bool snd_message = true;	
 	static bool trd_message = true;	
+	static bool fth_message = true;
 
 	if (fst_message == true && code_size == 0){
 		message_box(BIG_BOX, MSG_FST_CHALLENGE);
@@ -568,7 +580,13 @@ static void level_1_tutorial(bool holding_line, bool play)
 		}
 		bf_draw_buffers(OB);
 		ms_reset_mouse_values();
-	} else if (trd_message == true){
+	} else if (fth_message == true && code_size == 0){
+		message_box(UPPER_BOX, MSG_OBJECTIVE3);
+		if (ms_chk_mouse_left_pressed() == true){
+			fth_message = false;
+		}
+		rg_draw_registers(true);
+		ms_reset_mouse_values();
 	} else if (code_size == 0 && holding_line == false){
 		message_box(INS_BOX, MSG_SEL_INS1);
 		display_arrow(INS_ARROW);
@@ -586,8 +604,10 @@ static void level_1_tutorial(bool holding_line, bool play)
 		bf_draw_buffers(IB);
 	} else if(code_size == 1 && holding_line == false &&
  								  cw_check_code_pending_operand() == false){
-		message_box(INS_BOX, MSG_SEL_INS2);
-		display_arrow(INS_ARROW);
+		message_box(SB_BOX, MSG_PLAY_TUT);	
+		display_arrow(PLAY_ARROW);
+		//message_box(INS_BOX, MSG_SEL_INS2);
+		//display_arrow(INS_ARROW);
 	} else if(code_size == 1 && holding_line == true &&
  								  cw_check_code_pending_operand() == false){
 		message_box(INS_BOX, MSG_DROP_INS2);

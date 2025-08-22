@@ -44,7 +44,7 @@ static void display_arrow_registers()
 {
 	static arrow_t arrow;
 	static bool arrow_initialized = false;
-	int startx = REG_BOX_X + (REG_BOX_W)/2;
+	int startx = REG_BOX_X + (REG_BOX_W)*2/5;
 	if (arrow_initialized == false){
 		arrow.box.x = startx;
 		arrow.box.w = ARROW_W;

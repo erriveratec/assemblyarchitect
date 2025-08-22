@@ -276,8 +276,8 @@ void mc_reset_avatar()
 	g_oavatar.color = COLOR_CYAN;
 
 	g_ravatar.id = RAVATAR;
-	g_ravatar.box.x = rg_get_register_box_member(MEMBER_X) - REG_BOX_X_OFFSET +
-					  rg_get_register_box_member(MEMBER_W) - 2*AVATAR_W;
+	g_ravatar.box.x = rg_get_register_box_member(MEMBER_X) - 3*REG_BOX_X_OFFSET 
+					  + rg_get_register_box_member(MEMBER_W) - AVATAR_W;
 	g_ravatar.box.y = rg_get_register_box_member(MEMBER_Y) + 
 					  rg_get_register_box_member(MEMBER_H)/2 - AVATAR_H/2; 
 	g_ravatar.box.w = AVATAR_W;

@@ -847,20 +847,32 @@ static int display_run_result(bool win_check)
 	int action_selected = NO_BUTTON_PRESSED;
 
 	if (buttons_created == false){
+		int back_x;
+		int back_y = WIN_MENU_BUTTON_Y;
+		if (win_check == true){
+			texture_t *con_texture = load_texture_from_rendered_text(
+									 STR_CONT, COLOR_WHITE);
+			check_mem(con_texture);
+			con = create_button(WIN_MENU_BUTTON2_X, WIN_MENU_BUTTON_Y, 
+			        CONT_BUTTON_W, BACK_CONT_BUTTON_H, true, true, con_texture);
+			check_mem(con);
+
+			back_x = WIN_MENU_BUTTON1_X;
+		} else {
+			back_x = RES_BOX_X + RES_BOX_W/2 - BACK_BUTTON_W/2;
+		}
 		buttons_created = true;
+		
 		texture_t *ret_texture = load_texture_from_rendered_text(
 								 STR_BACK, COLOR_WHITE);
 		check_mem(ret_texture);
-		texture_t *con_texture = load_texture_from_rendered_text(
-								 STR_CONT, COLOR_WHITE);
-		check_mem(con_texture);
-
+		
 		ret = create_button(WIN_MENU_BUTTON1_X, WIN_MENU_BUTTON_Y, 
 					BACK_BUTTON_W, BACK_CONT_BUTTON_H, true, true, ret_texture);
 		check_mem(ret);
-		con = create_button(WIN_MENU_BUTTON2_X, WIN_MENU_BUTTON_Y, 
-					CONT_BUTTON_W, BACK_CONT_BUTTON_H, true, true, con_texture);
-	} 
+
+
+			} 
 	bt_draw_button(ret);
 	bt_draw_button(con);
 
