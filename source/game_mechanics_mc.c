@@ -518,8 +518,6 @@ static int get_operand_y_dest(int op_id)
 	} else if (op_id == OBOX){
 		y = rg_get_obox_y();
 	}
-
-
 	return y;
 }
 
@@ -685,7 +683,7 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 	} else if (op_id == IB){
 		y = get_operand_y_dest(op_id) + 1.5*VALUE_BOX_H;
 	} else if (op_id == OB){
-		y = get_operand_y_dest(op_id) - 2.5*VALUE_BOX_H;
+		y = get_operand_y_dest(op_id) - 2*VALUE_BOX_H - AVATAR_H;
 	} else if (op_id == IBOX){
 		if (avatar->id == RAVATAR){
 			y = get_operand_y_dest(op_id) + REG_VBOX_OFFSET;

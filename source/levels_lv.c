@@ -548,20 +548,20 @@ static void level_1_tutorial(bool holding_line, bool play)
 	static bool snd_message = true;	
 	static bool trd_message = true;	
 
-	if (fst_message == true){
+	if (fst_message == true && code_size == 0){
 		message_box(BIG_BOX, MSG_FST_CHALLENGE);
 		if (ms_chk_mouse_left_pressed() == true){
 			fst_message = false;
 			ms_reset_mouse_values();
 		}
-	} else if (snd_message == true){
+	} else if (snd_message == true && code_size == 0){
 		message_box(UPPER_BOX, MSG_OBJECTIVE1);
 		if (ms_chk_mouse_left_pressed() == true){
 			snd_message = false;
 		}
 		bf_draw_buffers(IB);
 		ms_reset_mouse_values();
-	} else if (trd_message == true){
+	} else if (trd_message == true && code_size == 0){
 		message_box(LOWER_BOX, MSG_OBJECTIVE2);
 		if (ms_chk_mouse_left_pressed() == true){
 			trd_message = false;
