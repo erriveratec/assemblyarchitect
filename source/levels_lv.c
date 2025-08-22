@@ -369,7 +369,7 @@ static void message_box(int pos, char *msg)
 static void level_9_tutorial(bool holding_line, bool play)
 {
 	bf_draw_buffers(check_display_buf_arrow());
-	rg_display_registers(check_display_reg_lv_arrow());
+	rg_draw_registers(check_display_reg_lv_arrow());
 
 	int code_size = cw_get_code_list_size();
 
@@ -391,7 +391,7 @@ static void level_9_tutorial(bool holding_line, bool play)
 static void level_6_tutorial(bool holding_line, bool play)
 {
 	bf_draw_buffers(check_display_buf_arrow());
-	rg_display_registers(check_display_reg_lv_arrow());
+	rg_draw_registers(check_display_reg_lv_arrow());
 
 	int code_size = cw_get_code_list_size();
 
@@ -413,7 +413,7 @@ static void level_6_tutorial(bool holding_line, bool play)
 static void level_5_tutorial(bool holding_line, bool play)
 {
 	bf_draw_buffers(check_display_buf_arrow());
-	rg_display_registers(check_display_reg_lv_arrow());
+	rg_draw_registers(check_display_reg_lv_arrow());
 
 	int code_size = cw_get_code_list_size();
 
@@ -435,7 +435,7 @@ static void level_5_tutorial(bool holding_line, bool play)
 static void level_3_tutorial(bool holding_line, bool play)
 {
 	bf_draw_buffers(check_display_buf_arrow());
-	rg_display_registers(check_display_reg_lv_arrow());
+	rg_draw_registers(check_display_reg_lv_arrow());
 
 	int code_size = cw_get_code_list_size();
 
@@ -470,7 +470,7 @@ static void level_3_tutorial(bool holding_line, bool play)
 static void level_2_tutorial(bool holding_line, bool play)
 {
 	bf_draw_buffers(NO_OPERAND);
-	rg_display_registers(false);
+	rg_draw_registers(false);
 	int code_size = cw_get_code_list_size();
 	
 	const int pos_one = 0;
@@ -543,7 +543,7 @@ static void level_1_tutorial(bool holding_line, bool play)
 
 	int code_size = cw_get_code_list_size();
 	bf_draw_buffers(NO_OPERAND);
-	rg_display_registers(false);
+	rg_draw_registers(false);
 	static bool fst_message = true;	
 	static bool snd_message = true;	
 	static bool trd_message = true;	
@@ -578,11 +578,11 @@ static void level_1_tutorial(bool holding_line, bool play)
 	} else if (code_size == 1 && cw_check_code_sorted() == true &&
 								   cw_check_code_pending_op1() == true){
 		message_box(CODE_BOX, MSG_SEL_OP1);	
-		rg_display_registers(true);
+		rg_draw_registers(true);
 	} else if(code_size == 1 && cw_check_code_sorted() == true &&
 				    			   cw_check_code_pending_operand() == true){
 		message_box(CODE_BOX, MSG_SEL_OP2);	
-		rg_display_registers(false);
+		rg_draw_registers(false);
 		bf_draw_buffers(IB);
 	} else if(code_size == 1 && holding_line == false &&
  								  cw_check_code_pending_operand() == false){
@@ -599,7 +599,7 @@ static void level_1_tutorial(bool holding_line, bool play)
 	} else if(code_size == 2 && cw_check_code_sorted() == true &&
 				    			   cw_check_code_pending_operand() == true){
 		message_box(CODE_BOX, MSG_SEL_OP2);	
-		rg_display_registers(true);
+		rg_draw_registers(true);
 	} else if(code_size == 2 && cw_check_code_pending_operand() == false &&
 															 play == false){
 		message_box(SB_BOX, MSG_PRESS_PLAY);	
@@ -1035,38 +1035,36 @@ void lv_level_drawings(int level, bool holding_line, bool play)
 {
 	assert(level < LV_LEVEL_MAX && level > LV_LEVEL_MIN && 
 			          								"Invalid level value");
-
 	
 	switch(level){
 		case LV_LEVEL_1:
 			level_1_tutorial(holding_line, play);
 			break;
 
-	case LV_LEVEL_2:
+		case LV_LEVEL_2:
 			level_2_tutorial(holding_line, play);
 			break;
 	
-	case LV_LEVEL_3:
+		case LV_LEVEL_3:
 			level_3_tutorial(holding_line, play);
 			break;
 	
-	case LV_LEVEL_5:
+		case LV_LEVEL_5:
 			level_5_tutorial(holding_line, play);
 			break;
 	
-	case LV_LEVEL_6:
+		case LV_LEVEL_6:
 			level_6_tutorial(holding_line, play);
 			break;
 	
-	case LV_LEVEL_9:
+		case LV_LEVEL_9:
 			level_9_tutorial(holding_line, play);
 			break;
 
 		default:
 			bf_draw_buffers(check_display_buf_arrow());
-			rg_display_registers(check_display_reg_lv_arrow());
+			rg_draw_registers(check_display_reg_lv_arrow());
 	}
-
 }
 
 

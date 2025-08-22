@@ -287,9 +287,7 @@ void rg_update_register_box_position()
 	check_mem(registers);	
 	int list_size = List_count(registers);
 
-
 	int h = register_box.h;	
-
 	int y = SCREEN_HEIGHT/2 - h/2;
 	
 	set_register_box_member(y, MEMBER_Y);
@@ -568,9 +566,16 @@ void rg_add_register_to_list(int id)
 		   "The operand id is invalid");
 	
 	int list_size = List_count(registers);
-	set_register_box_member(REG_BOX_OFFSET + (list_size + 1)*2*CODE_BUTTON_H
-												  + REG_BOX_OFFSET, MEMBER_H);
 	
+	if (list_size == 0){
+		set_register_box_member(REG_BOX_OFFSET + (list_size + 1)*2*CODE_BUTTON_H
+												  + REG_BOX_OFFSET, MEMBER_H);
+	} else {
+		set_register_box_member(REG_BOX_OFFSET + (list_size + 1)*2*CODE_BUTTON_H
+												  + 2*REG_BOX_OFFSET, MEMBER_H);
+
+	}
+
 	texture_t *reg_text = cl_create_operand_texture(id);
 	check_mem(reg_text);
 	
@@ -580,8 +585,8 @@ void rg_add_register_to_list(int id)
 	int y = register_box.y + REG_BOX_OFFSET + list_size*2*(CODE_BUTTON_H + 5) +
 		    REG_TEXT_H + CODE_BUTTON_H;
 	
-	button_t *b = create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H,
-								true, false, reg_text);
+	button_t *b = create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H,true, false,
+																	  reg_text);
 	check_mem(b);
 
 	reg_t *new_register = create_register(id, b);
@@ -593,7 +598,7 @@ error:
 	return;
 }
 
-/* Function: rg_display_registers
+/* Function: rg_draw_registers
  * -----------------------------------------------------------------------------
  * This function displays the list of register that will be available in a level
  *
@@ -604,7 +609,7 @@ error:
  *	void
  *
  */
-void rg_display_registers(bool show_arrows)
+void rg_draw_registers(bool show_arrows)
 {
 	List *registers = get_register_list();
 	
@@ -622,7 +627,6 @@ void rg_display_registers(bool show_arrows)
 		char *number = number_to_string(reg->value.value);
 		ax_draw_value_box(&reg->value, COLOR_WHITE);
 		free(number);
-
 	}
 	if (show_arrows == true){
 		display_arrow_registers();

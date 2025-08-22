@@ -94,6 +94,7 @@ static bool handle_ravatar_source_operand(int op_id);
 static bool check_avatar_has_value(avatar_t *avatar);
 static void draw_iavatar();
 static void draw_oavatar();
+static void draw_ravatar();
 
 /* Function: mc_reset_invalid_operation_flag
  * -----------------------------------------------------------------------------
@@ -276,7 +277,7 @@ void mc_reset_avatar()
 
 	g_ravatar.id = RAVATAR;
 	g_ravatar.box.x = rg_get_register_box_member(MEMBER_X) - REG_BOX_X_OFFSET +
-					  rg_get_register_box_member(MEMBER_W) - AVATAR_W;
+					  rg_get_register_box_member(MEMBER_W) - 2*AVATAR_W;
 	g_ravatar.box.y = rg_get_register_box_member(MEMBER_Y) + 
 					  rg_get_register_box_member(MEMBER_H)/2 - AVATAR_H/2; 
 	g_ravatar.box.w = AVATAR_W;
@@ -444,6 +445,56 @@ static void draw_oavatar()
 	}
 	dw_draw_filled_rectangle(xc, yf, wf, hf, COLOR_CYAN, COLOR_CYAN);
 }
+
+/* Function: draw_ravatar
+ * ----------------------------------------------------------------------------
+ * Draws the iavatar and its corresponding rail
+ *
+ * Arguments:
+ * 	Void.
+ *
+ * Return:
+ *	Void.
+ */
+void draw_ravatar()
+{
+	
+	if (g_ravatar.value.visible_box == true){
+		ax_draw_value_box(&g_ravatar.value, g_ravatar.color);
+	}
+	dw_draw_filled_rectangle(g_ravatar.box.x, g_ravatar.box.y, g_ravatar.box.w, 
+						  	 g_ravatar.box.h, g_ravatar.color, g_ravatar.color);
+
+	int rx = rg_get_ibox_x() + VALUE_BOX_W/2;
+	int ry = rg_get_register_box_member(MEMBER_Y) + REG_BOX_OFFSET;
+	int rw = RAIL_W;
+	int rh = rg_get_register_box_member(MEMBER_H) - 2*REG_BOX_OFFSET;
+	dw_draw_filled_rectangle(rx, ry, rw, rh, COLOR_YELLOW, COLOR_YELLOW);
+	
+	int xc = g_ravatar.box.x + g_ravatar.box.w/2; 
+	int yc = g_ravatar.box.y + g_ravatar.box.h/2 - RAIL_W/2;
+	int hf = RAIL_W;
+	int xf;
+	int wf;
+	if (xc < rx){
+	 	xf = xc;
+		wf = rx - xf + RAIL_W;
+	} else {
+		xf = rx;
+		wf = xc - xf + RAIL_W;
+	}
+	dw_draw_filled_rectangle(xf, yc, wf, hf, COLOR_YELLOW, COLOR_YELLOW);
+
+	int rail_end_x = rx - (RAIL_END_W - RAIL_W)/2;
+	int rail_end_y = ry - (RAIL_END_W - RAIL_W)/2;
+	dw_draw_filled_rectangle(rail_end_x, rail_end_y, RAIL_END_W, RAIL_END_W, 
+												  	COLOR_YELLOW, COLOR_YELLOW);
+	
+	rail_end_y = ry + rh - (RAIL_END_W - RAIL_W) + RAIL_W/2;
+	dw_draw_filled_rectangle(rail_end_x, rail_end_y, RAIL_END_W, RAIL_END_W, 
+												  	COLOR_YELLOW, COLOR_YELLOW);
+}
+
 /* Function: mc_draw_avatar
  * ----------------------------------------------------------------------------
  * Draws all avatars of the screen
@@ -457,14 +508,9 @@ static void draw_oavatar()
 void mc_draw_avatar()
 {
 	draw_iavatar();
-	
 	draw_oavatar();
+	draw_ravatar();
 	
-	if (g_ravatar.value.visible_box == true){
-		ax_draw_value_box(&g_ravatar.value, g_ravatar.color);
-	}
-	dw_draw_filled_rectangle(g_ravatar.box.x, g_ravatar.box.y, g_ravatar.box.w, 
-						  	 g_ravatar.box.h, g_ravatar.color, g_ravatar.color);
 }
 
 /* Function: execution_counter
