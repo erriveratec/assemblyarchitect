@@ -22,7 +22,7 @@
 #define MSG_SEL_OP1 "The destiny operand is where the"\
 					" recovered value will be stored."\
 					" Select \"rax\" as the destiny operand."
-#define MSG_SEL_OP2 "The secondd operand is from where the value will be"\
+#define MSG_SEL_OP2 "The second operand is from where the value will be"\
 					" recovered. Select the Input Buffer [IB] as the source"\
 					" operand."
 #define MSG_PLAY_TUT "Let's see what that instruction does. Press the play"\
@@ -1092,7 +1092,7 @@ void lv_level_drawings(int level, bool holding_line, bool play)
  *------------------------------------------------------------------------------
  * Evaluates the whole output list against the win list to verify if the 
  * result is correct. Does not verifies if there are still elements in the
- * output list. 
+ * input list. 
  *
  * Arguments:
  *	None.

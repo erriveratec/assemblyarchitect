@@ -13,7 +13,6 @@
 #define ESC_MENU_BOX_X (SCREEN_WIDTH - ESC_MENU_BOX_W)/2
 #define ESC_MENU_BOX_Y (SCREEN_HEIGHT - ESC_MENU_BOX_H)/2
 
-
 #define ESC_MENU_BUTTON_W 500
 #define ESC_MENU_BUTTON_H 60
 #define ESC_MENU_BUTTON_X ESC_MENU_BOX_X + (ESC_MENU_BOX_W - \
@@ -27,13 +26,8 @@
 						   3*ESC_MENU_BUTTON_H)/4 + ESC_MENU_BUTTON_H
 
 /*******************************RETURN BUTTON*********************************/
-#define MESSAGE_BOX_W 400
-#define MESSAGE_BOX_H 200
-#define MESSAGE_BOX_X (SCREEN_WIDTH - MESSAGE_BOX_W)/2
-#define MESSAGE_BOX_Y (SCREEN_HEIGHT - MESSAGE_BOX_H)/2
-
 #define MESSAGE_TEXT_H 40
-#define MESSAGE_TEXT_TOTAL_H 120
+#define MESSAGE_TEXT_TOTAL_H 160
 /*******************************EXECUTION ARROW********************************/
 #define EXEC_ARROW_X_COORD_OFFSET - 50
 #define EXEC_ARROW_Y_COORD_OFFSET 10

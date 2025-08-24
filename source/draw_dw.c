@@ -413,8 +413,7 @@ void dw_draw_wrapped_text_fits_height(int x, int y, int w, int h, int text_h,
 	int y_offset = text_h;
 	int string_size = strlen(t);
 	char *text = malloc(sizeof(char)*string_size);
-	check_mem(text);
-
+	
 	int last_successful_fit = 0;
 	int already_drawn_offset = 0;
 

@@ -11,12 +11,17 @@
 #include "dbg.h"
 #include "levels_lv.h"
 
-#define INPUT_BUFFER_EMPTY_TEXT "The Input Buffer is empty"
-#define REG_VALUE_INVALID_TEXT "The register had an invalid value"
-#define INVALID_OUTPUT_VALUE_TEXT "Incorrect value in the output buffer"
-#define UNPROCESSED_IB_VALUES_TEXT "Output is correct but only works by that" \
-							   "specific set of value"
-#define EXCEEDS_CODE_LIMIT_TEXT "Correct output but exceeds code size limit"
+#define INPUT_BUFFER_EMPTY_TEXT "ERROR: A value cannot be recoverd if the "\
+							"Input Buffer [IB] is empty."
+#define REG_VALUE_INVALID_TEXT "ERROR:Register cannot be read if a value has "\
+							"been stored first."
+#define INVALID_OUTPUT_VALUE_TEXT "ERROR: Incorrect value in the output buffer"
+#define UNPROCESSED_IB_VALUES_TEXT "ERROR: Output is correct but only works by"\
+								" that specific set of values."
+#define EXCEEDS_CODE_LIMIT_TEXT "ERROR: Correct output but exceeds code size"\
+								" limit."
+#define OUTPUT_BUFFER_EMPTY_TEXT "ERROR: Run finished and there are no"\
+								" elements in the Output Buffer [IB]."
 
 #define AVATAR_BUFFER_OFFSET 50
 #define AVATAR_W 50
@@ -145,8 +150,8 @@ bool mc_invalid_operation_handler(int id)
 
 	bool reset_level = false;
 
-	dw_draw_filled_rectangle(MESSAGE_BOX_X, MESSAGE_BOX_Y, MESSAGE_BOX_W, 
-					   		 MESSAGE_BOX_H, COLOR_BLACK, COLOR_WHITE);
+	dw_draw_filled_rectangle(RES_BOX_X, RES_BOX_Y, RES_BOX_W, 
+					   		 RES_BOX_H, COLOR_BLACK, COLOR_WHITE);
 	char *message = NULL;
 
 	switch(id){
@@ -170,12 +175,17 @@ bool mc_invalid_operation_handler(int id)
 			message = malloc(sizeof(char)*strlen(EXCEEDS_CODE_LIMIT_TEXT)+1);
 			strcpy(message, EXCEEDS_CODE_LIMIT_TEXT);	
 			break;
+		case OUTPUT_BUFFER_EMPTY:
+			message = malloc(sizeof(char)*strlen(OUTPUT_BUFFER_EMPTY_TEXT)+1);
+			strcpy(message, OUTPUT_BUFFER_EMPTY_TEXT);	
+			break;
+
 		default: 
 			puts("ERROR: Invalid operation incorrec id");
 	}
 
-	dw_draw_wrapped_text_fits_height(MESSAGE_BOX_X, MESSAGE_BOX_Y, 
-	 MESSAGE_BOX_W, MESSAGE_TEXT_TOTAL_H, MESSAGE_TEXT_H, COLOR_WHITE, message);
+	dw_draw_wrapped_text_fits_height(RES_BOX_X, RES_BOX_Y, RES_BOX_W, 
+					MESSAGE_TEXT_TOTAL_H, MESSAGE_TEXT_H, COLOR_WHITE, message);
 	
 	free(message);
 
@@ -188,8 +198,8 @@ bool mc_invalid_operation_handler(int id)
 		texture_t *ret_texture = load_texture_from_rendered_text(STR_BACK, 
 																   COLOR_WHITE);
 		check_mem(ret_texture);
-		int x = MESSAGE_BOX_X + MESSAGE_BOX_W/2 - BACK_BUTTON_W/2;
-		int y = MESSAGE_BOX_Y + MESSAGE_BOX_H - BACK_CONT_BUTTON_H - 
+		int x = RES_BOX_X + RES_BOX_W/2 - BACK_BUTTON_W/2;
+		int y = RES_BOX_Y + RES_BOX_H - BACK_CONT_BUTTON_H - 
 													 RES_BOX_TEXT_BORDER_OFFSET;
 		ret = create_button(x, y, BACK_BUTTON_W, BACK_CONT_BUTTON_H, true, true, 
 																   ret_texture);
@@ -1429,6 +1439,10 @@ bool mc_run_code()
 		}
 	}
 	finished = true;
+	int output_buffer_size = get_input_buffer_list_size();
+	if (output_buffer_size == 0){
+		set_invalid_operation_flag(OUTPUT_BUFFER_EMPTY);
+	}
 	return finished;
 }
 

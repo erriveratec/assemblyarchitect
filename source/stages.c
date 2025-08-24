@@ -47,8 +47,8 @@ typedef struct level_flags_t{
 	bool non_stop;
 } level_flags_t;
 
-static char *win_text = "The challenge is correct";
-static char *lose_text = "The challenge is incorrect";
+static char *win_text = "The challenge is correct.";
+static char *lose_text = "The challenge is incorrect.";
 static SDL_Rect result_box;
 
 void stage_drawings(int level, bool holding_line, bool play);
@@ -847,6 +847,7 @@ static int display_run_result(bool win_check)
 	int action_selected = NO_BUTTON_PRESSED;
 
 	if (buttons_created == false){
+		buttons_created = true;
 		int back_x;
 		int back_y = WIN_MENU_BUTTON_Y;
 		if (win_check == true){
@@ -859,36 +860,38 @@ static int display_run_result(bool win_check)
 
 			back_x = WIN_MENU_BUTTON1_X;
 		} else {
-			back_x = RES_BOX_X + RES_BOX_W/2 - BACK_BUTTON_W/2;
+			back_x = RES_BOX_X + (RES_BOX_W - BACK_BUTTON_W)/2;
 		}
-		buttons_created = true;
 		
 		texture_t *ret_texture = load_texture_from_rendered_text(
 								 STR_BACK, COLOR_WHITE);
 		check_mem(ret_texture);
 		
-		ret = create_button(WIN_MENU_BUTTON1_X, WIN_MENU_BUTTON_Y, 
+		ret = create_button(back_x, WIN_MENU_BUTTON_Y, 
 					BACK_BUTTON_W, BACK_CONT_BUTTON_H, true, true, ret_texture);
 		check_mem(ret);
-
-
-			} 
+	} 
 	bt_draw_button(ret);
-	bt_draw_button(con);
+	if (win_check == true){
+		bt_draw_button(con);
 
-		if (bt_check_mouse_click_button(ret) == true){
-			button_pressed = true;
-			action_selected = BACK_BUTTON_PRESSED;
-		} else if (bt_check_mouse_click_button(con) == true){
+		if (bt_check_mouse_click_button(con) == true){
 			button_pressed = true;
 			action_selected = CONT_BUTTON_PRESSED;
 		} 
-		if (button_pressed == true){
-			bt_destroy_button(ret);
+
+	}
+	if (bt_check_mouse_click_button(ret) == true){
+		button_pressed = true;
+		action_selected = BACK_BUTTON_PRESSED;
+	} 	
+	if (button_pressed == true){
+		bt_destroy_button(ret);
+		if (win_check == true){
 			bt_destroy_button(con);
-			buttons_created = false;
 		}
-	
+		buttons_created = false;
+	}
 	error:
 
 	return action_selected;

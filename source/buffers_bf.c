@@ -191,6 +191,21 @@ int get_input_buffer_list_size()
 	return List_count(list);
 }
 
+/* Function: get_input_buffer_list_size
+*------------------------------------------------------------------------------
+* Returns the list size of the input buffer.
+*
+* Arguments:
+* 	None.
+*	
+* Return:
+*	int with the size of the output buffer
+*/
+int get_output_buffer_list_size()
+{
+	List *list = get_output_list();
+	return List_count(list);
+}
 /* Function: bf_check_released_in_buffer
 *------------------------------------------------------------------------------
 * This functions verifies if the user clicked one of the registers available

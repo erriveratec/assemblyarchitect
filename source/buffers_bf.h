@@ -40,6 +40,7 @@ void bf_add_output_to_list();
 void bf_set_output_buffer_value_box(value_box_t val);
 bool check_if_output_buffer_position_set();
 int get_input_buffer_list_size();
+int get_output_buffer_list_size();
 List *get_input_list();
 List *get_output_list();
 void print_output_list();
