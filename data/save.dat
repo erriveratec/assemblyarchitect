@@ -74,36 +74,44 @@ mov rax, [ib]
 add rax, [ib]
 mov [ob], rax
 mov rax, [ib]
+add rax, [ib]
+mov [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 06
 
 +++LEVEL STARTS 07
 
-LEVEL ACTIVE FALSE
+LEVEL ACTIVE TRUE
 
 CODE STARTS
-
+mov rax, [ib]
+mov rbx, rax
+add rbx, rax
+mov [ob], rbx
 CODE ENDS
 
 +++LEVEL ENDS 07
 
 +++LEVEL STARTS 08
 
-LEVEL ACTIVE FALSE
+LEVEL ACTIVE TRUE
 
 CODE STARTS
-
+mov rax, [ib]
+add rax, rax
+add rax, rax
+mov [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 08
 
 +++LEVEL STARTS 09
 
-LEVEL ACTIVE FALSE
+LEVEL ACTIVE TRUE
 
 CODE STARTS
-
+LABEL 01
 CODE ENDS
 
 +++LEVEL ENDS 09
@@ -496,36 +504,44 @@ mov rax, [ib]
 add rax, [ib]
 mov [ob], rax
 mov rax, [ib]
+add rax, [ib]
+mov [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 06
 
 +++LEVEL STARTS 07
 
-LEVEL ACTIVE FALSE
+LEVEL ACTIVE TRUE
 
 CODE STARTS
-
+mov rax, [ib]
+mov rbx, rax
+add rbx, rax
+mov [ob], rbx
 CODE ENDS
 
 +++LEVEL ENDS 07
 
 +++LEVEL STARTS 08
 
-LEVEL ACTIVE FALSE
+LEVEL ACTIVE TRUE
 
 CODE STARTS
-
+mov rax, [ib]
+add rax, rax
+add rax, rax
+mov [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 08
 
 +++LEVEL STARTS 09
 
-LEVEL ACTIVE FALSE
+LEVEL ACTIVE TRUE
 
 CODE STARTS
-
+LABEL 01
 CODE ENDS
 
 +++LEVEL ENDS 09
@@ -918,36 +934,44 @@ mov rax, [ib]
 add rax, [ib]
 mov [ob], rax
 mov rax, [ib]
+add rax, [ib]
+mov [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 06
 
 +++LEVEL STARTS 07
 
-LEVEL ACTIVE FALSE
+LEVEL ACTIVE TRUE
 
 CODE STARTS
-
+mov rax, [ib]
+mov rbx, rax
+add rbx, rax
+mov [ob], rbx
 CODE ENDS
 
 +++LEVEL ENDS 07
 
 +++LEVEL STARTS 08
 
-LEVEL ACTIVE FALSE
+LEVEL ACTIVE TRUE
 
 CODE STARTS
-
+mov rax, [ib]
+add rax, rax
+add rax, rax
+mov [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 08
 
 +++LEVEL STARTS 09
 
-LEVEL ACTIVE FALSE
+LEVEL ACTIVE TRUE
 
 CODE STARTS
-
+LABEL 01
 CODE ENDS
 
 +++LEVEL ENDS 09

@@ -21,7 +21,7 @@
 #define EXCEEDS_CODE_LIMIT_TEXT "ERROR: Correct output but exceeds code size"\
 								" limit."
 #define OUTPUT_BUFFER_EMPTY_TEXT "ERROR: Run finished and there are no"\
-								" elements in the Output Buffer [IB]."
+								" elements in the Output Buffer [OB]."
 
 #define AVATAR_BUFFER_OFFSET 50
 #define AVATAR_W 50

@@ -154,7 +154,7 @@ WinConditionEnd
 +++LEVEL STARTS 07
 
 ChallengeTextBegin
-"Take the value received from the input buffer and multiply it by 5"
+"Take the value received from the input buffer and multiply it by 2."
 ChallengeTextEnd
 
 InputSize 1
@@ -173,7 +173,7 @@ RegistersEnd
 InstructionLimit 99
 
 WinConditionBegin
-WIN1 1 5 false
+WIN1 1 2 false
 WinConditionEnd
 
 +++LEVEL ENDS
@@ -181,7 +181,7 @@ WinConditionEnd
 +++LEVEL STARTS 08
 
 ChallengeTextBegin
-"Take the value received from the input buffer and multiply it by 8"
+"Take the value received from the input buffer and multiply it by 4."
 ChallengeTextEnd
 
 InputSize 1
@@ -199,7 +199,7 @@ RegistersEnd
 InstructionLimit 99
 
 WinConditionBegin
-WIN1 1 8 false
+WIN1 1 4 false
 WinConditionEnd
 
 +++LEVEL ENDS
@@ -207,10 +207,10 @@ WinConditionEnd
 +++LEVEL STARTS 09
 
 ChallengeTextBegin
-"Move the values from the input buffer to the output buffer, using four instructions maximum"
+"Move the values from the input buffer to the output buffer, using maximum 4 instructions."
 ChallengeTextEnd
 
-InputSize 2
+InputSize 5
 InputType Natural
 
 InstructionsBegin

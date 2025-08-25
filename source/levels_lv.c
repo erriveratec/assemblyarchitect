@@ -27,16 +27,27 @@
 " (Click anywhere to continue)."
 
 #define L5_MSG_FIFTH_CHALLENGE "Welcome to Level 05. Notice that now are more"\
-" registers available you will need them to solve the challenge."\
+" registers available. You will need them to solve the challenge."\
 " (Click anywhere to continue)."
 
-#define L6_MSG_SIXTH_CHALLENGE "Welcome to Level 06. Notices that there is"\
+#define L6_MSG_SIXTH_CHALLENGE "Welcome to Level 06. Notice that there is"\
 " a new instruction available \"add\". "\
+" (Click anywhere to continue)."
+
+#define L7_MSG_SEVENTH_CHALLENGE "Welcome to Level 07. Did you know that"\
+" instructions \"mov\" \"add\" can be used with both operands being registers?"\
+" (Click anywhere to continue)."
+
+#define L8_MSG_EIGHTH_CHALLENGE "You are now in Level 08. I have new info for"\
+" you: Both operands of instructions \"mov\" \"add\" can be the same register."\
+" (Click anywhere to continue)."
+
+#define L9_MSG_NINTH_CHALLENGE "You have arrive to level 09. There is a new"\
+" instruction: \"jmp\", which jumps to a place pointed by a LABEL"\
 " (Click anywhere to continue)."
 
 #define L1_MSG_CHALLENGE_DESCRIPTION "First, read the challenge description."\
 " (Click anywhere to continue)."
-
 #define L1_MSG_SEL_INS2 "Select and drag another \"mov\" instruction from the"\
 " instruction box."
 
@@ -51,8 +62,8 @@
 " recovered. Select the Input Buffer [IB] as the source"\
 " operand."
 
-#define L1_MSG_SEL_OP1_2 "Now we need to move the value from the \"rax\" to"\
-" the Output Buffer [OB], select the the Output Buffer"\
+#define L1_MSG_SEL_OP1_2 "Now we need to move the value from the \"rax\""\
+" register to the Output Buffer [OB], select the the Output Buffer"\
 " as the destiny operand."
 
 #define L1_MSG_SEL_OP2_2 "Select \"rax\" as the source operand, we want to"\
@@ -90,7 +101,7 @@
 " selection, to complete the challenge, select Input Buffer [IB]."
 
 #define L3_MSG_RECOVERED "Values stored on a register (like \"rax\")"\
-" it can be read several times and the value will countinue"\
+" can be read several times and the value will countinue"\
 " in the register."
 
 #define L3_MSG_READ_RAX "Try using the instruction:      mov [OB], rax"\
@@ -99,15 +110,27 @@
 #define L5_MSG_NEW_REGS "Notice that now are more registers available"\
 " try using them to solve the challenge."
 
-#define L6_MSG_ADD "For Example:        add OP1, OP2 adds OP1 + OP2"\
+#define L6_MSG_ADD "For Example:        \"add OP1, OP2\" adds OP1 + OP2"\
 " and stores the result in OP1. (Click anywhere to continue)."
 
 #define L6_MSG_SOLVE "Solve the challenge using a combination of the"\
-" \"mov\" and \"add\" instructions"\
+" \"mov\" and \"add\" instructions."\
 
-#define L9_MSG_NEW_INS_JMP "The \"jmp\" instruction jumps to a position"\
-" pointed by the label. The operand of the"\
-" instruction is the label."
+#define L7_MSG_ADD "For Example:        \"add rax, rbx\" adds rax + rbx"\
+" and stores the result in rax. (Click anywhere to continue)."
+
+#define L8_MSG_ADD "For Example:        \"add rax, rax\" adds rax + rax"\
+" and stores the result in rax. (Click anywhere to continue)."
+
+#define L9_MSG_NEW_INS_JMP "The operand of the \"jmp\" instruction is a "\
+" LABEL that must be defined in the code."\
+" (Click anywhere to continue)."
+
+#define L9_MSG_RESTRICTION "Restriction: the maximum"\
+" number of instructions that can be used to solve de challenge is 4."\
+" (Click anywhere to continue)."
+
+#define L9_MSG_SELECT_LABEL "Select an drag a LABEL from the instruction box."
 
 #define MSG_OBJECTIVE1 "The objective of the challenge is to move items from"\
 " the Input Buffer [IB]. (Click anywhere to continue)."
@@ -130,9 +153,8 @@
 " the register. Select and drag the \"mov\" instruction from"\
 " the instruction box."
 
-
-
 #define MSG_DROP_INS1 "Drop the instruction in the code box."
+
 
 #define TUT_TEXT_X INS_BOX_X
 #define TUT_TEXT_Y SCREEN_HEIGHT/2 - MSG_BOX_H
@@ -234,6 +256,9 @@ static void level_3_tutorial(bool holding_line, bool play);
 static void level_4_tutorial(bool holding_line, bool play);
 static void level_5_tutorial(bool holding_line, bool play);
 static void level_6_tutorial(bool holding_line, bool play);
+static void level_7_tutorial(bool holding_line, bool play);
+static void level_8_tutorial(bool holding_line, bool play);
+static void level_9_tutorial(bool holding_line, bool play);
 static bool check_display_reg_lv_arrow();
 static int check_display_buf_arrow();
 static void win1_move_input_to_output(int rep, int mul, bool reversed);
@@ -337,7 +362,8 @@ static void display_arrow(int arrow_id)
 		case INS_ARROW:
 			x = ARROW_INS_X;
 			y = ARROW_INS_Y;
-			travel = ARROW_INS_Y - iw_get_instruction_y_by_id(MOV);
+			travel = ARROW_INS_Y - iw_get_instruction_y_by_pos(
+							                iw_get_instruction_list_size() - 1);			
 			dir = DW_UP;
 			aptr = &g_arrow_ins;
 			break;
@@ -504,13 +530,113 @@ static void level_9_tutorial(bool holding_line, bool play)
 	bf_draw_buffers(check_display_buf_arrow());
 	rg_draw_registers(check_display_reg_lv_arrow());
 
+	
+	const int pos_one = 0;
 	int code_size = cw_get_code_list_size();
+	static bool first_message = true;
+	static bool second_message = true;
+	static bool third_message = true;
+	
+	code_line_t *i1= NULL;
 
-	if (code_size == 0 && holding_line == false){
+	if (code_size == 1 && holding_line == false){
+		i1 = cw_get_code_line_at_pos(pos_one);
+	}
+	
+	if (first_message == true && code_size == 0){
+		message_box(BIG_BOX, L9_MSG_NINTH_CHALLENGE);
+		if (ms_chk_mouse_left_pressed() == true){
+			first_message = false;
+			ms_reset_mouse_values();
+		}
+	} else if (second_message == true && code_size == 0){
 		message_box(UPPER_BOX, L9_MSG_NEW_INS_JMP);
+		if (ms_chk_mouse_left_pressed() == true){
+			second_message = false;
+			ms_reset_mouse_values();
+		}
+	} else if (third_message == true && code_size == 0){
+		message_box(UPPER_BOX, L9_MSG_RESTRICTION);
+		display_arrow(CHALLENGE_ARROW);
+		if (ms_chk_mouse_left_pressed() == true){
+			third_message = false;
+			ms_reset_mouse_values();
+		}
+	} else if (code_size == 0 && holding_line == false){
+		message_box(INS_BOX, L9_MSG_SELECT_LABEL);
+		display_arrow(INS_ARROW);
+	} else if (code_size == 0 && holding_line == true){
+		message_box(INS_BOX, MSG_DROP_INS1);
+		display_arrow(DROP_CODE_ARROW);
 	} 
 }
 
+/* Function: level_8_tutorial
+ * -----------------------------------------------------------------------------
+ * This functions handles all the special cases of the tutorial of level 3
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void level_8_tutorial(bool holding_line, bool play)
+{
+	bf_draw_buffers(check_display_buf_arrow());
+	rg_draw_registers(check_display_reg_lv_arrow());
+
+	int code_size = cw_get_code_list_size();
+	static bool first_message = true;
+	static bool second_message = true;
+
+	if (first_message == true && code_size == 0){
+		message_box(BIG_BOX, L8_MSG_EIGHTH_CHALLENGE);
+		if (ms_chk_mouse_left_pressed() == true){
+			first_message = false;
+			ms_reset_mouse_values();
+		}
+	} else if (second_message == true && code_size == 0){
+		message_box(UPPER_BOX, L8_MSG_ADD);
+		if (ms_chk_mouse_left_pressed() == true){
+			second_message = false;
+			ms_reset_mouse_values();
+		}
+	} 
+}
+/* Function: level_7_tutorial
+ * -----------------------------------------------------------------------------
+ * This functions handles all the special cases of the tutorial of level 3
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void level_7_tutorial(bool holding_line, bool play)
+{
+	bf_draw_buffers(check_display_buf_arrow());
+	rg_draw_registers(check_display_reg_lv_arrow());
+
+	int code_size = cw_get_code_list_size();
+	static bool first_message = true;
+	static bool second_message = true;
+
+	if (first_message == true && code_size == 0){
+		message_box(BIG_BOX, L7_MSG_SEVENTH_CHALLENGE);
+		if (ms_chk_mouse_left_pressed() == true){
+			first_message = false;
+			ms_reset_mouse_values();
+		}
+	} else if (second_message == true && code_size == 0){
+		message_box(UPPER_BOX, L7_MSG_ADD);
+		if (ms_chk_mouse_left_pressed() == true){
+			second_message = false;
+			ms_reset_mouse_values();
+		}
+	} 
+}
 /* Function: level_6_tutorial
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 3
@@ -544,7 +670,9 @@ static void level_6_tutorial(bool holding_line, bool play)
 		}
 	} else if (code_size == 0 && holding_line == false){
 		message_box(INS_BOX, L6_MSG_SOLVE);
-	} }
+		display_arrow(INS_ARROW);
+	} 
+}
 
 /* Function: level_5_tutorial
  * -----------------------------------------------------------------------------
@@ -635,10 +763,15 @@ static void level_3_tutorial(bool holding_line, bool play)
 	} else if (code_size == 1 && cw_check_code_pending_op2() == true && 
 												cw_check_code_sorted() == true){
 		message_box(UPPER_BOX, L3_MSG_AVAIL_OPS_2);
-	} else if (code_size == 1 && cw_check_code_pending_operand() == false){
+	} else if (code_size == 1 && cw_check_code_pending_operand() == false &&
+														 holding_line == false){
 		message_box(INS_BOX, L3_MSG_RECOVERED);
 		display_arrow(INS_ARROW);
-	} else if (code_size == 2 && cw_check_code_pending_operand() == true){
+	} else if (code_size == 1 && cw_check_code_pending_operand() == false &&
+														  holding_line == true){
+		message_box(INS_BOX, MSG_DROP_INS1);
+		display_arrow(DROP_CODE_ARROW);
+	}else if (code_size == 2 && cw_check_code_pending_operand() == true){
 		message_box(CODE_BOX, L3_MSG_READ_RAX);
 	}
 }
@@ -1284,7 +1417,15 @@ void lv_level_drawings(int level, bool holding_line, bool play, int flag)
 		case LV_LEVEL_6:
 			level_6_tutorial(holding_line, play);
 			break;
-	
+		
+		case LV_LEVEL_7:
+			level_7_tutorial(holding_line, play);
+			break;
+
+		case LV_LEVEL_8:
+			level_8_tutorial(holding_line, play);
+			break;
+
 		case LV_LEVEL_9:
 			level_9_tutorial(holding_line, play);
 			break;

@@ -15,8 +15,36 @@ SDL_Rect instruction_box;
 
 void set_instruction_box_member(int value, int member);
 static List *get_instruction_list();
-static int get_instruction_list_size();
 static void draw_instruction_text();
+
+/* Function: iw_get_instruction_y_by_pos
+ *------------------------------------------------------------------------------
+ * This function returns THE LOWER y value of an instruction
+ *
+ * Arguments:
+ *	pos: The position of the instruction on the instruction list
+ *
+ * Return:
+ *	Lower y value of the instruction
+ */
+int iw_get_instruction_y_by_pos(int pos)
+{
+	int list_size = iw_get_instruction_list_size();
+	assert(pos >= 0  && pos < list_size && "Incorrect position");
+
+	List *instructions = get_instruction_list();
+	instruction_t *i;
+	int count = 0;
+	LIST_FOREACH(instructions, first, next, cur){ 
+		i = cur->value;
+		if (count == pos){
+			break;
+	   	}
+   }
+   assert(i != NULL && "null pointer returned for instruction");
+   return i->b->y + i->b->h;
+}
+
 
 /* Function: iw_get_instruction_y_by_id
  *------------------------------------------------------------------------------
@@ -64,7 +92,7 @@ static void draw_instruction_text()
 															INSTRUCTIONS_TEXT);
 }
 
-/* Function: get_instruction_list_size
+/* Function: iw_get_instruction_list_size
  *------------------------------------------------------------------------------
  * Arguments:
  *	None.
@@ -72,7 +100,7 @@ static void draw_instruction_text()
  * Return:
  *	int: size of the instruction list
  */
-static int get_instruction_list_size()
+int iw_get_instruction_list_size()
 {
 	assert(instruction_list != NULL);
 	List *instructions = get_instruction_list();
