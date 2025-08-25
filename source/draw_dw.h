@@ -23,8 +23,8 @@ enum movement{
 
 typedef struct arrow_t{
 	SDL_Rect box;
-	int start_x;
-	int start_y;
+	int startx;
+	int starty;
 	int travel;
 	int dir;
 	bool in_place;

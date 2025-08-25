@@ -272,59 +272,92 @@ void lv_initialize_level_assets()
 	g_arrow_ins.box.y = ARROW_INS_Y;
 	g_arrow_ins.box.w = ARROW_W; 
 	g_arrow_ins.box.h = ARROW_H;
-	g_arrow_ins.texture =  g_lv_arrow;
+	g_arrow_ins.startx = ARROW_INS_X;
+	g_arrow_ins.starty = ARROW_INS_Y;
+	g_arrow_ins.travel = ARROW_INS_Y - iw_get_instruction_y_by_pos(
+									   iw_get_instruction_list_size() - 1);			
+	g_arrow_ins.dir = DW_UP;
 	g_arrow_ins.in_place = false;
 	g_arrow_ins.visible =  true;
-
+	g_arrow_ins.texture =  g_lv_arrow;
+	
 	g_arrow_code_box.box.x = ARROW_CODE_X;
 	g_arrow_code_box.box.y = ARROW_CODE_Y;
 	g_arrow_code_box.box.w = ARROW_W;
 	g_arrow_code_box.box.h = ARROW_H;
-	g_arrow_code_box.texture = g_lv_arrow;
 	g_arrow_code_box.in_place = false;
 	g_arrow_code_box.visible = true;
+	g_arrow_code_box.startx = ARROW_CODE_X;
+	g_arrow_code_box.starty = ARROW_CODE_Y;
+	g_arrow_code_box.travel = cw_get_code_box_member(MEMBER_X) - 
+										(ARROW_CODE_X + ARROW_W); 
+	g_arrow_code_box.dir = DW_RIGHT;
+	g_arrow_code_box.texture = g_lv_arrow;
 
 	g_arrow_play.box.w = ARROW_W;	
 	g_arrow_play.box.h = ARROW_H;
 	g_arrow_play.box.x = sb_get_play_button_member(MEMBER_X);
 	g_arrow_play.box.y = STAGE_BUTTON_Y - 2*ARROW_H;
-	g_arrow_play.texture = g_lv_arrow;
 	g_arrow_play.in_place = false;
 	g_arrow_play.visible = true;
+	g_arrow_play.startx = STAGE_BUTTON_X;
+	g_arrow_play.starty = STAGE_BUTTON_Y - 2*ARROW_H;	
+	g_arrow_play.travel = STAGE_BUTTON_Y - g_arrow_play.starty - ARROW_H;	
+	g_arrow_play.dir = DW_DOWN;
+	g_arrow_play.texture = g_lv_arrow;
 
 	g_arrow_code_line.box.w = ARROW_W;	
 	g_arrow_code_line.box.h = ARROW_H;
 	g_arrow_code_line.box.x = cw_get_code_line_x(MOV) + ARROW_W/2;
 	g_arrow_code_line.box.y = cw_get_line_y(cw_get_code_list_size()-1) + 
 													    CODE_BUTTON_H + ARROW_H;
-	g_arrow_code_line.texture = g_lv_arrow;
 	g_arrow_code_line.in_place = false;
 	g_arrow_code_line.visible = true;
+	g_arrow_code_line.startx = cw_get_code_line_x(MOV) + ARROW_W/2;
+	g_arrow_code_line.starty = cw_get_line_y(cw_get_code_list_size()-1) + 
+														CODE_BUTTON_H + ARROW_H;
+	g_arrow_code_line.travel = g_arrow_code_line.starty - 
+									   cw_get_line_y(cw_get_code_list_size()-1);	
+	g_arrow_code_line.dir = DW_UP;
+	g_arrow_code_line.texture = g_lv_arrow;
 
 	g_arrow_del.box.x = cw_get_code_box_member(MEMBER_X) +
 											   cw_get_code_box_member(MEMBER_W);
 	g_arrow_del.box.y = cw_get_text_box_member(MEMBER_Y);
 	g_arrow_del.box.w = ARROW_W;
 	g_arrow_del.box.h = ARROW_H;
-	g_arrow_del.texture = g_lv_arrow;
 	g_arrow_del.in_place = false;
 	g_arrow_del.visible = true;
+	g_arrow_del.startx = cw_get_code_box_member(MEMBER_X) + 
+										cw_get_code_box_member(MEMBER_W);
+	g_arrow_del.starty = cw_get_text_box_member(MEMBER_Y);
+	g_arrow_del.travel = ARROW_W;
+	g_arrow_del.dir = DW_RIGHT;
+	g_arrow_del.texture = g_lv_arrow;
 
 	g_arrow_op2.box.x = cw_get_code_line_x(MOV) + OP2_X_OFFSET + ARROW_W/2;
 	g_arrow_op2.box.y = cw_get_line_y(cw_get_code_list_size()-1) + ARROW_H;
 	g_arrow_op2.box.w = ARROW_W;
 	g_arrow_op2.box.h = ARROW_H;
-	g_arrow_op2.texture = g_lv_arrow;
 	g_arrow_op2.in_place = false;
 	g_arrow_op2.visible = true;
+	g_arrow_op2.startx = cw_get_code_line_x(MOV) + OP2_X_OFFSET + ARROW_W/2;
+	g_arrow_op2.starty = cw_get_line_y(cw_get_code_list_size()-1) + CODE_BUTTON_H; 			
+	g_arrow_op2.travel = ARROW_W;
+	g_arrow_op2.dir = DW_UP;
+	g_arrow_op2.texture = g_lv_arrow;
 
 	g_arrow_error.box.x = RES_BOX_X + RES_BOX_W/2 - ARROW_W/2;
 	g_arrow_error.box.y = RES_BOX_Y + RES_BOX_H + ERROR_BOX_Y_OFFSET - ARROW_H;	
 	g_arrow_error.box.w = ARROW_W;
 	g_arrow_error.box.h = ARROW_H;
-	g_arrow_error.texture = g_lv_arrow;
 	g_arrow_error.in_place = false;
 	g_arrow_error.visible = true;
+	g_arrow_error.startx = RES_BOX_X + RES_BOX_W/2 - BACK_BUTTON_W/2 - 2*ARROW_W;			
+	g_arrow_error.starty = RES_BOX_Y + RES_BOX_H + ERROR_BOX_Y_OFFSET - ARROW_H;		
+	g_arrow_error.travel = ARROW_W;
+	g_arrow_error.dir = DW_UP;
+	g_arrow_error.texture = g_lv_arrow;
 
 	g_arrow_challenge.box.x = cw_get_text_box_member(MEMBER_X) +
 							  cw_get_text_box_member(MEMBER_W) + 2*ARROW_W;
@@ -332,10 +365,16 @@ void lv_initialize_level_assets()
 							  cw_get_text_box_member(MEMBER_H)/2;
 	g_arrow_challenge.box.w = ARROW_W;
 	g_arrow_challenge.box.h = ARROW_H;
-	g_arrow_challenge.texture = g_lv_arrow;
 	g_arrow_challenge.in_place = false;
 	g_arrow_challenge.visible = true;
-
+	g_arrow_challenge.startx = cw_get_text_box_member(MEMBER_X) +
+							cw_get_text_box_member(MEMBER_W) + 2*ARROW_W;
+	g_arrow_challenge.starty = cw_get_text_box_member(MEMBER_Y) +
+			cw_get_text_box_member(MEMBER_H)/2;
+	g_arrow_challenge.travel = ARROW_W;
+	g_arrow_challenge.dir = DW_LEFT;
+	g_arrow_challenge.texture = g_lv_arrow;
+	
 	//Other assets that need updating accordin to the level
 	g_msg_code_box.y = g_arrow_code_line.box.y + ARROW_H; 
 	int ins_list_size = iw_get_instruction_list_size();
@@ -361,74 +400,34 @@ static void display_arrow(int arrow_id)
 	arrow_t *aptr;
 	switch(arrow_id){
 		case INS_ARROW:
-			x = ARROW_INS_X;
-			y = ARROW_INS_Y;
-			travel = ARROW_INS_Y - iw_get_instruction_y_by_pos(
-							                iw_get_instruction_list_size() - 1);			
-			dir = DW_UP;
 			aptr = &g_arrow_ins;
 			break;
 		case DROP_CODE_ARROW:
-			x = ARROW_CODE_X;
-			y = ARROW_CODE_Y;
-			travel = cw_get_code_box_member(MEMBER_X) - 
-													   (ARROW_CODE_X + ARROW_W); 
-			dir = DW_RIGHT;
 			aptr = &g_arrow_code_box;
 			break;
 		case PLAY_ARROW:
-			x = STAGE_BUTTON_X;
-			y = STAGE_BUTTON_Y - 2*ARROW_H;	
-			travel = STAGE_BUTTON_Y - y - ARROW_H;	
-			dir = DW_DOWN;
 			aptr = &g_arrow_play;
 			break;
 		case CODE_LINE_ARROW:
-			x = cw_get_code_line_x(MOV) + ARROW_W/2;
-			y = cw_get_line_y(cw_get_code_list_size()-1) + CODE_BUTTON_H + 
-																	    ARROW_H;
-			travel = y - cw_get_line_y(cw_get_code_list_size()-1);	
-			dir = DW_UP;
 			aptr = &g_arrow_code_line;
 			break;
 		case DEL_ARROW:
-			x = cw_get_code_box_member(MEMBER_X) + 
-											   cw_get_code_box_member(MEMBER_W);
-			y = cw_get_text_box_member(MEMBER_Y);
-			travel = ARROW_W;
-			dir = DW_RIGHT;
 			aptr = &g_arrow_del;
 			break;
 		case OP2_ARROW:
-			x = cw_get_code_line_x(MOV) + OP2_X_OFFSET + ARROW_W/2;
-			y = cw_get_line_y(cw_get_code_list_size()-1) + CODE_BUTTON_H; 			
-			travel = ARROW_W;
-			dir = DW_UP;
 			aptr = &g_arrow_op2;
 			break;
 		case ERROR_ARROW:
-			x = RES_BOX_X + RES_BOX_W/2 - BACK_BUTTON_W/2 - 2*ARROW_W;			
-			y = RES_BOX_Y + RES_BOX_H + ERROR_BOX_Y_OFFSET - ARROW_H;		
-			travel = ARROW_W;
-			dir = DW_UP;
 			aptr = &g_arrow_error;
 			break;
 		case CHALLENGE_ARROW:
-			x = cw_get_text_box_member(MEMBER_X) +
-				cw_get_text_box_member(MEMBER_W) + 2*ARROW_W;
-			y = cw_get_text_box_member(MEMBER_Y) +
-				cw_get_text_box_member(MEMBER_H)/2;
-			travel = ARROW_W;
-			dir = DW_LEFT;
 			aptr = &g_arrow_challenge;
 			break;
-
 		default:
 			break;
 	}
-	dw_animate_arrow(x, y, aptr, dir, travel);
+	dw_animate_arrow(aptr->startx, aptr->starty, aptr, aptr->dir, aptr->travel);
 }
-
 
 /*	SDL_SetTextureColorMod(arrow.texture->texture, 255, 0, 255);
 	dw_animate_arrow(startx, starty, &arrow, DW_UP, travel);
