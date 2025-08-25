@@ -318,9 +318,6 @@ void lv_initialize_level_assets()
 	g_arrow_op2.in_place = false;
 	g_arrow_op2.visible = true;
 
-	//The code box will accommodate according to the number of instructions
-	g_msg_code_box.y = g_arrow_code_line.box.y + ARROW_H; 
-
 	g_arrow_error.box.x = RES_BOX_X + RES_BOX_W/2 - ARROW_W/2;
 	g_arrow_error.box.y = RES_BOX_Y + RES_BOX_H + ERROR_BOX_Y_OFFSET - ARROW_H;	
 	g_arrow_error.box.w = ARROW_W;
@@ -339,6 +336,10 @@ void lv_initialize_level_assets()
 	g_arrow_challenge.in_place = false;
 	g_arrow_challenge.visible = true;
 
+	//Other assets that need updating accordin to the level
+	g_msg_code_box.y = g_arrow_code_line.box.y + ARROW_H; 
+	int ins_list_size = iw_get_instruction_list_size();
+	g_msg_ins_box.y = iw_get_instruction_y_by_pos(ins_list_size - 1) + 2*ARROW_H;
 }
 	
 /* Function: display_arrow
