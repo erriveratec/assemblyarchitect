@@ -199,7 +199,6 @@ void level_initialization(int level_id)
 	cw_set_code_box(CODE_BOX_X, CODE_BOX_Y, CODE_BOX_W, CODE_BOX_H);
 	iw_set_instruction_box(INS_BOX_X, INS_BOX_Y, INS_BOX_W, INS_BOX_H);
 	
-	//lv_generate_win_condition_list(level_id);
 	cw_create_code_list();	
 	fl_load_save_file(g_player, level_id);
 	mc_reset_avatar();
@@ -249,7 +248,7 @@ void stage_drawings(int level, bool holding_line, bool play)
 	sb_draw_stage_buttons(cw_get_code_list_size());
 	mc_draw_avatar();
 	mc_draw_execution_arrow();
-	lv_level_drawings(level, holding_line, play);
+	lv_level_drawings(level, holding_line, play, mc_get_operation_flag());
 	sb_draw_return_button();
 	
 	return;

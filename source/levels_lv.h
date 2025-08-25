@@ -80,5 +80,5 @@ void lv_reset_win_condition();
 bool lv_evaluate_output_correctness();
 void lv_set_level_instructions_limit(int limit);
 int lv_get_level_instructions_limit();
-void lv_level_drawings(int level, bool holding_line, bool play);
+void lv_level_drawings(int level, bool holding_line, bool play, int flag);
 #endif

@@ -6,7 +6,7 @@
 
 extern texture_t *g_exec_arrow_texture;
 
-enum invalid_operatios{
+enum invalid_operations{
 	NO_INVALID_OPERATION,
 	INPUT_BUFFER_EMPTY,
 	REG_VALUE_INVALID,

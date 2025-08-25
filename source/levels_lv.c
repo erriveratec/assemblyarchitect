@@ -11,59 +11,100 @@
 #include "code_window_cw.h"
 #include "stage_buttons_sb.h"
 
+#define MSG_CHALLENGE_DESCRIPTION "First, read the challenge description."\
+" Click anywhere to continue."
+
 #define MSG_SEL_INS1 "Let's move the value from the Input Buffer [IB] to the"\
-					 " register. Select and drag an instruction from the"\
-									  " instruction box"
-#define MSG_SEL_INS2 "Select another instruction from the" \
-									  " instruction box"
-#define MSG_DROP_INS1 "Drop the instruction in the code box"
+" register. Select and drag the \"mov\" instruction from"\
+" the instruction box."
+
+#define MSG_SEL_INS2 "Select and drag another \"mov\" instruction from the" \
+" instruction box."
+									  
+#define MSG_DROP_INS1 "Drop the instruction in the code box."
+
 #define MSG_DROP_INS2 "Drop the instruction in the code box"\
-									" below the previous instruction"
-#define MSG_SEL_OP1 "The destiny operand is where the"\
-					" recovered value will be stored."\
-					" Select \"rax\" as the destiny operand."
-#define MSG_SEL_OP2 "The second operand is from where the value will be"\
-					" recovered. Select the Input Buffer [IB] as the source"\
-					" operand."
+" below the previous instruction."
+
+#define MSG_SEL_OP1_1 "The destiny operand is where the"\
+" recovered value will be stored."\
+" Select \"rax\" as the destiny operand."
+
+#define MSG_SEL_OP2_1 "The second operand is from where the value will be"\
+" recovered. Select the Input Buffer [IB] as the source"\
+" operand."
+
+#define MSG_SEL_OP1_2 "Now we need to move the value from the \"rax\" to"\
+" the Output Buffer [OB], select the the Output Buffer"\
+" as the destiny operand."
+
+#define MSG_SEL_OP2_2 "Select \"rax\" as the source operand, we want to"\
+" move the value from \"rax\" to the Output Buffer [OB]."
+
 #define MSG_PLAY_TUT "Let's see what that instruction does. Press the play"\
-					 " button."
-#define MSG_PRESS_PLAY	"Press the play button"
+" button."
+
+#define MSG_CONGRATS "Congratulations, you have beaten the first level."\
+" Press the continue button."
+
+#define MSG_PRESS_PLAY	"Press the play button."
+
 #define MSG_SEL_LAST_INS "Select and drag the last instruction"\
-									" by clicking in the instruction name"	
+" by clicking in the instruction name."	
+
 #define MSG_DEL_INS "Drag the instruction out of the code"\
-									" to delete it."
+" to delete it."
+
 #define MSG_CHANGE_OP "Change any operand by clicking on it. Click"\
-								" the source operand of the instruction."
+" the source operand of the instruction."
+
 #define MSG_SEL_IB "Select the Input Buffer as the source operand."
-#define MSG_MOV_INS "Select the second instruction and move in to"\
-								  " the first position."
+
+#define MSG_MOV_INS "Select and drag the second instruction and move in to"\
+" the first position."
+
 #define MSG_AVAIL_OPS "When selecting an instruction operand the"\
-									" available operands will be pointed with"\
-									" an arrow."
+" available operands will be pointed with"\
+" an arrow."
+
 #define MSG_COMPAT_OPS "Not all operands are compatible with"\
-									 " each other, for instance the"\
-									 " instruction:  mov [ob], [ib] have"\
-									 " operands not compatible."
+" each other, for instance the"\
+" instruction:  mov [ob], [ib] have"\
+" operands not compatible."
+
 #define MSG_TRY_YOURSELF "Now try to solve the challeng for yourself."
+
 #define MSG_NEW_REGS "Notice that now are more registers available"\
-								" try using them to solve the challenge."
+" try using them to solve the challenge."
+
 #define MSG_NEW_INS_ADD "There is a new instruction \"add\" which adds"\
-							 " the contents of the two operands and it stores"\
-							 " it in the destiny operand."
+" the contents of the two operands and it stores"\
+" it in the destiny operand."
+
 #define MSG_NEW_INS_JMP "The \"jmp\" instruction jumps to a position"\
-							 " pointed by the label. The operand of the"\
-							 " instruction is the label."
+" pointed by the label. The operand of the"\
+" instruction is the label."
 
 #define MSG_FST_CHALLENGE "Welcome to the first challenge, click"\
-							" anywhere to continue"
+" anywhere to continue"
+
+#define MSG_ERROR "The value was recovered from the Input Buffer [IB]."\
+" Now, we will move it to the Output Buffer [OB]"\
+" Press the back button to continue."
 
 #define MSG_OBJECTIVE1 "The objective of the challenge is to move items from"\
-						" the Input Buffer [IB]. (Press click to continue)."
-#define MSG_OBJECTIVE2 "To the Output Buffer [OB]. (Press click to continue)."
+" the Input Buffer [IB]. (Click anywhere to continue)."
+
+#define MSG_OBJECTIVE2 "To the Output Buffer [OB]. (Click anywhere to"\
+" continue)."
 
 #define MSG_OBJECTIVE3 "All values recovered from the Input Buffer, must go"\
-					   " to a register first, in this case \"rax\"."\
-					   " (Press click to continue)."
+" to a register first, in this case \"rax\"."\
+" (Click anywhere to continue)."
+
+#define LEVEL_2_WELCOME "Welcome to Level 02. In this level we will"\
+" learn how to delete instructions, change operands and rearrange, their"\
+" position. Click anywhere to continue."
 
 
 #define TUT_TEXT_X INS_BOX_X
@@ -87,8 +128,9 @@
 #define BIG_MSG_BOX_H (SCREEN_HEIGHT/2)
 #define BIG_MSG_TEXT_H 50
 
-
-
+#define ERROR_BOX_Y_OFFSET 60
+#define ERROR_MSG_BOX_X RES_BOX_X + MSG_BOX_W/2 - ARROW_W/2
+#define ERROR_MSG_BOX_Y RES_BOX_Y + RES_BOX_H + ERROR_BOX_Y_OFFSET
 
 //Strings for the win condition
 #define STR_WIN1 "WIN1"
@@ -108,6 +150,8 @@ arrow_t g_arrow_play;
 arrow_t g_arrow_code_line;
 arrow_t g_arrow_del;
 arrow_t g_arrow_op2;
+arrow_t g_arrow_error;
+arrow_t g_arrow_challenge;
 
 enum message{
 	MESSAGE_1,
@@ -123,7 +167,8 @@ enum positions{
 	LOWER_BOX,
 	CODE_BOX,
 	SB_BOX,
-	BIG_BOX
+	BIG_BOX,
+	ERROR_BOX
 };
 
 enum arrow_id{
@@ -132,7 +177,9 @@ enum arrow_id{
 	PLAY_ARROW,
 	CODE_LINE_ARROW,
 	DEL_ARROW,
-	OP2_ARROW
+	OP2_ARROW,
+	ERROR_ARROW,
+	CHALLENGE_ARROW
 };
 
 
@@ -149,9 +196,12 @@ SDL_Rect g_msg_sb_box = {CODE_BOX_X + (CODE_BOX_W - MSG_BOX_W)/2,
 SDL_Rect g_msg_big_box = {BIG_MSG_BOX_X, BIG_MSG_BOX_Y, BIG_MSG_BOX_W, 
 																 BIG_MSG_BOX_H};
 
+SDL_Rect g_msg_error_box = {ERROR_MSG_BOX_X, ERROR_MSG_BOX_Y, MSG_BOX_W, 
+																 MSG_BOX_H};
+
 List *get_win_list();
 void add_to_win_list(int value, int type);
-static void level_1_tutorial(bool holding_line, bool play);
+static void level_1_tutorial(bool holding_line, bool play, int flag);
 static void level_2_tutorial(bool holding_line, bool play);
 static void level_3_tutorial(bool holding_line, bool play);
 static void level_5_tutorial(bool holding_line, bool play);
@@ -217,6 +267,25 @@ void lv_initialize_level_assets()
 
 	//The code box will accommodate according to the number of instructions
 	g_msg_code_box.y = g_arrow_code_line.box.y + ARROW_H; 
+
+	g_arrow_error.box.x = RES_BOX_X + RES_BOX_W/2 - ARROW_W/2;
+	g_arrow_error.box.y = RES_BOX_Y + RES_BOX_H + ERROR_BOX_Y_OFFSET - ARROW_H;	
+	g_arrow_error.box.w = ARROW_W;
+	g_arrow_error.box.h = ARROW_H;
+	g_arrow_error.texture = g_lv_arrow;
+	g_arrow_error.in_place = false;
+	g_arrow_error.visible = true;
+
+	g_arrow_challenge.box.x = cw_get_text_box_member(MEMBER_X) +
+							  cw_get_text_box_member(MEMBER_W) + 2*ARROW_W;
+	g_arrow_challenge.box.y = cw_get_text_box_member(MEMBER_Y) +
+							  cw_get_text_box_member(MEMBER_H)/2;
+	g_arrow_challenge.box.w = ARROW_W;
+	g_arrow_challenge.box.h = ARROW_H;
+	g_arrow_challenge.texture = g_lv_arrow;
+	g_arrow_challenge.in_place = false;
+	g_arrow_challenge.visible = true;
+
 }
 	
 /* Function: display_arrow
@@ -281,6 +350,22 @@ static void display_arrow(int arrow_id)
 			travel = ARROW_W;
 			dir = DW_UP;
 			aptr = &g_arrow_op2;
+			break;
+		case ERROR_ARROW:
+			x = RES_BOX_X + RES_BOX_W/2 - BACK_BUTTON_W/2 - 2*ARROW_W;			
+			y = RES_BOX_Y + RES_BOX_H + ERROR_BOX_Y_OFFSET - ARROW_H;		
+			travel = ARROW_W;
+			dir = DW_UP;
+			aptr = &g_arrow_error;
+			break;
+		case CHALLENGE_ARROW:
+			x = cw_get_text_box_member(MEMBER_X) +
+				cw_get_text_box_member(MEMBER_W) + 2*ARROW_W;
+			y = cw_get_text_box_member(MEMBER_Y) +
+				cw_get_text_box_member(MEMBER_H)/2;
+			travel = ARROW_W;
+			dir = DW_LEFT;
+			aptr = &g_arrow_challenge;
 			break;
 
 		default:
@@ -361,6 +446,15 @@ static void message_box(int pos, char *msg)
 			text_h = BIG_MSG_TEXT_H;
 			color = COLOR_ORANGE;
 			break;
+		case ERROR_BOX:
+			b.x = g_msg_error_box.x; 
+			b.y = g_msg_error_box.y; 
+			b.w = g_msg_error_box.w; 
+			b.h = g_msg_error_box.h;	
+			text_h = MSG_TEXT_H;
+			color = COLOR_WHITE;
+			break;
+
 
 	}
 	dw_draw_filled_rectangle(b.x, b.y, b.w, b.h, COLOR_BLACK, COLOR_WHITE);
@@ -492,6 +586,7 @@ static void level_2_tutorial(bool holding_line, bool play)
 	bool press_play = false;
 	code_line_t *i1= NULL;
 	code_line_t *i2 = NULL;
+	static bool fst_message = true;
 
 	if (code_size >= two_instructions && holding_line == false){
 		i1 = cw_get_code_line_at_pos(pos_one);
@@ -512,7 +607,20 @@ static void level_2_tutorial(bool holding_line, bool play)
 			press_play = true;
 		}
 	}
-	if (code_size > level_instructions_limit && holding_line == false){
+	if (fst_message == true && code_size == 3){
+		message_box(BIG_BOX, LEVEL_2_WELCOME);
+		if (ms_chk_mouse_left_pressed() == true){
+			fst_message = false;
+			ms_reset_mouse_values();
+		}
+	}
+	if (fst_message == true && code_size == 0){
+		message_box(BIG_BOX, MSG_FST_CHALLENGE);
+		if (ms_chk_mouse_left_pressed() == true){
+			fst_message = false;
+			ms_reset_mouse_values();
+		}
+	}else if (code_size > level_instructions_limit && holding_line == false){
 		message_box(CODE_BOX, MSG_SEL_LAST_INS);
 		display_arrow(CODE_LINE_ARROW);
 	} else if (code_size > level_instructions_limit && holding_line == true){
@@ -536,8 +644,6 @@ static void level_2_tutorial(bool holding_line, bool play)
 }
 
 
-
-
 /* Function: level_1_tutorial
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 1
@@ -549,41 +655,52 @@ static void level_2_tutorial(bool holding_line, bool play)
  * Return:
  *	Void.
  */
-static void level_1_tutorial(bool holding_line, bool play)
+static void level_1_tutorial(bool holding_line, bool play, int flag)
 {
-
 	int code_size = cw_get_code_list_size();
 	bf_draw_buffers(NO_OPERAND);
 	rg_draw_registers(false);
-	static bool fst_message = true;	
-	static bool snd_message = true;	
-	static bool trd_message = true;	
-	static bool fth_message = true;
+	static bool first_message = true;
+	static bool second_message = true;	
+	static bool third_message = true;	
+	static bool fourth_message = true;	
+	static bool fifth_message = true;
+	static bool play_message = true;
 
-	if (fst_message == true && code_size == 0){
+	if (flag != 0){
+		message_box(ERROR_BOX, MSG_ERROR);
+		display_arrow(ERROR_ARROW);
+	} else if (first_message == true && code_size == 0){
 		message_box(BIG_BOX, MSG_FST_CHALLENGE);
 		if (ms_chk_mouse_left_pressed() == true){
-			fst_message = false;
+			first_message = false;
 			ms_reset_mouse_values();
 		}
-	} else if (snd_message == true && code_size == 0){
+	} else if (second_message == true && code_size == 0){
+		message_box(UPPER_BOX, MSG_CHALLENGE_DESCRIPTION);
+		display_arrow(CHALLENGE_ARROW);
+		if (ms_chk_mouse_left_pressed() == true){
+			second_message = false;
+			ms_reset_mouse_values();
+		}
+	} else if (third_message == true && code_size == 0){
 		message_box(UPPER_BOX, MSG_OBJECTIVE1);
 		if (ms_chk_mouse_left_pressed() == true){
-			snd_message = false;
+			third_message = false;
 		}
 		bf_draw_buffers(IB);
 		ms_reset_mouse_values();
-	} else if (trd_message == true && code_size == 0){
+	} else if (fourth_message == true && code_size == 0){
 		message_box(LOWER_BOX, MSG_OBJECTIVE2);
 		if (ms_chk_mouse_left_pressed() == true){
-			trd_message = false;
+			fourth_message = false;
 		}
 		bf_draw_buffers(OB);
 		ms_reset_mouse_values();
-	} else if (fth_message == true && code_size == 0){
+	} else if (fifth_message == true && code_size == 0){
 		message_box(UPPER_BOX, MSG_OBJECTIVE3);
 		if (ms_chk_mouse_left_pressed() == true){
-			fth_message = false;
+			fifth_message = false;
 		}
 		rg_draw_registers(true);
 		ms_reset_mouse_values();
@@ -595,37 +712,43 @@ static void level_1_tutorial(bool holding_line, bool play)
 		display_arrow(DROP_CODE_ARROW);
 	} else if (code_size == 1 && cw_check_code_sorted() == true &&
 								   cw_check_code_pending_op1() == true){
-		message_box(CODE_BOX, MSG_SEL_OP1);	
+		message_box(CODE_BOX, MSG_SEL_OP1_1);	
 		rg_draw_registers(true);
 	} else if(code_size == 1 && cw_check_code_sorted() == true &&
 				    			   cw_check_code_pending_operand() == true){
-		message_box(CODE_BOX, MSG_SEL_OP2);	
+		message_box(CODE_BOX, MSG_SEL_OP2_1);	
 		rg_draw_registers(false);
 		bf_draw_buffers(IB);
 	} else if(code_size == 1 && holding_line == false &&
- 								  cw_check_code_pending_operand() == false){
+ 			  cw_check_code_pending_operand() == false && play_message == true){
 		message_box(SB_BOX, MSG_PLAY_TUT);	
 		display_arrow(PLAY_ARROW);
-		//message_box(INS_BOX, MSG_SEL_INS2);
-		//display_arrow(INS_ARROW);
-	} else if(code_size == 1 && holding_line == true &&
+		if (play == true){
+			play_message = false;
+		}
+	} else if(code_size == 1 && holding_line == false && play == false &&
+ 	         cw_check_code_pending_operand() == false && play_message == false){
+		message_box(INS_BOX, MSG_SEL_INS2);	
+		display_arrow(INS_ARROW);
+	}else if(code_size == 1 && holding_line == true &&
  								  cw_check_code_pending_operand() == false){
 		message_box(INS_BOX, MSG_DROP_INS2);
 		display_arrow(DROP_CODE_ARROW);
 	} else if (code_size == 2 && cw_check_code_sorted() == true &&
 								   cw_check_code_pending_op1() == true){
-		message_box(CODE_BOX, MSG_SEL_OP1);	
+		message_box(CODE_BOX, MSG_SEL_OP1_2);	
 		bf_draw_buffers(OB);
 	} else if(code_size == 2 && cw_check_code_sorted() == true &&
 				    			   cw_check_code_pending_operand() == true){
-		message_box(CODE_BOX, MSG_SEL_OP2);	
+		message_box(CODE_BOX, MSG_SEL_OP2_2);	
 		rg_draw_registers(true);
 	} else if(code_size == 2 && cw_check_code_pending_operand() == false &&
 															 play == false){
 		message_box(SB_BOX, MSG_PRESS_PLAY);	
 		display_arrow(PLAY_ARROW);
-	} 
-
+	} else if (lv_check_if_win() == true){
+		message_box(UPPER_BOX, MSG_CONGRATS);	
+	}
 }
 
 /* Function: check_display_reg_lv_arrow
@@ -1051,14 +1174,14 @@ bool lv_evaluate_output_correctness()
  * Return:
  *	Void.
  */
-void lv_level_drawings(int level, bool holding_line, bool play)
+void lv_level_drawings(int level, bool holding_line, bool play, int flag)
 {
 	assert(level < LV_LEVEL_MAX && level > LV_LEVEL_MIN && 
 			          								"Invalid level value");
 	
 	switch(level){
 		case LV_LEVEL_1:
-			level_1_tutorial(holding_line, play);
+			level_1_tutorial(holding_line, play, flag);
 			break;
 
 		case LV_LEVEL_2:
