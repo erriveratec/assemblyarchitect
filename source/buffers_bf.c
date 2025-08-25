@@ -113,7 +113,7 @@ static void display_input_arrow()
 		arrow_initialized = true;
 	}
 	int travel = BUFFER_BOX_X - startx - ARROW_W;
-	SDL_SetTextureColorMod(arrow.texture->texture, 255, 0, 0);
+	SDL_SetTextureColorMod(arrow.texture->texture, 255, 0, 255);
 	dw_animate_arrow(startx, arrow.box.y, &arrow, DW_RIGHT, travel);
 }
 

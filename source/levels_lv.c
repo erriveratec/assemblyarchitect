@@ -11,86 +11,90 @@
 #include "code_window_cw.h"
 #include "stage_buttons_sb.h"
 
-#define MSG_CHALLENGE_DESCRIPTION "First, read the challenge description."\
-" Click anywhere to continue."
+#define L1_MSG_FIRST_CHALLENGE "Welcome to Level 01. (Click"\
+" anywhere to continue)."
 
-#define MSG_SEL_INS1 "Let's move the value from the Input Buffer [IB] to the"\
-" register. Select and drag the \"mov\" instruction from"\
+#define L2_MSG_SECOND_CHALLENGE "Welcome to Level 02. In this level we will"\
+" learn how to delete instructions, change operands and rearrange, their"\
+" position. (Click anywhere to continue)."
+
+#define L3_MSG_THIRD_CHALLENGE "Welcome to Level 03. In this level we will learn"\
+" the behaviour of values when retrieved from the Input Buffer [IB] and"\
+" registers. (Click anywhere to continue)."
+
+#define L1_MSG_CHALLENGE_DESCRIPTION "First, read the challenge description."\
+" (Click anywhere to continue)."
+
+#define L1_MSG_SEL_INS1 "Let's move the value from the Input Buffer [IB] to"\
+" the register. Select and drag the \"mov\" instruction from"\
 " the instruction box."
 
-#define MSG_SEL_INS2 "Select and drag another \"mov\" instruction from the" \
+#define L1_MSG_SEL_INS2 "Select and drag another \"mov\" instruction from the"\
 " instruction box."
 									  
 #define MSG_DROP_INS1 "Drop the instruction in the code box."
 
-#define MSG_DROP_INS2 "Drop the instruction in the code box"\
+#define L1_MSG_DROP_INS "Drop the instruction in the code box"\
 " below the previous instruction."
 
-#define MSG_SEL_OP1_1 "The destiny operand is where the"\
+#define L1_MSG_SEL_OP1 "The destiny operand is where the"\
 " recovered value will be stored."\
 " Select \"rax\" as the destiny operand."
 
-#define MSG_SEL_OP2_1 "The second operand is from where the value will be"\
+#define L1_MSG_SEL_OP2_1 "The second operand is from where the value will be"\
 " recovered. Select the Input Buffer [IB] as the source"\
 " operand."
 
-#define MSG_SEL_OP1_2 "Now we need to move the value from the \"rax\" to"\
+#define L1_MSG_SEL_OP1_2 "Now we need to move the value from the \"rax\" to"\
 " the Output Buffer [OB], select the the Output Buffer"\
 " as the destiny operand."
 
-#define MSG_SEL_OP2_2 "Select \"rax\" as the source operand, we want to"\
+#define L1_MSG_SEL_OP2_2 "Select \"rax\" as the source operand, we want to"\
 " move the value from \"rax\" to the Output Buffer [OB]."
 
-#define MSG_PLAY_TUT "Let's see what that instruction does. Press the play"\
+#define L1_MSG_PLAY_TUT "Let's see what that instruction does. Press the play"\
 " button."
 
-#define MSG_CONGRATS "Congratulations, you have beaten the first level."\
+#define L1_MSG_CONGRATS "Congratulations, you have beaten the first level."\
 " Press the continue button."
 
-#define MSG_PRESS_PLAY	"Press the play button."
+#define L1_MSG_ERROR "The value was recovered from the Input Buffer [IB]."\
+" Now, we will move it to the Output Buffer [OB]"\
+" Press the back button to continue."
 
-#define MSG_SEL_LAST_INS "Select and drag the last instruction"\
+#define L2_MSG_SEL_LAST_INS "Select and drag the last instruction"\
 " by clicking in the instruction name."	
 
-#define MSG_DEL_INS "Drag the instruction out of the code"\
+#define L2_MSG_DEL_INS "Drag the instruction out of the code"\
 " to delete it."
 
-#define MSG_CHANGE_OP "Change any operand by clicking on it. Click"\
+#define L2_MSG_CHANGE_OP "Change any operand by clicking on it. Click"\
 " the source operand of the instruction."
 
-#define MSG_SEL_IB "Select the Input Buffer as the source operand."
+#define L2_MSG_SEL_IB "Select the Input Buffer [IB] as the source operand."
 
-#define MSG_MOV_INS "Select and drag the second instruction and move in to"\
+#define L2_MSG_MOV_INS "Select and drag the second instruction and move in to"\
 " the first position."
 
-#define MSG_AVAIL_OPS "When selecting an instruction operand the"\
+#define L3_MSG_AVAIL_OPS_1 "When selecting an instruction operand the"\
 " available operands will be pointed with"\
-" an arrow."
+" an arrow. Select \"rax\"."
 
-#define MSG_COMPAT_OPS "Not all operands are compatible with"\
-" each other, for instance the"\
-" instruction:  mov [ob], [ib] have"\
-" operands not compatible."
+#define L3_MSG_AVAIL_OPS_2 "In this case there are two available operands for"\
+" selection, to complete the challenge, select Input Buffer [IB]."
 
-#define MSG_TRY_YOURSELF "Now try to solve the challeng for yourself."
+#define L3_MSG_TRY_YOURSELF "Now try to solve the challeng for yourself."
 
-#define MSG_NEW_REGS "Notice that now are more registers available"\
+#define L5_MSG_NEW_REGS "Notice that now are more registers available"\
 " try using them to solve the challenge."
 
-#define MSG_NEW_INS_ADD "There is a new instruction \"add\" which adds"\
+#define L6_MSG_NEW_INS_ADD "There is a new instruction \"add\" which adds"\
 " the contents of the two operands and it stores"\
 " it in the destiny operand."
 
-#define MSG_NEW_INS_JMP "The \"jmp\" instruction jumps to a position"\
+#define L9_MSG_NEW_INS_JMP "The \"jmp\" instruction jumps to a position"\
 " pointed by the label. The operand of the"\
 " instruction is the label."
-
-#define MSG_FST_CHALLENGE "Welcome to the first challenge, click"\
-" anywhere to continue"
-
-#define MSG_ERROR "The value was recovered from the Input Buffer [IB]."\
-" Now, we will move it to the Output Buffer [OB]"\
-" Press the back button to continue."
 
 #define MSG_OBJECTIVE1 "The objective of the challenge is to move items from"\
 " the Input Buffer [IB]. (Click anywhere to continue)."
@@ -98,13 +102,16 @@
 #define MSG_OBJECTIVE2 "To the Output Buffer [OB]. (Click anywhere to"\
 " continue)."
 
-#define MSG_OBJECTIVE3 "All values recovered from the Input Buffer, must go"\
-" to a register first, in this case \"rax\"."\
+#define MSG_OBJECTIVE3 "All values recovered from the Input Buffer [IB], must"\
+" go to a register first, in this case \"rax\"."\
 " (Click anywhere to continue)."
 
-#define LEVEL_2_WELCOME "Welcome to Level 02. In this level we will"\
-" learn how to delete instructions, change operands and rearrange, their"\
-" position. Click anywhere to continue."
+#define MSG_COMPAT_OPS "Notice: Not all operands are compatible with"\
+" each other, for instance the"\
+" instruction:  mov [ob], [ib]"\
+" is not possible."
+
+#define MSG_PRESS_PLAY	"Press the play button."
 
 
 #define TUT_TEXT_X INS_BOX_X
@@ -479,7 +486,7 @@ static void level_9_tutorial(bool holding_line, bool play)
 	int code_size = cw_get_code_list_size();
 
 	if (code_size == 0 && holding_line == false){
-		message_box(UPPER_BOX, MSG_NEW_INS_JMP);
+		message_box(UPPER_BOX, L9_MSG_NEW_INS_JMP);
 	} 
 }
 
@@ -501,7 +508,7 @@ static void level_6_tutorial(bool holding_line, bool play)
 	int code_size = cw_get_code_list_size();
 
 	if (code_size == 0 && holding_line == false){
-		message_box(UPPER_BOX, MSG_NEW_INS_ADD);
+		message_box(UPPER_BOX, L6_MSG_NEW_INS_ADD);
 	} 
 }
 
@@ -523,7 +530,7 @@ static void level_5_tutorial(bool holding_line, bool play)
 	int code_size = cw_get_code_list_size();
 
 	if (code_size == 0 && holding_line == false){
-		message_box(UPPER_BOX, MSG_NEW_REGS);
+		message_box(UPPER_BOX, L5_MSG_NEW_REGS);
 	} 
 }
 
@@ -543,21 +550,28 @@ static void level_3_tutorial(bool holding_line, bool play)
 	rg_draw_registers(check_display_reg_lv_arrow());
 
 	int code_size = cw_get_code_list_size();
+	static bool first_message = true;
 
-	if (code_size == 0 && holding_line == false){
-		message_box(INS_BOX, MSG_SEL_INS1);
+	if (first_message == true && code_size == 0){
+		message_box(BIG_BOX, L3_MSG_THIRD_CHALLENGE);
+		if (ms_chk_mouse_left_pressed() == true){
+			first_message = false;
+			ms_reset_mouse_values();
+		}
+	} else if (code_size == 0 && holding_line == false){
+		message_box(INS_BOX, L1_MSG_SEL_INS1);
 		display_arrow(INS_ARROW);
 	} else if (code_size == 0 && holding_line == true){
 		message_box(INS_BOX, MSG_DROP_INS1);
 		display_arrow(DROP_CODE_ARROW);
 	} else if (code_size == 1 && cw_check_code_pending_op1() == true && 
 												cw_check_code_sorted() == true){
-		message_box(LOWER_BOX, MSG_AVAIL_OPS);
+		message_box(LOWER_BOX, L3_MSG_AVAIL_OPS_1);
 	} else if (code_size == 1 && cw_check_code_pending_op2() == true && 
 												cw_check_code_sorted() == true){
-		message_box(UPPER_BOX, MSG_COMPAT_OPS);
+		message_box(UPPER_BOX, L3_MSG_AVAIL_OPS_2);
 	} else if (code_size == 1 && cw_check_code_pending_operand() == false){
-		message_box(UPPER_BOX, MSG_TRY_YOURSELF);
+		message_box(UPPER_BOX, L3_MSG_TRY_YOURSELF);
 		display_arrow(INS_ARROW);
 	}
 }
@@ -608,34 +622,34 @@ static void level_2_tutorial(bool holding_line, bool play)
 		}
 	}
 	if (fst_message == true && code_size == 3){
-		message_box(BIG_BOX, LEVEL_2_WELCOME);
+		message_box(BIG_BOX, L2_MSG_SECOND_CHALLENGE);
 		if (ms_chk_mouse_left_pressed() == true){
 			fst_message = false;
 			ms_reset_mouse_values();
 		}
 	}
 	if (fst_message == true && code_size == 0){
-		message_box(BIG_BOX, MSG_FST_CHALLENGE);
+		message_box(BIG_BOX, L1_MSG_FIRST_CHALLENGE);
 		if (ms_chk_mouse_left_pressed() == true){
 			fst_message = false;
 			ms_reset_mouse_values();
 		}
 	}else if (code_size > level_instructions_limit && holding_line == false){
-		message_box(CODE_BOX, MSG_SEL_LAST_INS);
+		message_box(CODE_BOX, L2_MSG_SEL_LAST_INS);
 		display_arrow(CODE_LINE_ARROW);
 	} else if (code_size > level_instructions_limit && holding_line == true){
-		message_box(CODE_BOX, MSG_DEL_INS);
+		message_box(CODE_BOX, L2_MSG_DEL_INS);
 		display_arrow(DEL_ARROW);
 	} else if (change_op == true && holding_line == false){
 		if (i2->state != CHANGING_OP2){
-			message_box(CODE_BOX, MSG_CHANGE_OP);
+			message_box(CODE_BOX, L2_MSG_CHANGE_OP);
 			display_arrow(OP2_ARROW);
 		} else if (i2->state == CHANGING_OP2){
-			message_box(UPPER_BOX, MSG_SEL_IB);
+			message_box(UPPER_BOX, L2_MSG_SEL_IB);
 			bf_draw_buffers(IB);
 		}
 	} else if (mov_instruction == true){
-		message_box(CODE_BOX, MSG_MOV_INS);
+		message_box(CODE_BOX, L2_MSG_MOV_INS);
 		display_arrow(CODE_LINE_ARROW);
 	} else if (press_play == true){
 		message_box(SB_BOX, MSG_PRESS_PLAY);	
@@ -668,16 +682,16 @@ static void level_1_tutorial(bool holding_line, bool play, int flag)
 	static bool play_message = true;
 
 	if (flag != 0){
-		message_box(ERROR_BOX, MSG_ERROR);
+		message_box(ERROR_BOX, L1_MSG_ERROR);
 		display_arrow(ERROR_ARROW);
 	} else if (first_message == true && code_size == 0){
-		message_box(BIG_BOX, MSG_FST_CHALLENGE);
+		message_box(BIG_BOX, L1_MSG_FIRST_CHALLENGE);
 		if (ms_chk_mouse_left_pressed() == true){
 			first_message = false;
 			ms_reset_mouse_values();
 		}
 	} else if (second_message == true && code_size == 0){
-		message_box(UPPER_BOX, MSG_CHALLENGE_DESCRIPTION);
+		message_box(UPPER_BOX, L1_MSG_CHALLENGE_DESCRIPTION);
 		display_arrow(CHALLENGE_ARROW);
 		if (ms_chk_mouse_left_pressed() == true){
 			second_message = false;
@@ -705,49 +719,49 @@ static void level_1_tutorial(bool holding_line, bool play, int flag)
 		rg_draw_registers(true);
 		ms_reset_mouse_values();
 	} else if (code_size == 0 && holding_line == false){
-		message_box(INS_BOX, MSG_SEL_INS1);
+		message_box(INS_BOX, L1_MSG_SEL_INS1);
 		display_arrow(INS_ARROW);
 	} else if (code_size == 0 && holding_line == true){
 		message_box(INS_BOX, MSG_DROP_INS1);
 		display_arrow(DROP_CODE_ARROW);
 	} else if (code_size == 1 && cw_check_code_sorted() == true &&
 								   cw_check_code_pending_op1() == true){
-		message_box(CODE_BOX, MSG_SEL_OP1_1);	
+		message_box(CODE_BOX, L1_MSG_SEL_OP1);	
 		rg_draw_registers(true);
 	} else if(code_size == 1 && cw_check_code_sorted() == true &&
 				    			   cw_check_code_pending_operand() == true){
-		message_box(CODE_BOX, MSG_SEL_OP2_1);	
+		message_box(CODE_BOX, L1_MSG_SEL_OP2_1);	
 		rg_draw_registers(false);
 		bf_draw_buffers(IB);
 	} else if(code_size == 1 && holding_line == false &&
  			  cw_check_code_pending_operand() == false && play_message == true){
-		message_box(SB_BOX, MSG_PLAY_TUT);	
+		message_box(SB_BOX, L1_MSG_PLAY_TUT);	
 		display_arrow(PLAY_ARROW);
 		if (play == true){
 			play_message = false;
 		}
 	} else if(code_size == 1 && holding_line == false && play == false &&
  	         cw_check_code_pending_operand() == false && play_message == false){
-		message_box(INS_BOX, MSG_SEL_INS2);	
+		message_box(INS_BOX, L1_MSG_SEL_INS2);	
 		display_arrow(INS_ARROW);
 	}else if(code_size == 1 && holding_line == true &&
  								  cw_check_code_pending_operand() == false){
-		message_box(INS_BOX, MSG_DROP_INS2);
+		message_box(INS_BOX, L1_MSG_DROP_INS);
 		display_arrow(DROP_CODE_ARROW);
 	} else if (code_size == 2 && cw_check_code_sorted() == true &&
 								   cw_check_code_pending_op1() == true){
-		message_box(CODE_BOX, MSG_SEL_OP1_2);	
+		message_box(CODE_BOX, L1_MSG_SEL_OP1_2);	
 		bf_draw_buffers(OB);
 	} else if(code_size == 2 && cw_check_code_sorted() == true &&
 				    			   cw_check_code_pending_operand() == true){
-		message_box(CODE_BOX, MSG_SEL_OP2_2);	
+		message_box(CODE_BOX, L1_MSG_SEL_OP2_2);	
 		rg_draw_registers(true);
 	} else if(code_size == 2 && cw_check_code_pending_operand() == false &&
 															 play == false){
 		message_box(SB_BOX, MSG_PRESS_PLAY);	
 		display_arrow(PLAY_ARROW);
 	} else if (lv_check_if_win() == true){
-		message_box(UPPER_BOX, MSG_CONGRATS);	
+		message_box(UPPER_BOX, L1_MSG_CONGRATS);	
 	}
 }
 
