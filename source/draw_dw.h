@@ -23,9 +23,13 @@ enum movement{
 
 typedef struct arrow_t{
 	SDL_Rect box;
-	texture_t *texture;
+	int start_x;
+	int start_y;
+	int travel;
+	int dir;
 	bool in_place;
 	bool visible;
+	texture_t *texture;
 } arrow_t;
 
 texture_t *load_texture_from_file(char *path);
