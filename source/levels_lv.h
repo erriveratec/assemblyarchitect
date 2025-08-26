@@ -9,7 +9,6 @@
 
 #define LV_LEVEL_QUANTITY 40
 
-extern texture_t *g_lv_arrow;
 
 enum LevelStates{
 	LV_LEVEL_MIN,

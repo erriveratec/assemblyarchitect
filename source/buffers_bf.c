@@ -80,13 +80,16 @@ static void display_output_arrow()
 		arrow.box.y = ARROW_OUTPUT_Y;
 		arrow.box.w = ARROW_W;
 		arrow.box.h = ARROW_H;
-		arrow.texture = g_input_arrow;
+		arrow.startx = startx;
+		arrow.starty = arrow.box.y;
+		arrow.dir = AR_RIGHT;
+		arrow.travel = BUFFER_BOX_X - startx - ARROW_W;
 		arrow.in_place = false;
 		arrow_initialized = true;
+		arrow.texture = g_input_arrow;
 	}
-	int travel = BUFFER_BOX_X - startx - ARROW_W;
 	SDL_SetTextureColorMod(arrow.texture->texture, 0, 255, 255);
-	dw_animate_arrow(startx, arrow.box.y, &arrow, DW_RIGHT, travel);
+	ar_animate_arrow(&arrow);
 }
 
 /* Function: display_input_arrow_
@@ -109,13 +112,16 @@ static void display_input_arrow()
 		arrow.box.y = ARROW_INPUT_Y;
 		arrow.box.w = ARROW_W;
 		arrow.box.h = ARROW_H;
-		arrow.texture = g_input_arrow;
+		arrow.startx = startx;
+		arrow.starty = arrow.box.y;
+		arrow.dir = AR_RIGHT;
+		arrow.travel = BUFFER_BOX_X - startx - ARROW_W;
 		arrow.in_place = false;
 		arrow_initialized = true;
+		arrow.texture = g_input_arrow;
 	}
-	int travel = BUFFER_BOX_X - startx - ARROW_W;
 	SDL_SetTextureColorMod(arrow.texture->texture, 255, 0, 255);
-	dw_animate_arrow(startx, arrow.box.y, &arrow, DW_RIGHT, travel);
+	ar_animate_arrow(&arrow);
 }
 
 /* Function: bf_set_win_condition
@@ -543,11 +549,10 @@ error:
  */
 int bf_get_input_buffer_box_member(int member)
 {
-	assert(member >= MEMBER_X && member <= MEMBER_H &&  "Member is incorrect");
+	assert(member > MEMBER_MIN && member < MEMBER_MAX && "Invalid member");
 
 	int return_value;
 	switch (member){
-		
 		case MEMBER_X:
 			return_value = input_box.x;
 			break;
@@ -559,9 +564,6 @@ int bf_get_input_buffer_box_member(int member)
 			break;
 		case MEMBER_H:
 			return_value = input_box.h;
-			break;
-		default:
-			return_value = INVALID_MEMBER;
 			break;
 	}
 	return return_value;
@@ -579,11 +581,10 @@ int bf_get_input_buffer_box_member(int member)
  */
 int bf_get_output_buffer_box_member(int member)
 {
-	assert(member >= MEMBER_X && member <= MEMBER_H &&  "Member is incorrect");
+	assert(member > MEMBER_MIN && member < MEMBER_MAX &&  "Invalid member");
 
 	int return_value;
 	switch (member){
-		
 		case MEMBER_X:
 			return_value = output_box.x;
 			break;
@@ -595,9 +596,6 @@ int bf_get_output_buffer_box_member(int member)
 			break;
 		case MEMBER_H:
 			return_value = output_box.h;
-			break;
-		default:
-			return_value = INVALID_MEMBER;
 			break;
 	}
 	return return_value;

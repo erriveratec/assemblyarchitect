@@ -7,16 +7,21 @@
 
 
 void tx_text_box(int pos, char *msg);
-void tx_initialize_assets();
+void tx_update_assets();
+int tx_get_text_box_member(int text_box_id, int member);
+
+
 
 enum text_box_positions{
-	INS_BOX,
-	UPPER_BOX,
-	LOWER_BOX,
-	CODE_BOX,
-	SB_BOX,
-	BIG_BOX,
-	ERROR_BOX
+	TX_BOX_MIN,
+	TX_INS_BOX,
+	TX_UPPER_BOX,
+	TX_LOWER_BOX,
+	TX_CODE_BOX,
+	TX_SB_BOX,
+	TX_BIG_BOX,
+	TX_ERROR_BOX,
+	TX_BOX_MAX
 };
 
 #define TUT_TEXT_X INS_BOX_X

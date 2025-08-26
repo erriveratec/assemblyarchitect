@@ -204,8 +204,8 @@ void level_initialization(int level_id)
 	fl_load_save_file(g_player, level_id);
 	mc_reset_avatar();
 
+	tx_update_assets();
 	ar_initialize_arrows();
-	tx_initialize_assets();
 	return ;
 }
 
@@ -252,7 +252,6 @@ void stage_drawings(int level, bool holding_line, bool play)
 	mc_draw_execution_arrow();
 	lv_level_drawings(level, holding_line, play, mc_get_operation_flag());
 	sb_draw_return_button();
-	
 	return;
 }
 

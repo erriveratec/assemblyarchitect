@@ -51,6 +51,9 @@ static void display_arrow_registers()
 		arrow.box.w = ARROW_W;
 		arrow.box.h = ARROW_H;
 		arrow.texture = g_reg_arrow;
+		arrow.startx = startx;
+		arrow.starty = arrow.box.y;
+		arrow.dir = AR_LEFT;
 		arrow.in_place = false;
 		arrow_initialized = true;
 	}
@@ -61,9 +64,9 @@ static void display_arrow_registers()
 	LIST_FOREACH(registers, first, next, cur){ 
 		reg_t *c = cur->value;
 		arrow.box.y = c->b->y + (CODE_BUTTON_H - arrow.box.h)/2; 
-		int travel = startx - (c->b->x + c->b->w);
+		arrow.travel = startx - (c->b->x + c->b->w);
 		if (i == 0){
-			dw_animate_arrow(startx, arrow.box.y, &arrow, DW_LEFT, travel);
+			ar_animate_arrow(&arrow);
 		} else {
 			dw_draw_rotated_texture_fits_h(arrow.box.x, arrow.box.y, 
 										arrow.box.h, -180.0, arrow.texture);

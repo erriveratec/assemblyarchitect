@@ -12,6 +12,7 @@
 #include "buffers_bf.h"
 #include "game_mechanics_mc.h"
 #include "levels_lv.h"
+#include "arrow_ar.h"
 
 #define ERROR -1
 SDL_Window *g_window = NULL;

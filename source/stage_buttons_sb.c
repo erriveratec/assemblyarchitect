@@ -31,11 +31,10 @@ button_t *ret_button;
  */
 int sb_get_play_button_member(int member)
 {
-	assert(member >= MEMBER_X && member <= MEMBER_H &&  "Member is incorrect");
+	assert(member > MEMBER_MIN && member < MEMBER_MAX && "Invalid member");
 
 	int return_value;
 	switch (member){
-		
 		case MEMBER_X:
 			return_value = play->x;
 			break;
@@ -47,9 +46,6 @@ int sb_get_play_button_member(int member)
 			break;
 		case MEMBER_H:
 			return_value = play->h;
-			break;
-		default:
-			return_value = INVALID_MEMBER;
 			break;
 	}
 	return return_value;

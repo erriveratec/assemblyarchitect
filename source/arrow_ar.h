@@ -6,6 +6,7 @@
 #include"dimensions.h"
 #include"draw_dw.h"
 
+extern texture_t *g_lv_arrow;
 
 typedef struct arrow_t{
 	SDL_Rect box;
@@ -31,23 +32,19 @@ enum arrow_id{
 
 void ar_initialize_arrows();
 void ar_display_arrow(int arrow_id);
-void dw_animate_arrow(int start_x, int start_y, arrow_t *arrow, 
-														   int dir, int travel);
+void ar_animate_arrow(arrow_t *arrow);
 
 enum movement{
-	DW_MOV_MIN,
-	DW_UP,
-	DW_DOWN,
-	DW_LEFT,
-	DW_RIGHT,
-	DW_MOV_MAX
+	AR_MOV_MIN,
+	AR_UP,
+	AR_DOWN,
+	AR_LEFT,
+	AR_RIGHT,
+	AR_MOV_MAX
 };
 
 #define ARROW_INS_X (INS_BOX_X + INS_BOX_W)/4
-#define ARROW_INS_Y INS_BOX_Y + (MSG_INS_BOX_Y - INS_BOX_Y)*3/4
 #define ARROW_CODE_X (INS_BOX_X + INS_BOX_W)/2
-#define ARROW_CODE_Y (MSG_INS_BOX_Y + MSG_BOX_H + ARROW_H)
-
 
 #endif
 

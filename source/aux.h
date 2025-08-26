@@ -17,7 +17,13 @@
 #define STRING_EQUAL 0
 
 //Boxes memeber definition used in several functions
-enum box_member {INVALID_MEMBER, MEMBER_X, MEMBER_Y, MEMBER_W, MEMBER_H};
+enum box_member {
+	MEMBER_MIN, 
+	MEMBER_X, 
+	MEMBER_Y, 
+	MEMBER_W, 
+	MEMBER_H, 
+	MEMBER_MAX};
 
 typedef struct value_box_t{
 	int value;

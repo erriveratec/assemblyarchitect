@@ -931,11 +931,10 @@ void cw_destroy_code_window_assets()
  */
 int cw_get_code_box_member(int member)
 {
-	assert(member >= MEMBER_X && member <= MEMBER_H &&  "Member is incorrect");
+	assert(member > MEMBER_MIN && member < MEMBER_MAX && "Invalid member");
 
 	int return_value;
 	switch (member){
-		
 		case MEMBER_X:
 			return_value = code_box.x;
 			break;
@@ -947,9 +946,6 @@ int cw_get_code_box_member(int member)
 			break;
 		case MEMBER_H:
 			return_value = code_box.h;
-			break;
-		default:
-			return_value = INVALID_MEMBER;
 			break;
 	}
 	return return_value;
@@ -968,7 +964,7 @@ int cw_get_code_box_member(int member)
  */
 static void set_code_box_member(int value, int member)
 {
-	assert(member >= MEMBER_X && member <= MEMBER_H &&  "Member is incorrect");
+	assert(member > MEMBER_MIN && member < MEMBER_MAX && "Invalid member");
 
 	switch (member){
 		
@@ -1038,11 +1034,10 @@ static void set_text_box_member(int value, int member)
  */
 int cw_get_text_box_member(int member)
 {
-	assert(member >= MEMBER_X && member <= MEMBER_H &&  "Member is incorrect");
+	assert(member > MEMBER_MIN && member < MEMBER_MAX && "Invalid member");
 
 	int return_value;
 	switch (member){
-		
 		case MEMBER_X:
 			return_value = text_box.x;
 			break;
@@ -1054,9 +1049,6 @@ int cw_get_text_box_member(int member)
 			break;
 		case MEMBER_H:
 			return_value = text_box.h;
-			break;
-		default:
-			return_value = INVALID_MEMBER;
 			break;
 	}
 	return return_value;
