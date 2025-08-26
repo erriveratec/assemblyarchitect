@@ -1,5 +1,5 @@
-#ifndef CODE_LINE_H
-#define CODE_LINE_H
+#ifndef CODE_LINE_CL_H
+#define CODE_LINE_CL_H
 
 #include <stdbool.h>
 #include "button_bt.h"

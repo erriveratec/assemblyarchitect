@@ -1,5 +1,5 @@
-#ifndef LEVELS_H
-#define LEVELS_H
+#ifndef LEVELS_LV_H
+#define LEVELS_LV_H
 
 #include <stdbool.h>
 #include "list.h"

@@ -8,6 +8,7 @@
 #include "draw_dw.h"
 #include "aux.h"
 #include "code_line_cl.h"
+#include "arrow_ar.h"
 #include "dimensions.h"
 
 #define DEFAULT_OPERAND RAX

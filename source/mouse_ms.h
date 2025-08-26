@@ -1,5 +1,5 @@
-#ifndef MOUSE_H
-#define MOUSE_H
+#ifndef MOUSE_MS_H
+#define MOUSE_MS_H
 
 #include <stdbool.h>
 #include <SDL.h>

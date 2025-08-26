@@ -9,6 +9,8 @@ tabnew instruction_window_iw.c | vsplit instruction_window_iw.h |
 tabnew code_line_cl.c | vsplit code_line_cl.h | 
 tabnew code_window_cw.c | vsplit code_window_cw.h | 
 tabnew button_bt.c | vsplit button_bt.h | 
+tabnew arrow_ar.c | vsplit arrow_ar.h | 
+tabnew text_tx.c | vsplit text_tx.h | 
 tabnew aux.c| vsplit aux.h | 
 tabnew list.c | vsplit list.h | 
 tabnew file_fl.c | vsplit file_fl.h |

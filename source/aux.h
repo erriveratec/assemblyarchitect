@@ -1,5 +1,5 @@
-#ifndef AUX_H
-#define AUX_H
+#ifndef AUX_AX_H
+#define AUX_AX_H
 
 #include <stdbool.h>
 #include "list.h"

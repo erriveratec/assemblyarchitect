@@ -1,5 +1,5 @@
-#ifndef INSTRUCTION_WINDOW_H
-#define INSTRUCTION_WINDOW_H
+#ifndef INSTRUCTION_WINDOW_IW_H
+#define INSTRUCTION_WINDOW_IW_H
 
 #include "list.h"
 #include "code_line_cl.h"

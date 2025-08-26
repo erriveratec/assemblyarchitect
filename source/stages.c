@@ -16,6 +16,7 @@
 #include "levels_lv.h"
 #include "mouse_ms.h"
 #include "dbg.h"
+#include "arrow_ar.h"
 
 #define STUDIO_SCREEN_DELAY 1000 // 1 sec
 
@@ -203,7 +204,8 @@ void level_initialization(int level_id)
 	fl_load_save_file(g_player, level_id);
 	mc_reset_avatar();
 
-	lv_initialize_level_assets();
+	ar_initialize_arrows();
+	tx_initialize_assets();
 	return ;
 }
 

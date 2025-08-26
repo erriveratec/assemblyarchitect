@@ -12,6 +12,7 @@
 #include "dimensions.h"
 #include "button_bt.h"
 #include "code_line_cl.h"
+#include "arrow_ar.h"
 
 // The posible types of input values
 #define WHOLE 0

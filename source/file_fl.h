@@ -1,5 +1,5 @@
-#ifndef FILE_H
-#define FILE_H
+#ifndef FILE_FL_H
+#define FILE_FL_H
 
 
 #define PLAYER_QUANTITY 3

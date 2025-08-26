@@ -1,5 +1,5 @@
-#ifndef REGISTERS_H
-#define REGISTERS_H
+#ifndef REGISTERS_RG_H
+#define REGISTERS_RG_H
 
 #include <stdio.h>
 #include <stdlib.h>

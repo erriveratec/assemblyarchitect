@@ -1,5 +1,5 @@
-#ifndef STAGE_BUTTONS_H
-#define STAGE_BUTTONS_H
+#ifndef STAGE_BUTTONS_SB_H
+#define STAGE_BUTTONS_SB_H
 
 #include <stdlib.h>
 #include <stdio.h>

@@ -10,6 +10,7 @@
 #include "buffers_bf.h"
 #include "dbg.h"
 #include "levels_lv.h"
+#include "arrow_ar.h"
 
 #define INPUT_BUFFER_EMPTY_TEXT "ERROR: A value cannot be recoverd if the "\
 							"Input Buffer [IB] is empty."

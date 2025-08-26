@@ -1,5 +1,5 @@
-#ifndef CODE_WINDOW_H
-#define CODE_WINDOW_H
+#ifndef CODE_WINDOW_CW_H
+#define CODE_WINDOW_CW_H
 
 #include <SDL.h>
 #include "code_line_cl.h"

@@ -1,5 +1,5 @@
-#ifndef GAME_MECHANICS_H
-#define GAME_MECHANICS_H
+#ifndef GAME_MECHANICS_MC_H
+#define GAME_MECHANICS_MC_H
 #include "draw_dw.h"
 #include "button_bt.h"
 #include "code_window_cw.h"

@@ -1,5 +1,5 @@
-#ifndef DRAW_H
-#define DRAW_H
+#ifndef DRAW_DW_H
+#define DRAW_DW_H
 #include <SDL.h>
 #include <stdbool.h>
 
@@ -12,25 +12,6 @@ typedef struct texture_t{
 	SDL_Texture *texture;
 } texture_t;
 
-enum movement{
-	DW_MOV_MIN,
-	DW_UP,
-	DW_DOWN,
-	DW_LEFT,
-	DW_RIGHT,
-	DW_MOV_MAX
-};
-
-typedef struct arrow_t{
-	SDL_Rect box;
-	int startx;
-	int starty;
-	int travel;
-	int dir;
-	bool in_place;
-	bool visible;
-	texture_t *texture;
-} arrow_t;
 
 texture_t *load_texture_from_file(char *path);
 texture_t *load_texture_from_rendered_text(char *texture_text, 
@@ -47,9 +28,6 @@ int dw_draw_texture_fits_height(int x, int y, int h, texture_t *t);
 int dw_draw_texture_fits_width(int x, int y, int w, texture_t *t);
 void dw_draw_rotated_texture_fits_h(int x, int y, int h, double angle, 
 															      texture_t *t);
-void dw_animate_arrow(int start_x, int start_y, arrow_t *arrow, 
-														   int dir, int travel);
-
 extern SDL_Color COLOR_WHITE;
 extern SDL_Color COLOR_BLACK;
 extern SDL_Color COLOR_RED;

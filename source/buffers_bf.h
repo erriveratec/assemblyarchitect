@@ -1,5 +1,5 @@
-#ifndef BUFFERS_H
-#define BUFFERS_H
+#ifndef BUFFERS_BF_H
+#define BUFFERS_BF_H
 #include <stdio.h>
 #include <stdlib.h>
 #include "code_line_cl.h"
