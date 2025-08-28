@@ -9,7 +9,7 @@
 #include "list.h"
 #include "dbg.h"
 #include "aux.h"
-#include "dimensions.h"
+#include "dimensions_dm.h"
 #include "button_bt.h"
 #include "code_line_cl.h"
 #include "arrow_ar.h"
@@ -329,7 +329,7 @@ void bf_initialize_buffer_operands()
 	int x = 0;
 	int y = 0;
 
-	texture_t *ib = load_texture_from_rendered_text(ib_text, COLOR_WHITE);
+	texture_t *ib = dw_create_text_texture(ib_text, COLOR_WHITE);
 	check_mem(ib);
 	button_t *a = create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H,
 								true, false, ib);
@@ -339,7 +339,7 @@ void bf_initialize_buffer_operands()
 	check_mem(input_buffer);
 
 	
-	texture_t *ob = load_texture_from_rendered_text(ob_text, COLOR_WHITE);
+	texture_t *ob = dw_create_text_texture(ob_text, COLOR_WHITE);
 	check_mem(ob);
 	button_t *b = create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H,
 								true, false, ob);

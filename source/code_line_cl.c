@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include "code_line_cl.h"
 #include "dbg.h"
-#include "dimensions.h"
+#include "dimensions_dm.h"
 #include "aux.h"
 
 #define INSTRUCTION_STRING_LENGTH 20
@@ -115,16 +115,16 @@ texture_t *cl_create_instruction_texture(int id)
 	
 	switch(id){
 		case MOV:
-			texture = load_texture_from_rendered_text(mov_text, COLOR_WHITE);
+			texture = dw_create_text_texture(mov_text, COLOR_WHITE);
 			break;
 		case ADD:
-			texture = load_texture_from_rendered_text(add_text, COLOR_WHITE);
+			texture = dw_create_text_texture(add_text, COLOR_WHITE);
 			break;
 		case LABEL:
-			texture = load_texture_from_rendered_text(label_text, COLOR_WHITE);
+			texture = dw_create_text_texture(label_text, COLOR_WHITE);
 			break;
 		case JMP:
-			texture = load_texture_from_rendered_text(jmp_text, COLOR_WHITE);
+			texture = dw_create_text_texture(jmp_text, COLOR_WHITE);
 			break;
 		default:
 			printf("Error: the id of the register is invalid");
@@ -150,25 +150,25 @@ texture_t *cl_create_operand_texture(int id)
 	
 	switch(id){
 		case RAX:
-			texture = load_texture_from_rendered_text(rax_text, COLOR_WHITE);
+			texture = dw_create_text_texture(rax_text, COLOR_WHITE);
 			break;
 		case RBX:
-			texture = load_texture_from_rendered_text(rbx_text, COLOR_WHITE);
+			texture = dw_create_text_texture(rbx_text, COLOR_WHITE);
 			break;
 		case RCX:
-			texture = load_texture_from_rendered_text(rcx_text, COLOR_WHITE);
+			texture = dw_create_text_texture(rcx_text, COLOR_WHITE);
 			break;
 		case RDX:
-			texture = load_texture_from_rendered_text(rdx_text, COLOR_WHITE);
+			texture = dw_create_text_texture(rdx_text, COLOR_WHITE);
 			break;
 		case RDI:
-			texture = load_texture_from_rendered_text(rdi_text, COLOR_WHITE);
+			texture = dw_create_text_texture(rdi_text, COLOR_WHITE);
 			break;
 		case IB:
-			texture = load_texture_from_rendered_text(ib_text, COLOR_WHITE);
+			texture = dw_create_text_texture(ib_text, COLOR_WHITE);
 			break;
 		case OB:
-			texture = load_texture_from_rendered_text(ob_text, COLOR_WHITE);
+			texture = dw_create_text_texture(ob_text, COLOR_WHITE);
 			break;
 		default:
 			printf("Error: the id of the register is invalid");

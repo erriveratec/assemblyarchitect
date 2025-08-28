@@ -6,7 +6,7 @@
 #include "aux.h"
 #include "dbg.h"
 #include "draw_dw.h"
-#include "dimensions.h"
+#include "dimensions_dm.h"
 
 char *char_space = " ";
 char *char_comma = ",";
@@ -92,7 +92,7 @@ int get_text_height_fits_width(int w, char *text)
 {
 	texture_t *text_texture = NULL;
 
-	text_texture = load_texture_from_rendered_text(text, COLOR_WHITE);
+	text_texture = dw_create_text_texture(text, COLOR_WHITE);
 	assert(NULL != text_texture && 
 		   "Failed to load texture from rendered text");
 	
@@ -121,7 +121,7 @@ int get_text_width_fits_height(int h, char *text)
 {
 	texture_t *text_texture = NULL;
 
-	text_texture = load_texture_from_rendered_text(text, COLOR_WHITE);
+	text_texture = dw_create_text_texture(text, COLOR_WHITE);
 	assert(NULL != text_texture && 
 		   "Failed to load texture from rendered text");
 	
@@ -348,7 +348,7 @@ bool check_if_text_fits_in_width(char *t, float s, int w)
 	bool check = false;
 	texture_t *text_texture = NULL;
 
-	text_texture = load_texture_from_rendered_text(t, COLOR_WHITE);
+	text_texture = dw_create_text_texture(t, COLOR_WHITE);
 	assert(NULL != text_texture && 
 		   "Failed to load texture from rendered text");
 
@@ -381,7 +381,7 @@ bool check_text_fits_width_by_height(char *t, int h, int w)
 	bool check = false;
 	texture_t *text_texture = NULL;
 
-	text_texture = load_texture_from_rendered_text(t, COLOR_WHITE);
+	text_texture = dw_create_text_texture(t, COLOR_WHITE);
 	assert(NULL != text_texture && 
 		   "Failed to load texture from rendered text");
 
@@ -411,7 +411,7 @@ int get_text_height(char *text, float scale)
 {
 	texture_t *text_texture = NULL;
 
-	text_texture = load_texture_from_rendered_text(text, COLOR_WHITE);
+	text_texture = dw_create_text_texture(text, COLOR_WHITE);
 	assert(NULL != text_texture && 
 		   "Failed to load texture from rendered text");
 
@@ -439,7 +439,7 @@ int get_text_width(char *text, float scale)
 {
 	texture_t *text_texture = NULL;
 
-	text_texture = load_texture_from_rendered_text(text, COLOR_WHITE);
+	text_texture = dw_create_text_texture(text, COLOR_WHITE);
 	assert(NULL != text_texture && 
 		   "Failed to load texture from rendered text");
 

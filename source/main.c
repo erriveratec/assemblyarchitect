@@ -7,10 +7,38 @@
 #include "levels_lv.h"
 #include "file_fl.h"
 #include "stage_buttons_sb.h"
+#include "dimensions_dm.h"
+
+#define STUDIO_NAME_TEXT "One Man Studio"
+#define GAME_TITLE_TEXT "Assembly Architect"
+#define PRESS_SPACE_TEXT "Press Space"
+
+
 
 #define BG_COLOR_BLACK 0x000000FF
 #define BG_COLOR_RED 0xFF0000FF
 #define BG_COLOR_GREEN 0x00FF00FF
+
+static void initialize_game_assets();
+
+/* Function: initialize_game_assets
+ * ----------------------------------------------------------------------------
+ * Initializes the assets of the game
+ *
+ * Arguments:
+ * 	Void.
+ *
+ * Return:
+ *	LV_STUDIO_SCREEN
+ */
+static void initialize_game_assets()
+{
+	dm_set_screen_resolution(R1600X900);
+	g_studio_name = dw_create_text_texture(STUDIO_NAME_TEXT, COLOR_WHITE);
+	g_game_title = dw_create_text_texture(GAME_TITLE_TEXT, COLOR_WHITE);
+	g_press_space = dw_create_text_texture(PRESS_SPACE_TEXT, COLOR_WHITE);
+}
+
 
 int main(int argc, char *args[])
 {
@@ -24,6 +52,7 @@ int main(int argc, char *args[])
 	
 	load_media();
 	fl_save_file_init();
+	initialize_game_assets();
 
 	int sleep = 0;
 	int state = LV_STUDIO_SCREEN;
@@ -32,6 +61,7 @@ int main(int argc, char *args[])
 	Uint64 next_game_tick = SDL_GetTicks64();
 	Uint64 studio_screen_time = SDL_GetTicks64();
 	ms_init_mouse();
+	
 	// Render loop
 
 	while (get_quit_game_value() == false){

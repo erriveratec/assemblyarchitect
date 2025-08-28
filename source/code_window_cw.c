@@ -5,7 +5,7 @@
 #include "list.h"
 #include "mouse_ms.h"
 #include "dbg.h"
-#include "dimensions.h"
+#include "dimensions_dm.h"
 #include "buffers_bf.h"
 #include "registers_rg.h"
 #include "draw_dw.h"
@@ -144,7 +144,7 @@ static operand_t *create_saved_jump_operand(int op1_id)
 	char *line_text = ax_number_to_string_two_digits(op1_id);
 	char *op_text = malloc(sizeof(char)*(strlen(line_text)+1));
 	strcpy(op_text, line_text);
-	texture_t *t = load_texture_from_rendered_text(op_text, COLOR_WHITE);
+	texture_t *t = dw_create_text_texture(op_text, COLOR_WHITE);
 
 	int x = 0;
 	int y = 0;
@@ -184,7 +184,7 @@ static operand_t *create_updated_jump_operand(code_line_t *jmp_addr)
 	strcpy(op_text, label_text);
 	strcat(op_text, char_space);
 	strcat(op_text, line_text);
-	texture_t *t = load_texture_from_rendered_text(op_text, COLOR_WHITE);
+	texture_t *t = dw_create_text_texture(op_text, COLOR_WHITE);
 
 	int x = 0;
 	int y = 0;
@@ -266,7 +266,7 @@ operand_t *cw_create_jump_operand()
 	strcpy(op_text, label_text);
 	strcat(op_text, char_space);
 	strcat(op_text, line_text);
-	texture_t *t = load_texture_from_rendered_text(op_text, COLOR_WHITE);
+	texture_t *t = dw_create_text_texture(op_text, COLOR_WHITE);
 
 	int x = 0;
 	int y = 0;
@@ -403,7 +403,7 @@ static operand_t *create_saved_label_operand(int op1_id)
 	char *op_text = malloc(sizeof(char)*(strlen(line_text)+1));
 	strcpy(op_text, line_text);
 	strcat(op_text, char_colon);
-	texture_t *t = load_texture_from_rendered_text(op_text, COLOR_WHITE);
+	texture_t *t = dw_create_text_texture(op_text, COLOR_WHITE);
 
 	int x = 0;
 	int y = 0;
@@ -441,7 +441,7 @@ static operand_t *create_label_operand(code_line_t *line)
 	char *op_text = malloc(sizeof(char)*(strlen(line_text)+1));
 	strcpy(op_text, line_text);
 	strcat(op_text, ":");
-	texture_t *t = load_texture_from_rendered_text(op_text, COLOR_WHITE);
+	texture_t *t = dw_create_text_texture(op_text, COLOR_WHITE);
 
 	int x = 0;
 	int y = 0;
@@ -614,7 +614,7 @@ void cw_add_saved_line(char *line)
 	
 	int list_size = cw_get_code_list_size();
 	ins_text = cl_get_instruction_text(ins_id);
-	texture_t *instruction_tex = load_texture_from_rendered_text(
+	texture_t *instruction_tex = dw_create_text_texture(
 						  		  ins_text, COLOR_WHITE);
 	
 	int x = cw_get_code_line_x(ins_id);

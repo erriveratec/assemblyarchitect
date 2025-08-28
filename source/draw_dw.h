@@ -8,13 +8,12 @@
 typedef struct texture_t{
 	int w;
 	int h;
-	float scale;
 	SDL_Texture *texture;
 } texture_t;
 
 
 texture_t *load_texture_from_file(char *path);
-texture_t *load_texture_from_rendered_text(char *texture_text, 
+texture_t *dw_create_text_texture(char *texture_text, 
 									   	   SDL_Color text_color);
 void dw_free_texture(texture_t *texture);
 void dw_draw_text_fits_height(int x, int y, int h, SDL_Color color, char *text);

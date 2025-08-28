@@ -9,7 +9,7 @@
 #include "code_window_cw.h"
 #include "buffers_bf.h"
 #include "registers_rg.h"
-#include "dimensions.h"
+#include "dimensions_dm.h"
 #include "file_fl.h"
 #include "levels_lv.h"
 

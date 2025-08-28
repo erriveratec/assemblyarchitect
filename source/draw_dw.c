@@ -225,7 +225,8 @@ texture_t *load_texture_from_file(char *path)
 
 	return new_texture;
 }
-/* Function: load_texture_from_rendered_text
+
+/* Function: dw_create_text_texture
  * ----------------------------------------
  * This function receives as an argument the path of the texture
  * to be loaded and returns the pointer to the loaded texture.
@@ -237,10 +238,10 @@ texture_t *load_texture_from_file(char *path)
  * Return:
  * 	Pointer to the texture object.
  */
-texture_t *load_texture_from_rendered_text(char *texture_text, 
+texture_t *dw_create_text_texture(char *texture_text, 
 									   	   SDL_Color text_color)
 {
-	assert(NULL != texture_text && "The path pointer can't be NULL");
+	assert(NULL != texture_text && "The texture text is NULL");
 	
 	int width, height, access;
 	unsigned int format;
@@ -272,7 +273,7 @@ texture_t *load_texture_from_rendered_text(char *texture_text,
 	new_texture->w = width;
 	new_texture->h = height;
 	new_texture->texture = created_texture;
-
+	
 	//Return success
 	return new_texture;
 }
@@ -352,8 +353,8 @@ void dw_draw_wrapped_text_fits_height(int x, int y, int w, int h, int text_h,
 					memset(text, 0, string_size);
 					strncpy(text, t + already_drawn_offset, 
 						   	last_successful_fit - already_drawn_offset); 	
-					//int text_w = get_text_width_fits_height(text_h, text);
-					//x_pos = x + (w -text_w)/2;
+					int text_w = get_text_width_fits_height(text_h, text);
+					x_pos = x + (w -text_w)/2;
 					dw_draw_text_fits_height(x_pos, y_pos, text_h, c, text);
 					y_pos += y_offset;
 					already_drawn_offset = last_successful_fit;
@@ -388,7 +389,7 @@ static void draw_text(int x, int y, float s, SDL_Color c, char *t)
 
 	texture_t *text_texture = NULL;
 
-	text_texture = load_texture_from_rendered_text(t, c);
+	text_texture = dw_create_text_texture(t, c);
 	assert(text_texture != NULL && "Failed to load texture from rendered text");
 
 	int status = SUCCESS;	
@@ -419,7 +420,7 @@ void dw_draw_text_fits_height(int x, int y, int h, SDL_Color color, char *text)
 
 	texture_t *text_texture = NULL;
 
-	text_texture = load_texture_from_rendered_text(text, color);
+	text_texture = dw_create_text_texture(text, color);
 	assert(NULL != text_texture && 
 		   "Failed to load texture from rendered text");
 
@@ -453,7 +454,7 @@ void dw_draw_text_fits_width(int x, int y, int w, SDL_Color color, char *text)
 
 	texture_t *text_texture = NULL;
 
-	text_texture = load_texture_from_rendered_text(text, color);
+	text_texture = dw_create_text_texture(text, color);
 	assert(NULL != text_texture && 
 		   "Failed to load texture from rendered text");
 

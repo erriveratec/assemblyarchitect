@@ -5,7 +5,7 @@
 #include "aux.h"
 #include "dbg.h"
 #include "buffers_bf.h"
-#include "dimensions.h"
+#include "dimensions_dm.h"
 #include "registers_rg.h"
 #include "instruction_window_iw.h"
 #include "code_window_cw.h"

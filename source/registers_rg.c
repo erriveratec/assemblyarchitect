@@ -9,7 +9,7 @@
 #include "aux.h"
 #include "code_line_cl.h"
 #include "arrow_ar.h"
-#include "dimensions.h"
+#include "dimensions_dm.h"
 
 #define DEFAULT_OPERAND RAX
 

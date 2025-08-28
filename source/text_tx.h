@@ -2,7 +2,7 @@
 #define TEXT_TX_H
 #include<stdio.h>
 #include<stdlib.h>
-#include"dimensions.h"
+#include"dimensions_dm.h"
 #include"draw_dw.h"
 
 
@@ -34,19 +34,22 @@ enum text_box_positions{
 #define MSG_INS_BOX_X INS_BOX_X
 #define MSG_INS_BOX_Y (SCREEN_HEIGHT/2 - MSG_BOX_H/3)
 
-#define BIG_MSG_BOX_X (SCREEN_WIDTH*3/5)
-#define BIG_MSG_BOX_Y (SCREEN_HEIGHT/4)
 #define BIG_MSG_BOX_W (SCREEN_WIDTH/3)
 #define BIG_MSG_BOX_H (SCREEN_HEIGHT/2)
-#define BIG_MSG_TEXT_H 50
+#define BIG_MSG_BOX_X (SCREEN_WIDTH/2 - BIG_MSG_BOX_H/2)
+#define BIG_MSG_BOX_Y (SCREEN_HEIGHT/4)
 
+
+#define BIG_MSG_TEXT_H 50
 #define ERROR_BOX_Y_OFFSET 60
 #define ERROR_MSG_BOX_X RES_BOX_X + MSG_BOX_W/2 - ARROW_W/2
 #define ERROR_MSG_BOX_Y RES_BOX_Y + RES_BOX_H + ERROR_BOX_Y_OFFSET
 
+#define CLICK_MESSAGE_H 30
 
-#define L1_MSG_FIRST_CHALLENGE "Welcome to Level 01. (Click"\
-" anywhere to continue)."
+#define MSG_CLICK_ANYWHERE "Click anywhere to continue"
+
+#define L1_MSG_FIRST_CHALLENGE "Welcome to Level 01"
 
 #define L2_MSG_SECOND_CHALLENGE "Welcome to Level 02. In this level we will"\
 " learn how to delete instructions, change operands and rearrange, their"\

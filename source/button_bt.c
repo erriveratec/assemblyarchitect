@@ -37,11 +37,6 @@ button_t *create_button(int x, int y, int w, int h, bool active, bool rectangle,
 
 	float scale_w = (float)w/texture->w;
 	float scale_h = (float)h/texture->h;
-	if (scale_w < scale_h){
-		texture->scale = scale_w;
-	} else {
-		texture->scale = scale_h;	
-	}
 	new_button->texture = texture;
 	
 	return new_button;
@@ -191,7 +186,6 @@ button_t *bt_copy_button(button_t *b)
 	copied_button->texture = malloc(sizeof(texture_t));
 	copied_button->texture->w = b->texture->w;
 	copied_button->texture->h = b->texture->h;
-	copied_button->texture->scale = b->texture->scale;
 	copied_button->texture->texture = b->texture->texture;
 	
 	return copied_button;

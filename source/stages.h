@@ -3,6 +3,10 @@
 
 #include <SDL.h>
 
+extern texture_t *g_studio_name;
+extern texture_t *g_game_title;
+extern texture_t *g_press_space;
+
 extern bool g_quit;
 
 int stage_title(const Uint8 *keystate);
@@ -14,6 +18,5 @@ void toggle_escape_menu();
 void set_quit_game();
 bool get_quit_game_value();
 void level_initialization(int level_id);
-
 
 #endif

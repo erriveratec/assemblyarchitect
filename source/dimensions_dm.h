@@ -1,5 +1,18 @@
-#ifndef DIMENSIONS_H
-#define DIMENSIONS_H
+#ifndef DIMENSIONS_DM_H
+#define DIMENSIONS_DM_H
+
+#include<stdio.h>
+#include<stdlib.h>
+#include <SDL.h>
+
+enum resolutionos{
+	R1600X900	
+};
+
+void dm_set_screen_resolution(int resolution_id);
+SDL_Rect dm_get_studio_name_box();
+SDL_Rect dm_get_game_title_box();
+SDL_Rect dm_get_press_space_box();
 
 /*******************************RESOLUTION*************************************/
 //#define SCREEN_WIDTH 1366
@@ -40,19 +53,13 @@
 #define RET_BUTTON_H 75
 #define RET_BUTTON_Y SCREEN_HEIGHT - RET_BUTTON_H - BORDERS_OFFSET
 #define RET_BUTTON_X BORDERS_OFFSET
+
 /*******************************STUDIO NAME SCREEN*****************************/
-#define STUDIO_NAME_TEXT "One Man Studio"
 #define STUDIO_NAME_X (SCREEN_WIDTH - STUDIO_NAME_W)/2
 #define STUDIO_NAME_Y 300
 #define STUDIO_NAME_W 600
 
 /********************************GAME TITLE SCREEN*****************************/
-#define GAME_TITLE_X (SCREEN_WIDTH - GAME_TITLE_W)/2
-#define GAME_TITLE_Y 25
-#define GAME_TITLE_W 1100
-#define GAME_TITLE_TEXT "Assembly Architect"
-#define PRESS_SPACE_TEXT "Press Space"
-
 #define SPACE_TEXT_X (SCREEN_WIDTH - SPACE_TEXT_W)/2
 #define SPACE_TEXT_Y 500
 #define SPACE_TEXT_W 400

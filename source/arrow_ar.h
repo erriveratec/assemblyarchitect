@@ -3,7 +3,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include"text_tx.h"
-#include"dimensions.h"
+#include"dimensions_dm.h"
 #include"draw_dw.h"
 
 extern texture_t *g_lv_arrow;

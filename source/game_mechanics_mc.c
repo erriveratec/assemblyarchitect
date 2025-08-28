@@ -5,7 +5,7 @@
 #include "draw_dw.h"
 #include "code_window_cw.h"
 #include "mouse_ms.h"
-#include "dimensions.h"
+#include "dimensions_dm.h"
 #include "registers_rg.h" 
 #include "buffers_bf.h"
 #include "dbg.h"
@@ -196,7 +196,7 @@ bool mc_invalid_operation_handler(int id)
 
 	if (button_created == false){
 		button_created = true;
-		texture_t *ret_texture = load_texture_from_rendered_text(STR_BACK, 
+		texture_t *ret_texture = dw_create_text_texture(STR_BACK, 
 																   COLOR_WHITE);
 		check_mem(ret_texture);
 		int x = RES_BOX_X + RES_BOX_W/2 - BACK_BUTTON_W/2;

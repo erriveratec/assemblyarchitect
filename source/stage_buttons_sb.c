@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "stage_buttons_sb.h"
 #include "button_bt.h"
-#include "dimensions.h"
+#include "dimensions_dm.h"
 #include "code_window_cw.h"
 #include "assert.h"
 

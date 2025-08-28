@@ -6,7 +6,7 @@
 #include "button_bt.h"
 #include "code_line_cl.h"
 #include "dbg.h"
-#include "dimensions.h"
+#include "dimensions_dm.h"
 
 #define INSTRUCTIONS_TEXT "Instructions"
 
@@ -303,7 +303,7 @@ void iw_add_instruction_to_list(int id)
 	assert(NULL != instructions && "Instruction pointer is NULL");
 	
 	char *text = cl_get_instruction_text(id);
-	texture_t *instruction_text = load_texture_from_rendered_text(text, 
+	texture_t *instruction_text = dw_create_text_texture(text, 
 								  COLOR_WHITE);
 	
 	int list_size = List_count(instructions);

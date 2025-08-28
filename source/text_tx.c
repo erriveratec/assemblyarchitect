@@ -5,7 +5,7 @@
 #include"draw_dw.h"
 #include"instruction_window_iw.h"
 #include"code_window_cw.h"
-#include"dimensions.h"
+#include"dimensions_dm.h"
 
 
 SDL_Rect g_ins_box = {MSG_INS_BOX_X, MSG_INS_BOX_Y, MSG_BOX_W, MSG_BOX_H};
@@ -188,7 +188,7 @@ void tx_text_box(int pos, char *msg)
 			b.w = g_big_box.w; 
 			b.h = g_big_box.h;	
 			text_h = BIG_MSG_TEXT_H;
-			color = COLOR_ORANGE;
+			color = COLOR_BLACK;
 			break;
 		case TX_ERROR_BOX:
 			b.x = g_error_box.x; 
@@ -198,9 +198,48 @@ void tx_text_box(int pos, char *msg)
 			text_h = MSG_TEXT_H;
 			color = COLOR_WHITE;
 			break;
-
-
 	}
-	dw_draw_filled_rectangle(b.x, b.y, b.w, b.h, COLOR_BLACK, COLOR_WHITE);
+	dw_draw_filled_rectangle(b.x, b.y, b.w, b.h, COLOR_WHITE, COLOR_WHITE);
 	dw_draw_wrapped_text_fits_height(b.x, b.y, b.w, b.h, text_h, color, msg);
+	int tw = get_text_width_fits_height(CLICK_MESSAGE_H, MSG_CLICK_ANYWHERE);
+	dw_draw_text_fits_height(b.x + b.w/2 - tw/2, b.y+b.h - 2*CLICK_MESSAGE_H, 
+						     CLICK_MESSAGE_H, COLOR_GREY, MSG_CLICK_ANYWHERE);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

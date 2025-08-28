@@ -10,7 +10,7 @@
 #include "buffers_bf.h"
 #include "registers_rg.h"
 #include "file_fl.h"
-#include "dimensions.h"
+#include "dimensions_dm.h"
 #include "sdl_config.h"
 #include "stage_buttons_sb.h"
 #include "levels_lv.h"
@@ -24,14 +24,7 @@
 #define ESC_MENU_TEXT2 "Toggle Full Screen"
 #define ESC_MENU_TEXT3 "Exit Game"
 
-
 // Escape option menu variables
-bool g_quit = false;
-
-int g_player = FL_NO_PLAYER;
-
-bool g_escape_menu = false;
-
 enum WinMenuStates{
 	NO_BUTTON_PRESSED,
 	BACK_BUTTON_PRESSED,
@@ -48,9 +41,18 @@ typedef struct level_flags_t{
 	bool non_stop;
 } level_flags_t;
 
+
+bool g_quit = false;
+int g_player = FL_NO_PLAYER;
+bool g_escape_menu = false;
+
 static char *win_text = "The challenge is correct.";
 static char *lose_text = "The challenge is incorrect.";
 static SDL_Rect result_box;
+
+texture_t *g_studio_name = NULL;
+texture_t *g_game_title = NULL;
+texture_t *g_press_space = NULL;
 
 void stage_drawings(int level, bool holding_line, bool play);
 static void pending_operand_handler();
@@ -62,6 +64,63 @@ static bool get_escape_menu_state();
 static void display_escape_menu(bool menu_variable_state);
 static void destroy_level(level_flags_t *flags);
 static void initialize_stage_assets();
+
+/* Function: stage_title
+ * -----------------------------------------------------------------------------
+ * This function renders the title screen of the game
+ *
+ * Arguments:
+ *	None;
+ *
+ * Return:
+ *	TITLE_SCREEN if user has not pressed spacebar, 
+ *	LEVEL_SELECTION if otherwise
+ */
+int stage_title(const Uint8 *keystate)
+{
+	int ret_val;
+	SDL_Rect t = dm_get_game_title_box();
+	dw_draw_texture_fits_width(t.x, t.y, t.w, g_game_title);
+
+	SDL_Rect s = dm_get_press_space_box();
+	dw_draw_texture_fits_width(s.x, s.y, s.w, g_press_space);
+
+	if (keystate[SDL_SCANCODE_SPACE]){
+		ret_val = LV_SELECT_PLAYER_SCREEN;
+	} else {
+		ret_val = LV_TITLE_SCREEN;
+	}
+
+	display_escape_menu(get_escape_menu_state());
+	return ret_val;
+}
+
+/* Function: stage_studio
+ * ----------------------------------------------------------------------------
+ * This function displays the stage where the name of the studio is shown.
+ *
+ * Arguments:
+ *	start_time: starting time that will be used for the delay of the screen.
+ *	cur_time: the current time used to calculate the delay of the screen.
+ *
+ * Return:
+ *	TITLE_SCREEN if the delay time is already finished
+ *	LEVEL_SELECTION if otherwise
+ */
+int stage_studio(Uint64 start_time, Uint64 cur_time)
+{
+	int delay = cur_time - start_time;	
+	
+	SDL_Rect b = dm_get_studio_name_box();
+	dw_draw_texture_fits_width(b.x, b.y, b.w, g_studio_name);
+	
+	if (delay > STUDIO_SCREEN_DELAY){
+		dw_free_texture(g_studio_name);
+		return LV_TITLE_SCREEN;
+	} else {
+		return LV_STUDIO_SCREEN;
+	}
+}
 
 /* Function: initialize_stage_assets
  * ----------------------------------------------------------------------------
@@ -255,30 +314,7 @@ void stage_drawings(int level, bool holding_line, bool play)
 	return;
 }
 
-/* Function: stage_studio
- * ----------------------------------------------------------------------------
- * This function displays the stage where the name of the studio is shown.
- *
- * Arguments:
- *	start_time: starting time that will be used for the delay of the screen.
- *	cur_time: the current time used to calculate the delay of the screen.
- *
- * Return:
- *	TITLE_SCREEN if the delay time is already finished
- *	LEVEL_SELECTION if otherwise
- */
-int stage_studio(Uint64 start_time, Uint64 cur_time)
-{
-	int delay = cur_time - start_time;	
-	dw_draw_text_fits_width(STUDIO_NAME_X, STUDIO_NAME_Y, STUDIO_NAME_W, 
-						 COLOR_WHITE, STUDIO_NAME_TEXT);
 
-	if (delay > STUDIO_SCREEN_DELAY){
-		return LV_TITLE_SCREEN;
-	} else {
-		return LV_STUDIO_SCREEN;
-	}
-}
 
 /* Function: stage_select_player
  * ----------------------------------------------------------------------------
@@ -302,13 +338,13 @@ int stage_select_player()
 
 	if (buttons_created == false){
 		buttons_created = true;
-		texture_t *b1_texture = load_texture_from_rendered_text(PLAYER_1_TEXT, 
+		texture_t *b1_texture = dw_create_text_texture(PLAYER_1_TEXT, 
 								COLOR_WHITE);
 		check_mem(b1_texture);
-		texture_t *b2_texture = load_texture_from_rendered_text(PLAYER_2_TEXT, 
+		texture_t *b2_texture = dw_create_text_texture(PLAYER_2_TEXT, 
 								COLOR_WHITE);
 		check_mem(b2_texture);
-		texture_t *b3_texture = load_texture_from_rendered_text(PLAYER_3_TEXT, 
+		texture_t *b3_texture = dw_create_text_texture(PLAYER_3_TEXT, 
 								COLOR_WHITE);
 		check_mem(b3_texture);
 
@@ -355,34 +391,7 @@ int stage_select_player()
 }
 
 
-/* Function: stage_title
- * -----------------------------------------------------------------------------
- * This function renders the title screen of the game
- *
- * Arguments:
- *	None;
- *
- * Return:
- *	TITLE_SCREEN if user has not pressed spacebar, 
- *	LEVEL_SELECTION if otherwise
- */
-int stage_title(const Uint8 *keystate)
-{
-	int ret_val;
-	dw_draw_text_fits_width(GAME_TITLE_X, GAME_TITLE_Y, GAME_TITLE_W, COLOR_WHITE, 
-						 GAME_TITLE_TEXT);
-	dw_draw_text_fits_width(SPACE_TEXT_X, SPACE_TEXT_Y, SPACE_TEXT_W, COLOR_WHITE, 
-						 PRESS_SPACE_TEXT);
 
-	if (keystate[SDL_SCANCODE_SPACE]){
-		ret_val = LV_SELECT_PLAYER_SCREEN;
-	} else {
-		ret_val = LV_TITLE_SCREEN;
-	}
-
-	display_escape_menu(get_escape_menu_state());
-	return ret_val;
-}
 
 /* Function: create_select_level_buttons
  * -----------------------------------------------------------------------------
@@ -408,13 +417,13 @@ static void create_select_level_buttons(button_t **buttons, bool *levels)
 		char *button_text = create_string_append_number(level_text, i);
 		texture_t *button_texture = NULL;
 		if (levels[i-1] == true){
-			button_texture = load_texture_from_rendered_text(button_text, 
+			button_texture = dw_create_text_texture(button_text, 
 							 COLOR_WHITE);
 			buttons[i-1] = create_button(x, y, SEL_LEVEL_BUTTON_W, 
 									 SEL_LEVEL_BUTTON_H, true, true, 
 									 button_texture);
 		} else {
-			button_texture = load_texture_from_rendered_text(button_text, 
+			button_texture = dw_create_text_texture(button_text, 
 							 COLOR_GREY);
 			buttons[i-1] = create_button(x, y, SEL_LEVEL_BUTTON_W, 
 									 SEL_LEVEL_BUTTON_H, false, true, 
@@ -761,13 +770,13 @@ static void display_escape_menu(bool menu_variable_state)
 
 		if (buttons_created == false){
 			buttons_created = true;
-			texture_t *b1_texture = load_texture_from_rendered_text(
+			texture_t *b1_texture = dw_create_text_texture(
 									ESC_MENU_TEXT1, COLOR_WHITE);
 			check_mem(b1_texture);
-			texture_t *b2_texture = load_texture_from_rendered_text(
+			texture_t *b2_texture = dw_create_text_texture(
 									ESC_MENU_TEXT2, COLOR_WHITE);
 			check_mem(b2_texture);
-			texture_t *b3_texture = load_texture_from_rendered_text(
+			texture_t *b3_texture = dw_create_text_texture(
 									ESC_MENU_TEXT3, COLOR_WHITE);
 			check_mem(b3_texture);
 
@@ -851,7 +860,7 @@ static int display_run_result(bool win_check)
 		int back_x;
 		int back_y = WIN_MENU_BUTTON_Y;
 		if (win_check == true){
-			texture_t *con_texture = load_texture_from_rendered_text(
+			texture_t *con_texture = dw_create_text_texture(
 									 STR_CONT, COLOR_WHITE);
 			check_mem(con_texture);
 			con = create_button(WIN_MENU_BUTTON2_X, WIN_MENU_BUTTON_Y, 
@@ -863,7 +872,7 @@ static int display_run_result(bool win_check)
 			back_x = RES_BOX_X + (RES_BOX_W - BACK_BUTTON_W)/2;
 		}
 		
-		texture_t *ret_texture = load_texture_from_rendered_text(
+		texture_t *ret_texture = dw_create_text_texture(
 								 STR_BACK, COLOR_WHITE);
 		check_mem(ret_texture);
 		
