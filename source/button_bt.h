@@ -16,11 +16,14 @@ typedef struct button_t{
 	int h;
 	bool active;
 	bool rectangle;
+	bool filled;
+	SDL_Color in;
+	SDL_Color out;
 	texture_t *texture;
 } button_t;
 
-button_t *create_button(int x, int y, int w, int h, bool active, bool rectangle,
- 															texture_t *texture);
+button_t *create_button(int x, int y, int w, int h, bool act, bool rect, 
+ 									texture_t *t, SDL_Color in , SDL_Color out);
 void bt_draw_button(button_t *button);
 bool bt_check_mouse_click_button(button_t *button);
 bool bt_check_mouse_released_button(button_t *button);

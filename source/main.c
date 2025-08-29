@@ -9,11 +9,6 @@
 #include "stage_buttons_sb.h"
 #include "dimensions_dm.h"
 
-#define STUDIO_NAME_TEXT "One Man Studio"
-#define GAME_TITLE_TEXT "Assembly Architect"
-#define PRESS_SPACE_TEXT "Press Space"
-
-
 
 #define BG_COLOR_BLACK 0x000000FF
 #define BG_COLOR_RED 0xFF0000FF
@@ -37,6 +32,7 @@ static void initialize_game_assets()
 	g_studio_name = dw_create_text_texture(STUDIO_NAME_TEXT, COLOR_WHITE);
 	g_game_title = dw_create_text_texture(GAME_TITLE_TEXT, COLOR_WHITE);
 	g_press_space = dw_create_text_texture(PRESS_SPACE_TEXT, COLOR_WHITE);
+	init_escape_menu();
 }
 
 

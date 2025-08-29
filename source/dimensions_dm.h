@@ -13,30 +13,19 @@ void dm_set_screen_resolution(int resolution_id);
 SDL_Rect dm_get_studio_name_box();
 SDL_Rect dm_get_game_title_box();
 SDL_Rect dm_get_press_space_box();
+SDL_Rect dm_get_select_player_box();
+SDL_Rect dm_get_p1_button_box();
+SDL_Rect dm_get_p2_button_box();
+SDL_Rect dm_get_p3_button_box();
+SDL_Rect dm_get_escape_menu_box();
+SDL_Rect dm_get_escape_b1_box();
+SDL_Rect dm_get_escape_b2_box();
+SDL_Rect dm_get_escape_b3_box();
 
 /*******************************RESOLUTION*************************************/
-//#define SCREEN_WIDTH 1366
-//#define SCREEN_HEIGHT 768
 #define SCREEN_WIDTH 1600
 #define SCREEN_HEIGHT 900
 
-/*******************************ESCAPE MENU************************************/
-#define ESC_MENU_BOX_W 600
-#define ESC_MENU_BOX_H 300
-#define ESC_MENU_BOX_X (SCREEN_WIDTH - ESC_MENU_BOX_W)/2
-#define ESC_MENU_BOX_Y (SCREEN_HEIGHT - ESC_MENU_BOX_H)/2
-
-#define ESC_MENU_BUTTON_W 500
-#define ESC_MENU_BUTTON_H 60
-#define ESC_MENU_BUTTON_X ESC_MENU_BOX_X + (ESC_MENU_BOX_W - \
-						  ESC_MENU_BUTTON_W)/2
-
-#define ESC_MENU_BUTTON1_Y ESC_MENU_BOX_Y + (ESC_MENU_BOX_H - \
-						   3*ESC_MENU_BUTTON_H)/4
-#define ESC_MENU_BUTTON2_Y ESC_MENU_BUTTON1_Y + (ESC_MENU_BOX_H - \
-						   3*ESC_MENU_BUTTON_H)/4 + ESC_MENU_BUTTON_H
-#define ESC_MENU_BUTTON3_Y ESC_MENU_BUTTON2_Y + (ESC_MENU_BOX_H - \
-						   3*ESC_MENU_BUTTON_H)/4 + ESC_MENU_BUTTON_H
 
 /*******************************RETURN BUTTON*********************************/
 #define MESSAGE_TEXT_H 40
@@ -59,11 +48,6 @@ SDL_Rect dm_get_press_space_box();
 #define STUDIO_NAME_Y 300
 #define STUDIO_NAME_W 600
 
-/********************************GAME TITLE SCREEN*****************************/
-#define SPACE_TEXT_X (SCREEN_WIDTH - SPACE_TEXT_W)/2
-#define SPACE_TEXT_Y 500
-#define SPACE_TEXT_W 400
-#define PRESS_SPACE_TEXT "Press Space"
 
 /******************************SELECT LEVEL SCREEN*****************************/
 #define SEL_LEVEL_TEXT "Select level"
@@ -76,28 +60,6 @@ SDL_Rect dm_get_press_space_box();
 #define SEL_LEVEL_BUTTON_X (SCREEN_WIDTH - (5*SEL_LEVEL_BUTTON_W))/6
 #define SEL_LEVEL_OFFSET_X 200
 #define SEL_LEVEL_OFFSET_Y 75
-
-/******************************SELECT PLAYER SCREEN****************************/
-#define SELECT_PLAYER_TEXT_X 50
-#define SELECT_PLAYER_TEXT_Y 25
-#define SELECT_PLAYER_TEXT_H 90
-#define SELECT_PLAYER_TEXT "Which hacker are you?"
-
-#define PLAYER_1_TEXT "HACKER W"
-#define PLAYER_2_TEXT "HACKER X"
-#define PLAYER_3_TEXT "HACKER Y"
-
-#define P_BUTTON_H 200
-#define P_BUTTON_W 200
-
-#define P1_BUTTON_X (SCREEN_WIDTH-3*P_BUTTON_W)/4 
-#define P1_BUTTON_Y 300
-
-#define P2_BUTTON_X 2*(SCREEN_WIDTH-3*P_BUTTON_W)/4 + P_BUTTON_W
-#define P2_BUTTON_Y 300
-
-#define P3_BUTTON_X 3*(SCREEN_WIDTH-3*P_BUTTON_W)/4 + 2*P_BUTTON_W
-#define P3_BUTTON_Y 300
 
 /*******************************INSTRUCTION BOX********************************/
 // The offset of the borders of the instruction box

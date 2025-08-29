@@ -13,6 +13,12 @@ bool sb_check_clicked_stage_button();
 bool sb_check_clicked_ret_button();
 int identify_clicked_stage_button();
 int sb_get_play_button_member(int member);
+void toggle_escape_menu();
+void display_escape_menu(bool menu_variable_state);
+void set_quit_game();
+bool get_quit_game_value();
+bool get_escape_menu_state();
+void init_escape_menu();
 
 enum stage_buttons_e {
 	INVALID,

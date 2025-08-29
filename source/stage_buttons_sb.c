@@ -5,7 +5,15 @@
 #include "dimensions_dm.h"
 #include "code_window_cw.h"
 #include "assert.h"
+#include "dbg.h"
 
+#define ESC_MENU_TEXT1 "Return to Game"
+#define ESC_MENU_TEXT2 "Toggle Full Screen"
+#define ESC_MENU_TEXT3 "Exit Game"
+
+
+bool g_escape_menu = false;
+bool g_quit = false;
 
 texture_t *stop_button = NULL;
 texture_t *step_back_button = NULL;
@@ -18,6 +26,151 @@ button_t *step_back;
 button_t *play;
 button_t *step_forward;
 button_t *ret_button;
+
+texture_t *g_escape_b1_texture = NULL;
+texture_t *g_escape_b2_texture = NULL;
+texture_t *g_escape_b3_texture = NULL;
+
+button_t *g_escape_b1;
+button_t *g_escape_b2;
+button_t *g_escape_b3;
+
+/* Function: init_escape_menu
+ * ----------------------------------------------------------------------------
+ * Initializes all the assets of the escape menu.
+ *
+ * Arguments:
+ * 	Void.
+ *
+ * Return:
+ *	Void.	
+ */
+void init_escape_menu()
+{
+	g_escape_b1_texture = dw_create_text_texture(ESC_MENU_TEXT1, COLOR_BLACK);
+	check_mem(g_escape_b1_texture);
+
+	g_escape_b2_texture = dw_create_text_texture(ESC_MENU_TEXT2, COLOR_BLACK);
+	check_mem(g_escape_b2_texture);
+
+	g_escape_b3_texture = dw_create_text_texture(ESC_MENU_TEXT3, COLOR_BLACK);
+	check_mem(g_escape_b3_texture);
+	
+	SDL_Rect b = dm_get_escape_b1_box();
+	g_escape_b1 = create_button(b.x, b.y, b.w, b.h, true, true, 
+														   g_escape_b1_texture);
+	check_mem(g_escape_b1);
+
+	b = dm_get_escape_b2_box();
+	g_escape_b2 = create_button(b.x, b.y, b.w, b.h, true, true, 
+														   g_escape_b2_texture);
+	check_mem(g_escape_b2);
+	
+	b = dm_get_escape_b3_box();
+	g_escape_b3 = create_button(b.x, b.y, b.w, b.h, true, true, 
+														   g_escape_b3_texture);
+	check_mem(g_escape_b3);
+	error:
+	return;
+}
+
+
+/* Function: display_escape_menu
+ * -----------------------------------------------------------------------------
+ * This function is called in all the stages, it will show the escape menu 
+ * according to the state of the g_escape_menu variable.
+ * 
+ * Arguments:
+ *	menu_variable_state: The state of the show menu variable.
+ *
+ * Return:
+ *	void
+ */
+void display_escape_menu(bool show_menu)
+{
+
+	if (show_menu == true){
+		
+		SDL_Rect b = dm_get_escape_menu_box();
+		dw_draw_filled_rectangle(b.x, b.y, b.w, b.h, COLOR_WHITE, COLOR_WHITE);
+
+		
+		bt_draw_button(g_escape_b1);
+		bt_draw_button(g_escape_b2);
+		bt_draw_button(g_escape_b3);
+
+		if (bt_check_mouse_click_button(g_escape_b1) == true){
+			toggle_escape_menu();
+		} else if (bt_check_mouse_click_button(g_escape_b2) == true){
+			puts("Full screen must be implemented");	
+		} else if (bt_check_mouse_click_button(g_escape_b3) == true){
+			set_quit_game();
+		}
+	}	
+	return;
+}
+
+/* Function: player_pressed_escape_key
+ * ----------------------------------------------------------------------------
+ * This function inverts the state of the escape menu flag in case that the 
+ * player has pressed the escape key.
+ *
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	void.	
+ */
+void toggle_escape_menu()
+{
+	g_escape_menu = !g_escape_menu;
+}
+
+/* Function: get_escape_menu_state
+ * ----------------------------------------------------------------------------
+ * This function return the boolean state of the state.
+ *
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	Boolean with the state fo the escape_menu variable
+ */
+bool get_escape_menu_state()
+{
+	return g_escape_menu;
+}
+
+/* Function: set_quit_game_value
+ * ----------------------------------------------------------------------------
+ * Sets the quit game val to tru
+ *
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	void.	
+ */
+void set_quit_game()
+{
+	g_quit = true;
+}
+
+/* Function: get_quit_game_value
+ * ----------------------------------------------------------------------------
+ * Gets the quit game val to tru
+ *
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	Bool with the state of the quit game variable	
+ */
+bool get_quit_game_value()
+{
+	return g_quit;
+}
+
 
 /* Function: cw_get_play_button_member
  * -----------------------------------------------------------------------------

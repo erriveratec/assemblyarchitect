@@ -14,17 +14,20 @@
  * calculated based on the parameters of widht and height
  * 	
  * Arguments:
- *	id: button identification
  *	x: position x
  *	y: position y
  *	w: width
  *	h: height
+ *	act: boolean with info if the button is in a stae.
+ *  rect: boolean that determines if a rectangle is draw around the button.	
+ *  in: inside color of the button. 
+ *  out: outside color of the button.
  *
  * Return:
  *	Pointer to the button object
  */
-button_t *create_button(int x, int y, int w, int h, bool active, bool rectangle, 
- 						texture_t *texture)
+button_t *create_button(int x, int y, int w, int h, bool act, bool rect, 
+ 						texture_t *t)
 {
 	button_t *new_button = malloc(sizeof(button_t));
 
@@ -53,30 +56,27 @@ button_t *create_button(int x, int y, int w, int h, bool active, bool rectangle,
  * Return:
  *	Void
  */
-void bt_draw_button(button_t *button)
+void bt_draw_button(button_t *b)
 {
-	assert(button != NULL && "The button pointer is NULL");
+	assert(b != NULL && "The button pointer is NULL");
 	
 	int status = SUCCESS;	
 
-	float scale_w = (float)button->w/button->texture->w;
-	float scale_h = (float)button->h/button->texture->h;
+	dw_draw_filled_rectangle(b->x, b->y, b->w, b->h, b->in, b->in);
+	if (b->rectangle == true){
+		dw_draw_rectangle(b->x, b->y, b->w, b->h, b->out);
+	}
+	
+	float scale_w = (float)b->w/b->texture->w;
+	float scale_h = (float)b->h/b->texture->h;
 	if (scale_w < scale_h){
-		int y = button->y + (button->h - button->texture->h*scale_w)/2;
-		dw_draw_texture_fits_width(button->x, y, button->w, button->texture);
+		int y = b->y + (b->h - b->texture->h*scale_w)/2;
+		dw_draw_texture_fits_width(b->x, y, b->w, b->texture);
 	} else {
-		int x = button->x + (button->w - button->texture->w*scale_h)/2;
-		dw_draw_texture_fits_height(x, button->y, button->h, button->texture);
+		int x = b->x + (b->w - b->texture->w*scale_h)/2;
+		dw_draw_texture_fits_height(x, b->y, b->h, b->texture);
 	}
 	assert(status != FAIL && "The texture could not be drawn");
-	
-	if (button->rectangle == true){
-		SDL_Rect rect = {button->x, button ->y, button->w, button->h};
-		SDL_SetRenderDrawColor(g_renderer, 255, 255, 255, 255);
-		SDL_RenderDrawRect(g_renderer, &rect);
-		SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
-	}
-
 }
 
 /* Function: assign_button_parameters

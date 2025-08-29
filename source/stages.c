@@ -20,9 +20,11 @@
 
 #define STUDIO_SCREEN_DELAY 1000 // 1 sec
 
-#define ESC_MENU_TEXT1 "Return to Game"
-#define ESC_MENU_TEXT2 "Toggle Full Screen"
-#define ESC_MENU_TEXT3 "Exit Game"
+#define PLAYER_1_TEXT "HACKER W"
+#define PLAYER_2_TEXT "HACKER X"
+#define PLAYER_3_TEXT "HACKER Y"
+
+
 
 // Escape option menu variables
 enum WinMenuStates{
@@ -42,9 +44,7 @@ typedef struct level_flags_t{
 } level_flags_t;
 
 
-bool g_quit = false;
 int g_player = FL_NO_PLAYER;
-bool g_escape_menu = false;
 
 static char *win_text = "The challenge is correct.";
 static char *lose_text = "The challenge is incorrect.";
@@ -53,6 +53,8 @@ static SDL_Rect result_box;
 texture_t *g_studio_name = NULL;
 texture_t *g_game_title = NULL;
 texture_t *g_press_space = NULL;
+texture_t *g_select_player = NULL;
+
 
 void stage_drawings(int level, bool holding_line, bool play);
 static void pending_operand_handler();
@@ -60,10 +62,86 @@ static void flag_handler(level_flags_t *flags, int clicked_button);
 static bool edit_code(int level_id);
 static void reset_level(int level_id, level_flags_t *flags, bool *run_finished);
 static int display_run_result(bool win_check);
-static bool get_escape_menu_state();
-static void display_escape_menu(bool menu_variable_state);
 static void destroy_level(level_flags_t *flags);
 static void initialize_stage_assets();
+
+/* Function: stage_select_player
+ * ----------------------------------------------------------------------------
+ * This function displays the screen where the player is selected
+ *
+ * Arguments:
+ *	None.
+ *
+ * Return:
+ *	SELECT_PLAYER_SCREEN if the user have not selected a player. 
+ *	LEVEL_SELECTION if a player has been chosen
+ */
+int stage_select_player()
+{
+	static bool buttons_created = false;
+	static button_t *player_1;
+	static button_t *player_2;
+	static button_t *player_3;
+	int ret_val = LV_SELECT_PLAYER_SCREEN;
+	bool player_chosen = false;
+
+	if (buttons_created == false){
+	
+		g_select_player = dw_create_text_texture(SELECT_PLAYER_TEXT, 
+																   COLOR_WHITE);
+		buttons_created = true;
+		texture_t *b1_texture = dw_create_text_texture(PLAYER_1_TEXT, 
+								COLOR_WHITE);
+		check_mem(b1_texture);
+		texture_t *b2_texture = dw_create_text_texture(PLAYER_2_TEXT, 
+								COLOR_WHITE);
+		check_mem(b2_texture);
+		texture_t *b3_texture = dw_create_text_texture(PLAYER_3_TEXT, 
+								COLOR_WHITE);
+		check_mem(b3_texture);
+		
+		SDL_Rect b = dm_get_p1_button_box();
+		player_1 = create_button(b.x, b.y, b.h, b.w, true, true, b1_texture);
+		check_mem(player_1);
+		
+		b = dm_get_p2_button_box();
+		player_2 = create_button(b.x, b.y, b.h, b.w, true, true, b2_texture);
+		check_mem(player_2);
+
+		b = dm_get_p3_button_box();
+		player_3 = create_button(b.x, b.y, b.h, b.w, true, true, b3_texture);
+		check_mem(player_3);
+	}
+	SDL_Rect b = dm_get_select_player_box();
+	dw_draw_texture_fits_height(b.x, b.y, b.h, g_select_player);
+	
+	bt_draw_button(player_1);
+	bt_draw_button(player_2);
+	bt_draw_button(player_3);
+
+	if (true == bt_check_mouse_click_button(player_1)){
+		player_chosen = true;
+		g_player = FL_PLAYER_1;
+	} else if (true == bt_check_mouse_click_button(player_2)){
+		player_chosen = true;
+		g_player = FL_PLAYER_2;
+	} else if (true == bt_check_mouse_click_button(player_3)){
+		player_chosen = true;
+		g_player = FL_PLAYER_3;
+	}
+	if (player_chosen == true){
+		ret_val = LV_INIT_LEVEL_SELECTION;		
+		bt_destroy_button(player_1);
+		bt_destroy_button(player_2);
+		bt_destroy_button(player_3);
+		buttons_created = false;
+	}
+	
+	display_escape_menu(get_escape_menu_state());
+	error:
+	ms_reset_mouse_values();
+	return ret_val;
+}
 
 /* Function: stage_title
  * -----------------------------------------------------------------------------
@@ -152,66 +230,6 @@ static void initialize_stage_assets()
 	bf_initialize_buffer_operands();
 }
 
-/* Function: set_quit_game_value
- * ----------------------------------------------------------------------------
- * Sets the quit game val to tru
- *
- * Arguments:
- * 	None.
- *
- * Return:
- *	void.	
- */
-void set_quit_game()
-{
-	g_quit = true;
-}
-
-/* Function: get_quit_game_value
- * ----------------------------------------------------------------------------
- * Gets the quit game val to tru
- *
- * Arguments:
- * 	None.
- *
- * Return:
- *	Bool with the state of the quit game variable	
- */
-bool get_quit_game_value()
-{
-	return g_quit;
-}
-
-/* Function: player_pressed_escape_key
- * ----------------------------------------------------------------------------
- * This function inverts the state of the escape menu flag in case that the 
- * player has pressed the escape key.
- *
- * Arguments:
- * 	None.
- *
- * Return:
- *	void.	
- */
-void toggle_escape_menu()
-{
-	g_escape_menu = !g_escape_menu;
-}
-
-/* Function: get_escape_menu_state
- * ----------------------------------------------------------------------------
- * This function return the boolean state of the state.
- *
- * Arguments:
- * 	None.
- *
- * Return:
- *	Boolean with the state fo the escape_menu variable
- */
-static bool get_escape_menu_state()
-{
-	return g_escape_menu;
-}
 
 /* Function: reset_level_flags
  * -------------------------------------
@@ -313,85 +331,6 @@ void stage_drawings(int level, bool holding_line, bool play)
 	sb_draw_return_button();
 	return;
 }
-
-
-
-/* Function: stage_select_player
- * ----------------------------------------------------------------------------
- * This function displays the screen where the player is selected
- *
- * Arguments:
- *	None.
- *
- * Return:
- *	SELECT_PLAYER_SCREEN if the user have not selected a player. 
- *	LEVEL_SELECTION if a player has been chosen
- */
-int stage_select_player()
-{
-	static bool buttons_created = false;
-	static button_t *player_1;
-	static button_t *player_2;
-	static button_t *player_3;
-	int ret_val = LV_SELECT_PLAYER_SCREEN;
-	bool player_chosen = false;
-
-	if (buttons_created == false){
-		buttons_created = true;
-		texture_t *b1_texture = dw_create_text_texture(PLAYER_1_TEXT, 
-								COLOR_WHITE);
-		check_mem(b1_texture);
-		texture_t *b2_texture = dw_create_text_texture(PLAYER_2_TEXT, 
-								COLOR_WHITE);
-		check_mem(b2_texture);
-		texture_t *b3_texture = dw_create_text_texture(PLAYER_3_TEXT, 
-								COLOR_WHITE);
-		check_mem(b3_texture);
-
-		player_1 = create_button(P1_BUTTON_X, P1_BUTTON_Y, P_BUTTON_H, 
-				   P_BUTTON_W, true, true, b1_texture);
-		check_mem(player_1);
-		player_2 = create_button(P2_BUTTON_X, P2_BUTTON_Y, P_BUTTON_H, 
-				   P_BUTTON_W, true, true, b2_texture);
-		check_mem(player_2);
-		player_3 = create_button(P3_BUTTON_X, P3_BUTTON_Y, P_BUTTON_H, 
-			       P_BUTTON_W, true, true, b3_texture);
-		check_mem(player_3);
-	}
-	
-	dw_draw_text_fits_height(SELECT_PLAYER_TEXT_X, SELECT_PLAYER_TEXT_Y, 
-						 SELECT_PLAYER_TEXT_H, COLOR_WHITE, SELECT_PLAYER_TEXT);
-	
-	bt_draw_button(player_1);
-	bt_draw_button(player_2);
-	bt_draw_button(player_3);
-
-	if (true == bt_check_mouse_click_button(player_1)){
-		player_chosen = true;
-		g_player = FL_PLAYER_1;
-	} else if (true == bt_check_mouse_click_button(player_2)){
-		player_chosen = true;
-		g_player = FL_PLAYER_2;
-	} else if (true == bt_check_mouse_click_button(player_3)){
-		player_chosen = true;
-		g_player = FL_PLAYER_3;
-	}
-	if (player_chosen == true){
-		ret_val = LV_INIT_LEVEL_SELECTION;		
-		bt_destroy_button(player_1);
-		bt_destroy_button(player_2);
-		bt_destroy_button(player_3);
-		buttons_created = false;
-	}
-	
-	display_escape_menu(get_escape_menu_state());
-	error:
-	ms_reset_mouse_values();
-	return ret_val;
-}
-
-
-
 
 /* Function: create_select_level_buttons
  * -----------------------------------------------------------------------------
@@ -743,81 +682,7 @@ int stage_level(int level_id)
 	return ret_val;
 }
 
-/* Function: display_escape_menu
- * -----------------------------------------------------------------------------
- * This function is called in all the stages, it will show the escape menu 
- * according to the state of the g_escape_menu variable.
- * 
- * Arguments:
- *	menu_variable_state: The state of the show menu variable.
- *
- * Return:
- *	void
- */
-static void display_escape_menu(bool menu_variable_state)
-{
-	static bool buttons_created = false;
-	static button_t *player_1;
-	static button_t *player_2;
-	static button_t *player_3;
 
-	if (menu_variable_state == true){
-		
-		dw_draw_filled_rectangle(ESC_MENU_BOX_X, ESC_MENU_BOX_Y, ESC_MENU_BOX_W, 
-					   ESC_MENU_BOX_H, COLOR_BLACK, COLOR_WHITE);
-
-		bool player_chosen = false;
-
-		if (buttons_created == false){
-			buttons_created = true;
-			texture_t *b1_texture = dw_create_text_texture(
-									ESC_MENU_TEXT1, COLOR_WHITE);
-			check_mem(b1_texture);
-			texture_t *b2_texture = dw_create_text_texture(
-									ESC_MENU_TEXT2, COLOR_WHITE);
-			check_mem(b2_texture);
-			texture_t *b3_texture = dw_create_text_texture(
-									ESC_MENU_TEXT3, COLOR_WHITE);
-			check_mem(b3_texture);
-
-			player_1 = create_button(ESC_MENU_BUTTON_X, ESC_MENU_BUTTON1_Y, 
-									 ESC_MENU_BUTTON_W, ESC_MENU_BUTTON_H, 
-									 true, true, b1_texture);
-			check_mem(player_1);
-			player_2 = create_button(ESC_MENU_BUTTON_X, ESC_MENU_BUTTON2_Y, 
-									 ESC_MENU_BUTTON_W, ESC_MENU_BUTTON_H, 
-									 true, true, b2_texture);
-			check_mem(player_2);
-			player_3 = create_button(ESC_MENU_BUTTON_X, ESC_MENU_BUTTON3_Y, 
-									 ESC_MENU_BUTTON_W, ESC_MENU_BUTTON_H, 
-									 true, true, b3_texture);
-			check_mem(player_3);
-		}
-		
-		
-		bt_draw_button(player_1);
-		bt_draw_button(player_2);
-		bt_draw_button(player_3);
-
-		if (true == bt_check_mouse_click_button(player_1)){
-			player_chosen = true;
-			toggle_escape_menu();
-		} else if (true == bt_check_mouse_click_button(player_2)){
-			player_chosen = true;
-		} else if (true == bt_check_mouse_click_button(player_3)){
-			player_chosen = true;
-			set_quit_game();
-		}
-		if (player_chosen == true){
-			bt_destroy_button(player_1);
-			bt_destroy_button(player_2);
-			bt_destroy_button(player_3);
-			buttons_created = false;
-		}
-	}	
-	error:	
-	return;
-}
 
 /* Function: display_run_result
  * 	
