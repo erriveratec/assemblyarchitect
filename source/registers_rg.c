@@ -538,7 +538,7 @@ operand_t *rg_create_register_operand_by_id(int id)
 	int register_text_w = get_text_width_fits_height(REG_TEXT_H, REGISTER_TEXT);
 	int x = 0;
 	int y = 0;
-	button_t *b = create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H,
+	button_t *b = bt_create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H,
 								true, false, reg_text);
 	check_mem(b);
 
@@ -589,7 +589,7 @@ void rg_add_register_to_list(int id)
 	int y = register_box.y + REG_BOX_OFFSET + list_size*2*(CODE_BUTTON_H + 5) +
 		    REG_TEXT_H + CODE_BUTTON_H;
 	
-	button_t *b = create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H,true, false,
+	button_t *b = bt_create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H,true, false,
 																	  reg_text);
 	check_mem(b);
 
@@ -776,7 +776,7 @@ operand_t *rg_create_operand_of_selected_register()
 									bt_check_mouse_released_button(&b) == true){
 			
 			texture_t *t = cl_create_operand_texture(c->id);
-			button_t *b = create_button(c->b->x, c->b->y, c->b->w, c->b->h, 
+			button_t *b = bt_create_button(c->b->x, c->b->y, c->b->w, c->b->h, 
 							  	c->b->active, c->b->rectangle, t);
 
 			o = malloc(sizeof(operand_t));

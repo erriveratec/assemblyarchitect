@@ -116,8 +116,8 @@ void cw_update_saved_jump_instructions()
 			assert(cw_check_if_in_code_list(jmp_addr) == true && "Instruction"
 				   "not present in code list");
 			c->op1 = create_updated_jump_operand(jmp_addr);
-			c->op1->b->x = c->ins->b->x + OP1_X_OFFSET;
-			c->op1->b->y = c->ins->b->y;
+			c->op1->b->box.x = c->ins->b->box.x + OP1_X_OFFSET;
+			c->op1->b->box.y = c->ins->b->box.y;
 		}
 	}
 error:
@@ -146,9 +146,9 @@ static operand_t *create_saved_jump_operand(int op1_id)
 	strcpy(op_text, line_text);
 	texture_t *t = dw_create_text_texture(op_text, COLOR_WHITE);
 
-	int x = 0;
-	int y = 0;
-	b->b = create_button(x, y, ADDR_BUTTON_W, CODE_BUTTON_H, false, false, t);
+	SDL_Rect r = {.x = 0, .y = 0, .w = ADDR_BUTTON_W, .h = CODE_BUTTON_H};
+	b->b = bt_create_button(r, false, false, false, COLOR_BLACK, 
+							COLOR_WHITE, t);
 
 	b->id = op1_id;
 	free(line_text);
@@ -186,9 +186,9 @@ static operand_t *create_updated_jump_operand(code_line_t *jmp_addr)
 	strcat(op_text, line_text);
 	texture_t *t = dw_create_text_texture(op_text, COLOR_WHITE);
 
-	int x = 0;
-	int y = 0;
-	op->b = create_button(x, y, ADDR_BUTTON_W, CODE_BUTTON_H, false, false, t);
+	SDL_Rect r = {.x = 0, .y = 0, .w = ADDR_BUTTON_W, .h = CODE_BUTTON_H};
+	op->b = bt_create_button(r, false, false, false, COLOR_BLACK, 
+							 COLOR_WHITE, t);
 	op->id = get_code_line_pos_by_ptr(jmp_addr);
 	op->jptr = jmp_addr;
 
@@ -270,7 +270,7 @@ operand_t *cw_create_jump_operand()
 
 	int x = 0;
 	int y = 0;
-	op->b = create_button(x, y, ADDR_BUTTON_W, CODE_BUTTON_H, false, false, t);
+	op->b = bt_create_button(x, y, ADDR_BUTTON_W, CODE_BUTTON_H, false, false, t);
 	op->id = get_code_line_pos_by_ptr(addr);
 	op->jptr = addr;
 
@@ -407,7 +407,7 @@ static operand_t *create_saved_label_operand(int op1_id)
 
 	int x = 0;
 	int y = 0;
-	b->b = create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H, false, false, t);
+	b->b = bt_create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H, false, false, t);
 
 	b->id = op1_id;
 
@@ -445,7 +445,7 @@ static operand_t *create_label_operand(code_line_t *line)
 
 	int x = 0;
 	int y = 0;
-	b->b = create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H, false, false, t);
+	b->b = bt_create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H, false, false, t);
 
 	b->id = label;
 
@@ -624,7 +624,7 @@ void cw_add_saved_line(char *line)
 		y += CODE_BUTTON_H;
 	}
 
-	button_t *b = create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H,
+	button_t *b = bt_create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H,
 								true, false, instruction_tex);
 	check_mem(b);
 	instruction_t *new_ins = cl_create_instruction(ins_id, b);

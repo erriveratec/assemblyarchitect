@@ -7,40 +7,39 @@
 #include "mouse_ms.h"
 
 
-/* Function: create_button
+/* Function: bt_create_button
  * -----------------------------------------------------------------------------
  * This function is used to create a button object, it receives as 
  * arguments the parameters of the button. The scale of the texture is 
  * calculated based on the parameters of widht and height
  * 	
  * Arguments:
- *	x: position x
- *	y: position y
- *	w: width
- *	h: height
+ *	b: box with x, y, w, h
  *	act: boolean with info if the button is in a stae.
  *  rect: boolean that determines if a rectangle is draw around the button.	
+ *	fill: boolean that determines if drawing the rectangle is filles
  *  in: inside color of the button. 
  *  out: outside color of the button.
+ *	t: texture of the button.
  *
  * Return:
  *	Pointer to the button object
  */
-button_t *create_button(int x, int y, int w, int h, bool act, bool rect, 
- 						texture_t *t)
+button_t *bt_create_button(SDL_Rect box, bool act, bool rect, int fill, 
+									  SDL_Color in , SDL_Color out,texture_t *t)
 {
 	button_t *new_button = malloc(sizeof(button_t));
 
-	new_button->x = x;
-	new_button->y = y;
-	new_button->w = w;
-	new_button->h = h;
-	new_button->active = active;
-	new_button->rectangle = rectangle;
+	new_button->box = box;
+	new_button->act = act;
+	new_button->rect = rect;
+	new_button->fill = fill;
+	new_button->in = in;
+	new_button->out = out;
 
-	float scale_w = (float)w/texture->w;
-	float scale_h = (float)h/texture->h;
-	new_button->texture = texture;
+	float scale_w = (float)box.w/t->w;
+	float scale_h = (float)box.h/t->h;
+	new_button->t = t;
 	
 	return new_button;
 }
@@ -61,20 +60,23 @@ void bt_draw_button(button_t *b)
 	assert(b != NULL && "The button pointer is NULL");
 	
 	int status = SUCCESS;	
-
-	dw_draw_filled_rectangle(b->x, b->y, b->w, b->h, b->in, b->in);
-	if (b->rectangle == true){
-		dw_draw_rectangle(b->x, b->y, b->w, b->h, b->out);
+	
+	if (b->fill == true){
+		dw_draw_filled_rectangle(b->box.x, b->box.y, b->box.w, b->box.h, 
+																  b->in, b->in);
+	}
+	if (b->rect == true){
+		dw_draw_rectangle(b->box.x, b->box.y, b->box.w, b->box.h, b->out);
 	}
 	
-	float scale_w = (float)b->w/b->texture->w;
-	float scale_h = (float)b->h/b->texture->h;
+	float scale_w = (float)b->box.w/b->t->w;
+	float scale_h = (float)b->box.h/b->t->h;
 	if (scale_w < scale_h){
-		int y = b->y + (b->h - b->texture->h*scale_w)/2;
-		dw_draw_texture_fits_width(b->x, y, b->w, b->texture);
+		int y = b->box.y + (b->box.h - b->t->h*scale_w)/2;
+		dw_draw_texture_fits_width(b->box.x, y, b->box.w, b->t);
 	} else {
-		int x = b->x + (b->w - b->texture->w*scale_h)/2;
-		dw_draw_texture_fits_height(x, b->y, b->h, b->texture);
+		int x = b->box.x + (b->box.w - b->t->w*scale_h)/2;
+		dw_draw_texture_fits_height(x, b->box.y, b->box.h, b->t);
 	}
 	assert(status != FAIL && "The texture could not be drawn");
 }
@@ -93,12 +95,9 @@ void bt_draw_button(button_t *b)
  *	void
  *
  */
-void assign_button_parameters(int x, int y, int w, int h, button_t *b)
+void assign_button_parameters(SDL_Rect r, button_t *b)
 {
-	b->x = x;
-	b->y = y;
-	b->w = w;
-	b->h = h;
+	b->box = r;
 }
 
 /* Function: bt_check_mouse_click_in_button
@@ -122,10 +121,12 @@ bool bt_check_mouse_click_button(button_t *button)
 	int mouse_left_pressed = ms_chk_mouse_left_pressed();
 
 	bool clicked_in_button;
-	if (mouse_left_pressed == false || button->active == false){
+	if (mouse_left_pressed == false || button->act == false){
 		clicked_in_button = false;
-	} else if (mouse_x > button->x && mouse_x < (button->x + button->w) &&
-		mouse_y > button->y && mouse_y < (button->y + button->h)){
+	} else if (mouse_x > button->box.x && 
+			   mouse_x < (button->box.x + button->box.w) && 
+			   mouse_y > button->box.y && 
+			   mouse_y < (button->box.y + button->box.h)){
 		clicked_in_button = true;
 	} else {
 		clicked_in_button = false;
@@ -154,8 +155,8 @@ bool bt_check_mouse_released_button(button_t *button)
 		return false;
 	}
 
-	if (mouse_x > button->x && mouse_x < (button->x + button->w) &&
-		mouse_y > button->y && mouse_y < (button->y + button->h)) {
+	if (mouse_x > button->box.x && mouse_x < (button->box.x + button->box.w) &&
+		mouse_y > button->box.y && mouse_y < (button->box.y + button->box.h)){
 		return true;
 	} else {
 		return false;
@@ -177,16 +178,16 @@ bool bt_check_mouse_released_button(button_t *button)
 button_t *bt_copy_button(button_t *b)
 {
 	button_t *copied_button = malloc(sizeof(button_t));
-	copied_button->x = b->x;
-	copied_button->y = b->y;
-	copied_button->w = b->w;
-	copied_button->h = b->h;
-	copied_button->active = b->active;
-	copied_button->rectangle = b->rectangle;
-	copied_button->texture = malloc(sizeof(texture_t));
-	copied_button->texture->w = b->texture->w;
-	copied_button->texture->h = b->texture->h;
-	copied_button->texture->texture = b->texture->texture;
+	copied_button->box = b->box;
+	copied_button->act = b->act;
+	copied_button->rect = b->rect;
+	copied_button->fill = b->fill;
+	copied_button->in = b->in;
+	copied_button->out = b->out;
+	copied_button->t = malloc(sizeof(texture_t));
+	copied_button->t->w = b->t->w;
+	copied_button->t->h = b->t->h;
+	copied_button->t->texture = b->t->texture;
 	
 	return copied_button;
 }
@@ -204,7 +205,7 @@ button_t *bt_copy_button(button_t *b)
  */
 void bt_destroy_button(button_t *b)
 {
-	SDL_DestroyTexture(b->texture->texture);
-	free(b->texture);
+	SDL_DestroyTexture(b->t->texture);
+	free(b->t);
 	free(b);
 }

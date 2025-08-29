@@ -21,6 +21,7 @@ SDL_Rect dm_get_escape_menu_box();
 SDL_Rect dm_get_escape_b1_box();
 SDL_Rect dm_get_escape_b2_box();
 SDL_Rect dm_get_escape_b3_box();
+SDL_Rect dm_get_code_button_box();
 
 /*******************************RESOLUTION*************************************/
 #define SCREEN_WIDTH 1600

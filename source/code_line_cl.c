@@ -90,8 +90,8 @@ bool cl_operands_are_registers(code_line_t *line)
 code_line_t *cl_new_code_line(instruction_t *ins)
 {
 	texture_t *t = cl_create_instruction_texture(ins->id);	
-	button_t *b = create_button(ins->b->x, ins->b->y, ins->b->w, ins->b->h, 
-							  	ins->b->active, ins->b->rectangle, t);
+	button_t *b = bt_create_button(ins->b->box, ins->b->act, ins->b->rect,
+								   ins->b->fill, ins->b->in, ins->b->out, t);
 
 	instruction_t *i = cl_create_instruction(ins->id, b);
 	code_line_t *new = cl_create_code_line(i);
@@ -639,14 +639,14 @@ void cl_assign_operand_to_line(operand_t *op, code_line_t *line)
 	switch(line->state){
 		case MISSING_BOTH:
 			line->op1 = op;
-			line->op1->b->x = line->ins->b->x + OP1_X_OFFSET;
-			line->op1->b->y = line->ins->b->y;
+			line->op1->b->box.x = line->ins->b->box.x + OP1_X_OFFSET;
+			line->op1->b->box.y = line->ins->b->box.y;
 			line->state = MISSING_OP2;
 			break;
 		case MISSING_OP1:
 			line->op1 = op;
-			line->op1->b->x = line->ins->b->x + OP1_X_OFFSET;
-			line->op1->b->y = line->ins->b->y;
+			line->op1->b->box.x = line->ins->b->box.x + OP1_X_OFFSET;
+			line->op1->b->box.y = line->ins->b->box.y;
 			if (operand_quantity == ONE_OPERAND){
 				line->state = COMPLETE;
 			} else {
@@ -655,22 +655,22 @@ void cl_assign_operand_to_line(operand_t *op, code_line_t *line)
 			break;
 		case MISSING_OP2:
 			line->op2 = op;
-			line->op2->b->x = line->ins->b->x + OP2_X_OFFSET;
-			line->op2->b->y = line->ins->b->y;
+			line->op2->b->box.x = line->ins->b->box.x + OP2_X_OFFSET;
+			line->op2->b->box.y = line->ins->b->box.y;
 			line->state = COMPLETE;
 			break;
 		case CHANGING_OP1:
 			cl_destroy_operand(line->op1);	
 			line->op1 = op;
-			line->op1->b->x = line->ins->b->x + OP1_X_OFFSET;
-			line->op1->b->y = line->ins->b->y;
+			line->op1->b->box.x = line->ins->b->box.x + OP1_X_OFFSET;
+			line->op1->b->box.y = line->ins->b->box.y;
 			line->state = COMPLETE;
 			break;
 		case CHANGING_OP2:
 			cl_destroy_operand(line->op2);	
 			line->op2 = op;
-			line->op2->b->x = line->ins->b->x + OP2_X_OFFSET;
-			line->op2->b->y = line->ins->b->y;
+			line->op2->b->box.x = line->ins->b->box.x + OP2_X_OFFSET;
+			line->op2->b->box.y = line->ins->b->box.y;
 			line->state = COMPLETE;
 			break;
 		case COMPLETE:

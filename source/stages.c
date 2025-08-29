@@ -101,15 +101,15 @@ int stage_select_player()
 		check_mem(b3_texture);
 		
 		SDL_Rect b = dm_get_p1_button_box();
-		player_1 = create_button(b.x, b.y, b.h, b.w, true, true, b1_texture);
+		player_1 = bt_create_button(b.x, b.y, b.h, b.w, true, true, b1_texture);
 		check_mem(player_1);
 		
 		b = dm_get_p2_button_box();
-		player_2 = create_button(b.x, b.y, b.h, b.w, true, true, b2_texture);
+		player_2 = bt_create_button(b.x, b.y, b.h, b.w, true, true, b2_texture);
 		check_mem(player_2);
 
 		b = dm_get_p3_button_box();
-		player_3 = create_button(b.x, b.y, b.h, b.w, true, true, b3_texture);
+		player_3 = bt_create_button(b.x, b.y, b.h, b.w, true, true, b3_texture);
 		check_mem(player_3);
 	}
 	SDL_Rect b = dm_get_select_player_box();
@@ -358,13 +358,13 @@ static void create_select_level_buttons(button_t **buttons, bool *levels)
 		if (levels[i-1] == true){
 			button_texture = dw_create_text_texture(button_text, 
 							 COLOR_WHITE);
-			buttons[i-1] = create_button(x, y, SEL_LEVEL_BUTTON_W, 
+			buttons[i-1] = bt_create_button(x, y, SEL_LEVEL_BUTTON_W, 
 									 SEL_LEVEL_BUTTON_H, true, true, 
 									 button_texture);
 		} else {
 			button_texture = dw_create_text_texture(button_text, 
 							 COLOR_GREY);
-			buttons[i-1] = create_button(x, y, SEL_LEVEL_BUTTON_W, 
+			buttons[i-1] = bt_create_button(x, y, SEL_LEVEL_BUTTON_W, 
 									 SEL_LEVEL_BUTTON_H, false, true, 
 									 button_texture);
 		}
@@ -728,7 +728,7 @@ static int display_run_result(bool win_check)
 			texture_t *con_texture = dw_create_text_texture(
 									 STR_CONT, COLOR_WHITE);
 			check_mem(con_texture);
-			con = create_button(WIN_MENU_BUTTON2_X, WIN_MENU_BUTTON_Y, 
+			con = bt_create_button(WIN_MENU_BUTTON2_X, WIN_MENU_BUTTON_Y, 
 			        CONT_BUTTON_W, BACK_CONT_BUTTON_H, true, true, con_texture);
 			check_mem(con);
 
@@ -741,7 +741,7 @@ static int display_run_result(bool win_check)
 								 STR_BACK, COLOR_WHITE);
 		check_mem(ret_texture);
 		
-		ret = create_button(back_x, WIN_MENU_BUTTON_Y, 
+		ret = bt_create_button(back_x, WIN_MENU_BUTTON_Y, 
 					BACK_BUTTON_W, BACK_CONT_BUTTON_H, true, true, ret_texture);
 		check_mem(ret);
 	} 

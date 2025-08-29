@@ -57,17 +57,17 @@ void init_escape_menu()
 	check_mem(g_escape_b3_texture);
 	
 	SDL_Rect b = dm_get_escape_b1_box();
-	g_escape_b1 = create_button(b.x, b.y, b.w, b.h, true, true, 
+	g_escape_b1 = bt_create_button(b.x, b.y, b.w, b.h, true, true, 
 														   g_escape_b1_texture);
 	check_mem(g_escape_b1);
 
 	b = dm_get_escape_b2_box();
-	g_escape_b2 = create_button(b.x, b.y, b.w, b.h, true, true, 
+	g_escape_b2 = bt_create_button(b.x, b.y, b.w, b.h, true, true, 
 														   g_escape_b2_texture);
 	check_mem(g_escape_b2);
 	
 	b = dm_get_escape_b3_box();
-	g_escape_b3 = create_button(b.x, b.y, b.w, b.h, true, true, 
+	g_escape_b3 = bt_create_button(b.x, b.y, b.w, b.h, true, true, 
 														   g_escape_b3_texture);
 	check_mem(g_escape_b3);
 	error:
@@ -286,7 +286,7 @@ void sb_initialize_return_button()
 {
 	if (ret_button == NULL){
 		ret_button = malloc(sizeof(button_t));
-		ret_button = create_button(RET_BUTTON_X, RET_BUTTON_Y, RET_BUTTON_W, 
+		ret_button = bt_create_button(RET_BUTTON_X, RET_BUTTON_Y, RET_BUTTON_W, 
 									  RET_BUTTON_H, true, true, return_button);
 	}
 	return;
@@ -302,21 +302,21 @@ void sb_initialize_return_button()
 void sb_initialize_stage_buttons()
 {
 	stop = malloc(sizeof(button_t));
-	stop = create_button(STAGE_BUTTON_X, STAGE_BUTTON_HIDDEN_Y,STAGE_BUTTON_W, 
+	stop = bt_create_button(STAGE_BUTTON_X, STAGE_BUTTON_HIDDEN_Y,STAGE_BUTTON_W, 
 						 STAGE_BUTTON_H, true, false, stop_button);
 
 	step_back = malloc(sizeof(button_t));
-	step_back = create_button(STAGE_BUTTON_X + STAGE_BUTTON_W + BUTTONS_SPACE, 
+	step_back = bt_create_button(STAGE_BUTTON_X + STAGE_BUTTON_W + BUTTONS_SPACE, 
 							  STAGE_BUTTON_HIDDEN_Y, STAGE_BUTTON_W, 
 							  STAGE_BUTTON_H, true, false, step_back_button);
 
 	play = malloc(sizeof(button_t));
-	play = create_button(STAGE_BUTTON_X + 2*STAGE_BUTTON_W + 2*BUTTONS_SPACE, 
+	play = bt_create_button(STAGE_BUTTON_X + 2*STAGE_BUTTON_W + 2*BUTTONS_SPACE, 
 						 STAGE_BUTTON_HIDDEN_Y, STAGE_BUTTON_W, STAGE_BUTTON_H, 
 						 true, false, play_button);
 
 	step_forward = malloc(sizeof(button_t));
-	step_forward = create_button(STAGE_BUTTON_X + 3*STAGE_BUTTON_W + 
+	step_forward = bt_create_button(STAGE_BUTTON_X + 3*STAGE_BUTTON_W + 
 								 3*BUTTONS_SPACE, STAGE_BUTTON_HIDDEN_Y, 
 								 STAGE_BUTTON_W, STAGE_BUTTON_H, true, false, 
 								 step_forward_button);

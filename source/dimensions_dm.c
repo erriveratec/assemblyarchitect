@@ -17,6 +17,26 @@ int g_screen_height;
 
 int scale_to_resolution(int dim);
 
+/* Function: dm_get_code_button_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object, x and y are initialize at 0
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_code_button_box()
+{
+	SDL_Rect b;
+	b.w = scale_to_resolution(CODE_BUTTON_W);
+	b.h = scale_to_resolution(CODE_BUTTON_H);
+	b.x = 0;
+	b.y = 0;
+	return b;
+}
+
 
 /* Function: dm_get_escape_menu_box
  * -----------------------------------------------------------------------------

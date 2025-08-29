@@ -10,24 +10,21 @@
 #include "mouse_ms.h"
 
 typedef struct button_t{
-	int x;
-	int y;
-	int w;
-	int h;
-	bool active;
-	bool rectangle;
-	bool filled;
+	SDL_Rect box;
+	bool act;
+	bool rect;
+	bool fill;
 	SDL_Color in;
 	SDL_Color out;
-	texture_t *texture;
+	texture_t *t;
 } button_t;
 
-button_t *create_button(int x, int y, int w, int h, bool act, bool rect, 
- 									texture_t *t, SDL_Color in , SDL_Color out);
+button_t *bt_create_button(SDL_Rect b, bool act, bool rect, int fill, 
+									 SDL_Color in , SDL_Color out,texture_t *t);
 void bt_draw_button(button_t *button);
 bool bt_check_mouse_click_button(button_t *button);
 bool bt_check_mouse_released_button(button_t *button);
-void assign_button_parameters(int x, int y, int w, int h, button_t *b);
+void assign_button_parameters(SDL_Rect r, button_t *b);
 button_t *bt_copy_button(button_t *b);
 void bt_destroy_button(button_t *b);
 #endif

@@ -202,7 +202,7 @@ bool mc_invalid_operation_handler(int id)
 		int x = RES_BOX_X + RES_BOX_W/2 - BACK_BUTTON_W/2;
 		int y = RES_BOX_Y + RES_BOX_H - BACK_CONT_BUTTON_H - 
 													 RES_BOX_TEXT_BORDER_OFFSET;
-		ret = create_button(x, y, BACK_BUTTON_W, BACK_CONT_BUTTON_H, true, true, 
+		ret = bt_create_button(x, y, BACK_BUTTON_W, BACK_CONT_BUTTON_H, true, true, 
 																   ret_texture);
 		check_mem(ret);
 	} 
