@@ -72,28 +72,26 @@ void dw_draw_rotated_texture_fits_h(int x, int y, int h, double angle,
  * Draws a texture scaling it correctly to a given height
  * 
  * Arguments:
- *	x: position x of the texture.
- *	y: position y of the texture.
- *	h: height to which the texture will be scaled proporcionally.
+ *	r: rectangle position of the texture, height value will be used
  *	t: texture object that is going to be drawn.
  *
  * Return:
  *	SUCCESS or FAIL
  */
-int dw_draw_texture_fits_height(int x, int y, int h, texture_t *t)
+int dw_draw_texture_fits_height(SDL_Rect r, texture_t *t)
 {
-	assert(h >= 0 && "The height value is invalid");
+	assert(r.h > 0 && "The height value is invalid");
 	assert(t != NULL && "The texture pointer cannot be NULL");
 
 	// The scaling of the image resolution
-	float w = (float) (t->w * h)/t->h;
+	float w = (float) (t->w * r.h)/t->h;
 
 	SDL_Rect d;
 
-	d.x = x;
-	d.y = y;
+	d.x = r.x;
+	d.y = r.y;
 	d.w =(int)w;
-	d.h = h;
+	d.h = r.h;
 	
 	if (SDL_RenderCopy(g_renderer, t->texture, NULL, &d) < 0){
 		printf("Texture could not be copied SDL_Error: %s\n", 
@@ -108,27 +106,25 @@ int dw_draw_texture_fits_height(int x, int y, int h, texture_t *t)
  * Draws a texture scaling it correctly to a given height
  * 
  * Arguments:
- *	x: position x of the texture.
- *	y: position y of the texture.
- *	s: scaling factor of the texture.
+ *	r: rectangle position of the texture, width value will be used
  *	t: texture object that is going to be drawn.
  *
  * Return:
  *	SUCCESS or FAIL
  */
-int dw_draw_texture_fits_width(int x, int y, int w, texture_t *t)
+int dw_draw_texture_fits_width(SDL_Rect r, texture_t *t)
 {
-	assert(w >= 0 && "The width value is invalid");
+	assert(r.w > 0 && "The width value is invalid");
 	assert(t != NULL && "The texture pointer cannot be NULL");
 
 	// The scaling of the image resolution
-	float h = (float) (t->h * w)/t->w;
+	float h = (float) (t->h * r.w)/t->w;
 
 	SDL_Rect d;
 
-	d.x = x;
-	d.y = y;
-	d.w = w;
+	d.x = r.x;
+	d.y = r.y;
+	d.w = r.w;
 	d.h = (int)h;
 	
 	if (SDL_RenderCopy(g_renderer, t->texture, NULL, &d) < 0){
@@ -479,9 +475,9 @@ void dw_draw_text_fits_width(int x, int y, int w, SDL_Color color, char *text)
  * Return:
  *	Void
  */
-void dw_draw_rectangle(int x, int y, int w, int h, SDL_Color c)
+void dw_draw_rectangle(SDL_Rect r, SDL_Color c)
 {
-	SDL_Rect rect = {x,y,w,h};
+	SDL_Rect rect = r;
 	SDL_SetRenderDrawColor(g_renderer, c.r, c.g, c.b, c.a);
 	SDL_RenderDrawRect(g_renderer, &rect);
 	SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);

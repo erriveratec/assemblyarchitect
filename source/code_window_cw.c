@@ -1306,8 +1306,7 @@ void cw_draw_code_window()
 					  text_box.h, TEXT_BOX_HEIGHT, C_WHITE, challenge_text);
 
 	// Text rectangle
-	dw_draw_rectangle(text_box.x, text_box.y, text_box.w, text_box.h, 
-	               C_WHITE);
+	dw_draw_rectangle(text_box, C_WHITE);
 	
 	// Adjust the height of the code box
 	code_box_height_adjust();
@@ -1316,8 +1315,7 @@ void cw_draw_code_window()
 		adjust_code_box_position();
 	}
 	// Draw the rectangle of the code and instructions
-	dw_draw_rectangle(code_box.x, code_box.y, code_box.w, code_box.h, 
-				   C_WHITE);
+	dw_draw_rectangle(code_box, C_WHITE);
 
 	// Text of the level
 	dw_draw_text_fits_height(code_box.x + CODE_BOX_OFFSET, 
@@ -1915,13 +1913,16 @@ void cw_highlight_code_pending_operand()
 
 	if (MISSING_BOTH == line->state || MISSING_OP1 == line->state ||
 		CHANGING_OP1 == line->state){
-		
-		dw_draw_rectangle(line->ins->b->r.x+OP1_X_OFFSET, line->ins->b->r.y,
-				   	   line->ins->b->r.w, line->ins->b->r.h, C_WHITE);
+		SDL_Rect r = {.x = line->ins->b->r.x+OP1_X_OFFSET, 
+					  .y = line->ins->b->r.y, .w = line->ins->b->r.w, 
+					  .h = line->ins->b->r.h};
+		dw_draw_rectangle(r, C_WHITE);
 
 	} else if (MISSING_OP2 == line->state || CHANGING_OP2 == line->state){
-		dw_draw_rectangle(line->ins->b->r.x+OP2_X_OFFSET, line->ins->b->r.y,
-				   	   line->ins->b->r.w, line->ins->b->r.h, C_WHITE);
+		SDL_Rect r = {.x = line->ins->b->r.x+OP2_X_OFFSET, 
+					  .y = line->ins->b->r.y, .w = line->ins->b->r.w, 
+					  .h = line->ins->b->r.h};
+		dw_draw_rectangle(r, C_WHITE);
 
 	}
 error:

@@ -9,7 +9,7 @@
 void tx_text_box(int pos, char *msg);
 void tx_update_assets();
 int tx_get_text_box_member(int text_box_id, int member);
-
+void tx_create_level_text_texture(int level_id);
 
 
 enum text_box_positions{
@@ -38,7 +38,6 @@ enum text_box_positions{
 #define BIG_MSG_BOX_H (SCREEN_HEIGHT/2)
 #define BIG_MSG_BOX_X (SCREEN_WIDTH/2 - BIG_MSG_BOX_H/2)
 #define BIG_MSG_BOX_Y (SCREEN_HEIGHT/4)
-
 
 #define BIG_MSG_TEXT_H 50
 #define ERROR_BOX_Y_OFFSET 60

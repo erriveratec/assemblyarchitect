@@ -65,17 +65,19 @@ void bt_draw_button(button_t *b)
 		dw_draw_filled_rectangle(b->r, b->in, b->in);
 	}
 	if (b->rect == true){
-		dw_draw_rectangle(b->r.x, b->r.y, b->r.w, b->r.h, b->out);
+		dw_draw_rectangle(b->r, b->out);
 	}
 	
 	float scale_w = (float)b->r.w/b->t->w;
 	float scale_h = (float)b->r.h/b->t->h;
 	if (scale_w < scale_h){
 		int y = b->r.y + (b->r.h - b->t->h*scale_w)/2;
-		dw_draw_texture_fits_width(b->r.x, y, b->r.w, b->t);
+		SDL_Rect r = {.x = b->r.x, .y = y, .w = b->r.w};
+		dw_draw_texture_fits_width(r, b->t);
 	} else {
 		int x = b->r.x + (b->r.w - b->t->w*scale_h)/2;
-		dw_draw_texture_fits_height(x, b->r.y, b->r.h, b->t);
+		SDL_Rect r = {.x = x, .y = b->r.y, .h = b->r.h};
+		dw_draw_texture_fits_height(r, b->t);
 	}
 	assert(status != FAIL && "The texture could not be drawn");
 }

@@ -14,6 +14,7 @@ SDL_Rect dm_get_studio_name_box();
 SDL_Rect dm_get_game_title_box();
 SDL_Rect dm_get_press_space_box();
 SDL_Rect dm_get_select_player_box();
+SDL_Rect dm_get_select_level_box();
 SDL_Rect dm_get_p1_button_box();
 SDL_Rect dm_get_p2_button_box();
 SDL_Rect dm_get_p3_button_box();
@@ -22,6 +23,8 @@ SDL_Rect dm_get_escape_b1_box();
 SDL_Rect dm_get_escape_b2_box();
 SDL_Rect dm_get_escape_b3_box();
 SDL_Rect dm_get_code_button_box();
+SDL_Rect dm_get_level_button_box();
+int get_sel_level_offset_y();
 
 /*******************************RESOLUTION*************************************/
 #define SCREEN_WIDTH 1600
@@ -51,14 +54,6 @@ SDL_Rect dm_get_code_button_box();
 
 
 /******************************SELECT LEVEL SCREEN*****************************/
-#define SEL_LEVEL_TEXT "Select level"
-#define SEL_LEVEL_TEXT_W 500
-#define SEL_LEVEL_TEXT_X (SCREEN_WIDTH - SEL_LEVEL_TEXT_W)/2
-#define SEL_LEVEL_TEXT_Y 25
-#define SEL_LEVEL_BUTTON_Y 150
-#define SEL_LEVEL_BUTTON_W 100
-#define SEL_LEVEL_BUTTON_H 50
-#define SEL_LEVEL_BUTTON_X (SCREEN_WIDTH - (5*SEL_LEVEL_BUTTON_W))/6
 #define SEL_LEVEL_OFFSET_X 200
 #define SEL_LEVEL_OFFSET_Y 75
 

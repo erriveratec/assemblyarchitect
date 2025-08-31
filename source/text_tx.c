@@ -22,8 +22,25 @@ SDL_Rect g_big_box = {BIG_MSG_BOX_X, BIG_MSG_BOX_Y, BIG_MSG_BOX_W,
 SDL_Rect g_error_box = {ERROR_MSG_BOX_X, ERROR_MSG_BOX_Y, MSG_BOX_W, 
 															 		 MSG_BOX_H};
 
-
 static int get_box_member(SDL_Rect *box, int member);
+
+
+/* Function: tx_create_level_text_texture
+ * -----------------------------------------------------------------------------
+ * Creates the requiered text textures for a level
+ * 
+ * Arguments:
+ *	level_id: identifie of the level of which the textures will be created
+ *	
+ * Return:
+ *	
+ */
+void tx_create_level_text_texture(int level_id)
+{
+
+
+}
+
 
 /* Function: get_box_member
  * -----------------------------------------------------------------------------

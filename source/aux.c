@@ -72,8 +72,7 @@ void ax_draw_value_box(value_box_t *box, SDL_Color color){
 	dw_draw_text_fits_height(box->box.x + x_offset, box->box.y + y_offset, 
 						 VALUE_H, C_WHITE, text);
 	int box_offset = VALUE_H/6;
-	dw_draw_rectangle(box->box.x, box->box.y, box->box.w , box->box.h, 
-				   color);
+	dw_draw_rectangle(box->box, color);
 }
 
 /* Function: get_text_height_fits_width

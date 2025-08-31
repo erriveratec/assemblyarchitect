@@ -9,6 +9,8 @@
 #define ESC_MENU_BOX_H 300
 #define ESC_MENU_BUTTON_W 500
 #define ESC_MENU_BUTTON_H 60
+#define SEL_LEVEL_BUTTON_W 100
+#define SEL_LEVEL_BUTTON_H 50
 
 
 int g_res_id;
@@ -16,6 +18,85 @@ int g_screen_width;
 int g_screen_height;
 
 int scale_to_resolution(int dim);
+
+/* Function: dm_get_sel_level_offset_y
+ * -----------------------------------------------------------------------------
+ * Returns the offset for the sel level buttons
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset for the sel level buttons
+ */
+int get_sel_level_offset_y()
+{
+	int y_offset =  scale_to_resolution(SEL_LEVEL_BUTTON_H + 
+										0.5*SEL_LEVEL_BUTTON_H);
+	return y_offset;
+	
+}
+
+/* Function: dm_get_level_button_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object, x and y are initialize at 0
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_level_button_box()
+{
+	SDL_Rect b;
+	b.w = scale_to_resolution(SEL_LEVEL_BUTTON_W);
+	b.h = scale_to_resolution(SEL_LEVEL_BUTTON_H);
+	b.x = (g_screen_width - (5*b.w))/6;
+	b.y = g_screen_height/6;
+	return b;
+}
+/* Function: dm_get_select_level_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object.
+ */
+SDL_Rect dm_get_select_level_box()
+{
+	const int texture_w = 700;
+	SDL_Rect b;
+	b.w = scale_to_resolution(texture_w);
+	b.h = 0;
+	b.x = (g_screen_width -  b.w)/2;
+	b.y = g_screen_height/36;
+	return b;
+}
+
+/* Function: dm_get_select_player_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object.
+ */
+SDL_Rect dm_get_select_player_box()
+{
+	const int texture_h = 90;
+	SDL_Rect b;
+	b.h = scale_to_resolution(texture_h);
+	b.x = g_screen_width/32;
+	b.y = g_screen_height/36;
+	b.w = 0;
+	return b;
+}
 
 /* Function: dm_get_code_button_box
  * -----------------------------------------------------------------------------
@@ -184,27 +265,6 @@ SDL_Rect dm_get_p3_button_box()
 	b.y = g_screen_height/3;
 	return b;
 }
-/* Function: dm_get_select_player_box
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object.
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object.
- */
-SDL_Rect dm_get_select_player_box()
-{
-	const int texture_h = 90;
-	SDL_Rect b;
-	b.h = scale_to_resolution(texture_h);
-	b.x = g_screen_width/32;
-	b.y = g_screen_height/36;
-	b.w = 0;
-	return b;
-}
-
 /* Function: dm_get_press_space_box
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object.

@@ -20,6 +20,8 @@
 
 #define STUDIO_SCREEN_DELAY 1000 // 1 sec
 
+#define SELECT_PLAYER_TEXT "Which hacker are you?"
+
 #define PLAYER_1_TEXT "HACKER W"
 #define PLAYER_2_TEXT "HACKER X"
 #define PLAYER_3_TEXT "HACKER Y"
@@ -53,7 +55,6 @@ static SDL_Rect result_box;
 texture_t *g_studio_name = NULL;
 texture_t *g_game_title = NULL;
 texture_t *g_press_space = NULL;
-texture_t *g_select_player = NULL;
 
 
 void stage_drawings(int level, bool holding_line, bool play);
@@ -78,6 +79,7 @@ static void initialize_stage_assets();
  */
 int stage_select_player()
 {
+	static texture_t *select_player = NULL;
 	static bool buttons_created = false;
 	static button_t *player_1;
 	static button_t *player_2;
@@ -87,17 +89,15 @@ int stage_select_player()
 
 	if (buttons_created == false){
 	
-		g_select_player = dw_create_text_texture(SELECT_PLAYER_TEXT, 
-																   C_WHITE);
 		buttons_created = true;
-		texture_t *b1_texture = dw_create_text_texture(PLAYER_1_TEXT, 
-								C_BLACK);
+		
+		select_player = dw_create_text_texture(SELECT_PLAYER_TEXT, C_WHITE);
+		
+		texture_t *b1_texture = dw_create_text_texture(PLAYER_1_TEXT, C_BLACK);
 		check_mem(b1_texture);
-		texture_t *b2_texture = dw_create_text_texture(PLAYER_2_TEXT, 
-								C_BLACK);
+		texture_t *b2_texture = dw_create_text_texture(PLAYER_2_TEXT, C_BLACK);
 		check_mem(b2_texture);
-		texture_t *b3_texture = dw_create_text_texture(PLAYER_3_TEXT, 
-								C_BLACK);
+		texture_t *b3_texture = dw_create_text_texture(PLAYER_3_TEXT, C_BLACK);
 		check_mem(b3_texture);
 		
 		SDL_Rect b = dm_get_p1_button_box();
@@ -116,7 +116,7 @@ int stage_select_player()
 		check_mem(player_3);
 	}
 	SDL_Rect b = dm_get_select_player_box();
-	dw_draw_texture_fits_height(b.x, b.y, b.h, g_select_player);
+	dw_draw_texture_fits_height(b, select_player);
 	
 	bt_draw_button(player_1);
 	bt_draw_button(player_2);
@@ -161,10 +161,10 @@ int stage_title(const Uint8 *keystate)
 {
 	int ret_val;
 	SDL_Rect t = dm_get_game_title_box();
-	dw_draw_texture_fits_width(t.x, t.y, t.w, g_game_title);
+	dw_draw_texture_fits_width(t, g_game_title);
 
 	SDL_Rect s = dm_get_press_space_box();
-	dw_draw_texture_fits_width(s.x, s.y, s.w, g_press_space);
+	dw_draw_texture_fits_width(s, g_press_space);
 
 	if (keystate[SDL_SCANCODE_SPACE]){
 		ret_val = LV_SELECT_PLAYER_SCREEN;
@@ -193,7 +193,7 @@ int stage_studio(Uint64 start_time, Uint64 cur_time)
 	int delay = cur_time - start_time;	
 	
 	SDL_Rect b = dm_get_studio_name_box();
-	dw_draw_texture_fits_width(b.x, b.y, b.w, g_studio_name);
+	dw_draw_texture_fits_width(b, g_studio_name);
 	
 	if (delay > STUDIO_SCREEN_DELAY){
 		dw_free_texture(g_studio_name);
@@ -354,32 +354,27 @@ static void create_select_level_buttons(button_t **buttons, bool *levels)
 	assert(buttons != NULL && "The buttons pointer is NULL");
 	assert(levels != NULL && "The levels pointer is NULL");
 	
-	int x = SEL_LEVEL_BUTTON_X;
-	int y = SEL_LEVEL_BUTTON_Y;
-
+	SDL_Rect r = dm_get_level_button_box();
+	SDL_Rect b = r;
+	int y_offset = get_sel_level_offset_y();
 	for (int i = 1; i <= LV_LEVEL_QUANTITY; i++){
 		char *button_text = create_string_append_number(level_text, i);
 		texture_t *button_texture = NULL;
 		if (levels[i-1] == true){
 			button_texture = dw_create_text_texture(button_text, 
 							 C_BLACK);
-			SDL_Rect r = {.x = x, .y = y, .w = SEL_LEVEL_BUTTON_W, 
-						  .h = SEL_LEVEL_BUTTON_H};
-			buttons[i-1] = bt_create_button(r, true, true, true, C_WHITE, 
+			buttons[i-1] = bt_create_button(b, true, true, true, C_WHITE, 
 											C_WHITE, button_texture);
 		} else {
 			button_texture = dw_create_text_texture(button_text, 
 							 C_GREY);
-			SDL_Rect r = {.x = x, .y = y, .w = SEL_LEVEL_BUTTON_W, 
-						  .h = SEL_LEVEL_BUTTON_H};
-			buttons[i-1] = bt_create_button(r, false, true, false, C_BLACK,
+			buttons[i-1] = bt_create_button(b, false, true, false, C_BLACK,
 											C_WHITE, button_texture);
 		}
-				y += SEL_LEVEL_OFFSET_Y;	
-		
+		b.y += y_offset;	
 		if (i != 0 && i%8 == 0){
-			x += SEL_LEVEL_BUTTON_X + SEL_LEVEL_BUTTON_W;
-			y = SEL_LEVEL_BUTTON_Y;
+			b.x += r.x + r.w;
+			b.y = r.y;
 		}
 	}
 }
@@ -397,6 +392,8 @@ static void create_select_level_buttons(button_t **buttons, bool *levels)
  */
 int stage_select_level()
 {
+	static texture_t *select_player = NULL;
+
 	static bool level_initialized = false;
 	static button_t *level_buttons[40];
 	static bool player_levels[LV_LEVEL_QUANTITY];
@@ -406,10 +403,10 @@ int stage_select_level()
 		fl_load_player_levels(g_player, player_levels);
 		level_initialized = true;
 		create_select_level_buttons(level_buttons, player_levels);
+		select_player = dw_create_text_texture(SELECT_PLAYER_TEXT, C_WHITE);
 	}
-
-	dw_draw_text_fits_width(SEL_LEVEL_TEXT_X, SEL_LEVEL_TEXT_Y, 
-							SEL_LEVEL_TEXT_W, C_WHITE, SEL_LEVEL_TEXT);
+	SDL_Rect r = dm_get_select_level_box();
+	dw_draw_texture_fits_width(r, select_player);
 
 	for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
 		bt_draw_button(level_buttons[i]);

@@ -692,8 +692,7 @@ void rg_set_register_box(int x, int y, int w, int h)
  */
 static void draw_register_box()
 {
-	dw_draw_rectangle(register_box.x, register_box.y, register_box.w, 
-				   register_box.h, C_WHITE);
+	dw_draw_rectangle(register_box, C_WHITE);
 }
 
 /* Function: draw_register_text
