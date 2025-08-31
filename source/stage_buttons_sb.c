@@ -57,17 +57,17 @@ void init_escape_menu()
 	check_mem(g_escape_b3_texture);
 	
 	SDL_Rect r = dm_get_escape_b1_box();
-	g_escape_b1 = bt_create_button(r, true, true, true, C_BLACK, C_WHITE,
+	g_escape_b1 = bt_create_button(r, true, true, true, C_WHITE, C_BLACK,
 														   g_escape_b1_texture);
 	check_mem(g_escape_b1);
 
 	r = dm_get_escape_b2_box();
-	g_escape_b2 = bt_create_button(r, true, true, true, C_BLACK, C_WHITE, 
+	g_escape_b2 = bt_create_button(r, true, true, true, C_WHITE, C_BLACK, 
 														   g_escape_b2_texture);
 	check_mem(g_escape_b2);
 	
 	r = dm_get_escape_b3_box();
-	g_escape_b3 = bt_create_button(r, true, true, true, C_BLACK, C_WHITE, 
+	g_escape_b3 = bt_create_button(r, true, true, true, C_WHITE, C_BLACK, 
 														   g_escape_b3_texture);
 	check_mem(g_escape_b3);
 	error:
@@ -91,8 +91,8 @@ void display_escape_menu(bool show_menu)
 
 	if (show_menu == true){
 		
-		SDL_Rect b = dm_get_escape_menu_box();
-		dw_draw_filled_rectangle(b.x, b.y, b.w, b.h, C_WHITE, C_WHITE);
+		SDL_Rect r = dm_get_escape_menu_box();
+		dw_draw_filled_rectangle(r, C_BLACK, C_WHITE);
 
 		
 		bt_draw_button(g_escape_b1);

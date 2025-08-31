@@ -62,7 +62,7 @@ void bt_draw_button(button_t *b)
 	int status = SUCCESS;	
 	
 	if (b->fill == true){
-		dw_draw_filled_rectangle(b->r.x, b->r.y, b->r.w, b->r.h, b->in, b->in);
+		dw_draw_filled_rectangle(b->r, b->in, b->in);
 	}
 	if (b->rect == true){
 		dw_draw_rectangle(b->r.x, b->r.y, b->r.w, b->r.h, b->out);

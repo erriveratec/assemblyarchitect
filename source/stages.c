@@ -91,27 +91,27 @@ int stage_select_player()
 																   C_WHITE);
 		buttons_created = true;
 		texture_t *b1_texture = dw_create_text_texture(PLAYER_1_TEXT, 
-								C_WHITE);
+								C_BLACK);
 		check_mem(b1_texture);
 		texture_t *b2_texture = dw_create_text_texture(PLAYER_2_TEXT, 
-								C_WHITE);
+								C_BLACK);
 		check_mem(b2_texture);
 		texture_t *b3_texture = dw_create_text_texture(PLAYER_3_TEXT, 
-								C_WHITE);
+								C_BLACK);
 		check_mem(b3_texture);
 		
 		SDL_Rect b = dm_get_p1_button_box();
-		player_1 = bt_create_button(b, true, true, false, C_BLACK, C_WHITE, 
+		player_1 = bt_create_button(b, true, true, true, C_WHITE, C_WHITE, 
 																	b1_texture);
 		check_mem(player_1);
 		
 		b = dm_get_p2_button_box();
-		player_2 = bt_create_button(b, true, true, false, C_BLACK, C_WHITE, 
+		player_2 = bt_create_button(b, true, true, true, C_WHITE, C_WHITE, 
 																	b2_texture);
 		check_mem(player_2);
 
 		b = dm_get_p3_button_box();
-		player_3 = bt_create_button(b, true, true, false, C_BLACK, C_WHITE, 
+		player_3 = bt_create_button(b, true, true, true, C_WHITE, C_WHITE, 
 																	b3_texture);
 		check_mem(player_3);
 	}
@@ -362,10 +362,10 @@ static void create_select_level_buttons(button_t **buttons, bool *levels)
 		texture_t *button_texture = NULL;
 		if (levels[i-1] == true){
 			button_texture = dw_create_text_texture(button_text, 
-							 C_WHITE);
+							 C_BLACK);
 			SDL_Rect r = {.x = x, .y = y, .w = SEL_LEVEL_BUTTON_W, 
 						  .h = SEL_LEVEL_BUTTON_H};
-			buttons[i-1] = bt_create_button(r, true, true, false, C_BLACK, 
+			buttons[i-1] = bt_create_button(r, true, true, true, C_WHITE, 
 											C_WHITE, button_texture);
 		} else {
 			button_texture = dw_create_text_texture(button_text, 
@@ -715,8 +715,9 @@ static int display_run_result(bool win_check)
 		text_to_print = lose_text;
 
 	}
-	dw_draw_filled_rectangle(RES_BOX_X, RES_BOX_Y, RES_BOX_W, RES_BOX_H, 
-	               			 C_BLACK, C_WHITE);
+	SDL_Rect r = {.x = RES_BOX_X, .y = RES_BOX_Y, .w = RES_BOX_W, 
+				  .h = RES_BOX_H};
+	dw_draw_filled_rectangle(r, C_BLACK, C_WHITE);
 	dw_draw_text_fits_width(RES_BOX_TEXT_X, RES_BOX_TEXT_Y, RES_BOX_TEXT_W, 
 							C_WHITE, text_to_print);
 	

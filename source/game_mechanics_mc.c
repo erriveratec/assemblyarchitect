@@ -150,9 +150,9 @@ bool mc_invalid_operation_handler(int id)
 		   "Incorrect id for the invalid operation handler");
 
 	bool reset_level = false;
-
-	dw_draw_filled_rectangle(RES_BOX_X, RES_BOX_Y, RES_BOX_W, 
-					   		 RES_BOX_H, C_BLACK, C_WHITE);
+	SDL_Rect r = {.x = RES_BOX_X, .y = RES_BOX_Y, .w = RES_BOX_W, 
+				  .h = RES_BOX_H};
+	dw_draw_filled_rectangle(r, C_BLACK, C_WHITE);
 	char *message = NULL;
 
 	switch(id){
@@ -362,8 +362,9 @@ static void draw_iavatar()
 	if (g_iavatar.value.visible_box == true){
 		ax_draw_value_box(&g_iavatar.value, g_iavatar.color);
 	}
-	dw_draw_filled_rectangle(g_iavatar.box.x, g_iavatar.box.y, g_iavatar.box.w, 
-						  	 g_iavatar.box.h, g_iavatar.color, g_iavatar.color);
+	SDL_Rect r0 = {.x = g_iavatar.box.x, .y = g_iavatar.box.y, 
+				  .w= g_iavatar.box.w, .h = g_iavatar.box.h};
+	dw_draw_filled_rectangle(r0, g_iavatar.color, g_iavatar.color);
 
 	int bf_y_lower = bf_get_input_buffer_box_member(MEMBER_Y) + 
 					 bf_get_input_buffer_box_member(MEMBER_H);
@@ -374,17 +375,21 @@ static void draw_iavatar()
 	int w = bf_get_input_buffer_box_member(MEMBER_X) + VALUE_BOX_W/2 - x + 
 										BUFFER_VALUE_OFFSET_X + RAIL_W/2;
 	int h = RAIL_W;
-	
-	dw_draw_filled_rectangle(x, y, w, h, C_MAGENTA, C_MAGENTA);
+
+	SDL_Rect r1 = {.x = x, .y = y, .w = w, .h = h};
+	dw_draw_filled_rectangle(r1, C_MAGENTA, C_MAGENTA);
 	
 	int rail_end_x = x - (RAIL_END_W - RAIL_W)/2;
 	int rail_end_y = y - (RAIL_END_W - RAIL_W)/2;
-	dw_draw_filled_rectangle(rail_end_x, rail_end_y, RAIL_END_W, RAIL_END_W, 
-												  C_MAGENTA, C_MAGENTA);
+	SDL_Rect r2 = {.x = rail_end_x, .y = rail_end_y, .w = RAIL_END_W, 
+				   .h = RAIL_END_W};
+	dw_draw_filled_rectangle(r2 , C_MAGENTA, C_MAGENTA);
 
 	rail_end_x = x + w - (RAIL_END_W - RAIL_W) + RAIL_W/2;
-	dw_draw_filled_rectangle(rail_end_x, rail_end_y, RAIL_END_W, RAIL_END_W, 
-												  C_MAGENTA, C_MAGENTA);
+
+	SDL_Rect r3 = {.x = rail_end_x, .y = rail_end_y, .w = RAIL_END_W, 
+				   .h = RAIL_END_W};
+	dw_draw_filled_rectangle(r3, C_MAGENTA, C_MAGENTA);
 
 	int xc = g_iavatar.box.x + g_iavatar.box.w/2 - RAIL_W/2; 
 	int yc = g_iavatar.box.y + g_iavatar.box.h/2;
@@ -398,8 +403,8 @@ static void draw_iavatar()
 		yf = yc;
 		hf = y - yc + RAIL_W;
 	}
-	dw_draw_filled_rectangle(xc, yf, wf, hf, C_MAGENTA, C_MAGENTA);
-
+	SDL_Rect r4 = {.x = xc, .y = yf, .w = wf, .h = hf};
+	dw_draw_filled_rectangle(r4, C_MAGENTA, C_MAGENTA);
 }
 
 /* Function: draw_oavatar
@@ -417,8 +422,9 @@ static void draw_oavatar()
 	if (g_oavatar.value.visible_box == true){
 		ax_draw_value_box(&g_oavatar.value, g_oavatar.color);
 	}
-	dw_draw_filled_rectangle(g_oavatar.box.x, g_oavatar.box.y, g_oavatar.box.w, 
-						  	 g_oavatar.box.h, g_oavatar.color, g_oavatar.color);
+	SDL_Rect r0 = {.x = g_oavatar.box.x, .y = g_oavatar.box.y, 
+				  .w = g_oavatar.box.w, .h = g_oavatar.box.h};
+	dw_draw_filled_rectangle(r0, g_oavatar.color, g_oavatar.color);
 
 	int bf_y_upper = bf_get_output_buffer_box_member(MEMBER_Y);
 	int medium = (bf_y_upper - (rg_get_register_box_member(MEMBER_Y) +
@@ -432,16 +438,20 @@ static void draw_oavatar()
 											   BUFFER_VALUE_OFFSET_X + RAIL_W/2;
 	int h = RAIL_W;
 	
-	dw_draw_filled_rectangle(x, y, w, h, C_CYAN, C_CYAN);
+	SDL_Rect r1 = {.x = x, .y = y, .w = w, .h = h};
+	dw_draw_filled_rectangle(r1, C_CYAN, C_CYAN);
 
 	int rail_end_x = x - (RAIL_END_W - RAIL_W)/2;
 	int rail_end_y = y - (RAIL_END_W - RAIL_W)/2;
-	dw_draw_filled_rectangle(rail_end_x, rail_end_y, RAIL_END_W, RAIL_END_W, 
-												  		C_CYAN, C_CYAN);
+	
+	SDL_Rect r2 = {.x = rail_end_x, .y = rail_end_y, .w = RAIL_END_W, 
+				   .h = RAIL_END_W};
+	dw_draw_filled_rectangle(r2, C_CYAN, C_CYAN);
 
 	rail_end_x = x + w - (RAIL_END_W - RAIL_W) + RAIL_W/2;
-	dw_draw_filled_rectangle(rail_end_x, rail_end_y, RAIL_END_W, RAIL_END_W, 
-												  		C_CYAN, C_CYAN);
+	SDL_Rect r3 = {.x = rail_end_x, .y = rail_end_y, .w = RAIL_END_W, 
+				   .h = RAIL_END_W};
+	dw_draw_filled_rectangle(r3, C_CYAN, C_CYAN);
 
 	int xc = g_oavatar.box.x + g_oavatar.box.w/2 - RAIL_W/2; 
 	int yc = g_oavatar.box.y + g_oavatar.box.h/2;
@@ -455,7 +465,8 @@ static void draw_oavatar()
 		yf = yc;
 		hf = y - yc + RAIL_W;
 	}
-	dw_draw_filled_rectangle(xc, yf, wf, hf, C_CYAN, C_CYAN);
+	SDL_Rect r4 = {.x = xc, .y = yf, .w = wf, .h = hf};
+	dw_draw_filled_rectangle(r4, C_CYAN, C_CYAN);
 }
 
 /* Function: draw_ravatar
@@ -474,14 +485,17 @@ void draw_ravatar()
 	if (g_ravatar.value.visible_box == true){
 		ax_draw_value_box(&g_ravatar.value, g_ravatar.color);
 	}
-	dw_draw_filled_rectangle(g_ravatar.box.x, g_ravatar.box.y, g_ravatar.box.w, 
-						  	 g_ravatar.box.h, g_ravatar.color, g_ravatar.color);
+	SDL_Rect r0 = {.x = g_ravatar.box.x, .y =  g_ravatar.box.y, 
+				   .w = g_ravatar.box.w, .h = g_ravatar.box.h};
+	dw_draw_filled_rectangle(r0, g_ravatar.color, g_ravatar.color);
 
 	int rx = rg_get_ibox_x() + VALUE_BOX_W/2;
 	int ry = rg_get_register_box_member(MEMBER_Y) + REG_BOX_OFFSET;
 	int rw = RAIL_W;
 	int rh = rg_get_register_box_member(MEMBER_H) - 2*REG_BOX_OFFSET;
-	dw_draw_filled_rectangle(rx, ry, rw, rh, C_YELLOW, C_YELLOW);
+	
+	SDL_Rect r1 = {.x = rx, .y = ry, .w = rw, .h = rh};
+	dw_draw_filled_rectangle(r1, C_YELLOW, C_YELLOW);
 	
 	int xc = g_ravatar.box.x + g_ravatar.box.w/2; 
 	int yc = g_ravatar.box.y + g_ravatar.box.h/2 - RAIL_W/2;
@@ -495,16 +509,20 @@ void draw_ravatar()
 		xf = rx;
 		wf = xc - xf + RAIL_W;
 	}
-	dw_draw_filled_rectangle(xf, yc, wf, hf, C_YELLOW, C_YELLOW);
+	SDL_Rect r2 = {.x = xf, .y = yc, .w = wf, .h = hf};
+	dw_draw_filled_rectangle(r2, C_YELLOW, C_YELLOW);
 
 	int rail_end_x = rx - (RAIL_END_W - RAIL_W)/2;
 	int rail_end_y = ry - (RAIL_END_W - RAIL_W)/2;
-	dw_draw_filled_rectangle(rail_end_x, rail_end_y, RAIL_END_W, RAIL_END_W, 
-												  	C_YELLOW, C_YELLOW);
-	
+
+	SDL_Rect r3 = {.x = rail_end_x, .y = rail_end_y, .w = RAIL_END_W, 
+				   .h = RAIL_END_W};
+	dw_draw_filled_rectangle(r3, C_YELLOW, C_YELLOW);
+
 	rail_end_y = ry + rh - (RAIL_END_W - RAIL_W) + RAIL_W/2;
-	dw_draw_filled_rectangle(rail_end_x, rail_end_y, RAIL_END_W, RAIL_END_W, 
-												  	C_YELLOW, C_YELLOW);
+	SDL_Rect r4 = {.x = rail_end_x, .y = rail_end_y, .w = RAIL_END_W, 
+				   .h = RAIL_END_W};
+	dw_draw_filled_rectangle(r4, C_YELLOW, C_YELLOW);
 }
 
 /* Function: mc_draw_avatar

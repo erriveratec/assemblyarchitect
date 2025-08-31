@@ -503,14 +503,12 @@ void dw_draw_rectangle(int x, int y, int w, int h, SDL_Color c)
  * Return:
  *	Void
  */
-void dw_draw_filled_rectangle(int x, int y, int w, int h, SDL_Color inside,
-							  SDL_Color outline)
+void dw_draw_filled_rectangle(SDL_Rect r, SDL_Color in, SDL_Color out)
 {
-	SDL_Rect rect = {x,y,w,h};
-	SDL_SetRenderDrawColor(g_renderer, inside.r, inside.g, inside.b, inside.a);
+	SDL_Rect rect = r;
+	SDL_SetRenderDrawColor(g_renderer, in.r, in.g, in.b, in.a);
 	SDL_RenderFillRect(g_renderer, &rect);
-	SDL_SetRenderDrawColor(g_renderer, outline.r, outline.g, outline.b, 
-						   outline.a);
+	SDL_SetRenderDrawColor(g_renderer, out.r, out.g, out.b, out.a);
 	SDL_RenderDrawRect(g_renderer, &rect);
 	SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
 }

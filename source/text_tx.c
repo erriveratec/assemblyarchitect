@@ -199,7 +199,7 @@ void tx_text_box(int pos, char *msg)
 			color = C_WHITE;
 			break;
 	}
-	dw_draw_filled_rectangle(b.x, b.y, b.w, b.h, C_WHITE, C_WHITE);
+	dw_draw_filled_rectangle(b, C_WHITE, C_WHITE);
 	dw_draw_wrapped_text_fits_height(b.x, b.y, b.w, b.h, text_h, color, msg);
 	int tw = get_text_width_fits_height(CLICK_MESSAGE_H, MSG_CLICK_ANYWHERE);
 	dw_draw_text_fits_height(b.x + b.w/2 - tw/2, b.y+b.h - 2*CLICK_MESSAGE_H, 
