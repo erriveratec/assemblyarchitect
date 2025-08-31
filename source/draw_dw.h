@@ -27,14 +27,14 @@ int dw_draw_texture_fits_height(int x, int y, int h, texture_t *t);
 int dw_draw_texture_fits_width(int x, int y, int w, texture_t *t);
 void dw_draw_rotated_texture_fits_h(int x, int y, int h, double angle, 
 															      texture_t *t);
-extern SDL_Color COLOR_WHITE;
-extern SDL_Color COLOR_BLACK;
-extern SDL_Color COLOR_RED;
-extern SDL_Color COLOR_GREY;
-extern SDL_Color COLOR_ORANGE;
-extern SDL_Color COLOR_CYAN;
-extern SDL_Color COLOR_YELLOW;
-extern SDL_Color COLOR_MAGENTA;
-extern SDL_Color COLOR_GREEN;
+extern SDL_Color C_WHITE;
+extern SDL_Color C_BLACK;
+extern SDL_Color C_RED;
+extern SDL_Color C_GREY;
+extern SDL_Color C_ORANGE;
+extern SDL_Color C_CYAN;
+extern SDL_Color C_YELLOW;
+extern SDL_Color C_MAGENTA;
+extern SDL_Color C_GREEN;
 #endif
 

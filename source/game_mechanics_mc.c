@@ -152,7 +152,7 @@ bool mc_invalid_operation_handler(int id)
 	bool reset_level = false;
 
 	dw_draw_filled_rectangle(RES_BOX_X, RES_BOX_Y, RES_BOX_W, 
-					   		 RES_BOX_H, COLOR_BLACK, COLOR_WHITE);
+					   		 RES_BOX_H, C_BLACK, C_WHITE);
 	char *message = NULL;
 
 	switch(id){
@@ -186,7 +186,7 @@ bool mc_invalid_operation_handler(int id)
 	}
 
 	dw_draw_wrapped_text_fits_height(RES_BOX_X, RES_BOX_Y, RES_BOX_W, 
-					MESSAGE_TEXT_TOTAL_H, MESSAGE_TEXT_H, COLOR_WHITE, message);
+					MESSAGE_TEXT_TOTAL_H, MESSAGE_TEXT_H, C_WHITE, message);
 	
 	free(message);
 
@@ -197,13 +197,14 @@ bool mc_invalid_operation_handler(int id)
 	if (button_created == false){
 		button_created = true;
 		texture_t *ret_texture = dw_create_text_texture(STR_BACK, 
-																   COLOR_WHITE);
+																   C_WHITE);
 		check_mem(ret_texture);
 		int x = RES_BOX_X + RES_BOX_W/2 - BACK_BUTTON_W/2;
 		int y = RES_BOX_Y + RES_BOX_H - BACK_CONT_BUTTON_H - 
 													 RES_BOX_TEXT_BORDER_OFFSET;
-		ret = bt_create_button(x, y, BACK_BUTTON_W, BACK_CONT_BUTTON_H, true, true, 
-																   ret_texture);
+		SDL_Rect r = {.x = x, .y = y, .w = BACK_BUTTON_W, BACK_CONT_BUTTON_H};
+		ret = bt_create_button(r, true, true, false, C_BLACK, C_WHITE,
+							   ret_texture);
 		check_mem(ret);
 	} 
 	bt_draw_button(ret);
@@ -265,7 +266,7 @@ void mc_reset_avatar()
 	g_iavatar.value.box.w = VALUE_BOX_W;
 	g_iavatar.value.box.h = VALUE_BOX_H;
 
-	g_iavatar.color = COLOR_MAGENTA;
+	g_iavatar.color = C_MAGENTA;
 
 	g_oavatar.id = OAVATAR;
 	g_oavatar.box.x = bf_get_buffer_value_box_x_coord_by_id(OB);	
@@ -284,7 +285,7 @@ void mc_reset_avatar()
 	g_oavatar.value.box.w = VALUE_BOX_W;
 	g_oavatar.value.box.h = VALUE_BOX_H;
 
-	g_oavatar.color = COLOR_CYAN;
+	g_oavatar.color = C_CYAN;
 
 	g_ravatar.id = RAVATAR;
 	g_ravatar.box.x = rg_get_register_box_member(MEMBER_X) - 3*REG_BOX_X_OFFSET 
@@ -305,7 +306,7 @@ void mc_reset_avatar()
 	g_ravatar.value.box.w = VALUE_BOX_W;
 	g_ravatar.value.box.h = VALUE_BOX_H;
 	
-	g_ravatar.color = COLOR_YELLOW;
+	g_ravatar.color = C_YELLOW;
 
 }
 
@@ -374,16 +375,16 @@ static void draw_iavatar()
 										BUFFER_VALUE_OFFSET_X + RAIL_W/2;
 	int h = RAIL_W;
 	
-	dw_draw_filled_rectangle(x, y, w, h, COLOR_MAGENTA, COLOR_MAGENTA);
+	dw_draw_filled_rectangle(x, y, w, h, C_MAGENTA, C_MAGENTA);
 	
 	int rail_end_x = x - (RAIL_END_W - RAIL_W)/2;
 	int rail_end_y = y - (RAIL_END_W - RAIL_W)/2;
 	dw_draw_filled_rectangle(rail_end_x, rail_end_y, RAIL_END_W, RAIL_END_W, 
-												  COLOR_MAGENTA, COLOR_MAGENTA);
+												  C_MAGENTA, C_MAGENTA);
 
 	rail_end_x = x + w - (RAIL_END_W - RAIL_W) + RAIL_W/2;
 	dw_draw_filled_rectangle(rail_end_x, rail_end_y, RAIL_END_W, RAIL_END_W, 
-												  COLOR_MAGENTA, COLOR_MAGENTA);
+												  C_MAGENTA, C_MAGENTA);
 
 	int xc = g_iavatar.box.x + g_iavatar.box.w/2 - RAIL_W/2; 
 	int yc = g_iavatar.box.y + g_iavatar.box.h/2;
@@ -397,7 +398,7 @@ static void draw_iavatar()
 		yf = yc;
 		hf = y - yc + RAIL_W;
 	}
-	dw_draw_filled_rectangle(xc, yf, wf, hf, COLOR_MAGENTA, COLOR_MAGENTA);
+	dw_draw_filled_rectangle(xc, yf, wf, hf, C_MAGENTA, C_MAGENTA);
 
 }
 
@@ -431,16 +432,16 @@ static void draw_oavatar()
 											   BUFFER_VALUE_OFFSET_X + RAIL_W/2;
 	int h = RAIL_W;
 	
-	dw_draw_filled_rectangle(x, y, w, h, COLOR_CYAN, COLOR_CYAN);
+	dw_draw_filled_rectangle(x, y, w, h, C_CYAN, C_CYAN);
 
 	int rail_end_x = x - (RAIL_END_W - RAIL_W)/2;
 	int rail_end_y = y - (RAIL_END_W - RAIL_W)/2;
 	dw_draw_filled_rectangle(rail_end_x, rail_end_y, RAIL_END_W, RAIL_END_W, 
-												  		COLOR_CYAN, COLOR_CYAN);
+												  		C_CYAN, C_CYAN);
 
 	rail_end_x = x + w - (RAIL_END_W - RAIL_W) + RAIL_W/2;
 	dw_draw_filled_rectangle(rail_end_x, rail_end_y, RAIL_END_W, RAIL_END_W, 
-												  		COLOR_CYAN, COLOR_CYAN);
+												  		C_CYAN, C_CYAN);
 
 	int xc = g_oavatar.box.x + g_oavatar.box.w/2 - RAIL_W/2; 
 	int yc = g_oavatar.box.y + g_oavatar.box.h/2;
@@ -454,7 +455,7 @@ static void draw_oavatar()
 		yf = yc;
 		hf = y - yc + RAIL_W;
 	}
-	dw_draw_filled_rectangle(xc, yf, wf, hf, COLOR_CYAN, COLOR_CYAN);
+	dw_draw_filled_rectangle(xc, yf, wf, hf, C_CYAN, C_CYAN);
 }
 
 /* Function: draw_ravatar
@@ -480,7 +481,7 @@ void draw_ravatar()
 	int ry = rg_get_register_box_member(MEMBER_Y) + REG_BOX_OFFSET;
 	int rw = RAIL_W;
 	int rh = rg_get_register_box_member(MEMBER_H) - 2*REG_BOX_OFFSET;
-	dw_draw_filled_rectangle(rx, ry, rw, rh, COLOR_YELLOW, COLOR_YELLOW);
+	dw_draw_filled_rectangle(rx, ry, rw, rh, C_YELLOW, C_YELLOW);
 	
 	int xc = g_ravatar.box.x + g_ravatar.box.w/2; 
 	int yc = g_ravatar.box.y + g_ravatar.box.h/2 - RAIL_W/2;
@@ -494,16 +495,16 @@ void draw_ravatar()
 		xf = rx;
 		wf = xc - xf + RAIL_W;
 	}
-	dw_draw_filled_rectangle(xf, yc, wf, hf, COLOR_YELLOW, COLOR_YELLOW);
+	dw_draw_filled_rectangle(xf, yc, wf, hf, C_YELLOW, C_YELLOW);
 
 	int rail_end_x = rx - (RAIL_END_W - RAIL_W)/2;
 	int rail_end_y = ry - (RAIL_END_W - RAIL_W)/2;
 	dw_draw_filled_rectangle(rail_end_x, rail_end_y, RAIL_END_W, RAIL_END_W, 
-												  	COLOR_YELLOW, COLOR_YELLOW);
+												  	C_YELLOW, C_YELLOW);
 	
 	rail_end_y = ry + rh - (RAIL_END_W - RAIL_W) + RAIL_W/2;
 	dw_draw_filled_rectangle(rail_end_x, rail_end_y, RAIL_END_W, RAIL_END_W, 
-												  	COLOR_YELLOW, COLOR_YELLOW);
+												  	C_YELLOW, C_YELLOW);
 }
 
 /* Function: mc_draw_avatar

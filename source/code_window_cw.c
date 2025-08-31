@@ -116,8 +116,8 @@ void cw_update_saved_jump_instructions()
 			assert(cw_check_if_in_code_list(jmp_addr) == true && "Instruction"
 				   "not present in code list");
 			c->op1 = create_updated_jump_operand(jmp_addr);
-			c->op1->b->box.x = c->ins->b->box.x + OP1_X_OFFSET;
-			c->op1->b->box.y = c->ins->b->box.y;
+			c->op1->b->r.x = c->ins->b->r.x + OP1_X_OFFSET;
+			c->op1->b->r.y = c->ins->b->r.y;
 		}
 	}
 error:
@@ -144,11 +144,11 @@ static operand_t *create_saved_jump_operand(int op1_id)
 	char *line_text = ax_number_to_string_two_digits(op1_id);
 	char *op_text = malloc(sizeof(char)*(strlen(line_text)+1));
 	strcpy(op_text, line_text);
-	texture_t *t = dw_create_text_texture(op_text, COLOR_WHITE);
+	texture_t *t = dw_create_text_texture(op_text, C_WHITE);
 
 	SDL_Rect r = {.x = 0, .y = 0, .w = ADDR_BUTTON_W, .h = CODE_BUTTON_H};
-	b->b = bt_create_button(r, false, false, false, COLOR_BLACK, 
-							COLOR_WHITE, t);
+	b->b = bt_create_button(r, false, false, false, C_BLACK, 
+							C_WHITE, t);
 
 	b->id = op1_id;
 	free(line_text);
@@ -184,11 +184,11 @@ static operand_t *create_updated_jump_operand(code_line_t *jmp_addr)
 	strcpy(op_text, label_text);
 	strcat(op_text, char_space);
 	strcat(op_text, line_text);
-	texture_t *t = dw_create_text_texture(op_text, COLOR_WHITE);
+	texture_t *t = dw_create_text_texture(op_text, C_WHITE);
 
 	SDL_Rect r = {.x = 0, .y = 0, .w = ADDR_BUTTON_W, .h = CODE_BUTTON_H};
-	op->b = bt_create_button(r, false, false, false, COLOR_BLACK, 
-							 COLOR_WHITE, t);
+	op->b = bt_create_button(r, false, false, false, C_BLACK, 
+							 C_WHITE, t);
 	op->id = get_code_line_pos_by_ptr(jmp_addr);
 	op->jptr = jmp_addr;
 
@@ -224,8 +224,8 @@ static void update_jump_instructions()
 				cl_destroy_operand(c->op1);	
 				if (cw_check_if_in_code_list(jmp_addr) == true){
 					c->op1 = create_updated_jump_operand(jmp_addr);
-					c->op1->b->x = c->ins->b->x + OP1_X_OFFSET;
-					c->op1->b->y = c->ins->b->y;
+					c->op1->b->r.x = c->ins->b->r.x + OP1_X_OFFSET;
+					c->op1->b->r.y = c->ins->b->r.y;
 				} else {
 					c->op1 = NULL;
 					c->state = MISSING_OP1;
@@ -266,11 +266,11 @@ operand_t *cw_create_jump_operand()
 	strcpy(op_text, label_text);
 	strcat(op_text, char_space);
 	strcat(op_text, line_text);
-	texture_t *t = dw_create_text_texture(op_text, COLOR_WHITE);
+	texture_t *t = dw_create_text_texture(op_text, C_WHITE);
 
-	int x = 0;
-	int y = 0;
-	op->b = bt_create_button(x, y, ADDR_BUTTON_W, CODE_BUTTON_H, false, false, t);
+	SDL_Rect r = {.x = 0, .y = 0, .w = ADDR_BUTTON_W, .h = CODE_BUTTON_H};
+	op->b = bt_create_button(r, false, false, false, C_BLACK, 
+							 C_WHITE, t);
 	op->id = get_code_line_pos_by_ptr(addr);
 	op->jptr = addr;
 
@@ -371,8 +371,8 @@ static void update_label_instructions()
 			if (c->op1 != NULL){
 				cl_destroy_operand(c->op1);	
 				c->op1 = create_label_operand(c);
-				c->op1->b->x = c->ins->b->x + OP1_X_OFFSET;
-				c->op1->b->y = c->ins->b->y;
+				c->op1->b->r.x = c->ins->b->r.x + OP1_X_OFFSET;
+				c->op1->b->r.y = c->ins->b->r.y;
 			}
 
 		}
@@ -403,11 +403,11 @@ static operand_t *create_saved_label_operand(int op1_id)
 	char *op_text = malloc(sizeof(char)*(strlen(line_text)+1));
 	strcpy(op_text, line_text);
 	strcat(op_text, char_colon);
-	texture_t *t = dw_create_text_texture(op_text, COLOR_WHITE);
+	texture_t *t = dw_create_text_texture(op_text, C_WHITE);
 
-	int x = 0;
-	int y = 0;
-	b->b = bt_create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H, false, false, t);
+	SDL_Rect r = dm_get_code_button_box();
+	b->b = bt_create_button(r, false, false, false, C_BLACK, 
+							C_WHITE, t);
 
 	b->id = op1_id;
 
@@ -441,11 +441,11 @@ static operand_t *create_label_operand(code_line_t *line)
 	char *op_text = malloc(sizeof(char)*(strlen(line_text)+1));
 	strcpy(op_text, line_text);
 	strcat(op_text, ":");
-	texture_t *t = dw_create_text_texture(op_text, COLOR_WHITE);
+	texture_t *t = dw_create_text_texture(op_text, C_WHITE);
 
-	int x = 0;
-	int y = 0;
-	b->b = bt_create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H, false, false, t);
+	SDL_Rect r = dm_get_code_button_box();
+	b->b = bt_create_button(r, false, false, false, C_BLACK, 
+							C_WHITE, t);
 
 	b->id = label;
 
@@ -615,7 +615,7 @@ void cw_add_saved_line(char *line)
 	int list_size = cw_get_code_list_size();
 	ins_text = cl_get_instruction_text(ins_id);
 	texture_t *instruction_tex = dw_create_text_texture(
-						  		  ins_text, COLOR_WHITE);
+						  		  ins_text, C_WHITE);
 	
 	int x = cw_get_code_line_x(ins_id);
 	int y = cw_get_first_code_line_y();
@@ -623,9 +623,12 @@ void cw_add_saved_line(char *line)
 	for (int i = 0; i <= list_size; i++){
 		y += CODE_BUTTON_H;
 	}
-
-	button_t *b = bt_create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H,
-								true, false, instruction_tex);
+	
+	SDL_Rect r = dm_get_code_button_box();
+	r.x = x;
+	r.y = y;
+	button_t *b = bt_create_button(r, true, false, false, C_BLACK, 
+								   C_WHITE, instruction_tex);
 	check_mem(b);
 	instruction_t *new_ins = cl_create_instruction(ins_id, b);
 	code_line_t *new_line = cl_create_code_line(new_ins);
@@ -1300,11 +1303,11 @@ void cw_draw_code_window()
 
 	// Challenge text
 	dw_draw_wrapped_text_fits_height(text_box.x, text_box.y, text_box.w, 
-					  text_box.h, TEXT_BOX_HEIGHT, COLOR_WHITE, challenge_text);
+					  text_box.h, TEXT_BOX_HEIGHT, C_WHITE, challenge_text);
 
 	// Text rectangle
 	dw_draw_rectangle(text_box.x, text_box.y, text_box.w, text_box.h, 
-	               COLOR_WHITE);
+	               C_WHITE);
 	
 	// Adjust the height of the code box
 	code_box_height_adjust();
@@ -1314,12 +1317,12 @@ void cw_draw_code_window()
 	}
 	// Draw the rectangle of the code and instructions
 	dw_draw_rectangle(code_box.x, code_box.y, code_box.w, code_box.h, 
-				   COLOR_WHITE);
+				   C_WHITE);
 
 	// Text of the level
 	dw_draw_text_fits_height(code_box.x + CODE_BOX_OFFSET, 
 						  code_box.y + CODE_BOX_OFFSET, 
-						  STAGE_NAME_H, COLOR_WHITE, stage_name);
+						  STAGE_NAME_H, C_WHITE, stage_name);
 
 }
 
@@ -1358,9 +1361,9 @@ static void display_player_code()
 
 		if (comma == TWO_OPERANDS && (MISSING_BOTH != line->state && 
 							  MISSING_OP1 != line->state)){
-			dw_draw_text_fits_height(line->ins->b->x + 2*CODE_BUTTON_W + 
-								 LINE_NUMBER_OFFSET, line->ins->b->y, 
-								 CODE_BUTTON_H, COLOR_WHITE, ",");
+			dw_draw_text_fits_height(line->ins->b->r.x + 2*CODE_BUTTON_W + 
+								 LINE_NUMBER_OFFSET, line->ins->b->r.y, 
+								 CODE_BUTTON_H, C_WHITE, ",");
 		}
 	}
 	return;
@@ -1391,7 +1394,7 @@ int cw_get_instruction_y_coord(int instruction_position)
 	LIST_FOREACH(code, first, next, cur){ 
 		c = cur->value;
 		if (i == instruction_position){
-			y = c->ins->b->y;
+			y = c->ins->b->r.y;
 			break;
 		}
 		i++;
@@ -1430,7 +1433,7 @@ void display_line_number()
 	int instruction = cw_get_instruction_at_code_pos(i);
 		if (instruction != LABEL){
 			number = ax_number_to_string_two_digits(line_number);
-			dw_draw_text_fits_height(x, y, CODE_BUTTON_H, COLOR_WHITE, number);
+			dw_draw_text_fits_height(x, y, CODE_BUTTON_H, C_WHITE, number);
 			free(number);
 			line_number++;
 		}
@@ -1503,27 +1506,27 @@ void cw_sort_code()
 
 		code_line_t *line = cur->value;
 		int x = cw_get_code_line_x(line->ins->id);
-		int delta = get_movement_delta(line->ins->b->x, x, MOVEMENT_DELTA);	
+		int delta = get_movement_delta(line->ins->b->r.x, x, MOVEMENT_DELTA);	
 		
-		if (line->ins->b->x < x){
-			line->ins->b->x += delta;
-		} else if (line->ins->b->x > x){
-			line->ins->b->x -= delta;
+		if (line->ins->b->r.x < x){
+			line->ins->b->r.x += delta;
+		} else if (line->ins->b->r.x > x){
+			line->ins->b->r.x -= delta;
 		}
-		delta = get_movement_delta(line->ins->b->y, y, MOVEMENT_DELTA);	
+		delta = get_movement_delta(line->ins->b->r.y, y, MOVEMENT_DELTA);	
 		
-		if (line->ins->b->y < y){
-			line->ins->b->y += delta;
-		} else if (line->ins->b->y > y){
-			line->ins->b->y -= delta;
+		if (line->ins->b->r.y < y){
+			line->ins->b->r.y += delta;
+		} else if (line->ins->b->r.y > y){
+			line->ins->b->r.y -= delta;
 		}
 		if (line->op1 != NULL){
-				line->op1->b->x = line->ins->b->x + OP1_X_OFFSET;
-				line->op1->b->y = line->ins->b->y;
+				line->op1->b->r.x = line->ins->b->r.x + OP1_X_OFFSET;
+				line->op1->b->r.y = line->ins->b->r.y;
 		}
 		if (line->op2 != NULL){
-				line->op2->b->x = line->ins->b->x + OP2_X_OFFSET;
-				line->op2->b->y = line->ins->b->y;
+				line->op2->b->r.x = line->ins->b->r.x + OP2_X_OFFSET;
+				line->op2->b->r.y = line->ins->b->r.y;
 		}
 		y += h;
 	}
@@ -1642,7 +1645,7 @@ static void add_code_line(code_line_t *line)
 		
 	code_line_t *first = code->first->value;
 	int mouse_y = ms_get_mouse_y();
-	int y = first->ins->b->y;
+	int y = first->ins->b->r.y;
 	
 	if (mouse_y < y){
 		List_unshift(code, line);
@@ -1650,8 +1653,8 @@ static void add_code_line(code_line_t *line)
 	} 
 
 	code_line_t *last = code->last->value;
-	y = last->ins->b->y;
-	int h = last->ins->b->h;
+	y = last->ins->b->r.y;
+	int h = last->ins->b->r.h;
 	if (mouse_y >= y + h){
 		List_push(code, line);
 		return;
@@ -1764,17 +1767,17 @@ void cw_player_holding_instruction(code_line_t *line)
 		}
 	}
 
-	line->ins->b->x = ms_get_mouse_x() - line->ins->b->w/2;
-	line->ins->b->y = ms_get_mouse_y() - line->ins->b->h/2;
+	line->ins->b->r.x = ms_get_mouse_x() - line->ins->b->r.w/2;
+	line->ins->b->r.y = ms_get_mouse_y() - line->ins->b->r.h/2;
 
 	if (line->op1 != NULL){
-		line->op1->b->x = line->ins->b->x + OP1_X_OFFSET;
-		line->op1->b->y = line->ins->b->y;
+		line->op1->b->r.x = line->ins->b->r.x + OP1_X_OFFSET;
+		line->op1->b->r.y = line->ins->b->r.y;
 		bt_draw_button(line->op1->b);
 	}
 	if (line->op2 != NULL){
-		line->op2->b->x = line->ins->b->x + OP2_X_OFFSET;
-		line->op2->b->y = line->ins->b->y;
+		line->op2->b->r.x = line->ins->b->r.x + OP2_X_OFFSET;
+		line->op2->b->r.y = line->ins->b->r.y;
 		bt_draw_button(line->op2->b);
 	}
 	bt_draw_button(line->ins->b);
@@ -1912,13 +1915,13 @@ void cw_highlight_code_pending_operand()
 
 	if (MISSING_BOTH == line->state || MISSING_OP1 == line->state ||
 		CHANGING_OP1 == line->state){
-
-		dw_draw_rectangle(line->ins->b->x+OP1_X_OFFSET, line->ins->b->y,
-				   	   line->ins->b->w, line->ins->b->h, COLOR_WHITE);
+		
+		dw_draw_rectangle(line->ins->b->r.x+OP1_X_OFFSET, line->ins->b->r.y,
+				   	   line->ins->b->r.w, line->ins->b->r.h, C_WHITE);
 
 	} else if (MISSING_OP2 == line->state || CHANGING_OP2 == line->state){
-		dw_draw_rectangle(line->ins->b->x+OP2_X_OFFSET, line->ins->b->y,
-				   	   line->ins->b->w, line->ins->b->h, COLOR_WHITE);
+		dw_draw_rectangle(line->ins->b->r.x+OP2_X_OFFSET, line->ins->b->r.y,
+				   	   line->ins->b->r.w, line->ins->b->r.h, C_WHITE);
 
 	}
 error:
@@ -1955,7 +1958,7 @@ bool cw_check_code_sorted()
 		button_t *b = value->ins->b;
 		int x = cw_get_code_line_x(value->ins->id);
 
-		if (b->x < x || b->x > x || b->y < y || b->y > y){
+		if (b->r.x < x || b->r.x > x || b->r.y < y || b->r.y > y){
 			retval = false;
 			break;
 		} 

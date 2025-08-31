@@ -63,8 +63,8 @@ static void display_arrow_registers()
 	int i = 0;
 	LIST_FOREACH(registers, first, next, cur){ 
 		reg_t *c = cur->value;
-		arrow.box.y = c->b->y + (CODE_BUTTON_H - arrow.box.h)/2; 
-		arrow.travel = startx - (c->b->x + c->b->w);
+		arrow.box.y = c->b->r.y + (CODE_BUTTON_H - arrow.box.h)/2; 
+		arrow.travel = startx - (c->b->r.x + c->b->r.w);
 		if (i == 0){
 			ar_animate_arrow(&arrow);
 		} else {
@@ -268,8 +268,8 @@ void rg_initialize_value_boxes()
  */
 static void draw_value_boxes()
 {
-	ax_draw_value_box(&g_ibox, COLOR_MAGENTA);
-	ax_draw_value_box(&g_obox, COLOR_CYAN);
+	ax_draw_value_box(&g_ibox, C_MAGENTA);
+	ax_draw_value_box(&g_obox, C_CYAN);
 	return;
 }
 /* Function: rg_update_register_box_position
@@ -300,9 +300,9 @@ void rg_update_register_box_position()
 
 	LIST_FOREACH(registers, first, next, cur){ 
 		reg_t *c = cur->value;
-		c->b->y = register_box.y + REG_BOX_OFFSET + i*2*(CODE_BUTTON_H + 5) + 
+		c->b->r.y = register_box.y + REG_BOX_OFFSET + i*2*(CODE_BUTTON_H + 5) + 
 				  CODE_BUTTON_H;
-		c->value.box.y = c->b->y - CODE_BUTTON_H;
+		c->value.box.y = c->b->r.y - CODE_BUTTON_H;
 		i++;
    	}
 
@@ -509,8 +509,8 @@ reg_t *create_register(int id, button_t *b)
 
 	op->b = b;
 	op->id = id;
-	op->value.box.x = b->x + (b->w - VALUE_BOX_W)/2;	
-	op->value.box.y = b->y - CODE_BUTTON_H;
+	op->value.box.x = b->r.x + (b->r.w - VALUE_BOX_W)/2;	
+	op->value.box.y = b->r.y - CODE_BUTTON_H;
 	op->value.box.w = VALUE_BOX_W;
 	op->value.box.h = VALUE_BOX_H;
 	op->value.value = NO_VALUE;
@@ -538,8 +538,9 @@ operand_t *rg_create_register_operand_by_id(int id)
 	int register_text_w = get_text_width_fits_height(REG_TEXT_H, REGISTER_TEXT);
 	int x = 0;
 	int y = 0;
-	button_t *b = bt_create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H,
-								true, false, reg_text);
+	SDL_Rect r = {.x = x, .y = y, .w = CODE_BUTTON_W, .h = CODE_BUTTON_H};
+	button_t *b = bt_create_button(r, true, false, false, C_BLACK, C_WHITE,  
+																	  reg_text);
 	check_mem(b);
 
 	operand_t *op = malloc(sizeof(operand_t));
@@ -588,8 +589,9 @@ void rg_add_register_to_list(int id)
 
 	int y = register_box.y + REG_BOX_OFFSET + list_size*2*(CODE_BUTTON_H + 5) +
 		    REG_TEXT_H + CODE_BUTTON_H;
-	
-	button_t *b = bt_create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H,true, false,
+
+	SDL_Rect r = {.x = x, .y = y, .w = CODE_BUTTON_W, .h = CODE_BUTTON_H};	
+	button_t *b = bt_create_button(r,true, false, false, C_BLACK, C_WHITE, 
 																	  reg_text);
 	check_mem(b);
 
@@ -629,7 +631,7 @@ void rg_draw_registers(bool show_arrows)
 		bt_draw_button(button);
 
 		char *number = number_to_string(reg->value.value);
-		ax_draw_value_box(&reg->value, COLOR_WHITE);
+		ax_draw_value_box(&reg->value, C_WHITE);
 		free(number);
 	}
 	if (show_arrows == true){
@@ -691,7 +693,7 @@ void rg_set_register_box(int x, int y, int w, int h)
 static void draw_register_box()
 {
 	dw_draw_rectangle(register_box.x, register_box.y, register_box.w, 
-				   register_box.h, COLOR_WHITE);
+				   register_box.h, C_WHITE);
 }
 
 /* Function: draw_register_text
@@ -714,7 +716,7 @@ static void draw_register_text()
 	int x = register_box.x;// + (register_box.w - text_w)/2;
 	int y = register_box.y - REG_TEXT_H;
 
-	dw_draw_text_fits_height(x, y, REG_TEXT_H, COLOR_WHITE, REGISTER_TEXT);
+	dw_draw_text_fits_height(x, y, REG_TEXT_H, C_WHITE, REGISTER_TEXT);
 
 }
 
@@ -741,8 +743,9 @@ bool rg_check_mouse_released_in_register()
    	LIST_FOREACH(registers, first, next, cur){ 
 	   
 	   	reg_t *c = cur->value;
-	  	button_t b = {.x = c->value.box.x, .y = c->value.box.y, 
+		SDL_Rect r = {.x = c->value.box.x, .y = c->value.box.y, 
 									  .w = c->value.box.w, .h = c->value.box.h};
+	  	button_t b = {.r = r};
 	   	if (bt_check_mouse_released_button(c->b) == true ||
 									bt_check_mouse_released_button(&b) == true){
 		   	selected = true;
@@ -769,15 +772,18 @@ operand_t *rg_create_operand_of_selected_register()
    	LIST_FOREACH(registers, first, next, cur){ 
 
 		reg_t *c = cur->value;
-		button_t b = {.x = c->value.box.x, .y = c->value.box.y, 
+		SDL_Rect r = {.x = c->value.box.x, .y = c->value.box.y, 
 									  .w = c->value.box.w, .h = c->value.box.h};
 
+		button_t b = {.r = r};
 	   	if (bt_check_mouse_released_button(c->b) == true||
 									bt_check_mouse_released_button(&b) == true){
 			
 			texture_t *t = cl_create_operand_texture(c->id);
-			button_t *b = bt_create_button(c->b->x, c->b->y, c->b->w, c->b->h, 
-							  	c->b->active, c->b->rectangle, t);
+			SDL_Rect r = {.x = c->b->r.x, .y = c->b->r.y, .w = c->b->r.w, 
+																.h = c->b->r.h};
+			button_t *b = bt_create_button(r, c->b->act, c->b->rect, c->b->fill, 
+													 	c->b->in, c->b->out, t);
 
 			o = malloc(sizeof(operand_t));
 			o->b = b;

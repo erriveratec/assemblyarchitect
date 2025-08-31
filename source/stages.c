@@ -88,28 +88,31 @@ int stage_select_player()
 	if (buttons_created == false){
 	
 		g_select_player = dw_create_text_texture(SELECT_PLAYER_TEXT, 
-																   COLOR_WHITE);
+																   C_WHITE);
 		buttons_created = true;
 		texture_t *b1_texture = dw_create_text_texture(PLAYER_1_TEXT, 
-								COLOR_WHITE);
+								C_WHITE);
 		check_mem(b1_texture);
 		texture_t *b2_texture = dw_create_text_texture(PLAYER_2_TEXT, 
-								COLOR_WHITE);
+								C_WHITE);
 		check_mem(b2_texture);
 		texture_t *b3_texture = dw_create_text_texture(PLAYER_3_TEXT, 
-								COLOR_WHITE);
+								C_WHITE);
 		check_mem(b3_texture);
 		
 		SDL_Rect b = dm_get_p1_button_box();
-		player_1 = bt_create_button(b.x, b.y, b.h, b.w, true, true, b1_texture);
+		player_1 = bt_create_button(b, true, true, false, C_BLACK, C_WHITE, 
+																	b1_texture);
 		check_mem(player_1);
 		
 		b = dm_get_p2_button_box();
-		player_2 = bt_create_button(b.x, b.y, b.h, b.w, true, true, b2_texture);
+		player_2 = bt_create_button(b, true, true, false, C_BLACK, C_WHITE, 
+																	b2_texture);
 		check_mem(player_2);
 
 		b = dm_get_p3_button_box();
-		player_3 = bt_create_button(b.x, b.y, b.h, b.w, true, true, b3_texture);
+		player_3 = bt_create_button(b, true, true, false, C_BLACK, C_WHITE, 
+																	b3_texture);
 		check_mem(player_3);
 	}
 	SDL_Rect b = dm_get_select_player_box();
@@ -222,11 +225,13 @@ static void initialize_stage_assets()
 					 BUFFER_BOX_H);
 	bf_set_output_box(BUFFER_BOX_X, OUTPUT_BUFFER_BOX_Y, BUFFER_BOX_W, 
 				   	  BUFFER_BOX_H);
+	SDL_Rect r0 = {.x =BUFFER_BOX_X, .y = INPUT_BUFFER_TEXT_Y, 
+				   .w = BUFFER_BOX_W, .h = BUFFER_TEXT_H + BUFFER_BOX_H};
+	bf_set_input_buffer_button(r0);
 	
-	bf_set_input_buffer_button(BUFFER_BOX_X, INPUT_BUFFER_TEXT_Y, BUFFER_BOX_W, 
-							BUFFER_TEXT_H + BUFFER_BOX_H);
-	bf_set_output_buffer_button(BUFFER_BOX_X, OUTPUT_BUFFER_BOX_Y, BUFFER_BOX_W, 
-							 BUFFER_TEXT_H + BUFFER_BOX_H);
+	SDL_Rect r1 = {.x = BUFFER_BOX_X, .y = OUTPUT_BUFFER_BOX_Y, 
+				   .w = BUFFER_BOX_W, .h = BUFFER_TEXT_H + BUFFER_BOX_H};
+	bf_set_output_buffer_button(r1);
 	bf_initialize_buffer_operands();
 }
 
@@ -357,18 +362,19 @@ static void create_select_level_buttons(button_t **buttons, bool *levels)
 		texture_t *button_texture = NULL;
 		if (levels[i-1] == true){
 			button_texture = dw_create_text_texture(button_text, 
-							 COLOR_WHITE);
-			buttons[i-1] = bt_create_button(x, y, SEL_LEVEL_BUTTON_W, 
-									 SEL_LEVEL_BUTTON_H, true, true, 
-									 button_texture);
+							 C_WHITE);
+			SDL_Rect r = {.x = x, .y = y, .w = SEL_LEVEL_BUTTON_W, 
+						  .h = SEL_LEVEL_BUTTON_H};
+			buttons[i-1] = bt_create_button(r, true, true, false, C_BLACK, 
+											C_WHITE, button_texture);
 		} else {
 			button_texture = dw_create_text_texture(button_text, 
-							 COLOR_GREY);
-			buttons[i-1] = bt_create_button(x, y, SEL_LEVEL_BUTTON_W, 
-									 SEL_LEVEL_BUTTON_H, false, true, 
-									 button_texture);
+							 C_GREY);
+			SDL_Rect r = {.x = x, .y = y, .w = SEL_LEVEL_BUTTON_W, 
+						  .h = SEL_LEVEL_BUTTON_H};
+			buttons[i-1] = bt_create_button(r, false, true, false, C_BLACK,
+											C_WHITE, button_texture);
 		}
-				
 				y += SEL_LEVEL_OFFSET_Y;	
 		
 		if (i != 0 && i%8 == 0){
@@ -403,7 +409,7 @@ int stage_select_level()
 	}
 
 	dw_draw_text_fits_width(SEL_LEVEL_TEXT_X, SEL_LEVEL_TEXT_Y, 
-							SEL_LEVEL_TEXT_W, COLOR_WHITE, SEL_LEVEL_TEXT);
+							SEL_LEVEL_TEXT_W, C_WHITE, SEL_LEVEL_TEXT);
 
 	for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
 		bt_draw_button(level_buttons[i]);
@@ -710,9 +716,9 @@ static int display_run_result(bool win_check)
 
 	}
 	dw_draw_filled_rectangle(RES_BOX_X, RES_BOX_Y, RES_BOX_W, RES_BOX_H, 
-	               			 COLOR_BLACK, COLOR_WHITE);
+	               			 C_BLACK, C_WHITE);
 	dw_draw_text_fits_width(RES_BOX_TEXT_X, RES_BOX_TEXT_Y, RES_BOX_TEXT_W, 
-							COLOR_WHITE, text_to_print);
+							C_WHITE, text_to_print);
 	
 	static bool buttons_created = false;
 	static button_t *ret;
@@ -726,10 +732,12 @@ static int display_run_result(bool win_check)
 		int back_y = WIN_MENU_BUTTON_Y;
 		if (win_check == true){
 			texture_t *con_texture = dw_create_text_texture(
-									 STR_CONT, COLOR_WHITE);
+									 STR_CONT, C_WHITE);
 			check_mem(con_texture);
-			con = bt_create_button(WIN_MENU_BUTTON2_X, WIN_MENU_BUTTON_Y, 
-			        CONT_BUTTON_W, BACK_CONT_BUTTON_H, true, true, con_texture);
+			SDL_Rect r = {.x = WIN_MENU_BUTTON2_X, .y = WIN_MENU_BUTTON_Y, 
+			        	  .w = CONT_BUTTON_W, .h =  BACK_CONT_BUTTON_H};
+			con = bt_create_button(r, true, true, false, C_BLACK, C_WHITE, 
+								   con_texture);
 			check_mem(con);
 
 			back_x = WIN_MENU_BUTTON1_X;
@@ -738,11 +746,12 @@ static int display_run_result(bool win_check)
 		}
 		
 		texture_t *ret_texture = dw_create_text_texture(
-								 STR_BACK, COLOR_WHITE);
+								 STR_BACK, C_WHITE);
 		check_mem(ret_texture);
-		
-		ret = bt_create_button(back_x, WIN_MENU_BUTTON_Y, 
-					BACK_BUTTON_W, BACK_CONT_BUTTON_H, true, true, ret_texture);
+		SDL_Rect b = {.x = 	back_x, .y = WIN_MENU_BUTTON_Y, 
+					  .w = BACK_BUTTON_W, .h = BACK_CONT_BUTTON_H};
+		ret = bt_create_button(b, true, true, false, C_BLACK, C_WHITE, 
+							   ret_texture);
 		check_mem(ret);
 	} 
 	bt_draw_button(ret);

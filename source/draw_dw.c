@@ -9,15 +9,15 @@
 #include "aux.h"
 #include "dbg.h"
 
-SDL_Color COLOR_WHITE = {255,255,255,255};
-SDL_Color COLOR_BLACK = {0, 0, 0, 255};
-SDL_Color COLOR_RED = {255, 0, 0, 255};
-SDL_Color COLOR_GREY = {127, 127, 127, 255};
-SDL_Color COLOR_ORANGE = {0xF8, 0x71, 0x3A, 255};
-SDL_Color COLOR_CYAN = {0, 255, 255, 255};
-SDL_Color COLOR_YELLOW = {255, 255, 0, 255};
-SDL_Color COLOR_MAGENTA = {255, 0, 255, 255};
-SDL_Color COLOR_GREEN = {0, 255, 0, 255};
+SDL_Color C_WHITE = {255,255,255,255};
+SDL_Color C_BLACK = {0, 0, 0, 255};
+SDL_Color C_RED = {255, 0, 0, 255};
+SDL_Color C_GREY = {127, 127, 127, 255};
+SDL_Color C_ORANGE = {0xF8, 0x71, 0x3A, 255};
+SDL_Color C_CYAN = {0, 255, 255, 255};
+SDL_Color C_YELLOW = {255, 255, 0, 255};
+SDL_Color C_MAGENTA = {255, 0, 255, 255};
+SDL_Color C_GREEN = {0, 255, 0, 255};
 
 texture_t *g_arrow = NULL;
 

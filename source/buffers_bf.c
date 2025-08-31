@@ -257,16 +257,16 @@ operand_t *bf_create_buffer_operand_by_id(int id)
 	operand_t *b = malloc(sizeof(operand_t));
 	if (id == IB){
 		texture_t *t = cl_create_operand_texture(id);
-		b->b = bt_create_button(input_buffer->b->box, input_buffer->b->act, 
+		b->b = bt_create_button(input_buffer->b->r, input_buffer->b->act, 
 							 input_buffer->b->rect, input_buffer->b->fill, 
-							 COLOR_BLACK, COLOR_WHITE, t);
+							 C_BLACK, C_WHITE, t);
 
 		b->id = input_buffer->id;
 	} else if (id == OB){
 		texture_t *t = cl_create_operand_texture(id);
-		b->b = bt_create_button(output_buffer->b->box, output_buffer->b->act, 
+		b->b = bt_create_button(output_buffer->b->r, output_buffer->b->act, 
 							 output_buffer->b->rect, output_buffer->b->fill, 
-							 COLOR_BLACK, COLOR_WHITE, t);
+							 C_BLACK, C_WHITE, t);
 		b->id = output_buffer->id;
 	}
 	check_mem(b);
@@ -293,9 +293,9 @@ operand_t *bf_create_operand_of_selected_buffer()
 		b = malloc(sizeof(operand_t));
 		texture_t *t = cl_create_operand_texture(IB);
 
-		b->b = bt_create_button(input_buffer->b->box, input_buffer->b->act, 
+		b->b = bt_create_button(input_buffer->b->r, input_buffer->b->act, 
 							 input_buffer->b->rect, input_buffer->b->fill,
-							 COLOR_BLACK, COLOR_WHITE, t);
+							 C_BLACK, C_WHITE, t);
 
 		b->id = input_buffer->id;
 	} 
@@ -303,9 +303,9 @@ operand_t *bf_create_operand_of_selected_buffer()
 	if (bt_check_mouse_released_button(&output_buffer_button) == true){
 		b = malloc(sizeof(operand_t));
 		texture_t *t = cl_create_operand_texture(OB);
-		b->b = bt_create_button(output_buffer->b->box, output_buffer->b->act, 
+		b->b = bt_create_button(output_buffer->b->r, output_buffer->b->act, 
 							 output_buffer->b->rect, output_buffer->b->fill, 
-							 COLOR_BLACK, COLOR_WHITE, t);
+							 C_BLACK, C_WHITE, t);
 		b->id = output_buffer->id;
 	}
 	return b;
@@ -323,9 +323,9 @@ operand_t *bf_create_operand_of_selected_buffer()
 void bf_initialize_buffer_operands()
 {
 	SDL_Rect r = dm_get_code_button_box();
-	texture_t *ib = dw_create_text_texture(ib_text, COLOR_WHITE);
+	texture_t *ib = dw_create_text_texture(ib_text, C_WHITE);
 	check_mem(ib);
-	button_t *a = bt_create_button(r, true, false, false, COLOR_BLACK, COLOR_WHITE, 
+	button_t *a = bt_create_button(r, true, false, false, C_BLACK, C_WHITE, 
 						        ib);
 	check_mem(a);
 
@@ -333,9 +333,9 @@ void bf_initialize_buffer_operands()
 	check_mem(input_buffer);
 
 	
-	texture_t *ob = dw_create_text_texture(ob_text, COLOR_WHITE);
+	texture_t *ob = dw_create_text_texture(ob_text, C_WHITE);
 	check_mem(ob);
-	button_t *b = bt_create_button(r, true, false, false, COLOR_BLACK, COLOR_WHITE,
+	button_t *b = bt_create_button(r, true, false, false, C_BLACK, C_WHITE,
 								ob);
 	check_mem(b);
 	output_buffer = cl_create_operand(OB, b);
@@ -358,7 +358,7 @@ error:
  */
 void bf_set_input_buffer_button(SDL_Rect r)
 {
-	input_buffer_button.box = r;
+	input_buffer_button.r = r;
 }
 
 /* Function: bf_set_output_buffer_button
@@ -374,7 +374,7 @@ void bf_set_input_buffer_button(SDL_Rect r)
  */
 void bf_set_output_buffer_button(SDL_Rect r)
 {
-	output_buffer_button.box = r;
+	output_buffer_button.r = r;
 }
 
 /* Function: get_input_list
@@ -677,7 +677,7 @@ void draw_output_buffer()
 			cur_output->box.x = draw_x;
 
 			if (cur_output->visible_box != false){
-				ax_draw_value_box(cur_output, COLOR_WHITE);
+				ax_draw_value_box(cur_output, C_WHITE);
 			}
 			draw_x -= VALUE_W + BETWEEN_NUMBERS_OFFSET;
 		}
@@ -687,9 +687,9 @@ void draw_output_buffer()
 		}
 	}
 	dw_draw_rectangle(output_box.x, output_box.y, output_box.w, output_box.h,
-				   COLOR_WHITE);
+				   C_WHITE);
 	dw_draw_text_fits_height(OUTPUT_BUFFER_TEXT_X, OUTPUT_BUFFER_TEXT_Y, 
-						 BUFFER_TEXT_H, COLOR_WHITE, output_text);
+						 BUFFER_TEXT_H, C_WHITE, output_text);
 error:
 	return;
 }
@@ -749,7 +749,7 @@ void draw_input_buffer()
 		LIST_FOREACH(inputs, first, next, cur){
 			value_box_t *cur_input = cur->value;
 			cur_input->box.x = draw_x;
-			ax_draw_value_box(cur_input, COLOR_WHITE);
+			ax_draw_value_box(cur_input, C_WHITE);
 			draw_x += VALUE_W + BETWEEN_NUMBERS_OFFSET;
 		}
 		if (g_input_list_x_pos > x){
@@ -759,9 +759,9 @@ void draw_input_buffer()
 	}
 
 	dw_draw_text_fits_height(INPUT_BUFFER_TEXT_X, INPUT_BUFFER_TEXT_Y, 
-						 BUFFER_TEXT_H, COLOR_WHITE, input_text);
+						 BUFFER_TEXT_H, C_WHITE, input_text);
 	dw_draw_rectangle(input_box.x, input_box.y, input_box.w, input_box.h, 
-				   COLOR_WHITE);
+				   C_WHITE);
 	
 }
 

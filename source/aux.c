@@ -70,7 +70,7 @@ void ax_draw_value_box(value_box_t *box, SDL_Color color){
 	int y_offset = ((VALUE_BOX_H - VALUE_H)/2) + 
 				    (VALUE_H/5)/2;
 	dw_draw_text_fits_height(box->box.x + x_offset, box->box.y + y_offset, 
-						 VALUE_H, COLOR_WHITE, text);
+						 VALUE_H, C_WHITE, text);
 	int box_offset = VALUE_H/6;
 	dw_draw_rectangle(box->box.x, box->box.y, box->box.w , box->box.h, 
 				   color);
@@ -92,7 +92,7 @@ int get_text_height_fits_width(int w, char *text)
 {
 	texture_t *text_texture = NULL;
 
-	text_texture = dw_create_text_texture(text, COLOR_WHITE);
+	text_texture = dw_create_text_texture(text, C_WHITE);
 	assert(NULL != text_texture && 
 		   "Failed to load texture from rendered text");
 	
@@ -121,7 +121,7 @@ int get_text_width_fits_height(int h, char *text)
 {
 	texture_t *text_texture = NULL;
 
-	text_texture = dw_create_text_texture(text, COLOR_WHITE);
+	text_texture = dw_create_text_texture(text, C_WHITE);
 	assert(NULL != text_texture && 
 		   "Failed to load texture from rendered text");
 	
@@ -348,7 +348,7 @@ bool check_if_text_fits_in_width(char *t, float s, int w)
 	bool check = false;
 	texture_t *text_texture = NULL;
 
-	text_texture = dw_create_text_texture(t, COLOR_WHITE);
+	text_texture = dw_create_text_texture(t, C_WHITE);
 	assert(NULL != text_texture && 
 		   "Failed to load texture from rendered text");
 
@@ -381,7 +381,7 @@ bool check_text_fits_width_by_height(char *t, int h, int w)
 	bool check = false;
 	texture_t *text_texture = NULL;
 
-	text_texture = dw_create_text_texture(t, COLOR_WHITE);
+	text_texture = dw_create_text_texture(t, C_WHITE);
 	assert(NULL != text_texture && 
 		   "Failed to load texture from rendered text");
 
@@ -411,7 +411,7 @@ int get_text_height(char *text, float scale)
 {
 	texture_t *text_texture = NULL;
 
-	text_texture = dw_create_text_texture(text, COLOR_WHITE);
+	text_texture = dw_create_text_texture(text, C_WHITE);
 	assert(NULL != text_texture && 
 		   "Failed to load texture from rendered text");
 
@@ -439,7 +439,7 @@ int get_text_width(char *text, float scale)
 {
 	texture_t *text_texture = NULL;
 
-	text_texture = dw_create_text_texture(text, COLOR_WHITE);
+	text_texture = dw_create_text_texture(text, C_WHITE);
 	assert(NULL != text_texture && 
 		   "Failed to load texture from rendered text");
 

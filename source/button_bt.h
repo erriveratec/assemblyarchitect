@@ -10,7 +10,7 @@
 #include "mouse_ms.h"
 
 typedef struct button_t{
-	SDL_Rect box;
+	SDL_Rect r;
 	bool act;
 	bool rect;
 	bool fill;

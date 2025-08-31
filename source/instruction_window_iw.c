@@ -42,7 +42,7 @@ int iw_get_instruction_y_by_pos(int pos)
 	   	}
    }
    assert(i != NULL && "null pointer returned for instruction");
-   return i->b->y + i->b->h;
+   return i->b->r.y + i->b->r.h;
 }
 
 
@@ -70,7 +70,7 @@ int iw_get_instruction_y_by_id(int id)
 	   	}
    }
    assert(i != NULL && "null pointer returned for instruction");
-   return i->b->y + i->b->h;
+   return i->b->r.y + i->b->r.h;
 }
 
 /* Function: draw_instruction_text
@@ -88,7 +88,7 @@ static void draw_instruction_text()
 	int x = instruction_box.x;
 	int y = instruction_box.y  - get_text_height_fits_width(INS_BOX_TEXT_W, 
 															INSTRUCTIONS_TEXT);
-	dw_draw_text_fits_width(x, y, INS_BOX_TEXT_W, COLOR_WHITE, 
+	dw_draw_text_fits_width(x, y, INS_BOX_TEXT_W, C_WHITE, 
 															INSTRUCTIONS_TEXT);
 }
 
@@ -304,13 +304,16 @@ void iw_add_instruction_to_list(int id)
 	
 	char *text = cl_get_instruction_text(id);
 	texture_t *instruction_text = dw_create_text_texture(text, 
-								  COLOR_WHITE);
+								  C_WHITE);
 	
 	int list_size = List_count(instructions);
 	int x = INS_BOX_X + INS_BOX_OFFSET;
 	int y = INS_BOX_Y + INS_BOX_OFFSET + list_size*CODE_BUTTON_H;
-	button_t *b = bt_create_button(x, y, CODE_BUTTON_W, CODE_BUTTON_H,
-								true, false, instruction_text);
+	SDL_Rect r = dm_get_code_button_box();
+	r.x = x;
+	r.y = y;
+	button_t *b = bt_create_button(r, true, false, false, C_BLACK, 
+								   C_WHITE, instruction_text);
 	check_mem(b);
 	set_instruction_box_member(2*INS_BOX_OFFSET + (list_size + 1)*CODE_BUTTON_H,
 							   MEMBER_H);
@@ -344,7 +347,7 @@ void iw_display_instructions(int x, int y)
 	draw_instruction_text();
 	// The rectangle the contains the list of buttons
 	dw_draw_rectangle(instruction_box.x, instruction_box.y, 
-				   instruction_box.w, instruction_box.h, COLOR_WHITE);
+				   instruction_box.w, instruction_box.h, C_WHITE);
 	
 	LIST_FOREACH(instructions, first, next, cur){
 		instruction_t *c = cur->value;

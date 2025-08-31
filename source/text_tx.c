@@ -148,7 +148,7 @@ void tx_text_box(int pos, char *msg)
 			b.w = g_ins_box.w; 
 			b.h = g_ins_box.h;
 			text_h = MSG_TEXT_H;
-			color = COLOR_WHITE;
+			color = C_WHITE;
 			break;
 		case TX_UPPER_BOX:
 			b.x = g_upper_box.x; 
@@ -156,7 +156,7 @@ void tx_text_box(int pos, char *msg)
 			b.w = g_upper_box.w; 
 			b.h = g_upper_box.h;	
 			text_h = MSG_TEXT_H;
-			color = COLOR_WHITE;
+			color = C_WHITE;
 			break;
 		case TX_LOWER_BOX:
 			b.x = g_lower_box.x; 
@@ -164,7 +164,7 @@ void tx_text_box(int pos, char *msg)
 			b.w = g_lower_box.w; 
 			b.h = g_lower_box.h;	
 			text_h = MSG_TEXT_H;
-			color = COLOR_WHITE;
+			color = C_WHITE;
 			break;
 		case TX_CODE_BOX:
 			b.x = g_code_box.x; 
@@ -172,7 +172,7 @@ void tx_text_box(int pos, char *msg)
 			b.w = g_code_box.w; 
 			b.h = g_code_box.h;	
 			text_h = MSG_TEXT_H;
-			color = COLOR_WHITE;
+			color = C_WHITE;
 			break;
 		case TX_SB_BOX:
 			b.x = g_sb_box.x; 
@@ -180,7 +180,7 @@ void tx_text_box(int pos, char *msg)
 			b.w = g_sb_box.w; 
 			b.h = g_sb_box.h;	
 			text_h = MSG_TEXT_H;
-			color = COLOR_WHITE;
+			color = C_WHITE;
 			break;
 		case TX_BIG_BOX:
 			b.x = g_big_box.x; 
@@ -188,7 +188,7 @@ void tx_text_box(int pos, char *msg)
 			b.w = g_big_box.w; 
 			b.h = g_big_box.h;	
 			text_h = BIG_MSG_TEXT_H;
-			color = COLOR_BLACK;
+			color = C_BLACK;
 			break;
 		case TX_ERROR_BOX:
 			b.x = g_error_box.x; 
@@ -196,14 +196,14 @@ void tx_text_box(int pos, char *msg)
 			b.w = g_error_box.w; 
 			b.h = g_error_box.h;	
 			text_h = MSG_TEXT_H;
-			color = COLOR_WHITE;
+			color = C_WHITE;
 			break;
 	}
-	dw_draw_filled_rectangle(b.x, b.y, b.w, b.h, COLOR_WHITE, COLOR_WHITE);
+	dw_draw_filled_rectangle(b.x, b.y, b.w, b.h, C_WHITE, C_WHITE);
 	dw_draw_wrapped_text_fits_height(b.x, b.y, b.w, b.h, text_h, color, msg);
 	int tw = get_text_width_fits_height(CLICK_MESSAGE_H, MSG_CLICK_ANYWHERE);
 	dw_draw_text_fits_height(b.x + b.w/2 - tw/2, b.y+b.h - 2*CLICK_MESSAGE_H, 
-						     CLICK_MESSAGE_H, COLOR_GREY, MSG_CLICK_ANYWHERE);
+						     CLICK_MESSAGE_H, C_GREY, MSG_CLICK_ANYWHERE);
 }
 
 

@@ -29,9 +29,9 @@ static void initialize_game_assets();
 static void initialize_game_assets()
 {
 	dm_set_screen_resolution(R1600X900);
-	g_studio_name = dw_create_text_texture(STUDIO_NAME_TEXT, COLOR_WHITE);
-	g_game_title = dw_create_text_texture(GAME_TITLE_TEXT, COLOR_WHITE);
-	g_press_space = dw_create_text_texture(PRESS_SPACE_TEXT, COLOR_WHITE);
+	g_studio_name = dw_create_text_texture(STUDIO_NAME_TEXT, C_WHITE);
+	g_game_title = dw_create_text_texture(GAME_TITLE_TEXT, C_WHITE);
+	g_press_space = dw_create_text_texture(PRESS_SPACE_TEXT, C_WHITE);
 	init_escape_menu();
 }
 

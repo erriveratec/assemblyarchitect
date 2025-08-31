@@ -90,7 +90,7 @@ bool cl_operands_are_registers(code_line_t *line)
 code_line_t *cl_new_code_line(instruction_t *ins)
 {
 	texture_t *t = cl_create_instruction_texture(ins->id);	
-	button_t *b = bt_create_button(ins->b->box, ins->b->act, ins->b->rect,
+	button_t *b = bt_create_button(ins->b->r, ins->b->act, ins->b->rect,
 								   ins->b->fill, ins->b->in, ins->b->out, t);
 
 	instruction_t *i = cl_create_instruction(ins->id, b);
@@ -115,16 +115,16 @@ texture_t *cl_create_instruction_texture(int id)
 	
 	switch(id){
 		case MOV:
-			texture = dw_create_text_texture(mov_text, COLOR_WHITE);
+			texture = dw_create_text_texture(mov_text, C_WHITE);
 			break;
 		case ADD:
-			texture = dw_create_text_texture(add_text, COLOR_WHITE);
+			texture = dw_create_text_texture(add_text, C_WHITE);
 			break;
 		case LABEL:
-			texture = dw_create_text_texture(label_text, COLOR_WHITE);
+			texture = dw_create_text_texture(label_text, C_WHITE);
 			break;
 		case JMP:
-			texture = dw_create_text_texture(jmp_text, COLOR_WHITE);
+			texture = dw_create_text_texture(jmp_text, C_WHITE);
 			break;
 		default:
 			printf("Error: the id of the register is invalid");
@@ -150,25 +150,25 @@ texture_t *cl_create_operand_texture(int id)
 	
 	switch(id){
 		case RAX:
-			texture = dw_create_text_texture(rax_text, COLOR_WHITE);
+			texture = dw_create_text_texture(rax_text, C_WHITE);
 			break;
 		case RBX:
-			texture = dw_create_text_texture(rbx_text, COLOR_WHITE);
+			texture = dw_create_text_texture(rbx_text, C_WHITE);
 			break;
 		case RCX:
-			texture = dw_create_text_texture(rcx_text, COLOR_WHITE);
+			texture = dw_create_text_texture(rcx_text, C_WHITE);
 			break;
 		case RDX:
-			texture = dw_create_text_texture(rdx_text, COLOR_WHITE);
+			texture = dw_create_text_texture(rdx_text, C_WHITE);
 			break;
 		case RDI:
-			texture = dw_create_text_texture(rdi_text, COLOR_WHITE);
+			texture = dw_create_text_texture(rdi_text, C_WHITE);
 			break;
 		case IB:
-			texture = dw_create_text_texture(ib_text, COLOR_WHITE);
+			texture = dw_create_text_texture(ib_text, C_WHITE);
 			break;
 		case OB:
-			texture = dw_create_text_texture(ob_text, COLOR_WHITE);
+			texture = dw_create_text_texture(ob_text, C_WHITE);
 			break;
 		default:
 			printf("Error: the id of the register is invalid");
@@ -639,14 +639,14 @@ void cl_assign_operand_to_line(operand_t *op, code_line_t *line)
 	switch(line->state){
 		case MISSING_BOTH:
 			line->op1 = op;
-			line->op1->b->box.x = line->ins->b->box.x + OP1_X_OFFSET;
-			line->op1->b->box.y = line->ins->b->box.y;
+			line->op1->b->r.x = line->ins->b->r.x + OP1_X_OFFSET;
+			line->op1->b->r.y = line->ins->b->r.y;
 			line->state = MISSING_OP2;
 			break;
 		case MISSING_OP1:
 			line->op1 = op;
-			line->op1->b->box.x = line->ins->b->box.x + OP1_X_OFFSET;
-			line->op1->b->box.y = line->ins->b->box.y;
+			line->op1->b->r.x = line->ins->b->r.x + OP1_X_OFFSET;
+			line->op1->b->r.y = line->ins->b->r.y;
 			if (operand_quantity == ONE_OPERAND){
 				line->state = COMPLETE;
 			} else {
@@ -655,22 +655,22 @@ void cl_assign_operand_to_line(operand_t *op, code_line_t *line)
 			break;
 		case MISSING_OP2:
 			line->op2 = op;
-			line->op2->b->box.x = line->ins->b->box.x + OP2_X_OFFSET;
-			line->op2->b->box.y = line->ins->b->box.y;
+			line->op2->b->r.x = line->ins->b->r.x + OP2_X_OFFSET;
+			line->op2->b->r.y = line->ins->b->r.y;
 			line->state = COMPLETE;
 			break;
 		case CHANGING_OP1:
 			cl_destroy_operand(line->op1);	
 			line->op1 = op;
-			line->op1->b->box.x = line->ins->b->box.x + OP1_X_OFFSET;
-			line->op1->b->box.y = line->ins->b->box.y;
+			line->op1->b->r.x = line->ins->b->r.x + OP1_X_OFFSET;
+			line->op1->b->r.y = line->ins->b->r.y;
 			line->state = COMPLETE;
 			break;
 		case CHANGING_OP2:
 			cl_destroy_operand(line->op2);	
 			line->op2 = op;
-			line->op2->b->box.x = line->ins->b->box.x + OP2_X_OFFSET;
-			line->op2->b->box.y = line->ins->b->box.y;
+			line->op2->b->r.x = line->ins->b->r.x + OP2_X_OFFSET;
+			line->op2->b->r.y = line->ins->b->r.y;
 			line->state = COMPLETE;
 			break;
 		case COMPLETE:

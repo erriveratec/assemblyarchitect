@@ -47,27 +47,27 @@ button_t *g_escape_b3;
  */
 void init_escape_menu()
 {
-	g_escape_b1_texture = dw_create_text_texture(ESC_MENU_TEXT1, COLOR_BLACK);
+	g_escape_b1_texture = dw_create_text_texture(ESC_MENU_TEXT1, C_BLACK);
 	check_mem(g_escape_b1_texture);
 
-	g_escape_b2_texture = dw_create_text_texture(ESC_MENU_TEXT2, COLOR_BLACK);
+	g_escape_b2_texture = dw_create_text_texture(ESC_MENU_TEXT2, C_BLACK);
 	check_mem(g_escape_b2_texture);
 
-	g_escape_b3_texture = dw_create_text_texture(ESC_MENU_TEXT3, COLOR_BLACK);
+	g_escape_b3_texture = dw_create_text_texture(ESC_MENU_TEXT3, C_BLACK);
 	check_mem(g_escape_b3_texture);
 	
-	SDL_Rect b = dm_get_escape_b1_box();
-	g_escape_b1 = bt_create_button(b.x, b.y, b.w, b.h, true, true, 
+	SDL_Rect r = dm_get_escape_b1_box();
+	g_escape_b1 = bt_create_button(r, true, true, true, C_BLACK, C_WHITE,
 														   g_escape_b1_texture);
 	check_mem(g_escape_b1);
 
-	b = dm_get_escape_b2_box();
-	g_escape_b2 = bt_create_button(b.x, b.y, b.w, b.h, true, true, 
+	r = dm_get_escape_b2_box();
+	g_escape_b2 = bt_create_button(r, true, true, true, C_BLACK, C_WHITE, 
 														   g_escape_b2_texture);
 	check_mem(g_escape_b2);
 	
-	b = dm_get_escape_b3_box();
-	g_escape_b3 = bt_create_button(b.x, b.y, b.w, b.h, true, true, 
+	r = dm_get_escape_b3_box();
+	g_escape_b3 = bt_create_button(r, true, true, true, C_BLACK, C_WHITE, 
 														   g_escape_b3_texture);
 	check_mem(g_escape_b3);
 	error:
@@ -92,7 +92,7 @@ void display_escape_menu(bool show_menu)
 	if (show_menu == true){
 		
 		SDL_Rect b = dm_get_escape_menu_box();
-		dw_draw_filled_rectangle(b.x, b.y, b.w, b.h, COLOR_WHITE, COLOR_WHITE);
+		dw_draw_filled_rectangle(b.x, b.y, b.w, b.h, C_WHITE, C_WHITE);
 
 		
 		bt_draw_button(g_escape_b1);
@@ -189,16 +189,16 @@ int sb_get_play_button_member(int member)
 	int return_value;
 	switch (member){
 		case MEMBER_X:
-			return_value = play->x;
+			return_value = play->r.x;
 			break;
 		case MEMBER_Y:
-			return_value = play->y;
+			return_value = play->r.y;
 			break;
 		case MEMBER_W:
-			return_value = play->w;
+			return_value = play->r.w;
 			break;
 		case MEMBER_H:
-			return_value = play->h;
+			return_value = play->r.h;
 			break;
 	}
 	return return_value;
@@ -225,16 +225,16 @@ void adjust_stage_buttons_position(int code_size)
 
 	int delta = STAGE_BUTTONS_MOVEMENT_DELTA;
 
-	if (stop->y < y_final){
-		stop->y += delta;
-		step_back->y += delta;
-		play->y += delta;
-		step_forward->y += delta;
-	} else if (stop->y > y_final){
-		stop->y -= delta;
-		step_back->y -= delta;
-		play->y -= delta;
-		step_forward->y -= delta;
+	if (stop->r.y < y_final){
+		stop->r.y += delta;
+		step_back->r.y += delta;
+		play->r.y += delta;
+		step_forward->r.y += delta;
+	} else if (stop->r.y > y_final){
+		stop->r.y -= delta;
+		step_back->r.y -= delta;
+		play->r.y -= delta;
+		step_forward->r.y -= delta;
 	}
 
 }
@@ -285,9 +285,11 @@ void sb_draw_return_button()
 void sb_initialize_return_button()
 {
 	if (ret_button == NULL){
+		SDL_Rect r = {.x = RET_BUTTON_X, .y = RET_BUTTON_Y, .w = RET_BUTTON_W, 
+									  						 .h = RET_BUTTON_H};
 		ret_button = malloc(sizeof(button_t));
-		ret_button = bt_create_button(RET_BUTTON_X, RET_BUTTON_Y, RET_BUTTON_W, 
-									  RET_BUTTON_H, true, true, return_button);
+		ret_button = bt_create_button(r, true, true, true, C_BLACK, C_WHITE, 	
+																 return_button);
 	}
 	return;
 }
@@ -301,25 +303,28 @@ void sb_initialize_return_button()
  */
 void sb_initialize_stage_buttons()
 {
+	SDL_Rect r0 = {.x = STAGE_BUTTON_X, .y = STAGE_BUTTON_HIDDEN_Y, 
+				  .w = STAGE_BUTTON_W, .h = STAGE_BUTTON_H};
 	stop = malloc(sizeof(button_t));
-	stop = bt_create_button(STAGE_BUTTON_X, STAGE_BUTTON_HIDDEN_Y,STAGE_BUTTON_W, 
-						 STAGE_BUTTON_H, true, false, stop_button);
+	stop = bt_create_button(r0, true, false, false, C_BLACK, C_WHITE, 
+																   stop_button);
 
+	SDL_Rect r1 = {.x = STAGE_BUTTON_X + STAGE_BUTTON_W + BUTTONS_SPACE, 
+		 .y = STAGE_BUTTON_HIDDEN_Y, .w = STAGE_BUTTON_W, .h = STAGE_BUTTON_H};
 	step_back = malloc(sizeof(button_t));
-	step_back = bt_create_button(STAGE_BUTTON_X + STAGE_BUTTON_W + BUTTONS_SPACE, 
-							  STAGE_BUTTON_HIDDEN_Y, STAGE_BUTTON_W, 
-							  STAGE_BUTTON_H, true, false, step_back_button);
+	step_back = bt_create_button(r1, true, false, false, C_BLACK, C_WHITE, 
+															  step_back_button);
 
+	SDL_Rect r2 = {.x = STAGE_BUTTON_X + 2*STAGE_BUTTON_W + 2*BUTTONS_SPACE, 
+	      .y = STAGE_BUTTON_HIDDEN_Y, .w = STAGE_BUTTON_W, .h = STAGE_BUTTON_H};
 	play = malloc(sizeof(button_t));
-	play = bt_create_button(STAGE_BUTTON_X + 2*STAGE_BUTTON_W + 2*BUTTONS_SPACE, 
-						 STAGE_BUTTON_HIDDEN_Y, STAGE_BUTTON_W, STAGE_BUTTON_H, 
-						 true, false, play_button);
-
+	play = bt_create_button(r2, true, false, false, C_BLACK,C_WHITE, 
+																   play_button);
+	SDL_Rect r3 = {.x = STAGE_BUTTON_X + 3*STAGE_BUTTON_W + 3*BUTTONS_SPACE, 
+	     .y = STAGE_BUTTON_HIDDEN_Y, .w = STAGE_BUTTON_W, .h = STAGE_BUTTON_H};
 	step_forward = malloc(sizeof(button_t));
-	step_forward = bt_create_button(STAGE_BUTTON_X + 3*STAGE_BUTTON_W + 
-								 3*BUTTONS_SPACE, STAGE_BUTTON_HIDDEN_Y, 
-								 STAGE_BUTTON_W, STAGE_BUTTON_H, true, false, 
-								 step_forward_button);
+	step_forward = bt_create_button(r3, true, false, false, C_BLACK, C_WHITE,
+								 						   step_forward_button);
 	return;
 }
 
