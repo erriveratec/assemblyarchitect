@@ -10,7 +10,8 @@ enum resolutionos{
 };
 
 void dm_set_screen_resolution(int resolution_id);
-SDL_Rect dm_get_studio_name_box();
+int get_sel_level_offset_y();
+SDL_Rect dm_get_studio_name_msg_box();
 SDL_Rect dm_get_game_title_box();
 SDL_Rect dm_get_press_space_box();
 SDL_Rect dm_get_select_player_box();
@@ -24,7 +25,12 @@ SDL_Rect dm_get_escape_b2_box();
 SDL_Rect dm_get_escape_b3_box();
 SDL_Rect dm_get_code_button_box();
 SDL_Rect dm_get_level_button_box();
-int get_sel_level_offset_y();
+SDL_Rect dm_get_return_button_box();
+SDL_Rect dm_get_registers_stage_box();
+SDL_Rect dm_get_code_stage_box();
+SDL_Rect dm_get_instructions_stage_box();
+SDL_Rect dm_get_arrow_ins_box();
+
 
 /*******************************RESOLUTION*************************************/
 #define SCREEN_WIDTH 1600
@@ -34,39 +40,34 @@ int get_sel_level_offset_y();
 /*******************************RETURN BUTTON*********************************/
 #define MESSAGE_TEXT_H 40
 #define MESSAGE_TEXT_TOTAL_H 160
+
 /*******************************EXECUTION ARROW********************************/
 #define EXEC_ARROW_X_COORD_OFFSET - 50
 #define EXEC_ARROW_Y_COORD_OFFSET 10
 #define EXEC_ARROW_W 30
 #define EXEC_ARROW_H 30
 
-/*******************************RETURN BUTTON**********************************/
-#define BORDERS_OFFSET 2
-#define RET_BUTTON_W 90
-#define RET_BUTTON_H 75
-#define RET_BUTTON_Y SCREEN_HEIGHT - RET_BUTTON_H - BORDERS_OFFSET
-#define RET_BUTTON_X BORDERS_OFFSET
-
-/*******************************STUDIO NAME SCREEN*****************************/
-#define STUDIO_NAME_X (SCREEN_WIDTH - STUDIO_NAME_W)/2
-#define STUDIO_NAME_Y 300
-#define STUDIO_NAME_W 600
-
-
-/******************************SELECT LEVEL SCREEN*****************************/
-#define SEL_LEVEL_OFFSET_X 200
-#define SEL_LEVEL_OFFSET_Y 75
 
 /*******************************INSTRUCTION BOX********************************/
 // The offset of the borders of the instruction box
 #define INS_BOX_OFFSET 25
 
-// The instruction box where the player can select instructions
+/* TO DELETE
 #define INS_BOX_W ((SCREEN_WIDTH*2/6)/3)
 #define INS_BOX_H 250
-
 #define INS_BOX_X 0
 #define INS_BOX_Y ((SCREEN_HEIGHT/2) - (INS_BOX_H))
+
+#define CODE_BOX_X (INS_BOX_X + INS_BOX_W)
+#define CODE_BOX_Y 50
+#define CODE_BOX_W ((SCREEN_WIDTH*2/6)*2/3)
+#define CODE_BOX_H 625
+
+#define REG_BOX_X (CODE_BOX_X + CODE_BOX_W)
+#define REG_BOX_Y 0
+#define REG_BOX_H 200
+#define REG_BOX_W (SCREEN_WIDTH/6)
+*/
 // Instruction box text
 
 #define INS_BOX_TEXT_W ((SCREEN_WIDTH*2/6)/3)
@@ -102,12 +103,6 @@ int get_sel_level_offset_y();
 #define STR_CONT "Continue"
 
 /***********************************CODE***************************************/
-
-// The code box that contains level, description and developed code
-#define CODE_BOX_X (INS_BOX_X + INS_BOX_W)
-#define CODE_BOX_Y 50
-#define CODE_BOX_W ((SCREEN_WIDTH*2/6)*2/3)
-#define CODE_BOX_H 625
 
 #define CODE_BOX_NUMBER_WIDTH 35
 
@@ -167,12 +162,6 @@ int get_sel_level_offset_y();
 
 // The position of the register text
 #define REG_TEXT_Y_OFFSET 5
-
-// The position of the registers box
-#define REG_BOX_X (CODE_BOX_X + CODE_BOX_W)
-#define REG_BOX_Y 0
-#define REG_BOX_H 200
-#define REG_BOX_W (SCREEN_WIDTH/6)
 
 #define REG_VBOX_X REG_BOX_X + 190
 #define REG_VBOX_OFFSET 10

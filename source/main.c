@@ -33,6 +33,7 @@ static void initialize_game_assets()
 	g_game_title = dw_create_text_texture(GAME_TITLE_TEXT, C_WHITE);
 	g_press_space = dw_create_text_texture(PRESS_SPACE_TEXT, C_WHITE);
 	init_escape_menu();
+	sb_initialize_return_button();
 }
 
 
@@ -113,10 +114,6 @@ int main(int argc, char *args[])
 				break;
 			case LV_SELECT_PLAYER_SCREEN:
 				state = stage_select_player();
-				break;
-			case LV_INIT_LEVEL_SELECTION:
-				sb_initialize_return_button();
-				state = LV_LEVEL_SELECTION;
 				break;
 			case LV_LEVEL_SELECTION:
 				stage = stage_select_level();

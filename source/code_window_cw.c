@@ -1114,16 +1114,16 @@ void cw_set_challenge_text(char *text)
  * Return:
  *	void
  */
-void cw_set_code_box(int x, int y, int w, int h)
+void cw_set_code_box(SDL_Rect r)
 {
-	code_box.x = x;
-	code_box.y = y;
-	code_box.w = w;
-	code_box.h = h;
+	code_box.x = r.x;
+	code_box.y = r.y;
+	code_box.w = r.w;
+	code_box.h = r.h;
 
 	int text_box_height = ax_get_wrapped_text_height(TEXT_BOX_WIDTH, 
 											   TEXT_BOX_HEIGHT, challenge_text);
-	set_text_box(x + CODE_BOX_OFFSET, y + CODE_BOX_OFFSET + STAGE_NAME_H
+	set_text_box(r.x + CODE_BOX_OFFSET, r.y + CODE_BOX_OFFSET + STAGE_NAME_H
 				 + CODE_BOX_OFFSET, TEXT_BOX_WIDTH, text_box_height);
 }
 

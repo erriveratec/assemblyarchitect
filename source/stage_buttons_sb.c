@@ -285,8 +285,7 @@ void sb_draw_return_button()
 void sb_initialize_return_button()
 {
 	if (ret_button == NULL){
-		SDL_Rect r = {.x = RET_BUTTON_X, .y = RET_BUTTON_Y, .w = RET_BUTTON_W, 
-									  						 .h = RET_BUTTON_H};
+		SDL_Rect r = dm_get_return_button_box();
 		ret_button = malloc(sizeof(button_t));
 		ret_button = bt_create_button(r, true, true, true, C_BLACK, C_WHITE, 	
 																 return_button);

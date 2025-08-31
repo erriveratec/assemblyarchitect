@@ -17,7 +17,7 @@ typedef struct reg_t{
 extern texture_t *g_reg_arrow;
 
 void create_register_list();
-void rg_set_register_box(int x, int y, int w, int h);
+void rg_set_register_box(SDL_Rect r);
 int rg_get_registers_text_width(int h);
 void rg_add_register_to_list(int id);
 void rg_draw_registers(bool show_arrows);

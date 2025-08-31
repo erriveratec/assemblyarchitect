@@ -671,13 +671,13 @@ int rg_get_registers_text_width(int h)
  * Return:
  *	Void.
  */
-void rg_set_register_box(int x, int y, int w, int h)
+void rg_set_register_box(SDL_Rect r)
 {
-	assert(w > 0 && h > 0 && "Width and height must be > 0");
-	register_box.x = x;
-	register_box.y = y;
-	register_box.w = w;
-	register_box.h = h;
+	assert(r.w > 0 && r.h > 0 && "Width and height must be > 0");
+	register_box.x = r.x;
+	register_box.y = r.y;
+	register_box.w = r.w;
+	register_box.h = r.h;
 }
 
 /* Function: draw_register_box

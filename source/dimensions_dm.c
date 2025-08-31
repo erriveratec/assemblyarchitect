@@ -11,13 +11,117 @@
 #define ESC_MENU_BUTTON_H 60
 #define SEL_LEVEL_BUTTON_W 100
 #define SEL_LEVEL_BUTTON_H 50
-
+#define RET_BUTTON_W 90
+#define RET_BUTTON_H 75
+#define BORDERS_OFFSET 2
 
 int g_res_id;
 int g_screen_width;
 int g_screen_height;
 
 int scale_to_resolution(int dim);
+
+/* Function: dm_get_arrow_ins_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object, x and y are initialize at 0
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_arrow_ins_box()
+{
+	SDL_Rect b;
+	b.w = (g_screen_width*2/6)/3;
+	b.h = g_screen_height/4;
+	b.x = 0;
+	b.y = g_screen_height/2 - b.h;
+	return b;
+}
+
+/* Function: dm_get_instructions_stage_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object, x and y are initialize at 0
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_instructions_stage_box()
+{
+	SDL_Rect b;
+	b.w = (g_screen_width*2/6)/3;
+	b.h = g_screen_height/4;
+	b.x = 0;
+	b.y = g_screen_height/2 - b.h;
+	return b;
+}
+/* Function: dm_get_code_stage_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object, x and y are initialize at 0
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_code_stage_box()
+{
+	SDL_Rect ib = dm_get_instructions_stage_box();
+	SDL_Rect b;
+
+	b.w = ((g_screen_width*2/6)*2/3);
+	b.h = (g_screen_height*2/3);
+	b.x = ib.x + ib.w;
+	b.y = g_screen_height/18;
+	return b;
+}
+
+/* Function: dm_get_registers_stage_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object, x and y are initialize at 0
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_registers_stage_box()
+{
+	SDL_Rect cb = dm_get_code_stage_box();
+	SDL_Rect b;
+	b.w = g_screen_width/6;
+	b.h = g_screen_height/4;
+	b.x = cb.x + cb.w;
+	b.y = 0;
+	return b;
+}
+
+/* Function: dm_get_return_button_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object, x and y are initialize at 0
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_return_button_box()
+{
+	SDL_Rect b;
+	b.w = scale_to_resolution(RET_BUTTON_W);
+	b.h = scale_to_resolution(RET_BUTTON_H);
+	b.x = BORDERS_OFFSET;
+	b.y = g_screen_height - b.h - BORDERS_OFFSET;
+	return b;
+}
 
 /* Function: dm_get_sel_level_offset_y
  * -----------------------------------------------------------------------------
@@ -287,7 +391,7 @@ SDL_Rect dm_get_press_space_box()
 	return b;
 }
 
-/* Function: dm_get_studio_name_box
+/* Function: dm_get_studio_name_msg_box
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object.
  *
@@ -297,7 +401,7 @@ SDL_Rect dm_get_press_space_box()
  * Return:
  *	SDL_Rect with the positions of the object.
  */
-SDL_Rect dm_get_studio_name_box()
+SDL_Rect dm_get_studio_name_msg_box()
 {
 	const int texture_w = 600;
 	

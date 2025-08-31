@@ -211,14 +211,14 @@ void set_instruction_box_member(int value, int member)
  *	Void.
  *
  */
-void iw_set_instruction_box(int x, int y, int w, int h)
+void iw_set_instruction_box(SDL_Rect r)
 {
-	assert(w > 0 && h > 0 && "Invalid width and height values");
+	assert(r.w > 0 && r.h > 0 && "Invalid width and height values");
 
-	instruction_box.x = x;
-	instruction_box.y = y;
-	instruction_box.w = w;
-	instruction_box.h = h;
+	instruction_box.x = r.x;
+	instruction_box.y = r.y;
+	instruction_box.w = r.w;
+	instruction_box.h = r.h;
 
 	return;
 }

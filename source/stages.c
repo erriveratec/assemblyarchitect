@@ -133,7 +133,7 @@ int stage_select_player()
 		g_player = FL_PLAYER_3;
 	}
 	if (player_chosen == true){
-		ret_val = LV_INIT_LEVEL_SELECTION;		
+		ret_val = LV_LEVEL_SELECTION;		
 		bt_destroy_button(player_1);
 		bt_destroy_button(player_2);
 		bt_destroy_button(player_3);
@@ -192,7 +192,7 @@ int stage_studio(Uint64 start_time, Uint64 cur_time)
 {
 	int delay = cur_time - start_time;	
 	
-	SDL_Rect b = dm_get_studio_name_box();
+	SDL_Rect b = dm_get_studio_name_msg_box();
 	dw_draw_texture_fits_width(b, g_studio_name);
 	
 	if (delay > STUDIO_SCREEN_DELAY){
@@ -275,12 +275,19 @@ void level_initialization(int level_id)
 	lv_create_win_list();
 
 	//goes before the load level
-	rg_set_register_box(REG_BOX_X, REG_BOX_Y, REG_BOX_W, REG_BOX_H); 	
-	fl_file_initialize_level(level_id);
-	rg_initialize_value_boxes(); // must go after level loading
+	SDL_Rect r0 = dm_get_registers_stage_box();
+	rg_set_register_box(r0); 	
 	
-	cw_set_code_box(CODE_BOX_X, CODE_BOX_Y, CODE_BOX_W, CODE_BOX_H);
-	iw_set_instruction_box(INS_BOX_X, INS_BOX_Y, INS_BOX_W, INS_BOX_H);
+	fl_file_initialize_level(level_id);
+	
+	// must go after level loading
+	rg_initialize_value_boxes(); 	
+
+	SDL_Rect r1 = dm_get_code_stage_box();
+	cw_set_code_box(r1);
+	
+	SDL_Rect r2 = dm_get_instructions_stage_box();
+	iw_set_instruction_box(r2);
 	
 	cw_create_code_list();	
 	fl_load_save_file(g_player, level_id);
