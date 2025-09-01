@@ -19,9 +19,7 @@ SDL_Rect g_sb_box = {CODE_BOX_X + (CODE_BOX_W - MSG_BOX_W)/2,
 			     (CODE_BOX_Y + CODE_BOX_H) - MSG_BOX_H/2, MSG_BOX_W, MSG_BOX_H};
 
 SDL_Rect g_big_box;
-
-SDL_Rect g_error_box = {ERROR_MSG_BOX_X, ERROR_MSG_BOX_Y, MSG_BOX_W, 
-															 		 MSG_BOX_H};
+SDL_Rect g_error_box;
 
 static int get_box_member(SDL_Rect *box, int member);
 
@@ -38,8 +36,9 @@ static int get_box_member(SDL_Rect *box, int member);
 void tx_init_text_boxes()
 {
 	g_big_box = dm_get_text_box_big();
-	
+	g_error_box = dm_get_text_box_error();	
 }
+
 
 /* Function: tx_create_level_text_texture
  * -----------------------------------------------------------------------------

@@ -25,6 +25,10 @@ enum text_box_positions{
 	TX_BOX_MAX
 };
 
+enum text_messages{
+	TX_MS1_WELCOME
+};
+
 #define TUT_TEXT_X INS_BOX_X
 #define TUT_TEXT_Y SCREEN_HEIGHT/2 - MSG_BOX_H
 
@@ -35,7 +39,6 @@ enum text_box_positions{
 
 #define MSG_INS_BOX_X INS_BOX_X
 #define MSG_INS_BOX_Y (SCREEN_HEIGHT/2 - MSG_BOX_H/3)
-
 
 #define BIG_MSG_TEXT_H 50
 

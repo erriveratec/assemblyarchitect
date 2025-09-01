@@ -14,6 +14,10 @@
 #define RET_BUTTON_W 90
 #define RET_BUTTON_H 75
 #define BORDERS_OFFSET 2
+#define RES_BOX_W 500
+#define RES_BOX_H 300
+#define ARROW_H 30
+#define ARROW_W 30
 
 int g_res_id;
 int g_screen_width;
@@ -21,6 +25,90 @@ int g_screen_height;
 
 int scale_to_resolution(int dim);
 
+/* Function: dm_get_msg_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object, x and y are initialize at 0
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_arrow_box()
+{
+	SDL_Rect b;
+	b.w = scale_to_resolution(ARROW_W);
+	b.h = scale_to_resolution(ARROW_H);
+	b.x = 0;
+	b.y = 0;
+	return b;
+}
+
+/* Function: dm_get_msg_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object, x and y are initialize at 0
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_msg_box()
+{
+	SDL_Rect ib = dm_get_stage_instruction_box();
+	SDL_Rect b;
+	b.w = ib.w + ib.w/3;
+	b.h = g_screen_height/4;
+	b.x = 0;
+	b.y = 0;
+	return b;
+}
+
+/* Function: dm_get_text_box_result
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_text_box_result()
+{
+	SDL_Rect b;
+	b.w = scale_to_resolution(RES_BOX_W);
+	b.h = scale_to_resolution(RES_BOX_H);
+	b.x = (g_screen_width - b.w)/2;
+	b.y = g_screen_height/4;
+	return b;
+}
+
+/* Function: dm_get_text_box_error
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_text_box_error()
+{
+	SDL_Rect rb = dm_get_text_box_result();
+	SDL_Rect mb = dm_get_msg_box();
+	SDL_Rect ab = dm_get_arrow_box();
+	
+	SDL_Rect b;
+	b.w = mb.w;
+	b.h = mb.h;
+	b.x = rb.x + b.w/2 - ab.w/2;
+	b.y = rb.y + rb.h + g_screen_height/15;
+	return b;
+}
 
 /* Function: dm_get_text_box_big
  * -----------------------------------------------------------------------------
@@ -54,7 +142,7 @@ SDL_Rect dm_get_text_box_big()
  */
 SDL_Rect dm_get_arrow_ins_box()
 {
-	SDL_Rect ib = dm_get_stage_instructions_box();	
+	SDL_Rect ib = dm_get_stage_instruction_box();	
 	SDL_Rect b;
 	b.w = 0;
 	b.h = 0;
@@ -146,7 +234,7 @@ SDL_Rect dm_get_stage_output_buffer_box()
 	return b;
 }
 
-/* Function: dm_get_stage_instructions_box
+/* Function: dm_get_stage_instruction_box
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object, x and y are initialize at 0
  *
@@ -156,7 +244,7 @@ SDL_Rect dm_get_stage_output_buffer_box()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-SDL_Rect dm_get_stage_instructions_box()
+SDL_Rect dm_get_stage_instruction_box()
 {
 	SDL_Rect b;
 	b.w = (g_screen_width*2/6)/3;
@@ -178,7 +266,7 @@ SDL_Rect dm_get_stage_instructions_box()
  */
 SDL_Rect dm_get_stage_code_box()
 {
-	SDL_Rect ib = dm_get_stage_instructions_box();
+	SDL_Rect ib = dm_get_stage_instruction_box();
 	SDL_Rect b;
 
 	b.w = ((g_screen_width*2/6)*2/3);
@@ -249,7 +337,7 @@ int get_sel_level_offset_y()
 
 /* Function: dm_get_level_button_box
  * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object, x and y are initialize at 0
+ * Returns the box dimensions for the object.
  *
  * Arguments:
  *	Void.

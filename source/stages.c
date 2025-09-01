@@ -291,7 +291,7 @@ void init_level(int level_id)
 	SDL_Rect r1 = dm_get_stage_code_box();
 	cw_set_code_box(r1);
 	
-	SDL_Rect r2 = dm_get_stage_instructions_box();
+	SDL_Rect r2 = dm_get_stage_instruction_box();
 	iw_set_instruction_box(r2);
 	
 	cw_create_code_list();	

@@ -16,31 +16,41 @@ SDL_Rect dm_get_game_title_box();
 SDL_Rect dm_get_press_space_box();
 SDL_Rect dm_get_select_player_box();
 SDL_Rect dm_get_select_level_box();
+
 SDL_Rect dm_get_p1_button_box();
 SDL_Rect dm_get_p2_button_box();
 SDL_Rect dm_get_p3_button_box();
+
 SDL_Rect dm_get_escape_menu_box();
 SDL_Rect dm_get_escape_b1_box();
 SDL_Rect dm_get_escape_b2_box();
 SDL_Rect dm_get_escape_b3_box();
+
 SDL_Rect dm_get_code_button_box();
+SDL_Rect dm_get_msg_box();
+
 SDL_Rect dm_get_level_button_box();
 SDL_Rect dm_get_return_button_box();
+
 SDL_Rect dm_get_stage_registers_box();
 SDL_Rect dm_get_stage_code_box();
-SDL_Rect dm_get_stage_instructions_box();
+SDL_Rect dm_get_stage_instruction_box();
 SDL_Rect dm_get_stage_input_buffer_box();
 SDL_Rect dm_get_stage_output_buffer_box();
 SDL_Rect dm_get_stage_ib_text_box();
 SDL_Rect dm_get_stage_ob_text_box();
+
+SDL_Rect dm_get_arrow_box();
 SDL_Rect dm_get_arrow_ins_box();
+
 SDL_Rect dm_get_text_box_big();
+SDL_Rect dm_get_text_box_error();
+SDL_Rect dm_get_text_box_result();
 
 
 /*******************************RESOLUTION*************************************/
 #define SCREEN_WIDTH 1600
 #define SCREEN_HEIGHT 900
-
 
 /*******************************RETURN BUTTON*********************************/
 #define MESSAGE_TEXT_H 40
@@ -77,7 +87,6 @@ SDL_Rect dm_get_text_box_big();
 /*******************************RESULT BOX*************************************/
 #define RES_BOX_W 500
 #define RES_BOX_H 300
-
 #define RES_BOX_X (SCREEN_WIDTH - RES_BOX_W)/2 
 #define RES_BOX_Y 200
 

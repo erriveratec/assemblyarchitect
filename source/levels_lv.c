@@ -416,6 +416,7 @@ static void level_1_tutorial(bool holding_line, bool play, int flag)
 		tx_text_box(TX_ERROR_BOX, L1_MSG_ERROR);
 		ar_display_arrow(AR_ERROR);
 	} else if (first_message == true && code_size == 0){
+		// Im goona start by this message
 		tx_text_box(TX_BIG_BOX, L1_MSG_FIRST_CHALLENGE);
 		if (ms_chk_mouse_left_pressed() == true){
 			first_message = false;
