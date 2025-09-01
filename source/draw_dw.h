@@ -14,7 +14,7 @@ typedef struct texture_t{
 typedef struct texture_array_t{
 	int size;
 	texture_t *t;
-} texture_array_y;
+} texture_array_t;
 
 
 

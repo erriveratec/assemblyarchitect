@@ -33,15 +33,15 @@ typedef struct value_box_t{
 } value_box_t;
 
 
+//bool check_if_text_fits_in_width(char *t, float s, int w);
+//int get_text_height(char *t, float s);
+//int get_text_width(char *text, float scale);
+//float get_scale_from_w_h(int w, int h, texture_t *texture);
 char *number_to_string(int number);
-bool check_if_text_fits_in_width(char *t, float s, int w);
 bool check_text_fits_width_by_height(char *t, int h, int w);
 char *ax_number_to_string_prepend_zero(int number);
-int get_text_height(char *t, float s);
-int get_text_width(char *text, float scale);
 int get_movement_delta(int v1, int v2, int max_delta);
 int ax_get_wrapped_text_height(int w, int h, char *t);
-float get_scale_from_w_h(int w, int h, texture_t *texture);
 float get_scale_fit_height(int h, texture_t *texture);
 float get_scale_fit_width(int w, texture_t *texture);
 int get_text_width_fits_height(int h, char *text);
