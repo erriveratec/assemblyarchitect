@@ -37,6 +37,8 @@ typedef struct value_box_t{
 //int get_text_height(char *t, float s);
 //int get_text_width(char *text, float scale);
 //float get_scale_from_w_h(int w, int h, texture_t *texture);
+
+
 char *number_to_string(int number);
 bool check_text_fits_width_by_height(char *t, int h, int w);
 char *ax_number_to_string_prepend_zero(int number);
@@ -49,6 +51,7 @@ int get_text_height_fits_width(int w, char *text);
 void ax_draw_value_box(value_box_t *box, SDL_Color color);
 char *create_string_append_number(char *s,  int n);
 char *ax_number_to_string_two_digits(int number);
+int ax_get_texture_w_fit_h(int h, texture_t *t);
 
 // ASCII characters
 #define CHAR_SPACE 32

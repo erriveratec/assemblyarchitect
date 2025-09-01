@@ -178,6 +178,7 @@ void tx_text_box(int pos, char *msg)
 	SDL_Rect b;
 	int text_h;
 	SDL_Color color;
+	texture_array_t *a = NULL;
 	switch(pos){
 		case TX_INS_BOX:
 			b.x = g_ins_box.x; 

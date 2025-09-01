@@ -14,7 +14,19 @@ char *char_newline = "\n";
 char *char_colon = ":";
 char *level_text = "level";
 
-
+/* Function: ax_get_w_by_texture_h
+ *------------------------------------------------------------------------------
+ * Arguments:
+ *	None.
+ *
+ * Return:
+ *	Void.
+ */
+int ax_get_texture_w_fit_h(int h, texture_t *t)
+{
+	float w = (float) (t->w * h)/t->h;
+	return (int)w;
+}
 
 /* Function: create_string_append_number
  *------------------------------------------------------------------------------
@@ -62,7 +74,8 @@ error:
  * Return:
  *	Void.
  */
-void ax_draw_value_box(value_box_t *box, SDL_Color color){
+void ax_draw_value_box(value_box_t *box, SDL_Color color)
+{
 
 	char *text = number_to_string(box->value);
 	int text_width = get_text_width_fits_height(VALUE_H, text);

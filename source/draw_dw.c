@@ -376,11 +376,12 @@ void dw_draw_wrapped_texture_by_h(SDL_Rect r, int h, texture_array_t *a)
 {
 	assert(a != NULL && "Text pointer is NULL");
 
-	int x_pos = r.x + WRAPPED_TEXT_X_OFFSET;
 	int y_pos = r.y + (r.h - a->size*h)/2;
 	int y_offset = h;
 	
 	for (int i = 0; i < a->size; i++){
+		int w = ax_get_texture_w_fit_h(h, a->t[i]);
+		int x_pos = r.x + (r.w - w)/2;
 		SDL_Rect r = {.x = x_pos, .y = y_pos, .w = r.w, .h = h};
 		dw_draw_texture_fits_height(r, a->t[i]);
 		y_pos += y_offset;
@@ -388,6 +389,7 @@ void dw_draw_wrapped_texture_by_h(SDL_Rect r, int h, texture_array_t *a)
 error:
 	return;
 }
+
 /* Function: dw_draw_wrapped_text_fits_height
  * This function draws text wrapped as images in places in the screen, 
  * the function wraps text accordingly to the scaling factor needed.
