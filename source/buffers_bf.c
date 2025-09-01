@@ -597,13 +597,13 @@ int bf_get_output_buffer_box_member(int member)
  * Return:
  *	Void.
  */
-void bf_set_input_box(int x, int y, int w, int h)
+void bf_set_input_box(SDL_Rect r)
 {
-	assert(w > 0 && h > 0 && "Width and height must be > 0");
-	input_box.x = x;
-	input_box.y = y;
-	input_box.w = w;
-	input_box.h = h;
+	assert(r.w > 0 && r.h > 0 && "Width and height must be > 0");
+	input_box.x = r.x;
+	input_box.y = r.y;
+	input_box.w = r.w;
+	input_box.h = r.h;
 }
 
 /* Function: bf_set_output_box
@@ -617,13 +617,13 @@ void bf_set_input_box(int x, int y, int w, int h)
  * Return:
  *	Void.
  */
-void bf_set_output_box(int x, int y, int w, int h)
+void bf_set_output_box(SDL_Rect r)
 {
-	assert(w > 0 && h > 0 && "Width and height must be > 0");
-	output_box.x = x;
-	output_box.y = y;
-	output_box.w = w;
-	output_box.h = h;
+	assert(r.w > 0 && r.h > 0 && "Width and height must be > 0");
+	output_box.x = r.x;
+	output_box.y = r.y;
+	output_box.w = r.w;
+	output_box.h = r.h;
 }
 
 /* Function: draw_buffers

@@ -18,8 +18,8 @@ extern texture_t *g_input_arrow;
 extern texture_t *g_output_arrow;
 
 bool bf_check_released_in_buffer();
-void bf_set_input_box(int x, int y, int w, int h);
-void bf_set_output_box(int x, int y, int w, int h);
+void bf_set_input_box(SDL_Rect r);
+void bf_set_output_box(SDL_Rect r);
 void bf_set_input_buffer_button(SDL_Rect r);
 void bf_set_output_buffer_button(SDL_Rect r);
 int bf_get_input_buffer_box_member(int member);

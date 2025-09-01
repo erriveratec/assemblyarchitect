@@ -64,7 +64,7 @@ static bool edit_code(int level_id);
 static void reset_level(int level_id, level_flags_t *flags, bool *run_finished);
 static int display_run_result(bool win_check);
 static void destroy_level(level_flags_t *flags);
-static void initialize_stage_assets();
+static void init_stage_assets();
 
 /* Function: stage_select_player
  * ----------------------------------------------------------------------------
@@ -216,22 +216,25 @@ int stage_studio(Uint64 start_time, Uint64 cur_time)
  * Return:
  *	void.	
  */
-static void initialize_stage_assets()
+static void init_stage_assets()
 {
 	sb_initialize_stage_buttons();
 	sb_initialize_return_button();
 
-	bf_set_input_box(BUFFER_BOX_X, INPUT_BUFFER_BOX_Y, BUFFER_BOX_W, 
-					 BUFFER_BOX_H);
-	bf_set_output_box(BUFFER_BOX_X, OUTPUT_BUFFER_BOX_Y, BUFFER_BOX_W, 
-				   	  BUFFER_BOX_H);
-	SDL_Rect r0 = {.x =BUFFER_BOX_X, .y = INPUT_BUFFER_TEXT_Y, 
-				   .w = BUFFER_BOX_W, .h = BUFFER_TEXT_H + BUFFER_BOX_H};
-	bf_set_input_buffer_button(r0);
+	SDL_Rect r0 = dm_get_stage_input_buffer_box();
+	bf_set_input_box(r0);
 	
-	SDL_Rect r1 = {.x = BUFFER_BOX_X, .y = OUTPUT_BUFFER_BOX_Y, 
-				   .w = BUFFER_BOX_W, .h = BUFFER_TEXT_H + BUFFER_BOX_H};
-	bf_set_output_buffer_button(r1);
+	SDL_Rect r1 = dm_get_stage_output_buffer_box();
+	bf_set_output_box(r1);
+
+	SDL_Rect ib = dm_get_stage_ib_text_box();
+	SDL_Rect r2 = {.x = r0.x, .y = ib.y, .w = r0.w, .h = ib.h + r0.h};
+	bf_set_input_buffer_button(r2);
+
+	SDL_Rect ob = dm_get_stage_ob_text_box();
+	SDL_Rect r3 = {.x = r1.x, .y = ob.y, .w = r1.w, .h = ob.h + r1.h};
+	bf_set_output_buffer_button(r3);
+
 	bf_initialize_buffer_operands();
 }
 
@@ -267,7 +270,8 @@ void level_initialization(int level_id)
 {
 	assert(level_id > LV_LEVEL_MIN && level_id < LV_LEVEL_MAX && 	
 		   "Invalid stage id");
-	initialize_stage_assets();
+	
+	init_stage_assets();
 
 	bf_create_input_list();
 	bf_create_output_list();
@@ -275,7 +279,7 @@ void level_initialization(int level_id)
 	lv_create_win_list();
 
 	//goes before the load level
-	SDL_Rect r0 = dm_get_registers_stage_box();
+	SDL_Rect r0 = dm_get_stage_registers_box();
 	rg_set_register_box(r0); 	
 	
 	fl_file_initialize_level(level_id);
@@ -283,10 +287,10 @@ void level_initialization(int level_id)
 	// must go after level loading
 	rg_initialize_value_boxes(); 	
 
-	SDL_Rect r1 = dm_get_code_stage_box();
+	SDL_Rect r1 = dm_get_stage_code_box();
 	cw_set_code_box(r1);
 	
-	SDL_Rect r2 = dm_get_instructions_stage_box();
+	SDL_Rect r2 = dm_get_stage_instructions_box();
 	iw_set_instruction_box(r2);
 	
 	cw_create_code_list();	
@@ -295,7 +299,8 @@ void level_initialization(int level_id)
 
 	tx_update_assets();
 	ar_initialize_arrows();
-	return ;
+//	tx_create_level_text_textures
+	return;
 }
 
 /* Function: destroy_level

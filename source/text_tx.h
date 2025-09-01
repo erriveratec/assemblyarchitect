@@ -9,7 +9,7 @@
 void tx_text_box(int pos, char *msg);
 void tx_update_assets();
 int tx_get_text_box_member(int text_box_id, int member);
-void tx_create_level_text_texture(int level_id);
+void tx_create_text_textures(int level_id);
 
 
 enum text_box_positions{

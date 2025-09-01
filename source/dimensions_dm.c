@@ -33,15 +33,58 @@ int scale_to_resolution(int dim);
  */
 SDL_Rect dm_get_arrow_ins_box()
 {
+	SDL_Rect ib = dm_get_stage_instructions_box();	
 	SDL_Rect b;
-	b.w = (g_screen_width*2/6)/3;
-	b.h = g_screen_height/4;
-	b.x = 0;
-	b.y = g_screen_height/2 - b.h;
+	b.w = 0;
+	b.h = 0;
+	b.x = (ib.x + ib.w)/4;
+	b.y = 0;
 	return b;
 }
 
-/* Function: dm_get_instructions_stage_box
+/* Function: dm_get_stage_ib_text_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_stage_ib_text_box()
+{
+	SDL_Rect ib = dm_get_stage_input_buffer_box();
+	SDL_Rect b;
+	b.w = 0;
+	b.h = g_screen_height/20;
+	b.x = ib.x;
+	b.y = 0;
+	return b;
+}
+
+/* Function: dm_get_stage_ob_text_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_stage_ob_text_box()
+{
+	SDL_Rect ob = dm_get_stage_output_buffer_box();
+	SDL_Rect b;
+	b.w = 0;
+	b.h = g_screen_height/20;
+	b.x = ob.x;
+	b.y = g_screen_height - b.h;
+	return b;
+}
+
+/* Function: dm_get_stage_input_buffer_box
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object, x and y are initialize at 0
  *
@@ -51,7 +94,48 @@ SDL_Rect dm_get_arrow_ins_box()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-SDL_Rect dm_get_instructions_stage_box()
+SDL_Rect dm_get_stage_input_buffer_box()
+{
+	SDL_Rect b;
+	b.w = g_screen_width*3/5;
+	b.h = g_screen_height/12;
+	b.x = g_screen_width*4/6;
+	b.y = g_screen_height/20;
+	return b;
+}
+
+/* Function: dm_get_stage_output_buffer_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object, x and y are initialize at 0
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_stage_output_buffer_box()
+{
+	SDL_Rect ib = dm_get_stage_ib_text_box();
+	SDL_Rect b;
+	b.w = g_screen_width*3/5;
+	b.h = g_screen_height/12;
+	b.x = g_screen_width*4/6;
+	b.y = g_screen_height - ib.h - b.h;
+	return b;
+}
+
+/* Function: dm_get_stage_instructions_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object, x and y are initialize at 0
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_stage_instructions_box()
 {
 	SDL_Rect b;
 	b.w = (g_screen_width*2/6)/3;
@@ -60,6 +144,7 @@ SDL_Rect dm_get_instructions_stage_box()
 	b.y = g_screen_height/2 - b.h;
 	return b;
 }
+
 /* Function: dm_get_code_stage_box
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object, x and y are initialize at 0
@@ -70,9 +155,9 @@ SDL_Rect dm_get_instructions_stage_box()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-SDL_Rect dm_get_code_stage_box()
+SDL_Rect dm_get_stage_code_box()
 {
-	SDL_Rect ib = dm_get_instructions_stage_box();
+	SDL_Rect ib = dm_get_stage_instructions_box();
 	SDL_Rect b;
 
 	b.w = ((g_screen_width*2/6)*2/3);
@@ -82,7 +167,7 @@ SDL_Rect dm_get_code_stage_box()
 	return b;
 }
 
-/* Function: dm_get_registers_stage_box
+/* Function: dm_get_stage_registers_box
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object, x and y are initialize at 0
  *
@@ -92,9 +177,9 @@ SDL_Rect dm_get_code_stage_box()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-SDL_Rect dm_get_registers_stage_box()
+SDL_Rect dm_get_stage_registers_box()
 {
-	SDL_Rect cb = dm_get_code_stage_box();
+	SDL_Rect cb = dm_get_stage_code_box();
 	SDL_Rect b;
 	b.w = g_screen_width/6;
 	b.h = g_screen_height/4;

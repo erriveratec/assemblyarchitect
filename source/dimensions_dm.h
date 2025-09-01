@@ -26,9 +26,13 @@ SDL_Rect dm_get_escape_b3_box();
 SDL_Rect dm_get_code_button_box();
 SDL_Rect dm_get_level_button_box();
 SDL_Rect dm_get_return_button_box();
-SDL_Rect dm_get_registers_stage_box();
-SDL_Rect dm_get_code_stage_box();
-SDL_Rect dm_get_instructions_stage_box();
+SDL_Rect dm_get_stage_registers_box();
+SDL_Rect dm_get_stage_code_box();
+SDL_Rect dm_get_stage_instructions_box();
+SDL_Rect dm_get_stage_input_buffer_box();
+SDL_Rect dm_get_stage_output_buffer_box();
+SDL_Rect dm_get_stage_ib_text_box();
+SDL_Rect dm_get_stage_ob_text_box();
 SDL_Rect dm_get_arrow_ins_box();
 
 
@@ -52,7 +56,7 @@ SDL_Rect dm_get_arrow_ins_box();
 // The offset of the borders of the instruction box
 #define INS_BOX_OFFSET 25
 
-/* TO DELETE
+// TO DELETE
 #define INS_BOX_W ((SCREEN_WIDTH*2/6)/3)
 #define INS_BOX_H 250
 #define INS_BOX_X 0
@@ -64,12 +68,9 @@ SDL_Rect dm_get_arrow_ins_box();
 #define CODE_BOX_H 625
 
 #define REG_BOX_X (CODE_BOX_X + CODE_BOX_W)
-#define REG_BOX_Y 0
-#define REG_BOX_H 200
 #define REG_BOX_W (SCREEN_WIDTH/6)
-*/
-// Instruction box text
 
+// Instruction box text
 #define INS_BOX_TEXT_W ((SCREEN_WIDTH*2/6)/3)
 
 /*******************************RESULT BOX*************************************/
@@ -89,7 +90,6 @@ SDL_Rect dm_get_arrow_ins_box();
 #define CONT_BUTTON_W 200
 
 #define BACK_CONT_BUTTON_H 60
-
 
 #define WIN_MENU_BUTTON1_X RES_BOX_X + (RES_BOX_W - (BACK_BUTTON_W + \
 						   CONT_BUTTON_W))/3
@@ -125,21 +125,33 @@ SDL_Rect dm_get_arrow_ins_box();
 
 /*************************INPUT/OUTPUT BUFFERS*********************************/
 // The height of the text for the input/output buffers
+
+
+
+
+
+
+
+
 #define BUFFER_TEXT_H 42
 
 // The height and width of the contents of the buffers
 
 // The position of the text of the input/output buffers
-#define	BUFFER_BOX_W 950
+
+//#define	BUFFER_BOX_W 950
 #define BUFFER_BOX_H 75
+
 #define INPUT_BUFFER_TEXT_X (SCREEN_WIDTH*4/6)
 #define INPUT_BUFFER_TEXT_Y 0
+
 #define OUTPUT_BUFFER_TEXT_X (SCREEN_WIDTH*4/6)
 #define OUTPUT_BUFFER_TEXT_Y (SCREEN_HEIGHT - BUFFER_TEXT_H)
 
 // The dimensions of the input/output boxes
 #define BUFFER_BOX_X (SCREEN_WIDTH*4/6)
 #define INPUT_BUFFER_BOX_Y 40
+
 #define OUTPUT_BUFFER_BOX_Y (SCREEN_HEIGHT - BUFFER_TEXT_H - BUFFER_BOX_H)
 #define OUTPUT_BUFFER_WIN_X 10000
 

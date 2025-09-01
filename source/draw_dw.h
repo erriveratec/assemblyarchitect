@@ -11,17 +11,27 @@ typedef struct texture_t{
 	SDL_Texture *texture;
 } texture_t;
 
+typedef struct texture_array_t{
+	int size;
+	texture_t *t;
+} texture_array_y;
+
+
 
 texture_t *load_texture_from_file(char *path);
-texture_t *dw_create_text_texture(char *texture_text, 
-									   	   SDL_Color text_color);
+
+texture_t *dw_create_text_texture(char *texture_text, SDL_Color text_color);
+
+
 void dw_free_texture(texture_t *texture);
+
 void dw_draw_text_fits_height(int x, int y, int h, SDL_Color color, char *text);
 void dw_draw_text_fits_width(int x, int y, int w, SDL_Color color, char *text);
-void dw_draw_rectangle(SDL_Rect r, SDL_Color c);
-void dw_draw_filled_rectangle(SDL_Rect r, SDL_Color in, SDL_Color out);
 void dw_draw_wrapped_text_fits_height(int x, int y, int w, int h, int text_h, 
 														  SDL_Color c, char *t);
+void dw_draw_rectangle(SDL_Rect r, SDL_Color c);
+void dw_draw_filled_rectangle(SDL_Rect r, SDL_Color in, SDL_Color out);
+
 int dw_draw_texture_fits_height(SDL_Rect r, texture_t *t);
 int dw_draw_texture_fits_width(SDL_Rect r, texture_t *t);
 void dw_draw_rotated_texture_fits_h(int x, int y, int h, double angle, 
