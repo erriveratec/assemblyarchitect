@@ -13,15 +13,12 @@ typedef struct texture_t{
 
 typedef struct texture_array_t{
 	int size;
-	texture_t *t;
+	texture_t **t;
 } texture_array_t;
-
-
 
 texture_t *load_texture_from_file(char *path);
 texture_t *dw_create_text_texture(char *texture_text, SDL_Color text_color);
-//texture_array_t *dw_create_text_texture_array(char *texture_text, SDL_Color text_color);
-
+texture_array_t *dw_new_text_texture_by_h(int w, int h, SDL_Color c, char *t);
 
 void dw_free_texture(texture_t *texture);
 
@@ -37,6 +34,7 @@ int dw_draw_texture_fits_width(SDL_Rect r, texture_t *t);
 void dw_draw_rotated_texture_fits_h(int x, int y, int h, double angle, 
 															      texture_t *t);
 
+void dw_draw_wrapped_texture_by_h(SDL_Rect r, int h, texture_array_t *a);
 
 extern SDL_Color C_WHITE;
 extern SDL_Color C_BLACK;

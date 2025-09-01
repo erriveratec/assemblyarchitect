@@ -19,11 +19,14 @@
 #define ARROW_H 30
 #define ARROW_W 30
 
+#define BIG_MSG_TEXT_H 50
+
 int g_res_id;
 int g_screen_width;
 int g_screen_height;
 
 int scale_to_resolution(int dim);
+
 
 /* Function: dm_get_msg_box
  * -----------------------------------------------------------------------------
@@ -317,6 +320,22 @@ SDL_Rect dm_get_return_button_box()
 	return b;
 }
 
+/* Function: dm_get_big_msg_h
+ * -----------------------------------------------------------------------------
+ * Returns the h value for the big messages
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset for the sel level buttons
+ */
+int get_big_msg_h()
+{
+	int h = scale_to_resolution(BIG_MSG_TEXT_H);
+	return h;
+	
+}
 /* Function: dm_get_sel_level_offset_y
  * -----------------------------------------------------------------------------
  * Returns the offset for the sel level buttons

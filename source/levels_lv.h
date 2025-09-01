@@ -70,7 +70,7 @@ enum LevelStates{
 
 void lv_set_level_win_condition(char *win_condition);
 void lv_reset_level_win_condition();
-void lv_initialize_level_assets();
+void lv_init_level_assets(int level);
 void lv_create_win_list();
 void lv_destroy_win_list();
 void lv_reset_win_list();

@@ -388,7 +388,6 @@ static void level_2_tutorial(bool holding_line, bool play)
 	}
 }
 
-
 /* Function: level_1_tutorial
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 1
@@ -907,6 +906,54 @@ bool lv_evaluate_output_correctness()
 		i++;
 	}
 	return true;
+}
+
+/* Function: lv_init_level_assets
+ *------------------------------------------------------------------------------
+ * Initializes the assets and textures required for a level
+ *
+ * Arguments:
+ *	level: The level which the assets will be initialized.
+ *
+ * Return:
+ *	Void.
+ */
+void lv_init_level_assets(int level)
+{
+	assert(level < LV_LEVEL_MAX && level > LV_LEVEL_MIN && 
+			          								"Invalid level value");
+	switch(level){
+		case LV_LEVEL_1:
+			tx_init_level_1_texts();
+			break;
+
+		case LV_LEVEL_2:
+			break;
+	
+		case LV_LEVEL_3:
+			break;
+
+		case LV_LEVEL_4:
+			break;
+	
+		case LV_LEVEL_5:
+			break;
+	
+		case LV_LEVEL_6:
+			break;
+		
+		case LV_LEVEL_7:
+			break;
+
+		case LV_LEVEL_8:
+			break;
+
+		case LV_LEVEL_9:
+			break;
+
+		default:
+			break;
+	}
 }
 
 /* Function: lv_level_drawings

@@ -310,56 +310,48 @@ void dw_free_texture(texture_t *texture)
  * Return:
  *	Void
  */
-texture_array_t *dw_create_text_texture_by_h(int x, int y, int w, int h, int text_h, 
-														   SDL_Color c, char *t)
+texture_array_t *dw_new_text_texture_by_h(int w, int h, SDL_Color c, char *t)
 {
-	assert(0 < w && "The width of the text is negative");
-	assert(0 < text_h && "The height of the text is negative");
-	assert( NULL != t && "Text pointer is NULL");
+	assert(w > 0 && "The width of the text is negative");
+	assert(h > 0 && "The height of the text is negative");
+	assert(t != NULL && "Text pointer is NULL");
 
 	texture_array_t *array = malloc(sizeof(texture_array_t));
-	array->size = ax_get_wrapped_text_height(w, text_h, t)/text_h;
-	array->t = malloc(sizeof(texture_t)*array->size);
+	array->size = ax_get_wrapped_text_height(w, h, t)/h;
+	array->t = malloc(sizeof(texture_t*)*array->size);
 
-	int x_pos = x + WRAPPED_TEXT_X_OFFSET;
-	int y_pos = y + (h - ax_get_wrapped_text_height(w, text_h, t))/2;
-	int y_offset = text_h;
+	int y_offset = h;
 
 	int string_size = strlen(t);
 	char *text = malloc(sizeof(char)*string_size);
 	
-	int last_successful_fit = 0;
-	int already_drawn_offset = 0;
+	int last_fit = 0;
+	int already_drawn = 0;
 
-		for (int i = 0; i <= string_size; i++){
-			if (t[i] == CHAR_SPACE|| t[i] ==  CHAR_NULL){
-				
-				strncpy(text, t + already_drawn_offset, 
-						i - already_drawn_offset);
-			
-				if (check_text_fits_width_by_height(text, text_h, w) == true){
-					last_successful_fit = i;
+	int pos = 0;
+	for (int i = 0; i <= string_size; i++){
+		if (t[i] == CHAR_SPACE|| t[i] ==  CHAR_NULL){
+			strncpy(text, t + already_drawn, i - already_drawn);
+		
+			if (check_text_fits_width_by_height(text, h, w) == true){
+				last_fit = i;
+			}
+			if (check_text_fits_width_by_height(text, h, w) == false|| 
+				t[i] == CHAR_NULL){
+				if (last_fit == already_drawn){
+					puts("The size of the font does not fits width");
+					last_fit = string_size;
 				}
-
-				if (check_text_fits_width_by_height(text, text_h, w) == false|| 
-					t[i] == CHAR_NULL){
-					if (last_successful_fit == already_drawn_offset){
-						puts("The size of the font does not fits width");
-						last_successful_fit = string_size;
-					}
-					memset(text, 0, string_size);
-					strncpy(text, t + already_drawn_offset, 
-						   	last_successful_fit - already_drawn_offset); 	
-					int text_w = get_text_width_fits_height(text_h, text);
-					x_pos = x + (w -text_w)/2;
-
-					texture_t *text_texture = NULL;
-
-					dw_draw_text_fits_height(x_pos, y_pos, text_h, c, text);
-					y_pos += y_offset;
-					already_drawn_offset = last_successful_fit;
-					i = last_successful_fit;
-					memset(text, 0, string_size);
+				memset(text, 0, string_size);
+				strncpy(text, t + already_drawn, last_fit - already_drawn); 	
+				int text_w = get_text_width_fits_height(h, text);
+				
+				texture_t *text_texture = dw_create_text_texture(text, c);
+				array->t[pos] = text_texture;
+				pos++;
+				already_drawn = last_fit;
+				i = last_fit;
+				memset(text, 0, string_size);
 			}	 
 		}
 	} 
@@ -368,6 +360,34 @@ error:
 	return array;
 }
 
+/* Function: dw_draw_wrapped_texture_by_h
+ *-----------------------------------------------------------------------------
+ * This function draws text wrapped as images in places in the screen, 
+ *
+ * Arguments:
+ *	r: rectangle with the position of the texture
+ *	h: height value of the texture
+ *  a: array of the texture to be drawn
+ *
+ * Return:
+ *	Void
+ */
+void dw_draw_wrapped_texture_by_h(SDL_Rect r, int h, texture_array_t *a)
+{
+	assert(a != NULL && "Text pointer is NULL");
+
+	int x_pos = r.x + WRAPPED_TEXT_X_OFFSET;
+	int y_pos = r.y + (r.h - a->size*h)/2;
+	int y_offset = h;
+	
+	for (int i = 0; i < a->size; i++){
+		SDL_Rect r = {.x = x_pos, .y = y_pos, .w = r.w, .h = h};
+		dw_draw_texture_fits_height(r, a->t[i]);
+		y_pos += y_offset;
+	}	 
+error:
+	return;
+}
 /* Function: dw_draw_wrapped_text_fits_height
  * This function draws text wrapped as images in places in the screen, 
  * the function wraps text accordingly to the scaling factor needed.

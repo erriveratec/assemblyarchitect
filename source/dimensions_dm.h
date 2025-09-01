@@ -10,7 +10,10 @@ enum resolutionos{
 };
 
 void dm_set_screen_resolution(int resolution_id);
+
 int get_sel_level_offset_y();
+int get_big_msg_h();
+
 SDL_Rect dm_get_studio_name_msg_box();
 SDL_Rect dm_get_game_title_box();
 SDL_Rect dm_get_press_space_box();

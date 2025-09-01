@@ -5,13 +5,12 @@
 #include"dimensions_dm.h"
 #include"draw_dw.h"
 
-
 void tx_text_box(int pos, char *msg);
 void tx_update_assets();
 int tx_get_text_box_member(int text_box_id, int member);
-void tx_create_text_textures(int level_id);
+void tx_init_level_text_textures(int level_id);
 void tx_init_text_boxes();
-
+void tx_init_level_1_texts();
 
 enum text_box_positions{
 	TX_BOX_MIN,
@@ -40,7 +39,6 @@ enum text_messages{
 #define MSG_INS_BOX_X INS_BOX_X
 #define MSG_INS_BOX_Y (SCREEN_HEIGHT/2 - MSG_BOX_H/3)
 
-#define BIG_MSG_TEXT_H 50
 
 #define ERROR_BOX_Y_OFFSET 60
 #define ERROR_MSG_BOX_X RES_BOX_X + MSG_BOX_W/2 - ARROW_W/2

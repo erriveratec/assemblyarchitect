@@ -21,6 +21,9 @@ SDL_Rect g_sb_box = {CODE_BOX_X + (CODE_BOX_W - MSG_BOX_W)/2,
 SDL_Rect g_big_box;
 SDL_Rect g_error_box;
 
+texture_array_t *g_msg1_welcome = NULL;
+
+
 static int get_box_member(SDL_Rect *box, int member);
 
 /* Function: tx_init_text_boxes
@@ -50,10 +53,12 @@ void tx_init_text_boxes()
  * Return:
  *	
  */
-void tx_create_text_texture(int level_id)
+void tx_init_level_1_texts()
 {
-
-
+	SDL_Rect r = dm_get_text_box_big();
+	int text_h = get_big_msg_h();
+	g_msg1_welcome =  dw_new_text_texture_by_h(r.w, text_h, C_BLACK, 	
+													    L1_MSG_FIRST_CHALLENGE);
 }
 
 
@@ -219,7 +224,7 @@ void tx_text_box(int pos, char *msg)
 			b.y = g_big_box.y; 
 			b.w = g_big_box.w; 
 			b.h = g_big_box.h;	
-			text_h = BIG_MSG_TEXT_H;
+			text_h = get_big_msg_h();
 			color = C_BLACK;
 			break;
 		case TX_ERROR_BOX:
@@ -232,46 +237,11 @@ void tx_text_box(int pos, char *msg)
 			break;
 	}
 	dw_draw_filled_rectangle(b, C_WHITE, C_WHITE);
-	dw_draw_wrapped_text_fits_height(b.x, b.y, b.w, b.h, text_h, color, msg);
+	dw_draw_wrapped_texture_by_h(b, text_h, g_msg1_welcome);
+
+//	dw_draw_wrapped_text_fits_height(b.x, b.y, b.w, b.h, text_h, color, msg);
 	int tw = get_text_width_fits_height(CLICK_MESSAGE_H, MSG_CLICK_ANYWHERE);
-	dw_draw_text_fits_height(b.x + b.w/2 - tw/2, b.y+b.h - 2*CLICK_MESSAGE_H, 
-						     CLICK_MESSAGE_H, C_GREY, MSG_CLICK_ANYWHERE);
+//	dw_draw_text_fits_height(b.x + b.w/2 - tw/2, b.y+b.h - 2*CLICK_MESSAGE_H, 
+//						     CLICK_MESSAGE_H, C_GREY, MSG_CLICK_ANYWHERE);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

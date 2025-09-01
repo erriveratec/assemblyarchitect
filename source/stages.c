@@ -278,6 +278,7 @@ void init_level(int level_id)
 	bf_create_output_list();
 	bf_reset_win_condition();
 	lv_create_win_list();
+	lv_init_level_assets(level_id);
 
 	//goes before the load level
 	SDL_Rect r0 = dm_get_stage_registers_box();
