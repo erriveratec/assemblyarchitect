@@ -236,6 +236,7 @@ static void init_stage_assets()
 	bf_set_output_buffer_button(r3);
 
 	bf_initialize_buffer_operands();
+	tx_init_text_boxes();
 }
 
 
@@ -258,7 +259,7 @@ void reset_level_flags(level_flags_t *flags)
 	flags->non_stop = false;
 }
 
-/* Function: level_initialization
+/* Function: init_level
  * -------------------------------------
  * Arguments:
  * stage_id: the id for the specific stage that is going to be played
@@ -266,13 +267,13 @@ void reset_level_flags(level_flags_t *flags)
  * Return:
  *	true: used for the caller of the function.
  */
-void level_initialization(int level_id)
+void init_level(int level_id)
 {
 	assert(level_id > LV_LEVEL_MIN && level_id < LV_LEVEL_MAX && 	
 		   "Invalid stage id");
 	
+	
 	init_stage_assets();
-
 	bf_create_input_list();
 	bf_create_output_list();
 	bf_reset_win_condition();

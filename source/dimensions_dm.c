@@ -21,6 +21,27 @@ int g_screen_height;
 
 int scale_to_resolution(int dim);
 
+
+/* Function: dm_get_text_box_big
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_text_box_big()
+{
+	SDL_Rect b;
+	b.w = g_screen_width/3;
+	b.h = g_screen_height/2;
+	b.x = g_screen_width/2 - b.w/2;
+	b.y = g_screen_height/4;
+	return b;
+}
+
 /* Function: dm_get_arrow_ins_box
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object, x and y are initialize at 0

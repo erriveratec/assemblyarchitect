@@ -34,6 +34,7 @@ SDL_Rect dm_get_stage_output_buffer_box();
 SDL_Rect dm_get_stage_ib_text_box();
 SDL_Rect dm_get_stage_ob_text_box();
 SDL_Rect dm_get_arrow_ins_box();
+SDL_Rect dm_get_text_box_big();
 
 
 /*******************************RESOLUTION*************************************/
@@ -125,10 +126,6 @@ SDL_Rect dm_get_arrow_ins_box();
 
 /*************************INPUT/OUTPUT BUFFERS*********************************/
 // The height of the text for the input/output buffers
-
-
-
-
 
 
 

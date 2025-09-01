@@ -126,7 +126,7 @@ int main(int argc, char *args[])
 				}
 				break;
 			case LV_INITIALIZE_LEVEL:
-				level_initialization(level);
+				init_level(level);
 				state = LV_PLAY_LEVEL;
 				break;
 			case LV_PLAY_LEVEL:
