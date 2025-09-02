@@ -36,7 +36,13 @@ enum gbl_msgs{
 
 enum l2_messages{
 	TX_L2_WELCOME,
+	TX_L2_DESCRIPTION,
+	TX_L2_SELLAST,
+	TX_L2_DELINS,
+	TX_L2_CHANGEOP,
+	TX_L2_SELIB
 };
+
 enum l1_messages{
 	TX_L1_WELCOME,
 	TX_L1_DESCRIPTION,
@@ -100,18 +106,6 @@ enum l1_messages{
 " instruction: \"jmp\", which jumps to a place pointed by a LABEL"\
 " (Click anywhere to continue)."
 
-
-
-#define L2_MSG_SEL_LAST_INS "Select and drag the last instruction"\
-" by clicking in the instruction name."	
-
-#define L2_MSG_DEL_INS "Drag the instruction out of the code"\
-" to delete it."
-
-#define L2_MSG_CHANGE_OP "Change any operand by clicking on it. Click"\
-" the source operand of the instruction."
-
-#define L2_MSG_SEL_IB "Select the Input Buffer [IB] as the source operand."
 
 #define L2_MSG_MOV_INS "Select and drag the second instruction and move in to"\
 " the first position."

@@ -13,7 +13,7 @@
 #define MSG_PRESSBACK "Press the back button to continue"
 #define MSG_PRESSCONT "Press the continue button"
 
-#define L1_WEL "Welcome to Level 01"
+#define L1_WELCOME "Welcome to Level 01"
 #define L1_DESCRIPTION "First, read the challenge description"
 #define L1_OBJ1 "Objective: move items from the Input Buffer [IB]"
 #define L1_OBJ2 "To the Output Buffer [OB]"
@@ -37,10 +37,15 @@
 #define L1_SELOP2_2 "Select rax as the source operand"
 #define L1_CONGRATS "Congratulations, you have beaten the first level"
 
-#define L2_WEL "Welcome to Level 02. In this level we will"\
-" learn how to delete instructions, change operands and rearrange, their"\
-" position"
- 
+#define L2_WELCOME "Welcome to Level 02"
+#define L2_DESCRIPTION "We will learn how to rearrange, delete and"\
+" change operands of the instruction"
+#define L2_SELLAST "Select and drag the last instruction"\
+" by clicking in the instruction name."	
+#define L2_DELINS "Drag the instruction out of the code box to delete it"
+#define L2_CHANGEOP "Click the source operand of the instruction to change it"
+#define L2_SELIB "Select the Input Buffer [IB] as the source operand"
+
 SDL_Rect g_big_box;
 SDL_Rect g_error_box;
 SDL_Rect g_upper_box;
@@ -57,8 +62,6 @@ texture_array_t **g_gbl_msgs = NULL;
 
 static int get_box_member(SDL_Rect *box, int member);
 
-
-
 /* Function: tx_init_level_2_texts
  * -----------------------------------------------------------------------------
  * Creates the requiered text textures for a level
@@ -71,13 +74,26 @@ static int get_box_member(SDL_Rect *box, int member);
  */
 void tx_init_level_2_texts()
 {
-	g_lvl_msgs_size = 1;
+	g_lvl_msgs_size = 6;
 	g_lvl_msgs = malloc(sizeof(texture_array_t*)*g_lvl_msgs_size);
 
 	SDL_Rect r = dm_get_text_box_big();
 	int text_h = dm_get_h_big_msg();
 	g_lvl_msgs[TX_L2_WELCOME] = dw_new_text_texture_by_h(r.w, text_h, C_BLACK, 
-																		L2_WEL);
+																    L2_WELCOME);
+	r = dm_get_box_msg();
+	text_h = dm_get_h_msg();
+	g_lvl_msgs[TX_L2_DESCRIPTION] = dw_new_text_texture_by_h(r.w, text_h, 
+										 			   C_BLACK, L2_DESCRIPTION);
+	g_lvl_msgs[TX_L2_SELLAST] = dw_new_text_texture_by_h(r.w, text_h, 
+										 			   C_BLACK, L2_SELLAST);
+	g_lvl_msgs[TX_L2_DELINS] = dw_new_text_texture_by_h(r.w, text_h, 
+										 			   C_BLACK, L2_DELINS);
+	g_lvl_msgs[TX_L2_CHANGEOP] = dw_new_text_texture_by_h(r.w, text_h, 
+										 			   C_BLACK, L2_CHANGEOP);
+	g_lvl_msgs[TX_L2_SELIB] = dw_new_text_texture_by_h(r.w, text_h, 
+										 			   C_BLACK, L2_SELIB);
+
 }
 
 /* Function: tx_init_level_1_texts
@@ -98,7 +114,7 @@ void tx_init_level_1_texts()
 	SDL_Rect r = dm_get_text_box_big();
 	int text_h = dm_get_h_big_msg();
 	g_lvl_msgs[TX_L1_WELCOME] = dw_new_text_texture_by_h(r.w, text_h, C_BLACK, 
-																		L1_WEL);
+																    L1_WELCOME);
 	r = dm_get_box_msg();
 	text_h = dm_get_h_msg();
 	g_lvl_msgs[TX_L1_DESCRIPTION] = dw_new_text_texture_by_h(r.w, text_h, 

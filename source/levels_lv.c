@@ -331,7 +331,8 @@ static void level_2_tutorial(bool holding_line, bool play)
 	bool press_play = false;
 	code_line_t *i1= NULL;
 	code_line_t *i2 = NULL;
-	static bool fst_message = true;
+	static bool msg_welcome = true;
+	static bool msg_descrip = true;
 
 	if (code_size >= two_instructions && holding_line == false){
 		i1 = cw_get_code_line_at_pos(pos_one);
@@ -352,31 +353,32 @@ static void level_2_tutorial(bool holding_line, bool play)
 			press_play = true;
 		}
 	}
-	if (fst_message == true && code_size == 3){
+	if (msg_welcome == true && code_size == 3){
 		tx_text_box(TX_BIG_BOX, TX_L2_WELCOME);
+		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
 		if (ms_chk_mouse_left_pressed() == true){
-			fst_message = false;
+			msg_welcome = false;
 			ms_reset_mouse_values();
 		}
-	}
-	if (fst_message == true && code_size == 0){
-//		tx_text_box(TX_BIG_BOX, L1_MSG_FIRST_CHALLENGE);
+	} else if (msg_descrip == true && code_size == 3){
+		tx_text_box(TX_UPPER_BOX, TX_L2_DESCRIPTION);
+		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
 		if (ms_chk_mouse_left_pressed() == true){
-			fst_message = false;
+			msg_descrip = false;
 			ms_reset_mouse_values();
 		}
-	}else if (code_size > level_instructions_limit && holding_line == false){
-//		tx_text_box(TX_CODE_BOX, L2_MSG_SEL_LAST_INS);
+	} else if (code_size > level_instructions_limit && holding_line == false){
+		tx_text_box(TX_CODE_BOX, TX_L2_SELLAST);
 		ar_display_arrow(AR_CODE);
 	} else if (code_size > level_instructions_limit && holding_line == true){
-//		tx_text_box(TX_CODE_BOX, L2_MSG_DEL_INS);
+		tx_text_box(TX_CODE_BOX, TX_L2_DELINS);
 		ar_display_arrow(AR_DEL);
 	} else if (change_op == true && holding_line == false){
 		if (i2->state != CHANGING_OP2){
-//			tx_text_box(TX_CODE_BOX, L2_MSG_CHANGE_OP);
+			tx_text_box(TX_CODE_BOX, TX_L2_CHANGEOP);
 			ar_display_arrow(AR_OP2);
 		} else if (i2->state == CHANGING_OP2){
-//			tx_text_box(TX_UPPER_BOX, L2_MSG_SEL_IB);
+			tx_text_box(TX_UPPER_BOX, TX_L2_SELIB);
 			bf_draw_buffers(IB);
 		}
 	} else if (mov_instruction == true){
