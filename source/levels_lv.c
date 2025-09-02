@@ -353,7 +353,7 @@ static void level_2_tutorial(bool holding_line, bool play)
 		}
 	}
 	if (fst_message == true && code_size == 3){
-//		tx_text_box(TX_BIG_BOX, L2_MSG_SECOND_CHALLENGE);
+		tx_text_box(TX_BIG_BOX, TX_L2_WELCOME);
 		if (ms_chk_mouse_left_pressed() == true){
 			fst_message = false;
 			ms_reset_mouse_values();
@@ -487,18 +487,18 @@ static void level_1_tutorial(bool holding_line, bool play, int flag)
 		ar_display_arrow(AR_DROP);
 	} else if (code_size == 2 && cw_check_code_sorted() == true &&
 								   cw_check_code_pending_op1() == true){
-//		tx_text_box(TX_CODE_BOX, L1_MSG_SEL_OP1_2);	
+		tx_text_box(TX_CODE_BOX, TX_L1_SELOP1_2);	
 		bf_draw_buffers(OB);
 	} else if(code_size == 2 && cw_check_code_sorted() == true &&
 				    			   cw_check_code_pending_operand() == true){
-//		tx_text_box(TX_CODE_BOX, L1_MSG_SEL_OP2_2);	
+		tx_text_box(TX_CODE_BOX, TX_L1_SELOP2_2);	
 		rg_draw_registers(true);
 	} else if(code_size == 2 && cw_check_code_pending_operand() == false &&
 															 play == false){
-//		tx_text_box(TX_SB_BOX, MSG_PRESS_PLAY);	
+		tx_text_box(TX_STAGEBUTTON_BOX, TX_L1_PRESSPLAY);	
 		ar_display_arrow(AR_PLAY);
 	} else if (lv_check_if_win() == true){
-//		tx_text_box(TX_UPPER_BOX, L1_MSG_CONGRATS);	
+		tx_text_box(TX_UPPER_BOX, TX_L1_CONGRATS);	
 	}
 }
 
@@ -932,8 +932,8 @@ void lv_init_level_assets(int level)
 		case LV_LEVEL_1:
 			tx_init_level_1_texts();
 			break;
-
 		case LV_LEVEL_2:
+			tx_init_level_2_texts();
 			break;
 	
 		case LV_LEVEL_3:

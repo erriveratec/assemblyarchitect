@@ -274,6 +274,30 @@ texture_t *dw_create_text_texture(char *texture_text,
 	return new_texture;
 }
 
+/* Function: dw_free_texture_array
+ * ----------------------------------------------------------------------------
+ * Frees a texture array
+ * 
+ * Arguments:
+ *	texture: Pointer of the texture array to be freed
+ * 
+ * Return:
+ * 	Void
+ */
+void dw_free_texture_array(texture_array_t *t)
+{
+	assert(t != NULL && "The texture pointer is NULL");
+	
+	for (int i = 0; i < t->size; i++){
+		dw_free_texture(t->t[i]);
+		t->t[i] = NULL;
+	}
+	free(t->t);
+	t->t = NULL;
+	free(t);
+	t = NULL;
+}
+
 /* Function: dw_free_texture
  * ----------------------------------------------------------------------------
  * This function receives as an argument the pointer of the texture that

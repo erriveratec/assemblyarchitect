@@ -203,7 +203,26 @@ int stage_studio(Uint64 start_time, Uint64 cur_time)
 	}
 }
 
-/* Function: initialize_stage_assets
+/* Function: reset_level_flags
+ * -------------------------------------
+ * Arguments:
+ * 	flags: the flag levels that will be reset
+ *
+ * Return:
+ *	void.	
+ */
+void reset_level_flags(level_flags_t *flags)
+{
+	flags->play = false;
+	flags->stop = false;
+	flags->stop_enabled = false;
+	flags->forward = false;
+	flags->backward = false;
+	flags->backward_enabled = false;
+	flags->non_stop = false;
+}
+
+/* Function: init_stage_assets
  * ----------------------------------------------------------------------------
  * Initializes several aspects of the stages that were initialized 
  * as the level was created. Independly of the level that player is playing.
@@ -232,31 +251,11 @@ static void init_stage_assets()
 	bf_set_input_buffer_button(r2);
 
 	SDL_Rect ob = dm_get_stage_ob_text_box();
-	SDL_Rect r3 = {.x = r1.x, .y = ob.y, .w = r1.w, .h = ob.h + r1.h};
+	SDL_Rect r3 = {.x = r1.x, .y = r1.y, .w = r1.w, .h = ob.h + r1.h};
 	bf_set_output_buffer_button(r3);
 
 	bf_initialize_buffer_operands();
 	tx_init_text_boxes();
-}
-
-
-/* Function: reset_level_flags
- * -------------------------------------
- * Arguments:
- * 	flags: the flag levels that will be reset
- *
- * Return:
- *	void.	
- */
-void reset_level_flags(level_flags_t *flags)
-{
-	flags->play = false;
-	flags->stop = false;
-	flags->stop_enabled = false;
-	flags->forward = false;
-	flags->backward = false;
-	flags->backward_enabled = false;
-	flags->non_stop = false;
 }
 
 /* Function: init_level
@@ -322,6 +321,7 @@ static void destroy_level(level_flags_t *flags)
 	lv_destroy_win_list(); //destruction of textures not needed
 	cw_destroy_code_window_assets(); //destruction of textures done
 	iw_destroy_instruction_list(); //destruction of textures done
+	tx_free_level_text_textures();
 	rg_destroy_register_list();
 	reset_level_flags(flags);
 	bf_reset_input_list_x_pos();

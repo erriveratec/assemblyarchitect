@@ -12,7 +12,9 @@ void tx_update_assets();
 int tx_get_text_box_member(int text_box_id, int member);
 void tx_init_level_text_textures(int level_id);
 void tx_init_text_boxes();
+void tx_free_level_text_textures();
 void tx_init_level_1_texts();
+void tx_init_level_2_texts();
 
 enum text_box_positions{
 	TX_BOX_MIN,
@@ -32,6 +34,9 @@ enum gbl_msgs{
 	TX_MSG_PRESSBACK
 };
 
+enum l2_messages{
+	TX_L2_WELCOME,
+};
 enum l1_messages{
 	TX_L1_WELCOME,
 	TX_L1_DESCRIPTION,
@@ -45,7 +50,11 @@ enum l1_messages{
 	TX_L1_PLAYTUT,
 	TX_L1_SELINS2,
 	TX_L1_ERROR,
-	TX_L1_DROPINS2
+	TX_L1_DROPINS2,
+	TX_L1_SELOP1_2,
+	TX_L1_SELOP2_2,
+	TX_L1_PRESSPLAY,
+	TX_L1_CONGRATS
 };
 
 #define TUT_TEXT_X INS_BOX_X
@@ -62,9 +71,6 @@ enum l1_messages{
 #define ERROR_MSG_BOX_X RES_BOX_X + MSG_BOX_W/2 - ARROW_W/2
 #define ERROR_MSG_BOX_Y RES_BOX_Y + RES_BOX_H + ERROR_BOX_Y_OFFSET
 
-#define L2_MSG_SECOND_CHALLENGE "Welcome to Level 02. In this level we will"\
-" learn how to delete instructions, change operands and rearrange, their"\
-" position. (Click anywhere to continue)."
 
 #define L3_MSG_THIRD_CHALLENGE "Welcome to Level 03. In this level we will learn"\
 " the behaviour of values when retrieved from the Input Buffer [IB] and"\
@@ -94,19 +100,6 @@ enum l1_messages{
 " instruction: \"jmp\", which jumps to a place pointed by a LABEL"\
 " (Click anywhere to continue)."
 
-
-
-
-#define L1_MSG_SEL_OP1_2 "Now we need to move the value from the \"rax\""\
-" register to the Output Buffer [OB], select the the Output Buffer"\
-" as the destiny operand."
-
-#define L1_MSG_SEL_OP2_2 "Select \"rax\" as the source operand, we want to"\
-" move the value from \"rax\" to the Output Buffer [OB]."
-
-
-#define L1_MSG_CONGRATS "Congratulations, you have beaten the first level."\
-" Press the continue button."
 
 
 #define L2_MSG_SEL_LAST_INS "Select and drag the last instruction"\

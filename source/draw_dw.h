@@ -21,6 +21,7 @@ texture_t *dw_create_text_texture(char *texture_text, SDL_Color text_color);
 texture_array_t *dw_new_text_texture_by_h(int w, int h, SDL_Color c, char *t);
 
 void dw_free_texture(texture_t *texture);
+void dw_free_texture_array(texture_array_t *t);
 
 void dw_draw_text_fits_height(int x, int y, int h, SDL_Color color, char *text);
 void dw_draw_text_fits_width(int x, int y, int w, SDL_Color color, char *text);
