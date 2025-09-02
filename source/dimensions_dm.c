@@ -108,9 +108,9 @@ SDL_Rect dm_get_text_box_error()
 	SDL_Rect ab = dm_get_arrow_box();
 	
 	SDL_Rect b;
-	b.w = mb.w;
+	b.w = rb.w*2/3;
 	b.h = mb.h;
-	b.x = rb.x + b.w/2 - ab.w/2;
+	b.x = rb.x + (rb.w/3)/2;
 	b.y = rb.y + rb.h + g_screen_height/15;
 	return b;
 }
@@ -132,6 +132,28 @@ SDL_Rect dm_get_text_box_big()
 	b.h = g_screen_height/2;
 	b.x = g_screen_width/2 - b.w/2;
 	b.y = g_screen_height/4;
+	return b;
+}
+
+/* Function: dm_get_text_box_stagebutton
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_text_box_stagebutton()
+{
+	SDL_Rect cb = dm_get_stage_code_box();	
+	SDL_Rect mb = dm_get_box_msg();	
+	SDL_Rect b;
+	b.w = mb.w;
+	b.h = mb.h;
+	b.x = cb.x + (cb.w - mb.w)/2;
+	b.y = (cb.y + cb.h) - mb.h/2;
 	return b;
 }
 

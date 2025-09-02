@@ -20,7 +20,7 @@ enum text_box_positions{
 	TX_UPPER_BOX,
 	TX_LOWER_BOX,
 	TX_CODE_BOX,
-	TX_SB_BOX,
+	TX_STAGEBUTTON_BOX,
 	TX_BIG_BOX,
 	TX_ERROR_BOX,
 	TX_BOX_MAX
@@ -29,6 +29,7 @@ enum text_box_positions{
 enum gbl_msgs{
 	TX_MSG_CLICKANY,
 	TX_MSG_PRESSPLAY,
+	TX_MSG_PRESSBACK
 };
 
 enum l1_messages{
@@ -39,7 +40,12 @@ enum l1_messages{
 	TX_L1_OBJ3,
 	TX_L1_SELINS1,
 	TX_L1_DROPINS1,
-	TX_L1_SELOP1
+	TX_L1_SELOP1,
+	TX_L1_SELOP2,
+	TX_L1_PLAYTUT,
+	TX_L1_SELINS2,
+	TX_L1_ERROR,
+	TX_L1_DROPINS2
 };
 
 #define TUT_TEXT_X INS_BOX_X
@@ -88,16 +94,8 @@ enum l1_messages{
 " instruction: \"jmp\", which jumps to a place pointed by a LABEL"\
 " (Click anywhere to continue)."
 
-#define L1_MSG_SEL_INS2 "Select and drag another \"mov\" instruction from the"\
-" instruction box."
-
-#define L1_MSG_DROP_INS "Drop the instruction in the code box"\
-" below the previous instruction."
 
 
-#define L1_MSG_SEL_OP2_1 "The second operand is from where the value will be"\
-" recovered. Select the Input Buffer [IB] as the source"\
-" operand."
 
 #define L1_MSG_SEL_OP1_2 "Now we need to move the value from the \"rax\""\
 " register to the Output Buffer [OB], select the the Output Buffer"\
@@ -106,15 +104,10 @@ enum l1_messages{
 #define L1_MSG_SEL_OP2_2 "Select \"rax\" as the source operand, we want to"\
 " move the value from \"rax\" to the Output Buffer [OB]."
 
-#define L1_MSG_PLAY_TUT "Let's see what that instruction does. Press the play"\
-" button."
 
 #define L1_MSG_CONGRATS "Congratulations, you have beaten the first level."\
 " Press the continue button."
 
-#define L1_MSG_ERROR "The value was recovered from the Input Buffer [IB]."\
-" Now, we will move it to the Output Buffer [OB]"\
-" Press the back button to continue."
 
 #define L2_MSG_SEL_LAST_INS "Select and drag the last instruction"\
 " by clicking in the instruction name."	
@@ -177,7 +170,6 @@ enum l1_messages{
 " instruction:  mov [ob], [ib]"\
 " is not possible."
 
-#define MSG_PRESS_PLAY	"Press the play button."
 
 
 

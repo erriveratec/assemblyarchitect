@@ -8,7 +8,10 @@
 #include"dimensions_dm.h"
 
 
-#define MSG_CLICK_ANYWHERE "Click anywhere to continue"
+#define MSG_CLICKANY "Click anywhere to continue"
+#define MSG_PRESSPLAY "Press the play button"
+#define MSG_PRESSBACK "Press the back button to continue"
+
 
 #define L1_WEL "Welcome to Level 01"
 #define L1_DESCRIPTION "First, read the challenge description"
@@ -21,18 +24,25 @@
 #define L1_DROPINS1 "Drop the instruction in the code box"
 #define L1_SELOP1 "Select \"rax\" as the destination operand"\
 " (where the value will be stored)"
+#define L1_SELOP2 "Select the Input Buffer [IB] as the source"\
+" operand (from where the value is recovered)"
+#define L1_PLAYTUT "Press the play button to see what the instruction does"
+#define L1_SELINS2 "Select and drag another \"mov\" instruction from the"\
+" instruction box"
+#define L1_ERROR "The value was moved from the Input Buffer [IB] to rax."\
+" Now we need to move it from rax to the Output Buffer [OB]"
+#define L1_DROPINS2 "Drop the instruction in the code box"\
+" below the previous instruction."
 
 
   
-SDL_Rect g_sb_box = {CODE_BOX_X + (CODE_BOX_W - MSG_BOX_W)/2, 
-			     (CODE_BOX_Y + CODE_BOX_H) - MSG_BOX_H/2, MSG_BOX_W, MSG_BOX_H};
-
 SDL_Rect g_big_box;
 SDL_Rect g_error_box;
 SDL_Rect g_upper_box;
 SDL_Rect g_lower_box;
 SDL_Rect g_ins_box;
 SDL_Rect g_code_box;
+SDL_Rect g_stagebutton_box;
 
 int g_lvl_msgs_size;
 texture_array_t **g_lvl_msgs = NULL;
@@ -54,14 +64,18 @@ static int get_box_member(SDL_Rect *box, int member);
  */
 void tx_init_global_msgs()
 {
-	g_gbl_msgs_size = 1;
+	g_gbl_msgs_size = 3;
 	g_gbl_msgs = malloc(sizeof(texture_array_t*)*g_gbl_msgs_size);
 
 	SDL_Rect r = dm_get_text_box_big();
 	int text_h = dm_get_h_bottom_msg();
 	
 	g_gbl_msgs[TX_MSG_CLICKANY] = dw_new_text_texture_by_h(r.w, text_h, C_GREY, 
-															MSG_CLICK_ANYWHERE);
+															MSG_CLICKANY);
+	g_gbl_msgs[TX_MSG_PRESSPLAY] = dw_new_text_texture_by_h(r.w, text_h, C_GREY, 
+															MSG_PRESSPLAY);
+	g_gbl_msgs[TX_MSG_PRESSBACK] = dw_new_text_texture_by_h(r.w, text_h, C_GREY, 
+															MSG_PRESSBACK);
 }
 
 /* Function: tx_create_level_text_texture
@@ -76,7 +90,7 @@ void tx_init_global_msgs()
  */
 void tx_init_level_1_texts()
 {
-	g_lvl_msgs_size = 8;
+	g_lvl_msgs_size = 13;
 	g_lvl_msgs = malloc(sizeof(texture_array_t*)*g_lvl_msgs_size);
 
 	SDL_Rect r = dm_get_text_box_big();
@@ -101,13 +115,29 @@ void tx_init_level_1_texts()
 	r = dm_get_text_box_ins();
 	g_lvl_msgs[TX_L1_SELINS1] = dw_new_text_texture_by_h(r.w, text_h, 
 										 				C_BLACK, L1_SELINS1);
-	
+
 	g_lvl_msgs[TX_L1_DROPINS1] = dw_new_text_texture_by_h(r.w, text_h, 
 										 				C_BLACK, L1_DROPINS1);
-	
+
 	g_lvl_msgs[TX_L1_SELOP1] = dw_new_text_texture_by_h(r.w, text_h, 
 										 				C_BLACK, L1_SELOP1);
 
+	g_lvl_msgs[TX_L1_SELOP2] = dw_new_text_texture_by_h(r.w, text_h, 
+										 				C_BLACK, L1_SELOP2);
+
+	g_lvl_msgs[TX_L1_PLAYTUT] = dw_new_text_texture_by_h(r.w, text_h, 
+										 				C_BLACK, L1_PLAYTUT);
+
+	g_lvl_msgs[TX_L1_SELINS2] = dw_new_text_texture_by_h(r.w, text_h, 
+										 				C_BLACK, L1_SELINS2);
+	
+	r = dm_get_text_box_error();
+	g_lvl_msgs[TX_L1_ERROR] = dw_new_text_texture_by_h(r.w, text_h, 
+										 				C_BLACK, L1_ERROR);
+	
+	r = dm_get_text_box_ins();
+	g_lvl_msgs[TX_L1_DROPINS2] = dw_new_text_texture_by_h(r.w, text_h, 
+										 				C_BLACK, L1_DROPINS2);
 }
 
 /* Function: tx_init_text_boxes
@@ -128,7 +158,7 @@ void tx_init_text_boxes()
 	g_lower_box = dm_get_text_box_lower();	
 	g_ins_box = dm_get_text_box_ins();
 	g_code_box = dm_get_text_box_code();
-
+	g_stagebutton_box = dm_get_text_box_stagebutton();
 }
 
 /* Function: get_box_member
@@ -195,8 +225,8 @@ int tx_get_text_box_member(int text_box_id, int member)
 		case TX_CODE_BOX:
 			retval = get_box_member(&g_code_box, member);
 			break;
-		case TX_SB_BOX:
-			retval = get_box_member(&g_sb_box, member);
+		case TX_STAGEBUTTON_BOX:
+			retval = get_box_member(&g_stagebutton_box, member);
 			break;
 		case TX_BIG_BOX:
 			retval = get_box_member(&g_big_box, member);
@@ -271,8 +301,8 @@ void tx_bottom_msg(int pos, int msg_id)
 			b = g_code_box; 
 			text_h = dm_get_h_msg();
 			break;
-		case TX_SB_BOX:
-			b = g_sb_box; 
+		case TX_STAGEBUTTON_BOX:
+			b = g_stagebutton_box; 
 			text_h = dm_get_h_msg();
 			break;
 		case TX_BIG_BOX:
@@ -283,7 +313,9 @@ void tx_bottom_msg(int pos, int msg_id)
 			break;
 		case TX_ERROR_BOX:
 			b = g_error_box; 
-			text_h = dm_get_h_msg();
+			b.y = g_error_box.y + g_error_box.h*5/6;
+			b.h = g_error_box.h/6;
+			text_h = dm_get_h_bottom_msg();
 			break;
 	}
 	dw_draw_wrapped_texture_by_h(b, text_h, a);
@@ -326,8 +358,8 @@ void tx_text_box(int pos, int msg_id)
 			b = g_code_box; 
 			text_h = dm_get_h_msg();
 			break;
-		case TX_SB_BOX:
-			b = g_sb_box; 
+		case TX_STAGEBUTTON_BOX:
+			b = g_stagebutton_box; 
 			text_h = dm_get_h_msg();
 			break;
 		case TX_BIG_BOX:
@@ -341,12 +373,5 @@ void tx_text_box(int pos, int msg_id)
 	}
 	dw_draw_filled_rectangle(b, C_WHITE, C_WHITE);
 	dw_draw_wrapped_texture_by_h(b, text_h, a);
-
-
-
-//	dw_draw_wrapped_text_fits_height(b.x, b.y, b.w, b.h, text_h, color, msg);
-//	int tw = get_text_width_fits_height(CLICK_MESSAGE_H, MSG_CLICK_ANYWHERE);
-//	dw_draw_text_fits_height(b.x + b.w/2 - tw/2, b.y+b.h - 2*CLICK_MESSAGE_H, 
-//						     CLICK_MESSAGE_H, C_GREY, MSG_CLICK_ANYWHERE);
 }
 

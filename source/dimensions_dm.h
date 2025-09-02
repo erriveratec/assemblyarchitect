@@ -55,6 +55,7 @@ SDL_Rect dm_get_text_box_upper();
 SDL_Rect dm_get_text_box_lower();
 SDL_Rect dm_get_text_box_ins();
 SDL_Rect dm_get_text_box_code();
+SDL_Rect dm_get_text_box_stagebutton();
 
 /*******************************RESOLUTION*************************************/
 #define SCREEN_WIDTH 1600
