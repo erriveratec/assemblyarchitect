@@ -19,10 +19,11 @@
 #define L1_SELINS1 "Select and drag the \"mov\" instruction from"\
 " the instruction box"
 #define L1_DROPINS1 "Drop the instruction in the code box"
+#define L1_SELOP1 "Select \"rax\" as the destination operand"\
+" (where the value will be stored)"
 
 
-SDL_Rect g_code_box = {CODE_BOX_X + (CODE_BOX_W - MSG_BOX_W)/2, 
-						   MSG_INS_BOX_Y, MSG_BOX_W, MSG_BOX_H};
+  
 SDL_Rect g_sb_box = {CODE_BOX_X + (CODE_BOX_W - MSG_BOX_W)/2, 
 			     (CODE_BOX_Y + CODE_BOX_H) - MSG_BOX_H/2, MSG_BOX_W, MSG_BOX_H};
 
@@ -31,6 +32,7 @@ SDL_Rect g_error_box;
 SDL_Rect g_upper_box;
 SDL_Rect g_lower_box;
 SDL_Rect g_ins_box;
+SDL_Rect g_code_box;
 
 int g_lvl_msgs_size;
 texture_array_t **g_lvl_msgs = NULL;
@@ -74,7 +76,7 @@ void tx_init_global_msgs()
  */
 void tx_init_level_1_texts()
 {
-	g_lvl_msgs_size = 7;
+	g_lvl_msgs_size = 8;
 	g_lvl_msgs = malloc(sizeof(texture_array_t*)*g_lvl_msgs_size);
 
 	SDL_Rect r = dm_get_text_box_big();
@@ -102,6 +104,9 @@ void tx_init_level_1_texts()
 	
 	g_lvl_msgs[TX_L1_DROPINS1] = dw_new_text_texture_by_h(r.w, text_h, 
 										 				C_BLACK, L1_DROPINS1);
+	
+	g_lvl_msgs[TX_L1_SELOP1] = dw_new_text_texture_by_h(r.w, text_h, 
+										 				C_BLACK, L1_SELOP1);
 
 }
 
@@ -122,6 +127,8 @@ void tx_init_text_boxes()
 	g_upper_box = dm_get_text_box_upper();	
 	g_lower_box = dm_get_text_box_lower();	
 	g_ins_box = dm_get_text_box_ins();
+	g_code_box = dm_get_text_box_code();
+
 }
 
 /* Function: get_box_member

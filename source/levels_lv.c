@@ -462,7 +462,7 @@ static void level_1_tutorial(bool holding_line, bool play, int flag)
 		ar_display_arrow(AR_DROP);
 	} else if (code_size == 1 && cw_check_code_sorted() == true &&
 								   cw_check_code_pending_op1() == true){
-//		tx_text_box(TX_CODE_BOX, L1_MSG_SEL_OP1);	
+		tx_text_box(TX_CODE_BOX, TX_L1_SELOP1);	
 		rg_draw_registers(true);
 	} else if(code_size == 1 && cw_check_code_sorted() == true &&
 				    			   cw_check_code_pending_operand() == true){

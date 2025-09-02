@@ -38,7 +38,8 @@ enum l1_messages{
 	TX_L1_OBJ2,
 	TX_L1_OBJ3,
 	TX_L1_SELINS1,
-	TX_L1_DROPINS1
+	TX_L1_DROPINS1,
+	TX_L1_SELOP1
 };
 
 #define TUT_TEXT_X INS_BOX_X
@@ -93,9 +94,6 @@ enum l1_messages{
 #define L1_MSG_DROP_INS "Drop the instruction in the code box"\
 " below the previous instruction."
 
-#define L1_MSG_SEL_OP1 "The destiny operand is where the"\
-" recovered value will be stored."\
-" Select \"rax\" as the destiny operand."
 
 #define L1_MSG_SEL_OP2_1 "The second operand is from where the value will be"\
 " recovered. Select the Input Buffer [IB] as the source"\

@@ -135,6 +135,28 @@ SDL_Rect dm_get_text_box_big()
 	return b;
 }
 
+/* Function: dm_get_text_box_code
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_text_box_code()
+{
+	SDL_Rect cb = dm_get_stage_code_box();	
+	SDL_Rect ib = dm_get_stage_instruction_box();	
+	SDL_Rect mb = dm_get_box_msg();	
+	SDL_Rect b;
+	b.w = mb.w;
+	b.h = mb.h;
+	b.x = cb.x + (cb.w - mb.w)/2;
+	b.y = ib.y;
+	return b;
+}
 /* Function: dm_get_text_box_ins
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object
