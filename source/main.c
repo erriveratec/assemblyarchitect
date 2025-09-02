@@ -8,6 +8,7 @@
 #include "file_fl.h"
 #include "stage_buttons_sb.h"
 #include "dimensions_dm.h"
+#include "text_tx.h"
 
 
 #define BG_COLOR_BLACK 0x000000FF
@@ -34,6 +35,7 @@ static void initialize_game_assets()
 	g_press_space = dw_create_text_texture(PRESS_SPACE_TEXT, C_WHITE);
 	init_escape_menu();
 	sb_initialize_return_button();
+	tx_init_global_msgs();
 }
 
 

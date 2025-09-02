@@ -5,7 +5,9 @@
 #include"dimensions_dm.h"
 #include"draw_dw.h"
 
-void tx_text_box(int pos, char *msg);
+void tx_init_global_msgs();
+void tx_text_box(int pos, int msg_id);
+void tx_bottom_msg(int pos, int msg_id);
 void tx_update_assets();
 int tx_get_text_box_member(int text_box_id, int member);
 void tx_init_level_text_textures(int level_id);
@@ -24,14 +26,23 @@ enum text_box_positions{
 	TX_BOX_MAX
 };
 
-enum text_messages{
-	TX_MS1_WELCOME
+enum gbl_msgs{
+	TX_MSG_CLICKANY,
+	TX_MSG_PRESSPLAY,
+};
+
+enum l1_messages{
+	TX_L1_WELCOME,
+	TX_L1_DESCRIPTION,
+	TX_L1_OBJ1,
+	TX_L1_OBJ2,
+	TX_L1_OBJ3,
+	TX_L1_SELINS1,
+	TX_L1_DROPINS1
 };
 
 #define TUT_TEXT_X INS_BOX_X
 #define TUT_TEXT_Y SCREEN_HEIGHT/2 - MSG_BOX_H
-
-#define MSG_TEXT_H 30
 
 #define MSG_BOX_W (INS_BOX_W + 100)
 #define MSG_BOX_H 210
@@ -43,12 +54,6 @@ enum text_messages{
 #define ERROR_BOX_Y_OFFSET 60
 #define ERROR_MSG_BOX_X RES_BOX_X + MSG_BOX_W/2 - ARROW_W/2
 #define ERROR_MSG_BOX_Y RES_BOX_Y + RES_BOX_H + ERROR_BOX_Y_OFFSET
-
-#define CLICK_MESSAGE_H 30
-
-#define MSG_CLICK_ANYWHERE "Click anywhere to continue"
-
-#define L1_MSG_FIRST_CHALLENGE "Welcome to Level 01"
 
 #define L2_MSG_SECOND_CHALLENGE "Welcome to Level 02. In this level we will"\
 " learn how to delete instructions, change operands and rearrange, their"\
@@ -82,8 +87,6 @@ enum text_messages{
 " instruction: \"jmp\", which jumps to a place pointed by a LABEL"\
 " (Click anywhere to continue)."
 
-#define L1_MSG_CHALLENGE_DESCRIPTION "First, read the challenge description."\
-" (Click anywhere to continue)."
 #define L1_MSG_SEL_INS2 "Select and drag another \"mov\" instruction from the"\
 " instruction box."
 
@@ -168,15 +171,8 @@ enum text_messages{
 
 #define L9_MSG_SELECT_LABEL "Select an drag a LABEL from the instruction box."
 
-#define MSG_OBJECTIVE1 "The objective of the challenge is to move items from"\
-" the Input Buffer [IB]. (Click anywhere to continue)."
 
-#define MSG_OBJECTIVE2 "To the Output Buffer [OB]. (Click anywhere to"\
-" continue)."
 
-#define MSG_OBJECTIVE3 "All values recovered from the Input Buffer [IB], must"\
-" go to a register first, in this case \"rax\"."\
-" (Click anywhere to continue)."
 
 #define MSG_COMPAT_OPS "Notice: Not all operands are compatible with"\
 " each other, for instance the"\
@@ -185,11 +181,7 @@ enum text_messages{
 
 #define MSG_PRESS_PLAY	"Press the play button."
 
-#define MSG_SEL_INS1 "Let's move the value from the Input Buffer [IB] to"\
-" the register. Select and drag the \"mov\" instruction from"\
-" the instruction box."
 
-#define MSG_DROP_INS1 "Drop the instruction in the code box."
 
 
 

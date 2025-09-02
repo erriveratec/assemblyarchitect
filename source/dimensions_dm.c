@@ -19,7 +19,9 @@
 #define ARROW_H 30
 #define ARROW_W 30
 
-#define BIG_MSG_TEXT_H 50
+#define TEXT_H_BIG_MSG 50
+#define TEXT_H_BOTTOM_MSG 20
+#define TEXT_H_MSG 30
 
 int g_res_id;
 int g_screen_width;
@@ -28,7 +30,7 @@ int g_screen_height;
 int scale_to_resolution(int dim);
 
 
-/* Function: dm_get_msg_box
+/* Function: dm_get_arrow_box
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object, x and y are initialize at 0
  *
@@ -48,7 +50,7 @@ SDL_Rect dm_get_arrow_box()
 	return b;
 }
 
-/* Function: dm_get_msg_box
+/* Function: dm_get_box_msg
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object, x and y are initialize at 0
  *
@@ -58,7 +60,7 @@ SDL_Rect dm_get_arrow_box()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-SDL_Rect dm_get_msg_box()
+SDL_Rect dm_get_box_msg()
 {
 	SDL_Rect ib = dm_get_stage_instruction_box();
 	SDL_Rect b;
@@ -102,7 +104,7 @@ SDL_Rect dm_get_text_box_result()
 SDL_Rect dm_get_text_box_error()
 {
 	SDL_Rect rb = dm_get_text_box_result();
-	SDL_Rect mb = dm_get_msg_box();
+	SDL_Rect mb = dm_get_box_msg();
 	SDL_Rect ab = dm_get_arrow_box();
 	
 	SDL_Rect b;
@@ -130,6 +132,71 @@ SDL_Rect dm_get_text_box_big()
 	b.h = g_screen_height/2;
 	b.x = g_screen_width/2 - b.w/2;
 	b.y = g_screen_height/4;
+	return b;
+}
+
+/* Function: dm_get_text_box_ins
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_text_box_ins()
+{
+
+	SDL_Rect ib = dm_get_stage_instruction_box();	
+	SDL_Rect mb = dm_get_box_msg();	
+	SDL_Rect b;
+	b.w = mb.w;
+	b.h = mb.h;
+	b.x = ib.x;
+	b.y = g_screen_height*2 - mb.h/3;
+	return b;
+}
+
+/* Function: dm_get_text_box_lower
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_text_box_lower()
+{
+	SDL_Rect mb = dm_get_box_msg();	
+	SDL_Rect b;
+	b.w = mb.w;
+	b.h = mb.h;
+	b.x = g_screen_width/2 - mb.w/2;
+	b.y = g_screen_height*8/9 - mb.h;
+	return b;
+}
+
+/* Function: dm_get_text_box_upper
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_text_box_upper()
+{
+	SDL_Rect mb = dm_get_box_msg();	
+	SDL_Rect b;
+	b.w = mb.w;
+	b.h = mb.h;
+	b.x = g_screen_width/2 - mb.w/2;
+	b.y = g_screen_height/4 - mb.h;
 	return b;
 }
 
@@ -320,6 +387,39 @@ SDL_Rect dm_get_return_button_box()
 	return b;
 }
 
+/* Function: dm_get_h_bottom_msg
+ * -----------------------------------------------------------------------------
+ * Returns the h value for the click anywhere message
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset for the sel level buttons
+ */
+int dm_get_h_bottom_msg()
+{
+	int h = scale_to_resolution(TEXT_H_BOTTOM_MSG);
+	return h;
+	
+}
+
+/* Function: dm_get_h_msg
+ * -----------------------------------------------------------------------------
+ * Returns the h value for the click anywhere message
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset for the sel level buttons
+ */
+int dm_get_h_msg()
+{
+	int h = scale_to_resolution(TEXT_H_MSG);
+	return h;
+	
+}
 /* Function: dm_get_big_msg_h
  * -----------------------------------------------------------------------------
  * Returns the h value for the big messages
@@ -330,9 +430,9 @@ SDL_Rect dm_get_return_button_box()
  * Return:
  *	int with the offset for the sel level buttons
  */
-int get_big_msg_h()
+int dm_get_h_big_msg()
 {
-	int h = scale_to_resolution(BIG_MSG_TEXT_H);
+	int h = scale_to_resolution(TEXT_H_BIG_MSG);
 	return h;
 	
 }

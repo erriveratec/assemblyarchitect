@@ -12,7 +12,9 @@ enum resolutionos{
 void dm_set_screen_resolution(int resolution_id);
 
 int get_sel_level_offset_y();
-int get_big_msg_h();
+int dm_get_h_big_msg();
+int dm_get_h_bottom_msg();
+int dm_get_h_msg();
 
 SDL_Rect dm_get_studio_name_msg_box();
 SDL_Rect dm_get_game_title_box();
@@ -30,7 +32,7 @@ SDL_Rect dm_get_escape_b2_box();
 SDL_Rect dm_get_escape_b3_box();
 
 SDL_Rect dm_get_code_button_box();
-SDL_Rect dm_get_msg_box();
+SDL_Rect dm_get_box_msg();
 
 SDL_Rect dm_get_level_button_box();
 SDL_Rect dm_get_return_button_box();
@@ -49,7 +51,9 @@ SDL_Rect dm_get_arrow_ins_box();
 SDL_Rect dm_get_text_box_big();
 SDL_Rect dm_get_text_box_error();
 SDL_Rect dm_get_text_box_result();
-
+SDL_Rect dm_get_text_box_upper();
+SDL_Rect dm_get_text_box_lower();
+SDL_Rect dm_get_text_box_ins();
 
 /*******************************RESOLUTION*************************************/
 #define SCREEN_WIDTH 1600
