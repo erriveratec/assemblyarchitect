@@ -15,11 +15,13 @@ void tx_init_text_boxes();
 void tx_free_level_text_textures();
 void tx_init_level_1_texts();
 void tx_init_level_2_texts();
+void tx_init_level_3_texts();
 
 enum text_box_positions{
 	TX_BOX_MIN,
 	TX_INS_BOX,
 	TX_UPPER_BOX,
+	TX_CENTER_BOX,
 	TX_LOWER_BOX,
 	TX_CODE_BOX,
 	TX_STAGEBUTTON_BOX,
@@ -34,13 +36,31 @@ enum gbl_msgs{
 	TX_MSG_PRESSBACK
 };
 
+enum l3_messages{
+	TX_L3_WELCOME,
+	TX_L3_DESCRIPTION1,
+	TX_L3_DESCRIPTION2,
+	TX_L3_SELINS1,
+	TX_L3_DROPINS,
+	TX_L3_AVAILOPS1,
+	TX_L3_SELRAX,
+	TX_L3_AVAILOPS2,
+	TX_L3_SELIB,
+	TX_L3_SELINS2,
+	TX_L3_READ,
+	TX_L3_MAX
+};
+
 enum l2_messages{
 	TX_L2_WELCOME,
 	TX_L2_DESCRIPTION,
 	TX_L2_SELLAST,
 	TX_L2_DELINS,
 	TX_L2_CHANGEOP,
-	TX_L2_SELIB
+	TX_L2_SELIB,
+	TX_L2_MOVINS,
+	TX_L2_PRESSPLAY,
+	TX_L2_MAX
 };
 
 enum l1_messages{
@@ -60,7 +80,8 @@ enum l1_messages{
 	TX_L1_SELOP1_2,
 	TX_L1_SELOP2_2,
 	TX_L1_PRESSPLAY,
-	TX_L1_CONGRATS
+	TX_L1_CONGRATS,
+	TX_L1_MAX
 };
 
 #define TUT_TEXT_X INS_BOX_X
@@ -76,11 +97,6 @@ enum l1_messages{
 #define ERROR_BOX_Y_OFFSET 60
 #define ERROR_MSG_BOX_X RES_BOX_X + MSG_BOX_W/2 - ARROW_W/2
 #define ERROR_MSG_BOX_Y RES_BOX_Y + RES_BOX_H + ERROR_BOX_Y_OFFSET
-
-
-#define L3_MSG_THIRD_CHALLENGE "Welcome to Level 03. In this level we will learn"\
-" the behaviour of values when retrieved from the Input Buffer [IB] and"\
-" registers. (Click anywhere to continue)."
 
 #define L4_MSG_FOURTH_CHALLENGE "Welcome to Level 04. In this level you "\
 " solve the challenge by yourself applying what has been learned."\
@@ -106,24 +122,6 @@ enum l1_messages{
 " instruction: \"jmp\", which jumps to a place pointed by a LABEL"\
 " (Click anywhere to continue)."
 
-
-#define L2_MSG_MOV_INS "Select and drag the second instruction and move in to"\
-" the first position."
-
-#define L3_MSG_AVAIL_OPS_1 "When selecting an instruction operand the"\
-" available operands will be pointed with"\
-" an arrow. Select \"rax\"."
-
-#define L3_MSG_AVAIL_OPS_2 "In this case there are two available operands for"\
-" selection, to complete the challenge, select Input Buffer [IB]."
-
-#define L3_MSG_RECOVERED "Values stored on a register (like \"rax\")"\
-" can be read several times and the value will countinue"\
-" in the register."
-
-#define L3_MSG_READ_RAX "Try using the instruction:      mov [OB], rax"\
-" several times in a row to complete the challenge." 
-
 #define L5_MSG_NEW_REGS "Notice that now are more registers available"\
 " try using them to solve the challenge."
 
@@ -148,9 +146,6 @@ enum l1_messages{
 " (Click anywhere to continue)."
 
 #define L9_MSG_SELECT_LABEL "Select an drag a LABEL from the instruction box."
-
-
-
 
 #define MSG_COMPAT_OPS "Notice: Not all operands are compatible with"\
 " each other, for instance the"\

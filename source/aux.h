@@ -56,7 +56,7 @@ int ax_get_texture_w_fit_h(int h, texture_t *t);
 // ASCII characters
 #define CHAR_SPACE 32
 #define CHAR_NULL 0
-#define CHAR_NEWLINE "\n"
+#define CHAR_NEWLINE 10
 
 // Text for the data reading of the levels
 #define CHAR_SIZE 1

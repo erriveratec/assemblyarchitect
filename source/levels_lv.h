@@ -64,7 +64,6 @@ enum LevelStates{
 	LV_LEVEL_SELECTION,
 	LV_INITIALIZE_LEVEL,
 	LV_PLAY_LEVEL
-
 };
 
 

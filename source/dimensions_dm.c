@@ -223,6 +223,28 @@ SDL_Rect dm_get_text_box_lower()
 	return b;
 }
 
+/* Function: dm_get_text_box_center
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_text_box_center()
+{
+	SDL_Rect mb = dm_get_box_msg();	
+	SDL_Rect ib = dm_get_stage_input_buffer_box();	
+	SDL_Rect b;
+	b.w = mb.w;
+	b.h = mb.h;
+	b.x = ib.x - mb.w/2;
+	b.y = g_screen_height/2 - mb.h/2;
+	return b;
+}
+
 /* Function: dm_get_text_box_upper
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object

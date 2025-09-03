@@ -52,6 +52,7 @@ SDL_Rect dm_get_text_box_big();
 SDL_Rect dm_get_text_box_error();
 SDL_Rect dm_get_text_box_result();
 SDL_Rect dm_get_text_box_upper();
+SDL_Rect dm_get_text_box_center();
 SDL_Rect dm_get_text_box_lower();
 SDL_Rect dm_get_text_box_ins();
 SDL_Rect dm_get_text_box_code();

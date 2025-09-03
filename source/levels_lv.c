@@ -274,36 +274,73 @@ static void level_3_tutorial(bool holding_line, bool play)
 	rg_draw_registers(check_display_reg_lv_arrow());
 
 	int code_size = cw_get_code_list_size();
-	static bool first_message = true;
+	static bool msg_welcome = true;
+	static bool msg_descrip1 = true;
+	static bool msg_descrip2 = true;
+	static bool msg_ops1 = true;
+	static bool msg_ops2 = true;
 
-	if (first_message == true && code_size == 0){
-//		tx_text_box(TX_BIG_BOX, L3_MSG_THIRD_CHALLENGE);
+	if (msg_welcome == true && code_size == 0){
+		tx_text_box(TX_BIG_BOX, TX_L3_WELCOME);
+		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
 		if (ms_chk_mouse_left_pressed() == true){
-			first_message = false;
+			msg_welcome = false;
+			ms_reset_mouse_values();
+		}
+	} else if (msg_descrip1 == true && code_size == 0){
+		tx_text_box(TX_UPPER_BOX, TX_L3_DESCRIPTION1);
+		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
+		bf_draw_buffers(IB);
+		if (ms_chk_mouse_left_pressed() == true){
+			msg_descrip1 = false;
+			ms_reset_mouse_values();
+		}
+	} else if (msg_descrip2 == true && code_size == 0){
+		tx_text_box(TX_LOWER_BOX, TX_L3_DESCRIPTION2);
+		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
+		rg_draw_registers(true);
+		if (ms_chk_mouse_left_pressed() == true){
+			msg_descrip2 = false;
 			ms_reset_mouse_values();
 		}
 	} else if (code_size == 0 && holding_line == false){
-//		tx_text_box(TX_INS_BOX, MSG_SEL_INS1);
+		tx_text_box(TX_INS_BOX, TX_L3_SELINS1);
 		ar_display_arrow(AR_INS);
 	} else if (code_size == 0 && holding_line == true){
-//		tx_text_box(TX_INS_BOX, MSG_DROP_INS1);
+		tx_text_box(TX_INS_BOX, TX_L3_DROPINS);
 		ar_display_arrow(AR_DROP);
 	} else if (code_size == 1 && cw_check_code_pending_op1() == true && 
-												cw_check_code_sorted() == true){
-//		tx_text_box(TX_LOWER_BOX, L3_MSG_AVAIL_OPS_1);
+							cw_check_code_sorted() == true && msg_ops1 == true){
+		tx_text_box(TX_LOWER_BOX, TX_L3_AVAILOPS1);
+		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
+		if (ms_chk_mouse_left_pressed() == true){
+			msg_ops1 = false;
+			ms_reset_mouse_values();
+		}
+	} else if (code_size == 1 && cw_check_code_pending_op1() == true && 
+			   cw_check_code_sorted() == true){
+		tx_text_box(TX_CODE_BOX, TX_L3_SELRAX);
+	} else if (code_size == 1 && cw_check_code_pending_op2() == true && 
+							cw_check_code_sorted() == true && msg_ops2 == true){
+		tx_text_box(TX_CENTER_BOX, TX_L3_AVAILOPS2);
+		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
+		if (ms_chk_mouse_left_pressed() == true){
+			msg_ops2 = false;
+			ms_reset_mouse_values();
+		}
 	} else if (code_size == 1 && cw_check_code_pending_op2() == true && 
 												cw_check_code_sorted() == true){
-//		tx_text_box(TX_UPPER_BOX, L3_MSG_AVAIL_OPS_2);
+		tx_text_box(TX_UPPER_BOX, TX_L3_SELIB);
 	} else if (code_size == 1 && cw_check_code_pending_operand() == false &&
 														 holding_line == false){
-//		tx_text_box(TX_INS_BOX, L3_MSG_RECOVERED);
+		tx_text_box(TX_INS_BOX, TX_L3_SELINS2);
 		ar_display_arrow(AR_INS);
 	} else if (code_size == 1 && cw_check_code_pending_operand() == false &&
 														  holding_line == true){
-//		tx_text_box(TX_INS_BOX, MSG_DROP_INS1);
+		tx_text_box(TX_INS_BOX, TX_L3_DROPINS);
 		ar_display_arrow(AR_DROP);
 	}else if (code_size == 2 && cw_check_code_pending_operand() == true){
-//		tx_text_box(TX_CODE_BOX, L3_MSG_READ_RAX);
+		tx_text_box(TX_CODE_BOX, TX_L3_READ);
 	}
 }
 
@@ -382,10 +419,10 @@ static void level_2_tutorial(bool holding_line, bool play)
 			bf_draw_buffers(IB);
 		}
 	} else if (mov_instruction == true){
-//		tx_text_box(TX_CODE_BOX, L2_MSG_MOV_INS);
+		tx_text_box(TX_CODE_BOX, TX_L2_MOVINS);
 		ar_display_arrow(AR_CODE);
-	} else if (press_play == true){
-//		tx_text_box(TX_SB_BOX, MSG_PRESS_PLAY);	
+	} else if (press_play == true && play == false){
+		tx_text_box(TX_STAGEBUTTON_BOX, TX_L2_PRESSPLAY);	
 		ar_display_arrow(AR_PLAY);
 	}
 }
@@ -937,8 +974,8 @@ void lv_init_level_assets(int level)
 		case LV_LEVEL_2:
 			tx_init_level_2_texts();
 			break;
-	
 		case LV_LEVEL_3:
+			tx_init_level_3_texts();
 			break;
 
 		case LV_LEVEL_4:
