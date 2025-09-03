@@ -739,9 +739,9 @@ void fl_save_level(int player_id, int level_id)
 	
 		if (strcmp(line, level_start) == STRING_EQUAL){
 			level_found = true;
-			write_to_file(fptemp, CHAR_NEWLINE);
+			write_to_file(fptemp, char_newline);
 			write_to_file(fptemp, STR_LEVEL_ACTIVE_TRUE);
-			write_to_file(fptemp, CHAR_NEWLINE);
+			write_to_file(fptemp, char_newline);
 			while (READ_ERROR != (read = getline(&line, &len, fp))){
 				if (strcmp(line, STR_CODE_STARTS) == STRING_EQUAL){
 					write_to_file(fptemp, STR_CODE_STARTS);
@@ -806,9 +806,9 @@ void fl_enable_next_level(int player_id, int level_id)
 	
 		if (strcmp(line, level_start) == STRING_EQUAL){
 			level_found = true;
-			write_to_file(fptemp, CHAR_NEWLINE);
+			write_to_file(fptemp, char_newline);
 			write_to_file(fptemp, STR_LEVEL_ACTIVE_TRUE);
-			write_to_file(fptemp, CHAR_NEWLINE);
+			write_to_file(fptemp, char_newline);
 			while (READ_ERROR != (read = getline(&line, &len, fp))){
 				if (strcmp(line, STR_CODE_STARTS) == STRING_EQUAL){
 					write_to_file(fptemp, STR_CODE_STARTS);
@@ -876,9 +876,9 @@ void fl_save_file_init()
 			strcpy(level, STR_PLAYER); 
 			strcat(level, " ");
 			strcat(level, player_number);
-			strcat(level, CHAR_NEWLINE);
+			strcat(level, char_newline);
 			write_to_file(fp, level);
-			strcpy(level, CHAR_NEWLINE);
+			strcpy(level, char_newline);
 			write_to_file(fp, level);
 			for (int i = 1; i <= LV_LEVEL_QUANTITY; i++){
 				char *number = NULL;
@@ -893,9 +893,9 @@ void fl_save_file_init()
 				strcpy(level, STR_LEVEL_STARTS); 
 				strcat(level, " ");
 				strcat(level, number);
-				strcat(level, CHAR_NEWLINE);
+				strcat(level, char_newline);
 				write_to_file(fp, level);
-				strcpy(level, CHAR_NEWLINE);
+				strcpy(level, char_newline);
 				write_to_file(fp, level);
 
 				if (i == 1){
@@ -906,7 +906,7 @@ void fl_save_file_init()
 
 				write_to_file(fp, level);
 				
-				strcpy(level, CHAR_NEWLINE);
+				strcpy(level, char_newline);
 				write_to_file(fp, level);
 				
 				strcpy(level, STR_CODE_STARTS);
@@ -921,31 +921,31 @@ void fl_save_file_init()
 					write_to_file(fp, level);
 
 				} else {
-					strcpy(level, CHAR_NEWLINE);
+					strcpy(level, char_newline);
 					write_to_file(fp, level);
 				}
 				
 				strcpy(level, STR_CODE_ENDS);
 				write_to_file(fp, level);
 				
-				strcpy(level, CHAR_NEWLINE);
+				strcpy(level, char_newline);
 				write_to_file(fp, level);
 
 				strcpy(level, STR_LEVEL_ENDS);
 				strcat(level, " ");
 				strcat(level, number);
-				strcat(level, CHAR_NEWLINE);
+				strcat(level, char_newline);
 				write_to_file(fp, level);
-				strcpy(level, CHAR_NEWLINE);
+				strcpy(level, char_newline);
 				write_to_file(fp, level);
 				free(number);
 			}
 			strcpy(level, STR_PLAYER_ENDS); 
 			strcat(level, " ");
 			strcat(level, player_number);
-			strcat(level, CHAR_NEWLINE);
+			strcat(level, char_newline);
 			write_to_file(fp, level);
-			strcpy(level, CHAR_NEWLINE);
+			strcpy(level, char_newline);
 			write_to_file(fp, level);
 
 			free(player_number);

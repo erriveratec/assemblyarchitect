@@ -63,7 +63,7 @@
 " selection"
 #define L3_SELIB "Select Input Buffer [IB]"
 #define L3_SELINS2 "Use more \"mov\" instructions to solve the challenge"
-#define L3_READ "Use \nmov [OB], rax\n several times to solve the challenge"
+#define L3_READ "Use\nmov [OB], rax\nseveral times to solve the challenge"
 
 
 SDL_Rect g_big_box;

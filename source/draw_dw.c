@@ -361,7 +361,7 @@ texture_array_t *dw_new_text_texture_by_h(int w, int h, SDL_Color c, char *t)
 				last_fit = i;
 			}
 			if (check_text_fits_width_by_height(text, h, w) == false|| 
-				t[i] == CHAR_NULL || t[i] == CHAR_NEWLINE){
+				t[i] == CHAR_NULL/* || t[i] == CHAR_NEWLINE*/){
 				if (last_fit == already_drawn){
 					puts("The size of the font does not fits width");
 					last_fit = string_size;
