@@ -59,7 +59,7 @@
 #define L3_AVAILOPS1 "All available operands for selection will be pointed"\
 " with an arrow"
 #define L3_SELRAX "Select \"rax\""
-#define L3_AVAILOPS2 "Only valid operands combinatios will be available for"\
+#define L3_AVAILOPS2 "Only valid operands combinations will be available for"\
 " selection"
 #define L3_SELIB "Select Input Buffer [IB]"
 #define L3_SELINS2 "Use more \"mov\" instructions to solve the challenge"
@@ -375,7 +375,7 @@ int tx_get_text_box_member(int text_box_id, int member)
  * Return:
  *	Void.
  */
-void tx_update_assets()
+void tx_upd_boxes_pos()
 {
 	int code_size =  cw_get_code_list_size();
 	//g_code_box.y = cw_get_line_y(code_size-1) + CODE_BUTTON_H + ARROW_H;   

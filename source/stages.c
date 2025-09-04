@@ -298,7 +298,7 @@ void init_level(int level_id)
 	fl_load_save_file(g_player, level_id);
 	mc_reset_avatar();
 
-	tx_update_assets();
+	tx_upd_boxes_pos();
 	ar_initialize_arrows();
 //	tx_create_level_text_textures
 	return;
@@ -599,6 +599,7 @@ static bool edit_code(int level_id)
 		pending_operand_handler();	
 		if (cw_check_code_pending_operand() == false){
 			fl_save_level(g_player, level_id);
+			tx_upd_boxes_pos();
 		}
 	} else if (cw_check_clicked_code_operand() == true && line == NULL){
 		cw_change_clicked_code_line_state();	
@@ -615,6 +616,7 @@ static bool edit_code(int level_id)
 		} 
 		if (cw_check_code_pending_operand() == false){
 			fl_save_level(g_player, level_id);
+			tx_upd_boxes_pos();
 		}
 		line = NULL;
 	}
