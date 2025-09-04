@@ -65,7 +65,6 @@
 #define L3_SELINS2 "Use more \"mov\" instructions to solve the challenge"
 #define L3_READ "Use\nmov [OB], rax\nseveral times to solve the challenge"
 
-
 SDL_Rect g_big_box;
 SDL_Rect g_error_box;
 SDL_Rect g_upper_box;
@@ -124,8 +123,8 @@ void tx_init_level_3_texts()
 										 			  C_BLACK, L3_SELINS2);
 	g_lvl_msgs[TX_L3_READ] = dw_new_text_texture_by_h(r.w, text_h, 
 										 			  C_BLACK, L3_READ);
-
 }
+
 /* Function: tx_init_level_2_texts
  * -----------------------------------------------------------------------------
  * Creates the requiered text textures for a level

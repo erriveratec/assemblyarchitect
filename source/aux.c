@@ -489,27 +489,30 @@ int ax_get_wrapped_text_height(int w, int h, char *t)
 	
 	char *text = malloc(sizeof(char)*string_size);
 	check_mem(text);
-	int last_successful_fit = 0;
-	int already_drawn_offset = 0;
+	int last_fit = 0;
+	int already_drawn = 0;
 
-		for (int i = 0; i <= string_size; i++){
-			if (CHAR_SPACE == t[i] || CHAR_NULL == t[i]){
-				strncpy(text, t + already_drawn_offset, 
-						i - already_drawn_offset);
+	for (int i = 0; i <= string_size; i++){
+		if (t[i] == CHAR_SPACE || t[i] == CHAR_NULL || t[i] == CHAR_NEWLINE){
 			
-				if (true == check_text_fits_width_by_height(text, h, w)){
-					last_successful_fit = i;
+			strncpy(text, t + already_drawn, i - already_drawn);
+			
+			if (check_text_fits_width_by_height(text, h, w) == true){
+				last_fit = i;
+			}
+			if (check_text_fits_width_by_height(text, h, w) == false || 
+									 CHAR_NULL == t[i] || t[i] == CHAR_NEWLINE){
+				memset(text, 0, string_size);
+				if (already_drawn == 0){
+					strncpy(text, t + already_drawn, last_fit - already_drawn);
+				} else {
+					strncpy(text, t + already_drawn + 1, 
+						   						  last_fit - already_drawn - 1);
 				}
-
-				if (false == check_text_fits_width_by_height(text, h, w)|| 
-					CHAR_NULL == t[i]){
-					memset(text, 0, string_size);
-					strncpy(text, t + already_drawn_offset, 
-						   	last_successful_fit - already_drawn_offset);
-					y_pos += y_offset;
-					already_drawn_offset = last_successful_fit;
-					i = last_successful_fit;
-					memset(text, 0, string_size);
+				y_pos += y_offset;
+				already_drawn = last_fit;
+				i = last_fit;
+				memset(text, 0, string_size);
 			}
 		}
 	} 

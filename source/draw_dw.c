@@ -355,28 +355,33 @@ texture_array_t *dw_new_text_texture_by_h(int w, int h, SDL_Color c, char *t)
 	int pos = 0;
 	for (int i = 0; i <= string_size; i++){
 		if (t[i] == CHAR_SPACE || t[i] == CHAR_NULL || t[i] == CHAR_NEWLINE){
+			
 			strncpy(text, t + already_drawn, i - already_drawn);
-		
+			
 			if (check_text_fits_width_by_height(text, h, w) == true){
 				last_fit = i;
 			}
-			if (check_text_fits_width_by_height(text, h, w) == false|| 
-				t[i] == CHAR_NULL/* || t[i] == CHAR_NEWLINE*/){
+			if (check_text_fits_width_by_height(text, h, w) == false || 
+				t[i] == CHAR_NEWLINE || t[i] == CHAR_NULL){
 				if (last_fit == already_drawn){
 					puts("The size of the font does not fits width");
 					last_fit = string_size;
 				}
 				memset(text, 0, string_size);
-				strncpy(text, t + already_drawn, last_fit - already_drawn); 	
-				int text_w = get_text_width_fits_height(h, text);
-				
+			
+				if (already_drawn == 0){
+					strncpy(text, t + already_drawn, last_fit - already_drawn);	
+				} else {
+					strncpy(text, t + already_drawn+1, last_fit - already_drawn - 1);	
+				}	
+
 				texture_t *text_texture = dw_create_text_texture(text, c);
 				array->t[pos] = text_texture;
 				pos++;
 				already_drawn = last_fit;
 				i = last_fit;
 				memset(text, 0, string_size);
-			}	 
+			} 
 		}
 	} 
 	free(text);
