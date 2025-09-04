@@ -16,9 +16,9 @@ static List *code_list = NULL;
 
 static SDL_Rect code_box;
 static SDL_Rect text_box;
-static char *challenge_text;
-static char *stage_name;
 
+texture_array_t *challenge_text;
+texture_t *stage_name;
 
 void display_line_number();
 int get_code_line_position(int y);
@@ -889,10 +889,9 @@ bool cw_check_clicked_code()
 void cw_set_stage_name(char *text)
 {
 	assert(NULL != text && "The text pointer is NULL");
-	int text_length = strlen(text);
-	stage_name = malloc(sizeof(char)*text_length);
+
+	stage_name = dw_create_text_texture(text, C_WHITE);
 	check_mem(stage_name);
-	strcpy(stage_name, text);
 error:
 	return;
 }
@@ -909,9 +908,8 @@ error:
  */
 void cw_destroy_code_window_assets()
 {
-	free(stage_name);
-	free(challenge_text);
-	
+	dw_free_texture(stage_name);
+	dw_free_texture_array(challenge_text);
 	List *code = get_code_list();
 	LIST_FOREACH(code, first, next, cur){
 		code_line_t *line = cur->value;	
@@ -1095,10 +1093,8 @@ static bool check_if_inside_code_window(){
 void cw_set_challenge_text(char *text)
 {
 	assert(NULL != text && "The text pointer is NULL");
-	
-	int text_length = strlen(text);
-	challenge_text = malloc(sizeof(char)*text_length);
-	strcpy(challenge_text, text);
+	challenge_text = dw_new_text_texture_by_h(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT, 
+																 C_WHITE, text);
 }
 
 /* Function: cw_set_code_box
@@ -1121,8 +1117,7 @@ void cw_set_code_box(SDL_Rect r)
 	code_box.w = r.w;
 	code_box.h = r.h;
 
-	int text_box_height = ax_get_wrapped_text_height(TEXT_BOX_WIDTH, 
-											   TEXT_BOX_HEIGHT, challenge_text);
+	int text_box_height = challenge_text->size * TEXT_BOX_HEIGHT;
 	set_text_box(r.x + CODE_BOX_OFFSET, r.y + CODE_BOX_OFFSET + STAGE_NAME_H
 				 + CODE_BOX_OFFSET, TEXT_BOX_WIDTH, text_box_height);
 }
@@ -1302,8 +1297,9 @@ void cw_draw_code_window()
 	display_line_number();
 
 	// Challenge text
-	dw_draw_wrapped_text_fits_height(text_box.x, text_box.y, text_box.w, 
-					  text_box.h, TEXT_BOX_HEIGHT, C_WHITE, challenge_text);
+	SDL_Rect r = {.x = text_box.x, .y = text_box.y, .w = text_box.w, 
+															   .h = text_box.h};
+	dw_draw_wrapped_texture_by_h(r, TEXT_BOX_HEIGHT, challenge_text);
 
 	// Text rectangle
 	dw_draw_rectangle(text_box, C_WHITE);
@@ -1318,10 +1314,11 @@ void cw_draw_code_window()
 	dw_draw_rectangle(code_box, C_WHITE);
 
 	// Text of the level
-	dw_draw_text_fits_height(code_box.x + CODE_BOX_OFFSET, 
-						  code_box.y + CODE_BOX_OFFSET, 
-						  STAGE_NAME_H, C_WHITE, stage_name);
 
+	SDL_Rect b = {.x = code_box.x + CODE_BOX_OFFSET, 
+				  .y = code_box.y + CODE_BOX_OFFSET,
+				  .h = STAGE_NAME_H};
+	dw_draw_texture_fits_height(b, stage_name);
 }
 
 /* Function: display_player_code

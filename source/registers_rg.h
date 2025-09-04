@@ -43,4 +43,5 @@ void rg_set_ibox_value_box(value_box_t value);
 void rg_set_obox_value_box(value_box_t value);	
 void rg_reset_ibox();
 void rg_reset_obox();
+void rg_init_reg_texture();
 #endif

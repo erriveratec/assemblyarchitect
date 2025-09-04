@@ -12,10 +12,10 @@
 #include "dimensions_dm.h"
 
 #define DEFAULT_OPERAND RAX
+#define REG_TEXT "Registers"
 
 static List *register_list = NULL;
 static SDL_Rect register_box;
-static char REGISTER_TEXT[] = "Registers";
 
 static void set_register_box_member(int value, int member);
 List *get_register_list();
@@ -29,7 +29,23 @@ static void display_arrow_registers();
 value_box_t g_ibox;
 value_box_t g_obox;
 
+texture_t *reg_text = NULL;
 texture_t *g_reg_arrow = NULL;
+
+/* Function: iw_init_reg_texture
+ *------------------------------------------------------------------------------
+ * Creates the instructions texture of the instruction box
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Void.
+ */
+void rg_init_reg_texture()
+{
+	reg_text = dw_create_text_texture(REG_TEXT, C_WHITE);
+}
 
 /* Function: display_arrow_registers
  * -----------------------------------------------------------------------------
@@ -535,7 +551,7 @@ operand_t *rg_create_register_operand_by_id(int id)
 	texture_t *reg_text = cl_create_operand_texture(id);
 	check_mem(reg_text);
 	
-	int register_text_w = get_text_width_fits_height(REG_TEXT_H, REGISTER_TEXT);
+	int register_text_w = get_text_width_fits_height(REG_TEXT_H, REG_TEXT);
 	int x = 0;
 	int y = 0;
 	SDL_Rect r = {.x = x, .y = y, .w = CODE_BUTTON_W, .h = CODE_BUTTON_H};
@@ -584,7 +600,7 @@ void rg_add_register_to_list(int id)
 	texture_t *reg_text = cl_create_operand_texture(id);
 	check_mem(reg_text);
 	
-	int register_text_w = get_text_width_fits_height(REG_TEXT_H, REGISTER_TEXT);
+	int register_text_w = get_text_width_fits_height(REG_TEXT_H, REG_TEXT);
 	int x = register_box.x + REG_BOX_X_OFFSET;
 
 	int y = register_box.y + REG_BOX_OFFSET + list_size*2*(CODE_BUTTON_H + 5) +
@@ -653,7 +669,7 @@ void rg_draw_registers(bool show_arrows)
 int rg_get_registers_text_width(int h)
 {
 	assert(h > 0 && "Height value must be greater than zero.");
-	int width = get_text_width_fits_height(h, REGISTER_TEXT);
+	int width = get_text_width_fits_height(h, REG_TEXT);
 	
 	return width;
 }
@@ -711,12 +727,12 @@ static void draw_register_box()
  */
 static void draw_register_text()
 {
-	int text_w = get_text_width_fits_height(REG_TEXT_H, REGISTER_TEXT);
+	int text_w = get_text_width_fits_height(REG_TEXT_H, REG_TEXT);
 	int x = register_box.x;// + (register_box.w - text_w)/2;
 	int y = register_box.y - REG_TEXT_H;
 
-	dw_draw_text_fits_height(x, y, REG_TEXT_H, C_WHITE, REGISTER_TEXT);
-
+	SDL_Rect r = {.x = x, .y = y, .h = REG_TEXT_H};
+	dw_draw_texture_fits_height(r, reg_text);
 }
 
 /* Function: rg_check_mouse_released_in_register

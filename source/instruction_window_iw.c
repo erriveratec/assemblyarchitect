@@ -10,12 +10,29 @@
 
 #define INSTRUCTIONS_TEXT "Instructions"
 
+texture_t *instructions_text;
+
 static List *instruction_list = NULL;
 SDL_Rect instruction_box;
 
 void set_instruction_box_member(int value, int member);
 static List *get_instruction_list();
 static void draw_instruction_text();
+
+/* Function: iw_init_ins_box_texture
+ *------------------------------------------------------------------------------
+ * Creates the instructions texture of the instruction box
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Void.
+ */
+void iw_init_ins_box_texture()
+{
+	instructions_text = dw_create_text_texture(INSTRUCTIONS_TEXT, C_WHITE);
+}
 
 /* Function: iw_get_instruction_y_by_pos
  *------------------------------------------------------------------------------
@@ -88,8 +105,8 @@ static void draw_instruction_text()
 	int x = instruction_box.x;
 	int y = instruction_box.y  - get_text_height_fits_width(INS_BOX_TEXT_W, 
 															INSTRUCTIONS_TEXT);
-	dw_draw_text_fits_width(x, y, INS_BOX_TEXT_W, C_WHITE, 
-															INSTRUCTIONS_TEXT);
+	SDL_Rect r = {.x = x, .y = y, .w = INS_BOX_TEXT_W};
+	dw_draw_texture_fits_width(r, instructions_text);
 }
 
 /* Function: iw_get_instruction_list_size
@@ -331,27 +348,24 @@ error:
  * This function displays the instructions available for a level.
  *
  * Arguments:
- *	x: The x position of the instruction list
- *	y: The y position of the instruction list
+ *	Void.
  *	
  * Return:
  *	void
  *
  */
-void iw_display_instructions(int x, int y)
+void iw_display_instructions()
 {
 	List *instructions = get_instruction_list();
 	assert(instructions != NULL && "Invalid pointer");
-	assert(x >= 0 && y >= 0 && "Invalid position coordinate"); 
 
 	draw_instruction_text();
-	// The rectangle the contains the list of buttons
 	dw_draw_rectangle(instruction_box, C_WHITE);
 	
 	LIST_FOREACH(instructions, first, next, cur){
 		instruction_t *c = cur->value;
 		bt_draw_button(c->b);
-		}
+	}
 }
 
 

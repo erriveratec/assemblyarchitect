@@ -341,11 +341,12 @@ static void destroy_level(level_flags_t *flags)
  */
 void stage_drawings(int level, bool holding_line, bool play)
 {
-	iw_display_instructions(INS_BOX_X, INS_BOX_Y);
+	iw_display_instructions();
 	cw_draw_code_window();	
 	sb_draw_stage_buttons(cw_get_code_list_size());
 	mc_draw_avatar();
 	mc_draw_execution_arrow();
+	bf_draw_buffers();
 	lv_level_drawings(level, holding_line, play, mc_get_operation_flag());
 	sb_draw_return_button();
 	return;

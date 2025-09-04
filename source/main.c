@@ -9,6 +9,8 @@
 #include "stage_buttons_sb.h"
 #include "dimensions_dm.h"
 #include "text_tx.h"
+#include "instruction_window_iw.h"
+#include "registers_rg.h"
 
 
 #define BG_COLOR_BLACK 0x000000FF
@@ -36,6 +38,8 @@ static void initialize_game_assets()
 	init_escape_menu();
 	sb_initialize_return_button();
 	tx_init_global_msgs();
+	iw_init_ins_box_texture();
+	rg_init_reg_texture();
 }
 
 

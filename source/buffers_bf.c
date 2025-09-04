@@ -626,22 +626,34 @@ void bf_set_output_box(SDL_Rect r)
 	output_box.h = r.h;
 }
 
-/* Function: draw_buffers
+/* Function: draw_buffers_arrow
  *------------------------------------------------------------------------------
  * Arguments:
- *	None.
+ *	id: id of the buffer arrow that will be drawn
  * 
  * Return:
  *	Void.
  */
-void bf_draw_buffers(int operand_id)
+void bf_draw_buffers_arrow(int id)
 {
-	if (operand_id == IB){
+	if (id == IB){
 		display_input_arrow();
 	}
-	if (operand_id == OB){
+	if (id == OB){
 		display_output_arrow();
 	}
+}
+
+/* Function: draw_buffers
+ *------------------------------------------------------------------------------
+ * Arguments:
+ *	Void.
+ * 
+ * Return:
+ *	Void.
+ */
+void bf_draw_buffers()
+{
 	draw_input_buffer();
 	draw_output_buffer();
 }
