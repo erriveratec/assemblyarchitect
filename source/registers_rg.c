@@ -251,7 +251,7 @@ int rg_get_obox_y()
  *	Void.
  *
  */
-void rg_initialize_value_boxes()
+void rg_init_value_boxes()
 {
 	g_ibox.box.x = REG_VBOX_X;
 	g_ibox.box.y = rg_get_register_box_member(MEMBER_Y) - VALUE_BOX_H - 
@@ -260,6 +260,7 @@ void rg_initialize_value_boxes()
 	g_ibox.box.h = VALUE_BOX_H;
 	g_ibox.value = NO_VALUE;
 	g_ibox.visible_box = true;
+	g_ibox.t = dw_create_text_texture(char_dash, C_WHITE);
 	
 	g_obox.box.x = REG_VBOX_X;
 	g_obox.box.y = rg_get_register_box_member(MEMBER_Y) + 
@@ -268,6 +269,7 @@ void rg_initialize_value_boxes()
 	g_obox.box.h = VALUE_BOX_H;
 	g_obox.value = NO_VALUE;
 	g_obox.visible_box = true;
+	g_obox.t = dw_create_text_texture(char_dash, C_WHITE);
 
 	return;
 }
@@ -530,6 +532,7 @@ reg_t *create_register(int id, button_t *b)
 	op->value.box.w = VALUE_BOX_W;
 	op->value.box.h = VALUE_BOX_H;
 	op->value.value = NO_VALUE;
+	op->value.t = dw_create_text_texture(char_dash, C_WHITE);
 
 error:
 	return op;

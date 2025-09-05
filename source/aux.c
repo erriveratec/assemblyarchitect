@@ -12,6 +12,7 @@ char *char_space = " ";
 char *char_comma = ",";
 char *char_newline = "\n";
 char *char_colon = ":";
+char *char_dash = "-";
 char *level_text = "level";
 
 /* Function: ax_get_w_by_texture_h

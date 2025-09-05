@@ -286,7 +286,7 @@ void init_level(int level_id)
 	fl_file_initialize_level(level_id);
 	
 	// must go after level loading
-	rg_initialize_value_boxes(); 	
+	rg_init_value_boxes(); 	
 
 	SDL_Rect r1 = dm_get_stage_code_box();
 	cw_set_code_box(r1);

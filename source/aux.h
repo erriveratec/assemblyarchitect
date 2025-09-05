@@ -8,6 +8,7 @@
 // For values not assigned
 #define NO_VALUE 0x80000001
 
+
 // For the return of functions
 #define SUCCESS 0
 #define FAIL 1
@@ -67,6 +68,7 @@ extern char *char_comma;
 extern char *char_newline;
 extern char *char_colon;
 extern char *level_text;
+extern char *char_dash;
 
 
 #endif
