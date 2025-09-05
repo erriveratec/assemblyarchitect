@@ -11,7 +11,7 @@
 #include "text_tx.h"
 #include "instruction_window_iw.h"
 #include "registers_rg.h"
-
+#include "buffers_bf.h"
 
 #define BG_COLOR_BLACK 0x000000FF
 #define BG_COLOR_RED 0xFF0000FF
@@ -40,6 +40,7 @@ static void initialize_game_assets()
 	tx_init_global_msgs();
 	iw_init_ins_box_texture();
 	rg_init_reg_texture();
+	bf_init_buf_texture();
 }
 
 

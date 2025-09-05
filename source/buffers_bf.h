@@ -51,4 +51,5 @@ void bf_reset_input_list_x_pos();
 void bf_set_input_buffer_size(int size);
 void bf_set_win_condition();
 void bf_reset_win_condition();
+void bf_init_buf_texture();
 #endif

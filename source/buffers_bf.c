@@ -28,6 +28,12 @@
 #define ARROW_OUTPUT_X (BUFFER_BOX_X - 2*ARROW_W)
 #define ARROW_OUTPUT_Y (OUTPUT_BUFFER_BOX_Y + (BUFFER_BOX_H - ARROW_H)/2)
 
+#define INPUT_BUFFER_TEXT "Input Buffer [IB]"
+#define OUTPUT_BUFFER_TEXT "Output Buffer [O]"
+
+texture_t *input_text; 
+texture_t *output_text;
+
 SDL_Rect input_box;
 SDL_Rect output_box;
 
@@ -39,9 +45,6 @@ button_t output_buffer_button;
 
 operand_t *input_buffer = NULL;
 operand_t *output_buffer = NULL;
-
-static char input_text[] = "Input Buffer [IB]";
-static char output_text[] = "Output Buffer [OB]";
 
 static bool g_win_condition;
 
@@ -59,6 +62,21 @@ static void display_output_arrow();
 texture_t *g_input_arrow = NULL;
 texture_t *g_output_arrow = NULL;
 
+/* Function: iw_init_buf_texture
+ *------------------------------------------------------------------------------
+ * Creates the instructions texture of the instruction box
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Void.
+ */
+void bf_init_buf_texture()
+{
+	input_text = dw_create_text_texture(INPUT_BUFFER_TEXT, C_WHITE);
+	output_text = dw_create_text_texture(OUTPUT_BUFFER_TEXT, C_WHITE);
+}
 
 /* Function: display_output_arrow
  * -----------------------------------------------------------------------------
@@ -699,8 +717,10 @@ void draw_output_buffer()
 		}
 	}
 	dw_draw_rectangle(output_box, C_WHITE);
-	dw_draw_text_fits_height(OUTPUT_BUFFER_TEXT_X, OUTPUT_BUFFER_TEXT_Y, 
-						 BUFFER_TEXT_H, C_WHITE, output_text);
+	
+	SDL_Rect r = {.x = OUTPUT_BUFFER_TEXT_X, .y = OUTPUT_BUFFER_TEXT_Y,
+				  .h = BUFFER_TEXT_H};
+	dw_draw_texture_fits_height(r, output_text);
 error:
 	return;
 }
@@ -769,10 +789,10 @@ void draw_input_buffer()
 		}
 	}
 
-	dw_draw_text_fits_height(INPUT_BUFFER_TEXT_X, INPUT_BUFFER_TEXT_Y, 
-						 BUFFER_TEXT_H, C_WHITE, input_text);
 	dw_draw_rectangle(input_box, C_WHITE);
-	
+	SDL_Rect r = {.x = INPUT_BUFFER_TEXT_X, .y = INPUT_BUFFER_TEXT_Y,
+				  .h = BUFFER_TEXT_H};
+	dw_draw_texture_fits_height(r, input_text);
 }
 
 /* Function: bf_get_buffer_value_box_x_coord_by_id
