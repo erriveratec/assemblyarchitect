@@ -8,6 +8,7 @@
 #include "mouse_ms.h"
 
 #define CW_EMPTY 0
+#define MAX_CODE_LINES 99
 
 enum operand_positions{
 	FIRST_OP,
@@ -49,5 +50,6 @@ int cw_get_code_box_member(int member);
 int cw_get_text_box_member(int member);
 int cw_get_first_code_line_y();
 int cw_get_line_y(int pos);
+void cw_init_code_window_texture();
 
 #endif

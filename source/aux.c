@@ -50,7 +50,7 @@ char *create_string_append_number(char *s,  int n)
 	if (n<10){
 		number = ax_number_to_string_prepend_zero(n);
 	} else {
-		number = number_to_string(n);
+		number = ax_number_to_string(n);
 	}
 
 	check_mem(number);
@@ -77,14 +77,27 @@ error:
 void ax_draw_value_box(value_box_t *box, SDL_Color color)
 {
 
-	char *text = number_to_string(box->value);
-	int text_width = get_text_width_fits_height(VALUE_H, text);
+//	char *text = number_to_string(box->value);
+//	int text_width = get_text_width_fits_height(VALUE_H, text);
+	
+	int text_width = 0;
+
+	if (box->t != NULL){
+		ax_get_texture_w_fit_h(VALUE_H, box->t);
+	}
 	int x_offset = (VALUE_BOX_W - text_width)/2;
 	int y_offset = ((VALUE_BOX_H - VALUE_H)/2) + 
 				    (VALUE_H/5)/2;
-	dw_draw_text_fits_height(box->box.x + x_offset, box->box.y + y_offset, 
-						 VALUE_H, C_WHITE, text);
-	int box_offset = VALUE_H/6;
+	
+	SDL_Rect r = {.x = box->box.x + x_offset, .y = box->box.y + y_offset,
+				  .h = VALUE_H};
+	if(box->t != NULL){
+		dw_draw_texture_fits_height(r, box->t);
+	}	
+
+	//dw_draw_text_fits_height(box->box.x + x_offset, box->box.y + y_offset, 
+	//					 VALUE_H, C_WHITE, text);
+	//int box_offset = VALUE_H/6;
 	dw_draw_rectangle(box->box, color);
 }
 
@@ -267,7 +280,7 @@ char *ax_number_to_string_two_digits(int number)
 	if (number < 10){
 			number_text = ax_number_to_string_prepend_zero(number);
 		} else {
-			number_text = number_to_string(number);
+			number_text = ax_number_to_string(number);
 		}
 	return number_text;
 }
@@ -284,7 +297,7 @@ char *ax_number_to_string_two_digits(int number)
  */
 char *ax_number_to_string_prepend_zero(int number)
 {
-	char *zero = number_to_string(0);
+	char *zero = ax_number_to_string(0);
 	char *c = NULL;
 	char *final_string = NULL;
 	if (0 == number){
@@ -316,7 +329,7 @@ char *ax_number_to_string_prepend_zero(int number)
  *	char *string_number
  */
 
-char *number_to_string(int number)
+char *ax_number_to_string(int number)
 {
 	char *c = NULL;
 

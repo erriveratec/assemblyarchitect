@@ -125,7 +125,7 @@ static char *get_level_id_string(int level_id)
 	if (level_id < 10){
 		number = ax_number_to_string_prepend_zero(level_id);
 	} else {
-		number = number_to_string(level_id);
+		number = ax_number_to_string(level_id);
 	}
 	
 	check_mem(number);
@@ -885,7 +885,7 @@ void fl_save_file_init()
 				if (i<10){
 					number = ax_number_to_string_prepend_zero(i);
 				} else {
-					number = number_to_string(i);
+					number = ax_number_to_string(i);
 				}
 
 				check_mem(number);

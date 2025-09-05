@@ -646,7 +646,7 @@ void rg_draw_registers(bool show_arrows)
 		button_t *button = reg->b;
 		bt_draw_button(button);
 
-		char *number = number_to_string(reg->value.value);
+		char *number = ax_number_to_string(reg->value.value);
 		ax_draw_value_box(&reg->value, C_WHITE);
 		free(number);
 	}

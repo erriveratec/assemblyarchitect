@@ -40,7 +40,7 @@ typedef struct value_box_t{
 //float get_scale_from_w_h(int w, int h, texture_t *texture);
 
 
-char *number_to_string(int number);
+char *ax_number_to_string(int number);
 bool check_text_fits_width_by_height(char *t, int h, int w);
 char *ax_number_to_string_prepend_zero(int number);
 int get_movement_delta(int v1, int v2, int max_delta);

@@ -13,6 +13,7 @@
 #include "registers_rg.h"
 #include "buffers_bf.h"
 #include "game_mechanics_mc.h"
+#include "code_window_cw.h"
 
 #define BG_COLOR_BLACK 0x000000FF
 #define BG_COLOR_RED 0xFF0000FF
@@ -43,6 +44,7 @@ static void initialize_game_assets()
 	rg_init_reg_texture();
 	bf_init_buf_texture();
 	mc_init_errors_texture();
+	cw_init_code_window_texture();
 }
 
 

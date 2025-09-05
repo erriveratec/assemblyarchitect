@@ -478,6 +478,9 @@ void add_input_to_list(int value, int type)
 	new_input->box.y = input_box.y + y_offset;
 	new_input->box.w = VALUE_BOX_W;
 	new_input->box.h = VALUE_BOX_H;
+	char *number = ax_number_to_string(value);
+	new_input->t = dw_create_text_texture(number, C_WHITE);
+	free(number);
 
 	List_push(inputs, new_input);
 

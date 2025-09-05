@@ -17,8 +17,10 @@ static List *code_list = NULL;
 static SDL_Rect code_box;
 static SDL_Rect text_box;
 
-texture_array_t *challenge_text;
-texture_t *stage_name;
+texture_array_t *g_challenge_text;
+texture_t *g_stage_name;
+texture_t *g_comma_tex;
+texture_t **g_numbers;
 
 void display_line_number();
 int get_code_line_position(int y);
@@ -43,6 +45,27 @@ static void update_jump_instructions();
 static operand_t *create_updated_jump_operand(code_line_t *jmp_addr);
 static code_line_t *get_clicked_label_code_line();
 static operand_t *create_saved_jump_operand(int op1_id);
+
+/* Function: cw_init_code_window_texture
+ * -----------------------------------------------------------------------------
+ * Inits the textures for the code windows
+ * 
+ * Arguments:
+ *  Void.
+ *
+ * Return:
+ * 	Void.
+ */
+void cw_init_code_window_texture()
+{
+	g_comma_tex = dw_create_text_texture(",", C_WHITE);
+	g_numbers = malloc(sizeof(texture_t*)*MAX_CODE_LINES);
+	for (int i = 0; i <= MAX_CODE_LINES; i++){
+		char *number = ax_number_to_string_two_digits(i);
+		g_numbers[i] = dw_create_text_texture(number, C_WHITE);
+		free(number);
+	}
+}
 
 /* Function: cw_operate_jump_instruction
  * -----------------------------------------------------------------------------
@@ -890,8 +913,8 @@ void cw_set_stage_name(char *text)
 {
 	assert(NULL != text && "The text pointer is NULL");
 
-	stage_name = dw_create_text_texture(text, C_WHITE);
-	check_mem(stage_name);
+	g_stage_name = dw_create_text_texture(text, C_WHITE);
+	check_mem(g_stage_name);
 error:
 	return;
 }
@@ -908,8 +931,8 @@ error:
  */
 void cw_destroy_code_window_assets()
 {
-	dw_free_texture(stage_name);
-	dw_free_texture_array(challenge_text);
+	dw_free_texture(g_stage_name);
+	dw_free_texture_array(g_challenge_text);
 	List *code = get_code_list();
 	LIST_FOREACH(code, first, next, cur){
 		code_line_t *line = cur->value;	
@@ -1093,7 +1116,7 @@ static bool check_if_inside_code_window(){
 void cw_set_challenge_text(char *text)
 {
 	assert(NULL != text && "The text pointer is NULL");
-	challenge_text = dw_new_text_texture_by_h(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT, 
+	g_challenge_text = dw_new_text_texture_by_h(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT, 
 																 C_WHITE, text);
 }
 
@@ -1117,7 +1140,7 @@ void cw_set_code_box(SDL_Rect r)
 	code_box.w = r.w;
 	code_box.h = r.h;
 
-	int text_box_height = challenge_text->size * TEXT_BOX_HEIGHT;
+	int text_box_height = g_challenge_text->size * TEXT_BOX_HEIGHT;
 	set_text_box(r.x + CODE_BOX_OFFSET, r.y + CODE_BOX_OFFSET + STAGE_NAME_H
 				 + CODE_BOX_OFFSET, TEXT_BOX_WIDTH, text_box_height);
 }
@@ -1299,7 +1322,7 @@ void cw_draw_code_window()
 	// Challenge text
 	SDL_Rect r = {.x = text_box.x, .y = text_box.y, .w = text_box.w, 
 															   .h = text_box.h};
-	dw_draw_wrapped_texture_by_h(r, TEXT_BOX_HEIGHT, challenge_text);
+	dw_draw_wrapped_texture_by_h(r, TEXT_BOX_HEIGHT, g_challenge_text);
 
 	// Text rectangle
 	dw_draw_rectangle(text_box, C_WHITE);
@@ -1318,7 +1341,7 @@ void cw_draw_code_window()
 	SDL_Rect b = {.x = code_box.x + CODE_BOX_OFFSET, 
 				  .y = code_box.y + CODE_BOX_OFFSET,
 				  .h = STAGE_NAME_H};
-	dw_draw_texture_fits_height(b, stage_name);
+	dw_draw_texture_fits_height(b, g_stage_name);
 }
 
 /* Function: display_player_code
@@ -1355,10 +1378,16 @@ static void display_player_code()
 		int comma = cl_get_instruction_operand_quantity(line->ins->id);
 
 		if (comma == TWO_OPERANDS && (MISSING_BOTH != line->state && 
-							  MISSING_OP1 != line->state)){
-			dw_draw_text_fits_height(line->ins->b->r.x + 2*CODE_BUTTON_W + 
-								 LINE_NUMBER_OFFSET, line->ins->b->r.y, 
-								 CODE_BUTTON_H, C_WHITE, ",");
+							  					  MISSING_OP1 != line->state)){
+			
+			SDL_Rect r = {.x = line->ins->b->r.x + 2*CODE_BUTTON_W + 
+						  LINE_NUMBER_OFFSET, .y = line->ins->b->r.y, 
+						  .h = CODE_BUTTON_H};
+
+			dw_draw_texture_fits_height(r, g_comma_tex);
+			//dw_draw_text_fits_height(line->ins->b->r.x + 2*CODE_BUTTON_W + 
+			//					 LINE_NUMBER_OFFSET, line->ins->b->r.y, 
+			//					 CODE_BUTTON_H, C_WHITE, ",");
 		}
 	}
 	return;
@@ -1427,9 +1456,11 @@ void display_line_number()
 	for(int i = 0; i < list_size; i++){
 	int instruction = cw_get_instruction_at_code_pos(i);
 		if (instruction != LABEL){
-			number = ax_number_to_string_two_digits(line_number);
-			dw_draw_text_fits_height(x, y, CODE_BUTTON_H, C_WHITE, number);
-			free(number);
+			//number = ax_number_to_string_two_digits(line_number);
+			SDL_Rect r = {.x = x, .y = y, .h = CODE_BUTTON_H};
+			dw_draw_texture_fits_height(r, g_numbers[line_number]);
+		//	dw_draw_text_fits_height(x, y, CODE_BUTTON_H, C_WHITE, number);
+			//free(number);
 			line_number++;
 		}
 		y += CODE_BUTTON_H;

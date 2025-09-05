@@ -419,71 +419,7 @@ error:
 	return;
 }
 
-/* Function: dw_draw_wrapped_text_fits_height
- * This function draws text wrapped as images in places in the screen, 
- * the function wraps text accordingly to the scaling factor needed.
- * It has the height as a parameter to do the drawing
- *
- * Arguments:
- *	x: position x of the text.
- *	y: position y of the text.
- *	w: width to the column of the text.
- *	h: height of the text
- *  c: color of the drawn text
- *	t: text to be drawn on screen.
- *
- * Return:
- *	Void
- */
-void dw_draw_wrapped_text_fits_height(int x, int y, int w, int h, int text_h, 
-														   SDL_Color c, char *t)
-{
-	assert(0 < w && "The width of the text is negative");
-	assert(0 < text_h && "The height of the text is negative");
-	assert( NULL != t && "Text pointer is NULL");
 
-	int x_pos = x + WRAPPED_TEXT_X_OFFSET;
-	int y_pos = y + (h - ax_get_wrapped_text_height(w, text_h, t))/2;
-	int y_offset = text_h;
-	int string_size = strlen(t);
-	char *text = malloc(sizeof(char)*string_size);
-	
-	int last_successful_fit = 0;
-	int already_drawn_offset = 0;
-
-		for (int i = 0; i <= string_size; i++){
-			if (t[i] == CHAR_SPACE|| t[i] ==  CHAR_NULL){
-				
-				strncpy(text, t + already_drawn_offset, 
-						i - already_drawn_offset);
-			
-				if (check_text_fits_width_by_height(text, text_h, w) == true){
-					last_successful_fit = i;
-				}
-
-				if (check_text_fits_width_by_height(text, text_h, w) == false|| 
-					t[i] == CHAR_NULL){
-					if (last_successful_fit == already_drawn_offset){
-						puts("The size of the font does not fits width");
-						last_successful_fit = string_size;
-					}
-					memset(text, 0, string_size);
-					strncpy(text, t + already_drawn_offset, 
-						   	last_successful_fit - already_drawn_offset); 	
-					int text_w = get_text_width_fits_height(text_h, text);
-					x_pos = x + (w -text_w)/2;
-					dw_draw_text_fits_height(x_pos, y_pos, text_h, c, text);
-					y_pos += y_offset;
-					already_drawn_offset = last_successful_fit;
-					i = last_successful_fit;
-					memset(text, 0, string_size);
-			}	 
-		}
-	} 
-	free(text);
-error:
-	return;
-}
 
 /* Function: draw_text
  * This function draws text as images in places in the screen, the 
