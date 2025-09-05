@@ -12,7 +12,7 @@
 #include "levels_lv.h"
 #include "arrow_ar.h"
 
-#define INPUT_BUFFER_EMPTY_TEXT "ERROR: A value cannot be recoverd if the "\
+#define INPUT_BUFFER_EMPTY_TEXT "ERROR: A value cannot be recovered if the "\
 							"Input Buffer [IB] is empty."
 #define REG_VALUE_INVALID_TEXT "ERROR:Register cannot be read if a value has "\
 							"been stored first."
@@ -40,6 +40,12 @@
 #define RAIL_W 4
 #define RAIL_END_W 16
 
+texture_array_t *ib_empty;
+texture_array_t *reg_val_bad;
+texture_array_t *ob_val_bad;
+texture_array_t *ib_unproc_vals;
+texture_array_t *exc_code_size;
+texture_array_t *ob_empty;
 
 enum avatar_id{
 	NOAVATAR,
@@ -47,7 +53,6 @@ enum avatar_id{
 	OAVATAR,
 	RAVATAR
 };
-
 
 static int g_invalid_operation_flag = NO_INVALID_OPERATION;
 
@@ -102,6 +107,33 @@ static void draw_iavatar();
 static void draw_oavatar();
 static void draw_ravatar();
 
+/* Function: mc_init_errors_texture
+ *------------------------------------------------------------------------------
+ * Creates the instructions texture of the instruction box
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Void.
+ */
+void mc_init_errors_texture()
+{
+	
+	ib_empty = dw_new_text_texture_by_h(RES_BOX_W, MESSAGE_TEXT_H, 
+											  C_BLACK, INPUT_BUFFER_EMPTY_TEXT);
+	reg_val_bad = dw_new_text_texture_by_h(RES_BOX_W, MESSAGE_TEXT_H, 
+											   C_BLACK, REG_VALUE_INVALID_TEXT);
+	ob_val_bad = dw_new_text_texture_by_h(RES_BOX_W, MESSAGE_TEXT_H, 
+											C_BLACK, INVALID_OUTPUT_VALUE_TEXT);
+	ib_unproc_vals = dw_new_text_texture_by_h(RES_BOX_W, MESSAGE_TEXT_H, 
+										   C_BLACK, UNPROCESSED_IB_VALUES_TEXT);
+	exc_code_size = dw_new_text_texture_by_h(RES_BOX_W, MESSAGE_TEXT_H, 
+										      C_BLACK, EXCEEDS_CODE_LIMIT_TEXT);
+	ob_empty = dw_new_text_texture_by_h(RES_BOX_W, MESSAGE_TEXT_H, 
+										     C_BLACK, OUTPUT_BUFFER_EMPTY_TEXT);
+}
+
 /* Function: mc_reset_invalid_operation_flag
  * -----------------------------------------------------------------------------
  * Resets the invalid operation flag when the player has pressed stop
@@ -114,6 +146,7 @@ static void draw_ravatar();
  */
 void mc_reset_invalid_operation_flag()
 {
+
 	set_invalid_operation_flag(NO_INVALID_OPERATION);
 }
 
@@ -152,44 +185,36 @@ bool mc_invalid_operation_handler(int id)
 	bool reset_level = false;
 	SDL_Rect r = {.x = RES_BOX_X, .y = RES_BOX_Y, .w = RES_BOX_W, 
 				  .h = RES_BOX_H};
-	dw_draw_filled_rectangle(r, C_BLACK, C_WHITE);
-	char *message = NULL;
-
+	dw_draw_filled_rectangle(r, C_WHITE, C_WHITE);
+	texture_array_t *message;
+	
 	switch(id){
 		case INPUT_BUFFER_EMPTY:
-			message = malloc(sizeof(char)*strlen(INPUT_BUFFER_EMPTY_TEXT)+1);
-			strcpy(message, INPUT_BUFFER_EMPTY_TEXT);	
+			message = ib_empty;
 			break;
 		case REG_VALUE_INVALID:
-			message = malloc(sizeof(char)*strlen(REG_VALUE_INVALID_TEXT)+1);
-			strcpy(message, REG_VALUE_INVALID_TEXT);	
+			message = reg_val_bad;
 			break;
 		case INVALID_OUTPUT_VALUE:
-			message = malloc(sizeof(char)*strlen(INVALID_OUTPUT_VALUE_TEXT)+1);
-			strcpy(message, INVALID_OUTPUT_VALUE_TEXT);	
+			message = ob_val_bad;
 			break;
 		case UNPROCESSED_IB_VALUES:
-			message = malloc(sizeof(char)*strlen(UNPROCESSED_IB_VALUES_TEXT)+1);
-			strcpy(message, UNPROCESSED_IB_VALUES_TEXT);	
+			message = ib_unproc_vals;
 			break;
 		case EXCEEDS_CODE_LIMIT:
-			message = malloc(sizeof(char)*strlen(EXCEEDS_CODE_LIMIT_TEXT)+1);
-			strcpy(message, EXCEEDS_CODE_LIMIT_TEXT);	
+			message = exc_code_size;
 			break;
 		case OUTPUT_BUFFER_EMPTY:
-			message = malloc(sizeof(char)*strlen(OUTPUT_BUFFER_EMPTY_TEXT)+1);
-			strcpy(message, OUTPUT_BUFFER_EMPTY_TEXT);	
+			message = ob_empty;
 			break;
-
 		default: 
 			puts("ERROR: Invalid operation incorrec id");
 	}
-
-	dw_draw_wrapped_text_fits_height(RES_BOX_X, RES_BOX_Y, RES_BOX_W, 
-					MESSAGE_TEXT_TOTAL_H, MESSAGE_TEXT_H, C_WHITE, message);
 	
-	free(message);
-
+	SDL_Rect b = {.x = RES_BOX_X, .y = RES_BOX_Y, .w =RES_BOX_W, 
+													 .h = MESSAGE_TEXT_TOTAL_H};
+	dw_draw_wrapped_texture_by_h(b, MESSAGE_TEXT_H, message);
+	
 	static bool button_created = false;
 	static button_t *ret;
 	bool button_pressed = false;
@@ -203,7 +228,7 @@ bool mc_invalid_operation_handler(int id)
 		int y = RES_BOX_Y + RES_BOX_H - BACK_CONT_BUTTON_H - 
 													 RES_BOX_TEXT_BORDER_OFFSET;
 		SDL_Rect r = {.x = x, .y = y, .w = BACK_BUTTON_W, BACK_CONT_BUTTON_H};
-		ret = bt_create_button(r, true, true, false, C_BLACK, C_WHITE,
+		ret = bt_create_button(r, true, true, true, C_BLACK, C_WHITE,
 							   ret_texture);
 		check_mem(ret);
 	} 

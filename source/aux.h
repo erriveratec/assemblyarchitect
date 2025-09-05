@@ -30,6 +30,7 @@ typedef struct value_box_t{
 	int type;
 	bool visible_box;
 	SDL_Rect box;
+	texture_t *t;
 } value_box_t;
 
 

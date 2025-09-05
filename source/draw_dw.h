@@ -25,8 +25,8 @@ void dw_free_texture_array(texture_array_t *t);
 
 void dw_draw_text_fits_height(int x, int y, int h, SDL_Color color, char *text);
 void dw_draw_text_fits_width(int x, int y, int w, SDL_Color color, char *text);
-void dw_draw_wrapped_text_fits_height(int x, int y, int w, int h, int text_h, 
-														  SDL_Color c, char *t);
+//void dw_draw_wrapped_text_fits_height(int x, int y, int w, int h, int text_h, 
+//														  SDL_Color c, char *t);
 void dw_draw_rectangle(SDL_Rect r, SDL_Color c);
 void dw_draw_filled_rectangle(SDL_Rect r, SDL_Color in, SDL_Color out);
 
