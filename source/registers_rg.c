@@ -139,6 +139,11 @@ void rg_set_ibox_value_box(value_box_t value)
 {
 	g_ibox.value = value.value;
 	g_ibox.type = value.type;
+	dw_free_texture(g_ibox.t);
+	g_ibox.t = NULL;
+	char *number = ax_number_to_string(g_ibox.value);
+	g_ibox.t = dw_create_text_texture(number, C_WHITE);
+	free(number);
 	return;
 }
 

@@ -830,7 +830,8 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 /* Function: get_operand_value_box
  * -----------------------------------------------------------------------------
  * Arguments:
- *	op_id: the id of the operand the avatar will retrieve
+ *	op_id: the id of the operand the avatar will retrieve, does not contains
+ *	texture
  *
  * Return:
  *	bool indicating if part of the retriving is pending
@@ -1140,6 +1141,9 @@ static bool handle_iavatar_source_operand(int op_id)
 		g_iavatar.in_place = true;
 		if (op_id == IB && is_operand_retrievable(op_id) == true){
 			g_iavatar.value = get_operand_value_box(op_id);
+			char *number = ax_number_to_string(g_iavatar.value.value);
+			g_iavatar.value.t = dw_create_text_texture(number, C_WHITE);
+			free(number);
 			g_iavatar.value.visible_box = true;
 		}
 		else if (op_id == IB && is_operand_retrievable(op_id) == false){
@@ -1330,6 +1334,8 @@ static void handle_destiny_operand(code_line_t *line, int avatar_id)
 			if (deliver_pending == false){
 				g_iavatar.op1_delivered = true;
 				g_iavatar.value.visible_box = false;
+				dw_free_texture(g_iavatar.value.t);
+				g_iavatar.value.t = NULL;
 			}
 		}
 	}
