@@ -899,7 +899,11 @@ value_box_t bf_get_input_buffer_value_box()
 	value_box_t *first = List_shift(input_list);
 	g_input_list_x_pos += VALUE_W + BETWEEN_NUMBERS_OFFSET;
 
-	return *first;	
+	dw_free_texture(first->t);
+	first->t = NULL;
+	value_box_t ret = *first;
+	free(first);
+	return ret;	
 
 }
 /* Function: bf_reset_input_list_x_pos
