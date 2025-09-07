@@ -17,6 +17,7 @@ enum invalid_operations{
 	INVALID_OPERATION_MAX
 };
 
+void mc_init_avatar();
 void mc_draw_avatar();
 void mc_reset_avatar();
 bool mc_run_code();

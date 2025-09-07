@@ -446,6 +446,7 @@ void bf_add_output_to_list()
 	new_output->box.y = output_box.y + y_offset;
 	new_output->box.w = VALUE_BOX_W;
 	new_output->box.h = VALUE_BOX_H;
+    new_output->t = dw_create_text_texture(char_dash, C_WHITE);
 	new_output->visible_box = false;
 
 	List_push(outputs, new_output);
@@ -860,6 +861,10 @@ void bf_set_output_buffer_value_box(value_box_t val)
    last->value = val.value;
    last->type = val.type;
    last->visible_box = true;
+   dw_free_texture(last->t);
+   char *number = ax_number_to_string(val.value);	
+   last->t = dw_create_text_texture(number, C_WHITE);
+   free(number);
 }
 
 /* Function: bf_get_output_buffer_value_box
@@ -873,11 +878,7 @@ void bf_set_output_buffer_value_box(value_box_t val)
 value_box_t bf_get_output_buffer_value_box()
 {
 	List *output_list = get_output_list();
-	//int list_size = List_count(input_list);
-	//assert(list_size > 0 && "No elements in the list");
-
 	value_box_t *last = output_list->last->value;
-//	g_output_list_x_pos += VALUE_W + BETWEEN_NUMBERS_OFFSET;
 
 	return *last;	
 }

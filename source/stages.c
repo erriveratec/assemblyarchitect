@@ -296,7 +296,7 @@ void init_level(int level_id)
 	
 	cw_create_code_list();	
 	fl_load_save_file(g_player, level_id);
-	mc_reset_avatar();
+	mc_init_avatar();
 
 	tx_upd_boxes_pos();
 	ar_initialize_arrows();
@@ -325,6 +325,7 @@ static void destroy_level(level_flags_t *flags)
 	rg_destroy_register_list();
 	reset_level_flags(flags);
 	bf_reset_input_list_x_pos();
+	// Falta agregar los avatars para la liberaci'on de texturas
 	return ;
 }
 /* Function: stages_drawings
@@ -637,7 +638,7 @@ static void reset_level(int level_id, level_flags_t *flags, bool *run_finished)
 {
 	mc_reset_avatar();			
 	reset_level_flags(flags);
-	reset_register_values();
+	rg_reset_register_values();
 	bf_reset_input_list();
 	bf_reset_output_list();
 	bf_reset_win_condition();

@@ -67,6 +67,30 @@ error:
 	return string;
 }
 
+/* Function: ax_copy_vbox
+ *------------------------------------------------------------------------------
+ * Assigns all the values to a box, it frees the old texture for an updated one
+ * 
+ *
+ * Arguments:
+ *	*vb: A pointer to the value box that will be modified.
+ * 	val: The value that will be assigned
+ *
+ * Return:
+ *	Void.
+ */
+void ax_copy_vbox(value_box_t *dst, value_box_t src)
+{
+	dst->value = src.value;
+	dst->type = src.type;
+	dst->visible_box = src.visible_box;
+	dst->box = src.box;
+	dw_free_texture(dst->t);
+	char *number = ax_number_to_string(src.value);
+	dst->t = dw_create_text_texture(number, C_WHITE);
+	free(number);
+}
+
 /* Function: ax_draw_value_box
  *------------------------------------------------------------------------------
  * Arguments:

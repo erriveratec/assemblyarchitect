@@ -106,6 +106,9 @@ static void display_arrow_registers()
 void rg_reset_ibox()
 {
 	g_ibox.value = NO_VALUE;
+	dw_free_texture(g_ibox.t);
+	g_ibox.t = NULL;
+	g_ibox.t = dw_create_text_texture(char_dash, C_WHITE);
 }
 
 /* Function: rg_reset_ibox
@@ -122,6 +125,9 @@ void rg_reset_ibox()
 void rg_reset_obox()
 {
 	g_obox.value = NO_VALUE;
+	dw_free_texture(g_obox.t);
+	g_obox.t = NULL;
+	g_obox.t = dw_create_text_texture(char_dash, C_WHITE);
 }
 
 /* Function: rg_set_ibox_value_box
@@ -162,6 +168,11 @@ void rg_set_obox_value_box(value_box_t value)
 {
 	g_obox.value = value.value;
 	g_obox.type = value.type;
+	dw_free_texture(g_obox.t);
+	g_obox.t = NULL;
+	char *number = ax_number_to_string(g_obox.value);
+	g_obox.t = dw_create_text_texture(number, C_WHITE);
+	free(number);
 	return;
 }
 /* Function: rg_get_ibox_value_box
@@ -372,7 +383,7 @@ void rg_destroy_register_list()
 	destroy_register_list();
 }
 
-/* Function: reset_register_values
+/* Function: rg_reset_register_values
  *------------------------------------------------------------------------------
  * Arguments:
  *	None.
@@ -380,7 +391,7 @@ void rg_destroy_register_list()
  * Return:
  *	void.
  */
-void reset_register_values()
+void rg_reset_register_values()
 {
 	List *registers = get_register_list();
 	
@@ -389,6 +400,8 @@ void reset_register_values()
 	LIST_FOREACH(registers, first, next, cur){
 		reg_t *reg = cur->value;
 		reg->value.value = NO_VALUE;
+		dw_free_texture(reg->value.t);
+   		reg->value.t = dw_create_text_texture(char_dash, C_WHITE);
 	}
 
 }
@@ -906,8 +919,13 @@ void rg_set_register_value_box(int id, value_box_t val)
 			break;
 	   	} 
    	}
-   c->value.value = val.value;
-   c->value.type = val.type;
+	c->value.value = val.value;
+	c->value.type = val.type;
+	dw_free_texture(c->value.t);
+	char *number = ax_number_to_string(val.value);	
+   	c->value.t = dw_create_text_texture(number, C_WHITE);
+	free(number);
+
 }
 
 

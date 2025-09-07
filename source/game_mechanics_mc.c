@@ -263,7 +263,7 @@ static void set_invalid_operation_flag(int flag_id)
 	g_invalid_operation_flag = flag_id;
 }
 
-/* Function: mc_reset_avatar
+/* Function: mc_init_avatar
  * -------------------------------------
  * Arguments:
  * 	void.
@@ -271,9 +271,8 @@ static void set_invalid_operation_flag(int flag_id)
  * Return:
  *	void.
  */
-void mc_reset_avatar()
+void mc_init_avatar()
 {
-		
 	g_iavatar.id = IAVATAR;
 	g_iavatar.box.x = bf_get_buffer_value_box_x_coord_by_id(IB);	
 	g_iavatar.box.y = IAVATAR_Y;
@@ -290,7 +289,7 @@ void mc_reset_avatar()
 	g_iavatar.value.box.y = IAVATAR_Y - AVATAR_H;
 	g_iavatar.value.box.w = VALUE_BOX_W;
 	g_iavatar.value.box.h = VALUE_BOX_H;
-
+	g_iavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
 	g_iavatar.color = C_MAGENTA;
 
 	g_oavatar.id = OAVATAR;
@@ -309,7 +308,7 @@ void mc_reset_avatar()
 	g_oavatar.value.box.y = OAVATAR_Y - AVATAR_H;
 	g_oavatar.value.box.w = VALUE_BOX_W;
 	g_oavatar.value.box.h = VALUE_BOX_H;
-
+	g_oavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
 	g_oavatar.color = C_CYAN;
 
 	g_ravatar.id = RAVATAR;
@@ -330,7 +329,83 @@ void mc_reset_avatar()
 	g_ravatar.value.box.y = g_ravatar.box.y - AVATAR_H;
 	g_ravatar.value.box.w = VALUE_BOX_W;
 	g_ravatar.value.box.h = VALUE_BOX_H;
+	g_ravatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
+	g_ravatar.color = C_YELLOW;
+}
+/* Function: mc_reset_avatar
+ * -------------------------------------
+ * Arguments:
+ * 	void.
+ *
+ * Return:
+ *	void.
+ */
+void mc_reset_avatar()
+{
+	g_iavatar.id = IAVATAR;
+	g_iavatar.box.x = bf_get_buffer_value_box_x_coord_by_id(IB);	
+	g_iavatar.box.y = IAVATAR_Y;
+	g_iavatar.box.w = AVATAR_W;
+	g_iavatar.box.h = AVATAR_H;
+
+	g_iavatar.value.visible_box = false;
+	g_iavatar.in_place = false;
+	g_iavatar.op2_retrieved = false;
+	g_iavatar.op1_delivered = false;
+
+	g_iavatar.value.value = NO_VALUE;
+	g_iavatar.value.box.x = IAVATAR_X;
+	g_iavatar.value.box.y = IAVATAR_Y - AVATAR_H;
+	g_iavatar.value.box.w = VALUE_BOX_W;
+	g_iavatar.value.box.h = VALUE_BOX_H;
+	dw_free_texture(g_iavatar.value.t);
+	g_iavatar.value.t = NULL;
+	g_iavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
+	g_iavatar.color = C_MAGENTA;
+
+	g_oavatar.id = OAVATAR;
+	g_oavatar.box.x = bf_get_buffer_value_box_x_coord_by_id(OB);	
+	g_oavatar.box.y = OAVATAR_Y;
+	g_oavatar.box.w = AVATAR_W;
+	g_oavatar.box.h = AVATAR_H;
+
+	g_oavatar.value.visible_box = false;
+	g_oavatar.in_place = false;
+	g_oavatar.op2_retrieved = false;
+	g_oavatar.op1_delivered = false;
+
+	g_oavatar.value.value = NO_VALUE;
+	g_oavatar.value.box.x = OAVATAR_X;
+	g_oavatar.value.box.y = OAVATAR_Y - AVATAR_H;
+	g_oavatar.value.box.w = VALUE_BOX_W;
+	g_oavatar.value.box.h = VALUE_BOX_H;
+	dw_free_texture(g_oavatar.value.t);
+	g_oavatar.value.t = NULL;
+	g_oavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
+	g_oavatar.color = C_CYAN;
+
 	
+	g_ravatar.id = RAVATAR;
+	g_ravatar.box.x = rg_get_register_box_member(MEMBER_X) - 3*REG_BOX_X_OFFSET 
+					  + rg_get_register_box_member(MEMBER_W) - AVATAR_W;
+	g_ravatar.box.y = rg_get_register_box_member(MEMBER_Y) + 
+					  rg_get_register_box_member(MEMBER_H)/2 - AVATAR_H/2; 
+	g_ravatar.box.w = AVATAR_W;
+	g_ravatar.box.h = AVATAR_H;
+
+	g_ravatar.value.visible_box = false;
+	g_ravatar.in_place = false;
+	g_ravatar.op2_retrieved = false;
+	g_ravatar.op1_delivered = false;
+
+	g_ravatar.value.value = NO_VALUE;
+	g_ravatar.value.box.x = g_ravatar.box.x;
+	g_ravatar.value.box.y = g_ravatar.box.y - AVATAR_H;
+	g_ravatar.value.box.w = VALUE_BOX_W;
+	g_ravatar.value.box.h = VALUE_BOX_H;
+	dw_free_texture(g_ravatar.value.t);
+	g_ravatar.value.t = NULL;
+	g_ravatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
 	g_ravatar.color = C_YELLOW;
 
 }
@@ -353,6 +428,10 @@ void reset_avatar_no_pos()
 	g_iavatar.value.value = NO_VALUE;
 	g_iavatar.value.box.x = g_iavatar.box.x;
 	g_iavatar.value.box.y = g_iavatar.box.y - AVATAR_H;
+	dw_free_texture(g_iavatar.value.t);
+	g_iavatar.value.t = NULL;
+	g_iavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
+
 
 	g_oavatar.value.visible_box = false;
 	g_oavatar.in_place = false;
@@ -362,6 +441,9 @@ void reset_avatar_no_pos()
 	g_oavatar.value.value = NO_VALUE;
 	g_oavatar.value.box.x = g_oavatar.box.x;
 	g_oavatar.value.box.y = g_oavatar.box.y - AVATAR_H;
+	dw_free_texture(g_oavatar.value.t);
+	g_oavatar.value.t = NULL;
+	g_oavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
 
 	g_ravatar.value.visible_box = false;
 	g_ravatar.in_place = false;
@@ -371,6 +453,10 @@ void reset_avatar_no_pos()
 	g_ravatar.value.value = NO_VALUE;
 	g_ravatar.value.box.x = g_ravatar.box.x;
 	g_ravatar.value.box.y = g_ravatar.box.y - AVATAR_H;
+	dw_free_texture(g_ravatar.value.t);
+	g_ravatar.value.t = NULL;
+	g_ravatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
+
 }
 /* Function: draw_iavatar
  * ----------------------------------------------------------------------------
@@ -1140,10 +1226,8 @@ static bool handle_iavatar_source_operand(int op_id)
 							  g_iavatar.op2_retrieved == false){
 		g_iavatar.in_place = true;
 		if (op_id == IB && is_operand_retrievable(op_id) == true){
-			g_iavatar.value = get_operand_value_box(op_id);
-			char *number = ax_number_to_string(g_iavatar.value.value);
-			g_iavatar.value.t = dw_create_text_texture(number, C_WHITE);
-			free(number);
+			value_box_t b = get_operand_value_box(op_id);
+			ax_copy_vbox(&g_iavatar.value, b);
 			g_iavatar.value.visible_box = true;
 		}
 		else if (op_id == IB && is_operand_retrievable(op_id) == false){
@@ -1173,7 +1257,8 @@ static bool handle_ravatar_source_operand(int op_id)
 							  				 g_ravatar.op2_retrieved == false){
 		g_ravatar.in_place = true;
 		if (check_operand_has_value(op_id) == true){
-			g_ravatar.value = get_operand_value_box(op_id);
+			value_box_t b = get_operand_value_box(op_id);
+			ax_copy_vbox(&g_ravatar.value, b);
 			g_ravatar.value.visible_box = true;
 			rg_reset_ibox();
 		}
@@ -1205,7 +1290,8 @@ static bool handle_oavatar_source_operand(int op_id)
 
 		g_oavatar.in_place = true;
 		if (check_operand_has_value(op_id) == true){
-			g_oavatar.value = get_operand_value_box(op_id);
+			value_box_t b = get_operand_value_box(op_id);
+			ax_copy_vbox(&g_oavatar.value, b);
 			g_oavatar.value.visible_box = true;
 			rg_reset_obox();
 		}
@@ -1334,8 +1420,6 @@ static void handle_destiny_operand(code_line_t *line, int avatar_id)
 			if (deliver_pending == false){
 				g_iavatar.op1_delivered = true;
 				g_iavatar.value.visible_box = false;
-				dw_free_texture(g_iavatar.value.t);
-				g_iavatar.value.t = NULL;
 			}
 		}
 	}

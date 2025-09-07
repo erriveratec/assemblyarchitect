@@ -29,7 +29,7 @@ int rg_get_register_value_box_x_coord_by_id(int id);
 int rg_get_register_value_box_y_coord_by_id(int id);
 value_box_t rg_get_register_value_box_by_id(int id);
 void rg_set_register_value_box(int id, value_box_t val);
-void reset_register_values();
+void rg_reset_register_values();
 void rg_destroy_register_list();
 void rg_update_register_box_position();
 int rg_get_register_box_member(int member);

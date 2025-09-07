@@ -320,7 +320,7 @@ void dw_free_texture(texture_t *texture)
 	free(texture);
 }
 
-/* Function: dw_create_text_texture
+/* Function: dw_new_text_texture_by_h
  *-----------------------------------------------------------------------------
  * Cretes an array texture for showing wrapped text. The dimension of a given
  * line of the texture is fit by height in a give width dimension.
