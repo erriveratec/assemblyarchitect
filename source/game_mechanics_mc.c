@@ -263,6 +263,22 @@ static void set_invalid_operation_flag(int flag_id)
 	g_invalid_operation_flag = flag_id;
 }
 
+/* Function: mc_destroy_avatar_textures
+ * -------------------------------------
+ * Destroys the textures of the value boxes of the avatar.
+ *
+ * Arguments:
+ * 	void.
+ *
+ * Return:
+ *	void.
+ */
+void mc_destroy_avatar_textures()
+{
+
+
+}
+
 /* Function: mc_init_avatar
  * -------------------------------------
  * Arguments:

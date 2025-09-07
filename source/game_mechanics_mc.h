@@ -28,4 +28,5 @@ void mc_reset_execution_arrow();
 void mc_hide_execution_arrow();
 bool mc_invalid_operation_handler(int id);
 void mc_init_errors_texture();
+void mc_destroy_avatar_textures();
 #endif

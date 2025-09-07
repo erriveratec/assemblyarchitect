@@ -58,6 +58,8 @@ void draw_input_buffer();
 static bool check_win_condition();
 static void display_input_arrow();
 static void display_output_arrow();
+static void destroy_input_list();
+static void destroy_output_list();
 
 texture_t *g_input_arrow = NULL;
 texture_t *g_output_arrow = NULL;
@@ -920,6 +922,42 @@ void bf_reset_input_list_x_pos()
 	g_input_list_x_pos = SCREEN_WIDTH;
 }
 
+/* Function: destroy_input_list
+ *------------------------------------------------------------------------------
+ * Arguments:
+ *	void.
+ *
+ * Return:
+ *	void.
+ */
+static void destroy_input_list()
+{
+	LIST_FOREACH(input_list, first, next, cur){
+		value_box_t *v = cur->value;
+		dw_free_texture(v->t);
+    }
+	List_clear_destroy(input_list);
+	input_list = NULL;
+}
+
+/* Function: destroy_output_list
+ *------------------------------------------------------------------------------
+ * Arguments:
+ *	void.
+ *
+ * Return:
+ *	void.
+ */
+static void destroy_output_list()
+{
+	LIST_FOREACH(output_list, first, next, cur){
+		value_box_t *v = cur->value;
+		dw_free_texture(v->t);
+    }
+	List_clear_destroy(output_list);
+	output_list = NULL;
+}
+
 /* Function: bf_reset_input_list
  *------------------------------------------------------------------------------
  * Arguments:
@@ -930,8 +968,7 @@ void bf_reset_input_list_x_pos()
  */
 void bf_reset_input_list()
 {
-	List_clear_destroy(input_list);
-	input_list = NULL;
+	destroy_input_list();
 	bf_create_input_list();
 	bf_create_natural_numbers_input_list(g_input_buffer_size);
 	bf_reset_input_list_x_pos();
@@ -947,8 +984,7 @@ void bf_reset_input_list()
  */
 void bf_reset_output_list()
 {
-	List_clear_destroy(output_list);
-	output_list = NULL;
+	destroy_output_list();
 	bf_create_output_list();
 	g_output_list_x_pos = BUFFER_BOX_X + BUFFER_VALUE_OFFSET_X;
 }
@@ -965,10 +1001,8 @@ void bf_reset_output_list()
  */
 void bf_destroy_buffer_lists()
 {
-	List_clear_destroy(input_list);
-	List_clear_destroy(output_list);
-	input_list = NULL;
-	output_list = NULL;
+	destroy_input_list();
+	destroy_output_list();
 }
 /* Function: print_output_list
  *------------------------------------------------------------------------------

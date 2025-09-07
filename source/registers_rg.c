@@ -255,6 +255,7 @@ int rg_get_obox_y()
 	return g_obox.box.y;
 
 }
+
 /* Function: rg_initialize_value_boxes
  * -----------------------------------------------------------------------------
  * The value boxes that will serve as an interface for handling values to 
@@ -289,6 +290,25 @@ void rg_init_value_boxes()
 
 	return;
 }
+
+/* Function: rg_destroy_value_boxes
+ * -----------------------------------------------------------------------------
+ * Destroy the value boxes for the level finished
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ *
+ */
+void rg_destroy_value_boxes()
+{
+	dw_free_texture(g_ibox.t); 
+	dw_free_texture(g_obox.t); 
+	return;
+}
+
 /* Function: draw_value_boxes
  * -----------------------------------------------------------------------------
  * Draws the register value boxes with white color
@@ -378,6 +398,7 @@ void rg_destroy_register_list()
 	LIST_FOREACH(registers, first, next, cur){ 
 		reg_t *c = cur->value;
 		bt_destroy_button(c->b);
+		dw_free_texture(c->value.t);
 		free(c);
    	}
 	destroy_register_list();

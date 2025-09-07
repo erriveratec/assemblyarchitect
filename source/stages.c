@@ -300,7 +300,6 @@ void init_level(int level_id)
 
 	tx_upd_boxes_pos();
 	ar_initialize_arrows();
-//	tx_create_level_text_textures
 	return;
 }
 
@@ -317,15 +316,16 @@ void init_level(int level_id)
  */
 static void destroy_level(level_flags_t *flags)
 {
-	bf_destroy_buffer_lists(); //destruction of textures not needed
-	lv_destroy_win_list(); //destruction of textures not needed
-	cw_destroy_code_window_assets(); //destruction of textures done
-	iw_destroy_instruction_list(); //destruction of textures done
+	bf_destroy_buffer_lists(); 
+	lv_destroy_win_list(); 
+	cw_destroy_code_window_assets(); 
+	iw_destroy_instruction_list(); 
 	tx_free_level_text_textures();
 	rg_destroy_register_list();
+	rg_destroy_value_boxes();
 	reset_level_flags(flags);
 	bf_reset_input_list_x_pos();
-	// Falta agregar los avatars para la liberaci'on de texturas
+	mc_destroy_avatar_textures();
 	return ;
 }
 /* Function: stages_drawings
