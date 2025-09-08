@@ -75,6 +75,8 @@ int main(int argc, char *args[])
 	// Render loop
 
 	while (get_quit_game_value() == false){
+		
+		Uint64 next_game_tick = SDL_GetTicks64();
 		ms_clear_mouse_values();
 		
 		// Check for new events every frame
@@ -161,14 +163,9 @@ int main(int argc, char *args[])
 		SDL_RenderPresent(g_renderer);
 		
 		// time it takes to render frame in milliseconds
-		next_game_tick += 1000/45;
+		next_game_tick += 1000/60;
 		sleep = next_game_tick - SDL_GetTicks64();
-		
-		if (sleep < 0){
-			puts("NEGATIVE DELAY");
-		}	
 		if (sleep >= 0){
-			puts("Delay");
 			SDL_Delay(sleep);
 		}
 
