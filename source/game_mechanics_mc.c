@@ -25,8 +25,6 @@
 								" elements in the Output Buffer [OB]."
 
 #define AVATAR_BUFFER_OFFSET 50
-#define AVATAR_W 50
-#define AVATAR_H 50
 #define AVATAR_VALUE_BOX_DISTANCE 10
 
 #define IAVATAR_X BUFFER_BOX_X //(SCREEN_WIDTH*5)/8
@@ -35,7 +33,6 @@
 #define OAVATAR_X BUFFER_BOX_X //(SCREEN_WIDTH*5)/8
 #define OAVATAR_Y OUTPUT_BUFFER_BOX_Y - 2*AVATAR_BUFFER_OFFSET
 
-#define RAVATAR_X_POS_OFFSET (AVATAR_W + 20)
 
 
 texture_array_t *ib_empty;
@@ -284,11 +281,12 @@ void mc_destroy_avatar_textures()
  */
 void mc_init_avatar()
 {
+	SDL_Rect avatar =  dm_get_avatar_wh();
 	g_iavatar.id = IAVATAR;
 	g_iavatar.box.x = bf_get_buffer_value_box_x_coord_by_id(IB);	
 	g_iavatar.box.y = IAVATAR_Y;
-	g_iavatar.box.w = AVATAR_W;
-	g_iavatar.box.h = AVATAR_H;
+	g_iavatar.box.w = avatar.w;
+	g_iavatar.box.h = avatar.h;
 
 	g_iavatar.value.visible_box = false;
 	g_iavatar.in_place = false;
@@ -297,7 +295,7 @@ void mc_init_avatar()
 
 	g_iavatar.value.value = NO_VALUE;
 	g_iavatar.value.box.x = IAVATAR_X;
-	g_iavatar.value.box.y = IAVATAR_Y - AVATAR_H;
+	g_iavatar.value.box.y = IAVATAR_Y - avatar.h;
 	g_iavatar.value.box.w = VALUE_BOX_W;
 	g_iavatar.value.box.h = VALUE_BOX_H;
 	g_iavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
@@ -306,8 +304,8 @@ void mc_init_avatar()
 	g_oavatar.id = OAVATAR;
 	g_oavatar.box.x = bf_get_buffer_value_box_x_coord_by_id(OB);	
 	g_oavatar.box.y = OAVATAR_Y;
-	g_oavatar.box.w = AVATAR_W;
-	g_oavatar.box.h = AVATAR_H;
+	g_oavatar.box.w = avatar.w;
+	g_oavatar.box.h = avatar.h;
 
 	g_oavatar.value.visible_box = false;
 	g_oavatar.in_place = false;
@@ -316,7 +314,7 @@ void mc_init_avatar()
 
 	g_oavatar.value.value = NO_VALUE;
 	g_oavatar.value.box.x = OAVATAR_X;
-	g_oavatar.value.box.y = OAVATAR_Y - AVATAR_H;
+	g_oavatar.value.box.y = OAVATAR_Y - avatar.h;
 	g_oavatar.value.box.w = VALUE_BOX_W;
 	g_oavatar.value.box.h = VALUE_BOX_H;
 	g_oavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
@@ -324,14 +322,12 @@ void mc_init_avatar()
 
 	int ofs = dm_get_ofs_stage_reg_box();
 	SDL_Rect rb = rg_get_register_box();
-	g_ravatar.id = RAVATAR;
 	
-	g_ravatar.box.x = rg_get_register_box_member(MEMBER_X)  
-					  + rg_get_register_box_member(MEMBER_W) - AVATAR_W;
-	g_ravatar.box.y = rg_get_register_box_member(MEMBER_Y) + 
-					  rg_get_register_box_member(MEMBER_H)/2 - AVATAR_H/2; 
-	g_ravatar.box.w = AVATAR_W;
-	g_ravatar.box.h = AVATAR_H;
+	g_ravatar.id = RAVATAR;
+	g_ravatar.box.x = rb.x + rb.w - 2*avatar.w;
+	g_ravatar.box.y = rb.y + rb.h/2 - avatar.h/2; 
+	g_ravatar.box.w = avatar.w;
+	g_ravatar.box.h = avatar.h;
 
 	g_ravatar.value.visible_box = false;
 	g_ravatar.in_place = false;
@@ -340,7 +336,7 @@ void mc_init_avatar()
 
 	g_ravatar.value.value = NO_VALUE;
 	g_ravatar.value.box.x = g_ravatar.box.x;
-	g_ravatar.value.box.y = g_ravatar.box.y - AVATAR_H;
+	g_ravatar.value.box.y = g_ravatar.box.y - avatar.h;
 	g_ravatar.value.box.w = VALUE_BOX_W;
 	g_ravatar.value.box.h = VALUE_BOX_H;
 	g_ravatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
@@ -356,11 +352,12 @@ void mc_init_avatar()
  */
 void mc_reset_avatar()
 {
+	SDL_Rect avatar =  dm_get_avatar_wh();
 	g_iavatar.id = IAVATAR;
 	g_iavatar.box.x = bf_get_buffer_value_box_x_coord_by_id(IB);	
 	g_iavatar.box.y = IAVATAR_Y;
-	g_iavatar.box.w = AVATAR_W;
-	g_iavatar.box.h = AVATAR_H;
+	g_iavatar.box.w = avatar.w;
+	g_iavatar.box.h = avatar.h;
 
 	g_iavatar.value.visible_box = false;
 	g_iavatar.in_place = false;
@@ -369,7 +366,7 @@ void mc_reset_avatar()
 
 	g_iavatar.value.value = NO_VALUE;
 	g_iavatar.value.box.x = IAVATAR_X;
-	g_iavatar.value.box.y = IAVATAR_Y - AVATAR_H;
+	g_iavatar.value.box.y = IAVATAR_Y - avatar.h;
 	g_iavatar.value.box.w = VALUE_BOX_W;
 	g_iavatar.value.box.h = VALUE_BOX_H;
 	dw_free_texture(g_iavatar.value.t);
@@ -380,8 +377,8 @@ void mc_reset_avatar()
 	g_oavatar.id = OAVATAR;
 	g_oavatar.box.x = bf_get_buffer_value_box_x_coord_by_id(OB);	
 	g_oavatar.box.y = OAVATAR_Y;
-	g_oavatar.box.w = AVATAR_W;
-	g_oavatar.box.h = AVATAR_H;
+	g_oavatar.box.w = avatar.w;
+	g_oavatar.box.h = avatar.h;
 
 	g_oavatar.value.visible_box = false;
 	g_oavatar.in_place = false;
@@ -390,7 +387,7 @@ void mc_reset_avatar()
 
 	g_oavatar.value.value = NO_VALUE;
 	g_oavatar.value.box.x = OAVATAR_X;
-	g_oavatar.value.box.y = OAVATAR_Y - AVATAR_H;
+	g_oavatar.value.box.y = OAVATAR_Y - avatar.h;
 	g_oavatar.value.box.w = VALUE_BOX_W;
 	g_oavatar.value.box.h = VALUE_BOX_H;
 	dw_free_texture(g_oavatar.value.t);
@@ -398,15 +395,14 @@ void mc_reset_avatar()
 	g_oavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
 	g_oavatar.color = C_CYAN;
 
-	
 	int ofs = dm_get_ofs_stage_reg_box();
+	SDL_Rect rb = rg_get_register_box();
+
 	g_ravatar.id = RAVATAR;
-	g_ravatar.box.x = rg_get_register_box_member(MEMBER_X) - 3*ofs 
-					  + rg_get_register_box_member(MEMBER_W) - AVATAR_W;
-	g_ravatar.box.y = rg_get_register_box_member(MEMBER_Y) + 
-					  rg_get_register_box_member(MEMBER_H)/2 - AVATAR_H/2; 
-	g_ravatar.box.w = AVATAR_W;
-	g_ravatar.box.h = AVATAR_H;
+	g_ravatar.box.x = rb.x + rb.w - 2*avatar.w;
+	g_ravatar.box.y = rb.y + rb.h/2 - avatar.h/2; 
+	g_ravatar.box.w = avatar.w;
+	g_ravatar.box.h = avatar.h;
 
 	g_ravatar.value.visible_box = false;
 	g_ravatar.in_place = false;
@@ -415,7 +411,7 @@ void mc_reset_avatar()
 
 	g_ravatar.value.value = NO_VALUE;
 	g_ravatar.value.box.x = g_ravatar.box.x;
-	g_ravatar.value.box.y = g_ravatar.box.y - AVATAR_H;
+	g_ravatar.value.box.y = g_ravatar.box.y - avatar.h;
 	g_ravatar.value.box.w = VALUE_BOX_W;
 	g_ravatar.value.box.h = VALUE_BOX_H;
 	dw_free_texture(g_ravatar.value.t);
@@ -435,6 +431,7 @@ void mc_reset_avatar()
  */
 void reset_avatar_no_pos()
 {
+	SDL_Rect avatar =  dm_get_avatar_wh();
 	g_iavatar.value.visible_box = false;
 	g_iavatar.in_place = false;
 	g_iavatar.op2_retrieved = false;
@@ -442,7 +439,7 @@ void reset_avatar_no_pos()
 
 	g_iavatar.value.value = NO_VALUE;
 	g_iavatar.value.box.x = g_iavatar.box.x;
-	g_iavatar.value.box.y = g_iavatar.box.y - AVATAR_H;
+	g_iavatar.value.box.y = g_iavatar.box.y - avatar.h;
 	dw_free_texture(g_iavatar.value.t);
 	g_iavatar.value.t = NULL;
 	g_iavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
@@ -455,7 +452,7 @@ void reset_avatar_no_pos()
 
 	g_oavatar.value.value = NO_VALUE;
 	g_oavatar.value.box.x = g_oavatar.box.x;
-	g_oavatar.value.box.y = g_oavatar.box.y - AVATAR_H;
+	g_oavatar.value.box.y = g_oavatar.box.y - avatar.h;
 	dw_free_texture(g_oavatar.value.t);
 	g_oavatar.value.t = NULL;
 	g_oavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
@@ -467,7 +464,7 @@ void reset_avatar_no_pos()
 
 	g_ravatar.value.value = NO_VALUE;
 	g_ravatar.value.box.x = g_ravatar.box.x;
-	g_ravatar.value.box.y = g_ravatar.box.y - AVATAR_H;
+	g_ravatar.value.box.y = g_ravatar.box.y - avatar.h;
 	dw_free_texture(g_ravatar.value.t);
 	g_ravatar.value.t = NULL;
 	g_ravatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
@@ -886,12 +883,13 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 	assert(op_id > REGISTERS_MIN && op_id < RGBOX_MAX &&
 		   "Invalid operand");
 
+	SDL_Rect avtr = dm_get_avatar_wh();
 	bool mov = false;
 	int x;
 	int y;
 
 	if (op_id > REGISTERS_MIN && op_id < REGISTERS_MAX){
-		x = get_operand_x_dest(op_id) + RAVATAR_X_POS_OFFSET;
+		x = get_operand_x_dest(op_id) + avtr.w*3/2;
 	} else {
 		x = get_operand_x_dest(op_id);
 	}
@@ -901,7 +899,7 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 	} else if (op_id == IB){
 		y = get_operand_y_dest(op_id) + 1.5*VALUE_BOX_H;
 	} else if (op_id == OB){
-		y = get_operand_y_dest(op_id) - 2*VALUE_BOX_H - AVATAR_H;
+		y = get_operand_y_dest(op_id) - 2*VALUE_BOX_H - avtr.h;
 	} else if (op_id == IBOX){
 		if (avatar->id == RAVATAR){
 			y = get_operand_y_dest(op_id) + REG_VBOX_OFFSET;
@@ -929,7 +927,7 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 		mov = true;
 	}
 	
-	int avatar_final_y = avatar->box.y - AVATAR_H;
+	int avatar_final_y = avatar->box.y - avtr.h;
 	if (avatar_final_y < y){
 		int delta = get_movement_delta(avatar->value.box.y, y, MOVEMENT_DELTA);
 		avatar->box.y += delta;
@@ -1187,8 +1185,9 @@ static bool deliver_operand(avatar_t *avatar, int op_id)
  */
 static bool retrieve_operand(avatar_t *avatar)
 {
+	SDL_Rect avtr = dm_get_avatar_wh();
 	int x = avatar->box.x;
-	int y = avatar->box.y - AVATAR_H;	
+	int y = avatar->box.y - avtr.h;	
 
 	bool mov = false;
 

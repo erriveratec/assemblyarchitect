@@ -37,6 +37,7 @@ SDL_Rect dm_get_box_msg_wh();
 SDL_Rect dm_get_code_button_wh();
 SDL_Rect dm_get_arrow_wh();
 SDL_Rect dm_get_vbox_wh();
+SDL_Rect dm_get_avatar_wh();
 
 SDL_Rect dm_get_level_button_box();
 SDL_Rect dm_get_return_button_box();
@@ -180,10 +181,6 @@ SDL_Rect dm_get_text_box_result_but3();//Back in error condition
 #define BETWEEN_NUMBERS_OFFSET 30
 
 #define BUFFER_MOVEMENT_DELTA 5
-
-/***************************REGISTER BOX***************************************/
-// The offset of the borders of the register box
-//#define REG_BOX_X_OFFSET 20
 
 
 // The position of the register text

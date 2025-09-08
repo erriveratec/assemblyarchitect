@@ -28,6 +28,8 @@
 
 #define ARROW_H 30
 #define ARROW_W 30
+#define AVATAR_W 50
+#define AVATAR_H 50
 
 #define TEXT_H_BIG_MSG 50
 #define TEXT_H_BOTTOM_MSG 20
@@ -900,6 +902,27 @@ SDL_Rect dm_get_select_player_box()
 	b.w = 0;
 	return b;
 }
+
+/* Function: dm_get_avatar_wh
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object, x and y are initialize at 0
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_avatar_wh()
+{
+	SDL_Rect b;
+	b.w = scale_to_resolution(AVATAR_W);
+	b.h = scale_to_resolution(AVATAR_H);
+	b.x = 0;
+	b.y = 0;
+	return b;
+}
+
 
 /* Function: dm_get_code_button_wh
  * -----------------------------------------------------------------------------
