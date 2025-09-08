@@ -16,12 +16,19 @@
 #define BORDERS_OFFSET 2
 #define RES_BOX_W 500
 #define RES_BOX_H 300
+#define RES_BUTTON_H 60
+#define RES_BACK_BUTTON_W 100
+#define RES_CONT_BUTTON_W 200
+#define RES_BOX_OFFSET 25
+
 #define ARROW_H 30
 #define ARROW_W 30
 
 #define TEXT_H_BIG_MSG 50
 #define TEXT_H_BOTTOM_MSG 20
 #define TEXT_H_MSG 30
+#define TEXT_H_ERROR_MSG 40
+#define TEXT_H_TOTAL_MSG 160
 
 int g_res_id;
 int g_screen_width;
@@ -29,6 +36,144 @@ int g_screen_height;
 
 int scale_to_resolution(int dim);
 
+/* Function: dm_get_text_box_result_but3
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object. This is for the text of the
+ * result box.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_text_box_result_but3()
+{
+	int cont_w = scale_to_resolution(RES_CONT_BUTTON_W);
+	int offset = scale_to_resolution(RES_BOX_OFFSET);
+	SDL_Rect rb = dm_get_text_box_result();
+	SDL_Rect b;
+	b.w = scale_to_resolution(RES_BACK_BUTTON_W);
+	b.h = scale_to_resolution(RES_BUTTON_H);
+	b.x = rb.x + (rb.w - b.w)/2;
+	b.y = rb.y + rb.h - b.h - offset;
+	return b;
+}
+
+/* Function: dm_get_text_box_result_but2
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object. This is for the text of the
+ * result box.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_text_box_result_but2()
+{
+	int back_w = scale_to_resolution(RES_BACK_BUTTON_W);
+	int cont_w = scale_to_resolution(RES_CONT_BUTTON_W);
+	int offset = scale_to_resolution(RES_BOX_OFFSET);
+	SDL_Rect rb = dm_get_text_box_result();
+	SDL_Rect b;
+	b.w = scale_to_resolution(RES_CONT_BUTTON_W);
+	b.h = scale_to_resolution(RES_BUTTON_H);
+	b.x = rb.x + back_w + 2*(rb.w - (back_w + cont_w))/3 ;
+	b.y = rb.y + rb.h - b.h - offset;
+	return b;
+}
+
+/* Function: dm_get_text_box_result_but1
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object. This is for the text of the
+ * result box.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_text_box_result_but1()
+{
+	int cont_w = scale_to_resolution(RES_CONT_BUTTON_W);
+	int offset = scale_to_resolution(RES_BOX_OFFSET);
+	SDL_Rect rb = dm_get_text_box_result();
+	SDL_Rect b;
+	b.w = scale_to_resolution(RES_BACK_BUTTON_W);
+	b.h = scale_to_resolution(RES_BUTTON_H);
+	b.x = rb.x + (rb.w - (b.w + cont_w))/3;
+	b.y = rb.y + rb.h - b.h - offset;
+	return b;
+}
+
+/* Function: dm_get_text_box_result_text2
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object. This is for the text of the
+ * result box.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_text_box_result_text2()
+{
+	SDL_Rect rb = dm_get_text_box_result();
+	int offset = scale_to_resolution(RES_BOX_OFFSET);
+	SDL_Rect b;
+	b.w = rb.w - 2*offset;
+	b.h = scale_to_resolution(TEXT_H_TOTAL_MSG);
+	b.x = rb.x + (rb.w - b.w)/2;
+	b.y = rb.y + offset;
+	return b;
+}
+
+/* Function: dm_get_text_box_result_text1
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object. This is for the text of the
+ * result box.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_text_box_result_text1()
+{
+	SDL_Rect rb = dm_get_text_box_result();
+	int offset = scale_to_resolution(RES_BOX_OFFSET);
+	SDL_Rect b;
+	b.w = rb.w - 2*offset;
+	b.h = scale_to_resolution(TEXT_H_MSG);
+	b.x = rb.x + (rb.w - b.w)/2;
+	b.y = rb.y + offset;
+	return b;
+}
+
+/* Function: dm_get_text_box_result
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_text_box_result()
+{
+	SDL_Rect b;
+	b.w = scale_to_resolution(RES_BOX_W);
+	b.h = scale_to_resolution(RES_BOX_H);
+	b.x = (g_screen_width - b.w)/2;
+	b.y = g_screen_height/2 - b.h/2;
+	return b;
+}
 
 /* Function: dm_get_arrow_box
  * -----------------------------------------------------------------------------
@@ -68,26 +213,6 @@ SDL_Rect dm_get_box_msg()
 	b.h = g_screen_height/4;
 	b.x = 0;
 	b.y = 0;
-	return b;
-}
-
-/* Function: dm_get_text_box_result
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_text_box_result()
-{
-	SDL_Rect b;
-	b.w = scale_to_resolution(RES_BOX_W);
-	b.h = scale_to_resolution(RES_BOX_H);
-	b.x = (g_screen_width - b.w)/2;
-	b.y = g_screen_height/4;
 	return b;
 }
 
@@ -470,6 +595,22 @@ int dm_get_h_bottom_msg()
 	
 }
 
+/* Function: dm_get_h_error_msg
+ * -----------------------------------------------------------------------------
+ * Returns the h value for the click anywhere message
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset for the sel level buttons
+ */
+int dm_get_h_error_msg()
+{
+	int h = scale_to_resolution(TEXT_H_ERROR_MSG);
+	return h;
+	
+}
 /* Function: dm_get_h_msg
  * -----------------------------------------------------------------------------
  * Returns the h value for the click anywhere message

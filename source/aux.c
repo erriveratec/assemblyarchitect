@@ -15,7 +15,21 @@ char *char_colon = ":";
 char *char_dash = "-";
 char *level_text = "level";
 
-/* Function: ax_get_w_by_texture_h
+/* Function: ax_get_w_fit_h
+ *------------------------------------------------------------------------------
+ * Arguments:
+ *	None.
+ *
+ * Return:
+ *	Void.
+ */
+int ax_get_texture_h_fit_w(int w, texture_t *t)
+{
+	float h = (float) (t->h * w)/t->w;
+	return (int)h;
+}
+
+/* Function: ax_get_w_fit_h
  *------------------------------------------------------------------------------
  * Arguments:
  *	None.

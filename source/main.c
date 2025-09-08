@@ -37,8 +37,10 @@ static void initialize_game_assets()
 	g_studio_name = dw_create_text_texture(STUDIO_NAME_TEXT, C_WHITE);
 	g_game_title = dw_create_text_texture(GAME_TITLE_TEXT, C_WHITE);
 	g_press_space = dw_create_text_texture(PRESS_SPACE_TEXT, C_WHITE);
+	g_win_text = dw_create_text_texture(WIN_TEXT, C_BLACK);
+
 	init_escape_menu();
-	sb_initialize_return_button();
+	sb_init_return_button();
 	tx_init_global_msgs();
 	iw_init_ins_box_texture();
 	rg_init_reg_texture();

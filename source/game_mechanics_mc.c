@@ -119,18 +119,18 @@ static void draw_ravatar();
  */
 void mc_init_errors_texture()
 {
-	
-	ib_empty = dw_new_text_texture_by_h(RES_BOX_W, MESSAGE_TEXT_H, 
+	int text_h = dm_get_h_error_msg();		
+	ib_empty = dw_new_text_texture_by_h(RES_BOX_W, text_h, 
 											  C_BLACK, INPUT_BUFFER_EMPTY_TEXT);
-	reg_val_bad = dw_new_text_texture_by_h(RES_BOX_W, MESSAGE_TEXT_H, 
+	reg_val_bad = dw_new_text_texture_by_h(RES_BOX_W, text_h, 
 											   C_BLACK, REG_VALUE_INVALID_TEXT);
-	ob_val_bad = dw_new_text_texture_by_h(RES_BOX_W, MESSAGE_TEXT_H, 
+	ob_val_bad = dw_new_text_texture_by_h(RES_BOX_W, text_h, 
 											C_BLACK, INVALID_OUTPUT_VALUE_TEXT);
-	ib_unproc_vals = dw_new_text_texture_by_h(RES_BOX_W, MESSAGE_TEXT_H, 
+	ib_unproc_vals = dw_new_text_texture_by_h(RES_BOX_W, text_h, 
 										   C_BLACK, UNPROCESSED_IB_VALUES_TEXT);
-	exc_code_size = dw_new_text_texture_by_h(RES_BOX_W, MESSAGE_TEXT_H, 
+	exc_code_size = dw_new_text_texture_by_h(RES_BOX_W, text_h, 
 										      C_BLACK, EXCEEDS_CODE_LIMIT_TEXT);
-	ob_empty = dw_new_text_texture_by_h(RES_BOX_W, MESSAGE_TEXT_H, 
+	ob_empty = dw_new_text_texture_by_h(RES_BOX_W, text_h, 
 										     C_BLACK, OUTPUT_BUFFER_EMPTY_TEXT);
 }
 
@@ -183,8 +183,7 @@ bool mc_invalid_operation_handler(int id)
 		   "Incorrect id for the invalid operation handler");
 
 	bool reset_level = false;
-	SDL_Rect r = {.x = RES_BOX_X, .y = RES_BOX_Y, .w = RES_BOX_W, 
-				  .h = RES_BOX_H};
+	SDL_Rect r = dm_get_text_box_result();
 	dw_draw_filled_rectangle(r, C_WHITE, C_WHITE);
 	texture_array_t *message;
 	
@@ -211,9 +210,9 @@ bool mc_invalid_operation_handler(int id)
 			puts("ERROR: Invalid operation incorrec id");
 	}
 	
-	SDL_Rect b = {.x = RES_BOX_X, .y = RES_BOX_Y, .w =RES_BOX_W, 
-													 .h = MESSAGE_TEXT_TOTAL_H};
-	dw_draw_wrapped_texture_by_h(b, MESSAGE_TEXT_H, message);
+	SDL_Rect b = dm_get_text_box_result_text2();
+	int text_h = dm_get_h_error_msg();		
+	dw_draw_wrapped_texture_by_h(b, text_h, message);
 	
 	static bool button_created = false;
 	static button_t *ret;
@@ -221,14 +220,11 @@ bool mc_invalid_operation_handler(int id)
 
 	if (button_created == false){
 		button_created = true;
-		texture_t *ret_texture = dw_create_text_texture(STR_BACK, 
-																   C_WHITE);
+		texture_t *ret_texture = dw_create_text_texture(STR_BACK, C_BLACK);
 		check_mem(ret_texture);
-		int x = RES_BOX_X + RES_BOX_W/2 - BACK_BUTTON_W/2;
-		int y = RES_BOX_Y + RES_BOX_H - BACK_CONT_BUTTON_H - 
-													 RES_BOX_TEXT_BORDER_OFFSET;
-		SDL_Rect r = {.x = x, .y = y, .w = BACK_BUTTON_W, BACK_CONT_BUTTON_H};
-		ret = bt_create_button(r, true, true, true, C_BLACK, C_WHITE,
+		
+		SDL_Rect r = dm_get_text_box_result_but3();		
+		ret = bt_create_button(r, true, true, true, C_WHITE, C_BLACK,
 							   ret_texture);
 		check_mem(ret);
 	} 
@@ -275,8 +271,9 @@ static void set_invalid_operation_flag(int flag_id)
  */
 void mc_destroy_avatar_textures()
 {
-
-
+	dw_free_texture(g_iavatar.value.t);
+	dw_free_texture(g_oavatar.value.t);
+	dw_free_texture(g_ravatar.value.t);
 }
 
 /* Function: mc_init_avatar

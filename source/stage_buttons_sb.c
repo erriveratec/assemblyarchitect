@@ -92,7 +92,7 @@ void display_escape_menu(bool show_menu)
 	if (show_menu == true){
 		
 		SDL_Rect r = dm_get_escape_menu_box();
-		dw_draw_filled_rectangle(r, C_BLACK, C_WHITE);
+		dw_draw_filled_rectangle(r, C_WHITE, C_WHITE);
 
 		
 		bt_draw_button(g_escape_b1);
@@ -271,7 +271,7 @@ void sb_draw_return_button()
 	bt_draw_button(ret_button);
 }
 
-/* Function: sb_initialize_return_buttons
+/* Function: sb_init_return_buttons
  * -----------------------------------------------------------------------------
  * This function initialixses the return button that is used and present in 
  * several stages.
@@ -282,12 +282,13 @@ void sb_draw_return_button()
  * Return:
  *	Void.
  */
-void sb_initialize_return_button()
+void sb_init_return_button()
 {
 	if (ret_button == NULL){
+		SDL_SetTextureColorMod(return_button->texture, 0, 0, 0);
 		SDL_Rect r = dm_get_return_button_box();
 		ret_button = malloc(sizeof(button_t));
-		ret_button = bt_create_button(r, true, true, true, C_BLACK, C_WHITE, 	
+		ret_button = bt_create_button(r, true, true, true, C_WHITE, C_WHITE, 	
 																 return_button);
 	}
 	return;

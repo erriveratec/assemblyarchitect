@@ -27,7 +27,6 @@
 #define PLAYER_3_TEXT "HACKER Y"
 
 
-
 // Escape option menu variables
 enum WinMenuStates{
 	NO_BUTTON_PRESSED,
@@ -48,14 +47,12 @@ typedef struct level_flags_t{
 
 int g_player = FL_NO_PLAYER;
 
-static char *win_text = "The challenge is correct.";
-static char *lose_text = "The challenge is incorrect.";
 static SDL_Rect result_box;
 
 texture_t *g_studio_name = NULL;
 texture_t *g_game_title = NULL;
 texture_t *g_press_space = NULL;
-
+texture_t *g_win_text = NULL;
 
 void stage_drawings(int level, bool holding_line, bool play);
 static void pending_operand_handler();
@@ -238,7 +235,6 @@ void reset_level_flags(level_flags_t *flags)
 static void init_stage_assets()
 {
 	sb_initialize_stage_buttons();
-	sb_initialize_return_button();
 
 	SDL_Rect r0 = dm_get_stage_input_buffer_box();
 	bf_set_input_box(r0);
@@ -704,7 +700,6 @@ int stage_level(int level_id)
 }
 
 
-
 /* Function: display_run_result
  * 	
  * Arguments:
@@ -715,26 +710,13 @@ int stage_level(int level_id)
  */
 static int display_run_result(bool win_check)
 {
-	char *text_to_print;
-	int result_box_height;
-	if (win_check == true){
-		result_box_height = ax_get_wrapped_text_height(RES_BOX_W, 
-												  	TEXT_BOX_HEIGHT,
-												  	win_text);
-		text_to_print = win_text;
-		bf_set_win_condition();
-	} else {
-		result_box_height = ax_get_wrapped_text_height(RES_BOX_W, 
-												  	TEXT_BOX_HEIGHT,
-												  	lose_text);
-		text_to_print = lose_text;
 
-	}
-	SDL_Rect r = {.x = RES_BOX_X, .y = RES_BOX_Y, .w = RES_BOX_W, 
-				  .h = RES_BOX_H};
-	dw_draw_filled_rectangle(r, C_BLACK, C_WHITE);
-	dw_draw_text_fits_width(RES_BOX_TEXT_X, RES_BOX_TEXT_Y, RES_BOX_TEXT_W, 
-							C_WHITE, text_to_print);
+	bf_set_win_condition();
+	SDL_Rect r = dm_get_text_box_result();	
+	dw_draw_filled_rectangle(r, C_WHITE, C_BLACK);
+
+	SDL_Rect s = dm_get_text_box_result_text1();
+	dw_draw_texture_fits_width(s, g_win_text);
 	
 	static bool buttons_created = false;
 	static button_t *ret;
@@ -744,42 +726,30 @@ static int display_run_result(bool win_check)
 
 	if (buttons_created == false){
 		buttons_created = true;
-		int back_x;
-		int back_y = WIN_MENU_BUTTON_Y;
-		if (win_check == true){
-			texture_t *con_texture = dw_create_text_texture(
-									 STR_CONT, C_WHITE);
-			check_mem(con_texture);
-			SDL_Rect r = {.x = WIN_MENU_BUTTON2_X, .y = WIN_MENU_BUTTON_Y, 
-			        	  .w = CONT_BUTTON_W, .h =  BACK_CONT_BUTTON_H};
-			con = bt_create_button(r, true, true, false, C_BLACK, C_WHITE, 
-								   con_texture);
-			check_mem(con);
-
-			back_x = WIN_MENU_BUTTON1_X;
-		} else {
-			back_x = RES_BOX_X + (RES_BOX_W - BACK_BUTTON_W)/2;
-		}
-		
+		texture_t *con_texture = dw_create_text_texture(
+								 STR_CONT, C_BLACK);
+		check_mem(con_texture);
+		SDL_Rect r = dm_get_text_box_result_but2();
+		con = bt_create_button(r, true, true, false, C_BLACK, C_BLACK, 
+							   con_texture);
+		check_mem(con);
+					
 		texture_t *ret_texture = dw_create_text_texture(
-								 STR_BACK, C_WHITE);
+								 STR_BACK, C_BLACK);
 		check_mem(ret_texture);
-		SDL_Rect b = {.x = 	back_x, .y = WIN_MENU_BUTTON_Y, 
-					  .w = BACK_BUTTON_W, .h = BACK_CONT_BUTTON_H};
-		ret = bt_create_button(b, true, true, false, C_BLACK, C_WHITE, 
+		SDL_Rect b = dm_get_text_box_result_but1();
+
+		ret = bt_create_button(b, true, true, false, C_BLACK, C_BLACK, 
 							   ret_texture);
 		check_mem(ret);
 	} 
 	bt_draw_button(ret);
-	if (win_check == true){
-		bt_draw_button(con);
+	bt_draw_button(con);
 
-		if (bt_check_mouse_click_button(con) == true){
-			button_pressed = true;
-			action_selected = CONT_BUTTON_PRESSED;
-		} 
-
-	}
+	if (bt_check_mouse_click_button(con) == true){
+		button_pressed = true;
+		action_selected = CONT_BUTTON_PRESSED;
+	} 
 	if (bt_check_mouse_click_button(ret) == true){
 		button_pressed = true;
 		action_selected = BACK_BUTTON_PRESSED;

@@ -15,6 +15,7 @@ int get_sel_level_offset_y();
 int dm_get_h_big_msg();
 int dm_get_h_bottom_msg();
 int dm_get_h_msg();
+int dm_get_h_error_msg();
 
 SDL_Rect dm_get_studio_name_msg_box();
 SDL_Rect dm_get_game_title_box();
@@ -50,7 +51,6 @@ SDL_Rect dm_get_arrow_ins_box();
 
 SDL_Rect dm_get_text_box_big();
 SDL_Rect dm_get_text_box_error();
-SDL_Rect dm_get_text_box_result();
 SDL_Rect dm_get_text_box_upper();
 SDL_Rect dm_get_text_box_center();
 SDL_Rect dm_get_text_box_lower();
@@ -58,20 +58,24 @@ SDL_Rect dm_get_text_box_ins();
 SDL_Rect dm_get_text_box_code();
 SDL_Rect dm_get_text_box_stagebutton();
 
+SDL_Rect dm_get_text_box_result();
+SDL_Rect dm_get_text_box_result_text1();//Result win text
+SDL_Rect dm_get_text_box_result_text2();//Error box
+SDL_Rect dm_get_text_box_result_but1();//Back in win condition
+SDL_Rect dm_get_text_box_result_but2();//Continue in win condition
+SDL_Rect dm_get_text_box_result_but3();//Back in error condition
+
 /*******************************RESOLUTION*************************************/
 #define SCREEN_WIDTH 1600
 #define SCREEN_HEIGHT 900
 
 /*******************************RETURN BUTTON*********************************/
-#define MESSAGE_TEXT_H 40
-#define MESSAGE_TEXT_TOTAL_H 160
 
 /*******************************EXECUTION ARROW********************************/
 #define EXEC_ARROW_X_COORD_OFFSET - 50
 #define EXEC_ARROW_Y_COORD_OFFSET 10
 #define EXEC_ARROW_W 30
 #define EXEC_ARROW_H 30
-
 
 /*******************************INSTRUCTION BOX********************************/
 // The offset of the borders of the instruction box
@@ -100,23 +104,14 @@ SDL_Rect dm_get_text_box_stagebutton();
 #define RES_BOX_X (SCREEN_WIDTH - RES_BOX_W)/2 
 #define RES_BOX_Y 200
 
-#define RES_BOX_TEXT_BORDER_OFFSET 25
+//#define RES_BOX_TEXT_BORDER_OFFSET 25
 #define RES_BOX_TEXT_W (RES_BOX_W - 2*RES_BOX_TEXT_BORDER_OFFSET)
 #define RES_BOX_TEXT_X RES_BOX_X + (RES_BOX_W - RES_BOX_TEXT_W)/2
 #define RES_BOX_TEXT_Y RES_BOX_Y + RES_BOX_TEXT_BORDER_OFFSET 
 #define RES_BOX_TEXT_H 30
 
 #define BACK_BUTTON_W 100
-#define CONT_BUTTON_W 200
 
-#define BACK_CONT_BUTTON_H 60
-
-#define WIN_MENU_BUTTON1_X RES_BOX_X + (RES_BOX_W - (BACK_BUTTON_W + \
-						   CONT_BUTTON_W))/3
-#define WIN_MENU_BUTTON2_X RES_BOX_X + BACK_BUTTON_W + 2*(RES_BOX_W - \
-						   (BACK_BUTTON_W + CONT_BUTTON_W))/3
-#define WIN_MENU_BUTTON_Y RES_BOX_Y + RES_BOX_H - BACK_CONT_BUTTON_H - \
-						  RES_BOX_TEXT_BORDER_OFFSET 
 
 /****************************BACK-CONTINUE BUTTONS*****************************/
 #define STR_BACK "Back"
@@ -145,8 +140,6 @@ SDL_Rect dm_get_text_box_stagebutton();
 
 /*************************INPUT/OUTPUT BUFFERS*********************************/
 // The height of the text for the input/output buffers
-
-
 
 
 #define BUFFER_TEXT_H 42
@@ -219,8 +212,6 @@ SDL_Rect dm_get_text_box_stagebutton();
 #define ARROW_W 30
 /******************************VALUE BOXES*************************************/
 
-//#define VALUE_BOX_H 56
-//#define VALUE_BOX_W 64
 #define VALUE_BOX_H 40
 #define VALUE_BOX_W 50
 #define VALUE_H 35

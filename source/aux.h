@@ -55,6 +55,7 @@ void ax_copy_vbox(value_box_t *dst, value_box_t src);
 char *create_string_append_number(char *s,  int n);
 char *ax_number_to_string_two_digits(int number);
 int ax_get_texture_w_fit_h(int h, texture_t *t);
+int ax_get_texture_h_fit_w(int w, texture_t *t);
 
 // ASCII characters
 #define CHAR_SPACE 32

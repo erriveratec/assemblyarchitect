@@ -8,7 +8,7 @@
 void sb_draw_stage_buttons(int code_size);
 void sb_draw_return_button();
 void sb_initialize_stage_buttons();
-void sb_initialize_return_button();
+void sb_init_return_button();
 bool sb_check_clicked_stage_button();
 bool sb_check_clicked_ret_button();
 int identify_clicked_stage_button();
