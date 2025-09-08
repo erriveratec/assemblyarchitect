@@ -341,12 +341,13 @@ void rg_update_register_box_position()
 	
 	set_register_box_member(y, MEMBER_Y);
 
+	SDL_Rect b = dm_get_code_button_wh();
+	int ofs = dm_get_ofs_stage_reg_box();
 	int i = 0;
-
 	LIST_FOREACH(registers, first, next, cur){ 
 		reg_t *c = cur->value;
-		c->b->r.y = register_box.y + REG_BOX_OFFSET + i*2*(CODE_BUTTON_H + 5) + 
-				  CODE_BUTTON_H;
+		c->b->r.y = register_box.y + ofs + i*2*(b.h + 5) + 
+				  b.h;
 		c->value.box.y = c->b->r.y - CODE_BUTTON_H;
 		i++;
    	}
@@ -599,10 +600,12 @@ operand_t *rg_create_register_operand_by_id(int id)
 	texture_t *reg_text = cl_create_operand_texture(id);
 	check_mem(reg_text);
 	
-	int register_text_w = get_text_width_fits_height(REG_TEXT_H, REG_TEXT);
+	SDL_Rect cb = dm_get_code_button_wh();
+	int text_h = dm_get_h_stage_titles();
+	int register_text_w = get_text_width_fits_height(text_h, REG_TEXT);
 	int x = 0;
 	int y = 0;
-	SDL_Rect r = {.x = x, .y = y, .w = CODE_BUTTON_W, .h = CODE_BUTTON_H};
+	SDL_Rect r = {.x = x, .y = y, .w = cb.w, .h = cb.h};
 	button_t *b = bt_create_button(r, true, false, false, C_BLACK, C_WHITE,  
 																	  reg_text);
 	check_mem(b);
@@ -636,25 +639,27 @@ void rg_add_register_to_list(int id)
 	
 	int list_size = List_count(registers);
 	
+	SDL_Rect cb = dm_get_code_button_wh();
+	int ofs = dm_get_ofs_stage_reg_box();
+	
 	if (list_size == 0){
-		set_register_box_member(REG_BOX_OFFSET + (list_size + 1)*2*CODE_BUTTON_H
-												  + REG_BOX_OFFSET, MEMBER_H);
+		set_register_box_member(ofs + (list_size + 1)*2*cb.h + ofs, MEMBER_H);
 	} else {
-		set_register_box_member(REG_BOX_OFFSET + (list_size + 1)*2*CODE_BUTTON_H
-												  + 2*REG_BOX_OFFSET, MEMBER_H);
+		set_register_box_member(ofs + (list_size + 1)*2*cb.h + 2*ofs, MEMBER_H);
 
 	}
 
 	texture_t *reg_text = cl_create_operand_texture(id);
 	check_mem(reg_text);
-	
-	int register_text_w = get_text_width_fits_height(REG_TEXT_H, REG_TEXT);
-	int x = register_box.x + REG_BOX_X_OFFSET;
 
-	int y = register_box.y + REG_BOX_OFFSET + list_size*2*(CODE_BUTTON_H + 5) +
-		    REG_TEXT_H + CODE_BUTTON_H;
+	int text_h = dm_get_h_stage_titles();
+	int register_text_w = get_text_width_fits_height(text_h, REG_TEXT);
+	int x = register_box.x + ofs;
 
-	SDL_Rect r = {.x = x, .y = y, .w = CODE_BUTTON_W, .h = CODE_BUTTON_H};	
+	int y = register_box.y + ofs + list_size*2*(cb.h + 5) +
+		    text_h + cb.h;
+
+	SDL_Rect r = {.x = x, .y = y, .w = cb.w, .h = cb.h};	
 	button_t *b = bt_create_button(r,true, false, false, C_BLACK, C_WHITE, 
 																	  reg_text);
 	check_mem(b);
@@ -775,11 +780,12 @@ static void draw_register_box()
  */
 static void draw_register_text()
 {
-	int text_w = get_text_width_fits_height(REG_TEXT_H, REG_TEXT);
-	int x = register_box.x;// + (register_box.w - text_w)/2;
-	int y = register_box.y - REG_TEXT_H;
+	int text_h = dm_get_h_stage_titles();
+	int text_w = get_text_width_fits_height(text_h, REG_TEXT);
+	int x = register_box.x;
+	int y = register_box.y - text_h;
 
-	SDL_Rect r = {.x = x, .y = y, .h = REG_TEXT_H};
+	SDL_Rect r = {.x = x, .y = y, .h = text_h};
 	dw_draw_texture_fits_height(r, reg_text);
 }
 

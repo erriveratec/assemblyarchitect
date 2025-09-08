@@ -428,7 +428,7 @@ static operand_t *create_saved_label_operand(int op1_id)
 	strcat(op_text, char_colon);
 	texture_t *t = dw_create_text_texture(op_text, C_WHITE);
 
-	SDL_Rect r = dm_get_code_button_box();
+	SDL_Rect r = dm_get_code_button_wh();
 	b->b = bt_create_button(r, false, false, false, C_BLACK, 
 							C_WHITE, t);
 
@@ -466,7 +466,7 @@ static operand_t *create_label_operand(code_line_t *line)
 	strcat(op_text, ":");
 	texture_t *t = dw_create_text_texture(op_text, C_WHITE);
 
-	SDL_Rect r = dm_get_code_button_box();
+	SDL_Rect r = dm_get_code_button_wh();
 	b->b = bt_create_button(r, false, false, false, C_BLACK, 
 							C_WHITE, t);
 
@@ -647,7 +647,7 @@ void cw_add_saved_line(char *line)
 		y += CODE_BUTTON_H;
 	}
 	
-	SDL_Rect r = dm_get_code_button_box();
+	SDL_Rect r = dm_get_code_button_wh();
 	r.x = x;
 	r.y = y;
 	button_t *b = bt_create_button(r, true, false, false, C_BLACK, 

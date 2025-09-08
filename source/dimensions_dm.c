@@ -14,7 +14,7 @@
 #define SEL_LEVEL_BUTTON_H 50
 #define RET_BUTTON_W 90
 #define RET_BUTTON_H 75
-#define BORDERS_OFFSET 2
+#define SCREEN_BORDERS_OFS 2
 #define RES_BOX_W 500
 #define RES_BOX_H 300
 #define RES_BUTTON_H 60
@@ -23,6 +23,8 @@
 #define RES_BOX_OFFSET 25
 #define VALUE_BOX_H 40
 #define VALUE_BOX_W 50
+#define BUFFER_VALUE_OFFSET 20
+#define REG_BOX_OFS 25
 
 #define ARROW_H 30
 #define ARROW_W 30
@@ -32,12 +34,102 @@
 #define TEXT_H_MSG 30
 #define TEXT_H_ERROR_MSG 40
 #define TEXT_H_TOTAL_MSG 160
+#define TEXT_H_STAGE_TITLES 40
+
+
+#define RAIL_W 4
+#define RAIL_END_W 16
 
 int g_res_id;
 int g_screen_width;
 int g_screen_height;
 
 int scale_to_resolution(int dim);
+
+/* Function: dm_get_h_stage_titles
+ * -----------------------------------------------------------------------------
+ *	Return the offset value of the contents of the buffer. 
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset
+ */
+int dm_get_h_stage_titles()
+{
+	int h = scale_to_resolution(TEXT_H_STAGE_TITLES);
+	return h;
+	
+}
+
+/* Function: dm_get_ofs_reg_box
+ * -----------------------------------------------------------------------------
+ *	Return the offset value of the contents of the buffer. 
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset
+ */
+int dm_get_ofs_stage_reg_box()
+{
+	int offset = scale_to_resolution(REG_BOX_OFS);
+	return offset;
+	
+}
+
+/* Function: dm_get_ofs_stage_buffer_value
+ * -----------------------------------------------------------------------------
+ *	Return the offset value of the contents of the buffer. 
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset
+ */
+int dm_get_ofs_stage_buffer_value()
+{
+	int offset = scale_to_resolution(BUFFER_VALUE_OFFSET);
+	return offset;
+	
+}
+
+/* Function: dm_get_w_stage_rail
+ * -----------------------------------------------------------------------------
+ * Returns the w value of the stage rail
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset for the sel level buttons
+ */
+int dm_get_w_stage_rail()
+{
+	int w = scale_to_resolution(RAIL_W);
+	return w;
+	
+}
+
+/* Function: dm_get_w_stage_rail_end
+ * -----------------------------------------------------------------------------
+ * Returns the w value for the ends of the stage raisl
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset for the sel level buttons
+ */
+int dm_get_w_stage_rail_end()
+{
+	int w = scale_to_resolution(RAIL_END_W);
+	return w;
+	
+}
 
 /* Function: dm_get_vbox_wh
  * -----------------------------------------------------------------------------
@@ -238,7 +330,7 @@ SDL_Rect dm_get_arrow_box()
 	return b;
 }
 
-/* Function: dm_get_box_msg
+/* Function: dm_get_box_msg_wh
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object, x and y are initialize at 0
  *
@@ -248,7 +340,7 @@ SDL_Rect dm_get_arrow_box()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-SDL_Rect dm_get_box_msg()
+SDL_Rect dm_get_box_msg_wh()
 {
 	SDL_Rect ib = dm_get_stage_instruction_box();
 	SDL_Rect b;
@@ -272,7 +364,7 @@ SDL_Rect dm_get_box_msg()
 SDL_Rect dm_get_text_box_error()
 {
 	SDL_Rect rb = dm_get_text_box_result();
-	SDL_Rect mb = dm_get_box_msg();
+	SDL_Rect mb = dm_get_box_msg_wh();
 	SDL_Rect ab = dm_get_arrow_box();
 	
 	SDL_Rect b;
@@ -316,7 +408,7 @@ SDL_Rect dm_get_text_box_big()
 SDL_Rect dm_get_text_box_stagebutton()
 {
 	SDL_Rect cb = dm_get_stage_code_box();	
-	SDL_Rect mb = dm_get_box_msg();	
+	SDL_Rect mb = dm_get_box_msg_wh();	
 	SDL_Rect b;
 	b.w = mb.w;
 	b.h = mb.h;
@@ -339,7 +431,7 @@ SDL_Rect dm_get_text_box_code()
 {
 	SDL_Rect cb = dm_get_stage_code_box();	
 	SDL_Rect ib = dm_get_stage_instruction_box();	
-	SDL_Rect mb = dm_get_box_msg();	
+	SDL_Rect mb = dm_get_box_msg_wh();	
 	SDL_Rect b;
 	b.w = mb.w;
 	b.h = mb.h;
@@ -361,7 +453,7 @@ SDL_Rect dm_get_text_box_ins()
 {
 
 	SDL_Rect ib = dm_get_stage_instruction_box();	
-	SDL_Rect mb = dm_get_box_msg();	
+	SDL_Rect mb = dm_get_box_msg_wh();	
 	SDL_Rect b;
 	b.w = mb.w;
 	b.h = mb.h;
@@ -382,7 +474,7 @@ SDL_Rect dm_get_text_box_ins()
  */
 SDL_Rect dm_get_text_box_lower()
 {
-	SDL_Rect mb = dm_get_box_msg();	
+	SDL_Rect mb = dm_get_box_msg_wh();	
 	SDL_Rect b;
 	b.w = mb.w;
 	b.h = mb.h;
@@ -403,7 +495,7 @@ SDL_Rect dm_get_text_box_lower()
  */
 SDL_Rect dm_get_text_box_center()
 {
-	SDL_Rect mb = dm_get_box_msg();	
+	SDL_Rect mb = dm_get_box_msg_wh();	
 	SDL_Rect ib = dm_get_stage_input_buffer_box();	
 	SDL_Rect b;
 	b.w = mb.w;
@@ -425,7 +517,7 @@ SDL_Rect dm_get_text_box_center()
  */
 SDL_Rect dm_get_text_box_upper()
 {
-	SDL_Rect mb = dm_get_box_msg();	
+	SDL_Rect mb = dm_get_box_msg_wh();	
 	SDL_Rect b;
 	b.w = mb.w;
 	b.h = mb.h;
@@ -660,8 +752,8 @@ SDL_Rect dm_get_return_button_box()
 	SDL_Rect b;
 	b.w = scale_to_resolution(RET_BUTTON_W);
 	b.h = scale_to_resolution(RET_BUTTON_H);
-	b.x = BORDERS_OFFSET;
-	b.y = g_screen_height - b.h - BORDERS_OFFSET;
+	b.x = SCREEN_BORDERS_OFS;
+	b.y = g_screen_height - b.h - SCREEN_BORDERS_OFS;
 	return b;
 }
 
@@ -809,7 +901,7 @@ SDL_Rect dm_get_select_player_box()
 	return b;
 }
 
-/* Function: dm_get_code_button_box
+/* Function: dm_get_code_button_wh
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object, x and y are initialize at 0
  *
@@ -819,7 +911,7 @@ SDL_Rect dm_get_select_player_box()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-SDL_Rect dm_get_code_button_box()
+SDL_Rect dm_get_code_button_wh()
 {
 	SDL_Rect b;
 	b.w = scale_to_resolution(CODE_BUTTON_W);

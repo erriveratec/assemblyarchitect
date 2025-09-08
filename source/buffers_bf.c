@@ -267,7 +267,7 @@ operand_t *bf_create_operand_of_selected_buffer()
  */
 void bf_initialize_buffer_operands()
 {
-	SDL_Rect r = dm_get_code_button_box();
+	SDL_Rect r = dm_get_code_button_wh();
 	texture_t *ib = dw_create_text_texture(ib_text, C_WHITE);
 	check_mem(ib);
 	button_t *a = bt_create_button(r, true, false, false, C_BLACK, C_WHITE, 

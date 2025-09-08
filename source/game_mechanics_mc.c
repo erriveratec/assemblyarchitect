@@ -37,8 +37,6 @@
 
 #define RAVATAR_X_POS_OFFSET (AVATAR_W + 20)
 
-#define RAIL_W 4
-#define RAIL_END_W 16
 
 texture_array_t *ib_empty;
 texture_array_t *reg_val_bad;
@@ -324,8 +322,11 @@ void mc_init_avatar()
 	g_oavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
 	g_oavatar.color = C_CYAN;
 
+	int ofs = dm_get_ofs_stage_reg_box();
+	SDL_Rect rb = rg_get_register_box();
 	g_ravatar.id = RAVATAR;
-	g_ravatar.box.x = rg_get_register_box_member(MEMBER_X) - 3*REG_BOX_X_OFFSET 
+	
+	g_ravatar.box.x = rg_get_register_box_member(MEMBER_X)  
 					  + rg_get_register_box_member(MEMBER_W) - AVATAR_W;
 	g_ravatar.box.y = rg_get_register_box_member(MEMBER_Y) + 
 					  rg_get_register_box_member(MEMBER_H)/2 - AVATAR_H/2; 
@@ -398,8 +399,9 @@ void mc_reset_avatar()
 	g_oavatar.color = C_CYAN;
 
 	
+	int ofs = dm_get_ofs_stage_reg_box();
 	g_ravatar.id = RAVATAR;
-	g_ravatar.box.x = rg_get_register_box_member(MEMBER_X) - 3*REG_BOX_X_OFFSET 
+	g_ravatar.box.x = rg_get_register_box_member(MEMBER_X) - 3*ofs 
 					  + rg_get_register_box_member(MEMBER_W) - AVATAR_W;
 	g_ravatar.box.y = rg_get_register_box_member(MEMBER_Y) + 
 					  rg_get_register_box_member(MEMBER_H)/2 - AVATAR_H/2; 
@@ -490,42 +492,48 @@ static void draw_iavatar()
 				  .w= g_iavatar.box.w, .h = g_iavatar.box.h};
 	dw_draw_filled_rectangle(r0, g_iavatar.color, g_iavatar.color);
 
-	int bf_y_lower = bf_get_input_buffer_box_member(MEMBER_Y) + 
-					 bf_get_input_buffer_box_member(MEMBER_H);
-	int medium = (rg_get_register_box_member(MEMBER_Y) - bf_y_lower)/2;
+	SDL_Rect bf = dm_get_stage_input_buffer_box();
+	int bf_y_lower = bf.y + bf.h;
+	SDL_Rect rb = rg_get_register_box();
+	int medium = (rb.y - bf_y_lower)/2;
 
-	int x = REG_VBOX_X + VALUE_BOX_W/2 - RAIL_W/2;
-	int y = rg_get_register_box_member(MEMBER_Y) - medium - RAIL_W/2;
-	int w = bf_get_input_buffer_box_member(MEMBER_X) + VALUE_BOX_W/2 - x + 
-										BUFFER_VALUE_OFFSET_X + RAIL_W/2;
-	int h = RAIL_W;
+	SDL_Rect ibox = dm_get_stage_ibox();
+	int rail_w = dm_get_w_stage_rail();
+
+	int offset = dm_get_ofs_stage_buffer_value();
+	int x = ibox.x + ibox.w/2 - rail_w/2;
+	int y = rb.y - medium - rail_w/2;
+	int w = bf.x + ibox.w/2 - x + offset + rail_w/2;
+	int h = rail_w;
 
 	SDL_Rect r1 = {.x = x, .y = y, .w = w, .h = h};
 	dw_draw_filled_rectangle(r1, C_MAGENTA, C_MAGENTA);
-	
-	int rail_end_x = x - (RAIL_END_W - RAIL_W)/2;
-	int rail_end_y = y - (RAIL_END_W - RAIL_W)/2;
-	SDL_Rect r2 = {.x = rail_end_x, .y = rail_end_y, .w = RAIL_END_W, 
-				   .h = RAIL_END_W};
+
+	int rail_end_w = dm_get_w_stage_rail_end();
+
+	int rail_end_x = x - (rail_end_w - rail_w)/2;
+	int rail_end_y = y - (rail_end_w - rail_w)/2;
+	SDL_Rect r2 = {.x = rail_end_x, .y = rail_end_y, .w = rail_end_w, 
+				   .h = rail_end_w};
 	dw_draw_filled_rectangle(r2 , C_MAGENTA, C_MAGENTA);
 
-	rail_end_x = x + w - (RAIL_END_W - RAIL_W) + RAIL_W/2;
+	rail_end_x = x + w - (rail_end_w - rail_w) + rail_w/2;
 
-	SDL_Rect r3 = {.x = rail_end_x, .y = rail_end_y, .w = RAIL_END_W, 
-				   .h = RAIL_END_W};
+	SDL_Rect r3 = {.x = rail_end_x, .y = rail_end_y, .w = rail_end_w, 
+				   .h = rail_end_w};
 	dw_draw_filled_rectangle(r3, C_MAGENTA, C_MAGENTA);
 
-	int xc = g_iavatar.box.x + g_iavatar.box.w/2 - RAIL_W/2; 
+	int xc = g_iavatar.box.x + g_iavatar.box.w/2 - rail_w/2; 
 	int yc = g_iavatar.box.y + g_iavatar.box.h/2;
-	int wf = RAIL_W;
+	int wf = rail_w;
 	int yf;
 	int hf;
 	if (yc > y){
 	 	yf = y;
-		hf = yc - y + RAIL_W;
+		hf = yc - y + rail_w;
 	} else {
 		yf = yc;
-		hf = y - yc + RAIL_W;
+		hf = y - yc + rail_w;
 	}
 	SDL_Rect r4 = {.x = xc, .y = yf, .w = wf, .h = hf};
 	dw_draw_filled_rectangle(r4, C_MAGENTA, C_MAGENTA);
@@ -550,44 +558,48 @@ static void draw_oavatar()
 				  .w = g_oavatar.box.w, .h = g_oavatar.box.h};
 	dw_draw_filled_rectangle(r0, g_oavatar.color, g_oavatar.color);
 
-	int bf_y_upper = bf_get_output_buffer_box_member(MEMBER_Y);
-	int medium = (bf_y_upper - (rg_get_register_box_member(MEMBER_Y) +
-					                   rg_get_register_box_member(MEMBER_H)))/2;
+	SDL_Rect bf = dm_get_stage_output_buffer_box();
+	int bf_y_upper = bf.y;
+	SDL_Rect rb = rg_get_register_box();
+	int medium = (bf_y_upper - (rb.y + rb.h))/2;
 
-	int x = REG_VBOX_X + VALUE_BOX_W/2 - RAIL_W/2;
-	int y = bf_get_output_buffer_box_member(MEMBER_Y) - medium - 
-																RAIL_W/2;
-	
-	int w = bf_get_input_buffer_box_member(MEMBER_X) + VALUE_BOX_W/2 - x + 
-											   BUFFER_VALUE_OFFSET_X + RAIL_W/2;
-	int h = RAIL_W;
+	SDL_Rect obox = dm_get_stage_obox();
+	int rail_w = dm_get_w_stage_rail();
+	int offset = dm_get_ofs_stage_buffer_value();
+
+	int x = obox.x + obox.w/2 - rail_w/2;
+	int y = bf.y - medium - rail_w/2;
+	int w = bf.x + obox.w/2 - x + offset + rail_w/2;
+	int h = rail_w;
 	
 	SDL_Rect r1 = {.x = x, .y = y, .w = w, .h = h};
 	dw_draw_filled_rectangle(r1, C_CYAN, C_CYAN);
 
-	int rail_end_x = x - (RAIL_END_W - RAIL_W)/2;
-	int rail_end_y = y - (RAIL_END_W - RAIL_W)/2;
+	int rail_end_w = dm_get_w_stage_rail_end();
+
+	int rail_end_x = x - (rail_end_w - rail_w)/2;
+	int rail_end_y = y - (rail_end_w - rail_w)/2;
 	
-	SDL_Rect r2 = {.x = rail_end_x, .y = rail_end_y, .w = RAIL_END_W, 
-				   .h = RAIL_END_W};
+	SDL_Rect r2 = {.x = rail_end_x, .y = rail_end_y, .w = rail_end_w, 
+				   .h = rail_end_w};
 	dw_draw_filled_rectangle(r2, C_CYAN, C_CYAN);
 
-	rail_end_x = x + w - (RAIL_END_W - RAIL_W) + RAIL_W/2;
-	SDL_Rect r3 = {.x = rail_end_x, .y = rail_end_y, .w = RAIL_END_W, 
-				   .h = RAIL_END_W};
+	rail_end_x = x + w - (rail_end_w - rail_w) + rail_w/2;
+	SDL_Rect r3 = {.x = rail_end_x, .y = rail_end_y, .w = rail_end_w, 
+				   .h = rail_end_w};
 	dw_draw_filled_rectangle(r3, C_CYAN, C_CYAN);
 
-	int xc = g_oavatar.box.x + g_oavatar.box.w/2 - RAIL_W/2; 
+	int xc = g_oavatar.box.x + g_oavatar.box.w/2 - rail_w/2; 
 	int yc = g_oavatar.box.y + g_oavatar.box.h/2;
-	int wf = RAIL_W;
+	int wf = rail_w;
 	int yf;
 	int hf;
 	if (yc > y){
 	 	yf = y;
-		hf = yc - y + RAIL_W;
+		hf = yc - y + rail_w;
 	} else {
 		yf = yc;
-		hf = y - yc + RAIL_W;
+		hf = y - yc + rail_w;
 	}
 	SDL_Rect r4 = {.x = xc, .y = yf, .w = wf, .h = hf};
 	dw_draw_filled_rectangle(r4, C_CYAN, C_CYAN);
@@ -613,39 +625,46 @@ void draw_ravatar()
 				   .w = g_ravatar.box.w, .h = g_ravatar.box.h};
 	dw_draw_filled_rectangle(r0, g_ravatar.color, g_ravatar.color);
 
-	int rx = rg_get_ibox_x() + VALUE_BOX_W/2;
-	int ry = rg_get_register_box_member(MEMBER_Y) + REG_BOX_OFFSET;
-	int rw = RAIL_W;
-	int rh = rg_get_register_box_member(MEMBER_H) - 2*REG_BOX_OFFSET;
+	SDL_Rect ibox = dm_get_stage_ibox();
+	SDL_Rect rb = rg_get_register_box();
+	int reg_ofs =  dm_get_ofs_stage_reg_box();
+	int rail_w = dm_get_w_stage_rail();
+
+	int rx = ibox.x + ibox.w/2;
+	int ry = rb.y + reg_ofs;
+	int rw = rail_w;
+	int rh = rb.h - 2*reg_ofs;
 	
 	SDL_Rect r1 = {.x = rx, .y = ry, .w = rw, .h = rh};
 	dw_draw_filled_rectangle(r1, C_YELLOW, C_YELLOW);
 	
 	int xc = g_ravatar.box.x + g_ravatar.box.w/2; 
-	int yc = g_ravatar.box.y + g_ravatar.box.h/2 - RAIL_W/2;
-	int hf = RAIL_W;
+	int yc = g_ravatar.box.y + g_ravatar.box.h/2 - rail_w/2;
+	int hf = rail_w;
 	int xf;
 	int wf;
 	if (xc < rx){
 	 	xf = xc;
-		wf = rx - xf + RAIL_W;
+		wf = rx - xf + rail_w;
 	} else {
 		xf = rx;
-		wf = xc - xf + RAIL_W;
+		wf = xc - xf + rail_w;
 	}
 	SDL_Rect r2 = {.x = xf, .y = yc, .w = wf, .h = hf};
 	dw_draw_filled_rectangle(r2, C_YELLOW, C_YELLOW);
 
-	int rail_end_x = rx - (RAIL_END_W - RAIL_W)/2;
-	int rail_end_y = ry - (RAIL_END_W - RAIL_W)/2;
+	int rail_end_w = dm_get_w_stage_rail_end();
 
-	SDL_Rect r3 = {.x = rail_end_x, .y = rail_end_y, .w = RAIL_END_W, 
-				   .h = RAIL_END_W};
+	int rail_end_x = rx - (rail_end_w - rail_w)/2;
+	int rail_end_y = ry - (rail_end_w - rail_w)/2;
+
+	SDL_Rect r3 = {.x = rail_end_x, .y = rail_end_y, .w = rail_end_w, 
+				   .h = rail_end_w};
 	dw_draw_filled_rectangle(r3, C_YELLOW, C_YELLOW);
 
-	rail_end_y = ry + rh - (RAIL_END_W - RAIL_W) + RAIL_W/2;
-	SDL_Rect r4 = {.x = rail_end_x, .y = rail_end_y, .w = RAIL_END_W, 
-				   .h = RAIL_END_W};
+	rail_end_y = ry + rh - (rail_end_w - rail_w) + rail_w/2;
+	SDL_Rect r4 = {.x = rail_end_x, .y = rail_end_y, .w = rail_end_w, 
+				   .h = rail_end_w};
 	dw_draw_filled_rectangle(r4, C_YELLOW, C_YELLOW);
 }
 

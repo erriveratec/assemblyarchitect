@@ -16,6 +16,7 @@ int dm_get_h_big_msg();
 int dm_get_h_bottom_msg();
 int dm_get_h_msg();
 int dm_get_h_error_msg();
+int dm_get_h_stage_titles();
 
 SDL_Rect dm_get_studio_name_msg_box();
 SDL_Rect dm_get_game_title_box();
@@ -32,8 +33,8 @@ SDL_Rect dm_get_escape_b1_box();
 SDL_Rect dm_get_escape_b2_box();
 SDL_Rect dm_get_escape_b3_box();
 
-SDL_Rect dm_get_code_button_box();
-SDL_Rect dm_get_box_msg();
+SDL_Rect dm_get_box_msg_wh();
+SDL_Rect dm_get_code_button_wh();
 SDL_Rect dm_get_arrow_wh();
 SDL_Rect dm_get_vbox_wh();
 
@@ -49,6 +50,10 @@ SDL_Rect dm_get_stage_input_buffer_box();
 SDL_Rect dm_get_stage_output_buffer_box();
 SDL_Rect dm_get_stage_ib_text_box();
 SDL_Rect dm_get_stage_ob_text_box();
+int dm_get_w_stage_rail();
+int dm_get_w_stage_rail_end();
+int dm_get_ofs_stage_buffer_value();
+int dm_get_ofs_stage_reg_box();
 
 SDL_Rect dm_get_arrow_box();
 SDL_Rect dm_get_arrow_ins_box();
@@ -178,12 +183,8 @@ SDL_Rect dm_get_text_box_result_but3();//Back in error condition
 
 /***************************REGISTER BOX***************************************/
 // The offset of the borders of the register box
-#define REG_BOX_OFFSET 25
-#define REG_BOX_X_OFFSET 20
-#define REG_BOX_Y_OFFSET 50
+//#define REG_BOX_X_OFFSET 20
 
-// The height of the register text
-#define REG_TEXT_H 40
 
 // The position of the register text
 #define REG_TEXT_Y_OFFSET 5

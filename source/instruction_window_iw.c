@@ -103,8 +103,8 @@ int iw_get_instruction_y_by_id(int id)
 static void draw_instruction_text()
 {
 	int x = instruction_box.x;
-	int y = instruction_box.y  - get_text_height_fits_width(INS_BOX_TEXT_W, 
-															INSTRUCTIONS_TEXT);
+	int h = get_text_height_fits_width(INS_BOX_TEXT_W, INSTRUCTIONS_TEXT);
+	int y = instruction_box.y  - h;
 	SDL_Rect r = {.x = x, .y = y, .w = INS_BOX_TEXT_W};
 	dw_draw_texture_fits_width(r, instructions_text);
 }
@@ -326,7 +326,7 @@ void iw_add_instruction_to_list(int id)
 	int list_size = List_count(instructions);
 	int x = INS_BOX_X + INS_BOX_OFFSET;
 	int y = INS_BOX_Y + INS_BOX_OFFSET + list_size*CODE_BUTTON_H;
-	SDL_Rect r = dm_get_code_button_box();
+	SDL_Rect r = dm_get_code_button_wh();
 	r.x = x;
 	r.y = y;
 	button_t *b = bt_create_button(r, true, false, false, C_BLACK, 

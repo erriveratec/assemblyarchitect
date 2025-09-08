@@ -101,7 +101,7 @@ void tx_init_level_3_texts()
 	int text_h = dm_get_h_big_msg();
 	g_lvl_msgs[TX_L3_WELCOME] = dw_new_text_texture_by_h(r.w, text_h, C_BLACK, 
 																    L3_WELCOME);
-	r = dm_get_box_msg();
+	r = dm_get_box_msg_wh();
 	text_h = dm_get_h_msg();
 	g_lvl_msgs[TX_L3_DESCRIPTION1] = dw_new_text_texture_by_h(r.w, text_h, 
 										 			  C_BLACK, L3_DESCRIPTION1);
@@ -144,7 +144,7 @@ void tx_init_level_2_texts()
 	int text_h = dm_get_h_big_msg();
 	g_lvl_msgs[TX_L2_WELCOME] = dw_new_text_texture_by_h(r.w, text_h, C_BLACK, 
 																    L2_WELCOME);
-	r = dm_get_box_msg();
+	r = dm_get_box_msg_wh();
 	text_h = dm_get_h_msg();
 	g_lvl_msgs[TX_L2_DESCRIPTION] = dw_new_text_texture_by_h(r.w, text_h, 
 										 			   C_BLACK, L2_DESCRIPTION);
@@ -182,7 +182,7 @@ void tx_init_level_1_texts()
 	int text_h = dm_get_h_big_msg();
 	g_lvl_msgs[TX_L1_WELCOME] = dw_new_text_texture_by_h(r.w, text_h, C_BLACK, 
 																    L1_WELCOME);
-	r = dm_get_box_msg();
+	r = dm_get_box_msg_wh();
 	text_h = dm_get_h_msg();
 	g_lvl_msgs[TX_L1_DESCRIPTION] = dw_new_text_texture_by_h(r.w, text_h, 
 										 			   C_BLACK, L1_DESCRIPTION);
