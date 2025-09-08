@@ -12,7 +12,6 @@
 #include "dimensions_dm.h"
 #include "button_bt.h"
 #include "code_line_cl.h"
-#include "arrow_ar.h"
 
 // The posible types of input values
 #define WHOLE 0
@@ -21,12 +20,6 @@
 
 #define NATURAL_NMAX 9
 #define NATURAL_NMIN 1
-
-#define ARROW_INPUT_X (BUFFER_BOX_X - 2*ARROW_W)
-#define ARROW_INPUT_Y (INPUT_BUFFER_BOX_Y + (BUFFER_BOX_H - ARROW_H)/2)
-
-#define ARROW_OUTPUT_X (BUFFER_BOX_X - 2*ARROW_W)
-#define ARROW_OUTPUT_Y (OUTPUT_BUFFER_BOX_Y + (BUFFER_BOX_H - ARROW_H)/2)
 
 #define INPUT_BUFFER_TEXT "Input Buffer [IB]"
 #define OUTPUT_BUFFER_TEXT "Output Buffer [O]"
@@ -56,13 +49,9 @@ void add_input_to_list(int value, int type);
 void draw_output_buffer();
 void draw_input_buffer();
 static bool check_win_condition();
-static void display_input_arrow();
-static void display_output_arrow();
 static void destroy_input_list();
 static void destroy_output_list();
 
-texture_t *g_input_arrow = NULL;
-texture_t *g_output_arrow = NULL;
 
 /* Function: iw_init_buf_texture
  *------------------------------------------------------------------------------
@@ -78,70 +67,6 @@ void bf_init_buf_texture()
 {
 	input_text = dw_create_text_texture(INPUT_BUFFER_TEXT, C_WHITE);
 	output_text = dw_create_text_texture(OUTPUT_BUFFER_TEXT, C_WHITE);
-}
-
-/* Function: display_output_arrow
- * -----------------------------------------------------------------------------
- * Animate with a moving arrow of the output buffer when available for selection
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-static void display_output_arrow()
-{
-	static arrow_t arrow;
-	static bool arrow_initialized = false;
-	int startx = ARROW_INPUT_X;
-	if (arrow_initialized == false){
-		arrow.box.x = startx;
-		arrow.box.y = ARROW_OUTPUT_Y;
-		arrow.box.w = ARROW_W;
-		arrow.box.h = ARROW_H;
-		arrow.startx = startx;
-		arrow.starty = arrow.box.y;
-		arrow.dir = AR_RIGHT;
-		arrow.travel = BUFFER_BOX_X - startx - ARROW_W;
-		arrow.in_place = false;
-		arrow_initialized = true;
-		arrow.texture = g_input_arrow;
-	}
-	SDL_SetTextureColorMod(arrow.texture->texture, 0, 255, 255);
-	ar_animate_arrow(&arrow);
-}
-
-/* Function: display_input_arrow_
- * -----------------------------------------------------------------------------
- * Animate with a moving arrow of the input buffer when available for selection
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-static void display_input_arrow()
-{
-	static arrow_t arrow;
-	static bool arrow_initialized = false;
-	int startx = ARROW_INPUT_X;
-	if (arrow_initialized == false){
-		arrow.box.x = startx;
-		arrow.box.y = ARROW_INPUT_Y;
-		arrow.box.w = ARROW_W;
-		arrow.box.h = ARROW_H;
-		arrow.startx = startx;
-		arrow.starty = arrow.box.y;
-		arrow.dir = AR_RIGHT;
-		arrow.travel = BUFFER_BOX_X - startx - ARROW_W;
-		arrow.in_place = false;
-		arrow_initialized = true;
-		arrow.texture = g_input_arrow;
-	}
-	SDL_SetTextureColorMod(arrow.texture->texture, 255, 0, 255);
-	ar_animate_arrow(&arrow);
 }
 
 /* Function: bf_set_win_condition
@@ -650,23 +575,7 @@ void bf_set_output_box(SDL_Rect r)
 	output_box.h = r.h;
 }
 
-/* Function: draw_buffers_arrow
- *------------------------------------------------------------------------------
- * Arguments:
- *	id: id of the buffer arrow that will be drawn
- * 
- * Return:
- *	Void.
- */
-void bf_draw_buffers_arrow(int id)
-{
-	if (id == IB){
-		display_input_arrow();
-	}
-	if (id == OB){
-		display_output_arrow();
-	}
-}
+
 
 /* Function: draw_buffers
  *------------------------------------------------------------------------------

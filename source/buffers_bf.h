@@ -14,8 +14,6 @@ enum input_list_type{
 
 extern int g_input_list_type;
 extern int g_input_buffer_size;
-extern texture_t *g_input_arrow;
-extern texture_t *g_output_arrow;
 
 bool bf_check_released_in_buffer();
 void bf_set_input_box(SDL_Rect r);
@@ -30,7 +28,6 @@ void bf_destroy_buffer_lists();
 void bf_create_natural_numbers_input_list(int size);
 void bf_initialize_buffer_operands();
 void bf_draw_buffers();
-void bf_draw_buffers_arrow(int id);
 int bf_get_buffer_value_box_x_coord_by_id(int op_id);
 int bf_get_buffer_value_box_y_coord_by_id(int op_id);
 value_box_t bf_get_input_buffer_value_box();

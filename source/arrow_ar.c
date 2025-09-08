@@ -19,6 +19,8 @@ arrow_t g_arrow_del;
 arrow_t g_arrow_op2;
 arrow_t g_arrow_error;
 arrow_t g_arrow_challenge;
+arrow_t g_arrow_ib;
+arrow_t g_arrow_ob;
 
 
 static void initialize_ins_arrow();
@@ -247,6 +249,36 @@ static void initialize_challenge_arrow()
 	g_arrow_challenge.texture = g_lv_arrow;
 }
 
+/* Function: initialize_ib_arrow
+ * -----------------------------------------------------------------------------
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void initialize_ib_arrow()
+{
+	SDL_Rect b =  dm_get_stage_input_buffer_box();
+	g_arrow_challenge.box.x = cw_get_text_box_member(MEMBER_X) +
+							  cw_get_text_box_member(MEMBER_W) + 2*ARROW_W;
+	g_arrow_challenge.box.y = cw_get_text_box_member(MEMBER_Y) +
+							  cw_get_text_box_member(MEMBER_H)/2;
+	g_arrow_challenge.box.w = ARROW_W;
+	g_arrow_challenge.box.h = ARROW_H;
+	g_arrow_challenge.in_place = false;
+	g_arrow_challenge.visible = true;
+	g_arrow_challenge.startx = cw_get_text_box_member(MEMBER_X) +
+							cw_get_text_box_member(MEMBER_W) + 2*ARROW_W;
+	g_arrow_challenge.starty = cw_get_text_box_member(MEMBER_Y) +
+			cw_get_text_box_member(MEMBER_H)/2;
+	g_arrow_challenge.travel = ARROW_W;
+	g_arrow_challenge.dir = AR_LEFT;
+	g_arrow_challenge.texture = g_lv_arrow;
+}
+
+
 
 /* Function: initialize_arrow
  * -----------------------------------------------------------------------------
@@ -269,6 +301,70 @@ void ar_initialize_arrows()
 	initialize_error_arrow();
 	initialize_challenge_arrow();
 }
+
+/* Function: display_output_arrow
+ * -----------------------------------------------------------------------------
+ * Animate with a moving arrow of the output buffer when available for selection
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ *
+static void display_output_arrow()
+{
+	static arrow_t arrow;
+	static bool arrow_initialized = false;
+	int startx = ARROW_INPUT_X;
+	if (arrow_initialized == false){
+		arrow.box.x = startx;
+		arrow.box.y = ARROW_OUTPUT_Y;
+		arrow.box.w = ARROW_W;
+		arrow.box.h = ARROW_H;
+		arrow.startx = startx;
+		arrow.starty = arrow.box.y;
+		arrow.dir = AR_RIGHT;
+		arrow.travel = BUFFER_BOX_X - startx - ARROW_W;
+		arrow.in_place = false;
+		arrow_initialized = true;
+		arrow.texture = g_input_arrow;
+	}
+	SDL_SetTextureColorMod(arrow.texture->texture, 0, 255, 255);
+	ar_animate_arrow(&arrow);
+}
+
+* Function: display_input_arrow_
+ * -----------------------------------------------------------------------------
+ * Animate with a moving arrow of the input buffer when available for selection
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ *
+static void display_input_arrow()
+{
+	static arrow_t arrow;
+	static bool arrow_initialized = false;
+	int startx = ARROW_INPUT_X;
+	if (arrow_initialized == false){
+		arrow.box.x = startx;
+		arrow.box.y = ARROW_INPUT_Y;
+		arrow.box.w = ARROW_W;
+		arrow.box.h = ARROW_H;
+		arrow.startx = startx;
+		arrow.starty = arrow.box.y;
+		arrow.dir = AR_RIGHT;
+		arrow.travel = BUFFER_BOX_X - startx - ARROW_W;
+		arrow.in_place = false;
+		arrow_initialized = true;
+		arrow.texture = g_input_arrow;
+	}
+	SDL_SetTextureColorMod(arrow.texture->texture, 255, 0, 255);
+	ar_animate_arrow(&arrow);
+}*/
 
 /* Function: display_arrow
  * -----------------------------------------------------------------------------
