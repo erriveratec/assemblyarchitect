@@ -34,7 +34,6 @@
 #define OAVATAR_Y OUTPUT_BUFFER_BOX_Y - 2*AVATAR_BUFFER_OFFSET
 
 
-
 texture_array_t *ib_empty;
 texture_array_t *reg_val_bad;
 texture_array_t *ob_val_bad;

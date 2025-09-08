@@ -161,11 +161,14 @@ int main(int argc, char *args[])
 		SDL_RenderPresent(g_renderer);
 		
 		// time it takes to render frame in milliseconds
-		next_game_tick += 1000/60;
+		next_game_tick += 1000/45;
 		sleep = next_game_tick - SDL_GetTicks64();
-
+		
+		if (sleep < 0){
+			puts("NEGATIVE DELAY");
+		}	
 		if (sleep >= 0){
-			puts("happens");
+			puts("Delay");
 			SDL_Delay(sleep);
 		}
 

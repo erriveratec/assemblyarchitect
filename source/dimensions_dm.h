@@ -123,7 +123,6 @@ SDL_Rect dm_get_text_box_result_but3();//Back in error condition
 #define RES_BOX_TEXT_Y RES_BOX_Y + RES_BOX_TEXT_BORDER_OFFSET 
 #define RES_BOX_TEXT_H 30
 
-#define BACK_BUTTON_W 100
 
 
 /****************************BACK-CONTINUE BUTTONS*****************************/

@@ -213,13 +213,14 @@ static void initialize_op2_arrow()
  */
 static void initialize_error_arrow()
 {
+	SDL_Rect back_but =  dm_get_text_box_result_but1();
 	g_arrow_error.box.x = RES_BOX_X + RES_BOX_W/2 - ARROW_W/2;
 	g_arrow_error.box.y = RES_BOX_Y + RES_BOX_H + ERROR_BOX_Y_OFFSET - ARROW_H;	
 	g_arrow_error.box.w = ARROW_W;
 	g_arrow_error.box.h = ARROW_H;
 	g_arrow_error.in_place = false;
 	g_arrow_error.visible = true;
-	g_arrow_error.startx = RES_BOX_X + RES_BOX_W/2 - BACK_BUTTON_W/2 - 2*ARROW_W;			
+	g_arrow_error.startx = RES_BOX_X + RES_BOX_W/2 - back_but.w/2 - 2*ARROW_W;			
 	g_arrow_error.starty = RES_BOX_Y + RES_BOX_H + ERROR_BOX_Y_OFFSET - ARROW_H;		
 	g_arrow_error.travel = ARROW_W;
 	g_arrow_error.dir = AR_UP;
