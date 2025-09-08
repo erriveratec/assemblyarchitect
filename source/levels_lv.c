@@ -42,10 +42,6 @@ static void win1_move_input_to_output(int rep, int mul, bool reversed);
 static void win2_add_inputs_in_groups(int group_size);
 static void set_win_condition(char *win_condition);
 
-
-	
-
-
 /* Function: level_9_tutorial
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 3
@@ -58,7 +54,6 @@ static void set_win_condition(char *win_condition);
  */
 static void level_9_tutorial(bool holding_line, bool play)
 {
-	//bf_draw_buffers_arrow(check_display_buf_arrow());
 	rg_draw_registers(check_display_reg_lv_arrow());
 
 	
@@ -114,7 +109,6 @@ static void level_9_tutorial(bool holding_line, bool play)
  */
 static void level_8_tutorial(bool holding_line, bool play)
 {
-	//bf_draw_buffers_arrow(check_display_buf_arrow());
 	rg_draw_registers(check_display_reg_lv_arrow());
 
 	int code_size = cw_get_code_list_size();
@@ -147,7 +141,6 @@ static void level_8_tutorial(bool holding_line, bool play)
  */
 static void level_7_tutorial(bool holding_line, bool play)
 {
-	//bf_draw_buffers_arrow(check_display_buf_arrow());
 	rg_draw_registers(check_display_reg_lv_arrow());
 
 	int code_size = cw_get_code_list_size();
@@ -180,7 +173,6 @@ static void level_7_tutorial(bool holding_line, bool play)
  */
 static void level_6_tutorial(bool holding_line, bool play)
 {
-	//bf_draw_buffers_arrow(check_display_buf_arrow());
 	rg_draw_registers(check_display_reg_lv_arrow());
 
 	int code_size = cw_get_code_list_size();
@@ -217,7 +209,6 @@ static void level_6_tutorial(bool holding_line, bool play)
  */
 static void level_5_tutorial(bool holding_line, bool play)
 {
-	//bf_draw_buffers_arrow(check_display_buf_arrow());
 	rg_draw_registers(check_display_reg_lv_arrow());
 
 	int code_size = cw_get_code_list_size();
@@ -244,7 +235,6 @@ static void level_5_tutorial(bool holding_line, bool play)
  */
 static void level_4_tutorial(bool holding_line, bool play)
 {
-	//bf_draw_buffers_arrow(check_display_buf_arrow());
 	rg_draw_registers(check_display_reg_lv_arrow());
 
 	static bool first_message = true;
@@ -270,7 +260,6 @@ static void level_4_tutorial(bool holding_line, bool play)
  */
 static void level_3_tutorial(bool holding_line, bool play)
 {
-	//bf_draw_buffers_arrow(check_display_buf_arrow());
 	rg_draw_registers(check_display_reg_lv_arrow());
 
 	int code_size = cw_get_code_list_size();
@@ -290,7 +279,7 @@ static void level_3_tutorial(bool holding_line, bool play)
 	} else if (msg_descrip1 == true && code_size == 0){
 		tx_text_box(TX_UPPER_BOX, TX_L3_DESCRIPTION1);
 		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
-		///bf_draw_buffers_arrow(IB);
+		ar_display_arrow(AR_IB);
 		if (ms_chk_mouse_left_pressed() == true){
 			msg_descrip1 = false;
 			ms_reset_mouse_values();
@@ -356,7 +345,6 @@ static void level_3_tutorial(bool holding_line, bool play)
  */
 static void level_2_tutorial(bool holding_line, bool play)
 {
-	//bf_draw_buffers_arrow(NO_OPERAND);
 	rg_draw_registers(false);
 	int code_size = cw_get_code_list_size();
 	
@@ -416,7 +404,7 @@ static void level_2_tutorial(bool holding_line, bool play)
 			ar_display_arrow(AR_OP2);
 		} else if (i2->state == CHANGING_OP2){
 			tx_text_box(TX_UPPER_BOX, TX_L2_SELIB);
-			//bf_draw_buffers_arrow(IB);
+			ar_display_arrow(AR_IB);
 		}
 	} else if (mov_instruction == true){
 		tx_text_box(TX_CODE_BOX, TX_L2_MOVINS);
@@ -441,7 +429,6 @@ static void level_2_tutorial(bool holding_line, bool play)
 static void level_1_tutorial(bool holding_line, bool play, int flag)
 {
 	int code_size = cw_get_code_list_size();
-	//bf_draw_buffers_arrow(NO_OPERAND);
 	rg_draw_registers(false);
 	static bool first_message = true;
 	static bool second_message = true;	
@@ -475,7 +462,7 @@ static void level_1_tutorial(bool holding_line, bool play, int flag)
 		if (ms_chk_mouse_left_pressed() == true){
 			third_message = false;
 		}
-		//bf_draw_buffers_arrow(IB);
+		ar_display_arrow(AR_IB);
 		ms_reset_mouse_values();
 	} else if (fourth_message == true && code_size == 0){
 		tx_text_box(TX_LOWER_BOX, TX_L1_OBJ2);
@@ -483,7 +470,7 @@ static void level_1_tutorial(bool holding_line, bool play, int flag)
 		if (ms_chk_mouse_left_pressed() == true){
 			fourth_message = false;
 		}
-		//bf_draw_buffers_arrow(OB);
+		ar_display_arrow(AR_OB);
 		ms_reset_mouse_values();
 	} else if (fifth_message == true && code_size == 0){
 		tx_text_box(TX_UPPER_BOX, TX_L1_OBJ3);
@@ -508,7 +495,7 @@ static void level_1_tutorial(bool holding_line, bool play, int flag)
 				    			   cw_check_code_pending_operand() == true){
 		tx_text_box(TX_CODE_BOX, TX_L1_SELOP2);	
 		rg_draw_registers(false);
-		//bf_draw_buffers_arrow(IB);
+		ar_display_arrow(AR_IB);
 	} else if(code_size == 1 && holding_line == false &&
  			  cw_check_code_pending_operand() == false && play_message == true){
 		tx_text_box(TX_STAGEBUTTON_BOX, TX_L1_PLAYTUT);	
@@ -527,7 +514,7 @@ static void level_1_tutorial(bool holding_line, bool play, int flag)
 	} else if (code_size == 2 && cw_check_code_sorted() == true &&
 								   cw_check_code_pending_op1() == true){
 		tx_text_box(TX_CODE_BOX, TX_L1_SELOP1_2);	
-		//bf_draw_buffers_arrow(OB);
+		ar_display_arrow(AR_OB);
 	} else if(code_size == 2 && cw_check_code_sorted() == true &&
 				    			   cw_check_code_pending_operand() == true){
 		tx_text_box(TX_CODE_BOX, TX_L1_SELOP2_2);	

@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include"dimensions_dm.h"
+#include"registers_rg.h"
 #include <SDL.h>
 
 #define P_BUTTON_H 200
@@ -20,6 +21,8 @@
 #define RES_BACK_BUTTON_W 100
 #define RES_CONT_BUTTON_W 200
 #define RES_BOX_OFFSET 25
+#define VALUE_BOX_H 40
+#define VALUE_BOX_W 50
 
 #define ARROW_H 30
 #define ARROW_W 30
@@ -36,6 +39,25 @@ int g_screen_height;
 
 int scale_to_resolution(int dim);
 
+/* Function: dm_get_vbox_wh
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object. 
+ * 
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_vbox_wh()
+{
+	SDL_Rect b;
+	b.w = scale_to_resolution(VALUE_BOX_W);
+	b.h = scale_to_resolution(VALUE_BOX_H);
+	b.x = 0;
+	b.y = 0;
+	return b;
+}
 
 /* Function: dm_get_arrow_wh
  * -----------------------------------------------------------------------------
@@ -49,6 +71,7 @@ int scale_to_resolution(int dim);
  */
 SDL_Rect dm_get_arrow_wh()
 {
+	SDL_Rect b;
 	b.w = scale_to_resolution(ARROW_W);
 	b.h = scale_to_resolution(ARROW_H);
 	b.x = 0;
@@ -557,6 +580,50 @@ SDL_Rect dm_get_stage_code_box()
 	return b;
 }
 
+/* Function: dm_get_stage_ibox
+ * -----------------------------------------------------------------------------
+ * Returns the box for the object
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_stage_ibox()
+{
+	SDL_Rect vb = dm_get_vbox_wh();
+	SDL_Rect rb = rg_get_register_box();
+	SDL_Rect b;
+	b.w = vb.w;
+	b.h = vb.h;
+	b.x = rb.x + rb.w - b.w - b.w/5;
+	b.y = rb.y - b.h - b.h/4;
+	return b;
+}
+
+/* Function: dm_get_stage_obox
+ * -----------------------------------------------------------------------------
+ * Returns the box for the object
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_stage_obox()
+{
+	SDL_Rect vb = dm_get_vbox_wh();
+	SDL_Rect rb = rg_get_register_box();
+	SDL_Rect b;
+	b.w = vb.w;
+	b.h = vb.h;
+	b.x = rb.x + rb.w - b.w - b.w/5;
+	b.y = rb.y + rb.h + b.h/4;
+	return b;
+}
+
 /* Function: dm_get_stage_registers_box
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object, x and y are initialize at 0
@@ -571,7 +638,7 @@ SDL_Rect dm_get_stage_registers_box()
 {
 	SDL_Rect cb = dm_get_stage_code_box();
 	SDL_Rect b;
-	b.w = g_screen_width/6;
+	b.w = g_screen_width/5;
 	b.h = g_screen_height/4;
 	b.x = cb.x + cb.w;
 	b.y = 0;

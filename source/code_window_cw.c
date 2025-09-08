@@ -1078,6 +1078,22 @@ int cw_get_text_box_member(int member)
 	return return_value;
 }
 
+
+/* Function: cw_get_text_box_rect
+ * -----------------------------------------------------------------------------
+ * Returns the rectangle of the text boox
+ *
+ * Arguments:
+ * 	Void.
+ *
+ * Return:
+ *	The rectangle of the text box
+ */
+SDL_Rect cw_get_text_box_rect()
+{
+	return text_box;
+}
+
 /* Function: check_if_inside_code_window
  * -----------------------------------------------------------------------------
  * This function verifies if the mouse coordinates are inside of one of the 

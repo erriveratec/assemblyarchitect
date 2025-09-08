@@ -45,4 +45,5 @@ void rg_reset_ibox();
 void rg_reset_obox();
 void rg_destroy_value_boxes();
 void rg_init_reg_texture();
+SDL_Rect rg_get_register_box();
 #endif

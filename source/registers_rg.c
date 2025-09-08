@@ -270,24 +270,15 @@ int rg_get_obox_y()
  */
 void rg_init_value_boxes()
 {
-	g_ibox.box.x = REG_VBOX_X;
-	g_ibox.box.y = rg_get_register_box_member(MEMBER_Y) - VALUE_BOX_H - 
-																REG_VBOX_OFFSET;
-	g_ibox.box.w = VALUE_BOX_W;
-	g_ibox.box.h = VALUE_BOX_H;
+	g_ibox.box = dm_get_stage_ibox();	
 	g_ibox.value = NO_VALUE;
 	g_ibox.visible_box = true;
 	g_ibox.t = dw_create_text_texture(char_dash, C_WHITE);
 	
-	g_obox.box.x = REG_VBOX_X;
-	g_obox.box.y = rg_get_register_box_member(MEMBER_Y) + 
-					     rg_get_register_box_member(MEMBER_H) + REG_VBOX_OFFSET;
-	g_obox.box.w = VALUE_BOX_W;
-	g_obox.box.h = VALUE_BOX_H;
+	g_obox.box = dm_get_stage_obox();
 	g_obox.value = NO_VALUE;
 	g_obox.visible_box = true;
 	g_obox.t = dw_create_text_texture(char_dash, C_WHITE);
-
 	return;
 }
 
@@ -479,6 +470,21 @@ error:
 	return;
 }
 
+/* Function: rg_get_register_box
+ *------------------------------------------------------------------------------
+ * Returns a copy of the current state of the register box
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Box of the member 
+ *
+ */
+SDL_Rect rg_get_register_box()
+{
+	return register_box;
+}
 /* Function: rg_get_register_box_member
  *------------------------------------------------------------------------------
  * This functions returns a specific member of the instruction_box

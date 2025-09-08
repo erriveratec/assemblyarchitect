@@ -165,6 +165,19 @@ int load_media()
 				SDL_GetError());
 		return FAIL;
 	}
+	g_ib_arrow = load_texture_from_file("img/rightarrow.png");
+	if (return_button == NULL){
+		printf("Could not load the level image SDL_Error: %s\n",
+				SDL_GetError());
+		return FAIL;
+	}
+	g_ob_arrow = load_texture_from_file("img/rightarrow.png");
+	if (return_button == NULL){
+		printf("Could not load the level image SDL_Error: %s\n",
+				SDL_GetError());
+		return FAIL;
+	}
+
 	g_exec_arrow_texture = load_texture_from_file("img/rightarrow.png");
 	if (return_button == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",

@@ -9,7 +9,8 @@
 #include"stage_buttons_sb.h"
 
 texture_t *g_lv_arrow;
-
+texture_t *g_ib_arrow;
+texture_t *g_ob_arrow;
 
 arrow_t g_arrow_ins; 
 arrow_t g_arrow_code_box;
@@ -31,6 +32,8 @@ static void initialize_del_arrow();
 static void initialize_op2_arrow();
 static void initialize_error_arrow();
 static void initialize_challenge_arrow();
+static void initialize_ib_arrow();
+static void initialize_ob_arrow();
 
 /* Function: initialize_ins_arrow
  * -----------------------------------------------------------------------------
@@ -259,26 +262,49 @@ static void initialize_challenge_arrow()
  *	Void.
  */
 static void initialize_ib_arrow()
-{
+{ 	
 	SDL_Rect b =  dm_get_stage_input_buffer_box();
-	g_arrow_challenge.box.x = cw_get_text_box_member(MEMBER_X) +
-							  cw_get_text_box_member(MEMBER_W) + 2*ARROW_W;
-	g_arrow_challenge.box.y = cw_get_text_box_member(MEMBER_Y) +
-							  cw_get_text_box_member(MEMBER_H)/2;
-	g_arrow_challenge.box.w = ARROW_W;
-	g_arrow_challenge.box.h = ARROW_H;
-	g_arrow_challenge.in_place = false;
-	g_arrow_challenge.visible = true;
-	g_arrow_challenge.startx = cw_get_text_box_member(MEMBER_X) +
-							cw_get_text_box_member(MEMBER_W) + 2*ARROW_W;
-	g_arrow_challenge.starty = cw_get_text_box_member(MEMBER_Y) +
-			cw_get_text_box_member(MEMBER_H)/2;
-	g_arrow_challenge.travel = ARROW_W;
-	g_arrow_challenge.dir = AR_LEFT;
-	g_arrow_challenge.texture = g_lv_arrow;
+	SDL_Rect dim = dm_get_arrow_wh();
+	g_arrow_ib.box.x = b.x - 2*dim.w;
+	g_arrow_ib.box.y = b.y + b.h/2 - dim.h/2;
+	g_arrow_ib.box.w = dim.w;
+	g_arrow_ib.box.h = dim.h;
+	g_arrow_ib.startx = g_arrow_ib.box.x;
+	g_arrow_ib.starty = g_arrow_ib.box.y;
+	g_arrow_ib.dir = AR_RIGHT;
+	g_arrow_ib.travel = b.x - g_arrow_ib.startx - dim.w;
+	g_arrow_ib.in_place = false;
+	g_arrow_ib.texture = g_ib_arrow;
+	SDL_SetTextureColorMod(g_arrow_ib.texture->texture, 255, 0, 255);
+
 }
 
 
+/* Function: initialize_ob_arrow
+ * -----------------------------------------------------------------------------
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void initialize_ob_arrow()
+{ 	
+	SDL_Rect b =  dm_get_stage_output_buffer_box();
+	SDL_Rect dim = dm_get_arrow_wh();
+	g_arrow_ob.box.x = b.x - 2*dim.w;
+	g_arrow_ob.box.y = b.y + b.h/2 - dim.h/2;
+	g_arrow_ob.box.w = dim.w;
+	g_arrow_ob.box.h = dim.h;
+	g_arrow_ob.startx = g_arrow_ib.box.x;
+	g_arrow_ob.starty = g_arrow_ib.box.y;
+	g_arrow_ob.dir = AR_RIGHT;
+	g_arrow_ob.travel = b.x - g_arrow_ib.startx - dim.w;
+	g_arrow_ob.in_place = false;
+	g_arrow_ob.texture = g_ob_arrow;
+	SDL_SetTextureColorMod(g_arrow_ob.texture->texture, 0, 255, 255);
+}
 
 /* Function: initialize_arrow
  * -----------------------------------------------------------------------------
@@ -300,71 +326,9 @@ void ar_initialize_arrows()
 	initialize_op2_arrow();
 	initialize_error_arrow();
 	initialize_challenge_arrow();
+	initialize_ib_arrow();
+	initialize_ob_arrow();
 }
-
-/* Function: display_output_arrow
- * -----------------------------------------------------------------------------
- * Animate with a moving arrow of the output buffer when available for selection
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- *
-static void display_output_arrow()
-{
-	static arrow_t arrow;
-	static bool arrow_initialized = false;
-	int startx = ARROW_INPUT_X;
-	if (arrow_initialized == false){
-		arrow.box.x = startx;
-		arrow.box.y = ARROW_OUTPUT_Y;
-		arrow.box.w = ARROW_W;
-		arrow.box.h = ARROW_H;
-		arrow.startx = startx;
-		arrow.starty = arrow.box.y;
-		arrow.dir = AR_RIGHT;
-		arrow.travel = BUFFER_BOX_X - startx - ARROW_W;
-		arrow.in_place = false;
-		arrow_initialized = true;
-		arrow.texture = g_input_arrow;
-	}
-	SDL_SetTextureColorMod(arrow.texture->texture, 0, 255, 255);
-	ar_animate_arrow(&arrow);
-}
-
-* Function: display_input_arrow_
- * -----------------------------------------------------------------------------
- * Animate with a moving arrow of the input buffer when available for selection
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- *
-static void display_input_arrow()
-{
-	static arrow_t arrow;
-	static bool arrow_initialized = false;
-	int startx = ARROW_INPUT_X;
-	if (arrow_initialized == false){
-		arrow.box.x = startx;
-		arrow.box.y = ARROW_INPUT_Y;
-		arrow.box.w = ARROW_W;
-		arrow.box.h = ARROW_H;
-		arrow.startx = startx;
-		arrow.starty = arrow.box.y;
-		arrow.dir = AR_RIGHT;
-		arrow.travel = BUFFER_BOX_X - startx - ARROW_W;
-		arrow.in_place = false;
-		arrow_initialized = true;
-		arrow.texture = g_input_arrow;
-	}
-	SDL_SetTextureColorMod(arrow.texture->texture, 255, 0, 255);
-	ar_animate_arrow(&arrow);
-}*/
 
 /* Function: display_arrow
  * -----------------------------------------------------------------------------
@@ -407,6 +371,12 @@ void ar_display_arrow(int arrow_id)
 			break;
 		case AR_CHALLENGE:
 			aptr = &g_arrow_challenge;
+			break;
+		case AR_IB:
+			aptr = &g_arrow_ib;
+			break;
+		case AR_OB:
+			aptr = &g_arrow_ob;
 			break;
 		default:
 			break;

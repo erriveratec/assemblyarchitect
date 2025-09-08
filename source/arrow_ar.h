@@ -7,6 +7,8 @@
 #include"draw_dw.h"
 
 extern texture_t *g_lv_arrow;
+extern texture_t *g_ib_arrow;
+extern texture_t *g_ob_arrow;
 
 typedef struct arrow_t{
 	SDL_Rect box;
@@ -27,7 +29,9 @@ enum arrow_id{
 	AR_DEL,
 	AR_OP2,
 	AR_ERROR,
-	AR_CHALLENGE
+	AR_CHALLENGE,
+	AR_IB,
+	AR_OB
 };
 
 void ar_initialize_arrows();

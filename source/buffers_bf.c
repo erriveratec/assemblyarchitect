@@ -22,7 +22,7 @@
 #define NATURAL_NMIN 1
 
 #define INPUT_BUFFER_TEXT "Input Buffer [IB]"
-#define OUTPUT_BUFFER_TEXT "Output Buffer [O]"
+#define OUTPUT_BUFFER_TEXT "Output Buffer [OB]"
 
 texture_t *input_text; 
 texture_t *output_text;

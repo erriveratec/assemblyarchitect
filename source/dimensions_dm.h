@@ -35,11 +35,14 @@ SDL_Rect dm_get_escape_b3_box();
 SDL_Rect dm_get_code_button_box();
 SDL_Rect dm_get_box_msg();
 SDL_Rect dm_get_arrow_wh();
+SDL_Rect dm_get_vbox_wh();
 
 SDL_Rect dm_get_level_button_box();
 SDL_Rect dm_get_return_button_box();
 
 SDL_Rect dm_get_stage_registers_box();
+SDL_Rect dm_get_stage_ibox();
+SDL_Rect dm_get_stage_obox();
 SDL_Rect dm_get_stage_code_box();
 SDL_Rect dm_get_stage_instruction_box();
 SDL_Rect dm_get_stage_input_buffer_box();
