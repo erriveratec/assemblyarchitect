@@ -73,13 +73,15 @@ static void display_arrow_registers()
 		arrow.in_place = false;
 		arrow_initialized = true;
 	}
+	
 	SDL_SetTextureColorMod(arrow.texture->texture, 255, 255, 0);
 	List *registers = get_register_list();
 	assert(registers != NULL && "Invalid pointer");
+	SDL_Rect cb = dm_get_code_button_wh();
 	int i = 0;
 	LIST_FOREACH(registers, first, next, cur){ 
 		reg_t *c = cur->value;
-		arrow.box.y = c->b->r.y + (CODE_BUTTON_H - arrow.box.h)/2; 
+		arrow.box.y = c->b->r.y + (cb.h - arrow.box.h)/2; 
 		arrow.travel = startx - (c->b->r.x + c->b->r.w);
 		if (i == 0){
 			ar_animate_arrow(&arrow);
@@ -341,14 +343,14 @@ void rg_update_register_box_position()
 	
 	set_register_box_member(y, MEMBER_Y);
 
-	SDL_Rect b = dm_get_code_button_wh();
+	SDL_Rect cb = dm_get_code_button_wh();
 	int ofs = dm_get_ofs_stage_reg_box();
 	int i = 0;
 	LIST_FOREACH(registers, first, next, cur){ 
 		reg_t *c = cur->value;
-		c->b->r.y = register_box.y + ofs + i*2*(b.h + 5) + 
-				  b.h;
-		c->value.box.y = c->b->r.y - CODE_BUTTON_H;
+		c->b->r.y = register_box.y + ofs + i*2*(cb.h + 5) + 
+				  cb.h;
+		c->value.box.y = c->b->r.y - cb.h;
 		i++;
    	}
 
@@ -571,10 +573,11 @@ reg_t *create_register(int id, button_t *b)
 	reg_t *op = malloc(sizeof(reg_t));	
 	check_mem(op);
 
+	SDL_Rect cb = dm_get_code_button_wh();
 	op->b = b;
 	op->id = id;
 	op->value.box.x = b->r.x + (b->r.w - VALUE_BOX_W)/2;	
-	op->value.box.y = b->r.y - CODE_BUTTON_H;
+	op->value.box.y = b->r.y - cb.h;
 	op->value.box.w = VALUE_BOX_W;
 	op->value.box.h = VALUE_BOX_H;
 	op->value.value = NO_VALUE;

@@ -31,6 +31,8 @@
 #define AVATAR_W 50
 #define AVATAR_H 50
 
+#define CODE_LINE_NUMBER_OFFSET 15
+
 #define TEXT_H_BIG_MSG 50
 #define TEXT_H_BOTTOM_MSG 20
 #define TEXT_H_MSG 30
@@ -38,6 +40,8 @@
 #define TEXT_H_TOTAL_MSG 160
 #define TEXT_H_STAGE_TITLES 40
 
+#define CODE_BUTTON_W 75
+#define CODE_BUTTON_H 40
 
 #define RAIL_W 4
 #define RAIL_END_W 16
@@ -65,6 +69,58 @@ int dm_get_h_stage_titles()
 	
 }
 
+/* Function: dm_get_ofs_code_number
+ * -----------------------------------------------------------------------------
+ *	Return the offset value of the contents of the buffer. 
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset
+ */
+int dm_get_ofs_code_number()
+{
+	int ofs = scale_to_resolution(CODE_LINE_NUMBER_OFFSET);
+	return ofs;
+	
+}
+
+/* Function: dm_get_ofs_code_op1
+ * -----------------------------------------------------------------------------
+ *	Return the offset value of the contents of the buffer. 
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset
+ */
+int dm_get_ofs_code_op1()
+{
+	SDL_Rect cb = dm_get_code_button_wh();
+	int line_number_ofs = dm_get_ofs_code_number();
+	int ofs = cb.w + line_number_ofs;
+	return ofs;
+}
+
+/* Function: dm_get_ofs_code_op2
+ * -----------------------------------------------------------------------------
+ *	Return the offset value of the contents of the buffer. 
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset
+ */
+int dm_get_ofs_code_op2()
+{
+	SDL_Rect cb = dm_get_code_button_wh();
+	int line_number_ofs = dm_get_ofs_code_number();
+	int ofs = 2*cb.w + 2*line_number_ofs;
+	return ofs;
+}
 /* Function: dm_get_ofs_reg_box
  * -----------------------------------------------------------------------------
  *	Return the offset value of the contents of the buffer. 

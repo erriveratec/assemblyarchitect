@@ -127,11 +127,12 @@ static void initialize_play_arrow()
  */
 static void initialize_code_line_arrow()
 {
+	SDL_Rect cb = dm_get_code_button_wh();
 	g_arrow_code_line.box.w = ARROW_W;	
 	g_arrow_code_line.box.h = ARROW_H;
 	g_arrow_code_line.box.x = cw_get_code_line_x(MOV) + ARROW_W/2;
 	g_arrow_code_line.box.y = cw_get_line_y(cw_get_code_list_size()-1) + 
-													    CODE_BUTTON_H;
+													    cb.h;
 	g_arrow_code_line.in_place = false;
 	g_arrow_code_line.visible = true;
 	g_arrow_code_line.startx = cw_get_code_line_x(MOV) + ARROW_W/2;
@@ -182,14 +183,17 @@ static void initialize_del_arrow()
  */
 static void initialize_op2_arrow()
 {
-	g_arrow_op2.box.x = cw_get_code_line_x(MOV) + OP2_X_OFFSET + ARROW_W/2;
+	SDL_Rect cb = dm_get_code_button_wh();
+	int op2_ofs = dm_get_ofs_code_op2();
+
+	g_arrow_op2.box.x = cw_get_code_line_x(MOV) + op2_ofs + ARROW_W/2;
 	g_arrow_op2.box.y = cw_get_line_y(cw_get_code_list_size()-1) + 
-													CODE_BUTTON_H;
+													cb.h;
 	g_arrow_op2.box.w = ARROW_W;
 	g_arrow_op2.box.h = ARROW_H;
 	g_arrow_op2.in_place = false;
 	g_arrow_op2.visible = true;
-	g_arrow_op2.startx = cw_get_code_line_x(MOV) + OP2_X_OFFSET + ARROW_W/2;
+	g_arrow_op2.startx = cw_get_code_line_x(MOV) + op2_ofs + ARROW_W/2;
 	g_arrow_op2.starty = g_arrow_op2.box.y;			
 	g_arrow_op2.travel = g_arrow_op2.starty	- 
 									   cw_get_line_y(cw_get_code_list_size()-1);

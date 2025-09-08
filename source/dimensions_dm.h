@@ -55,6 +55,9 @@ int dm_get_w_stage_rail();
 int dm_get_w_stage_rail_end();
 int dm_get_ofs_stage_buffer_value();
 int dm_get_ofs_stage_reg_box();
+int dm_get_ofs_code_number();
+int dm_get_ofs_code_op1();
+int dm_get_ofs_code_op2();
 
 SDL_Rect dm_get_arrow_box();
 SDL_Rect dm_get_arrow_ins_box();
@@ -145,8 +148,6 @@ SDL_Rect dm_get_text_box_result_but3();//Back in error condition
 
 #define MOVEMENT_DELTA 30
 
-#define OP1_X_OFFSET (CODE_BUTTON_W + LINE_NUMBER_OFFSET)
-#define OP2_X_OFFSET (2*CODE_BUTTON_W + 2*LINE_NUMBER_OFFSET)
 
 /*************************INPUT/OUTPUT BUFFERS*********************************/
 // The height of the text for the input/output buffers
@@ -154,11 +155,6 @@ SDL_Rect dm_get_text_box_result_but3();//Back in error condition
 
 #define BUFFER_TEXT_H 42
 
-// The height and width of the contents of the buffers
-
-// The position of the text of the input/output buffers
-
-//#define	BUFFER_BOX_W 950
 #define BUFFER_BOX_H 75
 
 #define INPUT_BUFFER_TEXT_X (SCREEN_WIDTH*4/6)
@@ -182,7 +178,6 @@ SDL_Rect dm_get_text_box_result_but3();//Back in error condition
 
 #define BUFFER_MOVEMENT_DELTA 5
 
-
 // The position of the register text
 #define REG_TEXT_Y_OFFSET 5
 
@@ -195,8 +190,7 @@ SDL_Rect dm_get_text_box_result_but3();//Back in error condition
 /*****************************CODE BUTTONS*************************************/
 // Dimensions of the buttons that will be used in code
 #define STAGE_NAME_H 55
-#define CODE_BUTTON_W 75
-#define CODE_BUTTON_H 40
+
 #define ADDR_BUTTON_W 120
 
 /******************************STAGE BUTTONS***********************************/

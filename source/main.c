@@ -165,6 +165,7 @@ int main(int argc, char *args[])
 		sleep = next_game_tick - SDL_GetTicks64();
 
 		if (sleep >= 0){
+			puts("happens");
 			SDL_Delay(sleep);
 		}
 

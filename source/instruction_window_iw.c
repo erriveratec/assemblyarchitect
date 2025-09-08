@@ -323,16 +323,17 @@ void iw_add_instruction_to_list(int id)
 	texture_t *instruction_text = dw_create_text_texture(text, 
 								  C_WHITE);
 	
+	SDL_Rect cb = dm_get_code_button_wh();
 	int list_size = List_count(instructions);
 	int x = INS_BOX_X + INS_BOX_OFFSET;
-	int y = INS_BOX_Y + INS_BOX_OFFSET + list_size*CODE_BUTTON_H;
+	int y = INS_BOX_Y + INS_BOX_OFFSET + list_size*cb.h;
 	SDL_Rect r = dm_get_code_button_wh();
 	r.x = x;
 	r.y = y;
 	button_t *b = bt_create_button(r, true, false, false, C_BLACK, 
 								   C_WHITE, instruction_text);
 	check_mem(b);
-	set_instruction_box_member(2*INS_BOX_OFFSET + (list_size + 1)*CODE_BUTTON_H,
+	set_instruction_box_member(2*INS_BOX_OFFSET + (list_size + 1)*cb.h,
 							   MEMBER_H);
 
 	instruction_t *new_ins = cl_create_instruction(id, b);

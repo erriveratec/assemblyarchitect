@@ -635,17 +635,20 @@ void cl_assign_operand_to_line(operand_t *op, code_line_t *line)
 	assert(NULL != op && "The operand cannot be NULL");
 	assert(NULL != line && "The line cannot be NULL");
 
+	int op1_ofs = dm_get_ofs_code_op1();
+	int op2_ofs = dm_get_ofs_code_op2();
+
 	int operand_quantity = cl_get_instruction_operand_quantity(line->ins->id);
 	switch(line->state){
 		case MISSING_BOTH:
 			line->op1 = op;
-			line->op1->b->r.x = line->ins->b->r.x + OP1_X_OFFSET;
+			line->op1->b->r.x = line->ins->b->r.x + op1_ofs;
 			line->op1->b->r.y = line->ins->b->r.y;
 			line->state = MISSING_OP2;
 			break;
 		case MISSING_OP1:
 			line->op1 = op;
-			line->op1->b->r.x = line->ins->b->r.x + OP1_X_OFFSET;
+			line->op1->b->r.x = line->ins->b->r.x + op1_ofs;
 			line->op1->b->r.y = line->ins->b->r.y;
 			if (operand_quantity == ONE_OPERAND){
 				line->state = COMPLETE;
@@ -655,21 +658,21 @@ void cl_assign_operand_to_line(operand_t *op, code_line_t *line)
 			break;
 		case MISSING_OP2:
 			line->op2 = op;
-			line->op2->b->r.x = line->ins->b->r.x + OP2_X_OFFSET;
+			line->op2->b->r.x = line->ins->b->r.x + op2_ofs;
 			line->op2->b->r.y = line->ins->b->r.y;
 			line->state = COMPLETE;
 			break;
 		case CHANGING_OP1:
 			cl_destroy_operand(line->op1);	
 			line->op1 = op;
-			line->op1->b->r.x = line->ins->b->r.x + OP1_X_OFFSET;
+			line->op1->b->r.x = line->ins->b->r.x + op1_ofs;
 			line->op1->b->r.y = line->ins->b->r.y;
 			line->state = COMPLETE;
 			break;
 		case CHANGING_OP2:
 			cl_destroy_operand(line->op2);	
 			line->op2 = op;
-			line->op2->b->r.x = line->ins->b->r.x + OP2_X_OFFSET;
+			line->op2->b->r.x = line->ins->b->r.x + op2_ofs;
 			line->op2->b->r.y = line->ins->b->r.y;
 			line->state = COMPLETE;
 			break;
