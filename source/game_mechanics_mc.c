@@ -64,8 +64,6 @@ static avatar_t g_iavatar;
 static avatar_t g_oavatar;
 static avatar_t g_ravatar; 
 
-texture_t *g_exec_arrow_texture;
-static arrow_t g_exec_arrow;
 
 enum counter_actions{
 	ADD_1,
@@ -89,7 +87,6 @@ static bool retrieve_operand(avatar_t *avatar);
 static bool deliver_operand(avatar_t *avatar, int op_id);
 static bool is_operand_retrievable(int id);
 static void set_invalid_operation_flag(int flag_id);
-static bool move_execution_arrow(int instruction_number);
 static bool check_operand_has_value(int op_id);
 static bool check_run_finished();
 static bool check_correct_code_size();
@@ -757,117 +754,7 @@ static int get_operand_x_dest(int op_id)
 	return x;
 }
 
-/* Function: mc_hide_execution_arrow
- * -------------------------------------
- * Arguments:
- * 	void.
- *
- * Return:
- *	void.
- */
-void mc_hide_execution_arrow()
-{
-	g_exec_arrow.visible = false;
 
-}
-
-/* Function: mc_reset_execution_arrow
- * -------------------------------------
- * Arguments:
- * 	void.
- *
- * Return:
- *	void.
- */
-void mc_reset_execution_arrow()
-{
-	g_exec_arrow.box.x = CODE_BOX_X + EXEC_ARROW_X_COORD_OFFSET;
-	g_exec_arrow.box.y = cw_get_instruction_y_coord(0) + 
-						 EXEC_ARROW_Y_COORD_OFFSET;
-	g_exec_arrow.box.w = EXEC_ARROW_W;
-	g_exec_arrow.box.h = EXEC_ARROW_H;
-
-	g_exec_arrow.texture = g_exec_arrow_texture;
-
-	g_exec_arrow.in_place = true;
-	g_exec_arrow.visible = true;
-
-}
-
-/* Function: mc_draw_execution_arrow
- * ----------------------------------------------------------------------------
- * Arguments:
- * 	Void.
- *
- * Return:
- *	Void.
- */
-void mc_draw_execution_arrow()
-{
-	if (g_exec_arrow.visible == true){
-		dw_draw_texture_fits_height(g_exec_arrow.box, g_exec_arrow.texture);
-	}
-}
-
-/* Function: check_execution_arrow_in_place
- * -----------------------------------------------------------------------------
- * Arguments:
- *	Evaluates if the execution arrow is it it's final posiition
- *
- * Return:
- *	bool if the exectution arrow arrived to its final position
- */
-static void check_execution_arrow_in_place(int instruction_number)
-{
-	int code_size = cw_get_code_list_size();	
-	assert(code_size > 0  && "Code size is invalid");
-	assert(instruction_number <= code_size && 
-		   "Instruction number is incorrect");
-
-	bool in_final_position = false;
-	
-	int y = cw_get_instruction_y_coord(instruction_number) + 
-			EXEC_ARROW_Y_COORD_OFFSET;
-	
-	if (g_exec_arrow.box.y == y){
-		int delta = get_movement_delta(g_exec_arrow.box.y, y, MOVEMENT_DELTA/6);
-		g_exec_arrow.box.y += delta;
-	} 
-}
-
-
-/* Function: move_execution_arrow
- * -----------------------------------------------------------------------------
- * Arguments:
- *	instruction_number: The number of the current instruction being executed
- *
- * Return:
- * 	Bool indicating if arrow is in final position
- */
-static bool move_execution_arrow(int instruction_number)
-{
-	int code_size = cw_get_code_list_size();	
-	assert(code_size > 0  && "Code size is invalid");
-	assert(instruction_number <= code_size && 
-		   "Instruction number is incorrect");
-	
-	bool in_final_position = false;
-
-	int y = cw_get_instruction_y_coord(instruction_number) + 
-			EXEC_ARROW_Y_COORD_OFFSET;
-	
-	if (g_exec_arrow.box.y < y){
-		int delta = get_movement_delta(g_exec_arrow.box.y, y, MOVEMENT_DELTA/3);
-		g_exec_arrow.box.y += delta;
-	} else if (g_exec_arrow.box.y > y){
-		int delta = get_movement_delta(g_exec_arrow.box.y, y, MOVEMENT_DELTA/3);
-		g_exec_arrow.box.y -= delta;
-	}
-	if (g_exec_arrow.box.y == y){
-		in_final_position = true;
-	} 
-	return in_final_position;
-}
 
 /* Function: move_avatar_to_operand
  * -----------------------------------------------------------------------------
@@ -1540,7 +1427,7 @@ static void execute_instruction(code_line_t *line, int line_pos)
 	
 	int buffer_inputs = get_input_buffer_list_size();
 	int avatar_id = NOAVATAR;	
-	bool arrow_in_place = move_execution_arrow(line_pos);
+	bool arrow_in_place = ar_move_execution_arrow(line_pos);
 
 	if (line->ins->id == LABEL && arrow_in_place == true){
 		line->state = EXECUTED;

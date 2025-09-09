@@ -5,6 +5,8 @@ PLAYER 01
 LEVEL ACTIVE TRUE
 
 CODE STARTS
+mov rax, [ib]
+mov [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 01
@@ -410,6 +412,8 @@ PLAYER 02
 LEVEL ACTIVE TRUE
 
 CODE STARTS
+mov rax, [ib]
+mov [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 01
@@ -815,6 +819,8 @@ PLAYER 03
 LEVEL ACTIVE TRUE
 
 CODE STARTS
+mov rax, [ib]
+mov [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 01

@@ -85,10 +85,10 @@ SDL_Rect dm_get_text_box_result_but3();//Back in error condition
 /*******************************RETURN BUTTON*********************************/
 
 /*******************************EXECUTION ARROW********************************/
-#define EXEC_ARROW_X_COORD_OFFSET - 50
-#define EXEC_ARROW_Y_COORD_OFFSET 10
-#define EXEC_ARROW_W 30
-#define EXEC_ARROW_H 30
+//#define EXEC_ARROW_X_COORD_OFFSET - 50
+//#define EXEC_ARROW_Y_COORD_OFFSET 10
+//#define EXEC_ARROW_W 30
+//#define EXEC_ARROW_H 30
 
 /*******************************INSTRUCTION BOX********************************/
 // The offset of the borders of the instruction box

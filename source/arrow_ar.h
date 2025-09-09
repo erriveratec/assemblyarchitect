@@ -9,6 +9,7 @@
 extern texture_t *g_lv_arrow;
 extern texture_t *g_ib_arrow;
 extern texture_t *g_ob_arrow;
+extern texture_t *g_exec_arrow;
 
 typedef struct arrow_t{
 	SDL_Rect box;
@@ -31,12 +32,16 @@ enum arrow_id{
 	AR_ERROR,
 	AR_CHALLENGE,
 	AR_IB,
-	AR_OB
+	AR_OB,
+	AR_EXEC
 };
 
 void ar_initialize_arrows();
 void ar_display_arrow(int arrow_id);
 void ar_animate_arrow(arrow_t *arrow);
+void ar_hide_execution_arrow();
+void ar_reset_execution_arrow();
+bool ar_move_execution_arrow(int instruction_number);
 
 enum movement{
 	AR_MOV_MIN,

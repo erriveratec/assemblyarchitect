@@ -11,18 +11,19 @@
 texture_t *g_lv_arrow;
 texture_t *g_ib_arrow;
 texture_t *g_ob_arrow;
+texture_t *g_exec_arrow;
 
-arrow_t g_arrow_ins; 
-arrow_t g_arrow_code_box;
-arrow_t g_arrow_play;
-arrow_t g_arrow_code_line;
-arrow_t g_arrow_del;
-arrow_t g_arrow_op2;
-arrow_t g_arrow_error;
-arrow_t g_arrow_challenge;
-arrow_t g_arrow_ib;
-arrow_t g_arrow_ob;
-
+static arrow_t g_arrow_ins; 
+static arrow_t g_arrow_code_box;
+static arrow_t g_arrow_play;
+static arrow_t g_arrow_code_line;
+static arrow_t g_arrow_del;
+static arrow_t g_arrow_op2;
+static arrow_t g_arrow_error;
+static arrow_t g_arrow_challenge;
+static arrow_t g_arrow_ib;
+static arrow_t g_arrow_ob;
+static arrow_t g_arrow_exec;
 
 static void initialize_ins_arrow();
 static void initialize_code_arrow();
@@ -34,7 +35,107 @@ static void initialize_error_arrow();
 static void initialize_challenge_arrow();
 static void initialize_ib_arrow();
 static void initialize_ob_arrow();
+static void check_execution_arrow_in_place(int instruction_number);
+bool ar_move_execution_arrow(int instruction_number);
 
+/* Function: ar_move_execution_arrow
+ * -----------------------------------------------------------------------------
+ * Arguments:
+ *	instruction_number: The number of the current instruction being executed
+ *
+ * Return:
+ * 	Bool indicating if arrow is in final position
+ */
+bool ar_move_execution_arrow(int instruction_number)
+{
+	int code_size = cw_get_code_list_size();	
+	assert(code_size > 0  && "Code size is invalid");
+	assert(instruction_number <= code_size && 
+		   "Instruction number is incorrect");
+	
+	bool in_final_position = false;
+
+	SDL_Rect a = dm_get_arrow_wh();
+	int y = cw_get_instruction_y_coord(instruction_number) + a.h/6;
+	
+	if (g_arrow_exec.box.y < y){
+		int delta = get_movement_delta(g_arrow_exec.box.y, y, MOVEMENT_DELTA/3);
+		g_arrow_exec.box.y += delta;
+	} else if (g_arrow_exec.box.y > y){
+		int delta = get_movement_delta(g_arrow_exec.box.y, y, MOVEMENT_DELTA/3);
+		g_arrow_exec.box.y -= delta;
+	}
+	if (g_arrow_exec.box.y == y){
+		in_final_position = true;
+	} 
+	return in_final_position;
+}
+
+/* Function: check_execution_arrow_in_place
+ * -----------------------------------------------------------------------------
+ * Arguments:
+ *	Evaluates if the execution arrow is it it's final posiition
+ *
+ * Return:
+ *	bool if the exectution arrow arrived to its final position
+ */
+static void check_execution_arrow_in_place(int instruction_number)
+{
+	int code_size = cw_get_code_list_size();	
+	assert(code_size > 0  && "Code size is invalid");
+	assert(instruction_number <= code_size && 
+		   "Instruction number is incorrect");
+
+	SDL_Rect a = dm_get_arrow_wh();
+	bool in_final_position = false;
+	
+	int y = cw_get_instruction_y_coord(instruction_number) + a.h/6;
+	
+	if (g_arrow_exec.box.y == y){
+		int delta = get_movement_delta(g_arrow_exec.box.y, y, MOVEMENT_DELTA/6);
+		g_arrow_exec.box.y += delta;
+	} 
+}
+/* Function: ar_reset_execution_arrow
+ * -------------------------------------
+ * Arguments:
+ * 	void.
+ *
+ * Return:
+ *	void.
+ */
+void ar_reset_execution_arrow()
+{
+	SDL_Rect cb = dm_get_stage_code_box();
+	SDL_Rect a = dm_get_arrow_wh();
+	
+	g_arrow_exec.box.x = cb.x - a.w;
+	g_arrow_exec.box.y = cw_get_instruction_y_coord(0) + a.h/6;
+	g_arrow_exec.box.w = a.w;
+	g_arrow_exec.box.h = a.h;
+	g_arrow_exec.texture = g_exec_arrow;
+	g_arrow_exec.in_place = true;
+	g_arrow_exec.visible = true;
+	g_arrow_exec.startx = g_arrow_exec.box.x;
+	g_arrow_exec.starty = g_arrow_exec.box.y;	
+	g_arrow_exec.dir = AR_RIGHT;
+	g_arrow_exec.travel = 0;
+
+}
+
+/* Function: ar_hide_execution_arrow
+ * -------------------------------------
+ * Arguments:
+ * 	void.
+ *
+ * Return:
+ *	void.
+ */
+void ar_hide_execution_arrow()
+{
+	g_arrow_exec.visible = false;
+
+}
 /* Function: initialize_ins_arrow
  * -----------------------------------------------------------------------------
  * 
@@ -383,16 +484,17 @@ void ar_display_arrow(int arrow_id)
 		case AR_OB:
 			aptr = &g_arrow_ob;
 			break;
+		case AR_EXEC:
+			aptr = &g_arrow_exec;
+			break;
 		default:
 			break;
 	}
-	ar_animate_arrow(aptr);
+	if (aptr->visible){
+		ar_animate_arrow(aptr);
+	}
 }
 
-/*	SDL_SetTextureColorMod(arrow.texture->texture, 255, 0, 255);
-	dw_animate_arrow(startx, starty, &arrow, AR_UP, travel);
-	SDL_SetTextureColorMod(arrow.texture->texture, 255, 255, 255);
-*/
 
 /* Function: ar_animate_arrow
  * -----------------------------------------------------------------------------
@@ -414,64 +516,71 @@ void ar_animate_arrow(arrow_t *arrow)
 	
 	switch(arrow->dir){
 		case AR_UP:
-			if (arrow->box.y <= arrow->starty - arrow->travel){
-				arrow->in_place = true;	
-			} else if (arrow->box.y >= arrow->starty){
-				arrow->in_place = false;
-			}
-			if (arrow->in_place == false){
-				arrow->box.y--;
-			}else if (arrow->in_place == true){
-				arrow->box.y++;
+			if (arrow->travel != 0){
+				if (arrow->box.y <= arrow->starty - arrow->travel){
+					arrow->in_place = true;	
+				} else if (arrow->box.y >= arrow->starty){
+					arrow->in_place = false;
+				}
+				if (arrow->in_place == false){
+					arrow->box.y--;
+				}else if (arrow->in_place == true){
+					arrow->box.y++;
+				}
 			}
 			dw_draw_rotated_texture_fits_h(arrow->box.x, arrow->box.y, 
 	     								   arrow->box.h, -90.0, arrow->texture);
 			break;
 
 		case AR_DOWN:
-			if (arrow->box.y >= arrow->starty + arrow->travel){
-				arrow->in_place = true;	
-			} else if (arrow->box.y <= arrow->starty){
-				arrow->in_place = false;
-			}
-			if (arrow->in_place == false){
-				arrow->box.y++;
-			}else if (arrow->in_place == true){
-				arrow->box.y--;
+			if (arrow->travel != 0){
+				if (arrow->box.y >= arrow->starty + arrow->travel){
+					arrow->in_place = true;	
+				} else if (arrow->box.y <= arrow->starty){
+					arrow->in_place = false;
+				}
+				if (arrow->in_place == false){
+					arrow->box.y++;
+				}else if (arrow->in_place == true){
+					arrow->box.y--;
+				}
 			}
 			dw_draw_rotated_texture_fits_h(arrow->box.x, arrow->box.y, 
 	     								   arrow->box.h, 90.0, arrow->texture);
 			break;
 
 		case AR_RIGHT:
-			if (arrow->box.x >= arrow->startx + arrow->travel){
-				arrow->in_place = true;	
-			} else if (arrow->box.x <= arrow->startx){
-				arrow->in_place = false;
-			}
-			if (arrow->in_place == false){
-				arrow->box.x++;
-			}else if (arrow->in_place == true){
-				arrow->box.x--;
+			if (arrow->travel != 0){
+				if (arrow->box.x >= arrow->startx + arrow->travel){
+					arrow->in_place = true;	
+				} else if (arrow->box.x <= arrow->startx){
+					arrow->in_place = false;
+				}
+				if (arrow->in_place == false){
+					arrow->box.x++;
+				}else if (arrow->in_place == true){
+					arrow->box.x--;
+				}
 			}
 			dw_draw_rotated_texture_fits_h(arrow->box.x, arrow->box.y, 
 										     arrow->box.h, 0.0, arrow->texture);
 			break;
 		case AR_LEFT:
-			if (arrow->box.x <= arrow->startx - arrow->travel){
-				arrow->in_place = true;	
-			} else if (arrow->box.x >= arrow->startx){
-				arrow->in_place = false;
-			}
-			if (arrow->in_place == false){
-				arrow->box.x--;
-			}else if (arrow->in_place == true){
-				arrow->box.x++;
+			if (arrow->travel != 0){
+				if (arrow->box.x <= arrow->startx - arrow->travel){
+					arrow->in_place = true;	
+				} else if (arrow->box.x >= arrow->startx){
+					arrow->in_place = false;
+				}
+				if (arrow->in_place == false){
+					arrow->box.x--;
+				}else if (arrow->in_place == true){
+					arrow->box.x++;
+				}
 			}
 			dw_draw_rotated_texture_fits_h(arrow->box.x, arrow->box.y, 
 										  arrow->box.h, 180.00, arrow->texture);
 			break;
-
 		default:
 			break;
 	}

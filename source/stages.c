@@ -342,7 +342,7 @@ void stage_drawings(int level, bool holding_line, bool play)
 	cw_draw_code_window();	
 	sb_draw_stage_buttons(cw_get_code_list_size());
 	mc_draw_avatar();
-	mc_draw_execution_arrow();
+	ar_display_arrow(AR_EXEC);
 	bf_draw_buffers();
 	lv_level_drawings(level, holding_line, play, mc_get_operation_flag());
 	sb_draw_return_button();
@@ -503,7 +503,7 @@ static void flag_handler(level_flags_t *flags, int clicked_button)
 				flags->forward = false;
 				flags->backward = false;
 				flags->backward_enabled = true;
-				mc_reset_execution_arrow();
+				ar_reset_execution_arrow();
 			}
 			break;
 		case STOP:
@@ -641,7 +641,7 @@ static void reset_level(int level_id, level_flags_t *flags, bool *run_finished)
 	lv_reset_win_list();
 	lv_reset_level_win_condition();
 	cw_reset_code_execution();
-	mc_hide_execution_arrow();
+	ar_hide_execution_arrow();
 	mc_reset_invalid_operation_flag();
 	*run_finished = false;
 	ms_reset_mouse_values();
