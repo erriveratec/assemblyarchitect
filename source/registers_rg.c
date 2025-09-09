@@ -526,13 +526,14 @@ reg_t *create_register(int id, button_t *b)
 	reg_t *op = malloc(sizeof(reg_t));	
 	check_mem(op);
 
+	SDL_Rect vb = dm_get_vbox_wh();
 	SDL_Rect cb = dm_get_code_button_wh();
 	op->b = b;
 	op->id = id;
-	op->value.box.x = b->r.x + (b->r.w - VALUE_BOX_W)/2;	
+	op->value.box.x = b->r.x + (b->r.w - vb.w)/2;	
 	op->value.box.y = b->r.y - cb.h;
-	op->value.box.w = VALUE_BOX_W;
-	op->value.box.h = VALUE_BOX_H;
+	op->value.box.w = vb.w;
+	op->value.box.h = vb.h;
 	op->value.value = NO_VALUE;
 	op->value.t = dw_create_text_texture(char_dash, C_WHITE);
 

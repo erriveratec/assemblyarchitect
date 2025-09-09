@@ -115,28 +115,24 @@ void ax_copy_vbox(value_box_t *dst, value_box_t src)
  */
 void ax_draw_value_box(value_box_t *box, SDL_Color color)
 {
-
-//	char *text = number_to_string(box->value);
-//	int text_width = get_text_width_fits_height(VALUE_H, text);
-	
 	int text_width = 0;
 
+	SDL_Rect val =  dm_get_vbox_val_wh();
 	if (box->t != NULL){
-		ax_get_texture_w_fit_h(VALUE_H, box->t);
+		ax_get_texture_w_fit_h(val.h, box->t);
 	}
-	int x_offset = (VALUE_BOX_W - text_width)/2;
-	int y_offset = ((VALUE_BOX_H - VALUE_H)/2) + 
-				    (VALUE_H/5)/2;
+
+	SDL_Rect vb = dm_get_vbox_wh();
+	int x_offset = (vb.w - text_width)/2;
+	int y_offset = ((vb.h - val.h)/2) + 
+				    (val.h/5)/2;
 	
 	SDL_Rect r = {.x = box->box.x + x_offset, .y = box->box.y + y_offset,
-				  .h = VALUE_H};
+				  .h = val.h};
 	if(box->t != NULL){
 		dw_draw_texture_fits_height(r, box->t);
 	}	
 
-	//dw_draw_text_fits_height(box->box.x + x_offset, box->box.y + y_offset, 
-	//					 VALUE_H, C_WHITE, text);
-	//int box_offset = VALUE_H/6;
 	dw_draw_rectangle(box->box, color);
 }
 

@@ -12,7 +12,7 @@ enum resolutionos{
 void dm_set_screen_resolution(int resolution_id);
 
 int get_sel_level_offset_y();
-int dm_get_h_big_msg();
+int dm_get_h_big_text();
 int dm_get_h_bottom_msg();
 int dm_get_h_msg();
 int dm_get_h_error_msg();
@@ -38,6 +38,7 @@ SDL_Rect dm_get_box_msg_wh();
 SDL_Rect dm_get_code_button_wh();
 SDL_Rect dm_get_arrow_wh();
 SDL_Rect dm_get_vbox_wh();
+SDL_Rect dm_get_vbox_val_wh();
 SDL_Rect dm_get_avatar_wh();
 
 SDL_Rect dm_get_level_button_box();
@@ -52,10 +53,11 @@ SDL_Rect dm_get_stage_input_buffer_box();
 SDL_Rect dm_get_stage_output_buffer_box();
 SDL_Rect dm_get_stage_ib_text_box();
 SDL_Rect dm_get_stage_ob_text_box();
+SDL_Rect dm_get_stage_buttons();
 
+int dm_get_y_hidden_stage_buttons();
 int dm_get_w_stage_rail();
 int dm_get_w_stage_rail_end();
-int dm_get_ofs_stage_buffer_value();
 int dm_get_ofs_stage_reg_box();
 int dm_get_ofs_code_box_border();
 int dm_get_ofs_code_number();
@@ -63,6 +65,8 @@ int dm_get_ofs_code_op1();
 int dm_get_ofs_code_op2();
 int dm_get_ofs_buffer_value_box();
 int dm_get_ofs_between_value_box();
+int dm_get_ofs_reg_value_box();
+int dm_get_ofs_space_stage_buttons();
 
 SDL_Rect dm_get_arrow_box();
 SDL_Rect dm_get_arrow_ins_box();
@@ -89,45 +93,6 @@ SDL_Rect dm_get_text_box_result_but3();//Back in error condition
 
 #define STR_BACK "Back"
 #define STR_CONT "Continue"
-
-//#define BETWEEN_NUMBERS_OFFSET 30
-
-#define BUFFER_MOVEMENT_DELTA 5
-
-// The position of the register text
-#define REG_TEXT_Y_OFFSET 5
-
-#define REG_VBOX_X REG_BOX_X + 190
-#define REG_VBOX_OFFSET 10
-
-// The between registers offset
-#define BETWEEN_REG_OFFSET 10
-
-/*****************************CODE BUTTONS*************************************/
-// Dimensions of the buttons that will be used in code
-#define STAGE_NAME_H 55
-
-#define ADDR_BUTTON_W 120
-
-/******************************STAGE BUTTONS***********************************/
-#define STAGE_BUTTON_W 40
-#define STAGE_BUTTON_H 40
-#define STAGE_BUTTON_X ((SCREEN_WIDTH*2/6) + ((SCREEN_WIDTH/6) - \
-						4*STAGE_BUTTON_W)/4)
-#define STAGE_BUTTON_Y SCREEN_HEIGHT - 60
-#define STAGE_BUTTON_HIDDEN_Y (SCREEN_HEIGHT) + 150
-#define STAGE_BUTTONS_MOVEMENT_DELTA 10
-#define BUTTONS_SPACE 20
-
-/*****************************POINTING ARROWS**********************************/
-#define ARROW_H 30
-#define ARROW_W 30
-/******************************VALUE BOXES*************************************/
-
-#define VALUE_BOX_H 40
-#define VALUE_BOX_W 50
-#define VALUE_H 35
-#define VALUE_W 50
 
 
 #endif

@@ -98,7 +98,7 @@ void tx_init_level_3_texts()
 	g_lvl_msgs = malloc(sizeof(texture_array_t*)*g_lvl_msgs_size);
 
 	SDL_Rect r = dm_get_text_box_big();
-	int text_h = dm_get_h_big_msg();
+	int text_h = dm_get_h_big_text();
 	g_lvl_msgs[TX_L3_WELCOME] = dw_new_text_texture_by_h(r.w, text_h, C_BLACK, 
 																    L3_WELCOME);
 	r = dm_get_box_msg_wh();
@@ -141,7 +141,7 @@ void tx_init_level_2_texts()
 	g_lvl_msgs = malloc(sizeof(texture_array_t*)*g_lvl_msgs_size);
 
 	SDL_Rect r = dm_get_text_box_big();
-	int text_h = dm_get_h_big_msg();
+	int text_h = dm_get_h_big_text();
 	g_lvl_msgs[TX_L2_WELCOME] = dw_new_text_texture_by_h(r.w, text_h, C_BLACK, 
 																    L2_WELCOME);
 	r = dm_get_box_msg_wh();
@@ -179,7 +179,7 @@ void tx_init_level_1_texts()
 	g_lvl_msgs = malloc(sizeof(texture_array_t*)*g_lvl_msgs_size);
 
 	SDL_Rect r = dm_get_text_box_big();
-	int text_h = dm_get_h_big_msg();
+	int text_h = dm_get_h_big_text();
 	g_lvl_msgs[TX_L1_WELCOME] = dw_new_text_texture_by_h(r.w, text_h, C_BLACK, 
 																    L1_WELCOME);
 	r = dm_get_box_msg_wh();
@@ -377,13 +377,14 @@ int tx_get_text_box_member(int text_box_id, int member)
  */
 void tx_upd_boxes_pos()
 {
+	SDL_Rect a = dm_get_arrow_wh();
 	SDL_Rect cb = dm_get_code_button_wh();
 	int code_size =  cw_get_code_list_size();
 	//g_code_box.y = cw_get_line_y(code_size-1) + CODE_BUTTON_H + ARROW_H;   
-	g_code_box.y = cw_get_line_y(2) + cb.h + ARROW_H;   
+	g_code_box.y = cw_get_line_y(2) + cb.h + a.h;   
 	int ins_list_size = iw_get_instruction_list_size();
 	//g_ins_box.y = iw_get_instruction_y_by_pos(ins_list_size - 1) + 3*ARROW_H;
-	g_ins_box.y = cw_get_line_y(2) + 3*ARROW_H;
+	g_ins_box.y = cw_get_line_y(2) + 3*a.h;
 
 }
 
@@ -501,7 +502,7 @@ void tx_text_box(int pos, int msg_id)
 			break;
 		case TX_BIG_BOX:
 			b = g_big_box; 
-			text_h = dm_get_h_big_msg();
+			text_h = dm_get_h_big_text();
 			break;
 		case TX_ERROR_BOX:
 			b = g_error_box; 

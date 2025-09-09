@@ -172,7 +172,7 @@ static operand_t *create_saved_jump_operand(int op1_id)
 	strcpy(op_text, line_text);
 	texture_t *t = dw_create_text_texture(op_text, C_WHITE);
 
-	SDL_Rect r = {.x = 0, .y = 0, .w = ADDR_BUTTON_W, .h = cb.h};
+	SDL_Rect r = {.x = 0, .y = 0, .w = 2*cb.w, .h = cb.h};
 	b->b = bt_create_button(r, false, false, false, C_BLACK, 
 							C_WHITE, t);
 
@@ -213,7 +213,7 @@ static operand_t *create_updated_jump_operand(code_line_t *jmp_addr)
 	texture_t *t = dw_create_text_texture(op_text, C_WHITE);
 
 	SDL_Rect cb = dm_get_code_button_wh();
-	SDL_Rect r = {.x = 0, .y = 0, .w = ADDR_BUTTON_W, .h = cb.h};
+	SDL_Rect r = {.x = 0, .y = 0, .w = 2*cb.w, .h = cb.h};
 	op->b = bt_create_button(r, false, false, false, C_BLACK, C_WHITE, t);
 	op->id = get_code_line_pos_by_ptr(jmp_addr);
 	op->jptr = jmp_addr;
@@ -296,7 +296,7 @@ operand_t *cw_create_jump_operand()
 	texture_t *t = dw_create_text_texture(op_text, C_WHITE);
 
 	SDL_Rect cb = dm_get_code_button_wh();
-	SDL_Rect r = {.x = 0, .y = 0, .w = ADDR_BUTTON_W, .h = cb.h};
+	SDL_Rect r = {.x = 0, .y = 0, .w = 2*cb.w, .h = cb.h};
 	op->b = bt_create_button(r, false, false, false, C_BLACK, 
 							 C_WHITE, t);
 	op->id = get_code_line_pos_by_ptr(addr);
@@ -1167,10 +1167,11 @@ void cw_set_code_box(SDL_Rect r)
 	int w = dm_get_w_code_box_text();
 	int h = dm_get_h_msg();
 
+	int text_h = dm_get_h_big_text();
 	int border_ofs = dm_get_ofs_code_box_border();
 	int text_box_height = g_challenge_text->size * h;
-	set_text_box(r.x + border_ofs, r.y + border_ofs + STAGE_NAME_H
-				 + border_ofs, w, text_box_height);
+	set_text_box(r.x + border_ofs, r.y + border_ofs + text_h + border_ofs, w, 
+															   text_box_height);
 }
 
 /* Function: set_text_box
@@ -1372,9 +1373,10 @@ void cw_draw_code_window()
 	// Text of the level
 
 	int border_ofs = dm_get_ofs_code_box_border();
+	int text_h = dm_get_h_big_text();
 	SDL_Rect b = {.x = code_box.x + border_ofs, 
 				  .y = code_box.y + border_ofs,
-				  .h = STAGE_NAME_H};
+				  .h = text_h};
 	dw_draw_texture_fits_height(b, g_stage_name);
 }
 

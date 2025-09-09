@@ -17,6 +17,7 @@
 #define WHOLE 0
 #define ASCII 1
 #define DEFAULT_BUFFER_SIZE 5
+#define BUFFER_MOVEMENT_DELTA 5
 
 #define NATURAL_NMAX 9
 #define NATURAL_NMIN 1
@@ -375,10 +376,11 @@ void bf_add_output_to_list()
 	SDL_Rect ib = dm_get_stage_input_buffer_box();
 	int ofs = dm_get_ofs_buffer_value_box();
 	new_output->box.x = ib.x + ofs;
-	int y_offset = (output_box.h - VALUE_BOX_H)/2;
+	SDL_Rect vb = dm_get_vbox_wh();
+	int y_offset = (output_box.h - vb.h)/2;
 	new_output->box.y = output_box.y + y_offset;
-	new_output->box.w = VALUE_BOX_W;
-	new_output->box.h = VALUE_BOX_H;
+	new_output->box.w = vb.w;
+	new_output->box.h = vb.h;
     new_output->t = dw_create_text_texture(char_dash, C_WHITE);
 	new_output->visible_box = false;
 
@@ -408,10 +410,11 @@ void add_input_to_list(int value, int type)
 	new_input->value = value;
 	new_input->type = type;
 	new_input->box.x = SCREEN_WIDTH;
-	int y_offset = (input_box.h - VALUE_BOX_H)/2;
+	SDL_Rect vb = dm_get_vbox_wh();
+	int y_offset = (input_box.h - vb.h)/2;
 	new_input->box.y = input_box.y + y_offset;
-	new_input->box.w = VALUE_BOX_W;
-	new_input->box.h = VALUE_BOX_H;
+	new_input->box.w = vb.w;
+	new_input->box.h = vb.h;
 	char *number = ax_number_to_string(value);
 	new_input->t = dw_create_text_texture(number, C_WHITE);
 	free(number);
@@ -616,10 +619,11 @@ void draw_output_buffer()
 	int x;
 	int ofs = dm_get_ofs_buffer_value_box();
 	int ofsval = dm_get_ofs_between_value_box();
+	SDL_Rect val =  dm_get_vbox_val_wh();
 	if (check_win_condition() == true){
 		x = OUTPUT_BUFFER_WIN_X;	
 	} else {
-		x = output_box.x + ofs + (list_size-1)*(VALUE_W + ofsval);
+		x = output_box.x + ofs + (list_size-1)*(val.w + ofsval);
 	}
 	int y = output_box.y + ofs;
 	if (outputs != NULL && list_size > 0){
@@ -631,7 +635,7 @@ void draw_output_buffer()
 			if (cur_output->visible_box != false){
 				ax_draw_value_box(cur_output, C_WHITE);
 			}
-			draw_x -= VALUE_W + ofsval;
+			draw_x -= val.w + ofsval;
 		}
 		if (g_output_list_x_pos < x){
 			g_output_list_x_pos += get_movement_delta(x, g_output_list_x_pos, 
@@ -664,7 +668,8 @@ bool check_if_output_buffer_position_set()
 
 	int ofs = dm_get_ofs_buffer_value_box();
 	int ofsval = dm_get_ofs_between_value_box();
-	int x = output_box.x + ofs + (list_size-1)*(VALUE_W + ofsval);
+	SDL_Rect val =  dm_get_vbox_val_wh();
+	int x = output_box.x + ofs + (list_size-1)*(val.w + ofsval);
 
 	value_box_t *first = outputs->first->value;	
 
@@ -690,6 +695,7 @@ void draw_input_buffer()
 	List *inputs = get_input_list();
 	int ofs = dm_get_ofs_buffer_value_box();
 	int ofsval = dm_get_ofs_between_value_box();
+	SDL_Rect val =  dm_get_vbox_val_wh();
 	int x = input_box.x + ofs;
 	int y = input_box.y + ofs;
 
@@ -703,7 +709,7 @@ void draw_input_buffer()
 			value_box_t *cur_input = cur->value;
 			cur_input->box.x = draw_x;
 			ax_draw_value_box(cur_input, C_WHITE);
-			draw_x += VALUE_W + ofsval;
+			draw_x += val.w + ofsval;
 		}
 		if (g_input_list_x_pos > x){
 			g_input_list_x_pos -= get_movement_delta(x, g_input_list_x_pos, 
@@ -818,8 +824,9 @@ value_box_t bf_get_input_buffer_value_box()
 
 	int ofs = dm_get_ofs_buffer_value_box();
 	int ofsval = dm_get_ofs_between_value_box();
+	SDL_Rect val =  dm_get_vbox_val_wh();
 	value_box_t *first = List_shift(input_list);
-	g_input_list_x_pos += VALUE_W + ofsval;
+	g_input_list_x_pos += val.w + ofsval;
 
 	dw_free_texture(first->t);
 	first->t = NULL;

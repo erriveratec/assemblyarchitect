@@ -270,6 +270,7 @@ void mc_init_avatar()
 {
 	SDL_Rect avatar =  dm_get_avatar_wh();
 	SDL_Rect ib = dm_get_stage_input_buffer_box();
+	SDL_Rect vb = dm_get_vbox_wh();
 	g_iavatar.id = IAVATAR;
 	g_iavatar.box.x = bf_get_buffer_value_box_x_coord_by_id(IB);	
 	g_iavatar.box.y = ib.y + ib.h + avatar.h;
@@ -284,8 +285,8 @@ void mc_init_avatar()
 	g_iavatar.value.value = NO_VALUE;
 	g_iavatar.value.box.x = ib.x;
 	g_iavatar.value.box.y = g_iavatar.box.y - avatar.h;
-	g_iavatar.value.box.w = VALUE_BOX_W;
-	g_iavatar.value.box.h = VALUE_BOX_H;
+	g_iavatar.value.box.w = vb.w;
+	g_iavatar.value.box.h = vb.h;
 	g_iavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
 	g_iavatar.color = C_MAGENTA;
 
@@ -304,8 +305,8 @@ void mc_init_avatar()
 	g_oavatar.value.value = NO_VALUE;
 	g_oavatar.value.box.x = ob.x;
 	g_oavatar.value.box.y = g_oavatar.box.y - avatar.h;
-	g_oavatar.value.box.w = VALUE_BOX_W;
-	g_oavatar.value.box.h = VALUE_BOX_H;
+	g_oavatar.value.box.w = vb.w;
+	g_oavatar.value.box.h = vb.h;
 	g_oavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
 	g_oavatar.color = C_CYAN;
 
@@ -326,8 +327,8 @@ void mc_init_avatar()
 	g_ravatar.value.value = NO_VALUE;
 	g_ravatar.value.box.x = g_ravatar.box.x;
 	g_ravatar.value.box.y = g_ravatar.box.y - avatar.h;
-	g_ravatar.value.box.w = VALUE_BOX_W;
-	g_ravatar.value.box.h = VALUE_BOX_H;
+	g_ravatar.value.box.w = vb.w;
+	g_ravatar.value.box.h = vb.h;
 	g_ravatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
 	g_ravatar.color = C_YELLOW;
 }
@@ -343,6 +344,7 @@ void mc_reset_avatar()
 {
 	SDL_Rect avatar =  dm_get_avatar_wh();
 	SDL_Rect ib = dm_get_stage_input_buffer_box();
+	SDL_Rect vb = dm_get_vbox_wh();
 	g_iavatar.id = IAVATAR;
 	g_iavatar.box.x = bf_get_buffer_value_box_x_coord_by_id(IB);	
 	g_iavatar.box.y = ib.y + ib.h + avatar.h;
@@ -357,8 +359,8 @@ void mc_reset_avatar()
 	g_iavatar.value.value = NO_VALUE;
 	g_iavatar.value.box.x = ib.x;
 	g_iavatar.value.box.y = g_iavatar.box.y - avatar.h;
-	g_iavatar.value.box.w = VALUE_BOX_W;
-	g_iavatar.value.box.h = VALUE_BOX_H;
+	g_iavatar.value.box.w = vb.w;
+	g_iavatar.value.box.h = vb.h;
 	dw_free_texture(g_iavatar.value.t);
 	g_iavatar.value.t = NULL;
 	g_iavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
@@ -379,8 +381,8 @@ void mc_reset_avatar()
 	g_oavatar.value.value = NO_VALUE;
 	g_oavatar.value.box.x = ob.x;
 	g_oavatar.value.box.y = g_oavatar.box.y - avatar.h;
-	g_oavatar.value.box.w = VALUE_BOX_W;
-	g_oavatar.value.box.h = VALUE_BOX_H;
+	g_oavatar.value.box.w = vb.w;
+	g_oavatar.value.box.h = vb.h;
 	dw_free_texture(g_oavatar.value.t);
 	g_oavatar.value.t = NULL;
 	g_oavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
@@ -403,8 +405,8 @@ void mc_reset_avatar()
 	g_ravatar.value.value = NO_VALUE;
 	g_ravatar.value.box.x = g_ravatar.box.x;
 	g_ravatar.value.box.y = g_ravatar.box.y - avatar.h;
-	g_ravatar.value.box.w = VALUE_BOX_W;
-	g_ravatar.value.box.h = VALUE_BOX_H;
+	g_ravatar.value.box.w = vb.w;
+	g_ravatar.value.box.h = vb.h;
 	dw_free_texture(g_ravatar.value.t);
 	g_ravatar.value.t = NULL;
 	g_ravatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
@@ -488,7 +490,7 @@ static void draw_iavatar()
 	SDL_Rect ibox = dm_get_stage_ibox();
 	int rail_w = dm_get_w_stage_rail();
 
-	int offset = dm_get_ofs_stage_buffer_value();
+	int offset = dm_get_ofs_buffer_value_box();
 	int x = ibox.x + ibox.w/2 - rail_w/2;
 	int y = rb.y - medium - rail_w/2;
 	int w = bf.x + ibox.w/2 - x + offset + rail_w/2;
@@ -553,7 +555,7 @@ static void draw_oavatar()
 
 	SDL_Rect obox = dm_get_stage_obox();
 	int rail_w = dm_get_w_stage_rail();
-	int offset = dm_get_ofs_stage_buffer_value();
+	int offset = dm_get_ofs_buffer_value_box();
 
 	int x = obox.x + obox.w/2 - rail_w/2;
 	int y = bf.y - medium - rail_w/2;
@@ -775,25 +777,26 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 		x = get_operand_x_dest(op_id);
 	}
 
+	SDL_Rect vb = dm_get_vbox_wh();
+	int vbox_offset = dm_get_ofs_reg_value_box();
 	if (op_id > REGISTERS_MIN && op_id < REGISTERS_MAX){
 		y = get_operand_y_dest(op_id);
 	} else if (op_id == IB){
-		y = get_operand_y_dest(op_id) + 1.5*VALUE_BOX_H;
+		y = get_operand_y_dest(op_id) + 1.5*vb.h;
 	} else if (op_id == OB){
-		y = get_operand_y_dest(op_id) - 2*VALUE_BOX_H - avtr.h;
+		y = get_operand_y_dest(op_id) - 2*vb.h - avtr.h;
 	} else if (op_id == IBOX){
 		if (avatar->id == RAVATAR){
-			y = get_operand_y_dest(op_id) + REG_VBOX_OFFSET;
+			y = get_operand_y_dest(op_id) + vbox_offset;
 		} else{
-			y = get_operand_y_dest(op_id) - 2.5*VALUE_BOX_H - REG_VBOX_OFFSET;
+			y = get_operand_y_dest(op_id) - 2.5*vb.h - vbox_offset;
 		}
 	} else if (op_id == OBOX){
 		if (avatar->id == RAVATAR){
-			y = get_operand_y_dest(op_id) - 2.5*VALUE_BOX_H - 2*REG_VBOX_OFFSET;
+			y = get_operand_y_dest(op_id) - 2.5*vb.h - 2*vbox_offset;
 		} else if (avatar->id == OAVATAR){
-			y = get_operand_y_dest(op_id) + REG_VBOX_OFFSET;
+			y = get_operand_y_dest(op_id) + vbox_offset;
 		}
-
 	}
 	
 	if (avatar->box.x < x){

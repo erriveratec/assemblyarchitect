@@ -239,11 +239,11 @@ static void initialize_ins_arrow()
  */
 static void initialize_code_arrow()
 {
+	SDL_Rect a = dm_get_arrow_wh();
 	int y = tx_get_text_box_member(TX_INS_BOX, MEMBER_Y) +
-			tx_get_text_box_member(TX_INS_BOX, MEMBER_H) + ARROW_H;
+			tx_get_text_box_member(TX_INS_BOX, MEMBER_H) + a.h;
 			
 	SDL_Rect ib = dm_get_stage_instruction_box();
-	SDL_Rect a = dm_get_arrow_wh();
 	g_arrow_code_box.box.x = (ib.x + ib.w)/2;
 	g_arrow_code_box.box.y = y;
 	g_arrow_code_box.box.w = a.w;
@@ -270,15 +270,17 @@ static void initialize_code_arrow()
  */
 static void initialize_play_arrow()
 {
-	g_arrow_play.box.w = ARROW_W;	
-	g_arrow_play.box.h = ARROW_H;
+	SDL_Rect sb = dm_get_stage_buttons();
+	SDL_Rect a = dm_get_arrow_wh();
+	g_arrow_play.box.w = a.w;	
+	g_arrow_play.box.h = a.h;
 	g_arrow_play.box.x = sb_get_play_button_member(MEMBER_X);
-	g_arrow_play.box.y = STAGE_BUTTON_Y - 2*ARROW_H;
+	g_arrow_play.box.y = sb.y - 2*a.h;
 	g_arrow_play.in_place = false;
 	g_arrow_play.visible = true;
-	g_arrow_play.startx = STAGE_BUTTON_X;
-	g_arrow_play.starty = STAGE_BUTTON_Y - 2*ARROW_H;	
-	g_arrow_play.travel = STAGE_BUTTON_Y - g_arrow_play.starty - ARROW_H;	
+	g_arrow_play.startx = sb.x;
+	g_arrow_play.starty = sb.y - 2*a.h;	
+	g_arrow_play.travel = sb.y - g_arrow_play.starty - a.h;	
 	g_arrow_play.dir = AR_DOWN;
 	g_arrow_play.texture = g_lv_arrow;
 }
@@ -296,14 +298,15 @@ static void initialize_play_arrow()
 static void initialize_code_line_arrow()
 {
 	SDL_Rect cb = dm_get_code_button_wh();
-	g_arrow_code_line.box.w = ARROW_W;	
-	g_arrow_code_line.box.h = ARROW_H;
-	g_arrow_code_line.box.x = cw_get_code_line_x(MOV) + ARROW_W/2;
+	SDL_Rect a = dm_get_arrow_wh();
+	g_arrow_code_line.box.w = a.w;	
+	g_arrow_code_line.box.h = a.h;
+	g_arrow_code_line.box.x = cw_get_code_line_x(MOV) + a.w/2;
 	g_arrow_code_line.box.y = cw_get_line_y(cw_get_code_list_size()-1) + 
 													    cb.h;
 	g_arrow_code_line.in_place = false;
 	g_arrow_code_line.visible = true;
-	g_arrow_code_line.startx = cw_get_code_line_x(MOV) + ARROW_W/2;
+	g_arrow_code_line.startx = cw_get_code_line_x(MOV) + a.w/2;
 	g_arrow_code_line.starty = g_arrow_code_line.box.y;
 	g_arrow_code_line.travel = g_arrow_code_line.starty - 
 									   cw_get_line_y(cw_get_code_list_size()-1);	
@@ -324,17 +327,18 @@ static void initialize_code_line_arrow()
  */
 static void initialize_del_arrow()
 {
+	SDL_Rect a = dm_get_arrow_wh();
 	g_arrow_del.box.x = cw_get_code_box_member(MEMBER_X) +
 											   cw_get_code_box_member(MEMBER_W);
 	g_arrow_del.box.y = cw_get_text_box_member(MEMBER_Y);
-	g_arrow_del.box.w = ARROW_W;
-	g_arrow_del.box.h = ARROW_H;
+	g_arrow_del.box.w = a.w;
+	g_arrow_del.box.h = a.h;
 	g_arrow_del.in_place = false;
 	g_arrow_del.visible = true;
 	g_arrow_del.startx = cw_get_code_box_member(MEMBER_X) + 
 										cw_get_code_box_member(MEMBER_W);
 	g_arrow_del.starty = cw_get_text_box_member(MEMBER_Y);
-	g_arrow_del.travel = ARROW_W;
+	g_arrow_del.travel = a.w;
 	g_arrow_del.dir = AR_RIGHT;
 	g_arrow_del.texture = g_lv_arrow;
 }
@@ -351,17 +355,18 @@ static void initialize_del_arrow()
  */
 static void initialize_op2_arrow()
 {
+	SDL_Rect a = dm_get_arrow_wh();
 	SDL_Rect cb = dm_get_code_button_wh();
 	int op2_ofs = dm_get_ofs_code_op2();
 
-	g_arrow_op2.box.x = cw_get_code_line_x(MOV) + op2_ofs + ARROW_W/2;
+	g_arrow_op2.box.x = cw_get_code_line_x(MOV) + op2_ofs + a.w/2;
 	g_arrow_op2.box.y = cw_get_line_y(cw_get_code_list_size()-1) + 
 													cb.h;
-	g_arrow_op2.box.w = ARROW_W;
-	g_arrow_op2.box.h = ARROW_H;
+	g_arrow_op2.box.w = a.w;
+	g_arrow_op2.box.h = a.h;
 	g_arrow_op2.in_place = false;
 	g_arrow_op2.visible = true;
-	g_arrow_op2.startx = cw_get_code_line_x(MOV) + op2_ofs + ARROW_W/2;
+	g_arrow_op2.startx = cw_get_code_line_x(MOV) + op2_ofs + a.w/2;
 	g_arrow_op2.starty = g_arrow_op2.box.y;			
 	g_arrow_op2.travel = g_arrow_op2.starty	- 
 									   cw_get_line_y(cw_get_code_list_size()-1);
@@ -410,19 +415,20 @@ static void initialize_error_arrow()
  */
 static void initialize_challenge_arrow()
 {
+	SDL_Rect a = dm_get_arrow_wh();
 	g_arrow_challenge.box.x = cw_get_text_box_member(MEMBER_X) +
-							  cw_get_text_box_member(MEMBER_W) + 2*ARROW_W;
+							  cw_get_text_box_member(MEMBER_W) + 2*a.w;
 	g_arrow_challenge.box.y = cw_get_text_box_member(MEMBER_Y) +
 							  cw_get_text_box_member(MEMBER_H)/2;
-	g_arrow_challenge.box.w = ARROW_W;
-	g_arrow_challenge.box.h = ARROW_H;
+	g_arrow_challenge.box.w = a.w;
+	g_arrow_challenge.box.h = a.h;
 	g_arrow_challenge.in_place = false;
 	g_arrow_challenge.visible = true;
 	g_arrow_challenge.startx = cw_get_text_box_member(MEMBER_X) +
-							cw_get_text_box_member(MEMBER_W) + 2*ARROW_W;
+							cw_get_text_box_member(MEMBER_W) + 2*a.w;
 	g_arrow_challenge.starty = cw_get_text_box_member(MEMBER_Y) +
 			cw_get_text_box_member(MEMBER_H)/2;
-	g_arrow_challenge.travel = ARROW_W;
+	g_arrow_challenge.travel = a.w;
 	g_arrow_challenge.dir = AR_LEFT;
 	g_arrow_challenge.texture = g_lv_arrow;
 }

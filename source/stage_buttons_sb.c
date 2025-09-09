@@ -11,6 +11,7 @@
 #define ESC_MENU_TEXT2 "Toggle Full Screen"
 #define ESC_MENU_TEXT3 "Exit Game"
 
+#define STAGE_BUTTONS_MOVEMENT_DELTA 10
 
 bool g_escape_menu = false;
 bool g_quit = false;
@@ -216,11 +217,13 @@ static bool sb_check_released_in_stage_button(); // not used
  */
 void adjust_stage_buttons_position(int code_size)
 {
+	int hidden_y = dm_get_y_hidden_stage_buttons();
+	SDL_Rect sb = dm_get_stage_buttons();
 	int y_final;
 	if (code_size == CW_EMPTY){
-		y_final = STAGE_BUTTON_HIDDEN_Y;
+		y_final = hidden_y;
 	} else {
-		y_final = STAGE_BUTTON_Y;
+		y_final = sb.y;
 	}
 
 	int delta = STAGE_BUTTONS_MOVEMENT_DELTA;
@@ -303,25 +306,28 @@ void sb_init_return_button()
  */
 void sb_initialize_stage_buttons()
 {
-	SDL_Rect r0 = {.x = STAGE_BUTTON_X, .y = STAGE_BUTTON_HIDDEN_Y, 
-				  .w = STAGE_BUTTON_W, .h = STAGE_BUTTON_H};
+	SDL_Rect sb = dm_get_stage_buttons();
+	int hidden_y = dm_get_y_hidden_stage_buttons();
+	SDL_Rect r0 = {.x = sb.x, .y = hidden_y, .w = sb.w, .h = sb.h};
 	stop = malloc(sizeof(button_t));
 	stop = bt_create_button(r0, true, false, false, C_BLACK, C_WHITE, 
 																   stop_button);
 
-	SDL_Rect r1 = {.x = STAGE_BUTTON_X + STAGE_BUTTON_W + BUTTONS_SPACE, 
-		 .y = STAGE_BUTTON_HIDDEN_Y, .w = STAGE_BUTTON_W, .h = STAGE_BUTTON_H};
+	int space =  dm_get_ofs_space_stage_buttons();
+	SDL_Rect r1 = {.x = sb.x + sb.w + space,.y = hidden_y, .w = sb.w, 
+																	 .h = sb.h};
 	step_back = malloc(sizeof(button_t));
 	step_back = bt_create_button(r1, true, false, false, C_BLACK, C_WHITE, 
 															  step_back_button);
 
-	SDL_Rect r2 = {.x = STAGE_BUTTON_X + 2*STAGE_BUTTON_W + 2*BUTTONS_SPACE, 
-	      .y = STAGE_BUTTON_HIDDEN_Y, .w = STAGE_BUTTON_W, .h = STAGE_BUTTON_H};
+	SDL_Rect r2 = {.x = sb.x + 2*sb.w + 2*space, .y = hidden_y, .w = sb.w, 
+																	 .h = sb.h};
 	play = malloc(sizeof(button_t));
 	play = bt_create_button(r2, true, false, false, C_BLACK,C_WHITE, 
 																   play_button);
-	SDL_Rect r3 = {.x = STAGE_BUTTON_X + 3*STAGE_BUTTON_W + 3*BUTTONS_SPACE, 
-	     .y = STAGE_BUTTON_HIDDEN_Y, .w = STAGE_BUTTON_W, .h = STAGE_BUTTON_H};
+	
+	SDL_Rect r3 = {.x = sb.x + 3*sb.w + 3*space, .y = hidden_y, .w = sb.w, 
+																	 .h = sb.h};
 	step_forward = malloc(sizeof(button_t));
 	step_forward = bt_create_button(r3, true, false, false, C_BLACK, C_WHITE,
 								 						   step_forward_button);
