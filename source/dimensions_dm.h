@@ -51,6 +51,7 @@ SDL_Rect dm_get_stage_input_buffer_box();
 SDL_Rect dm_get_stage_output_buffer_box();
 SDL_Rect dm_get_stage_ib_text_box();
 SDL_Rect dm_get_stage_ob_text_box();
+
 int dm_get_w_stage_rail();
 int dm_get_w_stage_rail_end();
 int dm_get_ofs_stage_buffer_value();
@@ -82,55 +83,10 @@ SDL_Rect dm_get_text_box_result_but3();//Back in error condition
 #define SCREEN_WIDTH 1600
 #define SCREEN_HEIGHT 900
 
-
-
-/*******************************INSTRUCTION BOX********************************/
-// The offset of the borders of the instruction box
-//#define INS_BOX_OFFSET 25
-
-// TO DELETE
-
-#define CODE_BOX_X (INS_BOX_X + INS_BOX_W)
-#define CODE_BOX_Y 50
-#define CODE_BOX_W ((SCREEN_WIDTH*2/6)*2/3)
-#define CODE_BOX_H 625
-
-#define REG_BOX_X (CODE_BOX_X + CODE_BOX_W)
-#define REG_BOX_W (SCREEN_WIDTH/6)
-
-// Instruction box text
-#define INS_BOX_TEXT_W ((SCREEN_WIDTH*2/6)/3)
-
-/*******************************RESULT BOX*************************************/
-#define RES_BOX_W 500
-#define RES_BOX_H 300
-#define RES_BOX_X (SCREEN_WIDTH - RES_BOX_W)/2 
-#define RES_BOX_Y 200
-
-//#define RES_BOX_TEXT_BORDER_OFFSET 25
-#define RES_BOX_TEXT_W (RES_BOX_W - 2*RES_BOX_TEXT_BORDER_OFFSET)
-#define RES_BOX_TEXT_X RES_BOX_X + (RES_BOX_W - RES_BOX_TEXT_W)/2
-#define RES_BOX_TEXT_Y RES_BOX_Y + RES_BOX_TEXT_BORDER_OFFSET 
-#define RES_BOX_TEXT_H 30
-
-
-
-/****************************BACK-CONTINUE BUTTONS*****************************/
 #define STR_BACK "Back"
 #define STR_CONT "Continue"
 
-/***********************************CODE***************************************/
-
-#define CODE_BOX_NUMBER_WIDTH 35
-
-#define CODE_LINES_SIZE 5
-#define LAST_INSTRUCTION_DISTANCE 75
-
-#define LINE_NUMBER_OFFSET 15
 #define CODE_BOX_OFFSET 25
-#define ADJUSTING_OFFSET 6
-
-#define MAXIMUM_CODE_LINES 99
 
 #define TEXT_BOX_WIDTH 300
 #define TEXT_BOX_HEIGHT 30

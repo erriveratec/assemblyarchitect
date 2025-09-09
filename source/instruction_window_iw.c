@@ -102,10 +102,11 @@ int iw_get_instruction_y_by_id(int id)
  */
 static void draw_instruction_text()
 {
+	SDL_Rect ib = dm_get_stage_instruction_box();
 	int x = instruction_box.x;
-	int h = get_text_height_fits_width(INS_BOX_TEXT_W, INSTRUCTIONS_TEXT);
+	int h = get_text_height_fits_width(ib.w, INSTRUCTIONS_TEXT);
 	int y = instruction_box.y  - h;
-	SDL_Rect r = {.x = x, .y = y, .w = INS_BOX_TEXT_W};
+	SDL_Rect r = {.x = x, .y = y, .w = ib.w};
 	dw_draw_texture_fits_width(r, instructions_text);
 }
 

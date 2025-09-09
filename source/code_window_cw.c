@@ -11,6 +11,7 @@
 #include "draw_dw.h"
 
 #define NOT_FOUND -1
+#define CODE_LINES_SIZE 5
 
 static List *code_list = NULL;
 
@@ -1202,7 +1203,7 @@ static void set_text_box(int x, int y, int w, int h)
 int cw_get_first_code_line_y()
 {
 	int y = cw_get_text_box_member(MEMBER_Y) + cw_get_text_box_member(MEMBER_H)
-										   + CODE_BOX_OFFSET;// - ADJUSTING_OFFSET;
+										   + CODE_BOX_OFFSET;
 	return y;
 }
 
@@ -1226,8 +1227,7 @@ int cw_get_code_line_x(int instruction_id)
 	if (instruction_id == LABEL){
 		x = cw_get_code_box_member(MEMBER_X) + number_ofs;
 	} else {
-		x = cw_get_code_box_member(MEMBER_X) + CODE_BOX_NUMBER_WIDTH + 
-			2*number_ofs;	
+		x = cw_get_code_box_member(MEMBER_X) + 4*number_ofs;	
 	}
 	return x;
 }
@@ -1255,7 +1255,8 @@ static void code_box_height_adjust()
 		
 		int increase_size = (list_size - CODE_LINES_SIZE)*cb.h;
 		
-		int new_bottom_border = cw_get_code_box_member(MEMBER_Y) + CODE_BOX_H + 
+		SDL_Rect cb = dm_get_stage_code_box();
+		int new_bottom_border = cw_get_code_box_member(MEMBER_Y) + cb.h + 
 							  	increase_size;
 
 		int cur_bottom_border = cw_get_code_box_member(MEMBER_H) + 
@@ -1294,8 +1295,9 @@ static void adjust_code_box_position()
 	
 	y_pending_scroll += 3*ms_get_mouse_scroll_y();
 	int cur_y = cw_get_code_box_member(MEMBER_Y);
-	int max_upper_border_y = CODE_BOX_Y;
-	int min_lower_border_y = CODE_BOX_Y + CODE_BOX_H;
+	SDL_Rect cb = dm_get_stage_code_box();
+	int max_upper_border_y = cb.y;
+	int min_lower_border_y = cb.y + cb.h;
 
 	if (cur_y >= max_upper_border_y && y_pending_scroll > 0){
 		y_pending_scroll = 0;
@@ -1552,7 +1554,6 @@ void cw_sort_code()
 	int op1_ofs = dm_get_ofs_code_op1();
 	int op2_ofs = dm_get_ofs_code_op2();
 	
-	int w = CODE_BOX_NUMBER_WIDTH;
 	int h = cb.h; 
 	int y = cw_get_first_code_line_y();
 
@@ -2012,7 +2013,6 @@ bool cw_check_code_sorted()
 	}
 	
 	SDL_Rect cb = dm_get_code_button_wh();
-	int w = CODE_BOX_NUMBER_WIDTH;
 	int h = cb.h;
 	int y = cw_get_first_code_line_y();
 

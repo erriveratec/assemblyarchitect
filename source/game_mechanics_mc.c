@@ -111,18 +111,19 @@ static void draw_ravatar();
 void mc_init_errors_texture()
 {
 	int text_h = dm_get_h_error_msg();		
-	ib_empty = dw_new_text_texture_by_h(RES_BOX_W, text_h, 
-											  C_BLACK, INPUT_BUFFER_EMPTY_TEXT);
-	reg_val_bad = dw_new_text_texture_by_h(RES_BOX_W, text_h, 
-											   C_BLACK, REG_VALUE_INVALID_TEXT);
-	ob_val_bad = dw_new_text_texture_by_h(RES_BOX_W, text_h, 
-											C_BLACK, INVALID_OUTPUT_VALUE_TEXT);
-	ib_unproc_vals = dw_new_text_texture_by_h(RES_BOX_W, text_h, 
-										   C_BLACK, UNPROCESSED_IB_VALUES_TEXT);
-	exc_code_size = dw_new_text_texture_by_h(RES_BOX_W, text_h, 
-										      C_BLACK, EXCEEDS_CODE_LIMIT_TEXT);
-	ob_empty = dw_new_text_texture_by_h(RES_BOX_W, text_h, 
-										     C_BLACK, OUTPUT_BUFFER_EMPTY_TEXT);
+	SDL_Rect rb = dm_get_text_box_result();
+	ib_empty = dw_new_text_texture_by_h(rb.w, text_h, C_BLACK, 
+													   INPUT_BUFFER_EMPTY_TEXT);
+	reg_val_bad = dw_new_text_texture_by_h(rb.w, text_h, C_BLACK, 
+														REG_VALUE_INVALID_TEXT);
+	ob_val_bad = dw_new_text_texture_by_h(rb.w, text_h, C_BLACK, 
+													 INVALID_OUTPUT_VALUE_TEXT);
+	ib_unproc_vals = dw_new_text_texture_by_h(rb.w, text_h, C_BLACK, 
+													UNPROCESSED_IB_VALUES_TEXT);
+	exc_code_size = dw_new_text_texture_by_h(rb.w, text_h, C_BLACK, 
+													   EXCEEDS_CODE_LIMIT_TEXT);
+	ob_empty = dw_new_text_texture_by_h(rb.w, text_h, C_BLACK, 
+													  OUTPUT_BUFFER_EMPTY_TEXT);
 }
 
 /* Function: mc_reset_invalid_operation_flag
