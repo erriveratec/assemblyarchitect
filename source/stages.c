@@ -344,6 +344,7 @@ void stage_drawings(int level, bool holding_line, bool play)
 	mc_draw_avatar();
 	ar_display_arrow(AR_EXEC);
 	bf_draw_buffers();
+	rg_draw_registers();
 	lv_level_drawings(level, holding_line, play, mc_get_operation_flag());
 	sb_draw_return_button();
 	return;

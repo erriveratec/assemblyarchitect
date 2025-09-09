@@ -14,13 +14,12 @@ typedef struct reg_t{
 	value_box_t value;
 } reg_t;
 
-extern texture_t *g_reg_arrow;
 
 void create_register_list();
 void rg_set_register_box(SDL_Rect r);
 int rg_get_registers_text_width(int h);
 void rg_add_register_to_list(int id);
-void rg_draw_registers(bool show_arrows);
+void rg_draw_registers();
 bool rg_check_mouse_released_in_register();
 operand_t *rg_get_default_operand_register();
 operand_t *rg_create_operand_of_selected_register();
@@ -46,4 +45,5 @@ void rg_reset_obox();
 void rg_destroy_value_boxes();
 void rg_init_reg_texture();
 SDL_Rect rg_get_register_box();
+List *rg_get_register_list();
 #endif

@@ -41,6 +41,8 @@ static int check_display_buf_arrow();
 static void win1_move_input_to_output(int rep, int mul, bool reversed);
 static void win2_add_inputs_in_groups(int group_size);
 static void set_win_condition(char *win_condition);
+static void draw_regs_arrow(bool show_arrows);
+static void draw_bufs_arrow(int buf_id);
 
 /* Function: level_9_tutorial
  * -----------------------------------------------------------------------------
@@ -54,7 +56,7 @@ static void set_win_condition(char *win_condition);
  */
 static void level_9_tutorial(bool holding_line, bool play)
 {
-	rg_draw_registers(check_display_reg_lv_arrow());
+	draw_regs_arrow(check_display_reg_lv_arrow());
 
 	
 	const int pos_one = 0;
@@ -109,7 +111,7 @@ static void level_9_tutorial(bool holding_line, bool play)
  */
 static void level_8_tutorial(bool holding_line, bool play)
 {
-	rg_draw_registers(check_display_reg_lv_arrow());
+	draw_regs_arrow(check_display_reg_lv_arrow());
 
 	int code_size = cw_get_code_list_size();
 	static bool first_message = true;
@@ -141,7 +143,7 @@ static void level_8_tutorial(bool holding_line, bool play)
  */
 static void level_7_tutorial(bool holding_line, bool play)
 {
-	rg_draw_registers(check_display_reg_lv_arrow());
+	draw_regs_arrow(check_display_reg_lv_arrow());
 
 	int code_size = cw_get_code_list_size();
 	static bool first_message = true;
@@ -173,7 +175,7 @@ static void level_7_tutorial(bool holding_line, bool play)
  */
 static void level_6_tutorial(bool holding_line, bool play)
 {
-	rg_draw_registers(check_display_reg_lv_arrow());
+	draw_regs_arrow(check_display_reg_lv_arrow());
 
 	int code_size = cw_get_code_list_size();
 	static bool first_message = true;
@@ -209,7 +211,7 @@ static void level_6_tutorial(bool holding_line, bool play)
  */
 static void level_5_tutorial(bool holding_line, bool play)
 {
-	rg_draw_registers(check_display_reg_lv_arrow());
+	draw_regs_arrow(check_display_reg_lv_arrow());
 
 	int code_size = cw_get_code_list_size();
 	static bool first_message = true;
@@ -235,7 +237,7 @@ static void level_5_tutorial(bool holding_line, bool play)
  */
 static void level_4_tutorial(bool holding_line, bool play)
 {
-	rg_draw_registers(check_display_reg_lv_arrow());
+	draw_regs_arrow(check_display_reg_lv_arrow());
 
 	static bool first_message = true;
 	int code_size = cw_get_code_list_size();
@@ -260,7 +262,7 @@ static void level_4_tutorial(bool holding_line, bool play)
  */
 static void level_3_tutorial(bool holding_line, bool play)
 {
-	rg_draw_registers(check_display_reg_lv_arrow());
+	draw_regs_arrow(check_display_reg_lv_arrow());
 
 	int code_size = cw_get_code_list_size();
 	static bool msg_welcome = true;
@@ -287,7 +289,7 @@ static void level_3_tutorial(bool holding_line, bool play)
 	} else if (msg_descrip2 == true && code_size == 0){
 		tx_text_box(TX_LOWER_BOX, TX_L3_DESCRIPTION2);
 		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
-		rg_draw_registers(true);
+		draw_regs_arrow(true);
 		if (ms_chk_mouse_left_pressed() == true){
 			msg_descrip2 = false;
 			ms_reset_mouse_values();
@@ -345,7 +347,7 @@ static void level_3_tutorial(bool holding_line, bool play)
  */
 static void level_2_tutorial(bool holding_line, bool play)
 {
-	rg_draw_registers(false);
+	//draw_regs_arrow(false);
 	int code_size = cw_get_code_list_size();
 	
 	const int pos_one = 0;
@@ -429,7 +431,7 @@ static void level_2_tutorial(bool holding_line, bool play)
 static void level_1_tutorial(bool holding_line, bool play, int flag)
 {
 	int code_size = cw_get_code_list_size();
-	rg_draw_registers(false);
+	draw_regs_arrow(false);
 	static bool first_message = true;
 	static bool second_message = true;	
 	static bool third_message = true;	
@@ -478,7 +480,7 @@ static void level_1_tutorial(bool holding_line, bool play, int flag)
 		if (ms_chk_mouse_left_pressed() == true){
 			fifth_message = false;
 		}
-		rg_draw_registers(true);
+		draw_regs_arrow(true);
 		ms_reset_mouse_values();
 	} else if (code_size == 0 && holding_line == false){
 		tx_text_box(TX_INS_BOX, TX_L1_SELINS1);
@@ -490,11 +492,11 @@ static void level_1_tutorial(bool holding_line, bool play, int flag)
 	} else if (code_size == 1 && cw_check_code_sorted() == true &&
 								   cw_check_code_pending_op1() == true){
 		tx_text_box(TX_CODE_BOX, TX_L1_SELOP1);	
-		rg_draw_registers(true);
+		draw_regs_arrow(true);
 	} else if(code_size == 1 && cw_check_code_sorted() == true &&
 				    			   cw_check_code_pending_operand() == true){
 		tx_text_box(TX_CODE_BOX, TX_L1_SELOP2);	
-		rg_draw_registers(false);
+		draw_regs_arrow(false);
 		ar_display_arrow(AR_IB);
 	} else if(code_size == 1 && holding_line == false &&
  			  cw_check_code_pending_operand() == false && play_message == true){
@@ -518,7 +520,7 @@ static void level_1_tutorial(bool holding_line, bool play, int flag)
 	} else if(code_size == 2 && cw_check_code_sorted() == true &&
 				    			   cw_check_code_pending_operand() == true){
 		tx_text_box(TX_CODE_BOX, TX_L1_SELOP2_2);	
-		rg_draw_registers(true);
+		draw_regs_arrow(true);
 	} else if(code_size == 2 && cw_check_code_pending_operand() == false &&
 															 play == false){
 		tx_text_box(TX_STAGEBUTTON_BOX, TX_L1_PRESSPLAY);	
@@ -560,6 +562,31 @@ static int check_display_buf_arrow()
 	return display_ar;
 }
 
+/* Function: draw_bufs_arrow
+ * -----------------------------------------------------------------------------
+ * Function that verifies according to the flags if the bufs arrows must
+ * be drawn
+ * 
+ * Arguments:
+ * 	buf_id: true displays arros, false does not show arrows.
+ *
+ * Return:
+ *	Void.
+ */
+static void draw_bufs_arrow(int buf_id) 
+{
+	switch(buf_id){
+		case IB:
+			ar_display_arrow(AR_IB);
+			break;
+		case OB:
+			ar_display_arrow(AR_IB);
+			break;
+		default:
+			break;
+	}
+}
+
 /* Function: check_display_reg_lv_arrow
  * -----------------------------------------------------------------------------
  * Analize the state of the operands to determine if the register arrow should
@@ -584,6 +611,24 @@ static bool check_display_reg_lv_arrow()
 		}
 	}
 	return display_ar;
+}
+
+/* Function: draw_regs_arrow
+ * -----------------------------------------------------------------------------
+ * Function that verifies according to the flags if the register arrows must
+ * be drawn
+ * 
+ * Arguments:
+ * 	show_arrow: true displays arros, false does not show arrows.
+ *
+ * Return:
+ *	Void.
+ */
+static void draw_regs_arrow(bool show_arrows) 
+{
+	if (show_arrows == true){
+		ar_display_arrow(AR_REG);
+	}
 }
 /* Function: lv_get_level_instructions_limit
  * -----------------------------------------------------------------------------
@@ -1042,8 +1087,8 @@ void lv_level_drawings(int level, bool holding_line, bool play, int flag)
 			break;
 
 		default:
-			//bf_draw_buffers_arrow(check_display_buf_arrow());
-			rg_draw_registers(check_display_reg_lv_arrow());
+			draw_bufs_arrow(check_display_buf_arrow());
+			draw_regs_arrow(check_display_reg_lv_arrow());
 	}
 }
 

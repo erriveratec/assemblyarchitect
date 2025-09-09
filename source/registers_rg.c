@@ -18,7 +18,6 @@ static List *register_list = NULL;
 static SDL_Rect register_box;
 
 static void set_register_box_member(int value, int member);
-List *get_register_list();
 reg_t *create_register(int id, button_t *b);
 static void destroy_register_list();
 static void draw_register_text();
@@ -30,7 +29,6 @@ value_box_t g_ibox;
 value_box_t g_obox;
 
 texture_t *reg_text = NULL;
-texture_t *g_reg_arrow = NULL;
 
 /* Function: iw_init_reg_texture
  *------------------------------------------------------------------------------
@@ -47,52 +45,7 @@ void rg_init_reg_texture()
 	reg_text = dw_create_text_texture(REG_TEXT, C_WHITE);
 }
 
-/* Function: display_arrow_registers
- * -----------------------------------------------------------------------------
- * Animate with a moving arrow the registers available for selection
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-static void display_arrow_registers()
-{
-	static arrow_t arrow;
-	static bool arrow_initialized = false;
-	int startx = REG_BOX_X + (REG_BOX_W)*2/5;
-	if (arrow_initialized == false){
-		arrow.box.x = startx;
-		arrow.box.w = ARROW_W;
-		arrow.box.h = ARROW_H;
-		arrow.texture = g_reg_arrow;
-		arrow.startx = startx;
-		arrow.starty = arrow.box.y;
-		arrow.dir = AR_LEFT;
-		arrow.in_place = false;
-		arrow_initialized = true;
-	}
-	
-	SDL_SetTextureColorMod(arrow.texture->texture, 255, 255, 0);
-	List *registers = get_register_list();
-	assert(registers != NULL && "Invalid pointer");
-	SDL_Rect cb = dm_get_code_button_wh();
-	int i = 0;
-	LIST_FOREACH(registers, first, next, cur){ 
-		reg_t *c = cur->value;
-		arrow.box.y = c->b->r.y + (cb.h - arrow.box.h)/2; 
-		arrow.travel = startx - (c->b->r.x + c->b->r.w);
-		if (i == 0){
-			ar_animate_arrow(&arrow);
-		} else {
-			dw_draw_rotated_texture_fits_h(arrow.box.x, arrow.box.y, 
-										arrow.box.h, -180.0, arrow.texture);
-		}
-		i++;
-	}
-	
-}
+
 
 /* Function: rg_reset_ibox
  * -----------------------------------------------------------------------------
@@ -334,7 +287,7 @@ static void draw_value_boxes()
  */
 void rg_update_register_box_position()
 {
-	List *registers = get_register_list();
+	List *registers = rg_get_register_list();
 	check_mem(registers);	
 	int list_size = List_count(registers);
 
@@ -387,7 +340,7 @@ static void destroy_register_list()
  */
 void rg_destroy_register_list()
 {
-	List *registers = get_register_list();
+	List *registers = rg_get_register_list();
    	
 	LIST_FOREACH(registers, first, next, cur){ 
 		reg_t *c = cur->value;
@@ -408,7 +361,7 @@ void rg_destroy_register_list()
  */
 void rg_reset_register_values()
 {
-	List *registers = get_register_list();
+	List *registers = rg_get_register_list();
 	
 	assert(registers != NULL && "Invalid pointer");
 	
@@ -435,7 +388,7 @@ operand_t *rg_get_default_operand_register()
 	return r;
 }
 
-/* Function: get_register_list
+/* Function: rg_get_register_list
  *------------------------------------------------------------------------------
  * This function returns the pointer to the register list.
  *
@@ -446,7 +399,7 @@ operand_t *rg_get_default_operand_register()
  *	Void.
  *
  */
-List *get_register_list()
+List *rg_get_register_list()
 {
 	return register_list;
 }
@@ -635,7 +588,7 @@ operand_t *rg_create_register_operand_by_id(int id)
  */
 void rg_add_register_to_list(int id)
 {
-	List *registers = get_register_list();
+	List *registers = rg_get_register_list();
 	assert(NULL != registers && "Register pointer is NULL");
 	assert(id > REGISTERS_MIN && id < REGISTERS_MAX && 
 		   "The operand id is invalid");
@@ -687,9 +640,9 @@ error:
  *	void
  *
  */
-void rg_draw_registers(bool show_arrows)
+void rg_draw_registers()
 {
-	List *registers = get_register_list();
+	List *registers = rg_get_register_list();
 	
 	assert(registers != NULL && "Invalid pointer");
 
@@ -706,9 +659,6 @@ void rg_draw_registers(bool show_arrows)
 		ax_draw_value_box(&reg->value, C_WHITE);
 		free(number);
 	}
-	if (show_arrows == true){
-		display_arrow_registers();
-	} 
 }
 
 /* Function: rg_get_registers_text_width
@@ -807,7 +757,7 @@ static void draw_register_text()
 
 bool rg_check_mouse_released_in_register()
 {
-	List *registers = get_register_list();
+	List *registers = rg_get_register_list();
 	assert(registers != NULL && "The registers pointer cannot be NULL");
    	int x = List_count(registers);
    	bool selected = false;
@@ -837,7 +787,7 @@ bool rg_check_mouse_released_in_register()
 */
 operand_t *rg_create_operand_of_selected_register()
 {
-	List *registers = get_register_list();
+	List *registers = rg_get_register_list();
    	int x = List_count(registers);
 	operand_t *o = NULL;
 
@@ -872,7 +822,7 @@ int rg_get_register_value_box_x_coord_by_id(int id)
 	assert(id > REGISTERS_MIN && id < REGISTERS_MAX && 
 		   "Invalid register id");
 
-	List *registers = get_register_list();
+	List *registers = rg_get_register_list();
 	reg_t *c;
    	
 	LIST_FOREACH(registers, first, next, cur){ 
@@ -890,7 +840,7 @@ int rg_get_register_value_box_y_coord_by_id(int id)
 	assert(id > REGISTERS_MIN && id < REGISTERS_MAX && 
 		   "Invalid register id");
 
-	List *registers = get_register_list();
+	List *registers = rg_get_register_list();
 	reg_t *c;
    	
 	LIST_FOREACH(registers, first, next, cur){ 
@@ -916,7 +866,7 @@ value_box_t rg_get_register_value_box_by_id(int id)
 	assert(id > REGISTERS_MIN && id < REGISTERS_MAX && 
 		   "Invalid register id");
 
-	List *registers = get_register_list();
+	List *registers = rg_get_register_list();
 	reg_t *c;
    	
 	LIST_FOREACH(registers, first, next, cur){ 
@@ -945,7 +895,7 @@ void rg_set_register_value_box(int id, value_box_t val)
 	assert(id > REGISTERS_MIN && id < REGISTERS_MAX && 
 		   "Invalid register id");
 
-	List *registers = get_register_list();
+	List *registers = rg_get_register_list();
 	reg_t *c;
    	
 	LIST_FOREACH(registers, first, next, cur){ 

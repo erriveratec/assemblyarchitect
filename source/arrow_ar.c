@@ -7,11 +7,13 @@
 #include"instruction_window_iw.h"
 #include"code_window_cw.h"
 #include"stage_buttons_sb.h"
+#include"registers_rg.h"
 
 texture_t *g_lv_arrow;
 texture_t *g_ib_arrow;
 texture_t *g_ob_arrow;
 texture_t *g_exec_arrow;
+texture_t *g_reg_arrow;
 
 static arrow_t g_arrow_ins; 
 static arrow_t g_arrow_code_box;
@@ -24,6 +26,7 @@ static arrow_t g_arrow_challenge;
 static arrow_t g_arrow_ib;
 static arrow_t g_arrow_ob;
 static arrow_t g_arrow_exec;
+static arrow_t g_arrow_regs;
 
 static void initialize_ins_arrow();
 static void initialize_code_arrow();
@@ -35,8 +38,40 @@ static void initialize_error_arrow();
 static void initialize_challenge_arrow();
 static void initialize_ib_arrow();
 static void initialize_ob_arrow();
+static void initialize_regs_arrow();
 static void check_execution_arrow_in_place(int instruction_number);
 bool ar_move_execution_arrow(int instruction_number);
+static void display_arrow_registers();
+
+/* Function: display_arrow_registers
+ * -----------------------------------------------------------------------------
+ * Animate with a moving arrow the registers available for selection
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void display_arrow_registers()
+{
+	List *registers = rg_get_register_list();
+	assert(registers != NULL && "Invalid pointer");
+	SDL_Rect cb = dm_get_code_button_wh();
+	int i = 0;
+	LIST_FOREACH(registers, first, next, cur){ 
+		reg_t *c = cur->value;
+		g_arrow_regs.box.y = c->b->r.y + (cb.h - g_arrow_regs.box.h)/2; 
+		g_arrow_regs.travel = g_arrow_regs.startx - (c->b->r.x + c->b->r.w);
+		if (i == 0){
+			ar_animate_arrow(&g_arrow_regs);
+		} else {
+			g_arrow_regs.travel = 0;
+			ar_animate_arrow(&g_arrow_regs);
+		}
+		i++;
+	}
+}
 
 /* Function: ar_move_execution_arrow
  * -----------------------------------------------------------------------------
@@ -135,6 +170,31 @@ void ar_hide_execution_arrow()
 {
 	g_arrow_exec.visible = false;
 
+}
+
+/* Function: initialize_reg_arrow
+ * -----------------------------------------------------------------------------
+ * 
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void initialize_regs_arrow()
+{
+	SDL_Rect rb = rg_get_register_box();
+	SDL_Rect a = dm_get_arrow_wh();
+	g_arrow_regs.box.x = rb.x + rb.w*2/5;
+	g_arrow_regs.box.w = a.w;
+	g_arrow_regs.box.h = a.h;
+	g_arrow_regs.startx = g_arrow_regs.box.x;
+	g_arrow_regs.dir = AR_LEFT;
+	g_arrow_regs.in_place = false;
+	g_arrow_regs.texture = g_reg_arrow;
+	g_arrow_regs.visible =  true;
+	SDL_SetTextureColorMod(g_arrow_regs.texture->texture, 255, 255, 0);
 }
 /* Function: initialize_ins_arrow
  * -----------------------------------------------------------------------------
@@ -381,6 +441,7 @@ static void initialize_ib_arrow()
 	g_arrow_ib.travel = b.x - g_arrow_ib.startx - dim.w;
 	g_arrow_ib.in_place = false;
 	g_arrow_ib.texture = g_ib_arrow;
+	g_arrow_ib.visible = true;
 	SDL_SetTextureColorMod(g_arrow_ib.texture->texture, 255, 0, 255);
 
 }
@@ -409,6 +470,7 @@ static void initialize_ob_arrow()
 	g_arrow_ob.travel = b.x - g_arrow_ib.startx - dim.w;
 	g_arrow_ob.in_place = false;
 	g_arrow_ob.texture = g_ob_arrow;
+	g_arrow_ob.visible = true;
 	SDL_SetTextureColorMod(g_arrow_ob.texture->texture, 0, 255, 255);
 }
 
@@ -434,6 +496,7 @@ void ar_initialize_arrows()
 	initialize_challenge_arrow();
 	initialize_ib_arrow();
 	initialize_ob_arrow();
+	initialize_regs_arrow();
 }
 
 /* Function: display_arrow
@@ -487,10 +550,14 @@ void ar_display_arrow(int arrow_id)
 		case AR_EXEC:
 			aptr = &g_arrow_exec;
 			break;
+		case AR_REG:
+			aptr = &g_arrow_regs;
+			display_arrow_registers();
+			break;
 		default:
 			break;
 	}
-	if (aptr->visible){
+	if (aptr->visible == true && arrow_id != AR_REG){
 		ar_animate_arrow(aptr);
 	}
 }
