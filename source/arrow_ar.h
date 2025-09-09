@@ -54,8 +54,5 @@ enum movement{
 	AR_MOV_MAX
 };
 
-#define ARROW_INS_X (INS_BOX_X + INS_BOX_W)/4
-#define ARROW_CODE_X (INS_BOX_X + INS_BOX_W)/2
-
 #endif
 

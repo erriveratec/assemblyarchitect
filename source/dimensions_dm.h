@@ -82,23 +82,13 @@ SDL_Rect dm_get_text_box_result_but3();//Back in error condition
 #define SCREEN_WIDTH 1600
 #define SCREEN_HEIGHT 900
 
-/*******************************RETURN BUTTON*********************************/
 
-/*******************************EXECUTION ARROW********************************/
-//#define EXEC_ARROW_X_COORD_OFFSET - 50
-//#define EXEC_ARROW_Y_COORD_OFFSET 10
-//#define EXEC_ARROW_W 30
-//#define EXEC_ARROW_H 30
 
 /*******************************INSTRUCTION BOX********************************/
 // The offset of the borders of the instruction box
-#define INS_BOX_OFFSET 25
+//#define INS_BOX_OFFSET 25
 
 // TO DELETE
-#define INS_BOX_W ((SCREEN_WIDTH*2/6)/3)
-#define INS_BOX_H 250
-#define INS_BOX_X 0
-#define INS_BOX_Y ((SCREEN_HEIGHT/2) - (INS_BOX_H))
 
 #define CODE_BOX_X (INS_BOX_X + INS_BOX_W)
 #define CODE_BOX_Y 50

@@ -211,11 +211,13 @@ static void initialize_regs_arrow()
  */
 static void initialize_ins_arrow()
 {
-	g_arrow_ins.box.x = ARROW_INS_X; 
-	g_arrow_ins.box.y = tx_get_text_box_member(TX_INS_BOX, MEMBER_Y) - ARROW_H;
-	g_arrow_ins.box.w = ARROW_W; 
-	g_arrow_ins.box.h = ARROW_H;
-	g_arrow_ins.startx = ARROW_INS_X;
+	SDL_Rect ib = dm_get_stage_instruction_box();
+	SDL_Rect a = dm_get_arrow_wh();
+	g_arrow_ins.box.x = (ib.x + ib.w)/4; 
+	g_arrow_ins.box.y = tx_get_text_box_member(TX_INS_BOX, MEMBER_Y) - a.h;
+	g_arrow_ins.box.w = a.w; 
+	g_arrow_ins.box.h = a.h;
+	g_arrow_ins.startx = g_arrow_ins.box.x;
 	g_arrow_ins.starty = g_arrow_ins.box.y;
 	g_arrow_ins.travel = g_arrow_ins.box.y - iw_get_instruction_y_by_pos(
 									   iw_get_instruction_list_size() - 1);			
@@ -240,16 +242,18 @@ static void initialize_code_arrow()
 	int y = tx_get_text_box_member(TX_INS_BOX, MEMBER_Y) +
 			tx_get_text_box_member(TX_INS_BOX, MEMBER_H) + ARROW_H;
 			
-	g_arrow_code_box.box.x = ARROW_CODE_X;
+	SDL_Rect ib = dm_get_stage_instruction_box();
+	SDL_Rect a = dm_get_arrow_wh();
+	g_arrow_code_box.box.x = (ib.x + ib.w)/2;
 	g_arrow_code_box.box.y = y;
-	g_arrow_code_box.box.w = ARROW_W;
-	g_arrow_code_box.box.h = ARROW_H;
+	g_arrow_code_box.box.w = a.w;
+	g_arrow_code_box.box.h = a.h;
 	g_arrow_code_box.in_place = false;
 	g_arrow_code_box.visible = true;
-	g_arrow_code_box.startx = ARROW_CODE_X;
+	g_arrow_code_box.startx = g_arrow_code_box.box.x;
 	g_arrow_code_box.starty = g_arrow_code_box.box.y;
 	g_arrow_code_box.travel = cw_get_code_box_member(MEMBER_X) - 
-										(ARROW_CODE_X + ARROW_W); 
+										(g_arrow_code_box.box.x + a.w); 
 	g_arrow_code_box.dir = AR_RIGHT;
 	g_arrow_code_box.texture = g_lv_arrow;
 }

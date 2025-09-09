@@ -325,15 +325,18 @@ void iw_add_instruction_to_list(int id)
 	
 	SDL_Rect cb = dm_get_code_button_wh();
 	int list_size = List_count(instructions);
-	int x = INS_BOX_X + INS_BOX_OFFSET;
-	int y = INS_BOX_Y + INS_BOX_OFFSET + list_size*cb.h;
+	
+	SDL_Rect ib = dm_get_stage_instruction_box();
+	int ofs = ib.w/8;
+	int x = ib.x + ofs;
+	int y = ib.y + ofs + list_size*cb.h;
 	SDL_Rect r = dm_get_code_button_wh();
 	r.x = x;
 	r.y = y;
 	button_t *b = bt_create_button(r, true, false, false, C_BLACK, 
 								   C_WHITE, instruction_text);
 	check_mem(b);
-	set_instruction_box_member(2*INS_BOX_OFFSET + (list_size + 1)*cb.h,
+	set_instruction_box_member(2*ofs + (list_size + 1)*cb.h,
 							   MEMBER_H);
 
 	instruction_t *new_ins = cl_create_instruction(id, b);
