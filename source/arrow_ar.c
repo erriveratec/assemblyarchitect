@@ -184,9 +184,12 @@ void ar_hide_execution_arrow()
  */
 static void initialize_regs_arrow()
 {
+	List *registers = rg_get_register_list();
+	reg_t *c = registers->first->value;
 	SDL_Rect rb = rg_get_register_box();
 	SDL_Rect a = dm_get_arrow_wh();
-	g_arrow_regs.box.x = rb.x + rb.w*2/5;
+	
+	g_arrow_regs.box.x = c->b->r.x + c->b->r.w + a.w;
 	g_arrow_regs.box.w = a.w;
 	g_arrow_regs.box.h = a.h;
 	g_arrow_regs.startx = g_arrow_regs.box.x;
