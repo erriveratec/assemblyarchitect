@@ -46,6 +46,7 @@ static void update_jump_instructions();
 static operand_t *create_updated_jump_operand(code_line_t *jmp_addr);
 static code_line_t *get_clicked_label_code_line();
 static operand_t *create_saved_jump_operand(int op1_id);
+static SDL_Rect get_code_box();
 
 /* Function: cw_init_code_window_texture
  * -----------------------------------------------------------------------------
@@ -960,26 +961,9 @@ void cw_destroy_code_window_assets()
  * Return:
  *	The accessed member.
  */
-int cw_get_code_box_member(int member)
+static SDL_Rect get_code_box()
 {
-	assert(member > MEMBER_MIN && member < MEMBER_MAX && "Invalid member");
-
-	int return_value;
-	switch (member){
-		case MEMBER_X:
-			return_value = code_box.x;
-			break;
-		case MEMBER_Y:
-			return_value = code_box.y;
-			break;
-		case MEMBER_W:
-			return_value = code_box.w;
-			break;
-		case MEMBER_H:
-			return_value = code_box.h;
-			break;
-	}
-	return return_value;
+	return code_box;
 }
 
 /* Function: set_code_box_member
@@ -1230,11 +1214,11 @@ int cw_get_code_line_x(int instruction_id)
 {
 	int x;  
 	int number_ofs = dm_get_ofs_code_number();
-	
+	SDL_Rect sb = dm_get_stage_code_box();
 	if (instruction_id == LABEL){
-		x = cw_get_code_box_member(MEMBER_X) + number_ofs;
+		x = sb.x + number_ofs;
 	} else {
-		x = cw_get_code_box_member(MEMBER_X) + 4*number_ofs;	
+		x = sb.x + 4*number_ofs;	
 	}
 	return x;
 }
@@ -1257,29 +1241,26 @@ static void code_box_height_adjust()
 
 	int list_size = List_count(code);
 
-	SDL_Rect cb = dm_get_code_button_wh();
+	SDL_Rect cbut = dm_get_code_button_wh();
+	SDL_Rect codbox = get_code_box();
+	SDL_Rect ogcodbox = dm_get_stage_code_box();
 	if (CODE_LINES_SIZE < list_size){
 		
-		int increase_size = (list_size - CODE_LINES_SIZE)*cb.h;
+		int increase_size = (list_size - CODE_LINES_SIZE)*cbut.h;
 		
-		SDL_Rect cb = dm_get_stage_code_box();
-		int new_bottom_border = cw_get_code_box_member(MEMBER_Y) + cb.h + 
-							  	increase_size;
+		int new_bottom_border = codbox.y + ogcodbox.h + increase_size;
 
-		int cur_bottom_border = cw_get_code_box_member(MEMBER_H) + 
-								cw_get_code_box_member(MEMBER_Y);
+		int cur_bottom_border = codbox.h + codbox.y;
 
 		int delta = get_movement_delta(cur_bottom_border, new_bottom_border, 
 									   MOVEMENT_DELTA/2);
 		
 		if (new_bottom_border > cur_bottom_border){
 			cur_bottom_border += delta;
-			set_code_box_member(cur_bottom_border - 
-								cw_get_code_box_member(MEMBER_Y), MEMBER_H);
+			set_code_box_member(cur_bottom_border - codbox.y, MEMBER_H);
 		} else if (new_bottom_border < cur_bottom_border){
 			cur_bottom_border -= delta;
-			set_code_box_member(cur_bottom_border - 
-								cw_get_code_box_member(MEMBER_Y), MEMBER_H);
+			set_code_box_member(cur_bottom_border - codbox.y, MEMBER_H);
 		} 
 		
 	}
@@ -1301,16 +1282,17 @@ static void adjust_code_box_position()
 	static int y_pending_scroll = 0;
 	
 	y_pending_scroll += 3*ms_get_mouse_scroll_y();
-	int cur_y = cw_get_code_box_member(MEMBER_Y);
 	SDL_Rect cb = dm_get_stage_code_box();
+	SDL_Rect codbox = get_code_box();
+
+	int cur_y = codbox.y;
 	int max_upper_border_y = cb.y;
 	int min_lower_border_y = cb.y + cb.h;
 
 	if (cur_y >= max_upper_border_y && y_pending_scroll > 0){
 		y_pending_scroll = 0;
 	} 
-	if ((cur_y + cw_get_code_box_member(MEMBER_H)) <= min_lower_border_y 
-			   && y_pending_scroll < 0){
+	if ((cur_y + codbox.h) <= min_lower_border_y && y_pending_scroll < 0){
 		y_pending_scroll = 0;
 	}
 
@@ -1484,7 +1466,8 @@ void display_line_number()
 
 	SDL_Rect cb = dm_get_code_button_wh();
 	int number_ofs = dm_get_ofs_code_number();
-	int x = cw_get_code_box_member(MEMBER_X) + number_ofs;
+	SDL_Rect sb = dm_get_stage_code_box();
+	int x = sb.x + number_ofs;
 	int y = cw_get_first_code_line_y();
 	int h = cb.h;
 	char *number = NULL;
@@ -1525,8 +1508,9 @@ int cw_get_line_y(int pos)
 
 	int number_ofs = dm_get_ofs_code_number();
 	SDL_Rect cb = dm_get_code_button_wh();
-	int x = cw_get_code_box_member(MEMBER_X) + number_ofs;
-		int h = cb.h;
+	SDL_Rect sb = dm_get_stage_code_box();
+	int x = sb.x + number_ofs;
+	int h = cb.h;
 	
 	int line_number = 1;
 	for(int i = 0; i < list_size; i++){

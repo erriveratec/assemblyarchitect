@@ -443,38 +443,7 @@ SDL_Rect rg_get_register_box()
 {
 	return register_box;
 }
-/* Function: rg_get_register_box_member
- *------------------------------------------------------------------------------
- * This functions returns a specific member of the instruction_box
- *
- * Arguments:
- *	member: the member of the instruction box that will be returned.
- *
- * Return:
- *	box member requested value
- *
- */
-int rg_get_register_box_member(int member)
-{
-	assert(member >= MEMBER_X && MEMBER_H >= member && "Invalid member");
 
-	int box_member;
-	switch(member){
-		case MEMBER_X:
-			box_member = register_box.x;
-			break;
-		case MEMBER_Y:
-			box_member = register_box.y;
-			break;
-		case MEMBER_W:
-			box_member = register_box.w;
-			break;
-		case MEMBER_H:
-			box_member = register_box.h;
-			break;
-	}
-	return box_member;
-}
 
 /* Function: set_register_box_member
  *------------------------------------------------------------------------------

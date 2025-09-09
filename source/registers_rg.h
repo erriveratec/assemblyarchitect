@@ -31,7 +31,6 @@ void rg_set_register_value_box(int id, value_box_t val);
 void rg_reset_register_values();
 void rg_destroy_register_list();
 void rg_update_register_box_position();
-int rg_get_register_box_member(int member);
 void rg_init_value_boxes();
 int rg_get_ibox_x();
 int rg_get_ibox_y();

@@ -20,8 +20,6 @@ void bf_set_input_box(SDL_Rect r);
 void bf_set_output_box(SDL_Rect r);
 void bf_set_input_buffer_button(SDL_Rect r);
 void bf_set_output_buffer_button(SDL_Rect r);
-int bf_get_input_buffer_box_member(int member);
-int bf_get_output_buffer_box_member(int member);
 void bf_create_input_list();
 void bf_create_output_list();
 void bf_destroy_buffer_lists();

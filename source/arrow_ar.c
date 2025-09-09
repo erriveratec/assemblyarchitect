@@ -252,8 +252,8 @@ static void initialize_code_arrow()
 	g_arrow_code_box.visible = true;
 	g_arrow_code_box.startx = g_arrow_code_box.box.x;
 	g_arrow_code_box.starty = g_arrow_code_box.box.y;
-	g_arrow_code_box.travel = cw_get_code_box_member(MEMBER_X) - 
-										(g_arrow_code_box.box.x + a.w); 
+	SDL_Rect cb = dm_get_stage_code_box();
+	g_arrow_code_box.travel = cb.x - (g_arrow_code_box.box.x + a.w); 
 	g_arrow_code_box.dir = AR_RIGHT;
 	g_arrow_code_box.texture = g_lv_arrow;
 }
@@ -328,15 +328,15 @@ static void initialize_code_line_arrow()
 static void initialize_del_arrow()
 {
 	SDL_Rect a = dm_get_arrow_wh();
-	g_arrow_del.box.x = cw_get_code_box_member(MEMBER_X) +
-											   cw_get_code_box_member(MEMBER_W);
+	SDL_Rect sb = dm_get_stage_code_box();
+	g_arrow_del.box.x = sb.x + sb.w;
 	g_arrow_del.box.y = cw_get_text_box_member(MEMBER_Y);
 	g_arrow_del.box.w = a.w;
 	g_arrow_del.box.h = a.h;
 	g_arrow_del.in_place = false;
 	g_arrow_del.visible = true;
-	g_arrow_del.startx = cw_get_code_box_member(MEMBER_X) + 
-										cw_get_code_box_member(MEMBER_W);
+	SDL_Rect cb = dm_get_stage_code_box();
+	g_arrow_del.startx = cb.x + cb.w;
 	g_arrow_del.starty = cw_get_text_box_member(MEMBER_Y);
 	g_arrow_del.travel = a.w;
 	g_arrow_del.dir = AR_RIGHT;
