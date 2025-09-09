@@ -416,18 +416,16 @@ static void initialize_error_arrow()
 static void initialize_challenge_arrow()
 {
 	SDL_Rect a = dm_get_arrow_wh();
-	g_arrow_challenge.box.x = cw_get_text_box_member(MEMBER_X) +
-							  cw_get_text_box_member(MEMBER_W) + 2*a.w;
-	g_arrow_challenge.box.y = cw_get_text_box_member(MEMBER_Y) +
-							  cw_get_text_box_member(MEMBER_H)/2;
+	SDL_Rect tb = cw_get_text_box_rect();
+	SDL_Rect cb = dm_get_stage_code_box();
+	g_arrow_challenge.box.x = cb.x + cb.w + a.w;
+	g_arrow_challenge.box.y = tb.y + tb.h/2 - a.h/2;
 	g_arrow_challenge.box.w = a.w;
 	g_arrow_challenge.box.h = a.h;
 	g_arrow_challenge.in_place = false;
 	g_arrow_challenge.visible = true;
-	g_arrow_challenge.startx = cw_get_text_box_member(MEMBER_X) +
-							cw_get_text_box_member(MEMBER_W) + 2*a.w;
-	g_arrow_challenge.starty = cw_get_text_box_member(MEMBER_Y) +
-			cw_get_text_box_member(MEMBER_H)/2;
+	g_arrow_challenge.startx = g_arrow_challenge.box.x;
+	g_arrow_challenge.starty = g_arrow_challenge.box.y;
 	g_arrow_challenge.travel = a.w;
 	g_arrow_challenge.dir = AR_LEFT;
 	g_arrow_challenge.texture = g_lv_arrow;
