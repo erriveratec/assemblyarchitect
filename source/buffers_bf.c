@@ -23,6 +23,7 @@
 
 #define INPUT_BUFFER_TEXT "Input Buffer [IB]"
 #define OUTPUT_BUFFER_TEXT "Output Buffer [OB]"
+#define OUTPUT_BUFFER_WIN_X 10000
 
 texture_t *input_text; 
 texture_t *output_text;
@@ -42,7 +43,7 @@ operand_t *output_buffer = NULL;
 static bool g_win_condition;
 
 static int g_input_list_x_pos = SCREEN_WIDTH;
-static int g_output_list_x_pos = BUFFER_BOX_X + BUFFER_VALUE_OFFSET_X;
+static int g_output_list_x_pos;
 int g_input_list_type = NOT_ASSIGNED;  
 int g_input_buffer_size = DEFAULT_BUFFER_SIZE;
 void add_input_to_list(int value, int type);
@@ -63,10 +64,13 @@ static void destroy_output_list();
  * Return:
  *	Void.
  */
-void bf_init_buf_texture()
+void bf_init_buffer_assets()
 {
 	input_text = dw_create_text_texture(INPUT_BUFFER_TEXT, C_WHITE);
 	output_text = dw_create_text_texture(OUTPUT_BUFFER_TEXT, C_WHITE);
+	SDL_Rect ib = dm_get_stage_input_buffer_box();
+	int ofs = dm_get_ofs_buffer_value_box();
+	g_output_list_x_pos = ib.x + ofs;
 }
 
 /* Function: bf_set_win_condition
@@ -368,7 +372,9 @@ void bf_add_output_to_list()
 
 	new_output->value = NO_VALUE;
 	new_output->type = NOT_ASSIGNED;
-	new_output->box.x = BUFFER_BOX_X + BUFFER_VALUE_OFFSET_X;
+	SDL_Rect ib = dm_get_stage_input_buffer_box();
+	int ofs = dm_get_ofs_buffer_value_box();
+	new_output->box.x = ib.x + ofs;
 	int y_offset = (output_box.h - VALUE_BOX_H)/2;
 	new_output->box.y = output_box.y + y_offset;
 	new_output->box.w = VALUE_BOX_W;
@@ -608,13 +614,14 @@ void draw_output_buffer()
 	int	list_size = List_count(outputs);
 
 	int x;
+	int ofs = dm_get_ofs_buffer_value_box();
+	int ofsval = dm_get_ofs_between_value_box();
 	if (check_win_condition() == true){
 		x = OUTPUT_BUFFER_WIN_X;	
 	} else {
-		x = output_box.x + BUFFER_VALUE_OFFSET_X + (list_size-1)*(VALUE_W + 
-														BETWEEN_NUMBERS_OFFSET);
+		x = output_box.x + ofs + (list_size-1)*(VALUE_W + ofsval);
 	}
-	int y = output_box.y + BUFFER_VALUE_OFFSET_Y;
+	int y = output_box.y + ofs;
 	if (outputs != NULL && list_size > 0){
 		int draw_x = g_output_list_x_pos;
 		LIST_FOREACH(outputs, first, next, cur){
@@ -624,7 +631,7 @@ void draw_output_buffer()
 			if (cur_output->visible_box != false){
 				ax_draw_value_box(cur_output, C_WHITE);
 			}
-			draw_x -= VALUE_W + BETWEEN_NUMBERS_OFFSET;
+			draw_x -= VALUE_W + ofsval;
 		}
 		if (g_output_list_x_pos < x){
 			g_output_list_x_pos += get_movement_delta(x, g_output_list_x_pos, 
@@ -632,10 +639,8 @@ void draw_output_buffer()
 		}
 	}
 	dw_draw_rectangle(output_box, C_WHITE);
-	
-	SDL_Rect r = {.x = OUTPUT_BUFFER_TEXT_X, .y = OUTPUT_BUFFER_TEXT_Y,
-				  .h = BUFFER_TEXT_H};
-	dw_draw_texture_fits_height(r, output_text);
+	SDL_Rect ob = dm_get_stage_ob_text_box();
+	dw_draw_texture_fits_height(ob, output_text);
 error:
 	return;
 }
@@ -657,12 +662,12 @@ bool check_if_output_buffer_position_set()
 		list_size = List_count(outputs);
 	}
 
-	int x = output_box.x + BUFFER_VALUE_OFFSET_X + 
-			(list_size-1)*(VALUE_W + BETWEEN_NUMBERS_OFFSET);
+	int ofs = dm_get_ofs_buffer_value_box();
+	int ofsval = dm_get_ofs_between_value_box();
+	int x = output_box.x + ofs + (list_size-1)*(VALUE_W + ofsval);
 
 	value_box_t *first = outputs->first->value;	
 
-	//if (g_output_list_x_pos < x || g_output_list_x_pos > x){
 	if (first->box.x !=x){
 		in_pos = false;
 	} else {
@@ -683,8 +688,10 @@ void draw_input_buffer()
 {
 	int list_size = 0;
 	List *inputs = get_input_list();
-	int x = input_box.x + BUFFER_VALUE_OFFSET_X;
-	int y = input_box.y + BUFFER_VALUE_OFFSET_Y;
+	int ofs = dm_get_ofs_buffer_value_box();
+	int ofsval = dm_get_ofs_between_value_box();
+	int x = input_box.x + ofs;
+	int y = input_box.y + ofs;
 
 
 	if (inputs != NULL){
@@ -696,7 +703,7 @@ void draw_input_buffer()
 			value_box_t *cur_input = cur->value;
 			cur_input->box.x = draw_x;
 			ax_draw_value_box(cur_input, C_WHITE);
-			draw_x += VALUE_W + BETWEEN_NUMBERS_OFFSET;
+			draw_x += VALUE_W + ofsval;
 		}
 		if (g_input_list_x_pos > x){
 			g_input_list_x_pos -= get_movement_delta(x, g_input_list_x_pos, 
@@ -705,9 +712,8 @@ void draw_input_buffer()
 	}
 
 	dw_draw_rectangle(input_box, C_WHITE);
-	SDL_Rect r = {.x = INPUT_BUFFER_TEXT_X, .y = INPUT_BUFFER_TEXT_Y,
-				  .h = BUFFER_TEXT_H};
-	dw_draw_texture_fits_height(r, input_text);
+	SDL_Rect ib = dm_get_stage_ib_text_box();
+	dw_draw_texture_fits_height(ib, input_text);
 }
 
 /* Function: bf_get_buffer_value_box_x_coord_by_id
@@ -724,10 +730,11 @@ int bf_get_buffer_value_box_x_coord_by_id(int id)
 	
 	List *input_list = get_input_list();
 	int x;
+	int ofs = dm_get_ofs_buffer_value_box();
 	if (id == IB){
-		x = input_box.x + BUFFER_VALUE_OFFSET_X;
+		x = input_box.x + ofs;
 	} else if (id == OB){
-		x = output_box.x + BUFFER_VALUE_OFFSET_X;
+		x = output_box.x + ofs;
 	}
 
 	return x;
@@ -747,10 +754,11 @@ int bf_get_buffer_value_box_y_coord_by_id(int id)
 	
 	List *input_list = get_input_list();
 	int y;
+	int ofs = dm_get_ofs_buffer_value_box();
 	if (id == IB){
-		y = input_box.y + BUFFER_VALUE_OFFSET_Y;	
+		y = input_box.y + ofs;	
 	} else if (id == OB){
-		y = output_box.y - BUFFER_VALUE_OFFSET_Y;
+		y = output_box.y - ofs;
 	}
 
 	return y;
@@ -808,8 +816,10 @@ value_box_t bf_get_input_buffer_value_box()
 	int list_size = List_count(input_list);
 	assert(list_size > 0 && "No elements in the list");
 
+	int ofs = dm_get_ofs_buffer_value_box();
+	int ofsval = dm_get_ofs_between_value_box();
 	value_box_t *first = List_shift(input_list);
-	g_input_list_x_pos += VALUE_W + BETWEEN_NUMBERS_OFFSET;
+	g_input_list_x_pos += VALUE_W + ofsval;
 
 	dw_free_texture(first->t);
 	first->t = NULL;
@@ -895,7 +905,9 @@ void bf_reset_output_list()
 {
 	destroy_output_list();
 	bf_create_output_list();
-	g_output_list_x_pos = BUFFER_BOX_X + BUFFER_VALUE_OFFSET_X;
+	SDL_Rect ib = dm_get_stage_input_buffer_box();
+	int ofs = dm_get_ofs_buffer_value_box();
+	g_output_list_x_pos = ib.x + ofs;
 }
 
 /* Function: bf_destroy_buffer_lists

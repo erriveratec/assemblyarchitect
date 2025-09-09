@@ -1138,9 +1138,10 @@ static bool check_if_inside_code_window(){
  */
 void cw_set_challenge_text(char *text)
 {
+	int w = dm_get_w_code_box_text();
+	int h = dm_get_h_msg();
 	assert(NULL != text && "The text pointer is NULL");
-	g_challenge_text = dw_new_text_texture_by_h(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT, 
-																 C_WHITE, text);
+	g_challenge_text = dw_new_text_texture_by_h(w, h, C_WHITE, text);
 }
 
 /* Function: cw_set_code_box
@@ -1163,9 +1164,13 @@ void cw_set_code_box(SDL_Rect r)
 	code_box.w = r.w;
 	code_box.h = r.h;
 
-	int text_box_height = g_challenge_text->size * TEXT_BOX_HEIGHT;
-	set_text_box(r.x + CODE_BOX_OFFSET, r.y + CODE_BOX_OFFSET + STAGE_NAME_H
-				 + CODE_BOX_OFFSET, TEXT_BOX_WIDTH, text_box_height);
+	int w = dm_get_w_code_box_text();
+	int h = dm_get_h_msg();
+
+	int border_ofs = dm_get_ofs_code_box_border();
+	int text_box_height = g_challenge_text->size * h;
+	set_text_box(r.x + border_ofs, r.y + border_ofs + STAGE_NAME_H
+				 + border_ofs, w, text_box_height);
 }
 
 /* Function: set_text_box
@@ -1202,8 +1207,9 @@ static void set_text_box(int x, int y, int w, int h)
  */
 int cw_get_first_code_line_y()
 {
+	int border_ofs = dm_get_ofs_code_box_border();
 	int y = cw_get_text_box_member(MEMBER_Y) + cw_get_text_box_member(MEMBER_H)
-										   + CODE_BOX_OFFSET;
+										   + border_ofs;
 	return y;
 }
 
@@ -1348,7 +1354,8 @@ void cw_draw_code_window()
 	// Challenge text
 	SDL_Rect r = {.x = text_box.x, .y = text_box.y, .w = text_box.w, 
 															   .h = text_box.h};
-	dw_draw_wrapped_texture_by_h(r, TEXT_BOX_HEIGHT, g_challenge_text);
+	int h = dm_get_h_msg();
+	dw_draw_wrapped_texture_by_h(r, h, g_challenge_text);
 
 	// Text rectangle
 	dw_draw_rectangle(text_box, C_WHITE);
@@ -1364,8 +1371,9 @@ void cw_draw_code_window()
 
 	// Text of the level
 
-	SDL_Rect b = {.x = code_box.x + CODE_BOX_OFFSET, 
-				  .y = code_box.y + CODE_BOX_OFFSET,
+	int border_ofs = dm_get_ofs_code_box_border();
+	SDL_Rect b = {.x = code_box.x + border_ofs, 
+				  .y = code_box.y + border_ofs,
 				  .h = STAGE_NAME_H};
 	dw_draw_texture_fits_height(b, g_stage_name);
 }

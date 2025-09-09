@@ -44,7 +44,7 @@ static void initialize_game_assets()
 	tx_init_global_msgs();
 	iw_init_ins_box_texture();
 	rg_init_reg_texture();
-	bf_init_buf_texture();
+	bf_init_buffer_assets();
 	mc_init_errors_texture();
 	cw_init_code_window_texture();
 }

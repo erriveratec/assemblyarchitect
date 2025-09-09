@@ -34,13 +34,6 @@ typedef struct value_box_t{
 	texture_t *t;
 } value_box_t;
 
-
-//bool check_if_text_fits_in_width(char *t, float s, int w);
-//int get_text_height(char *t, float s);
-//int get_text_width(char *text, float scale);
-//float get_scale_from_w_h(int w, int h, texture_t *texture);
-
-
 char *ax_number_to_string(int number);
 bool check_text_fits_width_by_height(char *t, int h, int w);
 char *ax_number_to_string_prepend_zero(int number);
@@ -64,6 +57,8 @@ int ax_get_texture_h_fit_w(int w, texture_t *t);
 
 // Text for the data reading of the levels
 #define CHAR_SIZE 1
+
+#define MOVEMENT_DELTA 30
 
 extern char *char_space;
 extern char *char_comma;

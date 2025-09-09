@@ -24,16 +24,6 @@
 #define OUTPUT_BUFFER_EMPTY_TEXT "ERROR: Run finished and there are no"\
 								" elements in the Output Buffer [OB]."
 
-#define AVATAR_BUFFER_OFFSET 50
-#define AVATAR_VALUE_BOX_DISTANCE 10
-
-#define IAVATAR_X BUFFER_BOX_X //(SCREEN_WIDTH*5)/8
-#define IAVATAR_Y INPUT_BUFFER_BOX_Y + BUFFER_BOX_H + AVATAR_BUFFER_OFFSET
-
-#define OAVATAR_X BUFFER_BOX_X //(SCREEN_WIDTH*5)/8
-#define OAVATAR_Y OUTPUT_BUFFER_BOX_Y - 2*AVATAR_BUFFER_OFFSET
-
-
 texture_array_t *ib_empty;
 texture_array_t *reg_val_bad;
 texture_array_t *ob_val_bad;
@@ -279,9 +269,10 @@ void mc_destroy_avatar_textures()
 void mc_init_avatar()
 {
 	SDL_Rect avatar =  dm_get_avatar_wh();
+	SDL_Rect ib = dm_get_stage_input_buffer_box();
 	g_iavatar.id = IAVATAR;
 	g_iavatar.box.x = bf_get_buffer_value_box_x_coord_by_id(IB);	
-	g_iavatar.box.y = IAVATAR_Y;
+	g_iavatar.box.y = ib.y + ib.h + avatar.h;
 	g_iavatar.box.w = avatar.w;
 	g_iavatar.box.h = avatar.h;
 
@@ -291,16 +282,17 @@ void mc_init_avatar()
 	g_iavatar.op1_delivered = false;
 
 	g_iavatar.value.value = NO_VALUE;
-	g_iavatar.value.box.x = IAVATAR_X;
-	g_iavatar.value.box.y = IAVATAR_Y - avatar.h;
+	g_iavatar.value.box.x = ib.x;
+	g_iavatar.value.box.y = g_iavatar.box.y - avatar.h;
 	g_iavatar.value.box.w = VALUE_BOX_W;
 	g_iavatar.value.box.h = VALUE_BOX_H;
 	g_iavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
 	g_iavatar.color = C_MAGENTA;
 
+	SDL_Rect ob = dm_get_stage_output_buffer_box();
 	g_oavatar.id = OAVATAR;
 	g_oavatar.box.x = bf_get_buffer_value_box_x_coord_by_id(OB);	
-	g_oavatar.box.y = OAVATAR_Y;
+	g_oavatar.box.y = ob.y - 2*avatar.h;
 	g_oavatar.box.w = avatar.w;
 	g_oavatar.box.h = avatar.h;
 
@@ -310,8 +302,8 @@ void mc_init_avatar()
 	g_oavatar.op1_delivered = false;
 
 	g_oavatar.value.value = NO_VALUE;
-	g_oavatar.value.box.x = OAVATAR_X;
-	g_oavatar.value.box.y = OAVATAR_Y - avatar.h;
+	g_oavatar.value.box.x = ob.x;
+	g_oavatar.value.box.y = g_oavatar.box.y - avatar.h;
 	g_oavatar.value.box.w = VALUE_BOX_W;
 	g_oavatar.value.box.h = VALUE_BOX_H;
 	g_oavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
@@ -350,9 +342,10 @@ void mc_init_avatar()
 void mc_reset_avatar()
 {
 	SDL_Rect avatar =  dm_get_avatar_wh();
+	SDL_Rect ib = dm_get_stage_input_buffer_box();
 	g_iavatar.id = IAVATAR;
 	g_iavatar.box.x = bf_get_buffer_value_box_x_coord_by_id(IB);	
-	g_iavatar.box.y = IAVATAR_Y;
+	g_iavatar.box.y = ib.y + ib.h + avatar.h;
 	g_iavatar.box.w = avatar.w;
 	g_iavatar.box.h = avatar.h;
 
@@ -362,8 +355,8 @@ void mc_reset_avatar()
 	g_iavatar.op1_delivered = false;
 
 	g_iavatar.value.value = NO_VALUE;
-	g_iavatar.value.box.x = IAVATAR_X;
-	g_iavatar.value.box.y = IAVATAR_Y - avatar.h;
+	g_iavatar.value.box.x = ib.x;
+	g_iavatar.value.box.y = g_iavatar.box.y - avatar.h;
 	g_iavatar.value.box.w = VALUE_BOX_W;
 	g_iavatar.value.box.h = VALUE_BOX_H;
 	dw_free_texture(g_iavatar.value.t);
@@ -371,9 +364,10 @@ void mc_reset_avatar()
 	g_iavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
 	g_iavatar.color = C_MAGENTA;
 
+	SDL_Rect ob = dm_get_stage_output_buffer_box();
 	g_oavatar.id = OAVATAR;
 	g_oavatar.box.x = bf_get_buffer_value_box_x_coord_by_id(OB);	
-	g_oavatar.box.y = OAVATAR_Y;
+	g_oavatar.box.y = ob.y - 2*avatar.h;
 	g_oavatar.box.w = avatar.w;
 	g_oavatar.box.h = avatar.h;
 
@@ -383,8 +377,8 @@ void mc_reset_avatar()
 	g_oavatar.op1_delivered = false;
 
 	g_oavatar.value.value = NO_VALUE;
-	g_oavatar.value.box.x = OAVATAR_X;
-	g_oavatar.value.box.y = OAVATAR_Y - avatar.h;
+	g_oavatar.value.box.x = ob.x;
+	g_oavatar.value.box.y = g_oavatar.box.y - avatar.h;
 	g_oavatar.value.box.w = VALUE_BOX_W;
 	g_oavatar.value.box.h = VALUE_BOX_H;
 	dw_free_texture(g_oavatar.value.t);

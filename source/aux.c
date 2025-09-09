@@ -198,36 +198,6 @@ int get_text_width_fits_height(int h, char *text)
 
 }
 
-/* Function: get_scale_from_w_h
- * -----------------------------------------------------------------------------
- * This function receives as an argument width and height dimensions and a 
- * texture. It calculates the scale factor needed for the texture to fit
- * in those pixel dimensions. Returns the scale needed for the largest dimension
- *
- * Arguments:
- *	w: width dimension.
- *	h: height dimension.
- *	t: texture that will be used for calculating the dimension.
- *
- * Return:
- *	float with the calculated scale value
- */
-float get_scale_from_w_h(int w, int h, texture_t *texture)
-{
-	float scale = 0;
-
-	float scale_w = (float)w/texture->w;
-	float scale_h = (float)h/texture->h;
-	
-	if (scale_w < scale_h){
-		scale = scale_w;
-	} else {
-		scale = scale_h;	
-	}
-	
-	return scale;
-
-}
 
 /* Function: get_scale_fit_height
  * -----------------------------------------------------------------------------
@@ -391,40 +361,6 @@ char *ax_number_to_string(int number)
 }
 
 
-
-/* Function: check_if_text_fits_in_width
- * -------------------------------------
- * This function receives receives a string and verifies if it fits in a
- * given width using a scaling factor
- *
- * Arguments:
- *	t: text that the comparison will be done
- *	s: scaling factor to be used
- *	w: width that is going to be verified if it fits
- *
- * Return:
- *	true if it fits.
- * 	false if it not fits
- */
-
-bool check_if_text_fits_in_width(char *t, float s, int w)
-{
-	bool check = false;
-	texture_t *text_texture = NULL;
-
-	text_texture = dw_create_text_texture(t, C_WHITE);
-	assert(NULL != text_texture && 
-		   "Failed to load texture from rendered text");
-
-	float scaled_text_width = (float)text_texture->w * s;
-	if (scaled_text_width < w){
-		check = true;
-	}
-
-	dw_free_texture(text_texture);
-	return check;
-}
-
 /* Function: check_text_fits_width_by_height
  * -------------------------------------
  * This function receives receives a string and verifies if it fits in a
@@ -439,7 +375,6 @@ bool check_if_text_fits_in_width(char *t, float s, int w)
  *	true if it fits.
  * 	false if it not fits
  */
-
 bool check_text_fits_width_by_height(char *t, int h, int w)
 {
 	bool check = false;
@@ -458,33 +393,7 @@ bool check_text_fits_width_by_height(char *t, int h, int w)
 	dw_free_texture(text_texture);
 	return check;
 }
-/* Function: get_text_height
- * -------------------------------------
- * This function calculates the height of a text in pixels with a give scale 
- * factor
- *
- * Arguments:
- *	text: text that the will be display wrapped
- *	scale: scaling factor to be used
- *
- * Return:
- *	int value containign the adecuate y offset
- * 	
- */
-int get_text_height(char *text, float scale)
-{
-	texture_t *text_texture = NULL;
 
-	text_texture = dw_create_text_texture(text, C_WHITE);
-	assert(NULL != text_texture && 
-		   "Failed to load texture from rendered text");
-
-	int scaled_text_height = (float)text_texture->h * scale;
-
-	dw_free_texture(text_texture);
-
-	return scaled_text_height;
-}
 
 /* Function: get_text_width
  * -------------------------------------

@@ -17,6 +17,7 @@ int dm_get_h_bottom_msg();
 int dm_get_h_msg();
 int dm_get_h_error_msg();
 int dm_get_h_stage_titles();
+int dm_get_w_code_box_text();
 
 SDL_Rect dm_get_studio_name_msg_box();
 SDL_Rect dm_get_game_title_box();
@@ -56,9 +57,12 @@ int dm_get_w_stage_rail();
 int dm_get_w_stage_rail_end();
 int dm_get_ofs_stage_buffer_value();
 int dm_get_ofs_stage_reg_box();
+int dm_get_ofs_code_box_border();
 int dm_get_ofs_code_number();
 int dm_get_ofs_code_op1();
 int dm_get_ofs_code_op2();
+int dm_get_ofs_buffer_value_box();
+int dm_get_ofs_between_value_box();
 
 SDL_Rect dm_get_arrow_box();
 SDL_Rect dm_get_arrow_ins_box();
@@ -86,40 +90,7 @@ SDL_Rect dm_get_text_box_result_but3();//Back in error condition
 #define STR_BACK "Back"
 #define STR_CONT "Continue"
 
-#define CODE_BOX_OFFSET 25
-
-#define TEXT_BOX_WIDTH 300
-#define TEXT_BOX_HEIGHT 30
-
-#define MOVEMENT_DELTA 30
-
-
-/*************************INPUT/OUTPUT BUFFERS*********************************/
-// The height of the text for the input/output buffers
-
-
-#define BUFFER_TEXT_H 42
-
-#define BUFFER_BOX_H 75
-
-#define INPUT_BUFFER_TEXT_X (SCREEN_WIDTH*4/6)
-#define INPUT_BUFFER_TEXT_Y 0
-
-#define OUTPUT_BUFFER_TEXT_X (SCREEN_WIDTH*4/6)
-#define OUTPUT_BUFFER_TEXT_Y (SCREEN_HEIGHT - BUFFER_TEXT_H)
-
-// The dimensions of the input/output boxes
-#define BUFFER_BOX_X (SCREEN_WIDTH*4/6)
-#define INPUT_BUFFER_BOX_Y 40
-
-#define OUTPUT_BUFFER_BOX_Y (SCREEN_HEIGHT - BUFFER_TEXT_H - BUFFER_BOX_H)
-#define OUTPUT_BUFFER_WIN_X 10000
-
-
-// x and y offsets for the numbers and the box
-#define BUFFER_VALUE_OFFSET_X 20
-#define BUFFER_VALUE_OFFSET_Y 20
-#define BETWEEN_NUMBERS_OFFSET 30
+//#define BETWEEN_NUMBERS_OFFSET 30
 
 #define BUFFER_MOVEMENT_DELTA 5
 

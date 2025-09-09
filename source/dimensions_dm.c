@@ -52,6 +52,58 @@ int g_screen_height;
 
 int scale_to_resolution(int dim);
 
+/* Function: dm_get_ofs_buffer_value_box
+ * -----------------------------------------------------------------------------
+ *	Return the offset value of the contents of the buffer. 
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset
+ */
+int dm_get_ofs_between_value_box()
+{
+	int ofs =  dm_get_ofs_buffer_value_box();
+	return (ofs*3/2);
+}
+
+/* Function: dm_get_ofs_buffer_value_box
+ * -----------------------------------------------------------------------------
+ *	Return the offset value of the contents of the buffer. 
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset
+ */
+int dm_get_ofs_buffer_value_box()
+{
+	SDL_Rect vbox =  dm_get_vbox_wh();
+	SDL_Rect ib = dm_get_stage_input_buffer_box();
+	int ofs = (ib.h - vbox.h)/2;
+	return ofs;
+}
+
+/* Function: dm_get_w_code_box_text
+ * -----------------------------------------------------------------------------
+ *	Return the offset value of the contents of the buffer. 
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset
+ */
+int dm_get_w_code_box_text()
+{
+	int ofs = dm_get_ofs_code_box_border();
+	SDL_Rect cb = dm_get_stage_code_box();
+	int w = cb.w - 2*ofs;
+	return w;
+}
+
 /* Function: dm_get_h_stage_titles
  * -----------------------------------------------------------------------------
  *	Return the offset value of the contents of the buffer. 
@@ -69,6 +121,22 @@ int dm_get_h_stage_titles()
 	
 }
 
+/* Function: dm_get_ofs_code_box_border
+ * -----------------------------------------------------------------------------
+ *	Return the offset value of the contents of the buffer. 
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset
+ */
+int dm_get_ofs_code_box_border()
+{
+	SDL_Rect cb = dm_get_stage_code_box();
+	int ofs = scale_to_resolution(0.05*cb.w);
+	return ofs;
+}
 /* Function: dm_get_ofs_code_number
  * -----------------------------------------------------------------------------
  *	Return the offset value of the contents of the buffer. 
@@ -83,7 +151,6 @@ int dm_get_ofs_code_number()
 {
 	int ofs = scale_to_resolution(CODE_LINE_NUMBER_OFFSET);
 	return ofs;
-	
 }
 
 /* Function: dm_get_ofs_code_op1
