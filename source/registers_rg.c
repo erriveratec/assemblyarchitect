@@ -291,8 +291,10 @@ void rg_update_register_box_position()
 	check_mem(registers);	
 	int list_size = List_count(registers);
 
+	int screen_height =  dm_get_screen_height();
+
 	int h = register_box.h;	
-	int y = SCREEN_HEIGHT/2 - h/2;
+	int y = screen_height/2 - h/2;
 	
 	set_register_box_member(y, MEMBER_Y);
 

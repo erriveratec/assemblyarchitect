@@ -55,6 +55,8 @@ SDL_Rect dm_get_stage_ib_text_box();
 SDL_Rect dm_get_stage_ob_text_box();
 SDL_Rect dm_get_stage_buttons();
 
+int dm_get_screen_width();
+int dm_get_screen_height();
 int dm_get_y_hidden_stage_buttons();
 int dm_get_w_stage_rail();
 int dm_get_w_stage_rail_end();
@@ -87,12 +89,7 @@ SDL_Rect dm_get_text_box_result_but1();//Back in win condition
 SDL_Rect dm_get_text_box_result_but2();//Continue in win condition
 SDL_Rect dm_get_text_box_result_but3();//Back in error condition
 
-/*******************************RESOLUTION*************************************/
-#define SCREEN_WIDTH 1600
-#define SCREEN_HEIGHT 900
 
-#define STR_BACK "Back"
-#define STR_CONT "Continue"
 
 
 #endif

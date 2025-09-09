@@ -55,6 +55,36 @@ int g_screen_height;
 
 int scale_to_resolution(int dim);
 
+/* Function: dm_get_screen_height
+ * -----------------------------------------------------------------------------
+ *	Returns the screen width
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	screen width
+ */
+int dm_get_screen_height()
+{
+	return g_screen_height;
+}
+
+/* Function: dm_get_screen_width
+ * -----------------------------------------------------------------------------
+ *	Returns the screen width
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	screen width
+ */
+int dm_get_screen_width()
+{
+	return g_screen_width;
+}
+
 /* Function: dm_get_ofs_space_stage_buttons
  * -----------------------------------------------------------------------------
  *	Return the offset value of the contents of the buffer. 

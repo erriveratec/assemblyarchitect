@@ -60,6 +60,9 @@ int ax_get_texture_h_fit_w(int w, texture_t *t);
 
 #define MOVEMENT_DELTA 30
 
+#define STR_BACK "Back"
+#define STR_CONT "Continue"
+
 extern char *char_space;
 extern char *char_comma;
 extern char *char_newline;

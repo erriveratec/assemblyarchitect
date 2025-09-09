@@ -33,7 +33,6 @@ static void initialize_game_assets();
  */
 static void initialize_game_assets()
 {
-	dm_set_screen_resolution(R1600X900);
 	g_studio_name = dw_create_text_texture(STUDIO_NAME_TEXT, C_WHITE);
 	g_game_title = dw_create_text_texture(GAME_TITLE_TEXT, C_WHITE);
 	g_press_space = dw_create_text_texture(PRESS_SPACE_TEXT, C_WHITE);
@@ -52,8 +51,11 @@ static void initialize_game_assets()
 
 int main(int argc, char *args[])
 {
-	//SDL Window setup
-	if (init_sdl(SCREEN_WIDTH, SCREEN_HEIGHT, argc, args) == FAIL){
+	dm_set_screen_resolution(R1600X900);
+	int screen_width = dm_get_screen_width();
+	int screen_height = dm_get_screen_height();
+
+	if (init_sdl(screen_width, screen_height, argc, args) == FAIL){
 		printf("SDL could not be initialized");
 		return FAIL;
 	}

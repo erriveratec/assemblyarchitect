@@ -57,14 +57,14 @@ int init_sdl(int width, int height, int argc, char *args[])
 		
 		//Create window
 		if (strcmp(args[i], "-f")){
-			SDL_CreateWindowAndRenderer(SCREEN_WIDTH,
-										SCREEN_HEIGHT,
+			SDL_CreateWindowAndRenderer(width,
+										height,
 										SDL_WINDOW_SHOWN,
 										&g_window,
 										&g_renderer);
 		} else {
-			SDL_CreateWindowAndRenderer(SCREEN_WIDTH,
-										SCREEN_HEIGHT,
+			SDL_CreateWindowAndRenderer(width,
+										height,
 										SDL_WINDOW_FULLSCREEN_DESKTOP,
 										&g_window,
 										&g_renderer);

@@ -43,7 +43,7 @@ operand_t *output_buffer = NULL;
 
 static bool g_win_condition;
 
-static int g_input_list_x_pos = SCREEN_WIDTH;
+static int g_input_list_x_pos;
 static int g_output_list_x_pos;
 int g_input_list_type = NOT_ASSIGNED;  
 int g_input_buffer_size = DEFAULT_BUFFER_SIZE;
@@ -72,6 +72,7 @@ void bf_init_buffer_assets()
 	SDL_Rect ib = dm_get_stage_input_buffer_box();
 	int ofs = dm_get_ofs_buffer_value_box();
 	g_output_list_x_pos = ib.x + ofs;
+	g_input_list_x_pos = dm_get_screen_width();
 }
 
 /* Function: bf_set_win_condition
@@ -407,9 +408,11 @@ void add_input_to_list(int value, int type)
 	value_box_t *new_input = malloc(sizeof(value_box_t));
 	check_mem(new_input);
 
+	int screen_width = dm_get_screen_width();
+
 	new_input->value = value;
 	new_input->type = type;
-	new_input->box.x = SCREEN_WIDTH;
+	new_input->box.x = screen_width;
 	SDL_Rect vb = dm_get_vbox_wh();
 	int y_offset = (input_box.h - vb.h)/2;
 	new_input->box.y = input_box.y + y_offset;
@@ -845,7 +848,8 @@ value_box_t bf_get_input_buffer_value_box()
  */
 void bf_reset_input_list_x_pos()
 {
-	g_input_list_x_pos = SCREEN_WIDTH;
+	int screen_width = dm_get_screen_width();
+	g_input_list_x_pos = screen_width;
 }
 
 /* Function: destroy_input_list
