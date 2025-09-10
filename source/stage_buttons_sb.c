@@ -93,7 +93,7 @@ void display_escape_menu(bool show_menu)
 	if (show_menu == true){
 		
 		SDL_Rect r = dm_get_escape_menu_box();
-		dw_draw_filled_rectangle(r, C_WHITE, C_WHITE);
+		dw_draw_filled_rectangle(r, C_WHITE, C_BLACK);
 
 		
 		bt_draw_button(g_escape_b1);

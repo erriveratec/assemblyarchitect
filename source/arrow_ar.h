@@ -38,6 +38,7 @@ enum arrow_id{
 	AR_REG,
 };
 
+void ar_init_arrow(int arrow_id);
 void ar_initialize_arrows();
 void ar_display_arrow(int arrow_id);
 void ar_animate_arrow(arrow_t *arrow);

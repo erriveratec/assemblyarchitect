@@ -1033,6 +1033,29 @@ void lv_init_level_assets(int level)
 	}
 }
 
+/* Function: lv_upd_level_assets
+ *------------------------------------------------------------------------------
+ * Updates the selected game assets when a change in game state requires it.
+ *
+ * Arguments:
+ *	level: The speficic level that is goin to have the drawing.
+ *
+ * Return:
+ *	Void.
+ */
+void lv_upd_level_assets(int level)
+{
+	assert(level < LV_LEVEL_MAX && level > LV_LEVEL_MIN && 
+			          								"Invalid level value");
+	
+	switch(level){
+		case LV_LEVEL_2:
+			ar_init_arrow(AR_CODE);
+			break;
+		default:
+			break;
+	}
+}
 /* Function: lv_level_drawings
  *------------------------------------------------------------------------------
  * This functions draws the specific characteristics of a level, like where

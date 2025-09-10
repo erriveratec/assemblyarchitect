@@ -295,19 +295,26 @@ static void initialize_play_arrow()
  */
 static void initialize_code_line_arrow()
 {
-	SDL_Rect cb = dm_get_code_button_wh();
 	SDL_Rect a = dm_get_arrow_wh();
+	int pos = cw_get_code_list_size() - 1;
+	int y = cw_get_line_y(pos);
+
+	if (pos >= 0){
+		code_line_t *l = cw_get_code_line_at_pos(pos);
+		SDL_Rect i = l->ins->b->r;
+		g_arrow_code_line.box.x = i.x + a.w/2;
+		g_arrow_code_line.box.y = y + i.h;
+	} else {
+		g_arrow_code_line.box.x = 0;
+		g_arrow_code_line.box.y = 0;
+	}
 	g_arrow_code_line.box.w = a.w;	
 	g_arrow_code_line.box.h = a.h;
-	g_arrow_code_line.box.x = cw_get_code_line_x(MOV) + a.w/2;
-	g_arrow_code_line.box.y = cw_get_line_y(cw_get_code_list_size()-1) + 
-													    cb.h;
 	g_arrow_code_line.in_place = false;
 	g_arrow_code_line.visible = true;
-	g_arrow_code_line.startx = cw_get_code_line_x(MOV) + a.w/2;
+	g_arrow_code_line.startx = g_arrow_code_line.box.x;
 	g_arrow_code_line.starty = g_arrow_code_line.box.y;
-	g_arrow_code_line.travel = g_arrow_code_line.starty - 
-									   cw_get_line_y(cw_get_code_list_size()-1);	
+	g_arrow_code_line.travel = a.h;	
 	g_arrow_code_line.dir = AR_UP;
 	g_arrow_code_line.texture = g_lv_arrow;
 
@@ -326,16 +333,16 @@ static void initialize_code_line_arrow()
 static void initialize_del_arrow()
 {
 	SDL_Rect a = dm_get_arrow_wh();
-	SDL_Rect sb = dm_get_stage_code_box();
-	g_arrow_del.box.x = sb.x + sb.w;
-	g_arrow_del.box.y = cw_get_text_box_member(MEMBER_Y);
+	SDL_Rect cb = dm_get_stage_code_box();
+	SDL_Rect tb = cw_get_text_box_rect();
+	g_arrow_del.box.x = cb.x + cb.w;
+	g_arrow_del.box.y = tb.y + tb.h/2;
 	g_arrow_del.box.w = a.w;
 	g_arrow_del.box.h = a.h;
 	g_arrow_del.in_place = false;
 	g_arrow_del.visible = true;
-	SDL_Rect cb = dm_get_stage_code_box();
-	g_arrow_del.startx = cb.x + cb.w;
-	g_arrow_del.starty = cw_get_text_box_member(MEMBER_Y);
+	g_arrow_del.startx = g_arrow_del.box.x;
+	g_arrow_del.starty = g_arrow_del.box.y;
 	g_arrow_del.travel = a.w;
 	g_arrow_del.dir = AR_RIGHT;
 	g_arrow_del.texture = g_lv_arrow;
@@ -354,20 +361,26 @@ static void initialize_del_arrow()
 static void initialize_op2_arrow()
 {
 	SDL_Rect a = dm_get_arrow_wh();
-	SDL_Rect cb = dm_get_code_button_wh();
 	int op2_ofs = dm_get_ofs_code_op2();
-
-	g_arrow_op2.box.x = cw_get_code_line_x(MOV) + op2_ofs + a.w/2;
-	g_arrow_op2.box.y = cw_get_line_y(cw_get_code_list_size()-1) + 
-													cb.h;
+	
+	int pos = 1;
+	int size  = cw_get_code_list_size();
+	if (pos <= (size-1)){
+		code_line_t *l = cw_get_code_line_at_pos(pos);
+		SDL_Rect o = l->op2->b->r;
+		g_arrow_op2.box.x = o.x + a.w/2;
+		g_arrow_op2.box.y = o.y + o.h;
+	} else{
+		g_arrow_op2.box.x = 0;
+		g_arrow_op2.box.y = 0;
+	}
 	g_arrow_op2.box.w = a.w;
 	g_arrow_op2.box.h = a.h;
 	g_arrow_op2.in_place = false;
 	g_arrow_op2.visible = true;
-	g_arrow_op2.startx = cw_get_code_line_x(MOV) + op2_ofs + a.w/2;
+	g_arrow_op2.startx = g_arrow_op2.box.x;
 	g_arrow_op2.starty = g_arrow_op2.box.y;			
-	g_arrow_op2.travel = g_arrow_op2.starty	- 
-									   cw_get_line_y(cw_get_code_list_size()-1);
+	g_arrow_op2.travel = a.h;
 	g_arrow_op2.dir = AR_UP;
 	g_arrow_op2.texture = g_lv_arrow;
 }
@@ -509,6 +522,59 @@ void ar_initialize_arrows()
 	initialize_ib_arrow();
 	initialize_ob_arrow();
 	initialize_regs_arrow();
+}
+/* Function: ar_init_arrow
+ * -----------------------------------------------------------------------------
+ * Animates the arrow that points to the first instruction
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+void ar_init_arrow(int arrow_id)
+{
+	switch(arrow_id){
+		case AR_INS:
+			initialize_ins_arrow();
+			break;
+		case AR_DROP:
+			initialize_drop_arrow();
+			break;
+		case AR_PLAY:
+			initialize_play_arrow();
+			break;
+		case AR_CODE:
+			initialize_code_line_arrow();
+			break;
+		case AR_DEL:
+			initialize_del_arrow();
+			break;
+		case AR_OP2:
+			initialize_op2_arrow();
+			break;
+		case AR_ERROR:
+			initialize_error_arrow();
+			break;
+		case AR_CHALLENGE:
+			initialize_challenge_arrow();
+			break;
+		case AR_IB:
+			initialize_ib_arrow();
+			break;
+		case AR_OB:
+			initialize_ob_arrow();
+			break;
+		case AR_EXEC:
+			ar_reset_execution_arrow();
+			break;
+		case AR_REG:
+			initialize_regs_arrow();
+			break;
+		default:
+			break;
+	}
 }
 
 /* Function: display_arrow

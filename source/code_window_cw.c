@@ -1037,37 +1037,7 @@ static void set_text_box_member(int value, int member)
 	}
 	return;
 }
-/* Function: cw_get_text_box_member
- * -----------------------------------------------------------------------------
- * This function access and returns the members of the text box object.
- *
- * Arguments:
- * member: The specific member that is being requested.
- *
- * Return:
- *	The accessed member.
- */
-int cw_get_text_box_member(int member)
-{
-	assert(member > MEMBER_MIN && member < MEMBER_MAX && "Invalid member");
 
-	int return_value;
-	switch (member){
-		case MEMBER_X:
-			return_value = text_box.x;
-			break;
-		case MEMBER_Y:
-			return_value = text_box.y;
-			break;
-		case MEMBER_W:
-			return_value = text_box.w;
-			break;
-		case MEMBER_H:
-			return_value = text_box.h;
-			break;
-	}
-	return return_value;
-}
 
 
 /* Function: cw_get_text_box_rect
@@ -1193,8 +1163,8 @@ static void set_text_box(int x, int y, int w, int h)
 int cw_get_first_code_line_y()
 {
 	int border_ofs = dm_get_ofs_code_box_border();
-	int y = cw_get_text_box_member(MEMBER_Y) + cw_get_text_box_member(MEMBER_H)
-										   + border_ofs;
+	SDL_Rect tb = cw_get_text_box_rect();
+	int y = tb.y + tb.h + border_ofs;
 	return y;
 }
 
@@ -1299,7 +1269,8 @@ static void adjust_code_box_position()
 	int delta = get_movement_delta(0, y_pending_scroll, MOVEMENT_DELTA);	
 
 	if (0 != y_pending_scroll){
-		int text_box_y = cw_get_text_box_member(MEMBER_Y);
+		SDL_Rect tb = cw_get_text_box_rect();
+		int text_box_y = tb.y;
 		
 		if (y_pending_scroll < 0){
 			cur_y -= delta;
@@ -1334,11 +1305,8 @@ void cw_draw_code_window()
 	display_player_code();
 	display_line_number();
 
-	// Challenge text
-	SDL_Rect r = {.x = text_box.x, .y = text_box.y, .w = text_box.w, 
-															   .h = text_box.h};
 	int h = dm_get_h_msg();
-	dw_draw_wrapped_texture_by_h(r, h, g_challenge_text);
+	dw_draw_wrapped_texture_by_h(text_box, h, g_challenge_text);
 
 	// Text rectangle
 	dw_draw_rectangle(text_box, C_WHITE);
@@ -1522,6 +1490,19 @@ int cw_get_line_y(int pos)
 	}
 	return y;
 }
+
+/* Function: cw_get_code_line_element_rect
+ * -----------------------------------------------------------------------------
+ * This function return a given element of the code line for a position
+ * with the properties of the position that should be assigned, for example
+ * the instruction, operand1, or operand 2 for a given position
+ *
+ * Arguments:
+ *	element: 
+ *
+ * Return:
+ *	Void.
+ */
 
 /* Function: cw_sort_code
  * -----------------------------------------------------------------------------

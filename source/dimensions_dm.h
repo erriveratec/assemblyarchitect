@@ -70,9 +70,6 @@ int dm_get_ofs_between_value_box();
 int dm_get_ofs_reg_value_box();
 int dm_get_ofs_space_stage_buttons();
 
-SDL_Rect dm_get_arrow_box();
-SDL_Rect dm_get_arrow_ins_box();
-
 SDL_Rect dm_get_text_box_big();
 SDL_Rect dm_get_text_box_error();
 SDL_Rect dm_get_text_box_upper();

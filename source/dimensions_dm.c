@@ -518,25 +518,6 @@ SDL_Rect dm_get_text_box_result()
 	return b;
 }
 
-/* Function: dm_get_arrow_box
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object, x and y are initialize at 0
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_arrow_box()
-{
-	SDL_Rect b;
-	b.w = scale_to_resolution(ARROW_W);
-	b.h = scale_to_resolution(ARROW_H);
-	b.x = 0;
-	b.y = 0;
-	return b;
-}
 
 /* Function: dm_get_box_msg_wh
  * -----------------------------------------------------------------------------
@@ -573,7 +554,7 @@ SDL_Rect dm_get_text_box_error()
 {
 	SDL_Rect rb = dm_get_text_box_result();
 	SDL_Rect mb = dm_get_box_msg_wh();
-	SDL_Rect ab = dm_get_arrow_box();
+	SDL_Rect ab = dm_get_arrow_wh();
 	
 	SDL_Rect b;
 	b.w = rb.w*2/3;
@@ -733,26 +714,7 @@ SDL_Rect dm_get_text_box_upper()
 	return b;
 }
 
-/* Function: dm_get_arrow_ins_box
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object, x and y are initialize at 0
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_arrow_ins_box()
-{
-	SDL_Rect ib = dm_get_stage_instruction_box();	
-	SDL_Rect b;
-	b.w = 0;
-	b.h = 0;
-	b.x = (ib.x + ib.w)/4;
-	b.y = 0;
-	return b;
-}
+
 
 /* Function: dm_get_stage_ib_text_box
  * -----------------------------------------------------------------------------

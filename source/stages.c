@@ -62,6 +62,7 @@ static void reset_level(int level_id, level_flags_t *flags, bool *run_finished);
 static int display_run_result(bool win_check);
 static void destroy_level(level_flags_t *flags);
 static void init_stage_assets();
+static void code_updated_actions(int level_id);
 
 /* Function: stage_select_player
  * ----------------------------------------------------------------------------
@@ -573,6 +574,24 @@ static void pending_operand_handler()
 	return;
 }
 
+/* Function: code_updated_actions
+ * ----------------------------------------------------------------------------
+ * Performs all the actions that need to be done in the game logic when
+ * the code has been updated with a new line or deleted line
+ *
+ * Arguments:
+ * 	Void.
+ *
+ * Return:
+ *	Void.
+ */
+static void code_updated_actions(int level_id)
+{
+	fl_save_level(g_player, level_id);
+	lv_upd_level_assets(level_id);
+}
+
+
 /* Function: edit_code
  * ----------------------------------------------------------------------------
  * This function is called when the player is able to edit or alter the code
@@ -596,7 +615,7 @@ static bool edit_code(int level_id)
 		cw_check_code_sorted() == true && cw_check_clicked_code() == false){
 		pending_operand_handler();	
 		if (cw_check_code_pending_operand() == false){
-			fl_save_level(g_player, level_id);
+			code_updated_actions(level_id);
 		}
 	} else if (cw_check_clicked_code_operand() == true && line == NULL){
 		cw_change_clicked_code_line_state();	
@@ -612,7 +631,7 @@ static bool edit_code(int level_id)
 			cl_destroy_code_line(line);
 		} 
 		if (cw_check_code_pending_operand() == false){
-			fl_save_level(g_player, level_id);
+			code_updated_actions(level_id);
 		}
 		line = NULL;
 	}
