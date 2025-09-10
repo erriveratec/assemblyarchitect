@@ -514,7 +514,7 @@ SDL_Rect dm_get_text_box_result()
 	b.w = scale_to_resolution(RES_BOX_W);
 	b.h = scale_to_resolution(RES_BOX_H);
 	b.x = (g_screen_width - b.w)/2;
-	b.y = g_screen_height/2 - b.h/2;
+	b.y = g_screen_height/2 - b.h*2/3;
 	return b;
 }
 
@@ -579,7 +579,7 @@ SDL_Rect dm_get_text_box_error()
 	b.w = rb.w*2/3;
 	b.h = mb.h;
 	b.x = rb.x + (rb.w/3)/2;
-	b.y = rb.y + rb.h + g_screen_height/15;
+	b.y = rb.y + rb.h + 2*ab.h;
 	return b;
 }
 
@@ -638,13 +638,12 @@ SDL_Rect dm_get_text_box_stagebutton()
 SDL_Rect dm_get_text_box_code()
 {
 	SDL_Rect cb = dm_get_stage_code_box();	
-	SDL_Rect ib = dm_get_stage_instruction_box();	
 	SDL_Rect mb = dm_get_box_msg_wh();	
 	SDL_Rect b;
 	b.w = mb.w;
 	b.h = mb.h;
 	b.x = cb.x + (cb.w - mb.w)/2;
-	b.y = ib.y;
+	b.y = cb.y + cb.h - mb.h/2;
 	return b;
 }
 /* Function: dm_get_text_box_ins
@@ -666,7 +665,7 @@ SDL_Rect dm_get_text_box_ins()
 	b.w = mb.w;
 	b.h = mb.h;
 	b.x = ib.x;
-	b.y = g_screen_height*2 - mb.h/3;
+	b.y = ib.y + ib.h;
 	return b;
 }
 

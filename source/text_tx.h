@@ -8,7 +8,7 @@
 void tx_init_global_msgs();
 void tx_text_box(int pos, int msg_id);
 void tx_bottom_msg(int pos, int msg_id);
-void tx_upd_boxes_pos();
+//void tx_upd_boxes_pos();
 int tx_get_text_box_member(int text_box_id, int member);
 void tx_init_level_text_textures(int level_id);
 void tx_init_text_boxes();

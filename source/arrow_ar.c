@@ -16,7 +16,7 @@ texture_t *g_exec_arrow;
 texture_t *g_reg_arrow;
 
 static arrow_t g_arrow_ins; 
-static arrow_t g_arrow_code_box;
+static arrow_t g_arrow_drop;
 static arrow_t g_arrow_play;
 static arrow_t g_arrow_code_line;
 static arrow_t g_arrow_del;
@@ -29,7 +29,7 @@ static arrow_t g_arrow_exec;
 static arrow_t g_arrow_regs;
 
 static void initialize_ins_arrow();
-static void initialize_code_arrow();
+static void initialize_drop_arrow();
 static void initialize_play_arrow();
 static void initialize_code_line_arrow();
 static void initialize_del_arrow();
@@ -62,7 +62,6 @@ static void display_arrow_registers()
 	LIST_FOREACH(registers, first, next, cur){ 
 		reg_t *c = cur->value;
 		g_arrow_regs.box.y = c->b->r.y + (cb.h - g_arrow_regs.box.h)/2; 
-		g_arrow_regs.travel = g_arrow_regs.startx - (c->b->r.x + c->b->r.w);
 		if (i == 0){
 			ar_animate_arrow(&g_arrow_regs);
 		} else {
@@ -192,6 +191,7 @@ static void initialize_regs_arrow()
 	g_arrow_regs.box.x = c->b->r.x + c->b->r.w + a.w;
 	g_arrow_regs.box.w = a.w;
 	g_arrow_regs.box.h = a.h;
+	g_arrow_regs.travel = a.w;
 	g_arrow_regs.startx = g_arrow_regs.box.x;
 	g_arrow_regs.dir = AR_LEFT;
 	g_arrow_regs.in_place = false;
@@ -211,16 +211,16 @@ static void initialize_regs_arrow()
  */
 static void initialize_ins_arrow()
 {
-	SDL_Rect ib = dm_get_stage_instruction_box();
+	int size = iw_get_instruction_list_size();
+	SDL_Rect ir = iw_get_instruction_rect_by_pos(size - 1);
 	SDL_Rect a = dm_get_arrow_wh();
-	g_arrow_ins.box.x = (ib.x + ib.w)/4; 
-	g_arrow_ins.box.y = tx_get_text_box_member(TX_INS_BOX, MEMBER_Y) - a.h;
+	g_arrow_ins.box.x = ir.x + a.w/2; 
+	g_arrow_ins.box.y = ir.y + ir.h + a.h;
 	g_arrow_ins.box.w = a.w; 
 	g_arrow_ins.box.h = a.h;
 	g_arrow_ins.startx = g_arrow_ins.box.x;
 	g_arrow_ins.starty = g_arrow_ins.box.y;
-	g_arrow_ins.travel = g_arrow_ins.box.y - iw_get_instruction_y_by_pos(
-									   iw_get_instruction_list_size() - 1);			
+	g_arrow_ins.travel = a.h;			
 	g_arrow_ins.dir = AR_UP;
 	g_arrow_ins.in_place = false;
 	g_arrow_ins.visible =  true;
@@ -237,25 +237,23 @@ static void initialize_ins_arrow()
  * Return:
  *	Void.
  */
-static void initialize_code_arrow()
+static void initialize_drop_arrow()
 {
 	SDL_Rect a = dm_get_arrow_wh();
-	int y = tx_get_text_box_member(TX_INS_BOX, MEMBER_Y) +
-			tx_get_text_box_member(TX_INS_BOX, MEMBER_H) + a.h;
-			
-	SDL_Rect ib = dm_get_stage_instruction_box();
-	g_arrow_code_box.box.x = (ib.x + ib.w)/2;
-	g_arrow_code_box.box.y = y;
-	g_arrow_code_box.box.w = a.w;
-	g_arrow_code_box.box.h = a.h;
-	g_arrow_code_box.in_place = false;
-	g_arrow_code_box.visible = true;
-	g_arrow_code_box.startx = g_arrow_code_box.box.x;
-	g_arrow_code_box.starty = g_arrow_code_box.box.y;
+	SDL_Rect bi = dm_get_text_box_ins();
 	SDL_Rect cb = dm_get_stage_code_box();
-	g_arrow_code_box.travel = cb.x - (g_arrow_code_box.box.x + a.w); 
-	g_arrow_code_box.dir = AR_RIGHT;
-	g_arrow_code_box.texture = g_lv_arrow;
+	
+	g_arrow_drop.box.x = (cb.x - 2*a.w);
+	g_arrow_drop.box.y = bi.y - a.h*3/2;
+	g_arrow_drop.box.w = a.w;
+	g_arrow_drop.box.h = a.h;
+	g_arrow_drop.in_place = false;
+	g_arrow_drop.visible = true;
+	g_arrow_drop.startx = g_arrow_drop.box.x;
+	g_arrow_drop.starty = g_arrow_drop.box.y;
+	g_arrow_drop.travel = a.w; 
+	g_arrow_drop.dir = AR_RIGHT;
+	g_arrow_drop.texture = g_lv_arrow;
 }
 
 /* Function: initialize_play_arrow
@@ -279,8 +277,8 @@ static void initialize_play_arrow()
 	g_arrow_play.in_place = false;
 	g_arrow_play.visible = true;
 	g_arrow_play.startx = sb.x;
-	g_arrow_play.starty = sb.y - 2*a.h;	
-	g_arrow_play.travel = sb.y - g_arrow_play.starty - a.h;	
+	g_arrow_play.starty = g_arrow_play.box.y;	
+	g_arrow_play.travel = a.h;	
 	g_arrow_play.dir = AR_DOWN;
 	g_arrow_play.texture = g_lv_arrow;
 }
@@ -499,8 +497,9 @@ static void initialize_ob_arrow()
  */
 void ar_initialize_arrows()
 {
+	SDL_SetTextureColorMod(g_lv_arrow->texture, 255, 0, 0);
 	initialize_ins_arrow();
-	initialize_code_arrow();
+	initialize_drop_arrow();
 	initialize_play_arrow();
 	initialize_code_line_arrow();
 	initialize_del_arrow();
@@ -534,7 +533,7 @@ void ar_display_arrow(int arrow_id)
 			aptr = &g_arrow_ins;
 			break;
 		case AR_DROP:
-			aptr = &g_arrow_code_box;
+			aptr = &g_arrow_drop;
 			break;
 		case AR_PLAY:
 			aptr = &g_arrow_play;

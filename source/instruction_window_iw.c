@@ -34,9 +34,9 @@ void iw_init_ins_box_texture()
 	instructions_text = dw_create_text_texture(INSTRUCTIONS_TEXT, C_WHITE);
 }
 
-/* Function: iw_get_instruction_y_by_pos
+/* Function: iw_get_instruction_box_by_pos
  *------------------------------------------------------------------------------
- * This function returns THE LOWER y value of an instruction
+ * Returns the box coordinates of an instruction of a given pos
  *
  * Arguments:
  *	pos: The position of the instruction on the instruction list
@@ -44,11 +44,11 @@ void iw_init_ins_box_texture()
  * Return:
  *	Lower y value of the instruction
  */
-int iw_get_instruction_y_by_pos(int pos)
+SDL_Rect iw_get_instruction_rect_by_pos(int pos)
 {
 	int list_size = iw_get_instruction_list_size();
 	assert(pos >= 0  && pos < list_size && "Incorrect position");
-
+	
 	List *instructions = get_instruction_list();
 	instruction_t *i;
 	int count = 0;
@@ -59,7 +59,7 @@ int iw_get_instruction_y_by_pos(int pos)
 	   	}
    }
    assert(i != NULL && "null pointer returned for instruction");
-   return i->b->r.y + i->b->r.h;
+   return i->b->r;
 }
 
 

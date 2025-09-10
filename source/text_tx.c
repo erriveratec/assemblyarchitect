@@ -364,29 +364,7 @@ int tx_get_text_box_member(int text_box_id, int member)
 	return retval;
 }
 
-/* Function: tx_initialize_assets
- * -----------------------------------------------------------------------------
- * This function initializes the assets regarding the text box.
- * 
- *
- * Arguments:
- *	Void.
- *	
- * Return:
- *	Void.
- */
-void tx_upd_boxes_pos()
-{
-	SDL_Rect a = dm_get_arrow_wh();
-	SDL_Rect cb = dm_get_code_button_wh();
-	int code_size =  cw_get_code_list_size();
-	//g_code_box.y = cw_get_line_y(code_size-1) + CODE_BUTTON_H + ARROW_H;   
-	g_code_box.y = cw_get_line_y(2) + cb.h + a.h;   
-	int ins_list_size = iw_get_instruction_list_size();
-	//g_ins_box.y = iw_get_instruction_y_by_pos(ins_list_size - 1) + 3*ARROW_H;
-	g_ins_box.y = cw_get_line_y(2) + 3*a.h;
 
-}
 
 /* Function: tx_bottom_msg
  * -----------------------------------------------------------------------------
