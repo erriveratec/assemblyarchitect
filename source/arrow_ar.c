@@ -297,13 +297,11 @@ static void initialize_code_line_arrow()
 {
 	SDL_Rect a = dm_get_arrow_wh();
 	int pos = cw_get_code_list_size() - 1;
-	int y = cw_get_line_y(pos);
 
 	if (pos >= 0){
-		code_line_t *l = cw_get_code_line_at_pos(pos);
-		SDL_Rect i = l->ins->b->r;
-		g_arrow_code_line.box.x = i.x + a.w/2;
-		g_arrow_code_line.box.y = y + i.h;
+		SDL_Rect cl = cw_get_code_line_coord_at_pos(CW_INS, pos);
+		g_arrow_code_line.box.x = cl.x + a.w/2;
+		g_arrow_code_line.box.y = cl.y + cl.h;
 	} else {
 		g_arrow_code_line.box.x = 0;
 		g_arrow_code_line.box.y = 0;
@@ -350,7 +348,6 @@ static void initialize_del_arrow()
 
 /* Function: initialize_op2_arrow
  * -----------------------------------------------------------------------------
- * 
  *
  * Arguments:
  * 	Void.
@@ -361,15 +358,13 @@ static void initialize_del_arrow()
 static void initialize_op2_arrow()
 {
 	SDL_Rect a = dm_get_arrow_wh();
-	int op2_ofs = dm_get_ofs_code_op2();
 	
 	int pos = 1;
 	int size  = cw_get_code_list_size();
 	if (pos <= (size-1)){
-		code_line_t *l = cw_get_code_line_at_pos(pos);
-		SDL_Rect o = l->op2->b->r;
-		g_arrow_op2.box.x = o.x + a.w/2;
-		g_arrow_op2.box.y = o.y + o.h;
+		SDL_Rect cl = cw_get_code_line_coord_at_pos(CW_OP2, pos);
+		g_arrow_op2.box.x = cl.x + a.w/2;
+		g_arrow_op2.box.y = cl.y + cl.h;
 	} else{
 		g_arrow_op2.box.x = 0;
 		g_arrow_op2.box.y = 0;

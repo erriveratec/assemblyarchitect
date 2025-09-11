@@ -648,7 +648,7 @@ void cw_add_saved_line(char *line)
 						  		  ins_text, C_WHITE);
 	
 	int x = cw_get_code_line_x(ins_id);
-	int y = cw_get_first_code_line_y();
+	int y = cw_get_code_line_y(0);
 
 	SDL_Rect cb = dm_get_code_button_wh();
 	for (int i = 0; i <= list_size; i++){
@@ -1149,24 +1149,6 @@ static void set_text_box(int x, int y, int w, int h)
 	text_box.h = h;
 }
 
-/* Function: cw_get_first_code_line_y
- * -----------------------------------------------------------------------------
- * This function calculates and returns the y position of the first line of 
- * code.
- *
- * Arguments:
- * 	none.
- *
- * Return:
- *	int with the coordinate of the first line of code
- */
-int cw_get_first_code_line_y()
-{
-	int border_ofs = dm_get_ofs_code_box_border();
-	SDL_Rect tb = cw_get_text_box_rect();
-	int y = tb.y + tb.h + border_ofs;
-	return y;
-}
 
 /* Function: cw_get_code_line_x
  * -----------------------------------------------------------------------------
@@ -1436,7 +1418,7 @@ void display_line_number()
 	int number_ofs = dm_get_ofs_code_number();
 	SDL_Rect sb = dm_get_stage_code_box();
 	int x = sb.x + number_ofs;
-	int y = cw_get_first_code_line_y();
+	int y = cw_get_code_line_y(0);
 	int h = cb.h;
 	char *number = NULL;
 	
@@ -1452,7 +1434,7 @@ void display_line_number()
 	}
 }
 
-/* Function: cw_get_line_y
+/* Function: cw_get_code_line_y
  * -------------------------------------
  * Returns the y coodinate a instruction must be assigned
  *
@@ -1462,27 +1444,23 @@ void display_line_number()
  * Return:
  * 	The y coordinate the instruction must have 
  */
-int cw_get_line_y(int pos)
+int cw_get_code_line_y(int pos)
 {
 	List *code = get_code_list();
 	assert(code != NULL && "The code list can't be NULL");
 	
 	int list_size = List_count(code);
-	int y = cw_get_first_code_line_y();
+	int border_ofs = dm_get_ofs_code_box_border();
+	SDL_Rect tb = cw_get_text_box_rect();
+	int y = tb.y + tb.h + border_ofs;
 
-	if (list_size == 0){
+	if (list_size == 0 || pos == 0){
 		return y;
 	}
 
-	int number_ofs = dm_get_ofs_code_number();
 	SDL_Rect cb = dm_get_code_button_wh();
-	SDL_Rect sb = dm_get_stage_code_box();
-	int x = sb.x + number_ofs;
-	int h = cb.h;
 	
-	int line_number = 1;
 	for(int i = 0; i < list_size; i++){
-	int instruction = cw_get_instruction_at_code_pos(i);
 		y += cb.h;
 		if (pos == i){
 			break;
@@ -1491,7 +1469,7 @@ int cw_get_line_y(int pos)
 	return y;
 }
 
-/* Function: cw_get_code_line_element_rect
+/* Function: cw_get_code_line_coord_at_pos
  * -----------------------------------------------------------------------------
  * This function return a given element of the code line for a position
  * with the properties of the position that should be assigned, for example
@@ -1503,6 +1481,44 @@ int cw_get_line_y(int pos)
  * Return:
  *	Void.
  */
+SDL_Rect cw_get_code_line_coord_at_pos(int code_line_element, int pos)
+{
+	SDL_Rect cb = dm_get_code_button_wh();
+	int op1_ofs = dm_get_ofs_code_op1();
+	int op2_ofs = dm_get_ofs_code_op2();
+	
+	int x = cw_get_code_line_x(MOV);
+	int y = cw_get_code_line_y(0);
+	
+	SDL_Rect bwh = dm_get_code_button_wh();
+	SDL_Rect cl = {.x = x, .y = y, .w = bwh.w, .h = bwh.h};
+
+	int list_size = cw_get_code_list_size();
+
+	switch(code_line_element){
+		case CW_OP1:
+			cl.x += op1_ofs;
+			break;
+		case CW_OP2:
+			cl.x += op2_ofs;	
+			break;
+		default:
+			break;
+	}
+
+	if (list_size == 0 || pos == 0){
+		return cl;
+	}
+	
+
+	for(int i = 0; i < list_size; i++){
+		cl.y += cb.h;
+		if (pos == i){
+			break;
+		}
+	}
+	return cl;
+}
 
 /* Function: cw_sort_code
  * -----------------------------------------------------------------------------
@@ -1530,7 +1546,7 @@ void cw_sort_code()
 	int op2_ofs = dm_get_ofs_code_op2();
 	
 	int h = cb.h; 
-	int y = cw_get_first_code_line_y();
+	int y = cw_get_code_line_y(0);
 
 	LIST_FOREACH(code, first, next, cur){
 
@@ -1634,7 +1650,7 @@ bool cw_check_if_in_code_list(code_line_t *line)
 int get_code_line_position(int y)
 {
 	List *code = get_code_list();
-	int first_y = cw_get_first_code_line_y();
+	int first_y = cw_get_code_line_y(0);
 
 	SDL_Rect cb = dm_get_code_button_wh();
 	int h = cb.h;
@@ -1729,7 +1745,7 @@ static bool check_selected_line_in_position(code_line_t *line)
 		return false;
 	}
 	
-	int y = cw_get_first_code_line_y();
+	int y = cw_get_code_line_y(0);
 
 	int mouse_y = ms_get_mouse_y();
 	bool ret = false;
@@ -1989,7 +2005,7 @@ bool cw_check_code_sorted()
 	
 	SDL_Rect cb = dm_get_code_button_wh();
 	int h = cb.h;
-	int y = cw_get_first_code_line_y();
+	int y = cw_get_code_line_y(0);
 
 	int retval = true;
 	LIST_FOREACH(code, first, next, cur){

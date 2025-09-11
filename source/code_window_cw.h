@@ -15,6 +15,13 @@ enum operand_positions{
 	SECOND_OP
 };
 
+enum code_line_element{
+	CW_INS,
+	CW_OP1,
+	CW_OP2,
+	CW_LABEL
+};
+
 void cw_draw_code_window();
 void cw_create_code_list();
 void cw_set_code_box(SDL_Rect r);
@@ -42,14 +49,13 @@ void cw_add_saved_line(char *line);
 void cw_destroy_code_window_assets();
 int cw_get_instruction_y_coord(int instruction_position); //review usage
 int cw_get_code_line_x(int instruction_id);
+int cw_get_code_line_y(int pos);
 bool cw_check_released_in_label();
 operand_t *cw_create_jump_operand();
 void cw_update_saved_jump_instructions();
 void cw_operate_jump_instruction(code_line_t *line);
-//int cw_get_text_box_member(int member);
 SDL_Rect cw_get_text_box_rect();
-int cw_get_first_code_line_y();
-int cw_get_line_y(int pos);
 void cw_init_code_window_texture();
+SDL_Rect cw_get_code_line_coord_at_pos(int code_line_element, int pos);
 
 #endif
