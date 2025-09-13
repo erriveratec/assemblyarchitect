@@ -19,6 +19,13 @@
 
 #define WIN_CONDITION_LENGTH 30
 
+static bool g_code_editable;
+static bool g_buf_selectable;
+static bool g_reg_selectable;
+
+
+
+
 static List *win_list = NULL;
 static int level_instructions_limit;
 static char level_win_condition[WIN_CONDITION_LENGTH];
@@ -43,6 +50,147 @@ static void win2_add_inputs_in_groups(int group_size);
 static void set_win_condition(char *win_condition);
 static void draw_regs_arrow(bool show_arrows);
 static void draw_bufs_arrow(int buf_id);
+static void reset_code_editable();
+static void set_code_editable();
+static void reset_buf_selectable();
+static void set_buf_selectable();
+static void reset_reg_selectable();
+static void set_reg_selectable();
+
+/* Function: lv_is_reg_selectable
+ * ----------------------------------------------------------------------------
+ * Returns a boolean with the value to check if registers are selectable
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Boolean indicating if the regs is editable
+ */
+bool lv_is_reg_selectable()
+{
+	return g_reg_selectable;
+}
+
+/* Function: set_reg_selectable
+ * ----------------------------------------------------------------------------
+ * Sets the reg global variable to be selectable
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Void.
+ */
+static void set_reg_selectable()
+{
+	g_reg_selectable = true;
+}
+
+/* Function: reset_reg_selectable
+ * ----------------------------------------------------------------------------
+ * Resets the reg variable to not be selectable
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Void.
+ */
+static void reset_reg_selectable()
+{
+	g_reg_selectable = false;
+}
+
+/* Function: lv_is_buf_selectable
+ * ----------------------------------------------------------------------------
+ * Returns a boolean with the value to check if buffer are selectable
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Boolean indicating if the code is editable
+ */
+bool lv_is_buf_selectable()
+{
+	return g_buf_selectable;
+}
+
+/* Function: set_buf_selectable
+ * ----------------------------------------------------------------------------
+ * Sets the buf global variable to be selectable
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Void.
+ */
+static void set_buf_selectable()
+{
+	g_buf_selectable = true;
+}
+
+/* Function: reset_buf_selectable
+ * ----------------------------------------------------------------------------
+ * Resets the buf variable to not be selectable
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Void.
+ */
+static void reset_buf_selectable()
+{
+	g_buf_selectable = false;
+}
+
+/* Function: lv_is_code_editable
+ * ----------------------------------------------------------------------------
+ * Returns a boolean with the value to check if the code could be editable
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Boolean indicating if the code is editable
+ */
+bool lv_is_code_editable()
+{
+	return g_code_editable;
+}
+
+/* Function: set_code_editable
+ * ----------------------------------------------------------------------------
+ * Sets the code global variable to be editable
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Void.
+ */
+static void set_code_editable()
+{
+	g_code_editable = true;
+}
+
+/* Function: reset_code_editable
+ * ----------------------------------------------------------------------------
+ * Resets the code global variable to not be editable
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Void.
+ */
+static void reset_code_editable()
+{
+	g_code_editable = false;
+}
 
 /* Function: level_9_tutorial
  * -----------------------------------------------------------------------------
@@ -250,6 +398,7 @@ static void level_4_tutorial(bool holding_line, bool play)
 		}
 	}
 }
+
 /* Function: level_3_tutorial
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 3
@@ -263,6 +412,7 @@ static void level_4_tutorial(bool holding_line, bool play)
 static void level_3_tutorial(bool holding_line, bool play)
 {
 	draw_regs_arrow(check_display_reg_lv_arrow());
+	draw_bufs_arrow(check_display_buf_arrow());
 
 	int code_size = cw_get_code_list_size();
 	static bool msg_welcome = true;
@@ -274,6 +424,7 @@ static void level_3_tutorial(bool holding_line, bool play)
 	if (msg_welcome == true && code_size == 0){
 		tx_text_box(TX_BIG_BOX, TX_L3_WELCOME);
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
+		reset_code_editable();
 		if (ms_chk_mouse_left_pressed() == true){
 			msg_welcome = false;
 			ms_reset_mouse_values();
@@ -297,6 +448,7 @@ static void level_3_tutorial(bool holding_line, bool play)
 	} else if (code_size == 0 && holding_line == false){
 		tx_text_box(TX_INS_BOX, TX_L3_SELINS1);
 		ar_display_arrow(AR_INS);
+		set_code_editable();
 	} else if (code_size == 0 && holding_line == true){
 		tx_text_box(TX_INS_BOX, TX_L3_DROPINS);
 		ar_display_arrow(AR_DROP);
@@ -304,28 +456,35 @@ static void level_3_tutorial(bool holding_line, bool play)
 							cw_check_code_sorted() == true && msg_ops1 == true){
 		tx_text_box(TX_LOWER_BOX, TX_L3_AVAILOPS1);
 		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
-		if (ms_chk_mouse_left_pressed() == true){
+		if (ms_chk_mouse_left_released() == true){
 			msg_ops1 = false;
 			ms_reset_mouse_values();
 		}
 	} else if (code_size == 1 && cw_check_code_pending_op1() == true && 
-			   cw_check_code_sorted() == true){
+			   									cw_check_code_sorted() == true){
 		tx_text_box(TX_CODE_BOX, TX_L3_SELRAX);
+		reset_buf_selectable();
 	} else if (code_size == 1 && cw_check_code_pending_op2() == true && 
 							cw_check_code_sorted() == true && msg_ops2 == true){
+		
 		tx_text_box(TX_CENTER_BOX, TX_L3_AVAILOPS2);
 		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
-		if (ms_chk_mouse_left_pressed() == true){
+		if (ms_chk_mouse_left_released() == true){
 			msg_ops2 = false;
 			ms_reset_mouse_values();
 		}
 	} else if (code_size == 1 && cw_check_code_pending_op2() == true && 
 												cw_check_code_sorted() == true){
+		// Select input buffer
 		tx_text_box(TX_UPPER_BOX, TX_L3_SELIB);
+		set_buf_selectable();
+		reset_reg_selectable();
 	} else if (code_size == 1 && cw_check_code_pending_operand() == false &&
 														 holding_line == false){
+		// Select the second instruction	
 		tx_text_box(TX_INS_BOX, TX_L3_SELINS2);
 		ar_display_arrow(AR_INS);
+		set_reg_selectable();
 	} else if (code_size == 1 && cw_check_code_pending_operand() == false &&
 														  holding_line == true){
 		tx_text_box(TX_INS_BOX, TX_L3_DROPINS);
@@ -347,7 +506,6 @@ static void level_3_tutorial(bool holding_line, bool play)
  */
 static void level_2_tutorial(bool holding_line, bool play)
 {
-	//draw_regs_arrow(false);
 	int code_size = cw_get_code_list_size();
 	
 	const int pos_one = 0;
@@ -580,7 +738,7 @@ static void draw_bufs_arrow(int buf_id)
 			ar_display_arrow(AR_IB);
 			break;
 		case OB:
-			ar_display_arrow(AR_IB);
+			ar_display_arrow(AR_OB);
 			break;
 		default:
 			break;
@@ -999,6 +1157,9 @@ void lv_init_level_assets(int level)
 {
 	assert(level < LV_LEVEL_MAX && level > LV_LEVEL_MIN && 
 			          								"Invalid level value");
+	set_code_editable();
+	set_buf_selectable();
+	set_reg_selectable();
 	switch(level){
 		case LV_LEVEL_1:
 			tx_init_level_1_texts();

@@ -15,7 +15,6 @@ int stage_select_level();
 int stage_select_player();
 int stage_level(int level);
 int stage_studio(Uint64 start_time, Uint64 cur_time);
-void init_level(int level_id);
 
 #define STUDIO_NAME_TEXT "One Man Studio"
 #define GAME_TITLE_TEXT "Assembly Architect"

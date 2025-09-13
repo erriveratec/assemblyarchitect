@@ -19,12 +19,11 @@
 #include "arrow_ar.h"
 
 #define STUDIO_SCREEN_DELAY 1000 // 1 sec
-
 #define SELECT_PLAYER_TEXT "Which hacker are you?"
-
 #define PLAYER_1_TEXT "HACKER W"
 #define PLAYER_2_TEXT "HACKER X"
 #define PLAYER_3_TEXT "HACKER Y"
+
 
 
 // Escape option menu variables
@@ -46,7 +45,6 @@ typedef struct level_flags_t{
 
 
 int g_player = FL_NO_PLAYER;
-
 static SDL_Rect result_box;
 
 texture_t *g_studio_name = NULL;
@@ -63,6 +61,10 @@ static int display_run_result(bool win_check);
 static void destroy_level(level_flags_t *flags);
 static void init_stage_assets();
 static void code_updated_actions(int level_id);
+static void set_code_editable();
+static void reset_code_editable();
+
+
 
 /* Function: stage_select_player
  * ----------------------------------------------------------------------------
@@ -558,10 +560,12 @@ static void pending_operand_handler()
 			operand_t *a = cw_create_jump_operand();
 			cl_assign_operand_to_line(a, l);
 		}
-	} else if (left_released == true && register_selected == true){
+	} else if (left_released == true && register_selected == true &&
+												lv_is_reg_selectable() == true){
 		operand_t *r = rg_create_operand_of_selected_register();
 		cl_assign_operand_to_line(r, l);
-	} else if (left_released == true && buffer_selected == true){
+	} else if (left_released == true && buffer_selected == true && 
+												lv_is_buf_selectable() == true){
 		operand_t *b = bf_create_operand_of_selected_buffer();
 		if (check_operand_compatilibity(b, l) == true){
 			cl_assign_operand_to_line(b, l);
@@ -619,9 +623,11 @@ static bool edit_code(int level_id)
 		}
 	} else if (cw_check_clicked_code_operand() == true && line == NULL){
 		cw_change_clicked_code_line_state();	
-	} else if (iw_check_clicked_instruction() == true && line == NULL){
+	} else if (iw_check_clicked_instruction() == true && line == NULL &&
+												 lv_is_code_editable() == true){
 		line = cl_new_code_line(iw_get_clicked_instruction());
-	} else if (cw_check_clicked_code() == true && line == NULL){
+	} else if (cw_check_clicked_code() == true && line == NULL && 
+												 lv_is_code_editable() == true){
 		line = cw_get_clicked_code();
 	} else if (left_pressed == true && line != NULL){
 		cw_player_holding_instruction(line);
