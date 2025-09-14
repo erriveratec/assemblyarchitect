@@ -65,6 +65,22 @@
 #define L3_SELINS2 "Use more \"mov\" instructions to solve the challenge"
 #define L3_READ "Use\nmov [OB], rax\nseveral times to solve the challenge"
 
+#define L4_WELCOME "Welcome to Level 04"
+#define L4_DESCRIPTION1 "Solve the challenge by yourself applying what has"\
+" been learned"\
+
+#define L5_WELCOME "Welcome to Level 05" 
+#define L5_DESCRIPTION1 "There are more"\
+" registers available. Use them to solve the challenge."\
+
+#define L6_WELCOME "Welcome to Level 06" 
+#define L6_DESCRIPTION1 "Notice that there is"\
+" a new instruction available: \"add\""
+#define L6_DESCRIPTION2 "Usage:\n\"add OP1, OP2\"\ndoes OP1 + OP2"\
+" and stores the result in OP1"
+#define L6_SELINS "Solve the challenge using the"\
+" \"mov\" and \"add\" instructions"
+
 SDL_Rect g_big_box;
 SDL_Rect g_error_box;
 SDL_Rect g_upper_box;
@@ -82,7 +98,61 @@ texture_array_t **g_gbl_msgs = NULL;
 
 static int get_box_member(SDL_Rect *box, int member);
 
-/* Function: tx_init_level_3_texts
+/* Function: tx_init_level_6_texts
+ * -----------------------------------------------------------------------------
+ * Creates the requiered text textures for a level
+ * 
+ * Arguments:
+ *	Void.
+ *	
+ * Return:
+ * 	Void.	
+ */
+void tx_init_level_6_texts()
+{
+	g_lvl_msgs_size = TX_L6_MAX;
+	g_lvl_msgs = malloc(sizeof(texture_array_t*)*g_lvl_msgs_size);
+
+	SDL_Rect r = dm_get_text_box_big();
+	int text_h = dm_get_h_big_text();
+	g_lvl_msgs[TX_L6_WELCOME] = dw_new_text_texture_by_h(r.w, text_h, C_BLACK, 
+																    L6_WELCOME);
+	r = dm_get_box_msg_wh();
+	text_h = dm_get_h_msg();
+	g_lvl_msgs[TX_L6_DESCRIPTION1] = dw_new_text_texture_by_h(r.w, text_h, 
+										 			  C_BLACK, L6_DESCRIPTION1);
+	g_lvl_msgs[TX_L6_DESCRIPTION2] = dw_new_text_texture_by_h(r.w, text_h, 
+										 			  C_BLACK, L6_DESCRIPTION2);
+	g_lvl_msgs[TX_L6_SELINS] = dw_new_text_texture_by_h(r.w, text_h, 
+										 			  C_BLACK, L6_SELINS);
+}
+
+/* Function: tx_init_level_5_texts
+ * -----------------------------------------------------------------------------
+ * Creates the requiered text textures for a level
+ * 
+ * Arguments:
+ *	Void.
+ *	
+ * Return:
+ * 	Void.	
+ */
+void tx_init_level_5_texts()
+{
+	g_lvl_msgs_size = TX_L5_MAX;
+	g_lvl_msgs = malloc(sizeof(texture_array_t*)*g_lvl_msgs_size);
+
+	SDL_Rect r = dm_get_text_box_big();
+	int text_h = dm_get_h_big_text();
+	g_lvl_msgs[TX_L5_WELCOME] = dw_new_text_texture_by_h(r.w, text_h, C_BLACK, 
+																    L5_WELCOME);
+	r = dm_get_box_msg_wh();
+	text_h = dm_get_h_msg();
+	g_lvl_msgs[TX_L5_DESCRIPTION1] = dw_new_text_texture_by_h(r.w, text_h, 
+										 			  C_BLACK, L5_DESCRIPTION1);
+}
+
+/* Function: tx_init_level_4_texts
  * -----------------------------------------------------------------------------
  * Creates the requiered text textures for a level
  * 
@@ -94,15 +164,17 @@ static int get_box_member(SDL_Rect *box, int member);
  */
 void tx_init_level_4_texts()
 {
-	g_lvl_msgs_size = TX_L3_MAX;
+	g_lvl_msgs_size = TX_L4_MAX;
 	g_lvl_msgs = malloc(sizeof(texture_array_t*)*g_lvl_msgs_size);
 
 	SDL_Rect r = dm_get_text_box_big();
 	int text_h = dm_get_h_big_text();
-	g_lvl_msgs[TX_L3_WELCOME] = dw_new_text_texture_by_h(r.w, text_h, C_BLACK, 
-																    L3_WELCOME);
+	g_lvl_msgs[TX_L4_WELCOME] = dw_new_text_texture_by_h(r.w, text_h, C_BLACK, 
+																    L4_WELCOME);
 	r = dm_get_box_msg_wh();
 	text_h = dm_get_h_msg();
+	g_lvl_msgs[TX_L4_DESCRIPTION1] = dw_new_text_texture_by_h(r.w, text_h, 
+										 			  C_BLACK, L4_DESCRIPTION1);
 }
 
 /* Function: tx_init_level_3_texts

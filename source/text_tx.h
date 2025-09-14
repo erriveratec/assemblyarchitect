@@ -16,6 +16,8 @@ void tx_init_level_1_texts();
 void tx_init_level_2_texts();
 void tx_init_level_3_texts();
 void tx_init_level_4_texts();
+void tx_init_level_5_texts();
+void tx_init_level_6_texts();
 
 enum text_box_positions{
 	TX_BOX_MIN,
@@ -36,6 +38,25 @@ enum gbl_msgs{
 	TX_MSG_PRESSBACK
 };
 
+enum l6_messages{
+	TX_L6_WELCOME,
+	TX_L6_DESCRIPTION1,
+	TX_L6_DESCRIPTION2,
+	TX_L6_SELINS,
+	TX_L6_MAX
+};
+
+enum l5_messages{
+	TX_L5_WELCOME,
+	TX_L5_DESCRIPTION1,
+	TX_L5_MAX
+};
+
+enum l4_messages{
+	TX_L4_WELCOME,
+	TX_L4_DESCRIPTION1,
+	TX_L4_MAX
+};
 enum l3_messages{
 	TX_L3_WELCOME,
 	TX_L3_DESCRIPTION1,
@@ -98,17 +119,8 @@ enum l1_messages{
 #define ERROR_MSG_BOX_X RES_BOX_X + MSG_BOX_W/2 - ARROW_W/2
 #define ERROR_MSG_BOX_Y RES_BOX_Y + RES_BOX_H + ERROR_BOX_Y_OFFSET
 
-#define L4_MSG_FOURTH_CHALLENGE "Welcome to Level 04. In this level you "\
-" solve the challenge by yourself applying what has been learned."\
-" (Click anywhere to continue)."
 
-#define L5_MSG_FIFTH_CHALLENGE "Welcome to Level 05. Notice that now are more"\
-" registers available. You will need them to solve the challenge."\
-" (Click anywhere to continue)."
 
-#define L6_MSG_SIXTH_CHALLENGE "Welcome to Level 06. Notice that there is"\
-" a new instruction available \"add\". "\
-" (Click anywhere to continue)."
 
 #define L7_MSG_SEVENTH_CHALLENGE "Welcome to Level 07. Did you know that"\
 " instructions \"mov\" \"add\" can be used with both operands being registers?"\
@@ -125,11 +137,7 @@ enum l1_messages{
 #define L5_MSG_NEW_REGS "Notice that now are more registers available"\
 " try using them to solve the challenge."
 
-#define L6_MSG_ADD "For Example:        \"add OP1, OP2\" adds OP1 + OP2"\
-" and stores the result in OP1. (Click anywhere to continue)."
 
-#define L6_MSG_SOLVE "Solve the challenge using a combination of the"\
-" \"mov\" and \"add\" instructions."\
 
 #define L7_MSG_ADD "For Example:        \"add rax, rbx\" adds rax + rbx"\
 " and stores the result in rax. (Click anywhere to continue)."

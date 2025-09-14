@@ -16,14 +16,14 @@ int dm_get_h_big_text();
 int dm_get_h_bottom_msg();
 int dm_get_h_msg();
 int dm_get_h_error_msg();
+int dm_get_h_stage_elements_titles();
 int dm_get_h_stage_titles();
 int dm_get_w_code_box_text();
 
 SDL_Rect dm_get_studio_name_msg_box();
 SDL_Rect dm_get_game_title_box();
 SDL_Rect dm_get_press_space_box();
-SDL_Rect dm_get_select_player_box();
-SDL_Rect dm_get_select_level_box();
+SDL_Rect dm_get_upper_title_box();
 
 SDL_Rect dm_get_p1_button_box();
 SDL_Rect dm_get_p2_button_box();

@@ -529,7 +529,7 @@ operand_t *rg_create_register_operand_by_id(int id)
 	check_mem(reg_text);
 	
 	SDL_Rect cb = dm_get_code_button_wh();
-	int text_h = dm_get_h_stage_titles();
+	int text_h = dm_get_h_stage_elements_titles();
 	int register_text_w = get_text_width_fits_height(text_h, REG_TEXT);
 	int x = 0;
 	int y = 0;
@@ -580,7 +580,7 @@ void rg_add_register_to_list(int id)
 	texture_t *reg_text = cl_create_operand_texture(id);
 	check_mem(reg_text);
 
-	int text_h = dm_get_h_stage_titles();
+	int text_h = dm_get_h_stage_elements_titles();
 	int register_text_w = get_text_width_fits_height(text_h, REG_TEXT);
 	int x = register_box.x + ofs;
 
@@ -705,7 +705,7 @@ static void draw_register_box()
  */
 static void draw_register_text()
 {
-	int text_h = dm_get_h_stage_titles();
+	int text_h = dm_get_h_stage_elements_titles();
 	int text_w = get_text_width_fits_height(text_h, REG_TEXT);
 	int x = register_box.x;
 	int y = register_box.y - text_h;

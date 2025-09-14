@@ -219,6 +219,7 @@ static void disable_code_editable(int exception)
 static void level_9_tutorial(bool holding_line, bool play)
 {
 	draw_regs_arrow(check_display_reg_lv_arrow());
+	draw_bufs_arrow(check_display_buf_arrow());
 
 	
 	const int pos_one = 0;
@@ -274,6 +275,7 @@ static void level_9_tutorial(bool holding_line, bool play)
 static void level_8_tutorial(bool holding_line, bool play)
 {
 	draw_regs_arrow(check_display_reg_lv_arrow());
+	draw_bufs_arrow(check_display_buf_arrow());
 
 	int code_size = cw_get_code_list_size();
 	static bool first_message = true;
@@ -306,6 +308,7 @@ static void level_8_tutorial(bool holding_line, bool play)
 static void level_7_tutorial(bool holding_line, bool play)
 {
 	draw_regs_arrow(check_display_reg_lv_arrow());
+	draw_bufs_arrow(check_display_buf_arrow());
 
 	int code_size = cw_get_code_list_size();
 	static bool first_message = true;
@@ -338,25 +341,39 @@ static void level_7_tutorial(bool holding_line, bool play)
 static void level_6_tutorial(bool holding_line, bool play)
 {
 	draw_regs_arrow(check_display_reg_lv_arrow());
+	draw_bufs_arrow(check_display_buf_arrow());
 
 	int code_size = cw_get_code_list_size();
-	static bool first_message = true;
-	static bool second_message = true;
+	static bool msg_welcome = true;
+	static bool msg_descrip1 = true;
+	static bool msg_descrip2 = true;
 
-	if (first_message == true && code_size == 0){
-//		tx_text_box(TX_BIG_BOX, L6_MSG_SIXTH_CHALLENGE);
+	if (msg_welcome == true && code_size == 0){
+		tx_text_box(TX_BIG_BOX, TX_L6_WELCOME);
+		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
 		if (ms_chk_mouse_left_pressed() == true){
-			first_message = false;
+			msg_welcome = false;
 			ms_reset_mouse_values();
 		}
-	} else if (second_message == true && code_size == 0){
-//		tx_text_box(TX_UPPER_BOX, L6_MSG_ADD);
+	} else if (msg_descrip1 == true && code_size == 0){
+		tx_text_box(TX_UPPER_BOX, TX_L6_DESCRIPTION1);
+		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
+		ar_display_arrow(AR_INS);
 		if (ms_chk_mouse_left_pressed() == true){
-			second_message = false;
+			msg_descrip1 = false;
 			ms_reset_mouse_values();
 		}
+	} else if (msg_descrip2 == true && code_size == 0){
+		tx_text_box(TX_LOWER_BOX, TX_L6_DESCRIPTION2);
+		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
+		ar_display_arrow(AR_INS);
+		if (ms_chk_mouse_left_pressed() == true){
+			msg_descrip2 = false;
+		}
+		ms_reset_mouse_values();
 	} else if (code_size == 0 && holding_line == false){
-//		tx_text_box(TX_INS_BOX, L6_MSG_SOLVE);
+		tx_text_box(TX_INS_BOX, TX_L6_SELINS);
+		tx_bottom_msg(TX_INS_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_INS);
 	} 
 }
@@ -374,17 +391,28 @@ static void level_6_tutorial(bool holding_line, bool play)
 static void level_5_tutorial(bool holding_line, bool play)
 {
 	draw_regs_arrow(check_display_reg_lv_arrow());
+	draw_bufs_arrow(check_display_buf_arrow());
 
 	int code_size = cw_get_code_list_size();
-	static bool first_message = true;
+	static bool msg_welcome = true;
+	static bool msg_descrip1 = true;
 
-	if (first_message == true && code_size == 0){
-//		tx_text_box(TX_BIG_BOX, L5_MSG_FIFTH_CHALLENGE);
+	if (msg_welcome == true && code_size == 0){
+		tx_text_box(TX_BIG_BOX, TX_L5_WELCOME);
+		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
 		if (ms_chk_mouse_left_pressed() == true){
-			first_message = false;
+			msg_welcome = false;
 			ms_reset_mouse_values();
 		}
-	} 
+	} else if (msg_descrip1 == true && code_size == 0){
+		tx_text_box(TX_UPPER_BOX, TX_L5_DESCRIPTION1);
+		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
+		if (ms_chk_mouse_left_pressed() == true){
+			msg_descrip1 = false;
+			ms_reset_mouse_values();
+		}
+	}
+
 }
 
 /* Function: level_4_tutorial
@@ -402,13 +430,22 @@ static void level_4_tutorial(bool holding_line, bool play)
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 
-	static bool first_message = true;
 	int code_size = cw_get_code_list_size();
+	static bool msg_welcome = true;
+	static bool msg_descrip1 = true;
 
-	if (first_message == true && code_size == 0){
-//		tx_text_box(TX_BIG_BOX, L4_MSG_FOURTH_CHALLENGE);
+	if (msg_welcome == true && code_size == 0){
+		tx_text_box(TX_BIG_BOX, TX_L4_WELCOME);
+		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
 		if (ms_chk_mouse_left_pressed() == true){
-			first_message = false;
+			msg_welcome = false;
+			ms_reset_mouse_values();
+		}
+	} else if (msg_descrip1 == true && code_size == 0){
+		tx_text_box(TX_UPPER_BOX, TX_L4_DESCRIPTION1);
+		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
+		if (ms_chk_mouse_left_pressed() == true){
+			msg_descrip1 = false;
 			ms_reset_mouse_values();
 		}
 	}
@@ -1196,11 +1233,11 @@ void lv_init_level_assets(int level)
 		case LV_LEVEL_4:
 			tx_init_level_4_texts();
 			break;
-	
 		case LV_LEVEL_5:
+			tx_init_level_5_texts();
 			break;
-	
 		case LV_LEVEL_6:
+			tx_init_level_6_texts();
 			break;
 		
 		case LV_LEVEL_7:

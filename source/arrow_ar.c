@@ -62,14 +62,12 @@ static void display_arrow_registers()
 	LIST_FOREACH(registers, first, next, cur){ 
 		reg_t *c = cur->value;
 		g_arrow_regs.box.y = c->b->r.y + (cb.h - g_arrow_regs.box.h)/2; 
-		if (i == 0){
-			ar_animate_arrow(&g_arrow_regs);
-		} else {
-			g_arrow_regs.travel = 0;
-			ar_animate_arrow(&g_arrow_regs);
-		}
+		g_arrow_regs.travel = 0;
+		ar_animate_arrow(&g_arrow_regs);
 		i++;
 	}
+	g_arrow_regs.travel = g_arrow_regs.box.w;
+	ar_animate_arrow(&g_arrow_regs);
 }
 
 /* Function: ar_move_execution_arrow

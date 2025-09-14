@@ -28,7 +28,8 @@
 #define TEXT_H_MSG 30
 #define TEXT_H_ERROR_MSG 40
 #define TEXT_H_TOTAL_MSG 160
-#define TEXT_H_STAGE_TITLES 40
+#define TEXT_H_STAGE_ELEMENTS_TITLES 40
+#define TEXT_H_STAGE_TITLES 100
 
 #define STAGE_BUTTON_W 40
 #define STAGE_BUTTON_H 40
@@ -182,6 +183,22 @@ int dm_get_w_code_box_text()
 int dm_get_h_stage_titles()
 {
 	int h = scale_to_resolution(TEXT_H_STAGE_TITLES);
+	return h;
+	
+}
+/* Function: dm_get_h_stage_titles
+ * -----------------------------------------------------------------------------
+ *	Return the offset value of the contents of the buffer. 
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset
+ */
+int dm_get_h_stage_elements_titles()
+{
+	int h = scale_to_resolution(TEXT_H_STAGE_ELEMENTS_TITLES);
 	return h;
 	
 }
@@ -1028,28 +1045,9 @@ SDL_Rect dm_get_level_button_box()
 	b.y = g_screen_height/6;
 	return b;
 }
-/* Function: dm_get_select_level_box
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object.
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object.
- */
-SDL_Rect dm_get_select_level_box()
-{
-	const int texture_w = 700;
-	SDL_Rect b;
-	b.w = scale_to_resolution(texture_w);
-	b.h = 0;
-	b.x = (g_screen_width -  b.w)/2;
-	b.y = g_screen_height/36;
-	return b;
-}
 
-/* Function: dm_get_select_player_box
+
+/* Function: dm_get_upper_title_box
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object.
  *
@@ -1059,14 +1057,13 @@ SDL_Rect dm_get_select_level_box()
  * Return:
  *	SDL_Rect with the positions of the object.
  */
-SDL_Rect dm_get_select_player_box()
+SDL_Rect dm_get_upper_title_box()
 {
-	const int texture_h = 90;
 	SDL_Rect b;
-	b.h = scale_to_resolution(texture_h);
-	b.x = g_screen_width/32;
+	b.h = scale_to_resolution(TEXT_H_STAGE_TITLES);
+	b.x = 0;
 	b.y = g_screen_height/36;
-	b.w = 0;
+	b.w = g_screen_width;
 	return b;
 }
 
