@@ -400,6 +400,7 @@ static void level_5_tutorial(bool holding_line, bool play)
 static void level_4_tutorial(bool holding_line, bool play)
 {
 	draw_regs_arrow(check_display_reg_lv_arrow());
+	draw_bufs_arrow(check_display_buf_arrow());
 
 	static bool first_message = true;
 	int code_size = cw_get_code_list_size();
@@ -1192,8 +1193,8 @@ void lv_init_level_assets(int level)
 		case LV_LEVEL_3:
 			tx_init_level_3_texts();
 			break;
-
 		case LV_LEVEL_4:
+			tx_init_level_4_texts();
 			break;
 	
 		case LV_LEVEL_5:

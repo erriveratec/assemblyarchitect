@@ -15,6 +15,7 @@ void tx_free_level_text_textures();
 void tx_init_level_1_texts();
 void tx_init_level_2_texts();
 void tx_init_level_3_texts();
+void tx_init_level_4_texts();
 
 enum text_box_positions{
 	TX_BOX_MIN,

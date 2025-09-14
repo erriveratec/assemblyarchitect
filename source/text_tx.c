@@ -92,6 +92,29 @@ static int get_box_member(SDL_Rect *box, int member);
  * Return:
  * 	Void.	
  */
+void tx_init_level_4_texts()
+{
+	g_lvl_msgs_size = TX_L3_MAX;
+	g_lvl_msgs = malloc(sizeof(texture_array_t*)*g_lvl_msgs_size);
+
+	SDL_Rect r = dm_get_text_box_big();
+	int text_h = dm_get_h_big_text();
+	g_lvl_msgs[TX_L3_WELCOME] = dw_new_text_texture_by_h(r.w, text_h, C_BLACK, 
+																    L3_WELCOME);
+	r = dm_get_box_msg_wh();
+	text_h = dm_get_h_msg();
+}
+
+/* Function: tx_init_level_3_texts
+ * -----------------------------------------------------------------------------
+ * Creates the requiered text textures for a level
+ * 
+ * Arguments:
+ *	Void.
+ *	
+ * Return:
+ * 	Void.	
+ */
 void tx_init_level_3_texts()
 {
 	g_lvl_msgs_size = TX_L3_MAX;

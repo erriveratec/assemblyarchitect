@@ -574,6 +574,9 @@ static void pending_operand_handler()
 		}
 	} else if (left_released == true && register_selected == false && 
 			   buffer_selected == false){
+		if (l->state == CHANGING_OP1 || l->state == CHANGING_OP2){
+			l->state = COMPLETE;	
+		}
 	}
 	return;
 }
