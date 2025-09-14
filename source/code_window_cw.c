@@ -37,7 +37,6 @@ static void code_box_height_adjust();
 static void adjust_code_box_position();
 static int get_label_operand_value(code_line_t *line);
 List *get_code_list();
-static int get_code_line_pos_by_ptr(code_line_t *line);
 static operand_t *create_label_operand(code_line_t *line);
 static operand_t *create_saved_label_operand(int op1_id);
 static int label_counter_up_to_index(int index);
@@ -89,8 +88,8 @@ void cw_operate_jump_instruction(code_line_t *line)
 	List *code = get_code_list();
 	check_mem(code);
 	
-	int jmp_pos = get_code_line_pos_by_ptr(line);
-	int dst_pos = get_code_line_pos_by_ptr(line->op1->jptr);
+	int jmp_pos = cw_get_code_line_pos_by_ptr(line);
+	int dst_pos = cw_get_code_line_pos_by_ptr(line->op1->jptr);
 
 	int i = 0;
 	code_line_t *c;
@@ -216,7 +215,7 @@ static operand_t *create_updated_jump_operand(code_line_t *jmp_addr)
 	SDL_Rect cb = dm_get_code_button_wh();
 	SDL_Rect r = {.x = 0, .y = 0, .w = 2*cb.w, .h = cb.h};
 	op->b = bt_create_button(r, false, false, false, C_BLACK, C_WHITE, t);
-	op->id = get_code_line_pos_by_ptr(jmp_addr);
+	op->id = cw_get_code_line_pos_by_ptr(jmp_addr);
 	op->jptr = jmp_addr;
 
 	free(line_text);
@@ -300,7 +299,7 @@ operand_t *cw_create_jump_operand()
 	SDL_Rect r = {.x = 0, .y = 0, .w = 2*cb.w, .h = cb.h};
 	op->b = bt_create_button(r, false, false, false, C_BLACK, 
 							 C_WHITE, t);
-	op->id = get_code_line_pos_by_ptr(addr);
+	op->id = cw_get_code_line_pos_by_ptr(addr);
 	op->jptr = addr;
 
 	free(line_text);
@@ -485,7 +484,7 @@ static operand_t *create_label_operand(code_line_t *line)
 	return b;
 }
 
-/* Function: get_instruction_position
+/* Function: cw_get_code_line_pos_by_ptr 
  * -----------------------------------------------------------------------------
  * This function traverses the list and determines the position in the list
  * of a given instruction
@@ -496,8 +495,7 @@ static operand_t *create_label_operand(code_line_t *line)
  * Return:
  *	int with the position of the line in the code list
  */
-
-static int get_code_line_pos_by_ptr(code_line_t *line)
+int cw_get_code_line_pos_by_ptr(code_line_t *line)
 {
 	List *code = get_code_list();
 	assert(NULL != code && "The code pointer is NULL");
@@ -576,7 +574,7 @@ static int get_label_operand_value(code_line_t *line)
 	check_mem(code);
 	check_mem(line);
 
-	int pos = get_code_line_pos_by_ptr(line);
+	int pos = cw_get_code_line_pos_by_ptr(line);
 	int label = pos;	
 
 	bool in_code_list = cw_check_if_in_code_list(line);

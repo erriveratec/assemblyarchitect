@@ -18,19 +18,16 @@
 #define STR_WIN2 "WIN2"
 
 #define WIN_CONDITION_LENGTH 30
+#define NO_EXCEPTION 0
 
 static bool g_code_editable;
+static int g_code_editable_exception;
 static bool g_buf_selectable;
 static bool g_reg_selectable;
 
-
-
-
 static List *win_list = NULL;
-static int level_instructions_limit;
+static int g_level_instructions_limit;
 static char level_win_condition[WIN_CONDITION_LENGTH];
-
-
 
 List *get_win_list();
 void add_to_win_list(int value, int type);
@@ -50,8 +47,8 @@ static void win2_add_inputs_in_groups(int group_size);
 static void set_win_condition(char *win_condition);
 static void draw_regs_arrow(bool show_arrows);
 static void draw_bufs_arrow(int buf_id);
-static void reset_code_editable();
-static void set_code_editable();
+static void disable_code_editable(int exception);
+static void enable_code_editable();
 static void reset_buf_selectable();
 static void set_buf_selectable();
 static void reset_reg_selectable();
@@ -159,10 +156,25 @@ static void reset_buf_selectable()
  */
 bool lv_is_code_editable()
 {
-	return g_code_editable;
+	bool editable;
+	int exception = g_code_editable_exception;
+	if (exception == NO_EXCEPTION){
+		editable = g_code_editable;
+	} else if (cw_check_clicked_code() == true) {
+		code_line_t *line = cw_get_clicked_code();
+		int pos = cw_get_code_line_pos_by_ptr(line);
+		pos++;//instruction pos starts at zero;
+		if (pos == exception){
+			editable = true;	
+		}
+	} else {
+		editable = g_code_editable;
+	}
+	
+	return editable;
 }
 
-/* Function: set_code_editable
+/* Function: enable_code_editable
  * ----------------------------------------------------------------------------
  * Sets the code global variable to be editable
  *
@@ -172,14 +184,15 @@ bool lv_is_code_editable()
  * Return:
  *	Void.
  */
-static void set_code_editable()
+static void enable_code_editable()
 {
+	g_code_editable_exception = NO_EXCEPTION;
 	g_code_editable = true;
 }
 
-/* Function: reset_code_editable
+/* Function: disable_code_editable
  * ----------------------------------------------------------------------------
- * Resets the code global variable to not be editable
+ * Resets the code global variable to not be editable.
  *
  * Arguments:
  *	Void.
@@ -187,8 +200,9 @@ static void set_code_editable()
  * Return:
  *	Void.
  */
-static void reset_code_editable()
+static void disable_code_editable(int exception)
 {
+	g_code_editable_exception = exception;
 	g_code_editable = false;
 }
 
@@ -424,7 +438,7 @@ static void level_3_tutorial(bool holding_line, bool play)
 	if (msg_welcome == true && code_size == 0){
 		tx_text_box(TX_BIG_BOX, TX_L3_WELCOME);
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		reset_code_editable();
+		disable_code_editable(NO_EXCEPTION);
 		if (ms_chk_mouse_left_pressed() == true){
 			msg_welcome = false;
 			ms_reset_mouse_values();
@@ -448,7 +462,7 @@ static void level_3_tutorial(bool holding_line, bool play)
 	} else if (code_size == 0 && holding_line == false){
 		tx_text_box(TX_INS_BOX, TX_L3_SELINS1);
 		ar_display_arrow(AR_INS);
-		set_code_editable();
+		enable_code_editable();
 	} else if (code_size == 0 && holding_line == true){
 		tx_text_box(TX_INS_BOX, TX_L3_DROPINS);
 		ar_display_arrow(AR_DROP);
@@ -552,10 +566,11 @@ static void level_2_tutorial(bool holding_line, bool play)
 			msg_descrip = false;
 			ms_reset_mouse_values();
 		}
-	} else if (code_size > level_instructions_limit && holding_line == false){
+	} else if (code_size > g_level_instructions_limit && holding_line == false){
+		disable_code_editable(code_size);
 		tx_text_box(TX_CODE_BOX, TX_L2_SELLAST);
 		ar_display_arrow(AR_CODE);
-	} else if (code_size > level_instructions_limit && holding_line == true){
+	} else if (code_size > g_level_instructions_limit && holding_line == true){
 		tx_text_box(TX_CODE_BOX, TX_L2_DELINS);
 		ar_display_arrow(AR_DEL);
 	} else if (change_op == true && holding_line == false){
@@ -567,6 +582,7 @@ static void level_2_tutorial(bool holding_line, bool play)
 			ar_display_arrow(AR_IB);
 		}
 	} else if (mov_instruction == true){
+		disable_code_editable(code_size);
 		tx_text_box(TX_CODE_BOX, TX_L2_MOVINS);
 		ar_display_arrow(AR_CODE);
 	} else if (press_play == true && play == false){
@@ -649,10 +665,15 @@ static void level_1_tutorial(bool holding_line, bool play, int flag)
 		ar_display_arrow(AR_DROP);
 	} else if (code_size == 1 && cw_check_code_sorted() == true &&
 								   cw_check_code_pending_op1() == true){
+		//Select rax
+		reset_buf_selectable();
 		tx_text_box(TX_CODE_BOX, TX_L1_SELOP1);	
 		draw_regs_arrow(true);
 	} else if(code_size == 1 && cw_check_code_sorted() == true &&
 				    			   cw_check_code_pending_operand() == true){
+		//Select input buffer
+		set_buf_selectable();
+		reset_reg_selectable();
 		tx_text_box(TX_CODE_BOX, TX_L1_SELOP2);	
 		draw_regs_arrow(false);
 		ar_display_arrow(AR_IB);
@@ -677,6 +698,7 @@ static void level_1_tutorial(bool holding_line, bool play, int flag)
 		ar_display_arrow(AR_OB);
 	} else if(code_size == 2 && cw_check_code_sorted() == true &&
 				    			   cw_check_code_pending_operand() == true){
+		set_reg_selectable();
 		tx_text_box(TX_CODE_BOX, TX_L1_SELOP2_2);	
 		draw_regs_arrow(true);
 	} else if(code_size == 2 && cw_check_code_pending_operand() == false &&
@@ -798,7 +820,7 @@ static void draw_regs_arrow(bool show_arrows)
  */
 int lv_get_level_instructions_limit()
 {
-	return level_instructions_limit;
+	return g_level_instructions_limit;
 }
 
 /* Function: lv_set_level_instructions_limit
@@ -811,7 +833,7 @@ int lv_get_level_instructions_limit()
  */
 void lv_set_level_instructions_limit(int limit)
 {
-	level_instructions_limit = limit;
+	g_level_instructions_limit = limit;
 }
 
 /* Function: lv_reset_win_condition
@@ -1157,7 +1179,7 @@ void lv_init_level_assets(int level)
 {
 	assert(level < LV_LEVEL_MAX && level > LV_LEVEL_MIN && 
 			          								"Invalid level value");
-	set_code_editable();
+	enable_code_editable();
 	set_buf_selectable();
 	set_reg_selectable();
 	switch(level){
