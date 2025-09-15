@@ -1809,6 +1809,7 @@ void cw_player_holding_instruction(code_line_t *line)
 			if (line->ins->id == JMP && line->op1 != NULL){
 				code_line_t *addr = line->op1->jptr;
 				ListNode *node = get_list_node_by_value(addr);
+				cl_destroy_code_line(addr);
 				List_remove(code, node);
 			}
 			ListNode *node = get_list_node_by_value(line);

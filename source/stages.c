@@ -625,8 +625,7 @@ static bool edit_code(int level_id)
 	static code_line_t *line = NULL;
 	bool left_pressed = ms_chk_mouse_left_pressed();
 	bool left_released = ms_chk_mouse_left_released();
-	bool holding_line = false;
-	static bool label_assign = false;
+	static bool holding_line = false;
 	
 	if (cw_check_code_pending_operand() == true && line == NULL &&
 		cw_check_code_sorted() == true && cw_check_clicked_code() == false){
@@ -635,7 +634,7 @@ static bool edit_code(int level_id)
 			code_updated_actions(level_id);
 		}
 		if (line != NULL){
-			label_assign = true;
+			holding_line = true;
 		}
 	} else if (cw_check_clicked_code_operand() == true && line == NULL){
 		cw_change_clicked_code_line_state();	
@@ -645,15 +644,14 @@ static bool edit_code(int level_id)
 	} else if (cw_check_clicked_code() == true && line == NULL && 
 												 lv_is_code_editable() == true){
 		line = cw_get_clicked_code();
-	} else if (left_pressed == true && line != NULL){
-		cw_player_holding_instruction(line);
-		holding_line = true;
-	} else if (label_assign == true && line != NULL){
+	} else if ((left_pressed == true || holding_line == true) && line != NULL){
 		cw_player_holding_instruction(line);
 		if (left_released == true){
-			label_assign = false;
+			holding_line = false;
+		} else {
+			holding_line = true;
 		}
-	} else if (left_pressed == false && NULL != line){
+	}  else if (left_pressed == false && NULL != line){
 		if (cw_check_if_in_code_list(line) == false){
 			cl_destroy_code_line(line);
 		} 
