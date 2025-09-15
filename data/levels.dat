@@ -216,7 +216,6 @@ InputType Natural
 InstructionsBegin
 mov
 jmp
-LABEL
 InstructionsEnd
 
 RegistersBegin

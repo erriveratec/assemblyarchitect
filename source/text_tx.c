@@ -81,6 +81,19 @@
 #define L6_SELINS "Solve the challenge using the"\
 " \"mov\" and \"add\" instructions"
 
+#define L7_WELCOME "Welcome to Level 07" 
+#define L7_DESCRIPTION1 "Did you know that"\
+" \"mov\" \"add\" can be used with both operands being registers?"
+#define L7_DESCRIPTION2 "Example:\n\"mov rbx, rax\"\n moves the value from"\
+" \"rax\" to \"rbx\""
+
+#define L8_WELCOME "You are now in Level 08" 
+#define L8_DESCRIPTION1 "Both operands of instructions \"mov\" \"add\" can"\
+" be the same register"
+#define L8_DESCRIPTION2 "Example:\n\"add rax, rax\"\n does rax + rax"\
+" and stores the result in rax"
+
+
 SDL_Rect g_big_box;
 SDL_Rect g_error_box;
 SDL_Rect g_upper_box;
@@ -97,6 +110,62 @@ int g_gbl_msgs_size;
 texture_array_t **g_gbl_msgs = NULL;
 
 static int get_box_member(SDL_Rect *box, int member);
+
+/* Function: tx_init_level_8_texts
+ * -----------------------------------------------------------------------------
+ * Creates the requiered text textures for a level
+ * 
+ * Arguments:
+ *	Void.
+ *	
+ * Return:
+ * 	Void.	
+ */
+void tx_init_level_8_texts()
+{
+	g_lvl_msgs_size = TX_L8_MAX;
+	g_lvl_msgs = malloc(sizeof(texture_array_t*)*g_lvl_msgs_size);
+
+	SDL_Rect r = dm_get_text_box_big();
+	int text_h = dm_get_h_big_text();
+	g_lvl_msgs[TX_L8_WELCOME] = dw_new_text_texture_by_h(r.w, text_h, C_BLACK, 
+																    L8_WELCOME);
+	r = dm_get_box_msg_wh();
+	text_h = dm_get_h_msg();
+	g_lvl_msgs[TX_L8_DESCRIPTION1] = dw_new_text_texture_by_h(r.w, text_h, 
+										 			  C_BLACK, L8_DESCRIPTION1);
+	g_lvl_msgs[TX_L8_DESCRIPTION2] = dw_new_text_texture_by_h(r.w, text_h, 
+										 			  C_BLACK, L8_DESCRIPTION2);
+
+}
+
+/* Function: tx_init_level_7_texts
+ * -----------------------------------------------------------------------------
+ * Creates the requiered text textures for a level
+ * 
+ * Arguments:
+ *	Void.
+ *	
+ * Return:
+ * 	Void.	
+ */
+void tx_init_level_7_texts()
+{
+	g_lvl_msgs_size = TX_L7_MAX;
+	g_lvl_msgs = malloc(sizeof(texture_array_t*)*g_lvl_msgs_size);
+
+	SDL_Rect r = dm_get_text_box_big();
+	int text_h = dm_get_h_big_text();
+	g_lvl_msgs[TX_L7_WELCOME] = dw_new_text_texture_by_h(r.w, text_h, C_BLACK, 
+																    L7_WELCOME);
+	r = dm_get_box_msg_wh();
+	text_h = dm_get_h_msg();
+	g_lvl_msgs[TX_L7_DESCRIPTION1] = dw_new_text_texture_by_h(r.w, text_h, 
+										 			  C_BLACK, L7_DESCRIPTION1);
+	g_lvl_msgs[TX_L7_DESCRIPTION2] = dw_new_text_texture_by_h(r.w, text_h, 
+										 			  C_BLACK, L7_DESCRIPTION2);
+
+}
 
 /* Function: tx_init_level_6_texts
  * -----------------------------------------------------------------------------

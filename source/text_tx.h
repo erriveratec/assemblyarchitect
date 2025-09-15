@@ -18,6 +18,8 @@ void tx_init_level_3_texts();
 void tx_init_level_4_texts();
 void tx_init_level_5_texts();
 void tx_init_level_6_texts();
+void tx_init_level_7_texts();
+void tx_init_level_8_texts();
 
 enum text_box_positions{
 	TX_BOX_MIN,
@@ -36,6 +38,20 @@ enum gbl_msgs{
 	TX_MSG_CLICKANY,
 	TX_MSG_PRESSPLAY,
 	TX_MSG_PRESSBACK
+};
+
+enum l8_messages{
+	TX_L8_WELCOME,
+	TX_L8_DESCRIPTION1,
+	TX_L8_DESCRIPTION2,
+	TX_L8_MAX
+};
+
+enum l7_messages{
+	TX_L7_WELCOME,
+	TX_L7_DESCRIPTION1,
+	TX_L7_DESCRIPTION2,
+	TX_L7_MAX
 };
 
 enum l6_messages{
@@ -120,30 +136,10 @@ enum l1_messages{
 #define ERROR_MSG_BOX_Y RES_BOX_Y + RES_BOX_H + ERROR_BOX_Y_OFFSET
 
 
-
-
-#define L7_MSG_SEVENTH_CHALLENGE "Welcome to Level 07. Did you know that"\
-" instructions \"mov\" \"add\" can be used with both operands being registers?"\
-" (Click anywhere to continue)."
-
-#define L8_MSG_EIGHTH_CHALLENGE "You are now in Level 08. I have new info for"\
-" you: Both operands of instructions \"mov\" \"add\" can be the same register."\
-" (Click anywhere to continue)."
-
 #define L9_MSG_NINTH_CHALLENGE "You have arrive to level 09. There is a new"\
 " instruction: \"jmp\", which jumps to a place pointed by a LABEL"\
 " (Click anywhere to continue)."
 
-#define L5_MSG_NEW_REGS "Notice that now are more registers available"\
-" try using them to solve the challenge."
-
-
-
-#define L7_MSG_ADD "For Example:        \"add rax, rbx\" adds rax + rbx"\
-" and stores the result in rax. (Click anywhere to continue)."
-
-#define L8_MSG_ADD "For Example:        \"add rax, rax\" adds rax + rax"\
-" and stores the result in rax. (Click anywhere to continue)."
 
 #define L9_MSG_NEW_INS_JMP "The operand of the \"jmp\" instruction is a "\
 " LABEL that must be defined in the code."\

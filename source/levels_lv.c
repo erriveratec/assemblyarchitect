@@ -278,22 +278,33 @@ static void level_8_tutorial(bool holding_line, bool play)
 	draw_bufs_arrow(check_display_buf_arrow());
 
 	int code_size = cw_get_code_list_size();
-	static bool first_message = true;
-	static bool second_message = true;
+	static bool msg_welcome = true;
+	static bool msg_descrip1 = true;
+	static bool msg_descrip2 = true;
 
-	if (first_message == true && code_size == 0){
-//		tx_text_box(TX_BIG_BOX, L8_MSG_EIGHTH_CHALLENGE);
+	if (msg_welcome == true && code_size == 0){
+		tx_text_box(TX_BIG_BOX, TX_L8_WELCOME);
+		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
 		if (ms_chk_mouse_left_pressed() == true){
-			first_message = false;
+			msg_welcome = false;
 			ms_reset_mouse_values();
 		}
-	} else if (second_message == true && code_size == 0){
-//		tx_text_box(TX_UPPER_BOX, L8_MSG_ADD);
+	} else if (msg_descrip1 == true && code_size == 0){
+		tx_text_box(TX_UPPER_BOX, TX_L8_DESCRIPTION1);
+		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
 		if (ms_chk_mouse_left_pressed() == true){
-			second_message = false;
+			msg_descrip1 = false;
+			ms_reset_mouse_values();
+		}
+	} else if (msg_descrip2 == true && code_size == 0){
+		tx_text_box(TX_LOWER_BOX, TX_L8_DESCRIPTION2);
+		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
+		if (ms_chk_mouse_left_pressed() == true){
+			msg_descrip2 = false;
 			ms_reset_mouse_values();
 		}
 	} 
+
 }
 /* Function: level_7_tutorial
  * -----------------------------------------------------------------------------
@@ -311,22 +322,32 @@ static void level_7_tutorial(bool holding_line, bool play)
 	draw_bufs_arrow(check_display_buf_arrow());
 
 	int code_size = cw_get_code_list_size();
-	static bool first_message = true;
-	static bool second_message = true;
+	static bool msg_welcome = true;
+	static bool msg_descrip1 = true;
+	static bool msg_descrip2 = true;
 
-	if (first_message == true && code_size == 0){
-//		tx_text_box(TX_BIG_BOX, L7_MSG_SEVENTH_CHALLENGE);
+	if (msg_welcome == true && code_size == 0){
+		tx_text_box(TX_BIG_BOX, TX_L7_WELCOME);
+		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
 		if (ms_chk_mouse_left_pressed() == true){
-			first_message = false;
+			msg_welcome = false;
 			ms_reset_mouse_values();
 		}
-	} else if (second_message == true && code_size == 0){
-//		tx_text_box(TX_UPPER_BOX, L7_MSG_ADD);
+	} else if (msg_descrip1 == true && code_size == 0){
+		tx_text_box(TX_UPPER_BOX, TX_L7_DESCRIPTION1);
+		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
 		if (ms_chk_mouse_left_pressed() == true){
-			second_message = false;
+			msg_descrip1 = false;
 			ms_reset_mouse_values();
 		}
-	} 
+	} else if (msg_descrip2 == true && code_size == 0){
+		tx_text_box(TX_LOWER_BOX, TX_L7_DESCRIPTION2);
+		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
+		if (ms_chk_mouse_left_pressed() == true){
+			msg_descrip2 = false;
+			ms_reset_mouse_values();
+		}
+	}
 }
 /* Function: level_6_tutorial
  * -----------------------------------------------------------------------------
@@ -1239,11 +1260,11 @@ void lv_init_level_assets(int level)
 		case LV_LEVEL_6:
 			tx_init_level_6_texts();
 			break;
-		
 		case LV_LEVEL_7:
+			tx_init_level_7_texts();
 			break;
-
 		case LV_LEVEL_8:
+			tx_init_level_8_texts();
 			break;
 
 		case LV_LEVEL_9:
@@ -1326,9 +1347,9 @@ void lv_level_drawings(int level, bool holding_line, bool play, int flag)
 			level_8_tutorial(holding_line, play);
 			break;
 
-		case LV_LEVEL_9:
-			level_9_tutorial(holding_line, play);
-			break;
+//		case LV_LEVEL_9:
+//			level_9_tutorial(holding_line, play);
+//			break;
 
 		default:
 			draw_bufs_arrow(check_display_buf_arrow());

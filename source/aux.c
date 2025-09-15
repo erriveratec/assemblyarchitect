@@ -115,17 +115,16 @@ void ax_copy_vbox(value_box_t *dst, value_box_t src)
  */
 void ax_draw_value_box(value_box_t *box, SDL_Color color)
 {
-	int text_width = 0;
+	int text_w = 0;
 
 	SDL_Rect val =  dm_get_vbox_val_wh();
 	if (box->t != NULL){
-		ax_get_texture_w_fit_h(val.h, box->t);
+		text_w = ax_get_texture_w_fit_h(val.h, box->t);
 	}
 
 	SDL_Rect vb = dm_get_vbox_wh();
-	int x_offset = (vb.w - text_width)/2;
-	int y_offset = ((vb.h - val.h)/2) + 
-				    (val.h/5)/2;
+	int x_offset = (vb.w - text_w)/2;
+	int y_offset = ((vb.h - val.h)/2) + (val.h/5)/2;
 	
 	SDL_Rect r = {.x = box->box.x + x_offset, .y = box->box.y + y_offset,
 				  .h = val.h};
