@@ -2084,16 +2084,18 @@ void cw_change_clicked_code_line_state()
 	LIST_FOREACH(code, first, next, cur){ 
 		
 		code_line_t *c = cur->value;
-		if (NULL != c->op1){
-			if (true == bt_check_mouse_released_button(c->op1->b)){
-				c->state = CHANGING_OP1;
-				break;
-			}
-		} 
-		if (NULL != c->op2){
-			if (true == bt_check_mouse_released_button(c->op2->b)){
-				c->state = CHANGING_OP2;
-				break;
+		if (c->ins->id != LABEL && c->ins->id != JMP){
+			if (c->op1 != NULL){
+				if (bt_check_mouse_released_button(c->op1->b) == true){
+					c->state = CHANGING_OP1;
+					break;
+				}
+			} 
+			if (c->op2 != NULL){
+				if (bt_check_mouse_released_button(c->op2->b) == true){
+					c->state = CHANGING_OP2;
+					break;
+				}
 			}
 		}
 	}

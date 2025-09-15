@@ -78,7 +78,7 @@ static bool deliver_operand(avatar_t *avatar, int op_id);
 static bool is_operand_retrievable(int id);
 static void set_invalid_operation_flag(int flag_id);
 static bool check_operand_has_value(int op_id);
-static bool check_run_finished();
+static bool check_finishes_at_OB_correct_size();
 static bool check_correct_code_size();
 static bool handle_iavatar_source_operand(int op_id);
 static bool handle_oavatar_source_operand(int op_id);
@@ -1379,7 +1379,7 @@ static bool check_correct_code_size()
 }
 
 
-/* Function: check_run_finished
+/* Function: check_finishes_at_OB_correct_size
  * -----------------------------------------------------------------------------
  * Verifies if the elements in the output list are the same as the output list
  * and if the input buffer still have values and if there are any values
@@ -1392,12 +1392,12 @@ static bool check_correct_code_size()
  * Return:
  *	void.
  */
-static bool check_run_finished()
+static bool check_finishes_at_OB_correct_size()
 {
 	bool finished = false;
 	
-	int input_buffer_size = get_input_buffer_list_size();
 	bool win = lv_check_if_win();
+	int input_buffer_size = get_input_buffer_list_size();
 	bool correct_code_size = check_correct_code_size();
 
 	if (win == true && input_buffer_size !=0) {
@@ -1476,10 +1476,10 @@ bool mc_run_code()
 	bool finished = false;
 	int code_size = cw_get_code_list_size();	
 	
-	if (check_run_finished() == true){
+	if (check_finishes_at_OB_correct_size() == true){
 		finished = true;	
 		return finished;
-	}
+	} 	
 	for (int i = 0; i < code_size; i++){
 		code_line_t *line = cw_get_code_line_at_pos(i);
 		if (line->state != EXECUTED){
@@ -1488,7 +1488,7 @@ bool mc_run_code()
 		}
 	}
 	finished = true;
-	int output_buffer_size = get_input_buffer_list_size();
+	int output_buffer_size = get_output_buffer_list_size();
 	if (output_buffer_size == 0){
 		set_invalid_operation_flag(OUTPUT_BUFFER_EMPTY);
 	}
