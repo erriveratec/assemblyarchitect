@@ -276,13 +276,13 @@ error:
 *	Pointer to the newly created operand
 *
 */
-operand_t *cw_create_jump_operand()
+operand_t *cw_create_jump_operand(code_line_t *addr)
 {
    	operand_t *op = NULL;
 
 	op = malloc(sizeof(operand_t));
 
-	code_line_t *addr = get_clicked_label_code_line();
+	//code_line_t *addr = get_clicked_label_code_line();
 	check_mem(addr);
 
 	int addr_label_id = addr->op1->id;
@@ -1782,7 +1782,7 @@ void cw_player_holding_instruction(code_line_t *line)
 	assert(code != NULL &&  "Code list is NULL");
 	assert(line != NULL &&  "The code line object is NULL");
 	
-	if (check_if_inside_code_window() == true){
+	if (check_if_inside_code_window() == true || line->ins->id == LABEL){
 		if (cw_check_if_in_code_list(line) == true){
 			if (check_selected_line_in_position(line) == false){
 				ListNode *node = get_list_node_by_value(line);
@@ -1806,6 +1806,11 @@ void cw_player_holding_instruction(code_line_t *line)
 		}
 	} else {
 		if (cw_check_if_in_code_list(line) == true){
+			if (line->ins->id == JMP && line->op1 != NULL){
+				code_line_t *addr = line->op1->jptr;
+				ListNode *node = get_list_node_by_value(addr);
+				List_remove(code, node);
+			}
 			ListNode *node = get_list_node_by_value(line);
 			List_remove(code, node);
 			update_label_instructions();
@@ -2110,4 +2115,34 @@ void cw_reset_code_execution()
 	   	code_line_t *c = cur->value;
 		c->state = COMPLETE;   
    }
+}
+
+/* function: cw_create_label_code_line
+ * -----------------------------------------------------------------------------
+ * This function is called when a jump instruction in in the code, it generates
+ * the label codeline that is required as the jump destitu
+ *
+ * Arguments:
+ * 	Void.
+ *
+ * Return:
+ *	Void.
+ */
+code_line_t *cw_create_label_code_line()
+{
+	char *text = cl_get_instruction_text(LABEL);
+	texture_t *t = dw_create_text_texture(text, C_WHITE);
+	SDL_Rect r = dm_get_code_button_wh();
+	r.x = ms_get_mouse_x() - r.w/2;
+	r.y = ms_get_mouse_y() - r.h/2;
+
+	button_t *b = bt_create_button(r, true, false, false, C_BLACK, C_WHITE, t);
+	check_mem(b);
+	
+	instruction_t *i = cl_create_instruction(LABEL, b);
+	code_line_t *new = cl_create_code_line(i);
+
+error:
+	return new;
+
 }

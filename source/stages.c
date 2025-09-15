@@ -54,7 +54,7 @@ texture_t *g_press_space = NULL;
 texture_t *g_win_text = NULL;
 
 void stage_drawings(int level, bool holding_line, bool play);
-static void pending_operand_handler();
+static code_line_t *pending_operand_handler();
 static void flag_handler(level_flags_t *flags, int clicked_button);
 static bool edit_code(int level_id);
 static void reset_level(int level_id, level_flags_t *flags, bool *run_finished);
@@ -541,16 +541,36 @@ static void flag_handler(level_flags_t *flags, int clicked_button)
 			break;
 	}
 }
+/* Function: code_updated_actions
+ * ----------------------------------------------------------------------------
+ * Performs all the actions that need to be done in the game logic when
+ * the code has been updated with a new line or deleted line
+ *
+ * Arguments:
+ * 	Void.
+ *
+ * Return:
+ *	Void.
+ */
+static void code_updated_actions(int level_id)
+{
+	fl_save_level(g_player, level_id);
+	lv_upd_level_assets(level_id);
+}
 
 /* Function: pending_operand_handler
  * ----------------------------------------------------------------------------
+ * This function is called when an instruction is pending an operand.
+ * In case that the instruction that is pending an operand is a jump, it
+ * generates the label operand to be put on the code
+ * 
  * Arguments:
- * 	code: developed by the player.
+ * 	Void.
  *
  * Return:
- *	void.
+ *	NULL, if the peding operand is not a line, LABEL if the operand is a line.
  */
-static void pending_operand_handler()
+static code_line_t *pending_operand_handler()
 {
 	bool left_released = ms_chk_mouse_left_released();
 	bool register_selected = rg_check_mouse_released_in_register();
@@ -558,12 +578,13 @@ static void pending_operand_handler()
 	bool label_selected = cw_check_released_in_label();
 	cw_highlight_code_pending_operand();
 	code_line_t *l = cw_get_code_line_pending_operand();
+	code_line_t *r = NULL;
 
 	if (l->ins->id == JMP){
-		if (label_selected == true){
-			operand_t *a = cw_create_jump_operand();
-			cl_assign_operand_to_line(a, l);
-		}
+		r = cw_create_label_code_line();
+		cw_player_holding_instruction(r);
+		operand_t *a = cw_create_jump_operand(r);
+		cl_assign_operand_to_line(a, l);
 	} else if (left_released == true && register_selected == true &&
 												lv_is_reg_selectable() == true){
 		operand_t *r = rg_create_operand_of_selected_register();
@@ -582,26 +603,8 @@ static void pending_operand_handler()
 			l->state = COMPLETE;	
 		}
 	}
-	return;
+	return r;
 }
-
-/* Function: code_updated_actions
- * ----------------------------------------------------------------------------
- * Performs all the actions that need to be done in the game logic when
- * the code has been updated with a new line or deleted line
- *
- * Arguments:
- * 	Void.
- *
- * Return:
- *	Void.
- */
-static void code_updated_actions(int level_id)
-{
-	fl_save_level(g_player, level_id);
-	lv_upd_level_assets(level_id);
-}
-
 
 /* Function: edit_code
  * ----------------------------------------------------------------------------
@@ -621,12 +624,18 @@ static bool edit_code(int level_id)
 		
 	static code_line_t *line = NULL;
 	bool left_pressed = ms_chk_mouse_left_pressed();
+	bool left_released = ms_chk_mouse_left_released();
 	bool holding_line = false;
-	if (cw_check_code_pending_operand() == true && 
+	static bool label_assign = false;
+	
+	if (cw_check_code_pending_operand() == true && line == NULL &&
 		cw_check_code_sorted() == true && cw_check_clicked_code() == false){
-		pending_operand_handler();	
+		line = pending_operand_handler();	
 		if (cw_check_code_pending_operand() == false){
 			code_updated_actions(level_id);
+		}
+		if (line != NULL){
+			label_assign = true;
 		}
 	} else if (cw_check_clicked_code_operand() == true && line == NULL){
 		cw_change_clicked_code_line_state();	
@@ -639,6 +648,11 @@ static bool edit_code(int level_id)
 	} else if (left_pressed == true && line != NULL){
 		cw_player_holding_instruction(line);
 		holding_line = true;
+	} else if (label_assign == true && line != NULL){
+		cw_player_holding_instruction(line);
+		if (left_released == true){
+			label_assign = false;
+		}
 	} else if (left_pressed == false && NULL != line){
 		if (cw_check_if_in_code_list(line) == false){
 			cl_destroy_code_line(line);

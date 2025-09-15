@@ -343,7 +343,6 @@ void iw_add_instruction_to_list(int id)
 	instruction_t *new_ins = cl_create_instruction(id, b);
 
 	List_push(instructions, new_ins);
-
 error:
 	return;
 }

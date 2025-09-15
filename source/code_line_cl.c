@@ -12,7 +12,7 @@ bool check_valid_operand(int id);
 
 char *add_text = "add";
 char *mov_text = "mov";
-char *label_text = "LABEL";
+char *label_text = "JMPDST";
 char *jmp_text = "jmp";
 char *rax_text = "rax";
 char *rbx_text = "rbx";
@@ -710,21 +710,19 @@ operand_t *cl_create_operand(int id, button_t *b)
 
 	op->b = b;
 	op->id = id;
-	//op->value = malloc(sizeof(int));
-	//check_mem(op->value);
 
 error:
 	return op;
 }
 
-/* Function: cl_destroy_operand
+/* function: cl_destroy_operand
  * -----------------------------------------------------------------------------
- * This function destroys an operand object.
+ * this function destroys an operand object.
  *
- * Arguments:
+ * arguments:
  * 	op: the operand that will be destroyed
  *
- * Return:
+ * return:
  *	void.
  */
 void cl_destroy_operand(operand_t *op)
@@ -736,3 +734,6 @@ void cl_destroy_operand(operand_t *op)
 
 	return;
 }
+
+
+
