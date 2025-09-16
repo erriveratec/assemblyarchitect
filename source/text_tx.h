@@ -42,8 +42,12 @@ enum gbl_msgs{
 };
 
 enum l9_messages{
-	TX_L9_WELCOME,
-	TX_L9_DESCRIPTION1,
+	TX_L9_MSG1,
+	TX_L9_MSG2,
+	TX_L9_MSG3,
+	TX_L9_MSG4,
+	TX_L9_MSG5,
+	TX_L9_MSG6,
 	TX_L9_MAX
 };
 
@@ -128,14 +132,5 @@ enum l1_messages{
 	TX_L1_MAX
 };
 
-#define L9_MSG_NEW_INS_JMP "The operand of the \"jmp\" instruction is a "\
-" LABEL that must be defined in the code."\
-" (Click anywhere to continue)."
-
-#define L9_MSG_RESTRICTION "Restriction: the maximum"\
-" number of instructions that can be used to solve de challenge is 4."\
-" (Click anywhere to continue)."
-
-#define L9_MSG_SELECT_LABEL "Select an drag a LABEL from the instruction box."
 
 #endif

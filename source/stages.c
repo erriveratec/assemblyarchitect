@@ -620,12 +620,12 @@ static code_line_t *pending_operand_handler()
 static bool edit_code(int level_id)
 {
 	assert(level_id > 0 && level_id <= LV_LEVEL_QUANTITY && 
-		   "Incorrect level_id value");
+		   											"Incorrect level_id value");
 		
 	static code_line_t *line = NULL;
 	bool left_pressed = ms_chk_mouse_left_pressed();
 	bool left_released = ms_chk_mouse_left_released();
-	static bool holding_line = false;
+	static bool hold_line = false;
 	
 	if (cw_check_code_pending_operand() == true && line == NULL &&
 		cw_check_code_sorted() == true && cw_check_clicked_code() == false){
@@ -634,7 +634,7 @@ static bool edit_code(int level_id)
 			code_updated_actions(level_id);
 		}
 		if (line != NULL){
-			holding_line = true;
+			hold_line = true;
 		}
 	} else if (cw_check_clicked_code_operand() == true && line == NULL){
 		cw_change_clicked_code_line_state();	
@@ -644,13 +644,9 @@ static bool edit_code(int level_id)
 	} else if (cw_check_clicked_code() == true && line == NULL && 
 												 lv_is_code_editable() == true){
 		line = cw_get_clicked_code();
-	} else if ((left_pressed == true || holding_line == true) && line != NULL){
+	} else if ((left_pressed == true || hold_line == true) && line != NULL){
 		cw_player_holding_instruction(line);
-		if (left_released == true){
-			holding_line = false;
-		} else {
-			holding_line = true;
-		}
+		hold_line = (left_released == true) ? false : true;
 	}  else if (left_pressed == false && NULL != line){
 		if (cw_check_if_in_code_list(line) == false){
 			cl_destroy_code_line(line);
@@ -660,7 +656,8 @@ static bool edit_code(int level_id)
 		}
 		line = NULL;
 	}
-	return holding_line;
+	lv_set_hold_line(line);
+	return hold_line; // I must change this as it is not required
 }
 
 /* Function: reset_level

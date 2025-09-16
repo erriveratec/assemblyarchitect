@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "list.h"
 #include "draw_dw.h"
+#include "code_line_cl.h"
 
 // Multiple states of the game.
 
@@ -86,5 +87,6 @@ bool lv_is_code_editable();
 bool lv_is_buf_selectable();
 bool lv_is_reg_selectable();
 int lv_get_win_list_size();
+void lv_set_hold_line(code_line_t *line);
 
 #endif

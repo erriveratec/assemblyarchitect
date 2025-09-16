@@ -93,9 +93,16 @@
 #define L8_DESCRIPTION2 "Example:\n\"add rax, rax\"\n does rax + rax"\
 " and stores the result in rax"
 
-#define L9_WELCOME "You have arrived to level 09"
-#define L9_DESCRIPTION1 "There is a new instruction: \"jmp\""
-#define L9_DESCRIPTION1 "There is a new instruction: \"jmp\""
+#define L9_MSG1 "Congratulations!\nYou are in Level 09"
+#define L9_MSG2 "Notice that you can only use"\
+" 3 instructions to solve the challenge"
+#define L9_MSG3 "The \"jmp\" instruction jumps to another line of code"
+#define L9_MSG4 "Select and drag a \"jmp\" instruction"
+#define L9_MSG5 "Place the \"jmp\" instruction in the code box at the last"\
+" position"
+#define L9_MSG6 "Place the \"jmp\" destination \"LINE\" above the first"\
+" line of code"
+
 
 SDL_Rect g_big_box;
 SDL_Rect g_error_box;
@@ -130,13 +137,16 @@ void tx_init_level_9_texts()
 	g_lvl_msgs = malloc(sizeof(texture_array_t*)*g_lvl_msgs_size);
 
 	SDL_Rect r = dm_get_text_box_big();
-	int text_h = dm_get_h_big_text();
-	g_lvl_msgs[TX_L9_WELCOME] = dw_new_text_texture_by_h(r.w, text_h, C_BLACK, 
-																    L9_WELCOME);
+	int h = dm_get_h_big_text(); // The height of the text
+	g_lvl_msgs[TX_L9_MSG1] = dw_new_text_texture_by_h(r.w, h, C_BLACK, L9_MSG1);
+	
 	r = dm_get_box_msg_wh();
-	text_h = dm_get_h_msg();
-	g_lvl_msgs[TX_L9_DESCRIPTION1] = dw_new_text_texture_by_h(r.w, text_h, 
-										 			  C_BLACK, L9_DESCRIPTION1);
+	h = dm_get_h_msg();
+	g_lvl_msgs[TX_L9_MSG2] = dw_new_text_texture_by_h(r.w, h, C_BLACK, L9_MSG2);
+	g_lvl_msgs[TX_L9_MSG3] = dw_new_text_texture_by_h(r.w, h, C_BLACK, L9_MSG3);
+	g_lvl_msgs[TX_L9_MSG4] = dw_new_text_texture_by_h(r.w, h, C_BLACK, L9_MSG4);
+	g_lvl_msgs[TX_L9_MSG5] = dw_new_text_texture_by_h(r.w, h, C_BLACK, L9_MSG5);
+	g_lvl_msgs[TX_L9_MSG6] = dw_new_text_texture_by_h(r.w, h, C_BLACK, L9_MSG6);
 }
 
 /* Function: tx_init_level_8_texts

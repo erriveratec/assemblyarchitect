@@ -9,6 +9,7 @@
 #include "registers_rg.h"
 #include "instruction_window_iw.h"
 #include "code_window_cw.h"
+#include "code_line_cl.h"
 #include "stage_buttons_sb.h"
 #include "text_tx.h"
 #include "arrow_ar.h"
@@ -19,6 +20,25 @@
 
 #define WIN_CONDITION_LENGTH 30
 #define NO_EXCEPTION 0
+#define LV_MSGS_QTY 15
+
+enum msgs{
+	MSG1,
+	MSG2,
+	MSG3,
+	MSG4,
+	MSG5,
+	MSG6,
+	MSG7,
+	MSG8,
+	MSG9,
+	MSG10,
+	MSG11,
+	MSG12,
+	MSG13,
+	MSG14,
+	MSG15
+};
 
 static bool g_code_editable;
 static int g_code_editable_exception;
@@ -28,6 +48,9 @@ static bool g_reg_selectable;
 static List *g_win_list = NULL;
 static int g_level_instructions_limit;
 static char level_win_condition[WIN_CONDITION_LENGTH];
+static bool g_lv_msg[LV_MSGS_QTY];
+
+static code_line_t *g_hold_line;
 
 List *get_win_list();
 void add_to_win_list(int value, int type);
@@ -39,7 +62,7 @@ static void level_5_tutorial(bool holding_line, bool play);
 static void level_6_tutorial(bool holding_line, bool play);
 static void level_7_tutorial(bool holding_line, bool play);
 static void level_8_tutorial(bool holding_line, bool play);
-static void level_9_tutorial(bool holding_line, bool play);
+static void level_9_tutorial();
 static bool check_display_reg_lv_arrow();
 static int check_display_buf_arrow();
 static void win1_move_input_to_output(int rep, int mul, bool reversed);
@@ -53,7 +76,74 @@ static void reset_buf_selectable();
 static void set_buf_selectable();
 static void reset_reg_selectable();
 static void set_reg_selectable();
+static void init_lv_msgs();
+static void chk_ms_pressed_clear_msg(int message_id, bool reset_mouse);
+static bool check_player_is_holding_line();
+static code_line_t *get_hold_line();
 
+/* Function: lv_set_hold_line
+ * ----------------------------------------------------------------------------
+ * This function has the pointer of the line being hold by the player.
+ * Is NULL if the player is not currently holding any line
+ *
+ * Arguments:
+ *	line: Pointer of the line being hold by the player
+ *
+ * Return:
+ *	Void.
+ */
+void lv_set_hold_line(code_line_t *line)
+{
+	g_hold_line = line;
+}
+
+/* Function: check_player_is_holding_line
+ * ----------------------------------------------------------------------------
+ * Verifies if the player is holding a line by analizing the pointer
+ *
+ * Arguments:
+ *	Void
+ *
+ * Return:
+ *	Void to determine if the player is holding a line;
+ */
+static bool check_player_is_holding_line()
+{
+	bool hold_line = (g_hold_line == NULL) ? false : true;
+	return hold_line;
+}
+
+/* Function: get_hold_line
+ * ----------------------------------------------------------------------------
+ * Returns the poiinter of the line being hold by the player. 
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Pointer of the line being hold by the player
+ */
+static code_line_t *get_hold_line()
+{
+	return g_hold_line;
+}
+
+/* Function: lv_init_lv_msgs
+ * ----------------------------------------------------------------------------
+ * Sets all the spaces of g_lv_msgs to true
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Void.
+ */
+static void init_lv_msgs()
+{
+	for (int i = 0; i < LV_MSGS_QTY; i++){
+		g_lv_msg[i] = true;
+	}
+}
 
 /* Function: lv_get_win_list_size
  * ----------------------------------------------------------------------------
@@ -222,6 +312,29 @@ static void disable_code_editable(int exception)
 	g_code_editable = false;
 }
 
+/* Function: chk_ms_pressed_clear_msg
+ * -----------------------------------------------------------------------------
+ * Verifies if the mouse was pressed and sets the message variable to false.
+ * It has an option for clearing the mouse state
+ *
+ * Arguments:
+ * 	msg_id: The id of the message to be set on false
+ *  rs_ms: Boolean to indicate if the mouse state is cleared
+ *	
+ * Return:
+ *	Void.
+ */
+static void chk_ms_pressed_clear_msg(int message_id, bool reset_mouse)
+{
+	if (ms_chk_mouse_left_pressed() == true){
+		g_lv_msg[message_id] = false;
+		if (reset_mouse == true){
+			ms_reset_mouse_values();
+		}
+	}
+}
+
+
 /* Function: level_9_tutorial
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 3
@@ -232,52 +345,44 @@ static void disable_code_editable(int exception)
  * Return:
  *	Void.
  */
-static void level_9_tutorial(bool holding_line, bool play)
+static void level_9_tutorial()
 {
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
-
 	
-	const int pos_one = 0;
 	int code_size = cw_get_code_list_size();
-	static bool msg_welcome = true;
-	static bool second_message = true;
-	static bool third_message = true;
-	
-	code_line_t *i1= NULL;
+	bool jmp_pick = false;
+	bool label_pick = false;
+	code_line_t *hld_line = get_hold_line();
 
-	if (code_size == 1 && holding_line == false){
-		i1 = cw_get_code_line_at_pos(pos_one);
+	if (hld_line != NULL){
+		jmp_pick = (hld_line->ins->id == JMP) ? true : false;
+		label_pick = (hld_line->ins->id == LABEL) ? true : false;
 	}
 
-	if (msg_welcome == true && code_size == 2){
-		tx_text_box(TX_BIG_BOX, TX_L9_WELCOME);
+	if (g_lv_msg[MSG1] == true && code_size == 2){
+		tx_text_box(TX_BIG_BOX, TX_L9_MSG1); //Welcome msg
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		if (ms_chk_mouse_left_pressed() == true){
-			msg_welcome = false;
-			ms_reset_mouse_values();
-		}
-	} else if (second_message == true && code_size == 2){
-		tx_text_box(TX_INS_BOX, TX_L9_DESCRIPTION1);
-		tx_bottom_msg(TX_INS_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_INS);
-		if (ms_chk_mouse_left_pressed() == true){
-			second_message = false;
-			ms_reset_mouse_values();
-		}
-	} else if (third_message == true && code_size == 0){
-//		tx_text_box(TX_UPPER_BOX, L9_MSG_RESTRICTION);
+		chk_ms_pressed_clear_msg(MSG1, true);
+	} else if (g_lv_msg[MSG2] == true && code_size == 2){
+		tx_text_box(TX_UPPER_BOX, TX_L9_MSG2); //Read challenge description
+		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_CHALLENGE);
-		if (ms_chk_mouse_left_pressed() == true){
-			third_message = false;
-			ms_reset_mouse_values();
-		}
-	} else if (code_size == 0 && holding_line == false){
-//		tx_text_box(TX_INS_BOX, L9_MSG_SELECT_LABEL);
+		chk_ms_pressed_clear_msg(MSG2, true);
+	} else if (g_lv_msg[MSG3] == true && code_size == 2){
+		tx_text_box(TX_LOWER_BOX, TX_L9_MSG3);// New instruction
+		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_INS);
-	} else if (code_size == 0 && holding_line == true){
-//		tx_text_box(TX_INS_BOX, MSG_DROP_INS1);
+		chk_ms_pressed_clear_msg(MSG3, true);
+	} else if (code_size == 2 && jmp_pick == false){
+		tx_text_box(TX_INS_BOX, TX_L9_MSG4);// Select and drag jmp
+		ar_display_arrow(AR_INS);
+		chk_ms_pressed_clear_msg(MSG4, false);
+	} else if (code_size == 2 && jmp_pick == true){
+		tx_text_box(TX_CODE_BOX, TX_L9_MSG5); // Drop jmp in the code box
 		ar_display_arrow(AR_DROP);
+	} else if (code_size == 4 && label_pick == true){
+		tx_text_box(TX_UPPER_BOX, TX_L9_MSG6); // Place Label in the first pos
 	} 
 }
 
@@ -1260,6 +1365,8 @@ void lv_init_level_assets(int level)
 	enable_code_editable();
 	set_buf_selectable();
 	set_reg_selectable();
+	init_lv_msgs();
+	
 	switch(level){
 		case LV_LEVEL_1:
 			tx_init_level_1_texts();
@@ -1288,7 +1395,6 @@ void lv_init_level_assets(int level)
 		case LV_LEVEL_9:
 			tx_init_level_9_texts();
 			break;
-
 		default:
 			break;
 	}
@@ -1367,7 +1473,7 @@ void lv_level_drawings(int level, bool holding_line, bool play, int flag)
 			break;
 
 		case LV_LEVEL_9:
-			level_9_tutorial(holding_line, play);
+			level_9_tutorial();
 			break;
 
 		default:
