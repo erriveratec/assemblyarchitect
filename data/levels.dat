@@ -240,7 +240,6 @@ InputSize 5
 InputType Natural
 
 InstructionsBegin
-LABEL
 mov
 jmp
 InstructionsEnd

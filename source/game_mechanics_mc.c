@@ -1494,4 +1494,3 @@ bool mc_run_code()
 	}
 	return finished;
 }
-

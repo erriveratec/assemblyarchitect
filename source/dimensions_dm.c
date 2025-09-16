@@ -21,7 +21,7 @@
 #define AVATAR_W 50
 #define AVATAR_H 50
 
-#define CODE_LINE_NUMBER_OFFSET 15
+//#define CODE_LINE_NUMBER_OFFSET 15
 
 #define TEXT_H_BIG 50
 #define TEXT_H_BOTTOM_MSG 20
@@ -30,6 +30,7 @@
 #define TEXT_H_TOTAL_MSG 160
 #define TEXT_H_STAGE_ELEMENTS_TITLES 40
 #define TEXT_H_STAGE_TITLES 100
+#define TEXT_H_LINE_NUMBER 40
 
 #define STAGE_BUTTON_W 40
 #define STAGE_BUTTON_H 40
@@ -37,6 +38,7 @@
 #define P_BUTTON_W 200
 #define CODE_BUTTON_W 75
 #define CODE_BUTTON_H 40
+#define COMMA_OFS 10
 #define ESC_MENU_BUTTON_W 500
 #define ESC_MENU_BUTTON_H 60
 #define SEL_LEVEL_BUTTON_W 100
@@ -231,10 +233,26 @@ int dm_get_ofs_code_box_border()
  */
 int dm_get_ofs_code_number()
 {
-	int ofs = scale_to_resolution(CODE_LINE_NUMBER_OFFSET);
+	SDL_Rect r = dm_get_code_button_wh();
+	int ofs = r.w/2;
 	return ofs;
 }
 
+/* Function: dm_get_ofs_comma
+ * -----------------------------------------------------------------------------
+ *	Return the offset value for the comma that is draw in instructions
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset
+ */
+int dm_get_ofs_code_comma()
+{
+	int ofs = dm_get_ofs_code_op2() - scale_to_resolution(COMMA_OFS);
+	return ofs;
+}
 /* Function: dm_get_ofs_code_op1
  * -----------------------------------------------------------------------------
  *	Return the offset value of the contents of the buffer. 
@@ -249,7 +267,7 @@ int dm_get_ofs_code_op1()
 {
 	SDL_Rect cb = dm_get_code_button_wh();
 	int line_number_ofs = dm_get_ofs_code_number();
-	int ofs = cb.w + line_number_ofs;
+	int ofs = cb.w;// + line_number_ofs;
 	return ofs;
 }
 
@@ -267,7 +285,7 @@ int dm_get_ofs_code_op2()
 {
 	SDL_Rect cb = dm_get_code_button_wh();
 	int line_number_ofs = dm_get_ofs_code_number();
-	int ofs = 2*cb.w + 2*line_number_ofs;
+	int ofs = 2*cb.w;// + 2*line_number_ofs;
 	return ofs;
 }
 /* Function: dm_get_ofs_reg_box
@@ -992,6 +1010,21 @@ int dm_get_h_msg()
 	return h;
 	
 }
+/* Function: dm_get_h_line_number
+ * -----------------------------------------------------------------------------
+ * Returns the h value for the line numberj
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the height for the line number
+ */
+int dm_get_h_line_number()
+{
+	int h = scale_to_resolution(TEXT_H_LINE_NUMBER);
+	return h;
+}
 /* Function: dm_get_big_msg_h
  * -----------------------------------------------------------------------------
  * Returns the h value for the big messages
@@ -1006,7 +1039,6 @@ int dm_get_h_big_text()
 {
 	int h = scale_to_resolution(TEXT_H_BIG);
 	return h;
-	
 }
 /* Function: dm_get_sel_level_offset_y
  * -----------------------------------------------------------------------------

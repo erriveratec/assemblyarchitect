@@ -63,7 +63,7 @@ void cw_init_code_window_texture()
 	g_numbers = malloc(sizeof(texture_t*)*MAX_CODE_LINES);
 	for (int i = 0; i <= MAX_CODE_LINES; i++){
 		char *number = ax_number_to_string_two_digits(i);
-		g_numbers[i] = dw_create_text_texture(number, C_WHITE);
+		g_numbers[i] = dw_create_text_texture(number, C_GREY);
 		free(number);
 	}
 }
@@ -1165,10 +1165,12 @@ int cw_get_code_line_x(int instruction_id)
 	int x;  
 	int number_ofs = dm_get_ofs_code_number();
 	SDL_Rect sb = dm_get_stage_code_box();
+	int number_h = dm_get_h_line_number();
+	int number_w = ax_get_texture_w_fit_h(number_h, g_numbers[0]);
 	if (instruction_id == LABEL){
-		x = sb.x + number_ofs;
+		x = sb.x;
 	} else {
-		x = sb.x + 4*number_ofs;	
+		x = sb.x + number_ofs + number_w*3/2;	
 	}
 	return x;
 }
@@ -1347,10 +1349,10 @@ static void display_player_code()
 
 		if (comma == TWO_OPERANDS && (MISSING_BOTH != line->state && 
 							  					  MISSING_OP1 != line->state)){
-			
-			SDL_Rect r = {.x = line->ins->b->r.x + 2*cb.w + 
-						  number_ofs, .y = line->ins->b->r.y, 
-						  .h = cb.h};
+		
+			int comma_ofs = dm_get_ofs_code_comma();
+			SDL_Rect r = {.x = line->ins->b->r.x + comma_ofs, 
+						  .y = line->ins->b->r.y, .h = cb.h};
 
 			dw_draw_texture_fits_height(r, g_comma_tex);
 		}
@@ -1417,14 +1419,14 @@ void display_line_number()
 	SDL_Rect sb = dm_get_stage_code_box();
 	int x = sb.x + number_ofs;
 	int y = cw_get_code_line_y(0);
-	int h = cb.h;
+	int h = dm_get_h_line_number();
 	char *number = NULL;
 	
 	int line_number = 1;
 	for(int i = 0; i < list_size; i++){
 	int instruction = cw_get_instruction_at_code_pos(i);
 		if (instruction != LABEL){
-			SDL_Rect r = {.x = x, .y = y, .h = cb.h};
+			SDL_Rect r = {.x = x, .y = y, .h = h};
 			dw_draw_texture_fits_height(r, g_numbers[line_number]);
 			line_number++;
 		}

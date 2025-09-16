@@ -18,6 +18,7 @@ int dm_get_h_msg();
 int dm_get_h_error_msg();
 int dm_get_h_stage_elements_titles();
 int dm_get_h_stage_titles();
+int dm_get_h_line_number();
 int dm_get_w_code_box_text();
 
 SDL_Rect dm_get_studio_name_msg_box();
@@ -65,6 +66,7 @@ int dm_get_ofs_code_box_border();
 int dm_get_ofs_code_number();
 int dm_get_ofs_code_op1();
 int dm_get_ofs_code_op2();
+int dm_get_ofs_code_comma();
 int dm_get_ofs_buffer_value_box();
 int dm_get_ofs_between_value_box();
 int dm_get_ofs_reg_value_box();

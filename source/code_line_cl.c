@@ -12,7 +12,7 @@ bool check_valid_operand(int id);
 
 char *add_text = "add";
 char *mov_text = "mov";
-char *label_text = "JMPDST";
+char *label_text = "LINE";
 char *jmp_text = "jmp";
 char *rax_text = "rax";
 char *rbx_text = "rbx";

@@ -99,6 +99,7 @@ CODE STARTS
 mov rax, [ib]
 add rax, rax
 add rax, rax
+add [ob], rax
 mov [ob], rax
 CODE ENDS
 
@@ -109,11 +110,14 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-jmp 04
+mov rax, [ib]
+mov rax, [ib]
+LINE 03
 mov rax, [ib]
 mov rax, [ib]
 mov [ob], rax
-JMPDST 05
+mov rax, [ib]
+jmp 02
 CODE ENDS
 
 +++LEVEL ENDS 09
@@ -531,6 +535,7 @@ CODE STARTS
 mov rax, [ib]
 add rax, rax
 add rax, rax
+add [ob], rax
 mov [ob], rax
 CODE ENDS
 
@@ -541,11 +546,14 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-jmp 04
+mov rax, [ib]
+mov rax, [ib]
+LINE 03
 mov rax, [ib]
 mov rax, [ib]
 mov [ob], rax
-JMPDST 05
+mov rax, [ib]
+jmp 02
 CODE ENDS
 
 +++LEVEL ENDS 09
@@ -963,6 +971,7 @@ CODE STARTS
 mov rax, [ib]
 add rax, rax
 add rax, rax
+add [ob], rax
 mov [ob], rax
 CODE ENDS
 
@@ -973,11 +982,14 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-jmp 04
+mov rax, [ib]
+mov rax, [ib]
+LINE 03
 mov rax, [ib]
 mov rax, [ib]
 mov [ob], rax
-JMPDST 05
+mov rax, [ib]
+jmp 02
 CODE ENDS
 
 +++LEVEL ENDS 09
