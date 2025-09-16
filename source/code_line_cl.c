@@ -567,7 +567,7 @@ bool check_valid_operand(int id)
  *	void.
  *
  */
-bool check_operand_compatilibity(operand_t *op, code_line_t *line)
+bool cl_check_operand_compatibility(operand_t *op, code_line_t *line)
 {
 	assert(op != NULL && "The operand cannot be NULL");
 	assert(line != NULL && "The line cannot be NULL");
@@ -582,7 +582,9 @@ bool check_operand_compatilibity(operand_t *op, code_line_t *line)
 	switch(line->state){
 		case MISSING_BOTH:
 			if (op->id != IB){
-				compatible = true;
+				if (op->id == OB && line->ins->id == MOV){
+					compatible = true;
+				}
 			}
 			break;
 		case MISSING_OP1:
@@ -597,7 +599,9 @@ bool check_operand_compatilibity(operand_t *op, code_line_t *line)
 			break;
 		case CHANGING_OP1:
 			if (cl_check_op_is_register(line->op2->id) == true && op->id != IB){
-				compatible = true;
+				if (op->id == OB && line->ins->id == MOV){
+					compatible = true;
+				}
 			}
 			break;		
 		case CHANGING_OP2:

@@ -25,7 +25,7 @@ static int g_code_editable_exception;
 static bool g_buf_selectable;
 static bool g_reg_selectable;
 
-static List *win_list = NULL;
+static List *g_win_list = NULL;
 static int g_level_instructions_limit;
 static char level_win_condition[WIN_CONDITION_LENGTH];
 
@@ -53,6 +53,22 @@ static void reset_buf_selectable();
 static void set_buf_selectable();
 static void reset_reg_selectable();
 static void set_reg_selectable();
+
+
+/* Function: lv_get_win_list_size
+ * ----------------------------------------------------------------------------
+ * Returns the size of the win list
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Size of the win list
+ */
+int lv_get_win_list_size()
+{
+	return List_count(g_win_list);
+}
 
 /* Function: lv_is_reg_selectable
  * ----------------------------------------------------------------------------
@@ -394,7 +410,7 @@ static void level_6_tutorial(bool holding_line, bool play)
 		ms_reset_mouse_values();
 	} else if (code_size == 0 && holding_line == false){
 		tx_text_box(TX_INS_BOX, TX_L6_SELINS);
-		tx_bottom_msg(TX_INS_BOX, TX_MSG_CLICKANY);
+		//tx_bottom_msg(TX_INS_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_INS);
 	} 
 }
@@ -523,7 +539,7 @@ static void level_3_tutorial(bool holding_line, bool play)
 		ar_display_arrow(AR_INS);
 		enable_code_editable();
 	} else if (code_size == 0 && holding_line == true){
-		tx_text_box(TX_INS_BOX, TX_L3_DROPINS);
+		tx_text_box(TX_CODE_BOX, TX_L3_DROPINS);
 		ar_display_arrow(AR_DROP);
 	} else if (code_size == 1 && cw_check_code_pending_op1() == true && 
 							cw_check_code_sorted() == true && msg_ops1 == true){
@@ -560,7 +576,7 @@ static void level_3_tutorial(bool holding_line, bool play)
 		set_reg_selectable();
 	} else if (code_size == 1 && cw_check_code_pending_operand() == false &&
 														  holding_line == true){
-		tx_text_box(TX_INS_BOX, TX_L3_DROPINS);
+		tx_text_box(TX_CODE_BOX, TX_L3_DROPINS);
 		ar_display_arrow(AR_DROP);
 	}else if (code_size == 2 && cw_check_code_pending_operand() == true){
 		tx_text_box(TX_CODE_BOX, TX_L3_READ);
@@ -720,20 +736,20 @@ static void level_1_tutorial(bool holding_line, bool play, int flag)
 		tx_bottom_msg(TX_INS_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_INS);
 	} else if (code_size == 0 && holding_line == true){
-		tx_text_box(TX_INS_BOX, TX_L1_DROPINS1);
+		tx_text_box(TX_CODE_BOX, TX_L1_DROPINS1);
 		ar_display_arrow(AR_DROP);
 	} else if (code_size == 1 && cw_check_code_sorted() == true &&
 								   cw_check_code_pending_op1() == true){
 		//Select rax
 		reset_buf_selectable();
-		tx_text_box(TX_CODE_BOX, TX_L1_SELOP1);	
+		tx_text_box(TX_LOWER_BOX, TX_L1_SELOP1);	
 		draw_regs_arrow(true);
 	} else if(code_size == 1 && cw_check_code_sorted() == true &&
 				    			   cw_check_code_pending_operand() == true){
 		//Select input buffer
 		set_buf_selectable();
 		reset_reg_selectable();
-		tx_text_box(TX_CODE_BOX, TX_L1_SELOP2);	
+		tx_text_box(TX_UPPER_BOX, TX_L1_SELOP2);	
 		draw_regs_arrow(false);
 		ar_display_arrow(AR_IB);
 	} else if(code_size == 1 && holding_line == false &&
@@ -749,7 +765,7 @@ static void level_1_tutorial(bool holding_line, bool play, int flag)
 		ar_display_arrow(AR_INS);
 	}else if(code_size == 1 && holding_line == true &&
  								  cw_check_code_pending_operand() == false){
-		tx_text_box(TX_INS_BOX, TX_L1_DROPINS2);
+		tx_text_box(TX_CODE_BOX, TX_L1_DROPINS2);
 		ar_display_arrow(AR_DROP);
 	} else if (code_size == 2 && cw_check_code_sorted() == true &&
 								   cw_check_code_pending_op1() == true){
@@ -765,7 +781,7 @@ static void level_1_tutorial(bool holding_line, bool play, int flag)
 		tx_text_box(TX_STAGEBUTTON_BOX, TX_L1_PRESSPLAY);	
 		ar_display_arrow(AR_PLAY);
 	} else if (lv_check_if_win() == true){
-		tx_text_box(TX_UPPER_BOX, TX_L1_CONGRATS);	
+		tx_text_box(TX_LOWER_BOX, TX_L1_CONGRATS);	
 	}
 }
 
@@ -789,11 +805,11 @@ static int check_display_buf_arrow()
 		if (l->ins->id != JMP && l->ins->id !=LABEL){
 			operand_t o;
 			o.id = IB;
-			if (check_operand_compatilibity(&o, l) == true){
+			if (cl_check_operand_compatibility(&o, l) == true){
 				display_ar = IB;
 			} 
 			o.id = OB;
-			if (check_operand_compatilibity(&o, l) == true){
+			if (cl_check_operand_compatibility(&o, l) == true){
 				display_ar = OB;
 			}
 		}
@@ -846,7 +862,7 @@ static bool check_display_reg_lv_arrow()
 		if (l->ins->id != JMP && l->ins->id != LABEL){
 			operand_t o;
 			o.id = RAX;
-			display_ar = check_operand_compatilibity(&o, l);
+			display_ar = cl_check_operand_compatibility(&o, l);
 		}
 	}
 	return display_ar;
@@ -1008,8 +1024,8 @@ error:
  */
 void lv_destroy_win_list()
 {
-	List_clear_destroy(win_list);
-	win_list = NULL;
+	List_clear_destroy(g_win_list);
+	g_win_list = NULL;
 }
 
 
@@ -1026,9 +1042,9 @@ void lv_destroy_win_list()
  */
 void lv_create_win_list()
 {
-	assert(win_list == NULL && "The win list is not NULL");
-	win_list = List_create();
-	check_mem(win_list);
+	assert(g_win_list == NULL && "The win list is not NULL");
+	g_win_list = List_create();
+	check_mem(g_win_list);
 
 error:
 	return;
@@ -1044,8 +1060,8 @@ error:
  */
 void lv_reset_win_list()
 {
-	List_clear_destroy(win_list);
-	win_list = NULL;
+	List_clear_destroy(g_win_list);
+	g_win_list = NULL;
 	lv_create_win_list();
 }
 
@@ -1059,7 +1075,7 @@ void lv_reset_win_list()
  */
 List *get_win_list()
 {
-	return win_list;
+	return g_win_list;
 }
 
 /* Function: lv_print_win_list

@@ -745,10 +745,9 @@ SDL_Rect dm_get_text_box_upper()
 	b.w = mb.w;
 	b.h = mb.h;
 	b.x = g_screen_width/2 - mb.w/2;
-	b.y = g_screen_height/4 - mb.h;
+	b.y = scale_to_resolution(TEXT_H_STAGE_ELEMENTS_TITLES);
 	return b;
 }
-
 
 
 /* Function: dm_get_stage_ib_text_box

@@ -592,7 +592,7 @@ static code_line_t *pending_operand_handler()
 	} else if (left_released == true && buffer_selected == true && 
 												lv_is_buf_selectable() == true){
 		operand_t *b = bf_create_operand_of_selected_buffer();
-		if (check_operand_compatilibity(b, l) == true){
+		if (cl_check_operand_compatibility(b, l) == true){
 			cl_assign_operand_to_line(b, l);
 		} else {
 			cl_destroy_operand(b);
@@ -715,10 +715,12 @@ int stage_level(int level_id)
 	if (mc_get_operation_flag() != NO_INVALID_OPERATION){
 		reset = mc_invalid_operation_handler(mc_get_operation_flag());
 		flags.play = false;
-	} else if (run_finished == true && flags.play == true){
+	} else if (run_finished == true && flags.play == true &&
+													 lv_check_if_win() == true){
 		int action_selected = display_run_result(lv_check_if_win());
 		if (action_selected == BACK_BUTTON_PRESSED){
 			reset_level(level_id, &flags, &run_finished);		
+			fl_enable_next_level(g_player, level_id + 1);
 		} else if (action_selected == CONT_BUTTON_PRESSED){
 			fl_enable_next_level(g_player, level_id + 1);
 			back_to_level_selection = true;

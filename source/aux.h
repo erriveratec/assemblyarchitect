@@ -8,14 +8,32 @@
 // For values not assigned
 #define NO_VALUE 0x80000001
 
-
 // For the return of functions
 #define SUCCESS 0
 #define FAIL 1
 
-
 //For string comparisons
 #define STRING_EQUAL 0
+
+// ASCII characters
+#define CHAR_SPACE 32
+#define CHAR_NULL 0
+#define CHAR_NEWLINE 10
+
+// Text for the data reading of the levels
+#define CHAR_SIZE 1
+
+#define MOVEMENT_DELTA 30
+
+#define STR_BACK "Back"
+#define STR_CONT "Continue"
+
+extern char *char_space;
+extern char *char_comma;
+extern char *char_newline;
+extern char *char_colon;
+extern char *level_text;
+extern char *char_dash;
 
 //Boxes memeber definition used in several functions
 enum box_member {
@@ -49,26 +67,6 @@ char *create_string_append_number(char *s,  int n);
 char *ax_number_to_string_two_digits(int number);
 int ax_get_texture_w_fit_h(int h, texture_t *t);
 int ax_get_texture_h_fit_w(int w, texture_t *t);
-
-// ASCII characters
-#define CHAR_SPACE 32
-#define CHAR_NULL 0
-#define CHAR_NEWLINE 10
-
-// Text for the data reading of the levels
-#define CHAR_SIZE 1
-
-#define MOVEMENT_DELTA 30
-
-#define STR_BACK "Back"
-#define STR_CONT "Continue"
-
-extern char *char_space;
-extern char *char_comma;
-extern char *char_newline;
-extern char *char_colon;
-extern char *level_text;
-extern char *char_dash;
 
 
 #endif

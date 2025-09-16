@@ -13,23 +13,23 @@
 #include "arrow_ar.h"
 
 #define INPUT_BUFFER_EMPTY_TEXT "ERROR: A value cannot be recovered if the "\
-							"Input Buffer [IB] is empty."
+"Input Buffer [IB] is empty"
 #define REG_VALUE_INVALID_TEXT "ERROR:Register cannot be read if a value has "\
-							"been stored first."
+"been stored first"
 #define INVALID_OUTPUT_VALUE_TEXT "ERROR: Incorrect value in the output buffer"
 #define UNPROCESSED_IB_VALUES_TEXT "ERROR: Output is correct but only works by"\
-								" that specific set of values."
+" that specific set of values"
 #define EXCEEDS_CODE_LIMIT_TEXT "ERROR: Correct output but exceeds code size"\
-								" limit."
-#define OUTPUT_BUFFER_EMPTY_TEXT "ERROR: Run finished and there are no"\
-								" elements in the Output Buffer [OB]."
+" limit"
+#define OUTPUT_BUFFER_INCOMPLETE_TEXT "ERROR: Run finished and there are"\
+"no enough elements in the Output Buffer [OB]"
 
 texture_array_t *ib_empty;
 texture_array_t *reg_val_bad;
 texture_array_t *ob_val_bad;
 texture_array_t *ib_unproc_vals;
 texture_array_t *exc_code_size;
-texture_array_t *ob_empty;
+texture_array_t *ob_incomplete;
 
 enum avatar_id{
 	NOAVATAR,
@@ -112,8 +112,8 @@ void mc_init_errors_texture()
 													UNPROCESSED_IB_VALUES_TEXT);
 	exc_code_size = dw_new_text_texture_by_h(rb.w, text_h, C_BLACK, 
 													   EXCEEDS_CODE_LIMIT_TEXT);
-	ob_empty = dw_new_text_texture_by_h(rb.w, text_h, C_BLACK, 
-													  OUTPUT_BUFFER_EMPTY_TEXT);
+	ob_incomplete = dw_new_text_texture_by_h(rb.w, text_h, C_BLACK, 
+												 OUTPUT_BUFFER_INCOMPLETE_TEXT);
 }
 
 /* Function: mc_reset_invalid_operation_flag
@@ -185,8 +185,8 @@ bool mc_invalid_operation_handler(int id)
 		case EXCEEDS_CODE_LIMIT:
 			message = exc_code_size;
 			break;
-		case OUTPUT_BUFFER_EMPTY:
-			message = ob_empty;
+		case OUTPUT_BUFFER_INCOMPLETE:
+			message = ob_incomplete;
 			break;
 		default: 
 			puts("ERROR: Invalid operation incorrec id");
@@ -1489,8 +1489,55 @@ bool mc_run_code()
 	}
 	finished = true;
 	int output_buffer_size = get_output_buffer_list_size();
-	if (output_buffer_size == 0){
-		set_invalid_operation_flag(OUTPUT_BUFFER_EMPTY);
+	int win_list_size = lv_get_win_list_size();
+	if (output_buffer_size < win_list_size){
+		set_invalid_operation_flag(OUTPUT_BUFFER_INCOMPLETE);
 	}
 	return finished;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

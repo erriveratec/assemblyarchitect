@@ -5,6 +5,8 @@ PLAYER 01
 LEVEL ACTIVE TRUE
 
 CODE STARTS
+mov rax, [ib]
+mov [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 01
@@ -56,8 +58,8 @@ CODE STARTS
 mov rax, [ib]
 mov rbx, [ib]
 mov rcx, [ib]
-mov [ob], rbx
 mov [ob], rcx
+mov [ob], rbx
 mov [ob], rax
 CODE ENDS
 
@@ -99,7 +101,6 @@ CODE STARTS
 mov rax, [ib]
 add rax, rax
 add rax, rax
-add [ob], rax
 mov [ob], rax
 CODE ENDS
 
@@ -110,14 +111,10 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-mov rax, [ib]
-mov rax, [ib]
-LINE 03
-mov rax, [ib]
+LINE 01
 mov rax, [ib]
 mov [ob], rax
-mov rax, [ib]
-jmp 02
+jmp 00
 CODE ENDS
 
 +++LEVEL ENDS 09
@@ -441,6 +438,8 @@ PLAYER 02
 LEVEL ACTIVE TRUE
 
 CODE STARTS
+mov rax, [ib]
+mov [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 01
@@ -492,8 +491,8 @@ CODE STARTS
 mov rax, [ib]
 mov rbx, [ib]
 mov rcx, [ib]
-mov [ob], rbx
 mov [ob], rcx
+mov [ob], rbx
 mov [ob], rax
 CODE ENDS
 
@@ -535,7 +534,6 @@ CODE STARTS
 mov rax, [ib]
 add rax, rax
 add rax, rax
-add [ob], rax
 mov [ob], rax
 CODE ENDS
 
@@ -546,14 +544,10 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-mov rax, [ib]
-mov rax, [ib]
-LINE 03
-mov rax, [ib]
+LINE 01
 mov rax, [ib]
 mov [ob], rax
-mov rax, [ib]
-jmp 02
+jmp 00
 CODE ENDS
 
 +++LEVEL ENDS 09
@@ -877,6 +871,8 @@ PLAYER 03
 LEVEL ACTIVE TRUE
 
 CODE STARTS
+mov rax, [ib]
+mov [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 01
@@ -928,8 +924,8 @@ CODE STARTS
 mov rax, [ib]
 mov rbx, [ib]
 mov rcx, [ib]
-mov [ob], rbx
 mov [ob], rcx
+mov [ob], rbx
 mov [ob], rax
 CODE ENDS
 
@@ -971,7 +967,6 @@ CODE STARTS
 mov rax, [ib]
 add rax, rax
 add rax, rax
-add [ob], rax
 mov [ob], rax
 CODE ENDS
 
@@ -982,14 +977,10 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-mov rax, [ib]
-mov rax, [ib]
-LINE 03
-mov rax, [ib]
+LINE 01
 mov rax, [ib]
 mov [ob], rax
-mov rax, [ib]
-jmp 02
+jmp 00
 CODE ENDS
 
 +++LEVEL ENDS 09

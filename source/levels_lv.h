@@ -85,5 +85,6 @@ void init_level(int level_id);
 bool lv_is_code_editable();
 bool lv_is_buf_selectable();
 bool lv_is_reg_selectable();
+int lv_get_win_list_size();
 
 #endif

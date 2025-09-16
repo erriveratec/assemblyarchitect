@@ -63,7 +63,7 @@
 " selection"
 #define L3_SELIB "Select Input Buffer [IB]"
 #define L3_SELINS2 "Use more \"mov\" instructions to solve the challenge"
-#define L3_READ "Use\nmov [OB], rax\nseveral times to solve the challenge"
+#define L3_READ "Use\n\"mov [OB], rax\"\nseveral times to solve the challenge"
 
 #define L4_WELCOME "Welcome to Level 04"
 #define L4_DESCRIPTION1 "Solve the challenge by yourself applying what has"\
