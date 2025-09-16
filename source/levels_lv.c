@@ -240,7 +240,7 @@ static void level_9_tutorial(bool holding_line, bool play)
 	
 	const int pos_one = 0;
 	int code_size = cw_get_code_list_size();
-	static bool first_message = true;
+	static bool msg_welcome = true;
 	static bool second_message = true;
 	static bool third_message = true;
 	
@@ -249,15 +249,18 @@ static void level_9_tutorial(bool holding_line, bool play)
 	if (code_size == 1 && holding_line == false){
 		i1 = cw_get_code_line_at_pos(pos_one);
 	}
-	
-	if (first_message == true && code_size == 0){
-//		tx_text_box(TX_BIG_BOX, L9_MSG_NINTH_CHALLENGE);
+
+	if (msg_welcome == true && code_size == 2){
+		tx_text_box(TX_BIG_BOX, TX_L9_WELCOME);
+		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
 		if (ms_chk_mouse_left_pressed() == true){
-			first_message = false;
+			msg_welcome = false;
 			ms_reset_mouse_values();
 		}
-	} else if (second_message == true && code_size == 0){
-//		tx_text_box(TX_UPPER_BOX, L9_MSG_NEW_INS_JMP);
+	} else if (second_message == true && code_size == 2){
+		tx_text_box(TX_INS_BOX, TX_L9_DESCRIPTION1);
+		tx_bottom_msg(TX_INS_BOX, TX_MSG_CLICKANY);
+		ar_display_arrow(AR_INS);
 		if (ms_chk_mouse_left_pressed() == true){
 			second_message = false;
 			ms_reset_mouse_values();
@@ -1282,8 +1285,8 @@ void lv_init_level_assets(int level)
 		case LV_LEVEL_8:
 			tx_init_level_8_texts();
 			break;
-
 		case LV_LEVEL_9:
+			tx_init_level_9_texts();
 			break;
 
 		default:
@@ -1363,9 +1366,9 @@ void lv_level_drawings(int level, bool holding_line, bool play, int flag)
 			level_8_tutorial(holding_line, play);
 			break;
 
-//		case LV_LEVEL_9:
-//			level_9_tutorial(holding_line, play);
-//			break;
+		case LV_LEVEL_9:
+			level_9_tutorial(holding_line, play);
+			break;
 
 		default:
 			draw_bufs_arrow(check_display_buf_arrow());

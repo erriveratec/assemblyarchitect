@@ -392,16 +392,17 @@ static void initialize_error_arrow()
 {
 	SDL_Rect a = dm_get_arrow_wh();
 	SDL_Rect rb = dm_get_text_box_result();
+	SDL_Rect eb = dm_get_text_box_error();
 	SDL_Rect back_but =  dm_get_text_box_result_but1();
 	g_arrow_error.box.x = rb.x + rb.w/2 - a.w/2;
-	g_arrow_error.box.y = rb.y + rb.h + ERROR_BOX_Y_OFFSET - a.h;	
+	g_arrow_error.box.y = eb.y - a.h;
 	g_arrow_error.box.w = a.w;
 	g_arrow_error.box.h = a.h;
 	g_arrow_error.in_place = false;
 	g_arrow_error.visible = true;
 	g_arrow_error.startx = rb.x + rb.w/2 - back_but.w/2 - 2*a.w;			
-	g_arrow_error.starty = rb.y + rb.h + ERROR_BOX_Y_OFFSET - a.h;		
-	g_arrow_error.travel = a.w;
+	g_arrow_error.starty = eb.y - a.h;
+	g_arrow_error.travel = a.h;
 	g_arrow_error.dir = AR_UP;
 	g_arrow_error.texture = g_lv_arrow;
 }

@@ -20,6 +20,7 @@ void tx_init_level_5_texts();
 void tx_init_level_6_texts();
 void tx_init_level_7_texts();
 void tx_init_level_8_texts();
+void tx_init_level_9_texts();
 
 enum text_box_positions{
 	TX_BOX_MIN,
@@ -38,6 +39,12 @@ enum gbl_msgs{
 	TX_MSG_CLICKANY,
 	TX_MSG_PRESSPLAY,
 	TX_MSG_PRESSBACK
+};
+
+enum l9_messages{
+	TX_L9_WELCOME,
+	TX_L9_DESCRIPTION1,
+	TX_L9_MAX
 };
 
 enum l8_messages{
@@ -121,26 +128,6 @@ enum l1_messages{
 	TX_L1_MAX
 };
 
-#define TUT_TEXT_X INS_BOX_X
-#define TUT_TEXT_Y SCREEN_HEIGHT/2 - MSG_BOX_H
-
-#define MSG_BOX_W (INS_BOX_W + 100)
-#define MSG_BOX_H 210
-
-#define MSG_INS_BOX_X INS_BOX_X
-#define MSG_INS_BOX_Y (SCREEN_HEIGHT/2 - MSG_BOX_H/3)
-
-
-#define ERROR_BOX_Y_OFFSET 60
-#define ERROR_MSG_BOX_X RES_BOX_X + MSG_BOX_W/2 - ARROW_W/2
-#define ERROR_MSG_BOX_Y RES_BOX_Y + RES_BOX_H + ERROR_BOX_Y_OFFSET
-
-
-#define L9_MSG_NINTH_CHALLENGE "You have arrive to level 09. There is a new"\
-" instruction: \"jmp\", which jumps to a place pointed by a LABEL"\
-" (Click anywhere to continue)."
-
-
 #define L9_MSG_NEW_INS_JMP "The operand of the \"jmp\" instruction is a "\
 " LABEL that must be defined in the code."\
 " (Click anywhere to continue)."
@@ -150,15 +137,5 @@ enum l1_messages{
 " (Click anywhere to continue)."
 
 #define L9_MSG_SELECT_LABEL "Select an drag a LABEL from the instruction box."
-
-#define MSG_COMPAT_OPS "Notice: Not all operands are compatible with"\
-" each other, for instance the"\
-" instruction:  mov [ob], [ib]"\
-" is not possible."
-
-
-
-
-
 
 #endif

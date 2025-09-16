@@ -93,6 +93,9 @@
 #define L8_DESCRIPTION2 "Example:\n\"add rax, rax\"\n does rax + rax"\
 " and stores the result in rax"
 
+#define L9_WELCOME "You have arrived to level 09"
+#define L9_DESCRIPTION1 "There is a new instruction: \"jmp\""
+#define L9_DESCRIPTION1 "There is a new instruction: \"jmp\""
 
 SDL_Rect g_big_box;
 SDL_Rect g_error_box;
@@ -110,6 +113,31 @@ int g_gbl_msgs_size;
 texture_array_t **g_gbl_msgs = NULL;
 
 static int get_box_member(SDL_Rect *box, int member);
+
+/* Function: tx_init_level_9_texts
+ * -----------------------------------------------------------------------------
+ * Creates the requiered text textures for a level
+ * 
+ * Arguments:
+ *	Void.
+ *	
+ * Return:
+ * 	Void.	
+ */
+void tx_init_level_9_texts()
+{
+	g_lvl_msgs_size = TX_L9_MAX;
+	g_lvl_msgs = malloc(sizeof(texture_array_t*)*g_lvl_msgs_size);
+
+	SDL_Rect r = dm_get_text_box_big();
+	int text_h = dm_get_h_big_text();
+	g_lvl_msgs[TX_L9_WELCOME] = dw_new_text_texture_by_h(r.w, text_h, C_BLACK, 
+																    L9_WELCOME);
+	r = dm_get_box_msg_wh();
+	text_h = dm_get_h_msg();
+	g_lvl_msgs[TX_L9_DESCRIPTION1] = dw_new_text_texture_by_h(r.w, text_h, 
+										 			  C_BLACK, L9_DESCRIPTION1);
+}
 
 /* Function: tx_init_level_8_texts
  * -----------------------------------------------------------------------------
@@ -136,7 +164,6 @@ void tx_init_level_8_texts()
 										 			  C_BLACK, L8_DESCRIPTION1);
 	g_lvl_msgs[TX_L8_DESCRIPTION2] = dw_new_text_texture_by_h(r.w, text_h, 
 										 			  C_BLACK, L8_DESCRIPTION2);
-
 }
 
 /* Function: tx_init_level_7_texts

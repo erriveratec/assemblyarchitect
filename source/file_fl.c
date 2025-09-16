@@ -56,6 +56,11 @@
 #define STR_L2_CODE_2 "mov rax, rax\n"
 #define STR_L2_CODE_3 "mov rax, rax\n"
 
+// ----- LEVEL 9 ----
+#define STR_L9_CODE_1 "mov rax, [ib]\n"
+#define STR_L9_CODE_2 "mov [ob], rax\n"
+
+
 static char *get_level_id_string(int level_id);
 static char *get_player_id_string(int player_id);
 static char *get_player_end_string(int player_id);
@@ -918,6 +923,12 @@ void fl_save_file_init()
 					strcpy(level, STR_L2_CODE_2);
 					write_to_file(fp, level);
 					strcpy(level, STR_L2_CODE_3);
+					write_to_file(fp, level);
+
+				} else if (i == 9){
+					strcpy(level, STR_L9_CODE_1);
+					write_to_file(fp, level);
+					strcpy(level, STR_L9_CODE_2);
 					write_to_file(fp, level);
 
 				} else {
