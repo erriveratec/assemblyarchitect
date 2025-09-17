@@ -12,13 +12,16 @@
 #include "dimensions_dm.h"
 #include "file_fl.h"
 #include "levels_lv.h"
+#include "text_tx.h"
 
 #define SAVE_FILE_LINE_LENGTH 15
+#define MSG_LENGTH 256
 
 #define READ_ERROR -1
 #define LEVELS_FILE_PATH "data/levels.dat"
 #define SAVE_FILE_PATH "data/save.dat"
 #define SAVE_FILE_PATH_TEMP "data/save.dattemp"
+#define MSGS_FILE_PATH "data/level_msgs.dat"
 
 // Text for the save file creation
 #define STR_LEVEL_STARTS "+++LEVEL STARTS"
@@ -48,6 +51,11 @@
 #define STR_REGISTERS_END "RegistersEnd"
 #define STR_WIN_CONDITION_BEGIN "WinConditionBegin"
 #define STR_WIN_CONDITION_END "WinConditionEnd"
+
+//LEVEL MESSAGES STRINGS
+#define STR_MSG_QTY "QUANTITY"
+#define STR_MSG "MSG"
+#define STR_MSG_END "MSG_END"
 
 
 // Level specific instructions
@@ -79,6 +87,7 @@ static void parse_saved_code(FILE *fp);
 static char *create_string_with_number(char *s,  int n);
 bool check_if_level_is_active(FILE *fp);
 static void parse_win_condition(FILE *fp);
+static void parse_message(FILE *fp, int msg_pos);
 
 /* Function: create_string_with_number
  *------------------------------------------------------------------------------
@@ -472,12 +481,97 @@ error:
 	return;
 }
 
+/* Function: parse_message
+ *------------------------------------------------------------------------------
+ * This function processes a message of a level
+ *
+ * Arguments:
+ *	fp: the file pointer of the level data
+ *
+ * Return:
+ *	void.
+ *
+ */
+static void parse_message(FILE *fp, int msg_pos)
+{
+	char *line = NULL;	
+	size_t len = 0;
+	ssize_t read;
+
+	char *saveptr1;
+	char *text;
+	char msg[MSG_LENGTH] = "";
+
+	while ((read = getline(&line, &len, fp)) != READ_ERROR){
+		text =  strtok_r(line, char_newline, &saveptr1);
+		if (strstr(STR_MSG_END, line) != NULL){
+			//tx_set_message_in_array(msg_pos, msg);
+			printf("TEXT %s\n", msg);
+			break;
+		} else {
+			strcat(msg, text);
+			strcat(msg, char_newline);
+		} 	
+	}
+	return;
+}
+
+/* Function: fl_load_level_msgs
+ *------------------------------------------------------------------------------
+ * Reads the level messages from the file
+ *
+ * Arguments:
+ *	file: string containing the name of the save file
+ *
+ * Return:
+ *	void.
+ *
+ */
+void fl_load_level_msgs(int level_id)
+{
+	assert(level_id > LV_LEVEL_MIN && level_id < LV_LEVEL_MAX &&
+		   "Invalid level id");
+
+	char *line = NULL;	
+	size_t len = 0;
+	ssize_t read;
+
+	FILE *fp = fopen(MSGS_FILE_PATH, "r");
+	check_mem(fp);
+	char *saveptr1;
+	char *text;
+
+	char *level = get_level_id_string(level_id);
+	bool level_found = false;
+
+	while (READ_ERROR != (read = getline(&line, &len, fp))){
+		if (strstr(line, level) != NULL){
+			level_found = true;
+		} else if (strstr(line, STR_MSG_QTY) != NULL && level_found == true){
+			char *qty = strchr(line, CHAR_SPACE);
+			int number = atoi(qty);
+			printf("The value of size %d\n", number);
+		} else if (strstr(line, STR_MSG) != NULL && level_found == true){
+			char *pos = strchr(line, CHAR_SPACE);
+			parse_message(fp, atoi(pos));
+		} else if (strstr(line, STR_LEVEL_ENDS) != NULL && level_found == true){
+			level_found= false;
+			break;
+		}
+	}
+error:
+	free(level);	
+	fclose(fp);	
+	return;
+}
+
 /* Function: fl_load_save_file
  *------------------------------------------------------------------------------
  * Reads the save file to load dthe developed code for a level.
  *
  * Arguments:
- *	file: string containing the name of the save file
+ *	player_id: id of the player that the save will be loaded
+ *	level_id: id of the level that will be loaded
  *
  * Return:
  *	void.
@@ -521,8 +615,9 @@ error:
 	free(player);	
 	fclose(fp);	
 	return;
-
 }
+
+
 /* Function: check_if_level_is_active
  *------------------------------------------------------------------------------
  * Determines if the active flag for a given level is true or false

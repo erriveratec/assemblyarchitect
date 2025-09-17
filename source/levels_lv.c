@@ -1366,7 +1366,7 @@ void lv_init_level_assets(int level)
 	set_buf_selectable();
 	set_reg_selectable();
 	init_lv_msgs();
-	
+
 	switch(level){
 		case LV_LEVEL_1:
 			tx_init_level_1_texts();

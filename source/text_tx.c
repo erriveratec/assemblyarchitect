@@ -103,7 +103,6 @@
 #define L9_MSG6 "Place the \"jmp\" destination \"LINE\" above the first"\
 " line of code"
 
-
 SDL_Rect g_big_box;
 SDL_Rect g_error_box;
 SDL_Rect g_upper_box;
@@ -116,10 +115,56 @@ SDL_Rect g_stagebutton_box;
 int g_lvl_msgs_size;
 texture_array_t **g_lvl_msgs = NULL;
 
+int g_msgs_size;
+texture_array_t **g_msgs = NULL;
+
 int g_gbl_msgs_size;
 texture_array_t **g_gbl_msgs = NULL;
 
 static int get_box_member(SDL_Rect *box, int member);
+
+/* Function: tx_set_and_allocate_msgs_array
+ * -----------------------------------------------------------------------------
+ * This function reserves the sapce required of the array of messages that
+ * will be used on a level
+ * 
+ * Arguments:
+ *	size: size of the array textures
+ *	
+ * Return:
+ * 	Void.	
+ */
+void tx_set_and_allocate_msgs_array(int size)
+{
+	assert(size > 0 && "Negative size");
+	g_msgs_size = size;
+	g_msgs = malloc(sizeof(texture_array_t*)*size);
+}
+
+/* Function: tx_set_message_in_array
+ * -----------------------------------------------------------------------------
+ * Recives a message read from the file and stores it in the message array
+ * on a give position
+ * 
+ * Arguments:
+ *	pos: position in the message array
+ *  msg: message that will be set
+ *	
+ * Return:
+ * 	Void.	
+ */
+void tx_set_message_in_array(int pos, char *msg)
+{
+	assert(pos > 0 && "Invalid position");
+	assert(msg != NULL && "NULL message");	
+
+	pos--; // array starts at zero
+
+	SDL_Rect r = (pos == 0) ? dm_get_text_box_big() : dm_get_box_msg_wh();
+	int h = (pos == 0) ? dm_get_h_big_text() : dm_get_h_msg();
+
+	g_msgs[pos] = dw_new_text_texture_by_h(r.w, h, C_BLACK, msg);
+}
 
 /* Function: tx_init_level_9_texts
  * -----------------------------------------------------------------------------

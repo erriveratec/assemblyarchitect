@@ -278,6 +278,8 @@ void init_level(int level_id)
 	bf_create_input_list();
 	bf_create_output_list();
 	bf_reset_win_condition();
+
+	fl_load_level_msgs(level_id);
 	lv_create_win_list();
 	lv_init_level_assets(level_id);
 

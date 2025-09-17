@@ -21,6 +21,8 @@ void tx_init_level_6_texts();
 void tx_init_level_7_texts();
 void tx_init_level_8_texts();
 void tx_init_level_9_texts();
+void tx_set_and_allocate_msgs_array(int size);
+void tx_set_message_in_array(int pos, char *msg);
 
 enum text_box_positions{
 	TX_BOX_MIN,
