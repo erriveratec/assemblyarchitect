@@ -1,6 +1,6 @@
 +++LEVEL STARTS 01
 
-QUANTITY 16
+QUANTITY 17
 
 MSG 01
 Welcome to Level 01
@@ -62,7 +62,11 @@ MSG 15
 Select rax as the source operand
 MSG_END
 
-MSG 16 
+MSG 16
+Press the play button
+MSG_END
+
+MSG 17
 Congratulations, you have beaten the first level
 MSG_END
 
@@ -70,10 +74,11 @@ MSG_END
 
 +++LEVEL STARTS 02
 
-QUANTITY 7
+QUANTITY 8
 
 MSG 01
 Welcome to Level 02
+MSG_END
 
 MSG 02
 We will learn how to rearrange, delete and change operands of the instruction
@@ -97,6 +102,10 @@ MSG_END
 
 MSG 07
 Select and drag the second instruction and move in to the first position
+MSG_END
+
+MSG 08
+Press the play button
 MSG_END
 
 +++LEVEL ENDS 02

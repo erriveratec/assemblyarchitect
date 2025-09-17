@@ -507,7 +507,6 @@ static void parse_message(FILE *fp, int msg_pos)
 		text =  strtok_r(line, char_newline, &saveptr1);
 		
 		if (strstr(STR_MSG_END, line) != NULL){
-			printf("TEXT %s\n", msg);
 			tx_set_message_in_array(msg_pos, msg);
 			break;
 		} else if (i != 0){

@@ -12,15 +12,6 @@ int tx_get_text_box_member(int text_box_id, int member);
 void tx_init_level_text_textures(int level_id);
 void tx_init_text_boxes();
 void tx_free_level_text_textures();
-void tx_init_level_1_texts();
-void tx_init_level_2_texts();
-void tx_init_level_3_texts();
-void tx_init_level_4_texts();
-void tx_init_level_5_texts();
-void tx_init_level_6_texts();
-void tx_init_level_7_texts();
-void tx_init_level_8_texts();
-void tx_init_level_9_texts();
 void tx_set_and_allocate_msgs_array(int size);
 void tx_set_message_in_array(int pos, char *msg);
 
@@ -41,6 +32,28 @@ enum gbl_msgs{
 	TX_MSG_CLICKANY,
 	TX_MSG_PRESSPLAY,
 	TX_MSG_PRESSBACK
+};
+enum msgs{
+	MSG1,
+	MSG2,
+	MSG3,
+	MSG4,
+	MSG5,
+	MSG6,
+	MSG7,
+	MSG8,
+	MSG9,
+	MSG10,
+	MSG11,
+	MSG12,
+	MSG13,
+	MSG14,
+	MSG15,
+	MSG16,
+	MSG17,
+	MSG18,
+	MSG19,
+	MSG20,
 };
 
 enum l9_messages{

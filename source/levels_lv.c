@@ -22,23 +22,6 @@
 #define NO_EXCEPTION 0
 #define LV_MSGS_QTY 15
 
-enum msgs{
-	MSG1,
-	MSG2,
-	MSG3,
-	MSG4,
-	MSG5,
-	MSG6,
-	MSG7,
-	MSG8,
-	MSG9,
-	MSG10,
-	MSG11,
-	MSG12,
-	MSG13,
-	MSG14,
-	MSG15
-};
 
 static bool g_code_editable;
 static int g_code_editable_exception;
@@ -789,59 +772,38 @@ static void level_1_tutorial(bool holding_line, bool play, int flag)
 {
 	int code_size = cw_get_code_list_size();
 	draw_regs_arrow(false);
-	static bool first_message = true;
-	static bool second_message = true;	
-	static bool third_message = true;	
-	static bool fourth_message = true;	
-	static bool fifth_message = true;
 	static bool play_message = true;
 
 	if (flag != 0){
 		tx_text_box(TX_ERROR_BOX, TX_L1_ERROR);
 		tx_bottom_msg(TX_ERROR_BOX, TX_MSG_PRESSBACK);
 		ar_display_arrow(AR_ERROR);
-	} else if (first_message == true && code_size == 0){
-		tx_text_box(TX_BIG_BOX, TX_L1_WELCOME);
+	} else if (g_lv_msg[MSG1] == true && code_size == 0){
+		tx_text_box(TX_BIG_BOX, MSG1); //Welcome message
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		if (ms_chk_mouse_left_pressed() == true){
-			first_message = false;
-			ms_reset_mouse_values();
-		}
-	} else if (second_message == true && code_size == 0){
-		tx_text_box(TX_UPPER_BOX, TX_L1_DESCRIPTION);
+		chk_ms_pressed_clear_msg(MSG1, true);
+	} else if (g_lv_msg[MSG2] == true && code_size == 0){
+		tx_text_box(TX_UPPER_BOX, MSG2); //Read challenge
 		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_CHALLENGE);
-		if (ms_chk_mouse_left_pressed() == true){
-			second_message = false;
-			ms_reset_mouse_values();
-		}
-	} else if (third_message == true && code_size == 0){
-		tx_text_box(TX_UPPER_BOX, TX_L1_OBJ1);
+		chk_ms_pressed_clear_msg(MSG2, true);
+	} else if (g_lv_msg[MSG3] == true && code_size == 0){
+		tx_text_box(TX_UPPER_BOX, MSG3); //Move from the Input Buffer
 		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
-		if (ms_chk_mouse_left_pressed() == true){
-			third_message = false;
-		}
 		ar_display_arrow(AR_IB);
-		ms_reset_mouse_values();
-	} else if (fourth_message == true && code_size == 0){
-		tx_text_box(TX_LOWER_BOX, TX_L1_OBJ2);
+		chk_ms_pressed_clear_msg(MSG3, true);
+	} else if (g_lv_msg[MSG4] == true && code_size == 0){
+		tx_text_box(TX_LOWER_BOX, MSG4); //To the Output Buffer
 		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
-		if (ms_chk_mouse_left_pressed() == true){
-			fourth_message = false;
-		}
 		ar_display_arrow(AR_OB);
-		ms_reset_mouse_values();
-	} else if (fifth_message == true && code_size == 0){
-		tx_text_box(TX_UPPER_BOX, TX_L1_OBJ3);
+		chk_ms_pressed_clear_msg(MSG4, true);
+	} else if (g_lv_msg[MSG5] == true && code_size == 0){
+		tx_text_box(TX_UPPER_BOX, MSG5);//To register first
 		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
-		if (ms_chk_mouse_left_pressed() == true){
-			fifth_message = false;
-		}
 		draw_regs_arrow(true);
-		ms_reset_mouse_values();
+		chk_ms_pressed_clear_msg(MSG5, true);
 	} else if (code_size == 0 && holding_line == false){
-		tx_text_box(TX_INS_BOX, TX_L1_SELINS1);
-		tx_bottom_msg(TX_INS_BOX, TX_MSG_CLICKANY);
+		tx_text_box(TX_INS_BOX, MSG6);//Select and drag instruction
 		ar_display_arrow(AR_INS);
 	} else if (code_size == 0 && holding_line == true){
 		tx_text_box(TX_CODE_BOX, TX_L1_DROPINS1);
@@ -1367,37 +1329,6 @@ void lv_init_level_assets(int level)
 	set_reg_selectable();
 	init_lv_msgs();
 
-	switch(level){
-		case LV_LEVEL_1:
-			tx_init_level_1_texts();
-			break;
-		case LV_LEVEL_2:
-			tx_init_level_2_texts();
-			break;
-		case LV_LEVEL_3:
-			tx_init_level_3_texts();
-			break;
-		case LV_LEVEL_4:
-			tx_init_level_4_texts();
-			break;
-		case LV_LEVEL_5:
-			tx_init_level_5_texts();
-			break;
-		case LV_LEVEL_6:
-			tx_init_level_6_texts();
-			break;
-		case LV_LEVEL_7:
-			tx_init_level_7_texts();
-			break;
-		case LV_LEVEL_8:
-			tx_init_level_8_texts();
-			break;
-		case LV_LEVEL_9:
-			tx_init_level_9_texts();
-			break;
-		default:
-			break;
-	}
 }
 
 /* Function: lv_upd_level_assets

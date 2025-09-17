@@ -10,7 +10,7 @@
 
 #define MSG_CLICKANY "Click anywhere to continue"
 #define MSG_PRESSPLAY "Press the play button"
-#define MSG_PRESSBACK "Press the back button to continue"
+#define MSG_PRESSBACK "Press the back button"
 #define MSG_PRESSCONT "Press the continue button"
 
 #define L1_WELCOME "Welcome to Level 01"
@@ -505,10 +505,10 @@ void tx_init_global_msgs()
  */
 void tx_free_level_text_textures()
 {
-	for (int i = 0; i < g_lvl_msgs_size; i++){
-		dw_free_texture_array(g_lvl_msgs[i]);
+	for (int i = 0; i < g_msgs_size; i++){
+		dw_free_texture_array(g_msgs[i]);
 	}
-	g_lvl_msgs_size = 0;
+	g_msgs_size = 0;
 }
 
 /* Function: tx_init_text_boxes
@@ -694,11 +694,11 @@ void tx_bottom_msg(int pos, int msg_id)
  */
 void tx_text_box(int pos, int msg_id)
 {
-	assert(msg_id >= 0 && msg_id < g_lvl_msgs_size && "Invalid msg_id");
+	assert(msg_id >= 0 && msg_id < g_msgs_size && "Invalid msg_id");
 	SDL_Rect b;
 	int text_h;
 	SDL_Color color;
-	texture_array_t *a = g_lvl_msgs[msg_id];
+	texture_array_t *a = g_msgs[msg_id];
 	switch(pos){
 		case TX_INS_BOX:
 			b = g_ins_box; 
