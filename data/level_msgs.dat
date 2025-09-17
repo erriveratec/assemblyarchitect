@@ -219,7 +219,7 @@ MSG_END
 
 MSG 03
 Example:
-"mov rbx, rax\"
+"mov rbx, rax"
 moves the value from "rax" to "rbx"
 MSG_END
 

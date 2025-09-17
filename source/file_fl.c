@@ -502,16 +502,19 @@ static void parse_message(FILE *fp, int msg_pos)
 	char *text;
 	char msg[MSG_LENGTH] = "";
 
+	int i = 0;
 	while ((read = getline(&line, &len, fp)) != READ_ERROR){
 		text =  strtok_r(line, char_newline, &saveptr1);
+		
 		if (strstr(STR_MSG_END, line) != NULL){
-			//tx_set_message_in_array(msg_pos, msg);
 			printf("TEXT %s\n", msg);
+			tx_set_message_in_array(msg_pos, msg);
 			break;
-		} else {
-			strcat(msg, text);
+		} else if (i != 0){
 			strcat(msg, char_newline);
-		} 	
+		}  
+		strcat(msg, text);
+		i++;
 	}
 	return;
 }
@@ -549,8 +552,8 @@ void fl_load_level_msgs(int level_id)
 			level_found = true;
 		} else if (strstr(line, STR_MSG_QTY) != NULL && level_found == true){
 			char *qty = strchr(line, CHAR_SPACE);
-			int number = atoi(qty);
-			printf("The value of size %d\n", number);
+			int size = atoi(qty);
+			tx_set_and_allocate_msgs_array(size);
 		} else if (strstr(line, STR_MSG) != NULL && level_found == true){
 			char *pos = strchr(line, CHAR_SPACE);
 			parse_message(fp, atoi(pos));
