@@ -22,7 +22,7 @@
 #define EXCEEDS_CODE_LIMIT_TEXT "ERROR: Correct output but exceeds code size"\
 " limit"
 #define OUTPUT_BUFFER_INCOMPLETE_TEXT "ERROR: Run finished and there are"\
-"no enough elements in the Output Buffer [OB]"
+" no enough elements in the Output Buffer [OB]"
 
 texture_array_t *ib_empty;
 texture_array_t *reg_val_bad;

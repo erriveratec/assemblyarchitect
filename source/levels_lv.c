@@ -34,6 +34,8 @@ static char level_win_condition[WIN_CONDITION_LENGTH];
 static bool g_lv_msg[LV_MSGS_QTY];
 
 static code_line_t *g_hold_line;
+static bool g_play;
+
 
 List *get_win_list();
 void add_to_win_list(int value, int type);
@@ -63,6 +65,37 @@ static void init_lv_msgs();
 static void chk_ms_pressed_clear_msg(int message_id, bool reset_mouse);
 static bool check_player_is_holding_line();
 static code_line_t *get_hold_line();
+static bool get_play_state();
+
+/* Function: get_play_state
+ * ----------------------------------------------------------------------------
+ * Returns the state of the play variables for the levels that requires it
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Void.
+ */
+static bool get_play_state()
+{
+	return g_play;
+}
+
+/* Function: lv_set_play_state
+ * ----------------------------------------------------------------------------
+ * Sets the play variables for the levels that requires it 
+ *
+ * Arguments:
+ *	state: State to which the play variable will be set
+ *
+ * Return:
+ *	Void.
+ */
+void lv_set_play_state(bool state)
+{
+	g_play = state;
+}
 
 /* Function: lv_set_hold_line
  * ----------------------------------------------------------------------------
@@ -770,88 +803,84 @@ static void level_2_tutorial(bool holding_line, bool play)
  */
 static void level_1_tutorial(bool holding_line, bool play, int flag)
 {
-	int code_size = cw_get_code_list_size();
 	draw_regs_arrow(false);
+	bool hold = check_player_is_holding_line();
+	int size = cw_get_code_list_size();
 	static bool play_message = true;
+	bool sorted = cw_check_code_sorted();
+	bool miss_op = cw_check_code_pending_operand();
+	bool miss_op1 = cw_check_code_pending_op1();
 
-	if (flag != 0){
-		tx_text_box(TX_ERROR_BOX, TX_L1_ERROR);
-		tx_bottom_msg(TX_ERROR_BOX, TX_MSG_PRESSBACK);
-		ar_display_arrow(AR_ERROR);
-	} else if (g_lv_msg[MSG1] == true && code_size == 0){
+	 if (g_lv_msg[MSG1] == true && size == 0){
 		tx_text_box(TX_BIG_BOX, MSG1); //Welcome message
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
 		chk_ms_pressed_clear_msg(MSG1, true);
-	} else if (g_lv_msg[MSG2] == true && code_size == 0){
+	} else if (g_lv_msg[MSG2] == true && size == 0){
 		tx_text_box(TX_UPPER_BOX, MSG2); //Read challenge
 		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_CHALLENGE);
 		chk_ms_pressed_clear_msg(MSG2, true);
-	} else if (g_lv_msg[MSG3] == true && code_size == 0){
+	} else if (g_lv_msg[MSG3] == true && size == 0){
 		tx_text_box(TX_UPPER_BOX, MSG3); //Move from the Input Buffer
 		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_IB);
 		chk_ms_pressed_clear_msg(MSG3, true);
-	} else if (g_lv_msg[MSG4] == true && code_size == 0){
+	} else if (g_lv_msg[MSG4] == true && size == 0){
 		tx_text_box(TX_LOWER_BOX, MSG4); //To the Output Buffer
 		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_OB);
 		chk_ms_pressed_clear_msg(MSG4, true);
-	} else if (g_lv_msg[MSG5] == true && code_size == 0){
+	} else if (g_lv_msg[MSG5] == true && size == 0){
 		tx_text_box(TX_UPPER_BOX, MSG5);//To register first
 		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
 		draw_regs_arrow(true);
 		chk_ms_pressed_clear_msg(MSG5, true);
-	} else if (code_size == 0 && holding_line == false){
+	} else if (size == 0 && hold == false){
 		tx_text_box(TX_INS_BOX, MSG6);//Select and drag instruction
 		ar_display_arrow(AR_INS);
-	} else if (code_size == 0 && holding_line == true){
-		tx_text_box(TX_CODE_BOX, TX_L1_DROPINS1);
+	} else if (size == 0 && hold == true){
+		tx_text_box(TX_CODE_BOX, MSG7); // Drop ins in code box
 		ar_display_arrow(AR_DROP);
-	} else if (code_size == 1 && cw_check_code_sorted() == true &&
-								   cw_check_code_pending_op1() == true){
-		//Select rax
+	} else if (size == 1 && sorted == true && miss_op1 == true){
+		tx_text_box(TX_LOWER_BOX, MSG8);//Select rax
 		reset_buf_selectable();
-		tx_text_box(TX_LOWER_BOX, TX_L1_SELOP1);	
 		draw_regs_arrow(true);
-	} else if(code_size == 1 && cw_check_code_sorted() == true &&
-				    			   cw_check_code_pending_operand() == true){
-		//Select input buffer
+	} else if(size == 1 && sorted == true && miss_op == true){
+		tx_text_box(TX_UPPER_BOX, MSG9);//Select input buffer
 		set_buf_selectable();
 		reset_reg_selectable();
-		tx_text_box(TX_UPPER_BOX, TX_L1_SELOP2);	
 		draw_regs_arrow(false);
 		ar_display_arrow(AR_IB);
-	} else if(code_size == 1 && holding_line == false &&
- 			  cw_check_code_pending_operand() == false && play_message == true){
-		tx_text_box(TX_STAGEBUTTON_BOX, TX_L1_PLAYTUT);	
+	} else if(size == 1 && hold == false && miss_op == false && 
+													   g_lv_msg[MSG10] == true){
+		tx_text_box(TX_STAGEBUTTON_BOX, MSG10);// Press play button
 		ar_display_arrow(AR_PLAY);
 		if (play == true){
-			play_message = false;
+			g_lv_msg[MSG10] = false;
 		}
-	} else if(code_size == 1 && holding_line == false && play == false &&
- 	         cw_check_code_pending_operand() == false && play_message == false){
-		tx_text_box(TX_INS_BOX, TX_L1_SELINS2);	
+	} else if (flag != 0){
+		tx_text_box(TX_LOWER_BOX, MSG11); //ERROR
+		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_PRESSBACK);
+		ar_display_arrow(AR_ERROR);
+	} else if(size == 1 && hold == false && play == false &&
+ 	          					  miss_op == false && g_lv_msg[MSG10] == false){
+		tx_text_box(TX_INS_BOX, MSG12);	 //Select another mov instruction
 		ar_display_arrow(AR_INS);
-	}else if(code_size == 1 && holding_line == true &&
- 								  cw_check_code_pending_operand() == false){
-		tx_text_box(TX_CODE_BOX, TX_L1_DROPINS2);
+	}else if(size == 1 && hold == true && miss_op == false){
+		tx_text_box(TX_CODE_BOX, MSG13); // Drop below instruction
 		ar_display_arrow(AR_DROP);
-	} else if (code_size == 2 && cw_check_code_sorted() == true &&
-								   cw_check_code_pending_op1() == true){
-		tx_text_box(TX_CODE_BOX, TX_L1_SELOP1_2);	
+	} else if (size == 2 && sorted == true && miss_op1 == true){
+		tx_text_box(TX_CODE_BOX, MSG14);//Select OB	
 		ar_display_arrow(AR_OB);
-	} else if(code_size == 2 && cw_check_code_sorted() == true &&
-				    			   cw_check_code_pending_operand() == true){
+	} else if(size == 2 && sorted == true && miss_op == true){
 		set_reg_selectable();
-		tx_text_box(TX_CODE_BOX, TX_L1_SELOP2_2);	
+		tx_text_box(TX_CODE_BOX, MSG15); //Select rax
 		draw_regs_arrow(true);
-	} else if(code_size == 2 && cw_check_code_pending_operand() == false &&
-															 play == false){
-		tx_text_box(TX_STAGEBUTTON_BOX, TX_L1_PRESSPLAY);	
+	} else if(size == 2 && miss_op == false && play == false){
+		tx_text_box(TX_STAGEBUTTON_BOX, MSG16);	//Press play
 		ar_display_arrow(AR_PLAY);
 	} else if (lv_check_if_win() == true){
-		tx_text_box(TX_LOWER_BOX, TX_L1_CONGRATS);	
+		tx_text_box(TX_LOWER_BOX, MSG17);//Congrats 
 	}
 }
 

@@ -599,6 +599,30 @@ SDL_Rect dm_get_text_box_error()
 	return b;
 }
 
+/* Function: dm_get_text_box_lower
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_text_box_lower()
+{
+	SDL_Rect rb = dm_get_text_box_result();
+	SDL_Rect mb = dm_get_box_msg_wh();	
+	SDL_Rect ab = dm_get_arrow_wh();
+	
+	SDL_Rect b;
+	b.w = mb.w;
+	b.h = mb.h;
+	b.x = g_screen_width/2 - mb.w/2;
+	b.y = rb.y + rb.h + 2*ab.h;
+	return b;
+}
+
 /* Function: dm_get_text_box_big
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object
@@ -685,26 +709,7 @@ SDL_Rect dm_get_text_box_ins()
 	return b;
 }
 
-/* Function: dm_get_text_box_lower
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_text_box_lower()
-{
-	SDL_Rect mb = dm_get_box_msg_wh();	
-	SDL_Rect b;
-	b.w = mb.w;
-	b.h = mb.h;
-	b.x = g_screen_width/2 - mb.w/2;
-	b.y = g_screen_height*8/9 - mb.h;
-	return b;
-}
+
 
 /* Function: dm_get_text_box_center
  * -----------------------------------------------------------------------------

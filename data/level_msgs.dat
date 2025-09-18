@@ -43,11 +43,11 @@ Press the play button to see what the instruction does
 MSG_END
 
 MSG 11
-Select and drag another "mov" instruction from the instruction box
+The value was moved to rax but not to the Output Buffer [OB]
 MSG_END
 
 MSG 12
-The value was moved from the Input Buffer [IB] to rax. Now we need to move it from rax to the Output Buffer [OB]
+Select and drag another "mov" instruction from the instruction box
 MSG_END
 
 MSG 13

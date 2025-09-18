@@ -88,5 +88,6 @@ bool lv_is_buf_selectable();
 bool lv_is_reg_selectable();
 int lv_get_win_list_size();
 void lv_set_hold_line(code_line_t *line);
+void lv_set_play_state(bool state);
 
 #endif
