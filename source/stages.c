@@ -53,10 +53,10 @@ texture_t *g_game_title = NULL;
 texture_t *g_press_space = NULL;
 texture_t *g_win_text = NULL;
 
-void stage_drawings(int level, bool holding_line, bool play);
+void stage_drawings(int level);
 static code_line_t *pending_operand_handler();
 static void flag_handler(level_flags_t *flags, int clicked_button);
-static bool edit_code(int level_id);
+static code_line_t *edit_code(int level_id);
 static void reset_level(int level_id, level_flags_t *flags, bool *run_finished);
 static int display_run_result(bool win_check);
 static void destroy_level(level_flags_t *flags);
@@ -64,8 +64,6 @@ static void init_stage_assets();
 static void code_updated_actions(int level_id);
 static void set_code_editable();
 static void reset_code_editable();
-
-
 
 /* Function: stage_select_player
  * ----------------------------------------------------------------------------
@@ -337,13 +335,11 @@ static void destroy_level(level_flags_t *flags)
  *
  * Arguments:
  *	level: id of the level that is being rendered
- *	holding_line: boolean indicating if the player is holding a line
- *	play: boolean indicating if the play button is active
  *
  * Return:
  *	Void.
  */
-void stage_drawings(int level, bool holding_line, bool play)
+void stage_drawings(int level)
 {
 	iw_display_instructions();
 	cw_draw_code_window();	
@@ -352,7 +348,7 @@ void stage_drawings(int level, bool holding_line, bool play)
 	ar_display_arrow(AR_EXEC);
 	bf_draw_buffers();
 	rg_draw_registers();
-	lv_level_drawings(level, holding_line, play, mc_get_operation_flag());
+	lv_level_drawings(level);
 	sb_draw_return_button();
 	return;
 }
@@ -619,7 +615,7 @@ static code_line_t *pending_operand_handler()
  * Return:
  *	true if the player is holding a line, false if otherwise
  */
-static bool edit_code(int level_id)
+static code_line_t *edit_code(int level_id)
 {
 	assert(level_id > 0 && level_id <= LV_LEVEL_QUANTITY && 
 		   											"Incorrect level_id value");
@@ -658,8 +654,7 @@ static bool edit_code(int level_id)
 		}
 		line = NULL;
 	}
-	lv_set_hold_line(line);
-	return hold_line; // I must change this as it is not required
+	return line; // I must change this as it is not required
 }
 
 /* Function: reset_level
@@ -695,7 +690,7 @@ int stage_level(int level_id)
 	int ret_val = LV_PLAY_LEVEL;
 	static bool run_finished = false;
 	static bool reset = false;
-	static bool holding_line = false;
+	static code_line_t *hold_line = NULL;
 	bool back_to_level_selection = sb_check_clicked_ret_button(); 
 	static level_flags_t flags;
 	display_escape_menu(get_escape_menu_state());
@@ -705,11 +700,14 @@ int stage_level(int level_id)
 		flag_handler(&flags, identify_clicked_stage_button());
 	}
 	
-	stage_drawings(level_id, holding_line, flags.play);
+	lv_set_op_flag_state(mc_get_operation_flag());
+	lv_set_play_state(flags.play);
+	lv_set_hold_line(hold_line);
+	stage_drawings(level_id);
 	cw_sort_code();
 	
 	if (flags.non_stop == false || cw_check_code_pending_operand() == true){
-		holding_line = edit_code(level_id);
+		hold_line = edit_code(level_id);
 	}
 	if (mc_get_operation_flag() != NO_INVALID_OPERATION){
 		reset = mc_invalid_operation_handler(mc_get_operation_flag());

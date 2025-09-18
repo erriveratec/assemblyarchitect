@@ -81,7 +81,7 @@ void lv_reset_win_condition();
 bool lv_evaluate_output_correctness();
 void lv_set_level_instructions_limit(int limit);
 int lv_get_level_instructions_limit();
-void lv_level_drawings(int level, bool holding_line, bool play, int flag);
+void lv_level_drawings(int level);
 void init_level(int level_id);
 bool lv_is_code_editable();
 bool lv_is_buf_selectable();
@@ -89,5 +89,6 @@ bool lv_is_reg_selectable();
 int lv_get_win_list_size();
 void lv_set_hold_line(code_line_t *line);
 void lv_set_play_state(bool state);
+void lv_set_op_flag_state(bool state);
 
 #endif

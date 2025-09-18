@@ -35,18 +35,18 @@ static bool g_lv_msg[LV_MSGS_QTY];
 
 static code_line_t *g_hold_line;
 static bool g_play;
-
+static bool g_op_flag;
 
 List *get_win_list();
 void add_to_win_list(int value, int type);
-static void level_1_tutorial(bool holding_line, bool play, int flag);
-static void level_2_tutorial(bool holding_line, bool play);
-static void level_3_tutorial(bool holding_line, bool play);
-static void level_4_tutorial(bool holding_line, bool play);
-static void level_5_tutorial(bool holding_line, bool play);
-static void level_6_tutorial(bool holding_line, bool play);
-static void level_7_tutorial(bool holding_line, bool play);
-static void level_8_tutorial(bool holding_line, bool play);
+static void level_1_tutorial();
+static void level_2_tutorial();
+static void level_3_tutorial();
+static void level_4_tutorial();
+static void level_5_tutorial();
+static void level_6_tutorial();
+static void level_7_tutorial();
+static void level_8_tutorial();
 static void level_9_tutorial();
 static bool check_display_reg_lv_arrow();
 static int check_display_buf_arrow();
@@ -66,6 +66,37 @@ static void chk_ms_pressed_clear_msg(int message_id, bool reset_mouse);
 static bool check_player_is_holding_line();
 static code_line_t *get_hold_line();
 static bool get_play_state();
+static bool get_op_flag();
+
+/* Function: get_play_state
+ * ----------------------------------------------------------------------------
+ * Return the boolean that indicates if there is an operation flag
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Void.
+ */
+static bool get_op_flag()
+{
+	return g_op_flag;
+}
+
+/* Function: lv_set_op_flag_state
+ * ----------------------------------------------------------------------------
+ * Sets the boolen if there is an operation flag active in the state
+ *
+ * Arguments:
+ *	state: State to which the op_flag variable will be set
+ *
+ * Return:
+ *	Void.
+ */
+void lv_set_op_flag_state(bool state)
+{
+	g_op_flag = state;
+}
 
 /* Function: get_play_state
  * ----------------------------------------------------------------------------
@@ -412,7 +443,7 @@ static void level_9_tutorial()
  * Return:
  *	Void.
  */
-static void level_8_tutorial(bool holding_line, bool play)
+static void level_8_tutorial()
 {
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
@@ -456,7 +487,7 @@ static void level_8_tutorial(bool holding_line, bool play)
  * Return:
  *	Void.
  */
-static void level_7_tutorial(bool holding_line, bool play)
+static void level_7_tutorial()
 {
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
@@ -499,11 +530,12 @@ static void level_7_tutorial(bool holding_line, bool play)
  * Return:
  *	Void.
  */
-static void level_6_tutorial(bool holding_line, bool play)
+static void level_6_tutorial()
 {
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 
+	bool hold = check_player_is_holding_line();
 	int code_size = cw_get_code_list_size();
 	static bool msg_welcome = true;
 	static bool msg_descrip1 = true;
@@ -532,7 +564,7 @@ static void level_6_tutorial(bool holding_line, bool play)
 			msg_descrip2 = false;
 		}
 		ms_reset_mouse_values();
-	} else if (code_size == 0 && holding_line == false){
+	} else if (code_size == 0 && hold == false){
 		tx_text_box(TX_INS_BOX, TX_L6_SELINS);
 		//tx_bottom_msg(TX_INS_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_INS);
@@ -549,7 +581,7 @@ static void level_6_tutorial(bool holding_line, bool play)
  * Return:
  *	Void.
  */
-static void level_5_tutorial(bool holding_line, bool play)
+static void level_5_tutorial()
 {
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
@@ -586,7 +618,7 @@ static void level_5_tutorial(bool holding_line, bool play)
  * Return:
  *	Void.
  */
-static void level_4_tutorial(bool holding_line, bool play)
+static void level_4_tutorial()
 {
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
@@ -622,12 +654,13 @@ static void level_4_tutorial(bool holding_line, bool play)
  * Return:
  *	Void.
  */
-static void level_3_tutorial(bool holding_line, bool play)
+static void level_3_tutorial()
 {
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 
 	int code_size = cw_get_code_list_size();
+	bool hold = check_player_is_holding_line();
 	static bool msg_welcome = true;
 	static bool msg_descrip1 = true;
 	static bool msg_descrip2 = true;
@@ -658,11 +691,11 @@ static void level_3_tutorial(bool holding_line, bool play)
 			msg_descrip2 = false;
 			ms_reset_mouse_values();
 		}
-	} else if (code_size == 0 && holding_line == false){
+	} else if (code_size == 0 && hold == false){
 		tx_text_box(TX_INS_BOX, TX_L3_SELINS1);
 		ar_display_arrow(AR_INS);
 		enable_code_editable();
-	} else if (code_size == 0 && holding_line == true){
+	} else if (code_size == 0 && hold == true){
 		tx_text_box(TX_CODE_BOX, TX_L3_DROPINS);
 		ar_display_arrow(AR_DROP);
 	} else if (code_size == 1 && cw_check_code_pending_op1() == true && 
@@ -693,13 +726,13 @@ static void level_3_tutorial(bool holding_line, bool play)
 		set_buf_selectable();
 		reset_reg_selectable();
 	} else if (code_size == 1 && cw_check_code_pending_operand() == false &&
-														 holding_line == false){
+														 hold == false){
 		// Select the second instruction	
 		tx_text_box(TX_INS_BOX, TX_L3_SELINS2);
 		ar_display_arrow(AR_INS);
 		set_reg_selectable();
 	} else if (code_size == 1 && cw_check_code_pending_operand() == false &&
-														  holding_line == true){
+														  hold == true){
 		tx_text_box(TX_CODE_BOX, TX_L3_DROPINS);
 		ar_display_arrow(AR_DROP);
 	}else if (code_size == 2 && cw_check_code_pending_operand() == true){
@@ -717,10 +750,12 @@ static void level_3_tutorial(bool holding_line, bool play)
  * Return:
  *	Void.
  */
-static void level_2_tutorial(bool holding_line, bool play)
+static void level_2_tutorial()
 {
 	int code_size = cw_get_code_list_size();
 	
+	bool hold = check_player_is_holding_line();
+ 	bool play = get_play_state();
 	const int pos_one = 0;
 	const int pos_two = 1;
 	const int two_instructions = 2;
@@ -732,7 +767,7 @@ static void level_2_tutorial(bool holding_line, bool play)
 	static bool msg_welcome = true;
 	static bool msg_descrip = true;
 
-	if (code_size >= two_instructions && holding_line == false){
+	if (code_size >= two_instructions && hold == false){
 		i1 = cw_get_code_line_at_pos(pos_one);
 		i2 = cw_get_code_line_at_pos(pos_two);
 	}
@@ -765,14 +800,14 @@ static void level_2_tutorial(bool holding_line, bool play)
 			msg_descrip = false;
 			ms_reset_mouse_values();
 		}
-	} else if (code_size > g_level_instructions_limit && holding_line == false){
+	} else if (code_size > g_level_instructions_limit && hold == false){
 		disable_code_editable(code_size);
 		tx_text_box(TX_CODE_BOX, TX_L2_SELLAST);
 		ar_display_arrow(AR_CODE);
-	} else if (code_size > g_level_instructions_limit && holding_line == true){
+	} else if (code_size > g_level_instructions_limit && hold == true){
 		tx_text_box(TX_CODE_BOX, TX_L2_DELINS);
 		ar_display_arrow(AR_DEL);
-	} else if (change_op == true && holding_line == false){
+	} else if (change_op == true && hold == false){
 		if (i2->state != CHANGING_OP2){
 			tx_text_box(TX_CODE_BOX, TX_L2_CHANGEOP);
 			ar_display_arrow(AR_OP2);
@@ -801,12 +836,13 @@ static void level_2_tutorial(bool holding_line, bool play)
  * Return:
  *	Void.
  */
-static void level_1_tutorial(bool holding_line, bool play, int flag)
+static void level_1_tutorial()
 {
 	draw_regs_arrow(false);
+	bool flag = get_op_flag();
+	bool play = get_play_state();
 	bool hold = check_player_is_holding_line();
 	int size = cw_get_code_list_size();
-	static bool play_message = true;
 	bool sorted = cw_check_code_sorted();
 	bool miss_op = cw_check_code_pending_operand();
 	bool miss_op1 = cw_check_code_pending_op1();
@@ -1394,42 +1430,42 @@ void lv_upd_level_assets(int level)
  * Return:
  *	Void.
  */
-void lv_level_drawings(int level, bool holding_line, bool play, int flag)
+void lv_level_drawings(int level)
 {
 	assert(level < LV_LEVEL_MAX && level > LV_LEVEL_MIN && 
 			          								"Invalid level value");
 	
 	switch(level){
 		case LV_LEVEL_1:
-			level_1_tutorial(holding_line, play, flag);
+			level_1_tutorial();
 			break;
 
 		case LV_LEVEL_2:
-			level_2_tutorial(holding_line, play);
+			level_2_tutorial();
 			break;
 	
 		case LV_LEVEL_3:
-			level_3_tutorial(holding_line, play);
+			level_3_tutorial();
 			break;
 
 		case LV_LEVEL_4:
-			level_4_tutorial(holding_line, play);
+			level_4_tutorial();
 			break;
 	
 		case LV_LEVEL_5:
-			level_5_tutorial(holding_line, play);
+			level_5_tutorial();
 			break;
 	
 		case LV_LEVEL_6:
-			level_6_tutorial(holding_line, play);
+			level_6_tutorial();
 			break;
 		
 		case LV_LEVEL_7:
-			level_7_tutorial(holding_line, play);
+			level_7_tutorial();
 			break;
 
 		case LV_LEVEL_8:
-			level_8_tutorial(holding_line, play);
+			level_8_tutorial();
 			break;
 
 		case LV_LEVEL_9:
