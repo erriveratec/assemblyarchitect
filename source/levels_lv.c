@@ -431,28 +431,28 @@ static void level_9_tutorial()
 	}
 
 	if (g_lv_msg[MSG1] == true && code_size == 2){
-		tx_text_box(TX_BIG_BOX, TX_L9_MSG1); //Welcome msg
+		tx_text_box(TX_BIG_BOX, MSG1); //Welcome msg
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
 		chk_ms_pressed_clear_msg(MSG1, true);
 	} else if (g_lv_msg[MSG2] == true && code_size == 2){
-		tx_text_box(TX_UPPER_BOX, TX_L9_MSG2); //Read challenge description
+		tx_text_box(TX_UPPER_BOX, MSG2); //Read challenge description
 		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_CHALLENGE);
 		chk_ms_pressed_clear_msg(MSG2, true);
 	} else if (g_lv_msg[MSG3] == true && code_size == 2){
-		tx_text_box(TX_LOWER_BOX, TX_L9_MSG3);// New instruction
+		tx_text_box(TX_LOWER_BOX, MSG3);// New instruction
 		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_INS);
 		chk_ms_pressed_clear_msg(MSG3, true);
 	} else if (code_size == 2 && jmp_pick == false){
-		tx_text_box(TX_INS_BOX, TX_L9_MSG4);// Select and drag jmp
+		tx_text_box(TX_INS_BOX, MSG4);// Select and drag jmp
 		ar_display_arrow(AR_INS);
 		chk_ms_pressed_clear_msg(MSG4, false);
 	} else if (code_size == 2 && jmp_pick == true){
-		tx_text_box(TX_CODE_BOX, TX_L9_MSG5); // Drop jmp in the code box
+		tx_text_box(TX_CODE_BOX, MSG5); // Drop jmp in the code box
 		ar_display_arrow(AR_DROP);
 	} else if (code_size == 4 && label_pick == true){
-		tx_text_box(TX_UPPER_BOX, TX_L9_MSG6); // Place Label in the first pos
+		tx_text_box(TX_UPPER_BOX, MSG6); // Place Label in the first pos
 	} 
 }
 
