@@ -580,7 +580,7 @@ static code_line_t *pending_operand_handler()
 
 	if (l->ins->id == JMP){
 		r = cw_create_label_code_line();
-		cw_player_holding_instruction(r);
+		cw_player_holding_instruction(r, false);
 		operand_t *a = cw_create_jump_operand(r);
 		cl_assign_operand_to_line(a, l);
 	} else if (left_released == true && register_selected == true &&
@@ -643,7 +643,7 @@ static code_line_t *edit_code(int level_id)
 												 lv_is_code_editable() == true){
 		line = cw_get_clicked_code();
 	} else if ((left_pressed == true || hold_line == true) && line != NULL){
-		cw_player_holding_instruction(line);
+		cw_player_holding_instruction(line, lv_is_arrange_enabled());
 		hold_line = (left_released == true) ? false : true;
 	}  else if (left_pressed == false && NULL != line){
 		if (cw_check_if_in_code_list(line) == false){
@@ -754,9 +754,9 @@ static int display_run_result(bool win_check)
 
 	bf_set_win_condition();
 	SDL_Rect r = dm_get_text_box_result();	
-	dw_draw_filled_rectangle(r, C_WHITE, C_BLACK);
+	dw_draw_filled_rectangle(r, C_LIGHTGREY, C_BLACK);
 
-	SDL_Rect s = dm_get_text_box_result_text1();
+	SDL_Rect s = dm_get_text_box_result_text();
 	dw_draw_texture_fits_width(s, g_win_text);
 	
 	static bool buttons_created = false;

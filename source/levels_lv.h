@@ -86,6 +86,7 @@ void init_level(int level_id);
 bool lv_is_code_editable();
 bool lv_is_buf_selectable();
 bool lv_is_reg_selectable();
+bool lv_is_arrange_enabled();
 int lv_get_win_list_size();
 void lv_set_hold_line(code_line_t *line);
 void lv_set_play_state(bool state);

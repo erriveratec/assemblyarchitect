@@ -215,11 +215,14 @@ InputType Natural
 
 InstructionsBegin
 mov
+add
 jmp
 InstructionsEnd
 
 RegistersBegin
 rax
+rbx
+rcx
 RegistersEnd
 
 InstructionLimit 4

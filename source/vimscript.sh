@@ -1,4 +1,4 @@
-vim -c ":edit main.c | vsplit TODO.txt |
+vim -c ":edit main.c |
 tabnew stages.c | vsplit stages.h | 
 tabnew game_mechanics_mc.c | vsplit game_mechanics_mc.h | 
 tabnew levels_lv.c | vsplit levels_lv.h | 

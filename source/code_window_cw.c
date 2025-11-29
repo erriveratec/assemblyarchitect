@@ -27,7 +27,7 @@ void display_line_number();
 int get_code_line_position(int y);
 ListNode *get_list_node_by_value(code_line_t *line);
 static bool check_if_inside_code_window();
-static bool check_selected_line_in_position(code_line_t *line);
+static bool chk_sel_line_in_pos(code_line_t *line);
 static void set_text_box(int x, int y, int w, int h);
 static void display_player_code();
 static void add_code_line(code_line_t *line);
@@ -1719,7 +1719,7 @@ static void add_code_line(code_line_t *line)
 
 }
 
-/* Function: check_selected_line_in_position
+/* Function: chk_sel_line_in_pos
  * -----------------------------------------------------------------------------
  * This function verifies if the code line is in it's correct line coordinate
  * according to it's position in the list. If the line is not in it's y
@@ -1733,7 +1733,7 @@ static void add_code_line(code_line_t *line)
  * Return:
  *	Void.
  */
-static bool check_selected_line_in_position(code_line_t *line)
+static bool chk_sel_line_in_pos(code_line_t *line)
 {
 	List *code = get_code_list();
 	assert(NULL != code && "The list of code is NULL");
@@ -1770,15 +1770,17 @@ static bool check_selected_line_in_position(code_line_t *line)
  * -----------------------------------------------------------------------------
  * This function contains the window were the programmed code is going to be
  * it will contain the list of instructions to be executed and it will high
- * where the instruction can be located.
+ * where the instruction can be located. Also, determines if a instruction
+ * can be rearranged according to others.
  *
  * Arguments:
  * 	instruction: the instruction that the mouse object is carrying
+ *  arrange: boolean indicating if the instructions can be arrangeable.
  *
  * Return:
  *	Void.
  */
-void cw_player_holding_instruction(code_line_t *line)
+void cw_player_holding_instruction(code_line_t *line, bool arrange)
 {
 	List *code = get_code_list();
 	assert(code != NULL &&  "Code list is NULL");
@@ -1786,7 +1788,7 @@ void cw_player_holding_instruction(code_line_t *line)
 	
 	if (check_if_inside_code_window() == true || line->ins->id == LABEL){
 		if (cw_check_if_in_code_list(line) == true){
-			if (check_selected_line_in_position(line) == false){
+			if (chk_sel_line_in_pos(line) == false && arrange == true){
 				ListNode *node = get_list_node_by_value(line);
 				List_remove(code, node);
 			}

@@ -101,7 +101,8 @@ static void draw_ravatar();
 void mc_init_errors_texture()
 {
 	int text_h = dm_get_h_error_msg();		
-	SDL_Rect rb = dm_get_text_box_result();
+	SDL_Rect rb = dm_get_text_box_result_text();
+
 	ib_empty = dw_new_text_texture_by_h(rb.w, text_h, C_BLACK, 
 													   INPUT_BUFFER_EMPTY_TEXT);
 	reg_val_bad = dw_new_text_texture_by_h(rb.w, text_h, C_BLACK, 
@@ -166,7 +167,7 @@ bool mc_invalid_operation_handler(int id)
 
 	bool reset_level = false;
 	SDL_Rect r = dm_get_text_box_result();
-	dw_draw_filled_rectangle(r, C_WHITE, C_WHITE);
+	dw_draw_filled_rectangle(r, C_LIGHTGREY, C_LIGHTGREY);
 	texture_array_t *message;
 	
 	switch(id){
@@ -192,7 +193,7 @@ bool mc_invalid_operation_handler(int id)
 			puts("ERROR: Invalid operation incorrec id");
 	}
 	
-	SDL_Rect b = dm_get_text_box_result_text2();
+	SDL_Rect b = dm_get_text_box_result_text();
 	int text_h = dm_get_h_error_msg();		
 	dw_draw_wrapped_texture_by_h(b, text_h, message);
 	

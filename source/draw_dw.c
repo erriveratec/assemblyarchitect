@@ -12,19 +12,19 @@
 SDL_Color C_WHITE = {255,255,255,255};
 SDL_Color C_BLACK = {0, 0, 0, 255};
 SDL_Color C_RED = {255, 0, 0, 255};
-SDL_Color C_GREY = {127, 127, 127, 255};
 SDL_Color C_ORANGE = {0xF8, 0x71, 0x3A, 255};
 SDL_Color C_CYAN = {0, 255, 255, 255};
 SDL_Color C_YELLOW = {255, 255, 0, 255};
 SDL_Color C_MAGENTA = {255, 0, 255, 255};
 SDL_Color C_GREEN = {0, 255, 0, 255};
+SDL_Color C_GREY = {127, 127, 127, 255};
+SDL_Color C_LIGHTGREY = {234, 234, 234, 255};
+SDL_Color C_DARKGREY = {51, 51, 51, 255};
 
 texture_t *g_arrow = NULL;
 
 static void draw_text(int x, int y, float s, SDL_Color c, char *t);
 static int draw_scaled_texture(int x, int y, float s, texture_t *t);
-
-
 
 /* Function: dw_draw_rotated_texture_fits_height
  * -----------------------------------------------------------------------------

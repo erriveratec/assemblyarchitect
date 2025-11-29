@@ -19,14 +19,15 @@
 #define STR_WIN2 "WIN2"
 
 #define WIN_CONDITION_LENGTH 30
-#define NO_EXCEPTION 0
 #define LV_MSGS_QTY 15
 
+#define NO_EXCEPTION 0
 
 static bool g_code_editable;
 static int g_code_editable_exception;
 static bool g_buf_selectable;
 static bool g_reg_selectable;
+static bool g_arr_enabled;
 
 static List *g_win_list = NULL;
 static int g_level_instructions_limit;
@@ -55,12 +56,10 @@ static void win2_add_inputs_in_groups(int group_size);
 static void set_win_condition(char *win_condition);
 static void draw_regs_arrow(bool show_arrows);
 static void draw_bufs_arrow(int buf_id);
-static void disable_code_editable(int exception);
-static void enable_code_editable();
-static void reset_buf_selectable();
-static void set_buf_selectable();
-static void reset_reg_selectable();
-static void set_reg_selectable();
+static void set_code_editable(bool state, int exception);
+static void set_buf_selectable(bool state);
+static void set_reg_selectable(bool state);
+static void set_arrange_enabled(bool state);
 static void init_lv_msgs();
 static void chk_ms_pressed_clear_msg(int message_id, bool reset_mouse);
 static void chk_ms_released_clear_msg(int message_id, bool reset_mouse);
@@ -223,34 +222,20 @@ bool lv_is_reg_selectable()
 	return g_reg_selectable;
 }
 
+
 /* Function: set_reg_selectable
  * ----------------------------------------------------------------------------
  * Sets the reg global variable to be selectable
  *
  * Arguments:
- *	Void.
+ *	state: boolean to which the variable will be set
  *
  * Return:
  *	Void.
  */
-static void set_reg_selectable()
+static void set_reg_selectable(bool state)
 {
-	g_reg_selectable = true;
-}
-
-/* Function: reset_reg_selectable
- * ----------------------------------------------------------------------------
- * Resets the reg variable to not be selectable
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	Void.
- */
-static void reset_reg_selectable()
-{
-	g_reg_selectable = false;
+	g_reg_selectable = state;
 }
 
 /* Function: lv_is_buf_selectable
@@ -258,7 +243,7 @@ static void reset_reg_selectable()
  * Returns a boolean with the value to check if buffer are selectable
  *
  * Arguments:
- *	Void.
+ *	state: boolean to which the variable will be set
  *
  * Return:
  *	Boolean indicating if the code is editable
@@ -270,22 +255,37 @@ bool lv_is_buf_selectable()
 
 /* Function: set_buf_selectable
  * ----------------------------------------------------------------------------
- * Sets the buf global variable to be selectable
+ * Sets the buf global variable 
  *
  * Arguments:
- *	Void.
+ *	void.
  *
  * Return:
  *	Void.
  */
-static void set_buf_selectable()
+static void set_buf_selectable(bool state)
 {
-	g_buf_selectable = true;
+	g_buf_selectable = state;
 }
 
-/* Function: reset_buf_selectable
+/* Function: lv_is_arrange_enabled
  * ----------------------------------------------------------------------------
- * Resets the buf variable to not be selectable
+ * Returns a boolean with the value to check if instruction arranging is enabled
+ *
+ * Arguments:
+ *	state: boolean to which the variable will be set
+ *
+ * Return:
+ *	Boolean indicating if the arrange is enabled
+ */
+bool lv_is_arrange_enabled()
+{
+	return g_arr_enabled;
+}
+
+/* Function: arrange_enabled
+ * ----------------------------------------------------------------------------
+ * Sets the arrange_enabled global variable
  *
  * Arguments:
  *	Void.
@@ -293,10 +293,11 @@ static void set_buf_selectable()
  * Return:
  *	Void.
  */
-static void reset_buf_selectable()
+static void set_arrange_enabled(bool state)
 {
-	g_buf_selectable = false;
+	g_arr_enabled = state;
 }
+
 
 /* Function: lv_is_code_editable
  * ----------------------------------------------------------------------------
@@ -328,36 +329,20 @@ bool lv_is_code_editable()
 	return editable;
 }
 
-/* Function: enable_code_editable
+/* Function: set_code_editable
  * ----------------------------------------------------------------------------
- * Sets the code global variable to be editable
+ * Sets the code global variable that indicates if code should be editable
  *
  * Arguments:
- *	Void.
+ *	state: true or false indicating if the code is editable
  *
  * Return:
  *	Void.
  */
-static void enable_code_editable()
-{
-	g_code_editable_exception = NO_EXCEPTION;
-	g_code_editable = true;
-}
-
-/* Function: disable_code_editable
- * ----------------------------------------------------------------------------
- * Resets the code global variable to not be editable.
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	Void.
- */
-static void disable_code_editable(int exception)
+static void set_code_editable(bool state, int exception)
 {
 	g_code_editable_exception = exception;
-	g_code_editable = false;
+	g_code_editable = state;
 }
 
 /* Function: chk_ms_released_clear_msg
@@ -640,7 +625,7 @@ static void level_3_tutorial()
 	if (g_lv_msg[MSG1] == true && size == 0){
 		tx_text_box(TX_BIG_BOX, MSG1); //Welcome
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		disable_code_editable(NO_EXCEPTION);
+		set_code_editable(false, NO_EXCEPTION);
 		chk_ms_pressed_clear_msg(MSG1, true);
 	} else if (g_lv_msg[MSG2] == true && size == 0){
 		tx_text_box(TX_UPPER_BOX, MSG2);// IB can be read only once
@@ -655,7 +640,7 @@ static void level_3_tutorial()
 	} else if (size == 0 && hold == false){
 		tx_text_box(TX_INS_BOX, MSG4);// Select and drag mov
 		ar_display_arrow(AR_INS);
-		enable_code_editable();
+		set_code_editable(true, NO_EXCEPTION);
 	} else if (size == 0 && hold == true){
 		tx_text_box(TX_CODE_BOX, MSG5); // Drop in code box
 		ar_display_arrow(AR_DROP);
@@ -666,7 +651,7 @@ static void level_3_tutorial()
 		chk_ms_released_clear_msg(MSG6, true);
 	} else if (size == 1 && miss_op1 == true && sorted == true){
 		tx_text_box(TX_CODE_BOX, MSG7); //Sel rax
-		reset_buf_selectable();
+		set_buf_selectable(false);
 	} else if (size == 1 && miss_op2 == true && sorted == true && 
 												        g_lv_msg[MSG8] == true){
 		tx_text_box(TX_CENTER_BOX, MSG8); //Valid op combinations
@@ -674,12 +659,12 @@ static void level_3_tutorial()
 		chk_ms_released_clear_msg(MSG8, true);
 	} else if (size == 1 && miss_op2 == true && sorted == true){
 		tx_text_box(TX_UPPER_BOX, MSG9); //Select IB
-		set_buf_selectable();
-		reset_reg_selectable();
+		set_buf_selectable(true);
+		set_reg_selectable(false);
 	} else if (size == 1 && miss_op == false && hold == false){
 		tx_text_box(TX_INS_BOX, MSG10); //Select second instruction
 		ar_display_arrow(AR_INS);
-		set_reg_selectable();
+		set_reg_selectable(true);
 	} else if (size == 1 && miss_op == false & hold == true){
 		tx_text_box(TX_CODE_BOX, MSG5);//Drop in code box
 		ar_display_arrow(AR_DROP);
@@ -741,7 +726,7 @@ static void level_2_tutorial()
 		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
 		chk_ms_pressed_clear_msg(MSG2, true);
 	} else if (size > limit && hold == false){
-		disable_code_editable(size);
+		set_code_editable(false, size);
 		tx_text_box(TX_CODE_BOX, MSG3); //Select last instruction
 		ar_display_arrow(AR_CODE);
 	} else if (size > limit && hold == true){
@@ -756,7 +741,7 @@ static void level_2_tutorial()
 			ar_display_arrow(AR_IB);
 		}
 	} else if (mov_instruction == true){
-		disable_code_editable(size);
+		set_code_editable(false, size);
 		tx_text_box(TX_CODE_BOX, MSG7); //Mov ins to first pos
 		ar_display_arrow(AR_CODE);
 	} else if (press_play == true && play == false){
@@ -819,15 +804,18 @@ static void level_1_tutorial()
 		ar_display_arrow(AR_DROP);
 	} else if (size == 1 && sorted == true && miss_op1 == true){
 		tx_text_box(TX_LOWER_BOX, MSG8);//Select rax
-		reset_buf_selectable();
+		set_code_editable(false, NO_EXCEPTION);
+		set_buf_selectable(false);
+		set_reg_selectable(true);
 		draw_regs_arrow(true);
 	} else if(size == 1 && sorted == true && miss_op == true){
 		tx_text_box(TX_UPPER_BOX, MSG9);//Select input buffer
-		set_buf_selectable();
-		reset_reg_selectable();
+		set_buf_selectable(true);
+		set_reg_selectable(false);
 		draw_regs_arrow(false);
 		ar_display_arrow(AR_IB);
 	} else if(size == 1 && miss_op == false && g_lv_msg[MSG10] == true){
+		set_code_editable(true, NO_EXCEPTION);
 		tx_text_box(TX_STAGEBUTTON_BOX, MSG10);// Press play button
 		ar_display_arrow(AR_PLAY);
 		if (play == true){
@@ -842,12 +830,15 @@ static void level_1_tutorial()
 		ar_display_arrow(AR_INS);
 	}else if(size == 1 && hold == true && miss_op == false){
 		tx_text_box(TX_CODE_BOX, MSG13); // Drop below instruction
+		set_arrange_enabled(false);
 		ar_display_arrow(AR_DROP);
 	} else if (size == 2 && sorted == true && miss_op1 == true){
 		tx_text_box(TX_CODE_BOX, MSG14);//Select OB	
+		set_arrange_enabled(false);
+		set_code_editable(false, NO_EXCEPTION);
 		ar_display_arrow(AR_OB);
 	} else if(size == 2 && sorted == true && miss_op == true){
-		set_reg_selectable();
+		set_reg_selectable(true);
 		tx_text_box(TX_CODE_BOX, MSG15); //Select rax
 		draw_regs_arrow(true);
 	} else if(size == 2 && miss_op == false && play == false){
@@ -1327,9 +1318,10 @@ void lv_init_level_assets(int level)
 {
 	assert(level < LV_LEVEL_MAX && level > LV_LEVEL_MIN && 
 			          								"Invalid level value");
-	enable_code_editable();
-	set_buf_selectable();
-	set_reg_selectable();
+	set_arrange_enabled(true);
+	set_code_editable(true, NO_EXCEPTION);
+	set_buf_selectable(true);
+	set_reg_selectable(true);
 	init_lv_msgs();
 
 }

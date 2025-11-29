@@ -35,7 +35,7 @@ SDL_Rect dm_get_escape_b1_box();
 SDL_Rect dm_get_escape_b2_box();
 SDL_Rect dm_get_escape_b3_box();
 
-SDL_Rect dm_get_box_msg_wh();
+SDL_Rect dm_get_box_msg_text_wh();
 SDL_Rect dm_get_code_button_wh();
 SDL_Rect dm_get_arrow_wh();
 SDL_Rect dm_get_vbox_wh();
@@ -82,8 +82,7 @@ SDL_Rect dm_get_text_box_code();
 SDL_Rect dm_get_text_box_stagebutton();
 
 SDL_Rect dm_get_text_box_result();
-SDL_Rect dm_get_text_box_result_text1();//Result win text
-SDL_Rect dm_get_text_box_result_text2();//Error box
+SDL_Rect dm_get_text_box_result_text();
 SDL_Rect dm_get_text_box_result_but1();//Back in win condition
 SDL_Rect dm_get_text_box_result_but2();//Continue in win condition
 SDL_Rect dm_get_text_box_result_but3();//Back in error condition

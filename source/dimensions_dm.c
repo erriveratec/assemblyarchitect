@@ -8,8 +8,11 @@
 #define ESC_MENU_BOX_W 600
 #define ESC_MENU_BOX_H 300
 #define SCREEN_BORDERS_OFS 2
-#define RES_BOX_W 500
-#define RES_BOX_H 300
+
+#define RES_BOX_Y 10
+#define RES_BOX_W 450
+#define RES_BOX_H 250
+// This is a new version of the dimensions set by a ration of the resolution
 
 #define RES_BOX_OFFSET 25
 #define VALUE_BOX_H 40
@@ -21,12 +24,10 @@
 #define AVATAR_W 50
 #define AVATAR_H 50
 
-//#define CODE_LINE_NUMBER_OFFSET 15
-
 #define TEXT_H_BIG 50
 #define TEXT_H_BOTTOM_MSG 20
-#define TEXT_H_MSG 30
-#define TEXT_H_ERROR_MSG 40
+#define TEXT_H_MSG 25
+#define TEXT_H_ERROR_MSG 35
 #define TEXT_H_TOTAL_MSG 160
 #define TEXT_H_STAGE_ELEMENTS_TITLES 40
 #define TEXT_H_STAGE_TITLES 100
@@ -52,11 +53,16 @@
 #define RAIL_W 4
 #define RAIL_END_W 16
 
+#define H_PADDING 12
+#define V_PADDING 10
+#define BUT_PADDING 25
+
 int g_res_id;
 int g_screen_width;
 int g_screen_height;
 
 int scale_to_resolution(int dim);
+static SDL_Rect dm_get_box_msg_wh();
 
 /* Function: dm_get_screen_height
  * -----------------------------------------------------------------------------
@@ -487,10 +493,10 @@ SDL_Rect dm_get_text_box_result_but1()
 	return b;
 }
 
-/* Function: dm_get_text_box_result_text2
+/* Function: dm_get_text_box_result_text
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object. This is for the text of the
- * result box.
+ * result box .
  *
  * Arguments:
  *	Void.
@@ -498,40 +504,17 @@ SDL_Rect dm_get_text_box_result_but1()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-SDL_Rect dm_get_text_box_result_text2()
+SDL_Rect dm_get_text_box_result_text()
 {
 	SDL_Rect rb = dm_get_text_box_result();
-	int offset = scale_to_resolution(RES_BOX_OFFSET);
 	SDL_Rect b;
-	b.w = rb.w - 2*offset;
+	b.w = rb.w - 2*scale_to_resolution(H_PADDING);
 	b.h = scale_to_resolution(TEXT_H_TOTAL_MSG);
 	b.x = rb.x + (rb.w - b.w)/2;
-	b.y = rb.y + offset;
+	b.y = rb.y + scale_to_resolution(V_PADDING);
 	return b;
 }
 
-/* Function: dm_get_text_box_result_text1
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object. This is for the text of the
- * result box.
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_text_box_result_text1()
-{
-	SDL_Rect rb = dm_get_text_box_result();
-	int offset = scale_to_resolution(RES_BOX_OFFSET);
-	SDL_Rect b;
-	b.w = rb.w - 2*offset;
-	b.h = scale_to_resolution(TEXT_H_MSG);
-	b.x = rb.x + (rb.w - b.w)/2;
-	b.y = rb.y + offset;
-	return b;
-}
 
 /* Function: dm_get_text_box_result
  * -----------------------------------------------------------------------------
@@ -549,7 +532,7 @@ SDL_Rect dm_get_text_box_result()
 	b.w = scale_to_resolution(RES_BOX_W);
 	b.h = scale_to_resolution(RES_BOX_H);
 	b.x = (g_screen_width - b.w)/2;
-	b.y = g_screen_height/2 - b.h*2/3;
+	b.y = scale_to_resolution(RES_BOX_Y);
 	return b;
 }
 
@@ -564,12 +547,34 @@ SDL_Rect dm_get_text_box_result()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-SDL_Rect dm_get_box_msg_wh()
+static SDL_Rect dm_get_box_msg_wh()
 {
 	SDL_Rect ib = dm_get_stage_instruction_box();
 	SDL_Rect b;
 	b.w = ib.w + ib.w/3;
 	b.h = g_screen_height/4;
+	b.x = 0;
+	b.y = 0;
+	return b;
+}
+
+/* Function: dm_get_box_msg_text_wh
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object, x and y are initialize at 0
+ * Is used for the text of the boxes considering the margins
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_box_msg_text_wh()
+{
+	SDL_Rect ib = dm_get_stage_instruction_box();
+	SDL_Rect b;
+	b.w = ib.w + ib.w/3 - (2*scale_to_resolution(H_PADDING));
+	b.h = g_screen_height/4 - (2*scale_to_resolution(V_PADDING));
 	b.x = 0;
 	b.y = 0;
 	return b;

@@ -23,7 +23,7 @@
 // Text for the data reading of the levels
 #define CHAR_SIZE 1
 
-#define MOVEMENT_DELTA 30
+#define MOVEMENT_DELTA 15
 
 #define STR_BACK "Back"
 #define STR_CONT "Continue"
