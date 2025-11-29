@@ -96,9 +96,9 @@ void display_escape_menu(bool show_menu)
 		dw_draw_filled_rectangle(r, C_WHITE, C_BLACK);
 
 		
-		bt_draw_button(g_escape_b1);
-		bt_draw_button(g_escape_b2);
-		bt_draw_button(g_escape_b3);
+		bt_draw_button(g_escape_b1, false);
+		bt_draw_button(g_escape_b2, false);
+		bt_draw_button(g_escape_b3, false);
 
 		if (bt_check_mouse_click_button(g_escape_b1) == true){
 			toggle_escape_menu();
@@ -253,10 +253,10 @@ void adjust_stage_buttons_position(int code_size)
 void sb_draw_stage_buttons(int code_size)
 {
 	adjust_stage_buttons_position(code_size);
-	bt_draw_button(stop);
-	bt_draw_button(step_back);
-	bt_draw_button(play);
-	bt_draw_button(step_forward);
+	bt_draw_button(stop, false);
+	bt_draw_button(step_back, false);
+	bt_draw_button(play, false);
+	bt_draw_button(step_forward, false);
 }
 
 /* Function: sb_draw_return_button
@@ -271,7 +271,7 @@ void sb_draw_stage_buttons(int code_size)
  */
 void sb_draw_return_button()
 {
-	bt_draw_button(ret_button);
+	bt_draw_button(ret_button, false);
 }
 
 /* Function: sb_init_return_buttons

@@ -382,7 +382,7 @@ void bf_add_output_to_list()
 	new_output->box.y = output_box.y + y_offset;
 	new_output->box.w = vb.w;
 	new_output->box.h = vb.h;
-    new_output->t = dw_create_text_texture(char_dash, C_WHITE);
+    new_output->t = dw_create_text_texture(ax_char_dash, C_WHITE);
 	new_output->visible_box = false;
 
 	List_push(outputs, new_output);

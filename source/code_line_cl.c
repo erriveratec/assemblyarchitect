@@ -394,21 +394,21 @@ char *cl_create_code_line_text(int instruction_id, int op1_id, int op2_id)
 	if (instruction_id == LABEL || instruction_id == JMP) {
 		char *op1 = NULL;
 		op1 = ax_number_to_string_two_digits(op1_id);
-		strcat(line_text, char_space);
+		strcat(line_text, ax_char_space);
 		strcat(line_text, op1);
 	} else if (op1_id != NO_OPERAND){
 		char *op1 = NULL;
 		op1 = get_operand_text(op1_id);
-		strcat(line_text, char_space);
+		strcat(line_text, ax_char_space);
 		strcat(line_text, op1);
 	}
 	if (op2_id != NO_OPERAND){
 		char *op2 = get_operand_text(op2_id);
-		strcat(line_text, char_comma);
-		strcat(line_text, char_space);
+		strcat(line_text, ax_char_comma);
+		strcat(line_text, ax_char_space);
 		strcat(line_text, op2);
 	}
-	strcat(line_text, char_newline);
+	strcat(line_text, ax_char_newline);
 	return line_text;
 }
 

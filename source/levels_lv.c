@@ -1023,7 +1023,7 @@ static void set_win_condition(char *win_condition)
 	char win_condition_cpy[WIN_CONDITION_LENGTH];
 	strcpy(win_condition_cpy, win_condition);
 	char *saveptr1;
-	char *delim = char_space;
+	char *delim = ax_char_space;
 	char *win_cond;
 	
 	win_cond =  strtok_r(win_condition_cpy, delim, &saveptr1);

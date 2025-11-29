@@ -55,7 +55,7 @@ button_t *bt_create_button(SDL_Rect r, bool act, bool rect, int fill,
  * Return:
  *	Void
  */
-void bt_draw_button(button_t *b)
+void bt_draw_button(button_t *b, bool padding)
 {
 	assert(b != NULL && "The button pointer is NULL");
 	

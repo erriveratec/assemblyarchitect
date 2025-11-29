@@ -8,12 +8,12 @@
 #include "draw_dw.h"
 #include "dimensions_dm.h"
 
-char *char_space = " ";
-char *char_comma = ",";
-char *char_newline = "\n";
-char *char_colon = ":";
-char *char_dash = "-";
-char *level_text = "level";
+char *ax_char_space = " ";
+char *ax_char_comma = ",";
+char *ax_char_newline = "\n";
+char *ax_char_colon = ":";
+char *ax_char_dash = "-";
+char *ax_level_text = "Level";
 
 /* Function: ax_get_w_fit_h
  *------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ char *create_string_append_number(char *s,  int n)
 	check_mem(string);
 
 	strcpy(string, s);
-	strcat(string, char_space);
+	strcat(string, ax_char_space);
 	strcat(string, number);
 	free(number);
 

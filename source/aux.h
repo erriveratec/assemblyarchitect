@@ -28,12 +28,12 @@
 #define STR_BACK "Back"
 #define STR_CONT "Continue"
 
-extern char *char_space;
-extern char *char_comma;
-extern char *char_newline;
-extern char *char_colon;
-extern char *level_text;
-extern char *char_dash;
+extern char *ax_char_space;
+extern char *ax_char_comma;
+extern char *ax_char_newline;
+extern char *ax_char_colon;
+extern char *ax_level_text;
+extern char *ax_char_dash;
 
 //Boxes memeber definition used in several functions
 enum box_member {

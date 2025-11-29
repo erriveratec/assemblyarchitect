@@ -53,8 +53,8 @@
 #define RAIL_W 4
 #define RAIL_END_W 16
 
-#define H_PADDING 12
-#define V_PADDING 10
+#define W_PADDING 12
+#define H_PADDING 10
 #define BUT_PADDING 25
 
 int g_res_id;
@@ -178,6 +178,37 @@ int dm_get_w_code_box_text()
 	return w;
 }
 
+/* Function: dm_get_w_padding
+ * -----------------------------------------------------------------------------
+ *	Returns the scale value for the horizontal padding
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset
+ */
+int dm_get_w_padding()
+{
+	return scale_to_resolution(W_PADDING);
+	
+}
+
+/* Function: dm_get_h_padding
+ * -----------------------------------------------------------------------------
+ *	Returns the scale value for the vertical padding
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset
+ */
+int dm_get_h_padding()
+{
+	return scale_to_resolution(H_PADDING);
+	
+}
 /* Function: dm_get_h_stage_titles
  * -----------------------------------------------------------------------------
  *	Return the offset value of the contents of the buffer. 
@@ -194,6 +225,7 @@ int dm_get_h_stage_titles()
 	return h;
 	
 }
+
 /* Function: dm_get_h_stage_titles
  * -----------------------------------------------------------------------------
  *	Return the offset value of the contents of the buffer. 
@@ -508,10 +540,10 @@ SDL_Rect dm_get_text_box_result_text()
 {
 	SDL_Rect rb = dm_get_text_box_result();
 	SDL_Rect b;
-	b.w = rb.w - 2*scale_to_resolution(H_PADDING);
+	b.w = rb.w - 2*scale_to_resolution(W_PADDING);
 	b.h = scale_to_resolution(TEXT_H_TOTAL_MSG);
 	b.x = rb.x + (rb.w - b.w)/2;
-	b.y = rb.y + scale_to_resolution(V_PADDING);
+	b.y = rb.y + scale_to_resolution(H_PADDING);
 	return b;
 }
 
@@ -573,8 +605,8 @@ SDL_Rect dm_get_box_msg_text_wh()
 {
 	SDL_Rect ib = dm_get_stage_instruction_box();
 	SDL_Rect b;
-	b.w = ib.w + ib.w/3 - (2*scale_to_resolution(H_PADDING));
-	b.h = g_screen_height/4 - (2*scale_to_resolution(V_PADDING));
+	b.w = ib.w + ib.w/3 - (2*scale_to_resolution(W_PADDING));
+	b.h = g_screen_height/4 - (2*scale_to_resolution(H_PADDING));
 	b.x = 0;
 	b.y = 0;
 	return b;

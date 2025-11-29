@@ -21,7 +21,7 @@ typedef struct button_t{
 
 button_t *bt_create_button(SDL_Rect b, bool act, bool rect, int fill, 
 									 SDL_Color in , SDL_Color out,texture_t *t);
-void bt_draw_button(button_t *button);
+void bt_draw_button(button_t *button, bool padding);
 bool bt_check_mouse_click_button(button_t *button);
 bool bt_check_mouse_released_button(button_t *button);
 void assign_button_parameters(SDL_Rect r, button_t *b);

@@ -112,7 +112,7 @@ static char *create_string_with_number(char *s,  int n)
 	check_mem(string);
 
 	strcpy(string, s);
-	strcat(string, char_space);
+	strcat(string, ax_char_space);
 	strcat(string, number);
 	free(number);
 
@@ -144,11 +144,11 @@ static char *get_level_id_string(int level_id)
 	
 	check_mem(number);
 	char *id = malloc(sizeof(char)*(strlen(STR_LEVEL_STARTS) + 
-					  strlen(char_space) + strlen(number)));
+					  strlen(ax_char_space) + strlen(number)));
 	check_mem(id);
 
 	strcpy(id, STR_LEVEL_STARTS);
-	strcat(id, char_space);
+	strcat(id, ax_char_space);
 	strcat(id, number);
 	free(number);
 
@@ -173,11 +173,11 @@ static char *get_player_end_string(int player_id)
 	char *number = ax_number_to_string_prepend_zero(player_id);
 	check_mem(number);
 	char *id = malloc(sizeof(char)*(strlen(STR_PLAYER_ENDS) + 
-					  strlen(char_space) + strlen(number)));
+					  strlen(ax_char_space) + strlen(number)));
 	check_mem(id);
 
 	strcpy(id, STR_PLAYER_ENDS);
-	strcat(id, char_space);
+	strcat(id, ax_char_space);
 	strcat(id, number);
 	free(number);
 
@@ -201,12 +201,12 @@ static char *get_player_id_string(int player_id)
 {
 	char *number = ax_number_to_string_prepend_zero(player_id);
 	check_mem(number);
-	char *id = malloc(sizeof(char)*(strlen(STR_PLAYER) + strlen(char_space) + 
+	char *id = malloc(sizeof(char)*(strlen(STR_PLAYER) + strlen(ax_char_space) + 
 					  strlen(number)));
 	check_mem(id);
 
 	strcpy(id, STR_PLAYER);
-	strcat(id, char_space);
+	strcat(id, ax_char_space);
 	strcat(id, number);
 	free(number);
 
@@ -297,10 +297,10 @@ static void parse_win_condition(FILE *fp)
 	char *text;
 
 	while ((read = getline(&line, &len, fp)) != READ_ERROR){
-		text =  strtok_r(line, char_newline, &saveptr1);
+		text =  strtok_r(line, ax_char_newline, &saveptr1);
 		if (strstr(STR_WIN_CONDITION_END, line) != NULL){
 			break;
-		} else if (strcmp(line, char_newline) != STRING_EQUAL){
+		} else if (strcmp(line, ax_char_newline) != STRING_EQUAL){
 			lv_set_level_win_condition(text);			
 		} 	
 	}
@@ -328,11 +328,11 @@ static void parse_saved_code(FILE *fp)
 	char *text;
 
 	while ((read = getline(&line, &len, fp)) != READ_ERROR){
-		text =  strtok_r(line, char_newline, &saveptr1);
+		text =  strtok_r(line, ax_char_newline, &saveptr1);
 		if (strstr(STR_CODE_ENDS, line) != NULL){
 			cw_update_saved_jump_instructions();
 			break;
-		} else if (strcmp(line, char_newline) != STRING_EQUAL){
+		} else if (strcmp(line, ax_char_newline) != STRING_EQUAL){
 			cw_add_saved_line(text);
 		} 	
 	}
@@ -504,13 +504,13 @@ static void parse_message(FILE *fp, int msg_pos)
 
 	int i = 0;
 	while ((read = getline(&line, &len, fp)) != READ_ERROR){
-		text =  strtok_r(line, char_newline, &saveptr1);
+		text =  strtok_r(line, ax_char_newline, &saveptr1);
 		
 		if (strstr(STR_MSG_END, line) != NULL){
 			tx_set_message_in_array(msg_pos, msg);
 			break;
 		} else if (i != 0){
-			strcat(msg, char_newline);
+			strcat(msg, ax_char_newline);
 		}  
 		strcat(msg, text);
 		i++;
@@ -841,9 +841,9 @@ void fl_save_level(int player_id, int level_id)
 	
 		if (strcmp(line, level_start) == STRING_EQUAL){
 			level_found = true;
-			write_to_file(fptemp, char_newline);
+			write_to_file(fptemp, ax_char_newline);
 			write_to_file(fptemp, STR_LEVEL_ACTIVE_TRUE);
-			write_to_file(fptemp, char_newline);
+			write_to_file(fptemp, ax_char_newline);
 			while (READ_ERROR != (read = getline(&line, &len, fp))){
 				if (strcmp(line, STR_CODE_STARTS) == STRING_EQUAL){
 					write_to_file(fptemp, STR_CODE_STARTS);
@@ -908,9 +908,9 @@ void fl_enable_next_level(int player_id, int level_id)
 	
 		if (strcmp(line, level_start) == STRING_EQUAL){
 			level_found = true;
-			write_to_file(fptemp, char_newline);
+			write_to_file(fptemp, ax_char_newline);
 			write_to_file(fptemp, STR_LEVEL_ACTIVE_TRUE);
-			write_to_file(fptemp, char_newline);
+			write_to_file(fptemp, ax_char_newline);
 			while (READ_ERROR != (read = getline(&line, &len, fp))){
 				if (strcmp(line, STR_CODE_STARTS) == STRING_EQUAL){
 					write_to_file(fptemp, STR_CODE_STARTS);
@@ -978,9 +978,9 @@ void fl_save_file_init()
 			strcpy(level, STR_PLAYER); 
 			strcat(level, " ");
 			strcat(level, player_number);
-			strcat(level, char_newline);
+			strcat(level, ax_char_newline);
 			write_to_file(fp, level);
-			strcpy(level, char_newline);
+			strcpy(level, ax_char_newline);
 			write_to_file(fp, level);
 			for (int i = 1; i <= LV_LEVEL_QUANTITY; i++){
 				char *number = NULL;
@@ -995,9 +995,9 @@ void fl_save_file_init()
 				strcpy(level, STR_LEVEL_STARTS); 
 				strcat(level, " ");
 				strcat(level, number);
-				strcat(level, char_newline);
+				strcat(level, ax_char_newline);
 				write_to_file(fp, level);
-				strcpy(level, char_newline);
+				strcpy(level, ax_char_newline);
 				write_to_file(fp, level);
 
 				if (i == 1){
@@ -1008,7 +1008,7 @@ void fl_save_file_init()
 
 				write_to_file(fp, level);
 				
-				strcpy(level, char_newline);
+				strcpy(level, ax_char_newline);
 				write_to_file(fp, level);
 				
 				strcpy(level, STR_CODE_STARTS);
@@ -1029,31 +1029,31 @@ void fl_save_file_init()
 					write_to_file(fp, level);
 
 				} else {
-					strcpy(level, char_newline);
+					strcpy(level, ax_char_newline);
 					write_to_file(fp, level);
 				}
 				
 				strcpy(level, STR_CODE_ENDS);
 				write_to_file(fp, level);
 				
-				strcpy(level, char_newline);
+				strcpy(level, ax_char_newline);
 				write_to_file(fp, level);
 
 				strcpy(level, STR_LEVEL_ENDS);
 				strcat(level, " ");
 				strcat(level, number);
-				strcat(level, char_newline);
+				strcat(level, ax_char_newline);
 				write_to_file(fp, level);
-				strcpy(level, char_newline);
+				strcpy(level, ax_char_newline);
 				write_to_file(fp, level);
 				free(number);
 			}
 			strcpy(level, STR_PLAYER_ENDS); 
 			strcat(level, " ");
 			strcat(level, player_number);
-			strcat(level, char_newline);
+			strcat(level, ax_char_newline);
 			write_to_file(fp, level);
-			strcpy(level, char_newline);
+			strcpy(level, ax_char_newline);
 			write_to_file(fp, level);
 
 			free(player_number);

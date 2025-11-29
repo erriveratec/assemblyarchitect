@@ -211,7 +211,7 @@ bool mc_invalid_operation_handler(int id)
 							   ret_texture);
 		check_mem(ret);
 	} 
-	bt_draw_button(ret);
+	bt_draw_button(ret, false);
 
 		if (bt_check_mouse_click_button(ret) == true){
 			reset_level = true;
@@ -288,7 +288,7 @@ void mc_init_avatar()
 	g_iavatar.value.box.y = g_iavatar.box.y - avatar.h;
 	g_iavatar.value.box.w = vb.w;
 	g_iavatar.value.box.h = vb.h;
-	g_iavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
+	g_iavatar.value.t = dw_create_text_texture(ax_char_dash, C_WHITE);
 	g_iavatar.color = C_MAGENTA;
 
 	SDL_Rect ob = dm_get_stage_output_buffer_box();
@@ -308,7 +308,7 @@ void mc_init_avatar()
 	g_oavatar.value.box.y = g_oavatar.box.y - avatar.h;
 	g_oavatar.value.box.w = vb.w;
 	g_oavatar.value.box.h = vb.h;
-	g_oavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
+	g_oavatar.value.t = dw_create_text_texture(ax_char_dash, C_WHITE);
 	g_oavatar.color = C_CYAN;
 
 	int ofs = dm_get_ofs_stage_reg_box();
@@ -330,7 +330,7 @@ void mc_init_avatar()
 	g_ravatar.value.box.y = g_ravatar.box.y - avatar.h;
 	g_ravatar.value.box.w = vb.w;
 	g_ravatar.value.box.h = vb.h;
-	g_ravatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
+	g_ravatar.value.t = dw_create_text_texture(ax_char_dash, C_WHITE);
 	g_ravatar.color = C_YELLOW;
 }
 /* Function: mc_reset_avatar
@@ -364,7 +364,7 @@ void mc_reset_avatar()
 	g_iavatar.value.box.h = vb.h;
 	dw_free_texture(g_iavatar.value.t);
 	g_iavatar.value.t = NULL;
-	g_iavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
+	g_iavatar.value.t = dw_create_text_texture(ax_char_dash, C_WHITE);
 	g_iavatar.color = C_MAGENTA;
 
 	SDL_Rect ob = dm_get_stage_output_buffer_box();
@@ -386,7 +386,7 @@ void mc_reset_avatar()
 	g_oavatar.value.box.h = vb.h;
 	dw_free_texture(g_oavatar.value.t);
 	g_oavatar.value.t = NULL;
-	g_oavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
+	g_oavatar.value.t = dw_create_text_texture(ax_char_dash, C_WHITE);
 	g_oavatar.color = C_CYAN;
 
 	int ofs = dm_get_ofs_stage_reg_box();
@@ -410,7 +410,7 @@ void mc_reset_avatar()
 	g_ravatar.value.box.h = vb.h;
 	dw_free_texture(g_ravatar.value.t);
 	g_ravatar.value.t = NULL;
-	g_ravatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
+	g_ravatar.value.t = dw_create_text_texture(ax_char_dash, C_WHITE);
 	g_ravatar.color = C_YELLOW;
 
 }
@@ -436,7 +436,7 @@ void reset_avatar_no_pos()
 	g_iavatar.value.box.y = g_iavatar.box.y - avatar.h;
 	dw_free_texture(g_iavatar.value.t);
 	g_iavatar.value.t = NULL;
-	g_iavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
+	g_iavatar.value.t = dw_create_text_texture(ax_char_dash, C_WHITE);
 
 
 	g_oavatar.value.visible_box = false;
@@ -449,7 +449,7 @@ void reset_avatar_no_pos()
 	g_oavatar.value.box.y = g_oavatar.box.y - avatar.h;
 	dw_free_texture(g_oavatar.value.t);
 	g_oavatar.value.t = NULL;
-	g_oavatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
+	g_oavatar.value.t = dw_create_text_texture(ax_char_dash, C_WHITE);
 
 	g_ravatar.value.visible_box = false;
 	g_ravatar.in_place = false;
@@ -461,7 +461,7 @@ void reset_avatar_no_pos()
 	g_ravatar.value.box.y = g_ravatar.box.y - avatar.h;
 	dw_free_texture(g_ravatar.value.t);
 	g_ravatar.value.t = NULL;
-	g_ravatar.value.t = dw_create_text_texture(char_dash, C_WHITE);
+	g_ravatar.value.t = dw_create_text_texture(ax_char_dash, C_WHITE);
 
 }
 /* Function: draw_iavatar

@@ -205,10 +205,10 @@ static operand_t *create_updated_jump_operand(code_line_t *jmp_addr)
 	int addr_label_id = jmp_addr->op1->id;
 	char *line_text = ax_number_to_string_two_digits(addr_label_id);
 	char *op_text = malloc(sizeof(char)*(strlen(label_text) + 
-						   strlen(char_space)+ strlen(line_text)));
+						   strlen(ax_char_space)+ strlen(line_text)));
 	
 	strcpy(op_text, label_text);
-	strcat(op_text, char_space);
+	strcat(op_text, ax_char_space);
 	strcat(op_text, line_text);
 	texture_t *t = dw_create_text_texture(op_text, C_WHITE);
 
@@ -288,10 +288,10 @@ operand_t *cw_create_jump_operand(code_line_t *addr)
 	int addr_label_id = addr->op1->id;
 	char *line_text = ax_number_to_string_two_digits(addr_label_id);
 	char *op_text = malloc(sizeof(char)*(strlen(label_text) + 
-						   strlen(char_space)+ strlen(line_text)));
+						   strlen(ax_char_space)+ strlen(line_text)));
 	
 	strcpy(op_text, label_text);
-	strcat(op_text, char_space);
+	strcat(op_text, ax_char_space);
 	strcat(op_text, line_text);
 	texture_t *t = dw_create_text_texture(op_text, C_WHITE);
 
@@ -431,7 +431,7 @@ static operand_t *create_saved_label_operand(int op1_id)
 	char *line_text = ax_number_to_string_two_digits(op1_id);
 	char *op_text = malloc(sizeof(char)*(strlen(line_text)+1));
 	strcpy(op_text, line_text);
-	strcat(op_text, char_colon);
+	strcat(op_text, ax_char_colon);
 	texture_t *t = dw_create_text_texture(op_text, C_WHITE);
 
 	SDL_Rect r = dm_get_code_button_wh();
@@ -615,7 +615,7 @@ void cw_add_saved_line(char *line)
 	char *ins_text;
 	char *op1_text;
 	char *op2_text;
-	char *delim = char_space;
+	char *delim = ax_char_space;
 	int ins_id;
 	int op1_id;
 	int op2_id;
@@ -1336,13 +1336,13 @@ static void display_player_code()
 	int number_ofs = dm_get_ofs_code_number();
 	LIST_FOREACH(code, first, next, cur){
 		code_line_t *line = cur->value;	
-		bt_draw_button(line->ins->b);
+		bt_draw_button(line->ins->b, false);
 		
 		if (line->op1 != NULL){
-			bt_draw_button(line->op1->b);
+			bt_draw_button(line->op1->b, false);
 		}
 		if (line->op2 != NULL){
-			bt_draw_button(line->op2->b);
+			bt_draw_button(line->op2->b, false);
 		}
 	
 		int comma = cl_get_instruction_operand_quantity(line->ins->id);
@@ -1831,14 +1831,14 @@ void cw_player_holding_instruction(code_line_t *line, bool arrange)
 	if (line->op1 != NULL){
 		line->op1->b->r.x = line->ins->b->r.x + op1_ofs;
 		line->op1->b->r.y = line->ins->b->r.y;
-		bt_draw_button(line->op1->b);
+		bt_draw_button(line->op1->b, false);
 	}
 	if (line->op2 != NULL){
 		line->op2->b->r.x = line->ins->b->r.x + op2_ofs;
 		line->op2->b->r.y = line->ins->b->r.y;
-		bt_draw_button(line->op2->b);
+		bt_draw_button(line->op2->b, false);
 	}
-	bt_draw_button(line->ins->b);
+	bt_draw_button(line->ins->b, false);
 }
 
 /* Function: cw_check_code_pending_op1

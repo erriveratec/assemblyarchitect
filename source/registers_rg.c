@@ -63,7 +63,7 @@ void rg_reset_ibox()
 	g_ibox.value = NO_VALUE;
 	dw_free_texture(g_ibox.t);
 	g_ibox.t = NULL;
-	g_ibox.t = dw_create_text_texture(char_dash, C_WHITE);
+	g_ibox.t = dw_create_text_texture(ax_char_dash, C_WHITE);
 }
 
 /* Function: rg_reset_ibox
@@ -82,7 +82,7 @@ void rg_reset_obox()
 	g_obox.value = NO_VALUE;
 	dw_free_texture(g_obox.t);
 	g_obox.t = NULL;
-	g_obox.t = dw_create_text_texture(char_dash, C_WHITE);
+	g_obox.t = dw_create_text_texture(ax_char_dash, C_WHITE);
 }
 
 /* Function: rg_set_ibox_value_box
@@ -228,12 +228,12 @@ void rg_init_value_boxes()
 	g_ibox.box = dm_get_stage_ibox();	
 	g_ibox.value = NO_VALUE;
 	g_ibox.visible_box = true;
-	g_ibox.t = dw_create_text_texture(char_dash, C_WHITE);
+	g_ibox.t = dw_create_text_texture(ax_char_dash, C_WHITE);
 	
 	g_obox.box = dm_get_stage_obox();
 	g_obox.value = NO_VALUE;
 	g_obox.visible_box = true;
-	g_obox.t = dw_create_text_texture(char_dash, C_WHITE);
+	g_obox.t = dw_create_text_texture(ax_char_dash, C_WHITE);
 	return;
 }
 
@@ -371,7 +371,7 @@ void rg_reset_register_values()
 		reg_t *reg = cur->value;
 		reg->value.value = NO_VALUE;
 		dw_free_texture(reg->value.t);
-   		reg->value.t = dw_create_text_texture(char_dash, C_WHITE);
+   		reg->value.t = dw_create_text_texture(ax_char_dash, C_WHITE);
 	}
 
 }
@@ -506,7 +506,7 @@ reg_t *create_register(int id, button_t *b)
 	op->value.box.w = vb.w;
 	op->value.box.h = vb.h;
 	op->value.value = NO_VALUE;
-	op->value.t = dw_create_text_texture(char_dash, C_WHITE);
+	op->value.t = dw_create_text_texture(ax_char_dash, C_WHITE);
 
 error:
 	return op;
@@ -625,7 +625,7 @@ void rg_draw_registers()
 	LIST_FOREACH(registers, first, next, cur){
 		reg_t *reg = cur->value;
 		button_t *button = reg->b;
-		bt_draw_button(button);
+		bt_draw_button(button, false);
 
 		char *number = ax_number_to_string(reg->value.value);
 		ax_draw_value_box(&reg->value, C_WHITE);

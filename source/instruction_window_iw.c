@@ -368,7 +368,7 @@ void iw_display_instructions()
 	
 	LIST_FOREACH(instructions, first, next, cur){
 		instruction_t *c = cur->value;
-		bt_draw_button(c->b);
+		bt_draw_button(c->b, false);
 	}
 }
 

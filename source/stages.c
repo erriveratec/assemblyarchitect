@@ -119,9 +119,9 @@ int stage_select_player()
 	}
 	dw_draw_wrapped_texture_by_h(b, text_h, select_player);
 	
-	bt_draw_button(player_1);
-	bt_draw_button(player_2);
-	bt_draw_button(player_3);
+	bt_draw_button(player_1, false);
+	bt_draw_button(player_2, false);
+	bt_draw_button(player_3, false);
 
 	if (true == bt_check_mouse_click_button(player_1)){
 		player_chosen = true;
@@ -374,7 +374,7 @@ static void create_select_level_buttons(button_t **buttons, bool *levels)
 	SDL_Rect b = r;
 	int y_offset = get_sel_level_offset_y();
 	for (int i = 1; i <= LV_LEVEL_QUANTITY; i++){
-		char *button_text = create_string_append_number(level_text, i);
+		char *button_text = create_string_append_number(ax_level_text, i);
 		texture_t *button_texture = NULL;
 		if (levels[i-1] == true){
 			button_texture = dw_create_text_texture(button_text, 
@@ -426,7 +426,7 @@ int stage_select_level()
 	dw_draw_wrapped_texture_by_h(r, r.h, select_level);
 
 	for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
-		bt_draw_button(level_buttons[i]);
+		bt_draw_button(level_buttons[i], true);
 		if (bt_check_mouse_click_button(level_buttons[i]) == true){
 			ret_val = LV_LEVEL_1 + i;
 			level_initialized = false;
@@ -784,8 +784,8 @@ static int display_run_result(bool win_check)
 							   ret_texture);
 		check_mem(ret);
 	} 
-	bt_draw_button(ret);
-	bt_draw_button(con);
+	bt_draw_button(ret, false);
+	bt_draw_button(con, false);
 
 	if (bt_check_mouse_click_button(con) == true){
 		button_pressed = true;

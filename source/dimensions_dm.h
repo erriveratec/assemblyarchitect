@@ -20,6 +20,8 @@ int dm_get_h_stage_elements_titles();
 int dm_get_h_stage_titles();
 int dm_get_h_line_number();
 int dm_get_w_code_box_text();
+int dm_get_w_padding();
+int dm_get_h_padding();
 
 SDL_Rect dm_get_studio_name_msg_box();
 SDL_Rect dm_get_game_title_box();
