@@ -70,6 +70,15 @@ void bt_draw_button(button_t *b, bool padding)
 	
 	float scale_w = (float)b->r.w/b->t->w;
 	float scale_h = (float)b->r.h/b->t->h;
+
+	int w_pad = 0;
+	int h_pad = 0;
+
+	if (padding == true){
+		w_pad = dm_get_w_padding();
+		h_pad = dm_get_h_padding();
+	}
+
 	if (scale_w < scale_h){
 		int y = b->r.y + (b->r.h - b->t->h*scale_w)/2;
 		SDL_Rect r = {.x = b->r.x, .y = y, .w = b->r.w};

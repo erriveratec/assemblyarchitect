@@ -141,7 +141,7 @@ int stage_select_player()
 		buttons_created = false;
 	}
 	
-	display_escape_menu(get_escape_menu_state());
+	sb_display_escape_menu(get_escape_menu_state());
 	error:
 	ms_reset_mouse_values();
 	return ret_val;
@@ -173,7 +173,7 @@ int stage_title(const Uint8 *keystate)
 		ret_val = LV_TITLE_SCREEN;
 	}
 
-	display_escape_menu(get_escape_menu_state());
+	sb_display_escape_menu(get_escape_menu_state());
 	return ret_val;
 }
 
@@ -435,7 +435,7 @@ int stage_select_level()
 	}
 
 	sb_draw_return_button();
-	display_escape_menu(get_escape_menu_state());
+	sb_display_escape_menu(get_escape_menu_state());
 
 	if (sb_check_clicked_ret_button() == true){
 		ret_val = LV_SELECT_PLAYER_SCREEN;	
@@ -693,7 +693,7 @@ int stage_level(int level_id)
 	static code_line_t *hold_line = NULL;
 	bool back_to_level_selection = sb_check_clicked_ret_button(); 
 	static level_flags_t flags;
-	display_escape_menu(get_escape_menu_state());
+	sb_display_escape_menu(get_escape_menu_state());
 	
 	if (sb_check_clicked_stage_button() == true && 
 									  cw_check_code_pending_operand() == false){
@@ -736,7 +736,7 @@ int stage_level(int level_id)
 		destroy_level(&flags);
 		run_finished = false;
 	}
-	display_escape_menu(get_escape_menu_state());
+	sb_display_escape_menu(get_escape_menu_state());
 	return ret_val;
 }
 

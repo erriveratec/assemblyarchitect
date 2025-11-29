@@ -58,25 +58,24 @@ void init_escape_menu()
 	check_mem(g_escape_b3_texture);
 	
 	SDL_Rect r = dm_get_escape_b1_box();
-	g_escape_b1 = bt_create_button(r, true, true, true, C_WHITE, C_BLACK,
+	g_escape_b1 = bt_create_button(r, true, false, true, C_WHITE, C_BLACK,
 														   g_escape_b1_texture);
 	check_mem(g_escape_b1);
 
 	r = dm_get_escape_b2_box();
-	g_escape_b2 = bt_create_button(r, true, true, true, C_WHITE, C_BLACK, 
+	g_escape_b2 = bt_create_button(r, true, false, true, C_WHITE, C_BLACK, 
 														   g_escape_b2_texture);
 	check_mem(g_escape_b2);
 	
 	r = dm_get_escape_b3_box();
-	g_escape_b3 = bt_create_button(r, true, true, true, C_WHITE, C_BLACK, 
+	g_escape_b3 = bt_create_button(r, true, false, true, C_WHITE, C_BLACK, 
 														   g_escape_b3_texture);
 	check_mem(g_escape_b3);
 	error:
 	return;
 }
 
-
-/* Function: display_escape_menu
+/* Function: sb_display_escape_menu
  * -----------------------------------------------------------------------------
  * This function is called in all the stages, it will show the escape menu 
  * according to the state of the g_escape_menu variable.
@@ -87,18 +86,18 @@ void init_escape_menu()
  * Return:
  *	void
  */
-void display_escape_menu(bool show_menu)
+void sb_display_escape_menu(bool show_menu)
 {
 
 	if (show_menu == true){
 		
 		SDL_Rect r = dm_get_escape_menu_box();
-		dw_draw_filled_rectangle(r, C_WHITE, C_BLACK);
+		dw_draw_filled_rectangle(r, C_LIGHTGREY, C_BLACK);
 
 		
-		bt_draw_button(g_escape_b1, false);
-		bt_draw_button(g_escape_b2, false);
-		bt_draw_button(g_escape_b3, false);
+		bt_draw_button(g_escape_b1, true);
+		bt_draw_button(g_escape_b2, true);
+		bt_draw_button(g_escape_b3, true);
 
 		if (bt_check_mouse_click_button(g_escape_b1) == true){
 			toggle_escape_menu();
