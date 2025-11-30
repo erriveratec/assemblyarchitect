@@ -7,6 +7,70 @@
 #include "mouse_ms.h"
 
 
+/* Function: bt_create_iface_button
+ * -----------------------------------------------------------------------------
+ * Creates an interface button used for menus with letters
+ * 	
+ * Arguments:
+ *	b: box with x, y, w, h
+ *	t: texture of the button.
+ *  enabled: boolean to determine if the button is enabled at a given time
+ *
+ * Return:
+ *	Pointer to the button object
+ */
+iface_button_t *bt_create_iface_button(SDL_Rect r, texture_t *t, bool enabled)
+{
+	iface_button_t *new_button = malloc(sizeof(iface_button_t));
+
+	new_button->r = r;
+	float scale_w = (float)r.w/t->w;
+	float scale_h = (float)r.h/t->h;
+	new_button->t = t;
+	new_button->enabled = enabled;
+	return new_button;
+}
+
+/* Function: bt_draw_iface_button
+ * -----------------------------------------------------------------------------
+ * This function draws the interface button 
+ * 	
+ * Arguments:
+ *	b: The button object that is going to be drawn
+ *
+ * Return:
+ *	Void.
+ */
+void bt_draw_iface_button(iface_button_t *b)
+{
+	assert(b != NULL && "The button pointer is NULL");
+	
+	int status = SUCCESS;	
+	
+	dw_draw_filled_rectangle(b->r, C_WHITE, C_GREY);
+	int offset = dm_get_ofs_iface_button_padding();
+	SDL_Rect in = ax_pad_rectangle(b->r, offset, true);
+	dw_draw_rectangle(in, C_GREY);
+	
+	float scale_w = (float)b->r.w/b->t->w;
+	float scale_h = (float)b->r.h/b->t->h;
+
+	int w_pad = dm_get_w_padding();
+	int h_pad = dm_get_h_padding();
+
+	if (scale_w < scale_h){
+		int y = b->r.y + (b->r.h - b->t->h*scale_w)/2;
+		SDL_Rect r = {.x = b->r.x, .y = y, .w = b->r.w};
+		dw_draw_texture_fits_width(r, b->t);
+	} else {
+		int x = b->r.x + (b->r.w - b->t->w*scale_h)/2;
+		SDL_Rect r = {.x = x, .y = b->r.y, .h = b->r.h};
+		dw_draw_texture_fits_height(r, b->t);
+	}
+	assert(status != FAIL && "The texture could not be drawn");
+}
+
+
 /* Function: bt_create_button
  * -----------------------------------------------------------------------------
  * This function is used to create a button object, it receives as 

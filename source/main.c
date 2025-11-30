@@ -38,7 +38,7 @@ static void initialize_game_assets()
 	g_press_space = dw_create_text_texture(PRESS_SPACE_TEXT, C_WHITE);
 	g_win_text = dw_create_text_texture(WIN_TEXT, C_BLACK);
 
-	init_escape_menu();
+	sb_init_escape_menu();
 	sb_init_return_button();
 	tx_init_global_msgs();
 	iw_init_ins_box_texture();

@@ -56,6 +56,7 @@
 #define W_PADDING 12
 #define H_PADDING 10
 #define BUT_PADDING 25
+#define IFACE_BUTTON_RECT_PADDING 2
 
 int g_res_id;
 int g_screen_width;
@@ -63,6 +64,21 @@ int g_screen_height;
 
 int scale_to_resolution(int dim);
 static SDL_Rect dm_get_box_msg_wh();
+
+/* Function: dm_get_ofs_iface_button_padding
+ * -----------------------------------------------------------------------------
+ *	Returns the button padding that will be use for interface buttons
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	The offset that will be use of the rectangle padding of the interface
+ */
+int dm_get_ofs_iface_button_padding()
+{
+	return scale_to_resolution(IFACE_BUTTON_RECT_PADDING);
+}
 
 /* Function: dm_get_screen_height
  * -----------------------------------------------------------------------------

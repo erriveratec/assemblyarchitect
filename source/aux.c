@@ -15,6 +15,33 @@ char *ax_char_colon = ":";
 char *ax_char_dash = "-";
 char *ax_level_text = "Level";
 
+
+/* Function: ax_pad_rectangle
+ *------------------------------------------------------------------------------
+ * This functions takes a rectangle a returns a concentric rectangle offset
+ * by the number of pixels specfified in the function.
+ *
+ * Arguments:
+ *	r: The original rectable.
+ *	offset: the offset of pixels of the concentric rectanble
+ *  inside: the returned rectangle will be inside of the original.
+ *			true if inside, false of outside
+ *
+ * Return:
+ *	The new rectangle
+ */
+SDL_Rect ax_pad_rectangle(SDL_Rect b, int offset, bool inside)
+{
+	SDL_Rect r;
+	r.x = b.x + offset;
+	r.y = b.y + offset;
+	r.w = b.w - 2*offset;
+	r.h = b.h - 2*offset;
+
+	return r;
+}
+
+
 /* Function: ax_get_w_fit_h
  *------------------------------------------------------------------------------
  * Arguments:

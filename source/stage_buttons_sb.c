@@ -36,7 +36,7 @@ button_t *g_escape_b1;
 button_t *g_escape_b2;
 button_t *g_escape_b3;
 
-/* Function: init_escape_menu
+/* Function: sb_init_escape_menu
  * ----------------------------------------------------------------------------
  * Initializes all the assets of the escape menu.
  *
@@ -46,7 +46,7 @@ button_t *g_escape_b3;
  * Return:
  *	Void.	
  */
-void init_escape_menu()
+void sb_init_escape_menu()
 {
 	g_escape_b1_texture = dw_create_text_texture(ESC_MENU_TEXT1, C_BLACK);
 	check_mem(g_escape_b1_texture);
