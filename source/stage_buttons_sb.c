@@ -26,7 +26,7 @@ button_t *stop;
 button_t *step_back;
 button_t *play;
 button_t *step_forward;
-button_t *ret_button;
+iface_btn_t *ret_button;
 
 texture_t *g_escape_b1_texture = NULL;
 texture_t *g_escape_b2_texture = NULL;
@@ -48,13 +48,13 @@ iface_btn_t *g_escape_b3;
  */
 void sb_init_escape_menu()
 {
-	g_escape_b1_texture = dw_create_text_texture(ESC_MENU_TEXT1, C_GREY);
+	g_escape_b1_texture = dw_create_text_texture(ESC_MENU_TEXT1, C_WHITE);
 	check_mem(g_escape_b1_texture);
 
-	g_escape_b2_texture = dw_create_text_texture(ESC_MENU_TEXT2, C_GREY);
+	g_escape_b2_texture = dw_create_text_texture(ESC_MENU_TEXT2, C_WHITE);
 	check_mem(g_escape_b2_texture);
 
-	g_escape_b3_texture = dw_create_text_texture(ESC_MENU_TEXT3, C_GREY);
+	g_escape_b3_texture = dw_create_text_texture(ESC_MENU_TEXT3, C_WHITE);
 	check_mem(g_escape_b3_texture);
 	
 	SDL_Rect r = dm_get_escape_b1_box();
@@ -88,7 +88,7 @@ void sb_display_escape_menu(bool show_menu)
 	if (show_menu == true){
 		
 		SDL_Rect r = dm_get_escape_menu_box();
-		dw_draw_filled_rectangle(r, C_BLACK, C_SILVERGREY);
+		dw_draw_filled_rectangle(r, C_DIMGREY, C_SILVERGREY);
 
 		int offset = dm_get_ofs_iface_border();
 		SDL_Rect in = ax_pad_rectangle(r, offset, true);
@@ -269,7 +269,7 @@ void sb_draw_stage_buttons(int code_size)
  */
 void sb_draw_return_button()
 {
-	bt_draw_button(ret_button, false);
+	bt_draw_iface_btn(ret_button);
 }
 
 /* Function: sb_init_return_buttons
@@ -286,11 +286,9 @@ void sb_draw_return_button()
 void sb_init_return_button()
 {
 	if (ret_button == NULL){
-		SDL_SetTextureColorMod(return_button->texture, 0, 0, 0);
 		SDL_Rect r = dm_get_return_button_box();
 		ret_button = malloc(sizeof(button_t));
-		ret_button = bt_create_button(r, true, true, true, C_WHITE, C_WHITE, 	
-																 return_button);
+		ret_button = bt_create_iface_btn(r, return_button, true);
 	}
 	return;
 }
@@ -346,7 +344,7 @@ bool sb_check_clicked_ret_button()
 {
 	int ret = false;
 
-	if (bt_check_mouse_click_button(ret_button) == true) {
+	if (bt_chk_mouse_rel_iface_btn(ret_button) == true) {
 		ret = true;
 	}
 	return ret;

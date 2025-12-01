@@ -73,7 +73,7 @@ void tx_set_message_in_array(int pos, char *msg)
 	SDL_Rect r = (pos == 0) ? dm_get_text_box_big() : dm_get_box_msg_text_wh();
 	int h = (pos == 0) ? dm_get_h_big_text() : dm_get_h_msg();
 
-	g_msgs[pos] = dw_new_text_texture_by_h(r.w, h, C_DARKGREY, msg);
+	g_msgs[pos] = dw_new_text_texture_by_h(r.w, h, C_BLACK, msg);
 }
 
 /* Function: tx_init_global_msgs
@@ -94,12 +94,12 @@ void tx_init_global_msgs()
 	SDL_Rect r = dm_get_text_box_big();
 	int text_h = dm_get_h_bottom_msg();
 	
-	g_gbl_msgs[TX_MSG_CLICKANY] = dw_new_text_texture_by_h(r.w, text_h, C_GREY, 
+	g_gbl_msgs[TX_MSG_CLICKANY] = dw_new_text_texture_by_h(r.w, text_h, C_BLACK, 
 															MSG_CLICKANY);
-	g_gbl_msgs[TX_MSG_PRESSPLAY] = dw_new_text_texture_by_h(r.w, text_h, C_GREY, 
-															MSG_PRESSPLAY);
-	g_gbl_msgs[TX_MSG_PRESSBACK] = dw_new_text_texture_by_h(r.w, text_h, C_GREY, 
-															MSG_PRESSBACK);
+	g_gbl_msgs[TX_MSG_PRESSPLAY] = dw_new_text_texture_by_h(r.w, text_h, 
+														C_BLACK, MSG_PRESSPLAY);
+	g_gbl_msgs[TX_MSG_PRESSBACK] = dw_new_text_texture_by_h(r.w, text_h, 
+														C_BLACK, MSG_PRESSBACK);
 }
 
 /* Function: tx_free_level_text_texture
@@ -273,7 +273,7 @@ void tx_bottom_msg(int pos, int msg_id)
 			text_h = dm_get_h_msg();
 			break;
 		case TX_BIG_BOX:
-			b = g_big_box;
+			b = dm_get_text_box_big();
 			b.y = g_big_box.y + g_big_box.h*5/6;
 			b.h = g_big_box.h/6;
 			text_h = dm_get_h_msg();
@@ -334,7 +334,7 @@ void tx_text_box(int pos, int msg_id)
 			text_h = dm_get_h_msg();
 			break;
 		case TX_BIG_BOX:
-			b = g_big_box; 
+			b = dm_get_text_box_big();
 			text_h = dm_get_h_big_text();
 			break;
 		case TX_ERROR_BOX:
@@ -342,7 +342,11 @@ void tx_text_box(int pos, int msg_id)
 			text_h = dm_get_h_msg();
 			break;
 	}
-	dw_draw_filled_rectangle(b, C_LIGHTGREY, C_LIGHTGREY);
+	dw_draw_filled_rectangle(b, C_WHITE, C_WHITE);
+	int offset = dm_get_ofs_iface_filled_border();
+	SDL_Rect in = ax_pad_rectangle(b, offset, true);
+	dw_draw_filled_rectangle(in, C_SILVERGREY, C_WHITE);
+	dw_draw_rectangle(in, C_WHITE);
 	dw_draw_wrapped_texture_by_h(b, text_h, a);
 }
 

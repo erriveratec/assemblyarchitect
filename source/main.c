@@ -33,9 +33,9 @@ static void initialize_game_assets();
  */
 static void initialize_game_assets()
 {
-	g_studio_name = dw_create_text_texture(STUDIO_NAME_TEXT, C_WHITE);
-	g_game_title = dw_create_text_texture(GAME_TITLE_TEXT, C_WHITE);
-	g_press_space = dw_create_text_texture(PRESS_SPACE_TEXT, C_WHITE);
+	g_studio_name = dw_create_text_texture(STUDIO_NAME_TEXT, C_SILVERGREY);
+	g_game_title = dw_create_text_texture(GAME_TITLE_TEXT, C_SILVERGREY);
+	g_press_space = dw_create_text_texture(PRESS_SPACE_TEXT, C_SILVERGREY);
 	g_win_text = dw_create_text_texture(WIN_TEXT, C_BLACK);
 
 	sb_init_escape_menu();

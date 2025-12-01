@@ -56,8 +56,9 @@
 #define W_PADDING 12
 #define H_PADDING 10
 #define BUT_PADDING 25
-#define IFACE_BORDER_OFS 2
-#define BUTTON_SHADOW_OFS 5
+#define IFACE_BORDER_OFS 3
+#define IFACE_FILLED_OFS 5
+#define BUTTON_SHADOW_OFS 10
 
 int g_res_id;
 int g_screen_width;
@@ -79,6 +80,21 @@ static SDL_Rect dm_get_box_msg_wh();
 int dm_get_ofs_button_shadow()
 {
 	return scale_to_resolution(BUTTON_SHADOW_OFS);
+}
+
+/* Function: dm_get_ofs_iface_filled_border
+ * -----------------------------------------------------------------------------
+ *	Returns the interfacer border space that will be use for interface buttons
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	The offset that will be use of the rectangle padding of the interface
+ */
+int dm_get_ofs_iface_filled_border()
+{
+	return scale_to_resolution(IFACE_FILLED_OFS);
 }
 
 /* Function: dm_get_ofs_iface_border
@@ -705,8 +721,8 @@ SDL_Rect dm_get_text_box_lower()
 SDL_Rect dm_get_text_box_big()
 {
 	SDL_Rect b;
-	b.w = g_screen_width/3;
-	b.h = g_screen_height/2;
+	b.w = g_screen_width/5;
+	b.h = g_screen_height/3;
 	b.x = g_screen_width/2 - b.w/2;
 	b.y = g_screen_height/4;
 	return b;
@@ -1030,7 +1046,8 @@ SDL_Rect dm_get_return_button_box()
 	b.w = scale_to_resolution(RET_BUTTON_W);
 	b.h = scale_to_resolution(RET_BUTTON_H);
 	b.x = SCREEN_BORDERS_OFS;
-	b.y = g_screen_height - b.h - SCREEN_BORDERS_OFS;
+	b.y = g_screen_height - b.h - SCREEN_BORDERS_OFS - 
+		  dm_get_ofs_button_shadow();
 	return b;
 }
 

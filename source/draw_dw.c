@@ -12,15 +12,17 @@
 SDL_Color C_WHITE = {255,255,255,255};
 SDL_Color C_BLACK = {0, 0, 0, 255};
 SDL_Color C_RED = {255, 0, 0, 255};
+SDL_Color C_BLUE = {0, 0, 255, 255};
 SDL_Color C_ORANGE = {0xF8, 0x71, 0x3A, 255};
 SDL_Color C_CYAN = {0, 255, 255, 255};
 SDL_Color C_YELLOW = {255, 255, 0, 255};
 SDL_Color C_MAGENTA = {255, 0, 255, 255};
 SDL_Color C_GREEN = {0, 255, 0, 255};
-SDL_Color C_GREY = {127, 127, 127, 255};
-SDL_Color C_SILVERGREY = {200, 200, 200, 255};
+SDL_Color C_SILVERGREY = {192, 192, 192, 255};
 SDL_Color C_LIGHTGREY = {234, 234, 234, 255};
-SDL_Color C_DARKGREY = {51, 51, 51, 255};
+SDL_Color C_GREY = {127, 127, 127, 255};
+SDL_Color C_DIMGREY = {64, 64, 64, 255};
+SDL_Color C_DARKGREY = {31, 31, 31, 255};
 
 texture_t *g_arrow = NULL;
 

@@ -919,7 +919,7 @@ void cw_set_stage_name(char *text)
 {
 	assert(NULL != text && "The text pointer is NULL");
 
-	g_stage_name = dw_create_text_texture(text, C_WHITE);
+	g_stage_name = dw_create_text_texture(text, C_GREY);
 	check_mem(g_stage_name);
 error:
 	return;
@@ -1093,7 +1093,7 @@ void cw_set_challenge_text(char *text)
 	int w = dm_get_w_code_box_text();
 	int h = dm_get_h_msg();
 	assert(NULL != text && "The text pointer is NULL");
-	g_challenge_text = dw_new_text_texture_by_h(w, h, C_WHITE, text);
+	g_challenge_text = dw_new_text_texture_by_h(w, h, C_SILVERGREY, text);
 }
 
 /* Function: cw_set_code_box
@@ -1291,7 +1291,7 @@ void cw_draw_code_window()
 	dw_draw_wrapped_texture_by_h(text_box, h, g_challenge_text);
 
 	// Text rectangle
-	dw_draw_rectangle(text_box, C_WHITE);
+	dw_draw_rectangle(text_box, C_GREY);
 	
 	// Adjust the height of the code box
 	code_box_height_adjust();
@@ -1300,7 +1300,7 @@ void cw_draw_code_window()
 		adjust_code_box_position();
 	}
 	// Draw the rectangle of the code and instructions
-	dw_draw_rectangle(code_box, C_WHITE);
+	dw_draw_rectangle(code_box, C_GREY);
 
 	// Text of the level
 

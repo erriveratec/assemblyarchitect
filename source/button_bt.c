@@ -43,7 +43,7 @@ bool bt_chk_mouse_rel_iface_btn(iface_btn_t *btn)
 	int mouse_y = ms_get_mouse_y();
 	int mouse_left_released = ms_chk_mouse_left_released();
 	
-	if (mouse_left_released == false){
+	if (mouse_left_released == false || btn->enabled == false){
 		return false;
 	}
 
@@ -138,15 +138,21 @@ void bt_draw_iface_btn(iface_btn_t *b)
 	bool clicked = bt_chk_mouse_click_iface_btn(b);
 	int offset = dm_get_ofs_iface_border();
 	
-	if (clicked == true){
-		dw_draw_filled_rectangle(b->r, C_SILVERGREY, C_SILVERGREY);
-		SDL_Rect in = ax_pad_rectangle(b->r, offset, true);
-		dw_draw_filled_rectangle(in, C_BLACK, C_GREY);
-	} else {
-		dw_draw_filled_rectangle(b->r, C_BLACK, C_SILVERGREY);
+	
+	if (b->enabled == false){
+		dw_draw_filled_rectangle(b->r, C_BLACK, C_GREY);
 		int offset = dm_get_ofs_iface_border();
 		SDL_Rect in = ax_pad_rectangle(b->r, offset, true);
-		dw_draw_rectangle(in, C_SILVERGREY);
+		dw_draw_rectangle(in, C_GREY);
+	} else if (clicked == true){
+		dw_draw_filled_rectangle(b->r, C_WHITE, C_WHITE);
+		SDL_Rect in = ax_pad_rectangle(b->r, offset, true);
+		dw_draw_filled_rectangle(in, C_BLACK, C_WHITE);
+	} else {
+		dw_draw_filled_rectangle(b->r, C_BLACK, C_WHITE);
+		int offset = dm_get_ofs_iface_border();
+		SDL_Rect in = ax_pad_rectangle(b->r, offset, true);
+		dw_draw_rectangle(in, C_WHITE);
 	}
 	
 	int w_pad = dm_get_w_padding();

@@ -3,7 +3,7 @@
 QUANTITY 17
 
 MSG 01
-Welcome to Level 01
+Level 01
 MSG_END
 
 MSG 02
@@ -77,7 +77,7 @@ MSG_END
 QUANTITY 8
 
 MSG 01
-Welcome to Level 02
+Level 02
 MSG_END
 
 MSG 02
@@ -115,7 +115,7 @@ MSG_END
 QUANTITY 11
 
 MSG 01
-Welcome to Level 03
+Level 03
 MSG_END
 
 MSG 02
@@ -167,7 +167,7 @@ MSG_END
 QUANTITY 2
 
 MSG 01
-Welcome to Level 04
+Level 04
 MSG_END
 
 MSG 02
@@ -181,7 +181,7 @@ MSG_END
 QUANTITY 2
 
 MSG 01
-Welcome to Level 05
+Level 05
 MSG_END
 
 MSG 02
@@ -195,7 +195,7 @@ MSG_END
 QUANTITY 4
 
 MSG 01
-Welcome to Level 06
+Level 06
 MSG_END
 
 MSG 02
@@ -219,7 +219,7 @@ MSG_END
 QUANTITY 3
 
 MSG 01
-Welcome to Level 07
+Level 07
 MSG_END
 
 MSG 02
@@ -239,7 +239,7 @@ MSG_END
 QUANTITY 3
 
 MSG 01
-You are now in Level 08
+Level 08
 MSG_END
 
 MSG 02
@@ -259,8 +259,7 @@ MSG_END
 QUANTITY 6
 
 MSG 01
-Congratulations!
-You are in Level 09
+Level 09
 MSG_END
 
 MSG 02

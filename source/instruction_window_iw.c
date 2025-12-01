@@ -31,7 +31,7 @@ static void draw_instruction_text();
  */
 void iw_init_ins_box_texture()
 {
-	instructions_text = dw_create_text_texture(INSTRUCTIONS_TEXT, C_WHITE);
+	instructions_text = dw_create_text_texture(INSTRUCTIONS_TEXT, C_GREY);
 }
 
 /* Function: iw_get_instruction_box_by_pos
@@ -364,7 +364,7 @@ void iw_display_instructions()
 	assert(instructions != NULL && "Invalid pointer");
 
 	draw_instruction_text();
-	dw_draw_rectangle(instruction_box, C_WHITE);
+	dw_draw_rectangle(instruction_box, C_GREY);
 	
 	LIST_FOREACH(instructions, first, next, cur){
 		instruction_t *c = cur->value;

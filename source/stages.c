@@ -92,13 +92,13 @@ int stage_select_player()
 	if (buttons_created == false){
 	
 		buttons_created = true;
-		select_player = dw_new_text_texture_by_h(b.w, text_h, C_WHITE, 
+		select_player = dw_new_text_texture_by_h(b.w, text_h, C_SILVERGREY, 
 															SELECT_PLAYER_TEXT);
-		texture_t *b1_texture = dw_create_text_texture(PLAYER_1_TEXT, C_BLACK);
+		texture_t *b1_texture = dw_create_text_texture(PLAYER_1_TEXT, C_WHITE);
 		check_mem(b1_texture);
-		texture_t *b2_texture = dw_create_text_texture(PLAYER_2_TEXT, C_BLACK);
+		texture_t *b2_texture = dw_create_text_texture(PLAYER_2_TEXT, C_WHITE);
 		check_mem(b2_texture);
-		texture_t *b3_texture = dw_create_text_texture(PLAYER_3_TEXT, C_BLACK);
+		texture_t *b3_texture = dw_create_text_texture(PLAYER_3_TEXT, C_WHITE);
 		check_mem(b3_texture);
 		
 		SDL_Rect b = dm_get_p1_button_box();
@@ -363,7 +363,7 @@ void stage_drawings(int level)
  * Return:
  *	void
  */
-static void create_select_level_buttons(button_t **buttons, bool *levels)
+static void create_select_level_buttons(iface_btn_t **buttons, bool *levels)
 {
 	assert(buttons != NULL && "The buttons pointer is NULL");
 	assert(levels != NULL && "The levels pointer is NULL");
@@ -376,14 +376,12 @@ static void create_select_level_buttons(button_t **buttons, bool *levels)
 		texture_t *button_texture = NULL;
 		if (levels[i-1] == true){
 			button_texture = dw_create_text_texture(button_text, 
-							 C_BLACK);
-			buttons[i-1] = bt_create_button(b, true, true, true, C_WHITE, 
-											C_WHITE, button_texture);
+							 C_WHITE);
+			buttons[i-1] = bt_create_iface_btn(b, button_texture, true);
 		} else {
 			button_texture = dw_create_text_texture(button_text, 
 							 C_GREY);
-			buttons[i-1] = bt_create_button(b, false, true, false, C_BLACK,
-											C_WHITE, button_texture);
+			buttons[i-1] = bt_create_iface_btn(b, button_texture, false);
 		}
 		b.y += y_offset;	
 		if (i != 0 && i%8 == 0){
@@ -409,7 +407,7 @@ int stage_select_level()
 	static texture_array_t *select_level = NULL;
 
 	static bool level_initialized = false;
-	static button_t *level_buttons[40];
+	static iface_btn_t *level_buttons[40];
 	static bool player_levels[LV_LEVEL_QUANTITY];
 	int ret_val = LV_LEVEL_SELECTION;
 	SDL_Rect r = dm_get_upper_title_box();
@@ -418,31 +416,36 @@ int stage_select_level()
 		fl_load_player_levels(g_player, player_levels);
 		level_initialized = true;
 		create_select_level_buttons(level_buttons, player_levels);
-		select_level = dw_new_text_texture_by_h(r.w, r.h, C_WHITE, 
+		select_level = dw_new_text_texture_by_h(r.w, r.h, C_SILVERGREY, 
 															 SELECT_LEVEL_TEXT);
 	}
 	dw_draw_wrapped_texture_by_h(r, r.h, select_level);
-
-	for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
-		bt_draw_button(level_buttons[i], true);
-		if (bt_check_mouse_click_button(level_buttons[i]) == true){
-			ret_val = LV_LEVEL_1 + i;
-			level_initialized = false;
-			bt_destroy_button(level_buttons[i]);
-		}
-	}
-
 	sb_draw_return_button();
-	sb_display_escape_menu(sb_get_escape_menu_state());
-
-	if (sb_check_clicked_ret_button() == true){
-		ret_val = LV_SELECT_PLAYER_SCREEN;	
-		level_initialized = false;
+	for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
+			bt_draw_iface_btn(level_buttons[i]);
+	}
+	
+	bool escape = sb_get_escape_menu_state();
+	if (escape == true){
+		sb_display_escape_menu(escape);
+	} else {
 		for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
-			bt_destroy_button(level_buttons[i]);
+			if (bt_chk_mouse_rel_iface_btn(level_buttons[i]) == true){
+				ret_val = LV_LEVEL_1 + i;
+				level_initialized = false;
+				for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
+					bt_destroy_iface_btn(level_buttons[i]);
+				}
+			}
+		}
+		if (sb_check_clicked_ret_button() == true){
+			ret_val = LV_SELECT_PLAYER_SCREEN;	
+			level_initialized = false;
+			for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
+				bt_destroy_iface_btn(level_buttons[i]);
+			}
 		}
 	}
-	//ms_reset_mouse_values();
 	return ret_val;
 }
 
