@@ -80,19 +80,18 @@ int stage_select_player()
 {
 	static texture_array_t *select_player = NULL;
 	static bool buttons_created = false;
-	static button_t *player_1;
-	static button_t *player_2;
-	static button_t *player_3;
+	static iface_btn_t *player_1;
+	static iface_btn_t *player_2;
+	static iface_btn_t *player_3;
 	int ret_val = LV_SELECT_PLAYER_SCREEN;
 	bool player_chosen = false;
-
+	
 	SDL_Rect b = dm_get_upper_title_box();
 	int text_h = dm_get_h_stage_titles();
 
 	if (buttons_created == false){
 	
 		buttons_created = true;
-		
 		select_player = dw_new_text_texture_by_h(b.w, text_h, C_WHITE, 
 															SELECT_PLAYER_TEXT);
 		texture_t *b1_texture = dw_create_text_texture(PLAYER_1_TEXT, C_BLACK);
@@ -103,47 +102,46 @@ int stage_select_player()
 		check_mem(b3_texture);
 		
 		SDL_Rect b = dm_get_p1_button_box();
-		player_1 = bt_create_button(b, true, true, true, C_WHITE, C_WHITE, 
-																	b1_texture);
+		player_1 = bt_create_iface_btn(b, b1_texture, true);
 		check_mem(player_1);
 		
 		b = dm_get_p2_button_box();
-		player_2 = bt_create_button(b, true, true, true, C_WHITE, C_WHITE, 
-																	b2_texture);
+		player_2 = bt_create_iface_btn(b, b2_texture, true);
 		check_mem(player_2);
 
 		b = dm_get_p3_button_box();
-		player_3 = bt_create_button(b, true, true, true, C_WHITE, C_WHITE, 
-																	b3_texture);
+		player_3 = bt_create_iface_btn(b, b3_texture, true);
 		check_mem(player_3);
 	}
 	dw_draw_wrapped_texture_by_h(b, text_h, select_player);
 	
-	bt_draw_button(player_1, false);
-	bt_draw_button(player_2, false);
-	bt_draw_button(player_3, false);
+	bt_draw_iface_btn(player_1);
+	bt_draw_iface_btn(player_2);
+	bt_draw_iface_btn(player_3);
 
-	if (true == bt_check_mouse_click_button(player_1)){
-		player_chosen = true;
-		g_player = FL_PLAYER_1;
-	} else if (true == bt_check_mouse_click_button(player_2)){
-		player_chosen = true;
-		g_player = FL_PLAYER_2;
-	} else if (true == bt_check_mouse_click_button(player_3)){
-		player_chosen = true;
-		g_player = FL_PLAYER_3;
+	bool escape_menu = sb_get_escape_menu_state();
+	if (escape_menu == true){
+		sb_display_escape_menu(escape_menu);
+	} else {
+		if (bt_chk_mouse_rel_iface_btn(player_1) == true){
+			player_chosen = true;
+			g_player = FL_PLAYER_1;
+		} else if (bt_chk_mouse_rel_iface_btn(player_2) == true){
+			player_chosen = true;
+			g_player = FL_PLAYER_2;
+		} else if (bt_chk_mouse_rel_iface_btn(player_3) == true){
+			player_chosen = true;
+			g_player = FL_PLAYER_3;
+		}
+		if (player_chosen == true){
+			ret_val = LV_LEVEL_SELECTION;		
+			bt_destroy_iface_btn(player_1);
+			bt_destroy_iface_btn(player_2);
+			bt_destroy_iface_btn(player_3);
+			buttons_created = false;
+		}
 	}
-	if (player_chosen == true){
-		ret_val = LV_LEVEL_SELECTION;		
-		bt_destroy_button(player_1);
-		bt_destroy_button(player_2);
-		bt_destroy_button(player_3);
-		buttons_created = false;
-	}
-	
-	sb_display_escape_menu(get_escape_menu_state());
 	error:
-	ms_reset_mouse_values();
 	return ret_val;
 }
 
@@ -173,7 +171,7 @@ int stage_title(const Uint8 *keystate)
 		ret_val = LV_TITLE_SCREEN;
 	}
 
-	sb_display_escape_menu(get_escape_menu_state());
+	sb_display_escape_menu(sb_get_escape_menu_state());
 	return ret_val;
 }
 
@@ -435,7 +433,7 @@ int stage_select_level()
 	}
 
 	sb_draw_return_button();
-	sb_display_escape_menu(get_escape_menu_state());
+	sb_display_escape_menu(sb_get_escape_menu_state());
 
 	if (sb_check_clicked_ret_button() == true){
 		ret_val = LV_SELECT_PLAYER_SCREEN;	
@@ -444,7 +442,7 @@ int stage_select_level()
 			bt_destroy_button(level_buttons[i]);
 		}
 	}
-	ms_reset_mouse_values();
+	//ms_reset_mouse_values();
 	return ret_val;
 }
 
@@ -693,7 +691,7 @@ int stage_level(int level_id)
 	static code_line_t *hold_line = NULL;
 	bool back_to_level_selection = sb_check_clicked_ret_button(); 
 	static level_flags_t flags;
-	sb_display_escape_menu(get_escape_menu_state());
+	sb_display_escape_menu(sb_get_escape_menu_state());
 	
 	if (sb_check_clicked_stage_button() == true && 
 									  cw_check_code_pending_operand() == false){
@@ -736,7 +734,7 @@ int stage_level(int level_id)
 		destroy_level(&flags);
 		run_finished = false;
 	}
-	sb_display_escape_menu(get_escape_menu_state());
+	sb_display_escape_menu(sb_get_escape_menu_state());
 	return ret_val;
 }
 

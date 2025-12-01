@@ -73,7 +73,8 @@ int dm_get_ofs_buffer_value_box();
 int dm_get_ofs_between_value_box();
 int dm_get_ofs_reg_value_box();
 int dm_get_ofs_space_stage_buttons();
-int dm_get_ofs_iface_button_padding();
+int dm_get_ofs_iface_border();
+int dm_get_ofs_button_shadow();
 
 SDL_Rect dm_get_text_box_big();
 SDL_Rect dm_get_text_box_error();

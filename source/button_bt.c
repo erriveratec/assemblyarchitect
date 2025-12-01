@@ -7,7 +7,90 @@
 #include "mouse_ms.h"
 
 
-/* Function: bt_create_iface_button
+/* Function: bt_destroy_iface_btn
+ *-----------------------------------------------------------------------------
+ * This function frees and destroys an iface button object directed by a 
+ * memory pointer
+ *
+ * Arguments:
+ * 	b: the button to be destroyed
+ *	
+ * Return:
+ *	Void
+ *
+ */
+void bt_destroy_iface_btn(iface_btn_t *b)
+{
+	SDL_DestroyTexture(b->t->texture);
+	free(b->t);
+	free(b);
+}
+
+/* Function: bt_chk_mouse_rel_iface_btn
+ *------------------------------------------------------------------------------
+ * Arguments:
+ * 	button: the button to be verified
+ *	
+ * Return:
+ *	true if the mouse clicked inside the button
+ *	false if otherwise
+*/
+bool bt_chk_mouse_rel_iface_btn(iface_btn_t *btn)
+{
+	assert(btn != NULL && "The button pointer cannot be NULL");
+
+	int mouse_x = ms_get_mouse_x();
+	int mouse_y = ms_get_mouse_y();
+	int mouse_left_released = ms_chk_mouse_left_released();
+	
+	if (mouse_left_released == false){
+		return false;
+	}
+
+	if (mouse_x > btn->r.x && mouse_x < (btn->r.x + btn->r.w) &&
+		mouse_y > btn->r.y && mouse_y < (btn->r.y + btn->r.h)){
+		return true;
+	} else {
+		return false;
+	} 
+}
+
+
+/* Function: bt_chk_mouse_click_iface_button
+ *------------------------------------------------------------------------------
+ * This function verifies is the mouse has clicked insiden an iface button.
+ *
+ * Arguments:
+ * 	button: the button to be verified
+ *	
+ * Return:
+ *	true if the mouse clicked inside the button
+ *	false if otherwise
+ *
+*/
+bool bt_chk_mouse_click_iface_btn(iface_btn_t *btn)
+{
+	assert(NULL != btn && "The button pointer cannot be NULL");
+
+	int mouse_x = ms_get_mouse_x();
+	int mouse_y = ms_get_mouse_y();
+	int mouse_left_pressed = ms_chk_mouse_left_pressed();
+
+	bool clicked_in_button;
+	if (mouse_left_pressed == false || btn->enabled == false){
+		clicked_in_button = false;
+	} else if (mouse_x > btn->r.x && 
+			   mouse_x < (btn->r.x + btn->r.w) && 
+			   mouse_y > btn->r.y && 
+			   mouse_y < (btn->r.y + btn->r.h)){
+		clicked_in_button = true;
+	} else {
+		clicked_in_button = false;
+	} 
+	return clicked_in_button;
+}
+
+/* Function: bt_create_iface_btn
  * -----------------------------------------------------------------------------
  * Creates an interface button used for menus with letters
  * 	
@@ -19,9 +102,9 @@
  * Return:
  *	Pointer to the button object
  */
-iface_button_t *bt_create_iface_button(SDL_Rect r, texture_t *t, bool enabled)
+iface_btn_t *bt_create_iface_btn(SDL_Rect r, texture_t *t, bool enabled)
 {
-	iface_button_t *new_button = malloc(sizeof(iface_button_t));
+	iface_btn_t *new_button = malloc(sizeof(iface_btn_t));
 
 	new_button->r = r;
 	float scale_w = (float)r.w/t->w;
@@ -31,7 +114,7 @@ iface_button_t *bt_create_iface_button(SDL_Rect r, texture_t *t, bool enabled)
 	return new_button;
 }
 
-/* Function: bt_draw_iface_button
+/* Function: bt_draw_iface_btn
  * -----------------------------------------------------------------------------
  * This function draws the interface button 
  * 	
@@ -41,30 +124,44 @@ iface_button_t *bt_create_iface_button(SDL_Rect r, texture_t *t, bool enabled)
  * Return:
  *	Void.
  */
-void bt_draw_iface_button(iface_button_t *b)
+void bt_draw_iface_btn(iface_btn_t *b)
 {
 	assert(b != NULL && "The button pointer is NULL");
 	
 	int status = SUCCESS;	
-	
-	dw_draw_filled_rectangle(b->r, C_WHITE, C_GREY);
-	int offset = dm_get_ofs_iface_button_padding();
-	SDL_Rect in = ax_pad_rectangle(b->r, offset, true);
-	dw_draw_rectangle(in, C_GREY);
-	
-	float scale_w = (float)b->r.w/b->t->w;
-	float scale_h = (float)b->r.h/b->t->h;
 
+	int shadow_offset = dm_get_ofs_button_shadow();	
+	SDL_Rect shadow = {.x = b->r.x + shadow_offset, .y = b->r.y + shadow_offset,
+					   .w = b->r.w, .h = b->r.h};
+	dw_draw_filled_rectangle(shadow, C_DARKGREY, C_DARKGREY);
+
+	bool clicked = bt_chk_mouse_click_iface_btn(b);
+	int offset = dm_get_ofs_iface_border();
+	
+	if (clicked == true){
+		dw_draw_filled_rectangle(b->r, C_SILVERGREY, C_SILVERGREY);
+		SDL_Rect in = ax_pad_rectangle(b->r, offset, true);
+		dw_draw_filled_rectangle(in, C_BLACK, C_GREY);
+	} else {
+		dw_draw_filled_rectangle(b->r, C_BLACK, C_SILVERGREY);
+		int offset = dm_get_ofs_iface_border();
+		SDL_Rect in = ax_pad_rectangle(b->r, offset, true);
+		dw_draw_rectangle(in, C_SILVERGREY);
+	}
+	
 	int w_pad = dm_get_w_padding();
 	int h_pad = dm_get_h_padding();
-
+	
+	float scale_w = (float)(b->r.w - 2*w_pad)/b->t->w;
+	float scale_h = (float)(b->r.h - 2*h_pad)/b->t->h;
+	
 	if (scale_w < scale_h){
 		int y = b->r.y + (b->r.h - b->t->h*scale_w)/2;
-		SDL_Rect r = {.x = b->r.x, .y = y, .w = b->r.w};
+		SDL_Rect r = {.x = b->r.x + w_pad, .y = y, .w = b->r.w - 2*w_pad};
 		dw_draw_texture_fits_width(r, b->t);
 	} else {
 		int x = b->r.x + (b->r.w - b->t->w*scale_h)/2;
-		SDL_Rect r = {.x = x, .y = b->r.y, .h = b->r.h};
+		SDL_Rect r = {.x = x, .y = b->r.y + w_pad, .h = b->r.h - 2*h_pad};
 		dw_draw_texture_fits_height(r, b->t);
 	}
 	assert(status != FAIL && "The texture could not be drawn");

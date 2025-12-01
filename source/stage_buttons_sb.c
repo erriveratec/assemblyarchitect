@@ -32,9 +32,9 @@ texture_t *g_escape_b1_texture = NULL;
 texture_t *g_escape_b2_texture = NULL;
 texture_t *g_escape_b3_texture = NULL;
 
-button_t *g_escape_b1;
-button_t *g_escape_b2;
-button_t *g_escape_b3;
+iface_btn_t *g_escape_b1;
+iface_btn_t *g_escape_b2;
+iface_btn_t *g_escape_b3;
 
 /* Function: sb_init_escape_menu
  * ----------------------------------------------------------------------------
@@ -48,28 +48,25 @@ button_t *g_escape_b3;
  */
 void sb_init_escape_menu()
 {
-	g_escape_b1_texture = dw_create_text_texture(ESC_MENU_TEXT1, C_BLACK);
+	g_escape_b1_texture = dw_create_text_texture(ESC_MENU_TEXT1, C_GREY);
 	check_mem(g_escape_b1_texture);
 
-	g_escape_b2_texture = dw_create_text_texture(ESC_MENU_TEXT2, C_BLACK);
+	g_escape_b2_texture = dw_create_text_texture(ESC_MENU_TEXT2, C_GREY);
 	check_mem(g_escape_b2_texture);
 
-	g_escape_b3_texture = dw_create_text_texture(ESC_MENU_TEXT3, C_BLACK);
+	g_escape_b3_texture = dw_create_text_texture(ESC_MENU_TEXT3, C_GREY);
 	check_mem(g_escape_b3_texture);
 	
 	SDL_Rect r = dm_get_escape_b1_box();
-	g_escape_b1 = bt_create_button(r, true, false, true, C_WHITE, C_BLACK,
-														   g_escape_b1_texture);
+	g_escape_b1 = bt_create_iface_btn(r, g_escape_b1_texture, true);
 	check_mem(g_escape_b1);
 
 	r = dm_get_escape_b2_box();
-	g_escape_b2 = bt_create_button(r, true, false, true, C_WHITE, C_BLACK, 
-														   g_escape_b2_texture);
+	g_escape_b2 = bt_create_iface_btn(r, g_escape_b2_texture, true);
 	check_mem(g_escape_b2);
 	
 	r = dm_get_escape_b3_box();
-	g_escape_b3 = bt_create_button(r, true, false, true, C_WHITE, C_BLACK, 
-														   g_escape_b3_texture);
+	g_escape_b3 = bt_create_iface_btn(r, g_escape_b3_texture, true);
 	check_mem(g_escape_b3);
 	error:
 	return;
@@ -88,22 +85,24 @@ void sb_init_escape_menu()
  */
 void sb_display_escape_menu(bool show_menu)
 {
-
 	if (show_menu == true){
 		
 		SDL_Rect r = dm_get_escape_menu_box();
-		dw_draw_filled_rectangle(r, C_LIGHTGREY, C_BLACK);
+		dw_draw_filled_rectangle(r, C_BLACK, C_SILVERGREY);
 
-		
-		bt_draw_button(g_escape_b1, true);
-		bt_draw_button(g_escape_b2, true);
-		bt_draw_button(g_escape_b3, true);
+		int offset = dm_get_ofs_iface_border();
+		SDL_Rect in = ax_pad_rectangle(r, offset, true);
+		dw_draw_rectangle(in, C_SILVERGREY);
 
-		if (bt_check_mouse_click_button(g_escape_b1) == true){
+		bt_draw_iface_btn(g_escape_b1);
+		bt_draw_iface_btn(g_escape_b2);
+		bt_draw_iface_btn(g_escape_b3);
+
+		if (bt_chk_mouse_rel_iface_btn(g_escape_b1) == true){
 			toggle_escape_menu();
-		} else if (bt_check_mouse_click_button(g_escape_b2) == true){
+		} else if (bt_chk_mouse_rel_iface_btn(g_escape_b2) == true){
 			puts("Full screen must be implemented");	
-		} else if (bt_check_mouse_click_button(g_escape_b3) == true){
+		} else if (bt_chk_mouse_rel_iface_btn(g_escape_b3) == true){
 			set_quit_game();
 		}
 	}	
@@ -126,7 +125,7 @@ void toggle_escape_menu()
 	g_escape_menu = !g_escape_menu;
 }
 
-/* Function: get_escape_menu_state
+/* Function: sb_get_escape_menu_state
  * ----------------------------------------------------------------------------
  * This function return the boolean state of the state.
  *
@@ -136,7 +135,7 @@ void toggle_escape_menu()
  * Return:
  *	Boolean with the state fo the escape_menu variable
  */
-bool get_escape_menu_state()
+bool sb_get_escape_menu_state()
 {
 	return g_escape_menu;
 }

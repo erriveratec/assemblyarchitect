@@ -35,12 +35,13 @@ void dw_draw_rotated_texture_fits_h(int x, int y, int h, double angle,
 extern SDL_Color C_WHITE;
 extern SDL_Color C_BLACK;
 extern SDL_Color C_RED;
-extern SDL_Color C_GREY;
 extern SDL_Color C_ORANGE;
 extern SDL_Color C_CYAN;
 extern SDL_Color C_YELLOW;
 extern SDL_Color C_MAGENTA;
 extern SDL_Color C_GREEN;
+extern SDL_Color C_GREY;
+extern SDL_Color C_SILVERGREY;
 extern SDL_Color C_LIGHTGREY;
 extern SDL_Color C_DARKGREY;
 #endif

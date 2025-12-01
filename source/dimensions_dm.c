@@ -40,7 +40,7 @@
 #define CODE_BUTTON_W 75
 #define CODE_BUTTON_H 40
 #define COMMA_OFS 10
-#define ESC_MENU_BUTTON_W 500
+#define ESC_MENU_BUTTON_W 300
 #define ESC_MENU_BUTTON_H 60
 #define SEL_LEVEL_BUTTON_W 100
 #define SEL_LEVEL_BUTTON_H 50
@@ -56,7 +56,8 @@
 #define W_PADDING 12
 #define H_PADDING 10
 #define BUT_PADDING 25
-#define IFACE_BUTTON_RECT_PADDING 2
+#define IFACE_BORDER_OFS 2
+#define BUTTON_SHADOW_OFS 5
 
 int g_res_id;
 int g_screen_width;
@@ -65,9 +66,24 @@ int g_screen_height;
 int scale_to_resolution(int dim);
 static SDL_Rect dm_get_box_msg_wh();
 
-/* Function: dm_get_ofs_iface_button_padding
+/* Function: dm_get_ofs_button_shadow
  * -----------------------------------------------------------------------------
- *	Returns the button padding that will be use for interface buttons
+ *	Returns the shadow offset for the buttons
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	The offset that will be used for the shadow of the buttons
+ */
+int dm_get_ofs_button_shadow()
+{
+	return scale_to_resolution(BUTTON_SHADOW_OFS);
+}
+
+/* Function: dm_get_ofs_iface_border
+ * -----------------------------------------------------------------------------
+ *	Returns the interfacer border space that will be use for interface buttons
  *
  * Arguments:
  *	Void.
@@ -75,9 +91,9 @@ static SDL_Rect dm_get_box_msg_wh();
  * Return:
  *	The offset that will be use of the rectangle padding of the interface
  */
-int dm_get_ofs_iface_button_padding()
+int dm_get_ofs_iface_border()
 {
-	return scale_to_resolution(IFACE_BUTTON_RECT_PADDING);
+	return scale_to_resolution(IFACE_BORDER_OFS);
 }
 
 /* Function: dm_get_screen_height
@@ -206,8 +222,8 @@ int dm_get_w_code_box_text()
  */
 int dm_get_w_padding()
 {
-	return scale_to_resolution(W_PADDING);
-	
+	return scale_to_resolution(W_PADDING) + 
+	       scale_to_resolution(IFACE_BORDER_OFS);
 }
 
 /* Function: dm_get_h_padding
@@ -222,8 +238,8 @@ int dm_get_w_padding()
  */
 int dm_get_h_padding()
 {
-	return scale_to_resolution(H_PADDING);
-	
+	return scale_to_resolution(H_PADDING) + 
+		   scale_to_resolution(IFACE_BORDER_OFS);
 }
 /* Function: dm_get_h_stage_titles
  * -----------------------------------------------------------------------------
