@@ -12,16 +12,6 @@
 #define MSG_PRESSBACK "Press the back button"
 #define MSG_PRESSCONT "Press the continue button"
 
-
-SDL_Rect g_big_box;
-SDL_Rect g_error_box;
-SDL_Rect g_upper_box;
-SDL_Rect g_center_box;
-SDL_Rect g_lower_box;
-SDL_Rect g_ins_box;
-SDL_Rect g_code_box;
-SDL_Rect g_stagebutton_box;
-
 int g_lvl_msgs_size;
 texture_array_t **g_lvl_msgs = NULL;
 
@@ -70,10 +60,9 @@ void tx_set_message_in_array(int pos, char *msg)
 
 	pos--; // array starts at zero
 
-	SDL_Rect r = (pos == 0) ? dm_get_text_box_big() : dm_get_box_msg_text_wh();
 	int h = (pos == 0) ? dm_get_h_big_text() : dm_get_h_msg();
-
-	g_msgs[pos] = dw_new_text_texture_by_h(r.w, h, C_BLACK, msg);
+	int w = dm_get_w_msg();
+	g_msgs[pos] = dw_new_text_texture_by_h(w, h, C_BLACK, msg);
 }
 
 /* Function: tx_init_global_msgs
@@ -91,14 +80,14 @@ void tx_init_global_msgs()
 	g_gbl_msgs_size = 3;
 	g_gbl_msgs = malloc(sizeof(texture_array_t*)*g_gbl_msgs_size);
 
-	SDL_Rect r = dm_get_text_box_big();
 	int text_h = dm_get_h_bottom_msg();
 	
-	g_gbl_msgs[TX_MSG_CLICKANY] = dw_new_text_texture_by_h(r.w, text_h, C_BLACK, 
+	int w = dm_get_w_msg();
+	g_gbl_msgs[TX_MSG_CLICKANY] = dw_new_text_texture_by_h(w, text_h, C_BLACK, 
 															MSG_CLICKANY);
-	g_gbl_msgs[TX_MSG_PRESSPLAY] = dw_new_text_texture_by_h(r.w, text_h, 
+	g_gbl_msgs[TX_MSG_PRESSPLAY] = dw_new_text_texture_by_h(w, text_h, 
 														C_BLACK, MSG_PRESSPLAY);
-	g_gbl_msgs[TX_MSG_PRESSBACK] = dw_new_text_texture_by_h(r.w, text_h, 
+	g_gbl_msgs[TX_MSG_PRESSBACK] = dw_new_text_texture_by_h(w, text_h, 
 														C_BLACK, MSG_PRESSBACK);
 }
 
@@ -118,28 +107,6 @@ void tx_free_level_text_textures()
 		dw_free_texture_array(g_msgs[i]);
 	}
 	g_msgs_size = 0;
-}
-
-/* Function: tx_init_text_boxes
- * -----------------------------------------------------------------------------
- * Set the properties of the text boxes of the game
- * 
- * Arguments:
- *	level_id: identifie of the level of which the textures will be created
- *	
- * Return:
- *	
- */
-void tx_init_text_boxes()
-{
-	g_big_box = dm_get_text_box_big();
-	g_error_box = dm_get_text_box_error();	
-	g_upper_box = dm_get_text_box_upper();	
-	g_center_box = dm_get_text_box_center();	
-	g_lower_box = dm_get_text_box_lower();	
-	g_ins_box = dm_get_text_box_ins();
-	g_code_box = dm_get_text_box_code();
-	g_stagebutton_box = dm_get_text_box_stagebutton();
 }
 
 /* Function: get_box_member
@@ -176,51 +143,6 @@ static int get_box_member(SDL_Rect *box, int member){
 }
 
 
-/* Function: tx_get_text_box_member
- * -----------------------------------------------------------------------------
- * Returns the property member of a given text box
- * 
- * Arguments:
- *	Void.
- *	
- * Return:
- *	Void.
- */
-int tx_get_text_box_member(int text_box_id, int member)
-{
-	assert(text_box_id > TX_BOX_MIN && text_box_id < TX_BOX_MAX && 
-		   "Invalid text box");
-	assert(member > MEMBER_MIN && member < MEMBER_MAX && 
-		   "Invalid member");
-	int retval;
-	switch(text_box_id){
-		case TX_INS_BOX:
-			retval = get_box_member(&g_ins_box, member);
-			break;
-		case TX_UPPER_BOX:
-			retval = get_box_member(&g_upper_box, member);
-			break;
-		case TX_LOWER_BOX:
-			retval = get_box_member(&g_lower_box, member);
-			break;
-		case TX_CODE_BOX:
-			retval = get_box_member(&g_code_box, member);
-			break;
-		case TX_STAGEBUTTON_BOX:
-			retval = get_box_member(&g_stagebutton_box, member);
-			break;
-		case TX_BIG_BOX:
-			retval = get_box_member(&g_big_box, member);
-			break;
-		case TX_ERROR_BOX:
-			retval = get_box_member(&g_error_box, member);
-			break;
-		}
-	return retval;
-}
-
-
-
 /* Function: tx_bottom_msg
  * -----------------------------------------------------------------------------
  * Display a message in the bottom of a give box
@@ -241,47 +163,47 @@ void tx_bottom_msg(int pos, int msg_id)
 	texture_array_t *a = g_gbl_msgs[msg_id];
 	switch(pos){
 		case TX_INS_BOX:
-			b = g_ins_box; 
-			b.y = g_ins_box.y + g_ins_box.h*5/6;
-			b.h = g_ins_box.h/6;
+			b = dm_get_text_box_ins(); 
+			b.y = dm_get_text_box_ins().y + dm_get_text_box_ins().h*4/6;
+			b.h = dm_get_text_box_ins().h/6;
 			text_h = dm_get_h_bottom_msg();
 			break;
 		case TX_UPPER_BOX:
-			b = g_upper_box; 
-			b.y = g_upper_box.y + g_upper_box.h*5/6;
-			b.h = g_upper_box.h/6;
+			b = dm_get_text_box_upper(); 
+			b.y = dm_get_text_box_upper().y + dm_get_text_box_upper().h*4/6;
+			b.h = dm_get_text_box_upper().h/6;
 			text_h = dm_get_h_bottom_msg();
 			break;
 		case TX_CENTER_BOX:
-			b = g_center_box; 
-			b.y = g_center_box.y + g_center_box.h*5/6;
-			b.h = g_center_box.h/6;
+			b = dm_get_text_box_center(); 
+			b.y = dm_get_text_box_center().y + dm_get_text_box_center().h*4/6;
+			b.h = dm_get_text_box_center().h/6;
 			text_h = dm_get_h_bottom_msg();
 			break;
 		case TX_LOWER_BOX:
-			b = g_lower_box; 
-			b.y = g_lower_box.y + g_lower_box.h*5/6;
-			b.h = g_lower_box.h/6;
+			b = dm_get_text_box_lower(); 
+			b.y = dm_get_text_box_lower().y + dm_get_text_box_lower().h*4/6;
+			b.h = dm_get_text_box_lower().h/6;
 			text_h = dm_get_h_bottom_msg();
 			break;
 		case TX_CODE_BOX:
-			b = g_code_box; 
+			b = dm_get_text_box_code(); 
 			text_h = dm_get_h_msg();
 			break;
 		case TX_STAGEBUTTON_BOX:
-			b = g_stagebutton_box; 
+			b = dm_get_text_box_stagebutton(); 
 			text_h = dm_get_h_msg();
 			break;
 		case TX_BIG_BOX:
 			b = dm_get_text_box_big();
-			b.y = g_big_box.y + g_big_box.h*5/6;
-			b.h = g_big_box.h/6;
+			b.y = dm_get_text_box_big().y + dm_get_text_box_big().h*4/6;
+			b.h = dm_get_text_box_big().h/6;
 			text_h = dm_get_h_msg();
 			break;
 		case TX_ERROR_BOX:
-			b = g_error_box; 
-			b.y = g_error_box.y + g_error_box.h*5/6;
-			b.h = g_error_box.h/6;
+			b = dm_get_text_box_error(); 
+			b.y = dm_get_text_box_error().y + dm_get_text_box_error().h*4/6;
+			b.h = dm_get_text_box_error().h/6;
 			text_h = dm_get_h_bottom_msg();
 			break;
 	}
@@ -310,27 +232,27 @@ void tx_text_box(int pos, int msg_id)
 	texture_array_t *a = g_msgs[msg_id];
 	switch(pos){
 		case TX_INS_BOX:
-			b = g_ins_box; 
+			b = dm_get_text_box_ins(); 
 			text_h = dm_get_h_msg();
 			break;
 		case TX_UPPER_BOX:
-			b = g_upper_box; 
+			b = dm_get_text_box_upper(); 
 			text_h = dm_get_h_msg();
 			break;
 		case TX_CENTER_BOX:
-			b = g_center_box; 
+			b = dm_get_text_box_center(); 
 			text_h = dm_get_h_msg();
 			break;
 		case TX_LOWER_BOX:
-			b = g_lower_box; 
+			b = dm_get_text_box_lower(); 
 			text_h = dm_get_h_msg();
 			break;
 		case TX_CODE_BOX:
-			b = g_code_box; 
+			b = dm_get_text_box_code(); 
 			text_h = dm_get_h_msg();
 			break;
 		case TX_STAGEBUTTON_BOX:
-			b = g_stagebutton_box; 
+			b = dm_get_text_box_stagebutton(); 
 			text_h = dm_get_h_msg();
 			break;
 		case TX_BIG_BOX:
@@ -338,15 +260,14 @@ void tx_text_box(int pos, int msg_id)
 			text_h = dm_get_h_big_text();
 			break;
 		case TX_ERROR_BOX:
-			b = g_error_box; 
+			b = dm_get_text_box_error(); 
 			text_h = dm_get_h_msg();
 			break;
 	}
-	dw_draw_filled_rectangle(b, C_WHITE, C_WHITE);
+	dw_draw_filled_rectangle(b, C_GREY, C_SILVERGREY);
 	int offset = dm_get_ofs_iface_filled_border();
 	SDL_Rect in = ax_pad_rectangle(b, offset, true);
-	dw_draw_filled_rectangle(in, C_SILVERGREY, C_WHITE);
-	dw_draw_rectangle(in, C_WHITE);
+	dw_draw_filled_rectangle(in, C_LIGHTGREY, C_DARKGREY);
 	dw_draw_wrapped_texture_by_h(b, text_h, a);
 }
 

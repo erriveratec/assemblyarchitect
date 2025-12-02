@@ -802,6 +802,9 @@ static void level_1_tutorial()
 	} else if (size == 0 && hold == true){
 		tx_text_box(TX_CODE_BOX, MSG7); // Drop ins in code box
 		ar_display_arrow(AR_DROP);
+	} else if (size == 1 && hold == true){
+		tx_text_box(TX_CODE_BOX, MSG7); // Drop ins in code box
+		ar_display_arrow(AR_DROP);
 	} else if (size == 1 && sorted == true && miss_op1 == true){
 		tx_text_box(TX_LOWER_BOX, MSG8);//Select rax
 		set_code_editable(false, NO_EXCEPTION);

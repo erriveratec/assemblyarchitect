@@ -198,27 +198,26 @@ bool mc_invalid_operation_handler(int id)
 	dw_draw_wrapped_texture_by_h(b, text_h, message);
 	
 	static bool button_created = false;
-	static button_t *ret;
+	static iface_btn_t *ret;
 	bool button_pressed = false;
 
 	if (button_created == false){
 		button_created = true;
-		texture_t *ret_texture = dw_create_text_texture(STR_BACK, C_BLACK);
+		texture_t *ret_texture = dw_create_text_texture(STR_BACK, C_WHITE);
 		check_mem(ret_texture);
 		
 		SDL_Rect r = dm_get_text_box_result_but3();		
-		ret = bt_create_button(r, true, true, true, C_WHITE, C_BLACK,
-							   ret_texture);
+		ret = bt_create_iface_btn(r, ret_texture, true);
 		check_mem(ret);
 	} 
-	bt_draw_button(ret, false);
+	bt_draw_iface_btn(ret);
 
-		if (bt_check_mouse_click_button(ret) == true){
+		if (bt_chk_mouse_rel_iface_btn(ret) == true){
 			reset_level = true;
 			button_pressed = true;
 		} 
 		if (button_pressed == true){
-			bt_destroy_button(ret);
+			bt_destroy_iface_btn(ret);
 			button_created = false;
 		}
 

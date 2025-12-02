@@ -57,7 +57,7 @@
 #define H_PADDING 10
 #define BUT_PADDING 25
 #define IFACE_BORDER_OFS 3
-#define IFACE_FILLED_OFS 5
+#define IFACE_FILLED_OFS 15
 #define BUTTON_SHADOW_OFS 10
 
 int g_res_id;
@@ -1084,6 +1084,24 @@ int dm_get_h_error_msg()
 	return h;
 	
 }
+/* Function: dm_get_w_msg
+ * -----------------------------------------------------------------------------
+ * Returns the width of the messages according to the border fill offset
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset for the sel level buttons
+ */
+int dm_get_w_msg()
+{
+	SDL_Rect r =  dm_get_box_msg_text_wh();
+	int w = r.w - 2*scale_to_resolution(IFACE_FILLED_OFS);
+	return w;
+	
+}
+
 /* Function: dm_get_h_msg
  * -----------------------------------------------------------------------------
  * Returns the h value for the click anywhere message

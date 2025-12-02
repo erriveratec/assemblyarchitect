@@ -253,7 +253,6 @@ static void init_stage_assets()
 	bf_set_output_buffer_button(r3);
 
 	bf_initialize_buffer_operands();
-	tx_init_text_boxes();
 }
 
 /* Function: init_level
