@@ -7,11 +7,12 @@
 
 #define ESC_MENU_BOX_W 600
 #define ESC_MENU_BOX_H 300
-#define SCREEN_BORDERS_OFS 2
-
 #define RES_BOX_Y 10
 #define RES_BOX_W 450
 #define RES_BOX_H 250
+#define MSG_BOX_W 350
+#define MSG_BOX_H 250
+
 // This is a new version of the dimensions set by a ration of the resolution
 
 #define RES_BOX_OFFSET 25
@@ -59,6 +60,7 @@
 #define IFACE_BORDER_OFS 3
 #define IFACE_FILLED_OFS 15
 #define BUTTON_SHADOW_OFS 10
+#define SCREEN_BORDERS_OFS 2
 
 int g_res_id;
 int g_screen_width;
@@ -619,7 +621,7 @@ SDL_Rect dm_get_text_box_result()
 
 /* Function: dm_get_box_msg_wh
  * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object, x and y are initialize at 0
+ * Returns the box dimensions of the box message
  *
  * Arguments:
  *	Void.
@@ -633,28 +635,6 @@ static SDL_Rect dm_get_box_msg_wh()
 	SDL_Rect b;
 	b.w = ib.w + ib.w/3;
 	b.h = g_screen_height/4;
-	b.x = 0;
-	b.y = 0;
-	return b;
-}
-
-/* Function: dm_get_box_msg_text_wh
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object, x and y are initialize at 0
- * Is used for the text of the boxes considering the margins
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_box_msg_text_wh()
-{
-	SDL_Rect ib = dm_get_stage_instruction_box();
-	SDL_Rect b;
-	b.w = ib.w + ib.w/3 - (2*scale_to_resolution(W_PADDING));
-	b.h = g_screen_height/4 - (2*scale_to_resolution(H_PADDING));
 	b.x = 0;
 	b.y = 0;
 	return b;
@@ -1096,7 +1076,7 @@ int dm_get_h_error_msg()
  */
 int dm_get_w_msg()
 {
-	SDL_Rect r =  dm_get_box_msg_text_wh();
+	SDL_Rect r =  dm_get_box_msg_wh();
 	int w = r.w - 2*scale_to_resolution(IFACE_FILLED_OFS);
 	return w;
 	

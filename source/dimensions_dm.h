@@ -38,7 +38,6 @@ SDL_Rect dm_get_escape_b1_box();
 SDL_Rect dm_get_escape_b2_box();
 SDL_Rect dm_get_escape_b3_box();
 
-SDL_Rect dm_get_box_msg_text_wh();
 SDL_Rect dm_get_code_button_wh();
 SDL_Rect dm_get_arrow_wh();
 SDL_Rect dm_get_vbox_wh();
