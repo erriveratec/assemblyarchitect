@@ -71,21 +71,21 @@ int g_screen_height;
 int scale_to_resolution(int dim);
 static SDL_Rect dm_get_box_msg_wh();
 
-
-/* Function: dm_get_ofs_button_shadow
+/* Function: dm_get_w_borders
  * -----------------------------------------------------------------------------
- *	Returns the shadow offset for the buttons
+ *	Returns the width of the borders of each section of the game
  *
  * Arguments:
  *	Void.
  *
  * Return:
- *	The offset that will be used for the shadow of the buttons
+ *	The of the borders 
  */
-int dm_get_ofs_button_shadow()
+int dm_get_w_borders()
 {
-	return scale_to_resolution(BUTTON_SHADOW_OFS);
+	return scale_to_resolution(BORDERS_WIDTH);
 }
+
 
 /* Function: dm_get_ofs_button_shadow
  * -----------------------------------------------------------------------------

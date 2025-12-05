@@ -23,6 +23,11 @@ int dm_get_h_line_number();
 int dm_get_w_code_box_text();
 int dm_get_w_padding();
 int dm_get_h_padding();
+int dm_get_w_stage_rail();
+int dm_get_w_stage_rail_end();
+int dm_get_w_borders();
+
+
 
 SDL_Rect dm_get_studio_name_msg_box();
 SDL_Rect dm_get_game_title_box();
@@ -61,8 +66,6 @@ SDL_Rect dm_get_stage_buttons();
 int dm_get_screen_width();
 int dm_get_screen_height();
 int dm_get_y_hidden_stage_buttons();
-int dm_get_w_stage_rail();
-int dm_get_w_stage_rail_end();
 int dm_get_ofs_stage_reg_box();
 int dm_get_ofs_code_box_border();
 int dm_get_ofs_code_number();
