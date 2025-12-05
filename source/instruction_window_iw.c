@@ -13,7 +13,7 @@
 texture_t *instructions_text;
 
 static List *instruction_list = NULL;
-SDL_Rect instruction_box;
+SDL_Rect g_instruction_box;
 
 static List *get_instruction_list();
 static void draw_instruction_text();

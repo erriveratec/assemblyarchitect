@@ -28,7 +28,7 @@ static void display_arrow_registers();
 value_box_t g_ibox;
 value_box_t g_obox;
 
-texture_t *reg_text = NULL;
+texture_t *g_reg_text = NULL;
 
 /* Function: iw_init_reg_texture
  *------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ texture_t *reg_text = NULL;
  */
 void rg_init_reg_texture()
 {
-	reg_text = dw_create_text_texture(REG_TEXT, C_WHITE);
+	g_reg_text = dw_create_text_texture(REG_TEXT, C_GREY);
 }
 
 
@@ -687,8 +687,9 @@ void rg_set_register_box(SDL_Rect r)
 static void draw_register_box()
 {
 	dw_draw_filled_rectangle(register_box, C_GREY, C_GREY);
+	
 	int w = dm_get_w_borders();
-	SDL_Rect b = {.x = register_box.x += w, .y = register_box.w += w,
+	SDL_Rect b = {.x = register_box.x + w, .y = register_box.y + w,
 				  .w = register_box.w - 2*w, .h = register_box.h - 2*w};
 	dw_draw_filled_rectangle(b, C_BLACK, C_BLACK);
 
@@ -716,7 +717,7 @@ static void draw_register_text()
 	int y = register_box.y - text_h;
 
 	SDL_Rect r = {.x = x, .y = y, .h = text_h};
-	dw_draw_texture_fits_height(r, reg_text);
+	dw_draw_texture_fits_height(r, g_reg_text);
 }
 
 /* Function: rg_check_mouse_released_in_register

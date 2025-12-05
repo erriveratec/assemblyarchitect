@@ -341,10 +341,10 @@ void stage_drawings(int level)
 	iw_display_instructions();
 	cw_draw_code_window();	
 	sb_draw_stage_buttons(cw_get_code_list_size());
-	mc_draw_avatar();
 	ar_display_arrow(AR_EXEC);
 	bf_draw_buffers();
 	rg_draw_registers();
+	mc_draw_avatar();
 	lv_level_drawings(level);
 	sb_draw_return_button();
 	return;
