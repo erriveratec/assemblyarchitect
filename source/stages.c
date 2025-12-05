@@ -291,7 +291,7 @@ void init_level(int level_id)
 	cw_set_code_box(r1);
 	
 	SDL_Rect r2 = dm_get_stage_instruction_box();
-	iw_set_instruction_box(r2);
+	//iw_set_instruction_box(r2);
 	
 	cw_create_code_list();	
 	fl_load_save_file(g_player, level_id);

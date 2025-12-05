@@ -15,7 +15,6 @@ texture_t *instructions_text;
 static List *instruction_list = NULL;
 SDL_Rect instruction_box;
 
-void set_instruction_box_member(int value, int member);
 static List *get_instruction_list();
 static void draw_instruction_text();
 
@@ -103,9 +102,9 @@ int iw_get_instruction_y_by_id(int id)
 static void draw_instruction_text()
 {
 	SDL_Rect ib = dm_get_stage_instruction_box();
-	int x = instruction_box.x;
+	int x = ib.x;
 	int h = get_text_height_fits_width(ib.w, INSTRUCTIONS_TEXT);
-	int y = instruction_box.y  - h;
+	int y = ib.y  - h;
 	SDL_Rect r = {.x = x, .y = y, .w = ib.w};
 	dw_draw_texture_fits_width(r, instructions_text);
 }
@@ -181,65 +180,7 @@ static List *get_instruction_list()
 	return instruction_list;
 }
 
-/* Function: set_instruction_box_member
- *------------------------------------------------------------------------------
- * This functions sets a specific member of the instruction_box
- *
- * Arguments:
- *	value: the value that will be set in a given member
- *	member: the member of the instruction box that will be set.
- *
- * Return:
- *	Void.
- *
- */
-void set_instruction_box_member(int value, int member)
-{
-	assert(member >= MEMBER_X && MEMBER_H >= member && "Invalid member");
 
-	switch(member){
-		case MEMBER_X:
-			instruction_box.x = value;
-			break;
-		case MEMBER_Y:
-			instruction_box.y = value;
-			break;
-		case MEMBER_W:
-			instruction_box.w = value;
-			break;
-		case MEMBER_H:
-			instruction_box.h = value;
-			break;
-	}
-	return;
-}
-
-/* Function: iw_set_instruction_box
- *------------------------------------------------------------------------------
- * This functions sets the parameters that will be used in the instruction
- * box
- *
- * Arguments:
- *	x: x coordinate of the box;
- *	y: y coordinate of the box;
- *	w: width of the box
- *	h: height of the box
- *
- * Return:
- *	Void.
- *
- */
-void iw_set_instruction_box(SDL_Rect r)
-{
-	assert(r.w > 0 && r.h > 0 && "Invalid width and height values");
-
-	instruction_box.x = r.x;
-	instruction_box.y = r.y;
-	instruction_box.w = r.w;
-	instruction_box.h = r.h;
-
-	return;
-}
 
 /* Function: iw_check_clicked_instruction
 *------------------------------------------------------------------------------
@@ -337,8 +278,6 @@ void iw_add_instruction_to_list(int id)
 	button_t *b = bt_create_button(r, true, false, false, C_BLACK, 
 								   C_WHITE, instruction_text);
 	check_mem(b);
-	set_instruction_box_member(2*ofs + (list_size + 1)*cb.h,
-							   MEMBER_H);
 
 	instruction_t *new_ins = cl_create_instruction(id, b);
 
@@ -364,8 +303,17 @@ void iw_display_instructions()
 	assert(instructions != NULL && "Invalid pointer");
 
 	draw_instruction_text();
-	dw_draw_rectangle(instruction_box, C_GREY);
 	
+	SDL_Rect r = dm_get_stage_instruction_box();
+	
+	dw_draw_filled_rectangle(r, C_GREY, C_GREY);
+	r.x += 3;
+	r.y += 3;
+	r.w -= 6;
+	r.h -= 6;
+	dw_draw_filled_rectangle(r, C_BLACK, C_BLACK);
+
+
 	LIST_FOREACH(instructions, first, next, cur){
 		instruction_t *c = cur->value;
 		bt_draw_button(c->b, false);

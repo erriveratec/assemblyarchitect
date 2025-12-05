@@ -1284,6 +1284,18 @@ void cw_draw_code_window()
 {
 	List *code = get_code_list();
 
+	// Adjust the height of the code box
+	code_box_height_adjust();
+
+	if (check_if_inside_code_window() == true){
+		adjust_code_box_position();
+	}
+	// Draw the rectangle of the code and instructions
+	dw_draw_filled_rectangle(code_box, C_GREY, C_GREY);
+	SDL_Rect r = {.x = code_box.x + 3, .y = code_box.y + 3, 
+				 .w = code_box.w - 6, .h = code_box.h - 6};
+	dw_draw_filled_rectangle(r, C_BLACK, C_BLACK);
+
 	display_player_code();
 	display_line_number();
 
@@ -1293,15 +1305,7 @@ void cw_draw_code_window()
 	// Text rectangle
 	dw_draw_rectangle(text_box, C_GREY);
 	
-	// Adjust the height of the code box
-	code_box_height_adjust();
-
-	if (check_if_inside_code_window() == true){
-		adjust_code_box_position();
-	}
-	// Draw the rectangle of the code and instructions
-	dw_draw_rectangle(code_box, C_GREY);
-
+	
 	// Text of the level
 
 	int border_ofs = dm_get_ofs_code_box_border();

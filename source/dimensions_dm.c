@@ -62,12 +62,30 @@
 #define BUTTON_SHADOW_OFS 10
 #define SCREEN_BORDERS_OFS 2
 
+#define BORDERS_WIDTH 3
+
 int g_res_id;
 int g_screen_width;
 int g_screen_height;
 
 int scale_to_resolution(int dim);
 static SDL_Rect dm_get_box_msg_wh();
+
+
+/* Function: dm_get_ofs_button_shadow
+ * -----------------------------------------------------------------------------
+ *	Returns the shadow offset for the buttons
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	The offset that will be used for the shadow of the buttons
+ */
+int dm_get_ofs_button_shadow()
+{
+	return scale_to_resolution(BUTTON_SHADOW_OFS);
+}
 
 /* Function: dm_get_ofs_button_shadow
  * -----------------------------------------------------------------------------

@@ -686,7 +686,8 @@ void rg_set_register_box(SDL_Rect r)
  */
 static void draw_register_box()
 {
-	dw_draw_rectangle(register_box, C_WHITE);
+	dw_draw_filled_rectangle(register_box, C_GREY, C_GREY);
+	SDL_Rect b = {register_box.x = }
 }
 
 /* Function: draw_register_text
