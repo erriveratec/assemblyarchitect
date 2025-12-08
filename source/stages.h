@@ -3,10 +3,12 @@
 
 #include <SDL.h>
 
-extern texture_t *g_studio_name;
-extern texture_t *g_game_title;
+extern texture_array_t *g_studio_name;
+extern texture_array_t *g_game_title;
 extern texture_t *g_press_space;
 extern texture_t *g_win_text;
+extern texture_t *g_title_background;
+extern texture_t *g_logo;
 
 extern bool g_quit;
 
@@ -17,7 +19,7 @@ int stage_level(int level);
 int stage_studio(Uint64 start_time, Uint64 cur_time);
 
 #define STUDIO_NAME_TEXT "One Man Studio"
-#define GAME_TITLE_TEXT "Assembly Architect"
-#define PRESS_SPACE_TEXT "Press Space"
+#define GAME_TITLE_TEXT "ASSEMBLY ARCHITECT"
+#define PRESS_SPACE_TEXT "PRESS SPACE"
 #define WIN_TEXT "The challenge is correct"
 #endif

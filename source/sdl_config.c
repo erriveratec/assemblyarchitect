@@ -13,6 +13,7 @@
 #include "game_mechanics_mc.h"
 #include "levels_lv.h"
 #include "arrow_ar.h"
+#include "stages.h"
 
 #define ERROR -1
 SDL_Window *g_window = NULL;
@@ -184,9 +185,25 @@ int load_media()
 				SDL_GetError());
 		return FAIL;
 	}
+	
+	g_title_background = load_texture_from_file("img/title_bg.png");
+	if (return_button == NULL){
+		printf("Could not load the level image SDL_Error: %s\n",
+				SDL_GetError());
+		return FAIL;
+	}
+
+	g_logo = load_texture_from_file("img/oms.png");
+	if (return_button == NULL){
+		printf("Could not load the level image SDL_Error: %s\n",
+				SDL_GetError());
+		return FAIL;
+	}
 
 	//Open the font
-	g_font = TTF_OpenFont("VT323.ttf", 130); //96 old value point size
+//	g_font = TTF_OpenFont("AnomalyMono.ttf", 130); //96 old value point size
+	g_font = TTF_OpenFont("DOSVGA437.ttf", 130); //96 old value point size
+//	g_font = TTF_OpenFont("VT323.ttf", 130); //96 old value point size
 	//g_font = TTF_OpenFont("EnigmaSans.ttf", 96); //96 old value point size
 	if (NULL == g_font){
 		printf("Failed to load font! SDL_ttf Error: %s\n", 

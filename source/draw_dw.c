@@ -23,6 +23,9 @@ SDL_Color C_LIGHTGREY = {234, 234, 234, 255};
 SDL_Color C_GREY = {127, 127, 127, 255};
 SDL_Color C_DIMGREY = {64, 64, 64, 255};
 SDL_Color C_DARKGREY = {31, 31, 31, 255};
+SDL_Color C_AMBER = {0xFF, 0xBF, 0x00, 255};
+
+
 
 texture_t *g_arrow = NULL;
 

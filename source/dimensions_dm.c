@@ -4,7 +4,6 @@
 #include"registers_rg.h"
 #include <SDL.h>
 
-
 #define ESC_MENU_BOX_W 600
 #define ESC_MENU_BOX_H 300
 #define RES_BOX_Y 10
@@ -64,12 +63,25 @@
 
 #define BORDERS_WIDTH 3
 
+// Intro screens
+#define TITLE_W 1000
+#define TITLE_H	140
+#define TITLE_Y	80
+
+#define STUDIO_W 600
+#define STUDIO_H 600
+
+#define PRESS_W 1000
+#define PRESS_H 60
+#define PRESS_Y 750
+
 int g_res_id;
 int g_screen_width;
 int g_screen_height;
 
 int scale_to_resolution(int dim);
 static SDL_Rect dm_get_box_msg_wh();
+
 
 /* Function: dm_get_w_borders
  * -----------------------------------------------------------------------------
@@ -1423,13 +1435,11 @@ SDL_Rect dm_get_p3_button_box()
  */
 SDL_Rect dm_get_press_space_box()
 {
-	const int texture_w = 400;
-	
 	SDL_Rect b;
-	b.w = scale_to_resolution(texture_w);
+	b.w = scale_to_resolution(PRESS_W);
 	b.x = (g_screen_width - b.w)/2;
-	b.y = g_screen_height/2;
-	b.h = 0;
+	b.y = scale_to_resolution(PRESS_Y);
+	b.h = scale_to_resolution(PRESS_H);
 	return b;
 }
 
@@ -1445,13 +1455,11 @@ SDL_Rect dm_get_press_space_box()
  */
 SDL_Rect dm_get_studio_name_msg_box()
 {
-	const int texture_w = 600;
-	
 	SDL_Rect b;
-	b.w = scale_to_resolution(texture_w);
-	b.x = (g_screen_width - b.w)/2;
-	b.y = g_screen_height/3;
-	b.h = 0;
+	b.w = scale_to_resolution(STUDIO_W);
+	b.h = scale_to_resolution(STUDIO_H);
+	b.x = 0;
+	b.y = (g_screen_height - b.h)/2;
 	return b;
 }
 
@@ -1467,14 +1475,11 @@ SDL_Rect dm_get_studio_name_msg_box()
  */
 SDL_Rect dm_get_game_title_box()
 {
-	const int texture_w = 1100;
-	const int texture_y = 25;
-	
 	SDL_Rect b;
-	b.w = scale_to_resolution(texture_w);
+	b.w = scale_to_resolution(TITLE_W);
 	b.x = (g_screen_width - b.w)/2;
-	b.y = scale_to_resolution(texture_y);
-	b.h = 0;
+	b.y = scale_to_resolution(TITLE_Y);
+	b.h = scale_to_resolution(TITLE_H);
 	return b;
 }
 

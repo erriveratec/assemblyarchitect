@@ -46,5 +46,6 @@ extern SDL_Color C_LIGHTGREY;
 extern SDL_Color C_DARKGREY;
 extern SDL_Color C_DIMGREY;
 extern SDL_Color C_BLUE;
+extern SDL_Color C_AMBER;
 #endif
 

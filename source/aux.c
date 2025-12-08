@@ -474,7 +474,6 @@ int ax_get_wrapped_text_height(int w, int h, char *t)
 	check_mem(text);
 	int last_fit = 0;
 	int already_drawn = 0;
-
 	for (int i = 0; i <= string_size; i++){
 		if (t[i] == CHAR_SPACE || t[i] == CHAR_NULL || t[i] == CHAR_NEWLINE){
 			
@@ -485,6 +484,10 @@ int ax_get_wrapped_text_height(int w, int h, char *t)
 			}
 			if (check_text_fits_width_by_height(text, h, w) == false || 
 									 CHAR_NULL == t[i] || t[i] == CHAR_NEWLINE){
+				if (last_fit == already_drawn){
+					puts("The size of the font does not fits width");
+					last_fit = string_size;
+				}
 				memset(text, 0, string_size);
 				if (already_drawn == 0){
 					strncpy(text, t + already_drawn, last_fit - already_drawn);
