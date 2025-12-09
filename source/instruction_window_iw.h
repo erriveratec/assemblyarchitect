@@ -9,7 +9,7 @@ void iw_destroy_instruction_list();
 void iw_add_instruction_to_list(int id);
 bool iw_check_clicked_instruction();
 instruction_t *iw_get_clicked_instruction();
-void iw_display_instructions();
+void iw_draw_instruction_box();
 int iw_get_instruction_y_by_id(int id);
 int iw_get_instruction_list_size();
 SDL_Rect iw_get_instruction_rect_by_pos(int pos);

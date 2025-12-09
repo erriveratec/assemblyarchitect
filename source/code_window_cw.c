@@ -919,7 +919,7 @@ void cw_set_stage_name(char *text)
 {
 	assert(NULL != text && "The text pointer is NULL");
 
-	g_stage_name = dw_create_text_texture(text, C_GREY);
+	g_stage_name = dw_create_text_texture(text, C_AMBER);
 	check_mem(g_stage_name);
 error:
 	return;
@@ -1120,7 +1120,7 @@ void cw_set_code_box(SDL_Rect r)
 	int h = dm_get_h_msg();
 
 	int text_h = dm_get_h_big_text();
-	int border_ofs = dm_get_ofs_code_box_border();
+	int border_ofs = dm_get_w_padding();
 	int text_box_height = g_challenge_text->size * h;
 	set_text_box(r.x + border_ofs, r.y + border_ofs + text_h + border_ofs, w, 
 															   text_box_height);
@@ -1308,8 +1308,9 @@ void cw_draw_code_window()
 	
 	// Text of the level
 
-	int border_ofs = dm_get_ofs_code_box_border();
+	int border_ofs = dm_get_w_padding();
 	int text_h = dm_get_h_big_text();
+	int w = ax_get_texture_w_fit_h(text_h, g_stage_name);
 	SDL_Rect b = {.x = code_box.x + border_ofs, 
 				  .y = code_box.y + border_ofs,
 				  .h = text_h};
@@ -1454,7 +1455,7 @@ int cw_get_code_line_y(int pos)
 	assert(code != NULL && "The code list can't be NULL");
 	
 	int list_size = List_count(code);
-	int border_ofs = dm_get_ofs_code_box_border();
+	int border_ofs = dm_get_w_padding();
 	SDL_Rect tb = cw_get_text_box_rect();
 	int y = tb.y + tb.h + border_ofs;
 

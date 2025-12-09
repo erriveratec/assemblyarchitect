@@ -12,6 +12,7 @@
 
 texture_t *instructions_text;
 
+
 static List *instruction_list = NULL;
 SDL_Rect g_instruction_box;
 
@@ -30,7 +31,7 @@ static void draw_instruction_text();
  */
 void iw_init_ins_box_texture()
 {
-	instructions_text = dw_create_text_texture(INSTRUCTIONS_TEXT, C_GREY);
+	instructions_text = dw_create_text_texture(INSTRUCTIONS_TEXT, C_AMBER);
 }
 
 /* Function: iw_get_instruction_box_by_pos
@@ -105,8 +106,9 @@ static void draw_instruction_text()
 	int x = ib.x;
 	int h = get_text_height_fits_width(ib.w, INSTRUCTIONS_TEXT);
 	int y = ib.y  - h;
-	SDL_Rect r = {.x = x, .y = y, .w = ib.w};
-	dw_draw_texture_fits_width(r, instructions_text);
+	int text_h = dm_get_h_stage_elements_titles();
+	SDL_Rect r = {.x = x, .y = y, .w = ib.w, .h = text_h};
+	dw_draw_texture_fits_height(r, instructions_text);
 }
 
 /* Function: iw_get_instruction_list_size
@@ -286,7 +288,7 @@ error:
 	return;
 }
 
-/* Function: iw_display_instructions
+/* Function: iw_draw_instruction_box
  * -----------------------------------------------------------------------------
  * This function displays the instructions available for a level.
  *
@@ -297,7 +299,7 @@ error:
  *	void
  *
  */
-void iw_display_instructions()
+void iw_draw_instruction_box()
 {
 	List *instructions = get_instruction_list();
 	assert(instructions != NULL && "Invalid pointer");
@@ -307,10 +309,11 @@ void iw_display_instructions()
 	SDL_Rect r = dm_get_stage_instruction_box();
 	
 	dw_draw_filled_rectangle(r, C_GREY, C_GREY);
-	r.x += 3;
-	r.y += 3;
-	r.w -= 6;
-	r.h -= 6;
+	int w = dm_get_w_borders();
+	r.x += w;
+	r.y += w;
+	r.w -= 2*w;
+	r.h -= 2*w;
 	dw_draw_filled_rectangle(r, C_BLACK, C_BLACK);
 
 

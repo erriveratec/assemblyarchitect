@@ -66,7 +66,6 @@ int dm_get_screen_width();
 int dm_get_screen_height();
 int dm_get_y_hidden_stage_buttons();
 int dm_get_ofs_stage_reg_box();
-int dm_get_ofs_code_box_border();
 int dm_get_ofs_code_number();
 int dm_get_ofs_code_op1();
 int dm_get_ofs_code_op2();

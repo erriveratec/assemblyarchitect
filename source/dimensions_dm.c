@@ -6,21 +6,24 @@
 
 #define ESC_MENU_BOX_W 600
 #define ESC_MENU_BOX_H 300
+
 #define RES_BOX_Y 10
 #define RES_BOX_W 450
 #define RES_BOX_H 250
+#define RES_BOX_OFFSET 25
+
 #define MSG_BOX_W 350
 #define MSG_BOX_H 250
 
 // This is a new version of the dimensions set by a ration of the resolution
 
-#define RES_BOX_OFFSET 25
 #define VALUE_BOX_H 40
 #define VALUE_BOX_W 50
 #define REG_BOX_OFS 25
 
 #define ARROW_H 30
 #define ARROW_W 30
+
 #define AVATAR_W 50
 #define AVATAR_H 50
 
@@ -29,23 +32,29 @@
 #define TEXT_H_MSG 25
 #define TEXT_H_ERROR_MSG 35
 #define TEXT_H_TOTAL_MSG 160
-#define TEXT_H_STAGE_ELEMENTS_TITLES 40
-#define TEXT_H_STAGE_TITLES 100
+#define TEXT_H_STAGE_ELEMENTS_TITLES 25
+#define TEXT_H_STAGE_TITLES 70
 #define TEXT_H_LINE_NUMBER 40
 
 #define STAGE_BUTTON_W 40
 #define STAGE_BUTTON_H 40
+
 #define P_BUTTON_H 200
 #define P_BUTTON_W 200
+
 #define CODE_BUTTON_W 75
 #define CODE_BUTTON_H 40
 #define COMMA_OFS 10
-#define ESC_MENU_BUTTON_W 300
+
+#define ESC_MENU_BUTTON_W 350
 #define ESC_MENU_BUTTON_H 60
-#define SEL_LEVEL_BUTTON_W 100
-#define SEL_LEVEL_BUTTON_H 50
+
+#define SEL_LEVEL_BUTTON_W 130
+#define SEL_LEVEL_BUTTON_H 60
+
 #define RET_BUTTON_W 90
 #define RET_BUTTON_H 75
+
 #define RES_BUTTON_H 60
 #define RES_BACK_BUTTON_W 100
 #define RES_CONT_BUTTON_W 200
@@ -53,9 +62,11 @@
 #define RAIL_W 4
 #define RAIL_END_W 16
 
+// Padding of the text borders
 #define W_PADDING 12
 #define H_PADDING 10
 #define BUT_PADDING 25
+
 #define IFACE_BORDER_OFS 4
 #define IFACE_FILLED_OFS 15
 #define BUTTON_SHADOW_OFS 10
@@ -76,9 +87,10 @@
 #define PRESS_H 60
 #define PRESS_Y 750
 
-
 #define STUDIO_W 600
 #define STUDIO_H 600
+
+#define INSTRUCTION_BOX_W 170
 
 int g_res_id;
 int g_screen_width;
@@ -257,7 +269,7 @@ int dm_get_ofs_buffer_value_box()
  */
 int dm_get_w_code_box_text()
 {
-	int ofs = dm_get_ofs_code_box_border();
+	int ofs = dm_get_w_padding();
 	SDL_Rect cb = dm_get_stage_code_box();
 	int w = cb.w - 2*ofs;
 	return w;
@@ -328,22 +340,7 @@ int dm_get_h_stage_elements_titles()
 	
 }
 
-/* Function: dm_get_ofs_code_box_border
- * -----------------------------------------------------------------------------
- *	Return the offset value of the contents of the buffer. 
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	int with the offset
- */
-int dm_get_ofs_code_box_border()
-{
-	SDL_Rect cb = dm_get_stage_code_box();
-	int ofs = scale_to_resolution(0.05*cb.w);
-	return ofs;
-}
+
 /* Function: dm_get_ofs_code_number
  * -----------------------------------------------------------------------------
  *	Return the offset value of the contents of the buffer. 
@@ -951,7 +948,7 @@ SDL_Rect dm_get_stage_output_buffer_box()
 SDL_Rect dm_get_stage_instruction_box()
 {
 	SDL_Rect b;
-	b.w = (g_screen_width*2/6)/3;
+	b.w = scale_to_resolution(INSTRUCTION_BOX_W);
 	b.h = g_screen_height/4;
 	b.x = 0;
 	b.y = g_screen_height/2 - b.h;

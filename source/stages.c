@@ -362,7 +362,7 @@ static void destroy_level(level_flags_t *flags)
  */
 void stage_drawings(int level)
 {
-	iw_display_instructions();
+	iw_draw_instruction_box();
 	cw_draw_code_window();	
 	sb_draw_stage_buttons(cw_get_code_list_size());
 	ar_display_arrow(AR_EXEC);
