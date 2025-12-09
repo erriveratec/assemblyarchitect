@@ -792,8 +792,8 @@ static void level_1_tutorial()
 		ar_display_arrow(AR_OB);
 		chk_ms_pressed_clear_msg(MSG4, true);
 	} else if (g_lv_msg[MSG5] == true && size == 0){
-		tx_text_box(TX_UPPER_BOX, MSG5);//To register first
-		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
+		tx_text_box(TX_CENTER_BOX, MSG5);//To register first
+		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
 		draw_regs_arrow(true);
 		chk_ms_pressed_clear_msg(MSG5, true);
 	} else if (size == 0 && hold == false){

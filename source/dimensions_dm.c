@@ -28,7 +28,7 @@
 #define AVATAR_H 50
 
 #define TEXT_H_BIG 50
-#define TEXT_H_BOTTOM_MSG 20
+#define TEXT_H_BOTTOM_MSG 15
 #define TEXT_H_MSG 25
 #define TEXT_H_ERROR_MSG 35
 #define TEXT_H_TOTAL_MSG 160
@@ -67,8 +67,8 @@
 #define H_PADDING 10
 #define BUT_PADDING 25
 
-#define IFACE_BORDER_OFS 4
-#define IFACE_FILLED_OFS 15
+#define IFACE_BORDER_OFS 4 // Used for the buttons
+#define IFACE_FILLED_OFS 15 // Used for Interface Messages
 #define BUTTON_SHADOW_OFS 10
 #define SCREEN_BORDERS_OFS 2
 
@@ -133,7 +133,7 @@ int dm_get_ofs_button_shadow()
 
 /* Function: dm_get_ofs_iface_filled_border
  * -----------------------------------------------------------------------------
- *	Returns the interfacer border space that will be use for interface buttons
+ *	Returns the interface filled border used for messages.
  *
  * Arguments:
  *	Void.
@@ -716,7 +716,7 @@ SDL_Rect dm_get_text_box_lower()
 	b.w = mb.w;
 	b.h = mb.h;
 	b.x = g_screen_width/2 - mb.w/2;
-	b.y = rb.y + rb.h + 2*ab.h;
+	b.y = g_screen_height - b.h - dm_get_h_padding();
 	return b;
 }
 

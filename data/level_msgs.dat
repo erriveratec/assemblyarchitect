@@ -19,11 +19,11 @@ To the Output Buffer [OB]
 MSG_END
 
 MSG 05
-Values recovered from the Input Buffer [IB], must go to a register first
+Values loaded from [IB] must go to a register first
 MSG_END
 
 MSG 06
-Select and drag the "mov" instruction from the instruction box
+Drag the "MOV" instruction from the instruction box
 MSG_END
 
 MSG 07
@@ -31,11 +31,11 @@ Drop the instruction in the code box
 MSG_END
 
 MSG 08
-Select "rax" as the destination operand (where the value will be stored)
+Select "rax" as the destination operand
 MSG_END
 
 MSG 09
-Select the Input Buffer [IB] as the source operand (from where the value is recovered)
+Select the Input Buffer [IB] as the source operand
 MSG_END
 
 MSG 10

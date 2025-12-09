@@ -161,6 +161,7 @@ void tx_bottom_msg(int pos, int msg_id)
 	int text_h;
 	SDL_Color color;
 	texture_array_t *a = g_gbl_msgs[msg_id];
+	int offset = dm_get_ofs_iface_filled_border();
 	switch(pos){
 		case TX_INS_BOX:
 			b = dm_get_text_box_ins(); 
@@ -169,22 +170,19 @@ void tx_bottom_msg(int pos, int msg_id)
 			text_h = dm_get_h_bottom_msg();
 			break;
 		case TX_UPPER_BOX:
-			b = dm_get_text_box_upper(); 
-			b.y = dm_get_text_box_upper().y + dm_get_text_box_upper().h*4/6;
-			b.h = dm_get_text_box_upper().h/6;
 			text_h = dm_get_h_bottom_msg();
+			b = dm_get_text_box_upper(); 
+			b.y += (dm_get_text_box_upper().h/2 - text_h - offset);
 			break;
 		case TX_CENTER_BOX:
-			b = dm_get_text_box_center(); 
-			b.y = dm_get_text_box_center().y + dm_get_text_box_center().h*4/6;
-			b.h = dm_get_text_box_center().h/6;
 			text_h = dm_get_h_bottom_msg();
+			b = dm_get_text_box_center(); 
+			b.y += (dm_get_text_box_center().h/2 - text_h - offset);
 			break;
 		case TX_LOWER_BOX:
-			b = dm_get_text_box_lower(); 
-			b.y = dm_get_text_box_lower().y + dm_get_text_box_lower().h*4/6;
-			b.h = dm_get_text_box_lower().h/6;
 			text_h = dm_get_h_bottom_msg();
+			b = dm_get_text_box_lower(); 
+			b.y += (dm_get_text_box_lower().h/2 - text_h - offset);
 			break;
 		case TX_CODE_BOX:
 			b = dm_get_text_box_code(); 
@@ -195,10 +193,10 @@ void tx_bottom_msg(int pos, int msg_id)
 			text_h = dm_get_h_msg();
 			break;
 		case TX_BIG_BOX:
-			b = dm_get_text_box_big();
-			b.y = dm_get_text_box_big().y + dm_get_text_box_big().h*4/6;
-			b.h = dm_get_text_box_big().h/6;
 			text_h = dm_get_h_msg();
+			int h = a->size*text_h;
+			b = dm_get_text_box_big();
+			b.y = dm_get_text_box_big().y + dm_get_text_box_big().h/2 - h;
 			break;
 		case TX_ERROR_BOX:
 			b = dm_get_text_box_error(); 
