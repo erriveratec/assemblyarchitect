@@ -3,12 +3,12 @@
 
 #include <SDL.h>
 
-extern texture_array_t *g_studio_name;
 extern texture_array_t *g_game_title;
 extern texture_t *g_press_space;
 extern texture_t *g_win_text;
 extern texture_t *g_title_background;
 extern texture_t *g_logo;
+extern texture_t *g_chip;
 
 extern bool g_quit;
 

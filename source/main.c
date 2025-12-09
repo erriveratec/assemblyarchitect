@@ -33,9 +33,6 @@ static void initialize_game_assets();
  */
 static void initialize_game_assets()
 {
-//	SDL_Rect studio = dm_get_studio_name_msg_box();
-//	g_studio_name = dw_new_text_texture_by_h(studio.w, studio.h, C_SILVERGREY, 
-//											 STUDIO_NAME_TEXT);
 	SDL_Rect title = dm_get_game_title_box();	
 	g_game_title = dw_new_text_texture_by_h(title.w, title.h, C_SILVERGREY, 
 											GAME_TITLE_TEXT);

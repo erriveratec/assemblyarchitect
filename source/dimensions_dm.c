@@ -56,7 +56,7 @@
 #define W_PADDING 12
 #define H_PADDING 10
 #define BUT_PADDING 25
-#define IFACE_BORDER_OFS 3
+#define IFACE_BORDER_OFS 4
 #define IFACE_FILLED_OFS 15
 #define BUTTON_SHADOW_OFS 10
 #define SCREEN_BORDERS_OFS 2
@@ -68,12 +68,17 @@
 #define TITLE_H	140
 #define TITLE_Y	80
 
-#define STUDIO_W 600
-#define STUDIO_H 600
+#define TITLE_IMG_H 475
+#define TITLE_IMG_W 475
+#define TITLE_IMG_Y 275
 
 #define PRESS_W 1000
 #define PRESS_H 60
 #define PRESS_Y 750
+
+
+#define STUDIO_W 600
+#define STUDIO_H 600
 
 int g_res_id;
 int g_screen_width;
@@ -1460,6 +1465,26 @@ SDL_Rect dm_get_studio_name_msg_box()
 	b.h = scale_to_resolution(STUDIO_H);
 	b.x = 0;
 	b.y = (g_screen_height - b.h)/2;
+	return b;
+}
+
+/* Function: dm_get_game_title_img_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object.
+ */
+SDL_Rect dm_get_game_title_img_box()
+{
+	SDL_Rect b;
+	b.w = scale_to_resolution(TITLE_IMG_W);
+	b.h = scale_to_resolution(TITLE_IMG_H);
+	b.x = (g_screen_width - b.w)/2;
+	b.y = scale_to_resolution(TITLE_IMG_Y);
 	return b;
 }
 

@@ -48,12 +48,12 @@ typedef struct level_flags_t{
 int g_player = FL_NO_PLAYER;
 static SDL_Rect result_box;
 
-texture_array_t *g_studio_name = NULL;
 texture_array_t *g_game_title = NULL;
 texture_t *g_press_space = NULL;
 texture_t *g_win_text = NULL;
 texture_t *g_title_background = NULL;
 texture_t *g_logo = NULL;
+texture_t *g_chip = NULL;
 
 void stage_drawings(int level);
 static code_line_t *pending_operand_handler();
@@ -166,14 +166,25 @@ int stage_title(const Uint8 *keystate)
 	int h = dm_get_screen_height();
 	SDL_Rect screen = {0, 0, w, h};
 	dw_draw_texture_fits_width(screen, g_title_background);
+	
+
 	SDL_Rect t = dm_get_game_title_box();
 	dw_draw_wrapped_texture_by_h(t, t.h, g_game_title);
+
+	SDL_Rect img =  dm_get_game_title_img_box();
+
+	SDL_SetTextureColorMod(g_chip->texture, 192, 192, 192);
+	dw_draw_texture_fits_height(img, g_chip);
 
 	SDL_Rect s = dm_get_press_space_box();
 	s.x = (w - get_text_width_fits_height(s.h, PRESS_SPACE_TEXT))/2;
 	dw_draw_texture_fits_height(s, g_press_space);
 
 	if (keystate[SDL_SCANCODE_SPACE]){
+		dw_free_texture(g_chip);
+		dw_free_texture(g_title_background);
+		dw_free_texture(g_press_space);
+		dw_free_texture_array(g_game_title);
 		ret_val = LV_SELECT_PLAYER_SCREEN;
 	} else {
 		ret_val = LV_TITLE_SCREEN;
@@ -204,8 +215,8 @@ int stage_studio(Uint64 start_time, Uint64 cur_time)
 	int w = ax_get_texture_w_fit_h(b.h, g_logo);
 	b.x = (dm_get_screen_width() - w)/2;
 	b.w = w;
+	SDL_SetTextureColorMod(g_logo->texture, 192, 192, 192);
 	dw_draw_texture_fits_height(b, g_logo);
-	//dw_draw_wrapped_texture_by_h(b, b.h, g_studio_name);
 	
 	if (delay > STUDIO_SCREEN_DELAY){
 		dw_free_texture(g_logo);

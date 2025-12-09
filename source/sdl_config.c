@@ -200,6 +200,14 @@ int load_media()
 		return FAIL;
 	}
 
+	g_chip = load_texture_from_file("img/chip.png");
+	if (return_button == NULL){
+		printf("Could not load the level image SDL_Error: %s\n",
+				SDL_GetError());
+		return FAIL;
+	}
+
+
 	//Open the font
 //	g_font = TTF_OpenFont("AnomalyMono.ttf", 130); //96 old value point size
 	g_font = TTF_OpenFont("DOSVGA437.ttf", 130); //96 old value point size
