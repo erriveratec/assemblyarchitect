@@ -44,7 +44,7 @@
 
 #define CODE_BUTTON_W 90
 #define CODE_BUTTON_H 40
-#define COMMA_OFS 15
+#define COMMA_OFS 10
 
 #define ESC_MENU_BUTTON_W 350
 #define ESC_MENU_BUTTON_H 60
