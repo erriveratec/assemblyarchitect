@@ -21,8 +21,8 @@
 " that specific set of values"
 #define EXCEEDS_CODE_LIMIT_TEXT "ERROR: Correct output but exceeds code size"\
 " limit"
-#define OUTPUT_BUFFER_INCOMPLETE_TEXT "ERROR: Run finished and there are"\
-" no enough elements in the Output Buffer [OB]"
+#define OUTPUT_BUFFER_INCOMPLETE_TEXT "ERROR: "\
+"Not enough items in the Output Buffer [ob] after run"
 
 texture_array_t *ib_empty;
 texture_array_t *reg_val_bad;
@@ -167,7 +167,7 @@ bool mc_invalid_operation_handler(int id)
 
 	bool reset_level = false;
 	SDL_Rect r = dm_get_text_box_result();
-	dw_draw_filled_rectangle(r, C_LIGHTGREY, C_LIGHTGREY);
+	dw_draw_iface_box(r);
 	texture_array_t *message;
 	
 	switch(id){
