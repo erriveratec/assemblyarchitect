@@ -19,7 +19,7 @@ To the Output Buffer [ob]
 MSG_END
 
 MSG 05
-Values loaded from [ib] must go to a register first
+Values loaded from [ib] must go to a register
 MSG_END
 
 MSG 06

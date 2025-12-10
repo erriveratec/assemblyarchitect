@@ -15,8 +15,8 @@
 
 static List *code_list = NULL;
 
-static SDL_Rect code_box;
-static SDL_Rect text_box;
+static SDL_Rect g_code_box;
+static SDL_Rect g_text_box;
 
 texture_array_t *g_challenge_text;
 texture_t *g_stage_name;
@@ -961,7 +961,7 @@ void cw_destroy_code_window_assets()
  */
 static SDL_Rect get_code_box()
 {
-	return code_box;
+	return g_code_box;
 }
 
 /* Function: set_code_box_member
@@ -982,16 +982,16 @@ static void set_code_box_member(int value, int member)
 	switch (member){
 		
 		case MEMBER_X:
-			code_box.x = value;
+			g_code_box.x = value;
 			break;
 		case MEMBER_Y:
-			code_box.y = value;
+			g_code_box.y = value;
 			break;
 		case MEMBER_W:
-			code_box.w = value;
+			g_code_box.w = value;
 			break;
 		case MEMBER_H:
-			code_box.h = value;
+			g_code_box.h = value;
 			break;
 		default:
 			perror("Error: defaulting on invalid case");
@@ -1018,16 +1018,16 @@ static void set_text_box_member(int value, int member)
 	switch (member){
 		
 		case MEMBER_X:
-			text_box.x = value;
+			g_text_box.x = value;
 			break;
 		case MEMBER_Y:
-			text_box.y = value;
+			g_text_box.y = value;
 			break;
 		case MEMBER_W:
-			text_box.w = value;
+			g_text_box.w = value;
 			break;
 		case MEMBER_H:
-			text_box.h = value;
+			g_text_box.h = value;
 			break;
 		default:
 			perror("Error: defaulting on invalid case");
@@ -1050,7 +1050,7 @@ static void set_text_box_member(int value, int member)
  */
 SDL_Rect cw_get_text_box_rect()
 {
-	return text_box;
+	return g_text_box;
 }
 
 /* Function: check_if_inside_code_window
@@ -1069,8 +1069,8 @@ static bool check_if_inside_code_window(){
 	int mouse_x = ms_get_mouse_x();
 	int mouse_y = ms_get_mouse_y();
 
-	if (mouse_x > code_box.x && mouse_x < (code_box.x + code_box.w) &&
-		mouse_y > code_box.y && mouse_y < (code_box.y + code_box.h)) {
+	if (mouse_x > g_code_box.x && mouse_x < (g_code_box.x + g_code_box.w) &&
+		mouse_y > g_code_box.y && mouse_y < (g_code_box.y + g_code_box.h)) {
 		return true;
 	} else {
 		return false;
@@ -1111,16 +1111,16 @@ void cw_set_challenge_text(char *text)
  */
 void cw_set_code_box(SDL_Rect r)
 {
-	code_box.x = r.x;
-	code_box.y = r.y;
-	code_box.w = r.w;
-	code_box.h = r.h;
+	g_code_box.x = r.x;
+	g_code_box.y = r.y;
+	g_code_box.w = r.w;
+	g_code_box.h = r.h;
 
 	int w = dm_get_w_code_box_text();
 	int h = dm_get_h_msg();
 
 	int text_h = dm_get_h_big_text();
-	int border_ofs = dm_get_w_iface_but_padding();
+	int border_ofs = dm_get_w_button_padding();
 	int text_box_height = g_challenge_text->size * h;
 	set_text_box(r.x + border_ofs, r.y + border_ofs + text_h + border_ofs, w, 
 															   text_box_height);
@@ -1141,10 +1141,10 @@ void cw_set_code_box(SDL_Rect r)
  */
 static void set_text_box(int x, int y, int w, int h)
 {
-	text_box.x = x;
-	text_box.y = y;
-	text_box.w = w;
-	text_box.h = h;
+	g_text_box.x = x;
+	g_text_box.y = y;
+	g_text_box.w = w;
+	g_text_box.h = h;
 }
 
 
@@ -1199,11 +1199,8 @@ static void code_box_height_adjust()
 	if (CODE_LINES_SIZE < list_size){
 		
 		int increase_size = (list_size - CODE_LINES_SIZE)*cbut.h;
-		
 		int new_bottom_border = codbox.y + ogcodbox.h + increase_size;
-
 		int cur_bottom_border = codbox.h + codbox.y;
-
 		int delta = get_movement_delta(cur_bottom_border, new_bottom_border, 
 									   MOVEMENT_DELTA/2);
 		
@@ -1291,16 +1288,16 @@ void cw_draw_code_window()
 		adjust_code_box_position();
 	}
 	
-	dw_draw_thick_rect(code_box, dm_get_w_borders(), C_GREY);
+	dw_draw_thick_rect(g_code_box, dm_get_w_borders(), C_GREY);
 
 	display_player_code();
 	display_line_number();
 
 	int h = dm_get_h_msg();
-	dw_draw_wrapped_texture_by_h(text_box, h, g_challenge_text);
+	dw_draw_wrapped_texture_by_h(g_text_box, h, g_challenge_text);
 
 	// Text rectangle
-	dw_draw_rectangle(text_box, C_GREY);
+	dw_draw_rectangle(g_text_box, C_GREY);
 	
 	
 	// Text of the level
@@ -1308,8 +1305,8 @@ void cw_draw_code_window()
 	int border_ofs = dm_get_w_border_padding();
 	int text_h = dm_get_h_big_text();
 	int w = ax_get_texture_w_fit_h(text_h, g_stage_name);
-	SDL_Rect b = {.x = code_box.x + border_ofs, 
-				  .y = code_box.y + border_ofs,
+	SDL_Rect b = {.x = g_code_box.x + border_ofs, 
+				  .y = g_code_box.y + border_ofs,
 				  .h = text_h};
 	dw_draw_texture_fits_height(b, g_stage_name);
 }

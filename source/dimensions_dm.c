@@ -281,7 +281,7 @@ int dm_get_ofs_buffer_value_box()
  */
 int dm_get_w_code_box_text()
 {
-	int ofs = dm_get_w_iface_but_padding();
+	int ofs = dm_get_w_border_padding();
 	SDL_Rect cb = dm_get_stage_code_box();
 	int w = cb.w - 2*ofs;
 	return w;
@@ -347,7 +347,7 @@ int dm_get_h_padding()
 	return scale_to_resolution(H_PADDING);
 }
 
-/* Function: dm_get_w_iface_but_padding
+/* Function: dm_get_w_button_padding
  * -----------------------------------------------------------------------------
  *	Returns the scale value for the horizontal padding
  *
@@ -357,7 +357,7 @@ int dm_get_h_padding()
  * Return:
  *	int with the offset
  */
-int dm_get_w_iface_but_padding()
+int dm_get_w_button_padding()
 {
 	return scale_to_resolution(W_PADDING) + 
 	       scale_to_resolution(IFACE_BUTTON_BORDER_W);
@@ -373,13 +373,11 @@ int dm_get_w_iface_but_padding()
  * Return:
  *	int with the offset
  */
-int dm_get_h_iface_but_padding()
+int dm_get_h_button_padding()
 {
 	return scale_to_resolution(H_PADDING) + 
 		   scale_to_resolution(IFACE_BUTTON_BORDER_W);
 }
-
-
 
 
 /* Function: dm_get_h_stage_titles
@@ -772,7 +770,7 @@ SDL_Rect dm_get_text_box_lower()
 	b.w = mb.w;
 	b.h = mb.h;
 	b.x = g_screen_width/2 - mb.w/2;
-	b.y = g_screen_height - b.h - dm_get_h_iface_but_padding();
+	b.y = g_screen_height - b.h - dm_get_h_button_padding();
 	return b;
 }
 
