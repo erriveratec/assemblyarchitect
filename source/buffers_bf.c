@@ -22,8 +22,8 @@
 #define NATURAL_NMAX 9
 #define NATURAL_NMIN 1
 
-#define INPUT_BUFFER_TEXT "Input Buffer [IB]"
-#define OUTPUT_BUFFER_TEXT "Output Buffer [OB]"
+#define INPUT_BUFFER_TEXT "Input Buffer [ib]"
+#define OUTPUT_BUFFER_TEXT "Output Buffer [ob]"
 #define OUTPUT_BUFFER_WIN_X 10000
 
 texture_t *input_text; 

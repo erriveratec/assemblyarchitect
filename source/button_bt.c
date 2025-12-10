@@ -155,8 +155,8 @@ void bt_draw_iface_btn(iface_btn_t *b)
 		dw_draw_rectangle(in, C_WHITE);
 	}
 	
-	int w_pad = dm_get_w_padding();
-	int h_pad = dm_get_h_padding();
+	int w_pad = dm_get_w_iface_but_padding();
+	int h_pad = dm_get_h_iface_but_padding();
 	
 	float scale_w = (float)(b->r.w - 2*w_pad)/b->t->w;
 	float scale_h = (float)(b->r.h - 2*h_pad)/b->t->h;
@@ -242,8 +242,8 @@ void bt_draw_button(button_t *b, bool padding)
 	int h_pad = 0;
 
 	if (padding == true){
-		w_pad = dm_get_w_padding();
-		h_pad = dm_get_h_padding();
+		w_pad = dm_get_w_iface_but_padding();
+		h_pad = dm_get_h_iface_but_padding();
 	}
 
 	if (scale_w < scale_h){

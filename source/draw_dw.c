@@ -25,12 +25,50 @@ SDL_Color C_DIMGREY = {64, 64, 64, 255};
 SDL_Color C_DARKGREY = {31, 31, 31, 255};
 SDL_Color C_AMBER = {0xFF, 0xBF, 0x00, 255};
 
-
-
 texture_t *g_arrow = NULL;
 
 static void draw_text(int x, int y, float s, SDL_Color c, char *t);
 static int draw_scaled_texture(int x, int y, float s, texture_t *t);
+
+/* Function: dw_draw_thick_rect
+ * -----------------------------------------------------------------------------
+ * Draws a rectangle with a given thickness
+ * 
+ * Arguments:
+ *	b: The box where the rectangle will be drawn
+ * 	w: The width of the rectangle line
+ * 	c: The color of the line of the rectangle
+ *	 
+ * Return:
+ *	Void.
+ */
+void dw_draw_thick_rect(SDL_Rect b, int w, SDL_Color c)
+{
+	dw_draw_filled_rectangle(b, c, c);
+	b.x += w;
+	b.y += w;
+	b.w -= 2*w;
+	b.h -= 2*w;
+	dw_draw_filled_rectangle(b, C_BLACK, C_BLACK);
+}
+
+/* Function: dw_draw_iface_box
+ * -----------------------------------------------------------------------------
+ * Drawns an interface box with the assigned colors
+ * 
+ * Arguments:
+ *	b: The box where the rectangle will be drawn
+ *	 
+ * Return:
+ *	Void.
+ */
+void dw_draw_iface_box(SDL_Rect b)
+{
+	dw_draw_filled_rectangle(b, C_GREY, C_SILVERGREY);
+	int offset = dm_get_ofs_iface_filled_border();
+	SDL_Rect in = ax_pad_rectangle(b, offset, true);
+	dw_draw_filled_rectangle(in, C_LIGHTGREY, C_DARKGREY);
+}
 
 /* Function: dw_draw_rotated_texture_fits_height
  * -----------------------------------------------------------------------------

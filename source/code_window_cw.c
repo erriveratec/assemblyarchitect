@@ -650,7 +650,7 @@ void cw_add_saved_line(char *line)
 
 	SDL_Rect cb = dm_get_code_button_wh();
 	for (int i = 0; i <= list_size; i++){
-		y += cb.h;
+		y += dm_get_h_between_code();
 	}
 	
 	SDL_Rect r = dm_get_code_button_wh();
@@ -1120,7 +1120,7 @@ void cw_set_code_box(SDL_Rect r)
 	int h = dm_get_h_msg();
 
 	int text_h = dm_get_h_big_text();
-	int border_ofs = dm_get_w_padding();
+	int border_ofs = dm_get_w_iface_but_padding();
 	int text_box_height = g_challenge_text->size * h;
 	set_text_box(r.x + border_ofs, r.y + border_ofs + text_h + border_ofs, w, 
 															   text_box_height);
@@ -1163,14 +1163,14 @@ static void set_text_box(int x, int y, int w, int h)
 int cw_get_code_line_x(int instruction_id)
 {
 	int x;  
-	int number_ofs = dm_get_ofs_code_number();
+	int number_ofs = dm_get_w_border_padding();
 	SDL_Rect sb = dm_get_stage_code_box();
 	int number_h = dm_get_h_line_number();
 	int number_w = ax_get_texture_w_fit_h(number_h, g_numbers[0]);
 	if (instruction_id == LABEL){
 		x = sb.x;
 	} else {
-		x = sb.x + number_ofs + number_w*3/2;	
+		x = sb.x + number_ofs + number_w; 	
 	}
 	return x;
 }
@@ -1290,11 +1290,8 @@ void cw_draw_code_window()
 	if (check_if_inside_code_window() == true){
 		adjust_code_box_position();
 	}
-	// Draw the rectangle of the code and instructions
-	dw_draw_filled_rectangle(code_box, C_GREY, C_GREY);
-	SDL_Rect r = {.x = code_box.x + 3, .y = code_box.y + 3, 
-				 .w = code_box.w - 6, .h = code_box.h - 6};
-	dw_draw_filled_rectangle(r, C_BLACK, C_BLACK);
+	
+	dw_draw_thick_rect(code_box, dm_get_w_borders(), C_GREY);
 
 	display_player_code();
 	display_line_number();
@@ -1308,7 +1305,7 @@ void cw_draw_code_window()
 	
 	// Text of the level
 
-	int border_ofs = dm_get_w_padding();
+	int border_ofs = dm_get_w_border_padding();
 	int text_h = dm_get_h_big_text();
 	int w = ax_get_texture_w_fit_h(text_h, g_stage_name);
 	SDL_Rect b = {.x = code_box.x + border_ofs, 
@@ -1338,7 +1335,7 @@ static void display_player_code()
 		return;
 	}
 	SDL_Rect cb = dm_get_code_button_wh();
-	int number_ofs = dm_get_ofs_code_number();
+	int number_ofs = dm_get_w_border_padding();
 	LIST_FOREACH(code, first, next, cur){
 		code_line_t *line = cur->value;	
 		bt_draw_button(line->ins->b, false);
@@ -1420,7 +1417,7 @@ void display_line_number()
 	}
 
 	SDL_Rect cb = dm_get_code_button_wh();
-	int number_ofs = dm_get_ofs_code_number();
+	int number_ofs = dm_get_w_border_padding();
 	SDL_Rect sb = dm_get_stage_code_box();
 	int x = sb.x + number_ofs;
 	int y = cw_get_code_line_y(0);
@@ -1435,7 +1432,7 @@ void display_line_number()
 			dw_draw_texture_fits_height(r, g_numbers[line_number]);
 			line_number++;
 		}
-		y += cb.h;
+		y += dm_get_h_between_code();
 	}
 }
 
@@ -1455,18 +1452,17 @@ int cw_get_code_line_y(int pos)
 	assert(code != NULL && "The code list can't be NULL");
 	
 	int list_size = List_count(code);
-	int border_ofs = dm_get_w_padding();
+	int border_ofs = dm_get_h_border_padding() + dm_get_h_padding();
 	SDL_Rect tb = cw_get_text_box_rect();
 	int y = tb.y + tb.h + border_ofs;
 
 	if (list_size == 0 || pos == 0){
 		return y;
 	}
-
-	SDL_Rect cb = dm_get_code_button_wh();
 	
+	SDL_Rect cb = dm_get_code_button_wh();
 	for(int i = 0; i < list_size; i++){
-		y += cb.h;
+		y += dm_get_h_between_code();
 		if (pos == i){
 			break;
 		}
@@ -1517,7 +1513,7 @@ SDL_Rect cw_get_code_line_coord_at_pos(int code_line_element, int pos)
 	
 
 	for(int i = 0; i < list_size; i++){
-		cl.y += cb.h;
+		cl.y += dm_get_h_between_code();
 		if (pos == i){
 			break;
 		}
@@ -1579,7 +1575,8 @@ void cw_sort_code()
 				line->op2->b->r.x = line->ins->b->r.x + op2_ofs;
 				line->op2->b->r.y = line->ins->b->r.y;
 		}
-		y += h;
+		y += dm_get_h_between_code();
+
 	}
 	return ;
 }
@@ -1665,7 +1662,7 @@ int get_code_line_position(int y)
 		if(y >= first_y && y < first_y + h){
 			return i;
 		}
-		first_y += h;
+		first_y += dm_get_h_between_code();
 	}	
 	return NOT_FOUND;
 }
@@ -1765,7 +1762,7 @@ static bool chk_sel_line_in_pos(code_line_t *line)
 					ret =  true;	
 				}
 			}
-			y += h;
+			y += dm_get_h_between_code();
 		}
 	}
 	return ret;
@@ -2031,7 +2028,7 @@ bool cw_check_code_sorted()
 			retval = false;
 			break;
 		} 
-		y += h;
+		y += dm_get_h_between_code();
 	}	
 	return retval;
 }

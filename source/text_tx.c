@@ -61,7 +61,7 @@ void tx_set_message_in_array(int pos, char *msg)
 	pos--; // array starts at zero
 
 	int h = (pos == 0) ? dm_get_h_big_text() : dm_get_h_msg();
-	int w = dm_get_w_msg();
+	int w = dm_get_w_msg(dm_get_box_msg_wh());
 	g_msgs[pos] = dw_new_text_texture_by_h(w, h, C_BLACK, msg);
 }
 
@@ -82,7 +82,7 @@ void tx_init_global_msgs()
 
 	int text_h = dm_get_h_bottom_msg();
 	
-	int w = dm_get_w_msg();
+	int w = dm_get_w_msg(dm_get_box_msg_wh());
 	g_gbl_msgs[TX_MSG_CLICKANY] = dw_new_text_texture_by_h(w, text_h, C_BLACK, 
 															MSG_CLICKANY);
 	g_gbl_msgs[TX_MSG_PRESSPLAY] = dw_new_text_texture_by_h(w, text_h, 
@@ -262,10 +262,7 @@ void tx_text_box(int pos, int msg_id)
 			text_h = dm_get_h_msg();
 			break;
 	}
-	dw_draw_filled_rectangle(b, C_GREY, C_SILVERGREY);
-	int offset = dm_get_ofs_iface_filled_border();
-	SDL_Rect in = ax_pad_rectangle(b, offset, true);
-	dw_draw_filled_rectangle(in, C_LIGHTGREY, C_DARKGREY);
+	dw_draw_iface_box(b);
 	dw_draw_wrapped_texture_by_h(b, text_h, a);
 }
 

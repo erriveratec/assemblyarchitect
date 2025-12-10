@@ -11,19 +11,19 @@ First, read the challenge description
 MSG_END
 
 MSG 03
-Objective: move items from the Input Buffer [IB]
+Objective: move items from the Input Buffer [ib]
 MSG_END
 
 MSG 04
-To the Output Buffer [OB]
+To the Output Buffer [ob]
 MSG_END
 
 MSG 05
-Values loaded from [IB] must go to a register first
+Values loaded from [ib] must go to a register first
 MSG_END
 
 MSG 06
-Drag the "MOV" instruction from the instruction box
+Drag the MOV instruction from the instruction box
 MSG_END
 
 MSG 07
@@ -31,23 +31,23 @@ Drop the instruction in the code box
 MSG_END
 
 MSG 08
-Select "rax" as the destination operand
+Select rax as the destination operand
 MSG_END
 
 MSG 09
-Select the Input Buffer [IB] as the source operand
+Select the Input Buffer [ib] as the source operand
 MSG_END
 
 MSG 10
-Press the play button to see what the instruction does
+Press the PLAY button to see what the instruction does
 MSG_END
 
 MSG 11
-The value was moved to rax but not to the Output Buffer [OB]
+The value was moved to rax but not to the Output Buffer [ob]
 MSG_END
 
 MSG 12
-Select and drag another "mov" instruction from the instruction box
+Select and drag another MOV instruction from the instruction box
 MSG_END
 
 MSG 13
@@ -55,7 +55,7 @@ Drop the instruction in the code box below the previous instruction
 MSG_END
 
 MSG 14
-Select the Output Buffer [OB] as the destination operand
+Select the Output Buffer [ob] as the destination operand
 MSG_END
 
 MSG 15
@@ -97,7 +97,7 @@ Click the source operand of the instruction to change it
 MSG_END
 
 MSG 06
-Select the Input Buffer [IB] as the source operand
+Select the Input Buffer [ib] as the source operand
 MSG_END
 
 MSG 07
@@ -119,7 +119,7 @@ Level 03
 MSG_END
 
 MSG 02
-A value retrieved from the Input Buffer [IB] can only be read once
+A value retrieved from the Input Buffer [ib] can only be read once
 MSG_END
 
 MSG 03
@@ -127,7 +127,7 @@ A value stored on a register can be read multiple times
 MSG_END
 
 MSG 04
-Select and drag the "mov" instruction from the instruction box
+Select and drag the MOV instruction from the instruction box
 MSG_END
 
 MSG 05
@@ -139,7 +139,7 @@ All available operands for selection will be pointed with an arrow
 MSG_END
 
 MSG 07
-Select "rax"
+Select rax
 MSG_END
 
 MSG 08
@@ -147,16 +147,16 @@ Only valid operands combinations will be available for selection
 MSG_END
 
 MSG 09
-Select Input Buffer [IB]
+Select Input Buffer [ib]
 MSG_END
 
 MSG 10
-Use more "mov" instructions to solve the challenge
+Use more mov instructions to solve the challenge
 MSG_END
 
 MSG 11
 Use
-"mov [OB], rax"
+"MOV [ob], rax"
 several times to solve the challenge
 MSG_END
 
@@ -199,7 +199,7 @@ Level 06
 MSG_END
 
 MSG 02
-Notice that there is a new instruction available: "add"
+Notice that there is a new instruction available: ADD
 MSG_END
 
 MSG 03
@@ -223,13 +223,13 @@ Level 07
 MSG_END
 
 MSG 02
-Did you know that "mov" "add" can be used with both operands being registers?
+Did you know that MOV and ADD can be used with both operands being registers?
 MSG_END
 
 MSG 03
 Example:
-"mov rbx, rax"
-moves the value from "rax" to "rbx"
+MOV rbx, rax
+moves the value from rax to rbx
 MSG_END
 
 +++LEVEL ENDS 07
@@ -243,12 +243,12 @@ Level 08
 MSG_END
 
 MSG 02
-Both operands of instructions "mov" "add" can be the same register
+Both operands of instructions MOV and ADD can be the same register
 MSG_END
 
 MSG 03
 Example:
-"add rax, rax"
+ADD rax, rax
 does rax + rax and stores the result in rax
 MSG_END
 
@@ -267,19 +267,19 @@ Notice that you can only use 3 instructions to solve the challenge
 MSG_END
 
 MSG 03
-The "jmp" instruction jumps to another line of code
+The JMP instruction jumps to another line of code
 MSG_END
 
 MSG 04
-Select and drag a "jmp" instruction
+Select and drag a JMP instruction
 MSG_END
 
 MSG 05
-Place the "jmp" instruction in the code box at the last position
+Place the JMP instruction in the code box at the last position
 MSG_END
 
 MSG 06
-Place the "jmp" destination "LINE" above the first line of code
+Place the JMP destination "line" above the first line of code
 MSG_END
 
 +++LEVEL ENDS 09

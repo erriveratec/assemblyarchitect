@@ -10,10 +10,10 @@
 static operand_t *copy_operand(operand_t *op);
 bool check_valid_operand(int id);
 
-char *add_text = "add";
-char *mov_text = "mov";
-char *label_text = "LINE";
-char *jmp_text = "jmp";
+char *add_text = "ADD";
+char *mov_text = "MOV";
+char *label_text = "line";
+char *jmp_text = "JMP";
 char *rax_text = "rax";
 char *rbx_text = "rbx";
 char *rcx_text = "rcx";

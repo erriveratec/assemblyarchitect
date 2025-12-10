@@ -806,7 +806,7 @@ static void level_1_tutorial()
 		tx_text_box(TX_CODE_BOX, MSG7); // Drop ins in code box
 		ar_display_arrow(AR_DROP);
 	} else if (size == 1 && sorted == true && miss_op1 == true){
-		tx_text_box(TX_LOWER_BOX, MSG8);//Select rax
+		tx_text_box(TX_CENTER_BOX, MSG8);//Select rax
 		set_code_editable(false, NO_EXCEPTION);
 		set_buf_selectable(false);
 		set_reg_selectable(true);

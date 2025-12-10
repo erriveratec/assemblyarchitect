@@ -60,13 +60,13 @@
 
 // Level specific instructions
 // ----- LEVEL 2 ----
-#define STR_L2_CODE_1 "mov [ob], rax\n"
-#define STR_L2_CODE_2 "mov rax, rax\n"
-#define STR_L2_CODE_3 "mov rax, rax\n"
+#define STR_L2_CODE_1 "MOV [ob], rax\n"
+#define STR_L2_CODE_2 "MOV rax, rax\n"
+#define STR_L2_CODE_3 "MOV rax, rax\n"
 
 // ----- LEVEL 9 ----
-#define STR_L9_CODE_1 "mov rax, [ib]\n"
-#define STR_L9_CODE_2 "mov [ob], rax\n"
+#define STR_L9_CODE_1 "MOV rax, [ib]\n"
+#define STR_L9_CODE_2 "MOV [ob], rax\n"
 
 
 static char *get_level_id_string(int level_id);

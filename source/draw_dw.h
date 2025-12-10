@@ -32,6 +32,9 @@ void dw_draw_wrapped_texture_by_h(SDL_Rect r, int h, texture_array_t *a);
 void dw_draw_rotated_texture_fits_h(int x, int y, int h, double angle, 
 															      texture_t *t);
 
+void dw_draw_iface_box(SDL_Rect r);
+void dw_draw_thick_rect(SDL_Rect r, int w, SDL_Color c);
+
 extern SDL_Color C_WHITE;
 extern SDL_Color C_BLACK;
 extern SDL_Color C_RED;

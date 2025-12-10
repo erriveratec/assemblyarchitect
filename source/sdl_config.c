@@ -209,10 +209,7 @@ int load_media()
 
 
 	//Open the font
-//	g_font = TTF_OpenFont("AnomalyMono.ttf", 130); //96 old value point size
 	g_font = TTF_OpenFont("DOSVGA437.ttf", 130); //96 old value point size
-//	g_font = TTF_OpenFont("VT323.ttf", 130); //96 old value point size
-	//g_font = TTF_OpenFont("EnigmaSans.ttf", 96); //96 old value point size
 	if (NULL == g_font){
 		printf("Failed to load font! SDL_ttf Error: %s\n", 
 				TTF_GetError());

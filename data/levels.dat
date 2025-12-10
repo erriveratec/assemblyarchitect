@@ -1,14 +1,14 @@
 +++LEVEL STARTS 01
 
 ChallengeTextBegin
-"Move the value from the Input Buffer [IB] to the Output Buffer [OB]"
+"Move the value from the Input Buffer [ib] to the Output Buffer [ob]"
 ChallengeTextEnd
 
 InputSize 1
 InputType Natural
 
 InstructionsBegin
-mov
+MOV
 InstructionsEnd
 
 RegistersBegin
@@ -26,14 +26,14 @@ WinConditionEnd
 +++LEVEL STARTS 02
 
 ChallengeTextBegin
-"Move the values from the Input Buffer [IB] to the Output Buffer [OB], using maximun 2 instructions"
+"Move the values from the Input Buffer [ib] to the Output Buffer [ob], using maximun 2 instructions"
 ChallengeTextEnd
 
 InputSize 1
 InputType Natural
 
 InstructionsBegin
-mov
+MOV
 InstructionsEnd
 
 RegistersBegin
@@ -51,14 +51,14 @@ WinConditionEnd
 +++LEVEL STARTS 03
 
 ChallengeTextBegin
-"Move the value from the Input Buffer [IB] and copy it to the Output Buffer [OB] three times"
+"Move the value from the Input Buffer [ib] and copy it to the Output Buffer [ob] three times"
 ChallengeTextEnd
 
 InputSize 1
 InputType Natural
 
 InstructionsBegin
-mov
+MOV
 InstructionsEnd
 
 RegistersBegin
@@ -76,14 +76,14 @@ WinConditionEnd
 +++LEVEL STARTS 04
 
 ChallengeTextBegin
-"Move the values from the Input Buffer [IB] to the Output Buffer [OB]"
+"Move the values from the Input Buffer [ib] to the Output Buffer [ob]"
 ChallengeTextEnd
 
 InputSize 3
 InputType Natural
 
 InstructionsBegin
-mov
+MOV
 InstructionsEnd
 
 RegistersBegin
@@ -101,14 +101,14 @@ InstructionLimit 99
 +++LEVEL STARTS 05
 
 ChallengeTextBegin
-"Move the value from the Input Buffer [IB] to the Output Buffer [OB] in reverse order"
+"Move the value from the Input Buffer [ib] to the Output Buffer [ob] in reverse order"
 ChallengeTextEnd
 
 InputSize 3
 InputType Natural
 
 InstructionsBegin
-mov
+MOV
 InstructionsEnd
 
 RegistersBegin
@@ -128,15 +128,15 @@ WinConditionEnd
 +++LEVEL STARTS 06
 
 ChallengeTextBegin
-"Add the values received from the Input Buffer [IB] in pairs and put the result in the Output Buffer [OB]"
+"Add the values received from the Input Buffer [ib] in pairs and put the result in the Output Buffer [ob]"
 ChallengeTextEnd
 
 InputSize 4
 InputType Natural
 
 InstructionsBegin
-mov
-add
+MOV
+ADD
 InstructionsEnd
 
 RegistersBegin
@@ -154,15 +154,15 @@ WinConditionEnd
 +++LEVEL STARTS 07
 
 ChallengeTextBegin
-"Take the value received from the Input Buffer [IB], multiply it by 2 and put it in the Output Buffer [OB]"
+"Take the value received from the Input Buffer [ib], multiply it by 2 and put it in the Output Buffer [ob]"
 ChallengeTextEnd
 
 InputSize 1
 InputType Natural
 
 InstructionsBegin
-mov
-add
+MOV
+ADD
 InstructionsEnd
 
 RegistersBegin
@@ -181,15 +181,15 @@ WinConditionEnd
 +++LEVEL STARTS 08
 
 ChallengeTextBegin
-"Take the value received from the Input Buffer [IB], multiply it by 4 and put it in the Output Buffer [OB]"
+"Take the value received from the Input Buffer [ib], multiply it by 4 and put it in the Output Buffer [ob]"
 ChallengeTextEnd
 
 InputSize 1
 InputType Natural
 
 InstructionsBegin
-mov
-add
+MOV
+ADD
 InstructionsEnd
 
 RegistersBegin
@@ -207,16 +207,16 @@ WinConditionEnd
 +++LEVEL STARTS 09
 
 ChallengeTextBegin
-"Move the values from the Input Buffer [IB] to the Output Buffer [OB], using maximum 3 instructions"
+"Move the values from the Input Buffer [ib] to the Output Buffer [ob], using maximum 3 instructions"
 ChallengeTextEnd
 
 InputSize 5
 InputType Natural
 
 InstructionsBegin
-mov
-add
-jmp
+MOV
+ADD
+JMP
 InstructionsEnd
 
 RegistersBegin
@@ -243,8 +243,8 @@ InputSize 5
 InputType Natural
 
 InstructionsBegin
-mov
-jmp
+MOV
+JMP
 InstructionsEnd
 
 RegistersBegin

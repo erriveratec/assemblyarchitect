@@ -42,7 +42,7 @@
 #define P_BUTTON_H 200
 #define P_BUTTON_W 200
 
-#define CODE_BUTTON_W 75
+#define CODE_BUTTON_W 90
 #define CODE_BUTTON_H 40
 #define COMMA_OFS 10
 
@@ -67,12 +67,12 @@
 #define H_PADDING 10
 #define BUT_PADDING 25
 
-#define IFACE_BORDER_OFS 4 // Used for the buttons
+#define IFACE_BUTTON_BORDER_W 4 // Used for the buttons
 #define IFACE_FILLED_OFS 15 // Used for Interface Messages
 #define BUTTON_SHADOW_OFS 10
 #define SCREEN_BORDERS_OFS 2
 
-#define BORDERS_WIDTH 3
+#define BORDERS_WIDTH 5 //Used for the interface boxes
 
 // Intro screens
 #define TITLE_W 1000
@@ -97,8 +97,21 @@ int g_screen_width;
 int g_screen_height;
 
 int scale_to_resolution(int dim);
-static SDL_Rect dm_get_box_msg_wh();
 
+/* Function: dm_get_h_between_code
+ * -----------------------------------------------------------------------------
+ *	Returns the ammount of space that will be between instructions
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Instructions sapes
+ */
+int dm_get_h_between_code()
+{
+	return dm_get_code_button_wh().h + dm_get_h_padding();
+}
 
 /* Function: dm_get_w_borders
  * -----------------------------------------------------------------------------
@@ -114,7 +127,6 @@ int dm_get_w_borders()
 {
 	return scale_to_resolution(BORDERS_WIDTH);
 }
-
 
 /* Function: dm_get_ofs_button_shadow
  * -----------------------------------------------------------------------------
@@ -158,7 +170,7 @@ int dm_get_ofs_iface_filled_border()
  */
 int dm_get_ofs_iface_border()
 {
-	return scale_to_resolution(IFACE_BORDER_OFS);
+	return scale_to_resolution(IFACE_BUTTON_BORDER_W);
 }
 
 /* Function: dm_get_screen_height
@@ -269,15 +281,45 @@ int dm_get_ofs_buffer_value_box()
  */
 int dm_get_w_code_box_text()
 {
-	int ofs = dm_get_w_padding();
+	int ofs = dm_get_w_iface_but_padding();
 	SDL_Rect cb = dm_get_stage_code_box();
 	int w = cb.w - 2*ofs;
 	return w;
 }
 
+/* Function: dm_get_w_border_padding
+ * -----------------------------------------------------------------------------
+ *	Return the value of the padding
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset
+ */
+int dm_get_w_border_padding()
+{
+	return scale_to_resolution(W_PADDING) + dm_get_w_borders();
+}
+
+/* Function: dm_get_h_border_padding
+ * -----------------------------------------------------------------------------
+ *	Returns the scale value for the vertical padding
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset
+ */
+int dm_get_h_border_padding()
+{
+	return scale_to_resolution(H_PADDING) + dm_get_w_borders();
+}
+
 /* Function: dm_get_w_padding
  * -----------------------------------------------------------------------------
- *	Returns the scale value for the horizontal padding
+ *	Return the value of the padding
  *
  * Arguments:
  *	Void.
@@ -287,8 +329,7 @@ int dm_get_w_code_box_text()
  */
 int dm_get_w_padding()
 {
-	return scale_to_resolution(W_PADDING) + 
-	       scale_to_resolution(IFACE_BORDER_OFS);
+	return scale_to_resolution(W_PADDING);
 }
 
 /* Function: dm_get_h_padding
@@ -303,9 +344,44 @@ int dm_get_w_padding()
  */
 int dm_get_h_padding()
 {
-	return scale_to_resolution(H_PADDING) + 
-		   scale_to_resolution(IFACE_BORDER_OFS);
+	return scale_to_resolution(H_PADDING);
 }
+
+/* Function: dm_get_w_iface_but_padding
+ * -----------------------------------------------------------------------------
+ *	Returns the scale value for the horizontal padding
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset
+ */
+int dm_get_w_iface_but_padding()
+{
+	return scale_to_resolution(W_PADDING) + 
+	       scale_to_resolution(IFACE_BUTTON_BORDER_W);
+}
+
+/* Function: dm_get_h_but_padding
+ * -----------------------------------------------------------------------------
+ *	Returns the scale value for the vertical padding
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset
+ */
+int dm_get_h_iface_but_padding()
+{
+	return scale_to_resolution(H_PADDING) + 
+		   scale_to_resolution(IFACE_BUTTON_BORDER_W);
+}
+
+
+
+
 /* Function: dm_get_h_stage_titles
  * -----------------------------------------------------------------------------
  *	Return the offset value of the contents of the buffer. 
@@ -320,7 +396,6 @@ int dm_get_h_stage_titles()
 {
 	int h = scale_to_resolution(TEXT_H_STAGE_TITLES);
 	return h;
-	
 }
 
 /* Function: dm_get_h_stage_titles
@@ -340,24 +415,6 @@ int dm_get_h_stage_elements_titles()
 	
 }
 
-
-/* Function: dm_get_ofs_code_number
- * -----------------------------------------------------------------------------
- *	Return the offset value of the contents of the buffer. 
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	int with the offset
- */
-int dm_get_ofs_code_number()
-{
-	SDL_Rect r = dm_get_code_button_wh();
-	int ofs = r.w/2;
-	return ofs;
-}
-
 /* Function: dm_get_ofs_comma
  * -----------------------------------------------------------------------------
  *	Return the offset value for the comma that is draw in instructions
@@ -373,6 +430,7 @@ int dm_get_ofs_code_comma()
 	int ofs = dm_get_ofs_code_op2() - scale_to_resolution(COMMA_OFS);
 	return ofs;
 }
+
 /* Function: dm_get_ofs_code_op1
  * -----------------------------------------------------------------------------
  *	Return the offset value of the contents of the buffer. 
@@ -386,8 +444,7 @@ int dm_get_ofs_code_comma()
 int dm_get_ofs_code_op1()
 {
 	SDL_Rect cb = dm_get_code_button_wh();
-	int line_number_ofs = dm_get_ofs_code_number();
-	int ofs = cb.w;// + line_number_ofs;
+	int ofs = cb.w;
 	return ofs;
 }
 
@@ -404,8 +461,7 @@ int dm_get_ofs_code_op1()
 int dm_get_ofs_code_op2()
 {
 	SDL_Rect cb = dm_get_code_button_wh();
-	int line_number_ofs = dm_get_ofs_code_number();
-	int ofs = 2*cb.w;// + 2*line_number_ofs;
+	int ofs = 2*cb.w + dm_get_w_padding();
 	return ofs;
 }
 /* Function: dm_get_ofs_reg_box
@@ -661,7 +717,7 @@ SDL_Rect dm_get_text_box_result()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-static SDL_Rect dm_get_box_msg_wh()
+SDL_Rect dm_get_box_msg_wh()
 {
 	SDL_Rect ib = dm_get_stage_instruction_box();
 	SDL_Rect b;
@@ -716,7 +772,7 @@ SDL_Rect dm_get_text_box_lower()
 	b.w = mb.w;
 	b.h = mb.h;
 	b.x = g_screen_width/2 - mb.w/2;
-	b.y = g_screen_height - b.h - dm_get_h_padding();
+	b.y = g_screen_height - b.h - dm_get_h_iface_but_padding();
 	return b;
 }
 
@@ -1099,16 +1155,16 @@ int dm_get_h_error_msg()
 /* Function: dm_get_w_msg
  * -----------------------------------------------------------------------------
  * Returns the width of the messages according to the border fill offset
+ * A rectangle is provided to calculate the width using the correct value
  *
  * Arguments:
  *	Void.
  *
  * Return:
- *	int with the offset for the sel level buttons
+ *	The width of the message
  */
-int dm_get_w_msg()
+int dm_get_w_msg(SDL_Rect r)
 {
-	SDL_Rect r =  dm_get_box_msg_wh();
 	int w = r.w - 2*scale_to_resolution(IFACE_FILLED_OFS);
 	return w;
 	

@@ -47,7 +47,7 @@ void iw_init_ins_box_texture()
 SDL_Rect iw_get_instruction_rect_by_pos(int pos)
 {
 	int list_size = iw_get_instruction_list_size();
-	assert(pos >= 0  && pos < list_size && "Incorrect position");
+	assert(pos >= 0 && pos < list_size && "Incorrect position");
 	
 	List *instructions = get_instruction_list();
 	instruction_t *i;
@@ -105,7 +105,7 @@ static void draw_instruction_text()
 	SDL_Rect ib = dm_get_stage_instruction_box();
 	int x = ib.x;
 	int h = get_text_height_fits_width(ib.w, INSTRUCTIONS_TEXT);
-	int y = ib.y  - h;
+	int y = ib.y - h;
 	int text_h = dm_get_h_stage_elements_titles();
 	SDL_Rect r = {.x = x, .y = y, .w = ib.w, .h = text_h};
 	dw_draw_texture_fits_height(r, instructions_text);
@@ -271,10 +271,18 @@ void iw_add_instruction_to_list(int id)
 	int list_size = List_count(instructions);
 	
 	SDL_Rect ib = dm_get_stage_instruction_box();
-	int ofs = ib.w/8;
-	int x = ib.x + ofs;
-	int y = ib.y + ofs + list_size*cb.h;
+	
+	int x = ib.x + dm_get_w_border_padding()+ dm_get_w_padding();
+	int y;
+	if (list_size == 0){
+		y = ib.y + dm_get_h_border_padding() + dm_get_h_padding() + 
+			list_size*cb.h;
+	} else {
+		y = ib.y + 2*dm_get_h_padding() + list_size*cb.h;
+	}
+		
 	SDL_Rect r = dm_get_code_button_wh();
+	
 	r.x = x;
 	r.y = y;
 	button_t *b = bt_create_button(r, true, false, false, C_BLACK, 
@@ -308,14 +316,7 @@ void iw_draw_instruction_box()
 	
 	SDL_Rect r = dm_get_stage_instruction_box();
 	
-	dw_draw_filled_rectangle(r, C_GREY, C_GREY);
-	int w = dm_get_w_borders();
-	r.x += w;
-	r.y += w;
-	r.w -= 2*w;
-	r.h -= 2*w;
-	dw_draw_filled_rectangle(r, C_BLACK, C_BLACK);
-
+	dw_draw_thick_rect(r, dm_get_w_borders(), C_GREY);
 
 	LIST_FOREACH(instructions, first, next, cur){
 		instruction_t *c = cur->value;
