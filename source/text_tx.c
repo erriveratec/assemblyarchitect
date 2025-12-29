@@ -68,6 +68,7 @@ void tx_set_message_in_array(int pos, char *msg)
 /* Function: tx_init_global_msgs
  * -----------------------------------------------------------------------------
  * Creates the textures of global messages that are used across several levels.
+ * This messages are used in the message boxes.
  * 
  * Arguments:
  *	Void.

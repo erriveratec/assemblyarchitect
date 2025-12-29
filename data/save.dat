@@ -5,14 +5,14 @@ PLAYER 01
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-MOV rax, [ib]
+
 CODE ENDS
 
 +++LEVEL ENDS 01
 
 +++LEVEL STARTS 02
 
-LEVEL ACTIVE TRUE
+LEVEL ACTIVE FALSE
 
 CODE STARTS
 MOV [ob], rax
@@ -87,8 +87,8 @@ CODE ENDS
 LEVEL ACTIVE FALSE
 
 CODE STARTS
-mov rax, [ib]
-mov [ob], rax
+MOV rax, [ib]
+MOV [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 09
@@ -403,8 +403,7 @@ CODE ENDS
 
 +++LEVEL ENDS 40
 
-PLAYER ENDS 
-
+PLAYER ENDS 01
 
 PLAYER 02
 
@@ -413,19 +412,19 @@ PLAYER 02
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-MOV rax, [ib]
+
 CODE ENDS
 
 +++LEVEL ENDS 01
 
 +++LEVEL STARTS 02
 
-LEVEL ACTIVE TRUE
+LEVEL ACTIVE FALSE
 
 CODE STARTS
-mov [ob], rax
-mov rax, rax
-mov rax, rax
+MOV [ob], rax
+MOV rax, rax
+MOV rax, rax
 CODE ENDS
 
 +++LEVEL ENDS 02
@@ -495,8 +494,8 @@ CODE ENDS
 LEVEL ACTIVE FALSE
 
 CODE STARTS
-mov rax, [ib]
-mov [ob], rax
+MOV rax, [ib]
+MOV [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 09
@@ -820,19 +819,19 @@ PLAYER 03
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-MOV rax, [ib]
+
 CODE ENDS
 
 +++LEVEL ENDS 01
 
 +++LEVEL STARTS 02
 
-LEVEL ACTIVE TRUE
+LEVEL ACTIVE FALSE
 
 CODE STARTS
-mov [ob], rax
-mov rax, rax
-mov rax, rax
+MOV [ob], rax
+MOV rax, rax
+MOV rax, rax
 CODE ENDS
 
 +++LEVEL ENDS 02
@@ -902,8 +901,8 @@ CODE ENDS
 LEVEL ACTIVE FALSE
 
 CODE STARTS
-mov rax, [ib]
-mov [ob], rax
+MOV rax, [ib]
+MOV [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 09

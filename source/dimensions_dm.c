@@ -12,7 +12,7 @@
 #define RES_BOX_H 250
 #define RES_BOX_OFFSET 25
 
-#define MSG_BOX_W 350
+#define MSG_BOX_W 250
 #define MSG_BOX_H 250
 
 // This is a new version of the dimensions set by a ration of the resolution
@@ -28,7 +28,7 @@
 #define AVATAR_H 50
 
 #define TEXT_H_BIG 50
-#define TEXT_H_BOTTOM_MSG 15
+#define TEXT_H_BOTTOM_MSG 17
 #define TEXT_H_MSG 25
 #define TEXT_H_ERROR_MSG 35
 #define TEXT_H_TOTAL_MSG 160
@@ -68,7 +68,7 @@
 #define BUT_PADDING 25
 
 #define IFACE_BUTTON_BORDER_W 4 // Used for the buttons
-#define IFACE_FILLED_OFS 15 // Used for Interface Messages
+#define IFACE_FILLED_OFS 20 // Used for Interface Messages
 #define BUTTON_SHADOW_OFS 10
 #define SCREEN_BORDERS_OFS 2
 
@@ -717,10 +717,10 @@ SDL_Rect dm_get_text_box_result()
  */
 SDL_Rect dm_get_box_msg_wh()
 {
-	SDL_Rect ib = dm_get_stage_instruction_box();
+	//SDL_Rect ib = dm_get_stage_instruction_box();
 	SDL_Rect b;
-	b.w = ib.w + ib.w/3;
-	b.h = g_screen_height/4;
+	b.w = scale_to_resolution(MSG_BOX_W);
+	b.h = scale_to_resolution(MSG_BOX_H);
 	b.x = 0;
 	b.y = 0;
 	return b;
