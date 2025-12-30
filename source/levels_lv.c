@@ -838,11 +838,9 @@ static void level_1_tutorial()
 		ar_display_arrow(AR_DROP);
 	} else if(size == 2 && hold == true){
 		tx_text_box(TX_CODE_BOX, MSG13); // Drop below instruction
-		set_arrange_enabled(false);
 		ar_display_arrow(AR_DROP);
 	} else if (size == 2 && sorted == true && miss_op1 == true){
 		tx_text_box(TX_CODE_BOX, MSG14);//Select OB	
-		set_arrange_enabled(false);
 		set_code_editable(false, NO_EXCEPTION);
 		ar_display_arrow(AR_OB);
 	} else if(size == 2 && sorted == true && miss_op == true){

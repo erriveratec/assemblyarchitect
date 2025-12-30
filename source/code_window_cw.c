@@ -31,6 +31,7 @@ static bool chk_sel_line_in_pos(code_line_t *line);
 static void set_text_box(int x, int y, int w, int h);
 static void display_player_code();
 static void add_code_line(code_line_t *line);
+static void add_code_line_last_pos(code_line_t *line);
 static void set_code_box_member(int value, int member);
 static void set_text_box_member(int value, int member);
 static void code_box_height_adjust();
@@ -1665,6 +1666,28 @@ int get_code_line_position(int y)
 }
 
 
+/* Function: add_code_line_last_pos
+ * ----------------------------------------------------------------------------
+ * This function adds a code line at the last position of the codelist
+ *
+ * Arguments:
+ * instruction: the instruction to be added to the list
+ *
+ * Return:
+ *	Void.
+ */
+static void add_code_line_last_pos(code_line_t *line)
+{
+	List *code = get_code_list();
+	assert(NULL != code &&  "Code list is NULL");
+	assert(NULL != line &&  "The code line object is NULL");
+
+	int list_count = List_count(code);
+		
+	List_push(code, line);
+	return;
+}
+
 /* Function: add_code_line
  * ----------------------------------------------------------------------------
  * This function adds a code line to the respective code list, in the correct
@@ -1792,8 +1815,12 @@ void cw_player_holding_instruction(code_line_t *line, bool arrange)
 				List_remove(code, node);
 			}
 		} 
-		if (cw_check_if_in_code_list(line) == false){
+		if (cw_check_if_in_code_list(line) == false && arrange == true){
 			add_code_line(line);
+			update_label_instructions();
+			update_jump_instructions();
+		} else if (cw_check_if_in_code_list(line) == false && arrange == false){
+			add_code_line_last_pos(line);
 			update_label_instructions();
 			update_jump_instructions();
 		}
