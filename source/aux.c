@@ -144,12 +144,12 @@ void ax_draw_value_box(value_box_t *box, SDL_Color color)
 {
 	int text_w = 0;
 
-	SDL_Rect val =  dm_get_vbox_val_wh();
+	SDL_Rect val =  dm_get_value_box_val_wh();
 	if (box->t != NULL){
 		text_w = ax_get_texture_w_fit_h(val.h, box->t);
 	}
 
-	SDL_Rect vb = dm_get_vbox_wh();
+	SDL_Rect vb = dm_get_value_box_val_wh();
 	int x_offset = (vb.w - text_w)/2;
 	int y_offset = ((vb.h - val.h)/2) + (val.h/5)/2;
 	

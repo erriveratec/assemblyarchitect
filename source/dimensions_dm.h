@@ -49,8 +49,8 @@ SDL_Rect dm_get_escape_b3_box();
 
 SDL_Rect dm_get_code_button_wh();
 SDL_Rect dm_get_arrow_wh();
-SDL_Rect dm_get_vbox_wh();
-SDL_Rect dm_get_vbox_val_wh();
+SDL_Rect dm_get_value_box_wh();
+SDL_Rect dm_get_value_box_val_wh();
 SDL_Rect dm_get_avatar_wh();
 SDL_Rect dm_get_box_msg_wh();
 

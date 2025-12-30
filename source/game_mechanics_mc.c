@@ -270,7 +270,7 @@ void mc_init_avatar()
 {
 	SDL_Rect avatar =  dm_get_avatar_wh();
 	SDL_Rect ib = dm_get_stage_input_buffer_box();
-	SDL_Rect vb = dm_get_vbox_wh();
+	SDL_Rect vb = dm_get_value_box_val_wh();
 	g_iavatar.id = IAVATAR;
 	g_iavatar.box.x = bf_get_buffer_value_box_x_coord_by_id(IB);	
 	g_iavatar.box.y = ib.y + ib.h + avatar.h;
@@ -344,7 +344,7 @@ void mc_reset_avatar()
 {
 	SDL_Rect avatar =  dm_get_avatar_wh();
 	SDL_Rect ib = dm_get_stage_input_buffer_box();
-	SDL_Rect vb = dm_get_vbox_wh();
+	SDL_Rect vb = dm_get_value_box_val_wh();
 	g_iavatar.id = IAVATAR;
 	g_iavatar.box.x = bf_get_buffer_value_box_x_coord_by_id(IB);	
 	g_iavatar.box.y = ib.y + ib.h + avatar.h;
@@ -777,7 +777,7 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 		x = get_operand_x_dest(op_id);
 	}
 
-	SDL_Rect vb = dm_get_vbox_wh();
+	SDL_Rect vb = dm_get_value_box_val_wh();
 	int vbox_offset = dm_get_ofs_reg_value_box();
 	if (op_id > REGISTERS_MIN && op_id < REGISTERS_MAX){
 		y = get_operand_y_dest(op_id);

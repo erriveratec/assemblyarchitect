@@ -377,7 +377,7 @@ void bf_add_output_to_list()
 	SDL_Rect ib = dm_get_stage_input_buffer_box();
 	int ofs = dm_get_ofs_buffer_value_box();
 	new_output->box.x = ib.x + ofs;
-	SDL_Rect vb = dm_get_vbox_wh();
+	SDL_Rect vb = dm_get_value_box_val_wh();
 	int y_offset = (output_box.h - vb.h)/2;
 	new_output->box.y = output_box.y + y_offset;
 	new_output->box.w = vb.w;
@@ -413,7 +413,7 @@ void add_input_to_list(int value, int type)
 	new_input->value = value;
 	new_input->type = type;
 	new_input->box.x = screen_width;
-	SDL_Rect vb = dm_get_vbox_wh();
+	SDL_Rect vb = dm_get_value_box_val_wh();
 	int y_offset = (input_box.h - vb.h)/2;
 	new_input->box.y = input_box.y + y_offset;
 	new_input->box.w = vb.w;
@@ -560,7 +560,7 @@ void draw_output_buffer()
 	int x;
 	int ofs = dm_get_ofs_buffer_value_box();
 	int ofsval = dm_get_ofs_between_value_box();
-	SDL_Rect val =  dm_get_vbox_val_wh();
+	SDL_Rect val =  dm_get_value_box_val_wh();
 	if (check_win_condition() == true){
 		x = OUTPUT_BUFFER_WIN_X;	
 	} else {
@@ -609,7 +609,7 @@ bool check_if_output_buffer_position_set()
 
 	int ofs = dm_get_ofs_buffer_value_box();
 	int ofsval = dm_get_ofs_between_value_box();
-	SDL_Rect val =  dm_get_vbox_val_wh();
+	SDL_Rect val =  dm_get_value_box_val_wh();
 	int x = output_box.x + ofs + (list_size-1)*(val.w + ofsval);
 
 	value_box_t *first = outputs->first->value;	
@@ -636,7 +636,7 @@ void draw_input_buffer()
 	List *inputs = get_input_list();
 	int ofs = dm_get_ofs_buffer_value_box();
 	int ofsval = dm_get_ofs_between_value_box();
-	SDL_Rect val =  dm_get_vbox_val_wh();
+	SDL_Rect val =  dm_get_value_box_val_wh();
 	int x = input_box.x + ofs;
 	int y = input_box.y + ofs;
 
@@ -765,7 +765,7 @@ value_box_t bf_get_input_buffer_value_box()
 
 	int ofs = dm_get_ofs_buffer_value_box();
 	int ofsval = dm_get_ofs_between_value_box();
-	SDL_Rect val =  dm_get_vbox_val_wh();
+	SDL_Rect val =  dm_get_value_box_val_wh();
 	value_box_t *first = List_shift(input_list);
 	g_input_list_x_pos += val.w + ofsval;
 

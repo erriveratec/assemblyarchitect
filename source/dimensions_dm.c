@@ -90,7 +90,18 @@
 #define STUDIO_W 600
 #define STUDIO_H 600
 
-#define INSTRUCTION_BOX_W 170
+#define INS_BOX_X 0
+#define INS_BOX_W 170
+#define INS_BOX_H 225
+#define INS_BOX_Y 225
+
+#define CODE_BOX_W 350
+#define CODE_BOX_H 600
+#define CODE_BOX_Y 50
+
+#define REG_BOX_W 320
+#define REG_BOX_H 400
+#define REG_BOX_Y 0
 
 int g_res_id;
 int g_screen_width;
@@ -231,7 +242,7 @@ int dm_get_ofs_space_stage_buttons()
  */
 int dm_get_ofs_reg_value_box()
 {
-	SDL_Rect vbox = dm_get_vbox_wh();
+	SDL_Rect vbox = dm_get_value_box_wh();
 	return vbox.h/4;
 }
 
@@ -263,7 +274,7 @@ int dm_get_ofs_between_value_box()
  */
 int dm_get_ofs_buffer_value_box()
 {
-	SDL_Rect vbox =  dm_get_vbox_wh();
+	SDL_Rect vbox =  dm_get_value_box_wh();
 	SDL_Rect ib = dm_get_stage_input_buffer_box();
 	int ofs = (ib.h - vbox.h)/2;
 	return ofs;
@@ -528,7 +539,7 @@ int dm_get_w_stage_rail_end()
 	return w;
 	
 }
-/* Function: dm_get_vbox_val_wh
+/* Function: dm_get_value_box_val_wh
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object. 
  * 
@@ -538,9 +549,9 @@ int dm_get_w_stage_rail_end()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-SDL_Rect dm_get_vbox_val_wh()
+SDL_Rect dm_get_value_box_val_wh()
 {
-	SDL_Rect vb = dm_get_vbox_wh();
+	SDL_Rect vb = dm_get_value_box_wh();
 	SDL_Rect b;
 	b.w = vb.w;
 	b.h = vb.h - vb.h/10;
@@ -548,7 +559,7 @@ SDL_Rect dm_get_vbox_val_wh()
 	b.y = 0;
 	return b;
 }
-/* Function: dm_get_vbox_wh
+/* Function: dm_get_value_box_wh
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object. 
  * 
@@ -558,7 +569,7 @@ SDL_Rect dm_get_vbox_val_wh()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-SDL_Rect dm_get_vbox_wh()
+SDL_Rect dm_get_value_box_wh()
 {
 	SDL_Rect b;
 	b.w = scale_to_resolution(VALUE_BOX_W);
@@ -991,7 +1002,8 @@ SDL_Rect dm_get_stage_output_buffer_box()
 
 /* Function: dm_get_stage_instruction_box
  * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object, x and y are initialize at 0
+ * Returns the box dimensions for the instruction box, x and y are initialize 
+ * at 0. Instruction box is where the player selects instructions from.
  *
  * Arguments:
  *	Void.
@@ -1002,10 +1014,10 @@ SDL_Rect dm_get_stage_output_buffer_box()
 SDL_Rect dm_get_stage_instruction_box()
 {
 	SDL_Rect b;
-	b.w = scale_to_resolution(INSTRUCTION_BOX_W);
-	b.h = g_screen_height/4;
-	b.x = 0;
-	b.y = g_screen_height/2 - b.h;
+	b.w = scale_to_resolution(INS_BOX_W);
+	b.h = scale_to_resolution(INS_BOX_H);
+	b.x = scale_to_resolution(INS_BOX_X);
+	b.y = scale_to_resolution(INS_BOX_Y);
 	return b;
 }
 
@@ -1024,10 +1036,10 @@ SDL_Rect dm_get_stage_code_box()
 	SDL_Rect ib = dm_get_stage_instruction_box();
 	SDL_Rect b;
 
-	b.w = ((g_screen_width*2/6)*2/3);
-	b.h = (g_screen_height*2/3);
+	b.w = scale_to_resolution(CODE_BOX_W);
+	b.h = scale_to_resolution(CODE_BOX_H);
 	b.x = ib.x + ib.w;
-	b.y = g_screen_height/18;
+	b.y = scale_to_resolution(CODE_BOX_Y);
 	return b;
 }
 
@@ -1043,7 +1055,7 @@ SDL_Rect dm_get_stage_code_box()
  */
 SDL_Rect dm_get_stage_ibox()
 {
-	SDL_Rect vb = dm_get_vbox_wh();
+	SDL_Rect vb = dm_get_value_box_wh();
 	SDL_Rect rb = rg_get_register_box();
 	SDL_Rect b;
 	b.w = vb.w;
@@ -1065,7 +1077,7 @@ SDL_Rect dm_get_stage_ibox()
  */
 SDL_Rect dm_get_stage_obox()
 {
-	SDL_Rect vb = dm_get_vbox_wh();
+	SDL_Rect vb = dm_get_value_box_wh();
 	SDL_Rect rb = rg_get_register_box();
 	SDL_Rect b;
 	b.w = vb.w;
@@ -1089,10 +1101,10 @@ SDL_Rect dm_get_stage_registers_box()
 {
 	SDL_Rect cb = dm_get_stage_code_box();
 	SDL_Rect b;
-	b.w = g_screen_width/5;
-	b.h = g_screen_height/4;
+	b.w = scale_to_resolution(REG_BOX_W);
+	b.h = scale_to_resolution(REG_BOX_H);
 	b.x = cb.x + cb.w;
-	b.y = 0;
+	b.y = scale_to_resolution(REG_BOX_Y);
 	return b;
 }
 
