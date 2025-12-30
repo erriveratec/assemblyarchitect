@@ -802,7 +802,7 @@ static void level_1_tutorial()
 	} else if (size == 0 && hold == true){
 		tx_text_box(TX_CODE_BOX, MSG7); // Drop ins in code box
 		ar_display_arrow(AR_DROP);
-	} else if (size == 1 && hold == true){
+	} else if (size == 1 && hold == true && miss_op == true){
 		tx_text_box(TX_CODE_BOX, MSG7); // Drop ins in code box
 		ar_display_arrow(AR_DROP);
 	} else if (size == 1 && sorted == true && miss_op1 == true){
@@ -821,6 +821,7 @@ static void level_1_tutorial()
 		set_code_editable(true, NO_EXCEPTION);
 		tx_text_box(TX_STAGEBUTTON_BOX, MSG10);// Press play button
 		ar_display_arrow(AR_PLAY);
+		set_arrange_enabled(false);
 		if (play == true){
 			g_lv_msg[MSG10] = false;
 		}
@@ -828,10 +829,14 @@ static void level_1_tutorial()
 		tx_text_box(TX_LOWER_BOX, MSG11); //ERROR
 		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_PRESSBACK);
 		ar_display_arrow(AR_ERROR);
-	} else if(size == 1 && play == false && g_lv_msg[MSG10] == false){
+	} else if(size == 1 && hold == false && play == false 
+												   && g_lv_msg[MSG10] == false){
 		tx_text_box(TX_INS_BOX, MSG12);	 //Select another mov instruction
 		ar_display_arrow(AR_INS);
-	}else if(size == 1 && hold == true && miss_op == false){
+	} else if(size == 1 && hold == true && miss_op == false){
+		tx_text_box(TX_CODE_BOX, MSG13); // Drop below instruction
+		ar_display_arrow(AR_DROP);
+	} else if(size == 2 && hold == true){
 		tx_text_box(TX_CODE_BOX, MSG13); // Drop below instruction
 		set_arrange_enabled(false);
 		ar_display_arrow(AR_DROP);

@@ -5,12 +5,16 @@
 #include <SDL.h>
 
 #define ESC_MENU_BOX_W 600
-#define ESC_MENU_BOX_H 300
+#define ESC_MENU_BOX_H 320
 
-#define RES_BOX_Y 10
+#define RES_BOX_X 120
+#define RES_BOX_Y 585
 #define RES_BOX_W 450
 #define RES_BOX_H 250
-#define RES_BOX_OFFSET 25
+#define RES_BOX_OFFSET 20
+
+#define TEXT_BOX_LOWER_X 675
+#define TEXT_BOX_LOWER_Y 585
 
 #define MSG_BOX_W 250
 #define MSG_BOX_H 250
@@ -38,13 +42,15 @@
 
 #define STAGE_BUTTON_W 40
 #define STAGE_BUTTON_H 40
+#define STAGE_BUTTON_X 800
+#define STAGE_BUTTON_Y 800
 
 #define P_BUTTON_H 200
 #define P_BUTTON_W 200
 
 #define CODE_BUTTON_W 90
 #define CODE_BUTTON_H 40
-#define COMMA_OFS 10
+#define COMMA_OFS 15
 
 #define ESC_MENU_BUTTON_W 350
 #define ESC_MENU_BUTTON_H 60
@@ -67,7 +73,7 @@
 #define H_PADDING 10
 #define BUT_PADDING 25
 
-#define IFACE_BUTTON_BORDER_W 4 // Used for the buttons
+#define IFACE_BUTTON_BORDER_W 5 // Used for the buttons
 #define IFACE_FILLED_OFS 20 // Used for Interface Messages
 #define BUTTON_SHADOW_OFS 10
 #define SCREEN_BORDERS_OFS 2
@@ -710,7 +716,7 @@ SDL_Rect dm_get_text_box_result()
 	SDL_Rect b;
 	b.w = scale_to_resolution(RES_BOX_W);
 	b.h = scale_to_resolution(RES_BOX_H);
-	b.x = (g_screen_width - b.w)/2;
+	b.x = scale_to_resolution(RES_BOX_X);;
 	b.y = scale_to_resolution(RES_BOX_Y);
 	return b;
 }
@@ -728,7 +734,6 @@ SDL_Rect dm_get_text_box_result()
  */
 SDL_Rect dm_get_box_msg_wh()
 {
-	//SDL_Rect ib = dm_get_stage_instruction_box();
 	SDL_Rect b;
 	b.w = scale_to_resolution(MSG_BOX_W);
 	b.h = scale_to_resolution(MSG_BOX_H);
@@ -763,7 +768,7 @@ SDL_Rect dm_get_text_box_error()
 
 /* Function: dm_get_text_box_lower
  * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object
+ * Returns the box dimensions for the text box lower
  *
  * Arguments:
  *	Void.
@@ -773,15 +778,12 @@ SDL_Rect dm_get_text_box_error()
  */
 SDL_Rect dm_get_text_box_lower()
 {
-	SDL_Rect rb = dm_get_text_box_result();
 	SDL_Rect mb = dm_get_box_msg_wh();	
-	SDL_Rect ab = dm_get_arrow_wh();
-	
 	SDL_Rect b;
 	b.w = mb.w;
 	b.h = mb.h;
-	b.x = g_screen_width/2 - mb.w/2;
-	b.y = g_screen_height - b.h - dm_get_h_button_padding();
+	b.x = scale_to_resolution(TEXT_BOX_LOWER_X);
+	b.y = scale_to_resolution(TEXT_BOX_LOWER_Y);
 	return b;
 }
 
@@ -1320,7 +1322,7 @@ SDL_Rect dm_get_stage_buttons()
 	SDL_Rect b;
 	b.w = scale_to_resolution(STAGE_BUTTON_W);
 	b.h = scale_to_resolution(STAGE_BUTTON_H);
-	b.x = ((g_screen_width*2/6) + ((g_screen_width/6) - 4*b.w)/4);
+	b.x = scale_to_resolution(STAGE_BUTTON_X);
 	b.y = g_screen_height - g_screen_height/15;
 	return b;
 }

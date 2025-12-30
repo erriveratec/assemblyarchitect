@@ -88,11 +88,9 @@ void sb_display_escape_menu(bool show_menu)
 	if (show_menu == true){
 		
 		SDL_Rect r = dm_get_escape_menu_box();
-		dw_draw_filled_rectangle(r, C_DIMGREY, C_SILVERGREY);
+		dw_draw_iface_box(r);
 
-		int offset = dm_get_ofs_iface_border();
-		SDL_Rect in = ax_pad_rectangle(r, offset, true);
-		dw_draw_rectangle(in, C_SILVERGREY);
+		//int offset = dm_get_ofs_iface_border();
 
 		bt_draw_iface_btn(g_escape_b1);
 		bt_draw_iface_btn(g_escape_b2);
