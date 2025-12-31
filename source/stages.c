@@ -778,51 +778,49 @@ static int display_run_result(bool win_check)
 
 	bf_set_win_condition();
 	SDL_Rect r = dm_get_text_box_result();	
-	dw_draw_filled_rectangle(r, C_LIGHTGREY, C_BLACK);
+	dw_draw_iface_box(r);
 
 	SDL_Rect s = dm_get_text_box_result_text();
 	dw_draw_texture_fits_width(s, g_win_text);
 	
 	static bool buttons_created = false;
-	static button_t *ret;
-	static button_t *con;
+	static iface_btn_t *ret;
+	static iface_btn_t *con;
 	bool button_pressed = false;
 	int action_selected = NO_BUTTON_PRESSED;
 
 	if (buttons_created == false){
 		buttons_created = true;
 		texture_t *con_texture = dw_create_text_texture(
-								 STR_CONT, C_BLACK);
+								 STR_CONT, C_WHITE);
 		check_mem(con_texture);
 		SDL_Rect r = dm_get_text_box_result_but2();
-		con = bt_create_button(r, true, true, false, C_BLACK, C_BLACK, 
-							   con_texture);
+		con = bt_create_iface_btn(r, con_texture, true);
 		check_mem(con);
 					
 		texture_t *ret_texture = dw_create_text_texture(
-								 STR_BACK, C_BLACK);
+								 STR_BACK, C_WHITE);
 		check_mem(ret_texture);
 		SDL_Rect b = dm_get_text_box_result_but1();
 
-		ret = bt_create_button(b, true, true, false, C_BLACK, C_BLACK, 
-							   ret_texture);
+		ret = bt_create_iface_btn(b, ret_texture, true);
 		check_mem(ret);
 	} 
-	bt_draw_button(ret, false);
-	bt_draw_button(con, false);
+	bt_draw_iface_btn(ret);
+	bt_draw_iface_btn(con);
 
-	if (bt_check_mouse_click_button(con) == true){
+	if (bt_chk_mouse_click_iface_btn(con) == true){
 		button_pressed = true;
 		action_selected = CONT_BUTTON_PRESSED;
 	} 
-	if (bt_check_mouse_click_button(ret) == true){
+	if (bt_chk_mouse_click_iface_btn(ret) == true){
 		button_pressed = true;
 		action_selected = BACK_BUTTON_PRESSED;
 	} 	
 	if (button_pressed == true){
-		bt_destroy_button(ret);
+		bt_destroy_iface_btn(ret);
 		if (win_check == true){
-			bt_destroy_button(con);
+			bt_destroy_iface_btn(con);
 		}
 		buttons_created = false;
 	}
