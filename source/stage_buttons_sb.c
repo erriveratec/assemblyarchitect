@@ -16,6 +16,8 @@
 bool g_escape_menu = false;
 bool g_quit = false;
 
+bool g_step_btns_avail = false;
+
 texture_t *stop_button = NULL;
 texture_t *step_back_button = NULL;
 texture_t *play_button = NULL;
@@ -35,6 +37,24 @@ texture_t *g_escape_b3_texture = NULL;
 iface_btn_t *g_escape_b1;
 iface_btn_t *g_escape_b2;
 iface_btn_t *g_escape_b3;
+
+/* Function: sb_set_step_btns_avail
+ * ----------------------------------------------------------------------------
+ * Sets the global variable that determines if the step buttons will be shown
+ * as a part of a level.
+ *
+ * Arguments:
+ * 	state: state that the g_step_btns_avail variable will be set
+ *
+ * Return:
+ *	Void.	
+ */
+void sb_set_step_btns_avail(bool state)
+{
+	g_step_btns_avail = true;
+}
+
+
 
 /* Function: sb_init_escape_menu
  * ----------------------------------------------------------------------------
@@ -89,8 +109,6 @@ void sb_display_escape_menu(bool show_menu)
 		
 		SDL_Rect r = dm_get_escape_menu_box();
 		dw_draw_iface_box(r);
-
-		//int offset = dm_get_ofs_iface_border();
 
 		bt_draw_iface_btn(g_escape_b1);
 		bt_draw_iface_btn(g_escape_b2);
@@ -250,9 +268,11 @@ void sb_draw_stage_buttons(int code_size)
 {
 	adjust_stage_buttons_position(code_size);
 	bt_draw_button(stop, false);
-	bt_draw_button(step_back, false);
 	bt_draw_button(play, false);
-	bt_draw_button(step_forward, false);
+	if (g_step_btns_avail == true){
+		bt_draw_button(step_back, false);
+		bt_draw_button(step_forward, false);
+	}
 }
 
 /* Function: sb_draw_return_button
@@ -349,7 +369,9 @@ bool sb_check_clicked_ret_button()
 }
 
 /* Function: sb_check_clicked_stage_button
- * -------------------------------------
+ * ----------------------------------------------------------------------------
+ * Verifies if a stage button was clicked
+ *
  * Arguments:
  * 	None.
  *
@@ -360,37 +382,18 @@ bool sb_check_clicked_stage_button()
 {
 	int ret = false;
 
-	if (bt_check_mouse_click_button(stop) == true  ||
-		bt_check_mouse_click_button(step_back) == true ||
-		bt_check_mouse_click_button(play) == true ||
-		bt_check_mouse_click_button(step_forward) == true){
+	if (bt_check_mouse_click_button(stop) == true ||
+		bt_check_mouse_click_button(play) == true){
 		ret = true;
 	}
-
+	else if (g_step_btns_avail == true && 
+			 (bt_check_mouse_click_button(step_back) == true ||
+			  bt_check_mouse_click_button(step_forward) == true)){
+		ret = true;	
+	}
 	return ret;
 }
 
-/* Function: sb_check_released_in_stage_button
- * -------------------------------------
- * Arguments:
- * 	None.
- *
- * Return:
- *	true if released in stage button, false if otherwise.
- */
-static bool sb_check_released_in_stage_button()
-{
-	int ret = false;
-
-	if (bt_check_mouse_click_button(stop) == true  ||
-		bt_check_mouse_click_button(step_back) == true ||
-		bt_check_mouse_click_button(play) == true ||
-		bt_check_mouse_click_button(step_forward) == true){
-		ret = true;
-	}
-
-	return ret;
-}
 
 /* Function: identify_clicked_stage_button
  * -------------------------------------
@@ -406,12 +409,13 @@ int identify_clicked_stage_button()
 	
 	if (bt_check_mouse_click_button(stop) == true){
 		clicked_button = STOP;
-	} else if (bt_check_mouse_click_button(step_back) == true){
+	} else if (bt_check_mouse_click_button(step_back) == true && 
+			   g_step_btns_avail == true){
 		clicked_button = BACKWARD;
 	} else if (bt_check_mouse_click_button(play) == true){
 		clicked_button = PLAY;
-	} else if (bt_check_mouse_click_button(step_forward) 
-			   == true){
+	} else if (bt_check_mouse_click_button(step_forward) == true &&
+			   g_step_btns_avail == true){
 		clicked_button = FORWARD;
 	}
 	return clicked_button;
