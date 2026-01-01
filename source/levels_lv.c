@@ -21,7 +21,9 @@
 #define WIN_CONDITION_LENGTH 30
 #define LV_MSGS_QTY 15
 
-#define NO_EXCEPTION 0
+// Exceptions of the selection of the code
+#define NO_EXCEPTION -1
+#define INS_EXCEPTION -2
 
 static bool g_code_editable;
 static int g_code_editable_exception;
@@ -315,6 +317,9 @@ bool lv_is_code_editable()
 	int exception = g_code_editable_exception;
 	if (exception == NO_EXCEPTION){
 		editable = g_code_editable;
+	} else if (iw_check_clicked_instruction() == true && 
+													exception == INS_EXCEPTION){
+		editable = true;	
 	} else if (cw_check_clicked_code() == true) {
 		code_line_t *line = cw_get_clicked_code();
 		int pos = cw_get_code_line_pos_by_ptr(line);
@@ -331,10 +336,12 @@ bool lv_is_code_editable()
 
 /* Function: set_code_editable
  * ----------------------------------------------------------------------------
- * Sets the code global variable that indicates if code should be editable
+ * Sets the code global variable that indicates if code should be editable.
+ * The editable does not allows selection from instruction nor code box.
  *
  * Arguments:
  *	state: true or false indicating if the code is editable
+ *	exception: The exception of the line that will be editable
  *
  * Return:
  *	Void.
@@ -772,7 +779,7 @@ static void level_1_tutorial()
 	bool miss_op = cw_check_code_pending_operand();
 	bool miss_op1 = cw_check_code_pending_op1();
 
-	 if (g_lv_msg[MSG1] == true && size == 0){
+	if (g_lv_msg[MSG1] == true && size == 0){
 		tx_text_box(TX_BIG_BOX, MSG1); //Welcome message
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
 		chk_ms_pressed_clear_msg(MSG1, true);
@@ -818,7 +825,7 @@ static void level_1_tutorial()
 		draw_regs_arrow(false);
 		ar_display_arrow(AR_IB);
 	} else if(size == 1 && miss_op == false && g_lv_msg[MSG10] == true){
-		set_code_editable(true, NO_EXCEPTION);
+		set_code_editable(false, INS_EXCEPTION);
 		tx_text_box(TX_STAGEBUTTON_BOX, MSG10);// Press play button
 		ar_display_arrow(AR_PLAY);
 		set_arrange_enabled(false);

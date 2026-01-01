@@ -8,13 +8,13 @@
 #define ESC_MENU_BOX_H 320
 
 #define RES_BOX_X 120
-#define RES_BOX_Y 585
+#define RES_BOX_Y 565
 #define RES_BOX_W 450
 #define RES_BOX_H 270
 #define RES_BOX_OFFSET 35
 
 #define TEXT_BOX_LOWER_X 675
-#define TEXT_BOX_LOWER_Y 585
+#define TEXT_BOX_LOWER_Y 565
 
 #define MSG_BOX_W 270
 #define MSG_BOX_H 270

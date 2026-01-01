@@ -567,6 +567,7 @@ static void flag_handler(level_flags_t *flags, int clicked_button)
  * ----------------------------------------------------------------------------
  * Performs all the actions that need to be done in the game logic when
  * the code has been updated with a new line or deleted line
+ * Saves the state of the game.
  *
  * Arguments:
  * 	Void.
@@ -658,7 +659,8 @@ static code_line_t *edit_code(int level_id)
 		if (line != NULL){
 			hold_line = true;
 		}
-	} else if (cw_check_clicked_code_operand() == true && line == NULL){
+	} else if (cw_check_clicked_code_operand() == true && line == NULL && 
+												 lv_is_code_editable() == true){
 		cw_change_clicked_code_line_state();	
 	} else if (iw_check_clicked_instruction() == true && line == NULL &&
 												 lv_is_code_editable() == true){
