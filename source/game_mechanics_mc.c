@@ -751,8 +751,6 @@ static int get_operand_x_dest(int op_id)
 	return x;
 }
 
-
-
 /* Function: move_avatar_to_operand
  * -----------------------------------------------------------------------------
  * Arguments:
@@ -777,7 +775,7 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 		x = get_operand_x_dest(op_id);
 	}
 
-	SDL_Rect vb = dm_get_value_box_val_wh();
+	SDL_Rect vb = dm_get_value_box_wh();
 	int vbox_offset = dm_get_ofs_reg_value_box();
 	if (op_id > REGISTERS_MIN && op_id < REGISTERS_MAX){
 		y = get_operand_y_dest(op_id);
@@ -795,7 +793,7 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 		if (avatar->id == RAVATAR){
 			y = get_operand_y_dest(op_id) - 2.5*vb.h - 2*vbox_offset;
 		} else if (avatar->id == OAVATAR){
-			y = get_operand_y_dest(op_id) + vbox_offset;
+			y = get_operand_y_dest(op_id);// + vbox_offset;
 		}
 	}
 	
