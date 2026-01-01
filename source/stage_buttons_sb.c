@@ -24,10 +24,10 @@ texture_t *play_button = NULL;
 texture_t *step_forward_button = NULL;
 texture_t *return_button = NULL;
 
-button_t *stop;
-button_t *step_back;
-button_t *play;
-button_t *step_forward;
+iface_btn_t *stop;
+iface_btn_t *step_back;
+iface_btn_t *play;
+iface_btn_t *step_forward;
 iface_btn_t *ret_button;
 
 texture_t *g_escape_b1_texture = NULL;
@@ -267,11 +267,11 @@ void adjust_stage_buttons_position(int code_size)
 void sb_draw_stage_buttons(int code_size)
 {
 	adjust_stage_buttons_position(code_size);
-	bt_draw_button(stop, false);
-	bt_draw_button(play, false);
+	bt_draw_iface_btn(stop);
+	bt_draw_iface_btn(play);
 	if (g_step_btns_avail == true){
-		bt_draw_button(step_back, false);
-		bt_draw_button(step_forward, false);
+		bt_draw_iface_btn(step_back);
+		bt_draw_iface_btn(step_forward);
 	}
 }
 
@@ -305,7 +305,7 @@ void sb_init_return_button()
 {
 	if (ret_button == NULL){
 		SDL_Rect r = dm_get_return_button_box();
-		ret_button = malloc(sizeof(button_t));
+		ret_button = malloc(sizeof(iface_btn_t));
 		ret_button = bt_create_iface_btn(r, return_button, true);
 	}
 	return;
@@ -323,28 +323,25 @@ void sb_initialize_stage_buttons()
 	SDL_Rect sb = dm_get_stage_buttons();
 	int hidden_y = dm_get_y_hidden_stage_buttons();
 	SDL_Rect r0 = {.x = sb.x, .y = hidden_y, .w = sb.w, .h = sb.h};
-	stop = malloc(sizeof(button_t));
-	stop = bt_create_button(r0, true, false, false, C_BLACK, C_WHITE, 
-																   stop_button);
+	
+	stop = malloc(sizeof(iface_btn_t));
+	stop = bt_create_iface_btn(r0, stop_button, true);
 
 	int space =  dm_get_ofs_space_stage_buttons();
 	SDL_Rect r1 = {.x = sb.x + sb.w + space,.y = hidden_y, .w = sb.w, 
 																	 .h = sb.h};
-	step_back = malloc(sizeof(button_t));
-	step_back = bt_create_button(r1, true, false, false, C_BLACK, C_WHITE, 
-															  step_back_button);
+	step_back = malloc(sizeof(iface_btn_t));
+	step_back = bt_create_iface_btn(r1, step_back_button, true);
 
 	SDL_Rect r2 = {.x = sb.x + 2*sb.w + 2*space, .y = hidden_y, .w = sb.w, 
 																	 .h = sb.h};
-	play = malloc(sizeof(button_t));
-	play = bt_create_button(r2, true, false, false, C_BLACK,C_WHITE, 
-																   play_button);
+	play = malloc(sizeof(iface_btn_t));
+	play = bt_create_iface_btn(r2, play_button, true);
 	
 	SDL_Rect r3 = {.x = sb.x + 3*sb.w + 3*space, .y = hidden_y, .w = sb.w, 
 																	 .h = sb.h};
-	step_forward = malloc(sizeof(button_t));
-	step_forward = bt_create_button(r3, true, false, false, C_BLACK, C_WHITE,
-								 						   step_forward_button);
+	step_forward = malloc(sizeof(iface_btn_t));
+	step_forward = bt_create_iface_btn(r3, step_forward_button, true);
 	return;
 }
 
@@ -382,13 +379,13 @@ bool sb_check_clicked_stage_button()
 {
 	int ret = false;
 
-	if (bt_check_mouse_click_button(stop) == true ||
-		bt_check_mouse_click_button(play) == true){
+	if (bt_chk_mouse_click_iface_btn(stop) == true ||
+		bt_chk_mouse_click_iface_btn(play) == true){
 		ret = true;
 	}
 	else if (g_step_btns_avail == true && 
-			 (bt_check_mouse_click_button(step_back) == true ||
-			  bt_check_mouse_click_button(step_forward) == true)){
+			 (bt_chk_mouse_click_iface_btn(step_back) == true ||
+			  bt_chk_mouse_click_iface_btn(step_forward) == true)){
 		ret = true;	
 	}
 	return ret;
@@ -407,14 +404,14 @@ int identify_clicked_stage_button()
 {
 	int clicked_button = INVALID;
 	
-	if (bt_check_mouse_click_button(stop) == true){
+	if (bt_chk_mouse_click_iface_btn(stop) == true){
 		clicked_button = STOP;
-	} else if (bt_check_mouse_click_button(step_back) == true && 
+	} else if (bt_chk_mouse_click_iface_btn(step_back) == true && 
 			   g_step_btns_avail == true){
 		clicked_button = BACKWARD;
-	} else if (bt_check_mouse_click_button(play) == true){
+	} else if (bt_chk_mouse_click_iface_btn(play) == true){
 		clicked_button = PLAY;
-	} else if (bt_check_mouse_click_button(step_forward) == true &&
+	} else if (bt_chk_mouse_click_iface_btn(step_forward) == true &&
 			   g_step_btns_avail == true){
 		clicked_button = FORWARD;
 	}
