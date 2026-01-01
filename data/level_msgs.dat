@@ -67,7 +67,9 @@ Press the play button
 MSG_END
 
 MSG 17
-Congratulations, you have beaten the first level
+Congratulations!
+         
+You have beaten the first level
 MSG_END
 
 +++LEVEL ENDS 01

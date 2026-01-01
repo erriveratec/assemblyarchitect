@@ -38,7 +38,9 @@ static void initialize_game_assets()
 											GAME_TITLE_TEXT);
 	dw_create_text_texture(GAME_TITLE_TEXT, C_SILVERGREY);
 	g_press_space = dw_create_text_texture(PRESS_SPACE_TEXT, C_SILVERGREY);
-	g_win_text = dw_create_text_texture(WIN_TEXT, C_BLACK);
+	SDL_Rect rb = dm_get_text_box_result_text();
+	int text_h = dm_get_h_error_msg();		
+	g_win_text = dw_new_text_texture_by_h(rb.w, text_h, C_BLACK, WIN_TEXT);
 
 	sb_init_escape_menu();
 	sb_init_return_button();

@@ -50,7 +50,7 @@ static SDL_Rect result_box;
 
 texture_array_t *g_game_title = NULL;
 texture_t *g_press_space = NULL;
-texture_t *g_win_text = NULL;
+texture_array_t *g_win_text = NULL;
 texture_t *g_title_background = NULL;
 texture_t *g_logo = NULL;
 texture_t *g_chip = NULL;
@@ -781,7 +781,8 @@ static int display_run_result(bool win_check)
 	dw_draw_iface_box(r);
 
 	SDL_Rect s = dm_get_text_box_result_text();
-	dw_draw_texture_fits_width(s, g_win_text);
+	int text_h = dm_get_h_error_msg();		
+	dw_draw_wrapped_texture_by_h(s, text_h, g_win_text);
 	
 	static bool buttons_created = false;
 	static iface_btn_t *ret;
