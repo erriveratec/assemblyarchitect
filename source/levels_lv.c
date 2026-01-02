@@ -855,6 +855,7 @@ static void level_1_tutorial()
 		tx_text_box(TX_CODE_BOX, MSG15); //Select rax
 		draw_regs_arrow(true);
 	} else if(size == 2 && miss_op == false && play == false){
+		set_code_editable(false, NO_EXCEPTION);
 		tx_text_box(TX_STAGEBUTTON_BOX, MSG16);	//Press play
 		ar_display_arrow(AR_PLAY);
 	} else if (lv_check_if_win() == true){

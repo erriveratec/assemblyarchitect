@@ -40,10 +40,10 @@
 #define TEXT_H_STAGE_TITLES 70
 #define TEXT_H_LINE_NUMBER 40
 
-#define STAGE_BUTTON_W 40
-#define STAGE_BUTTON_H 40
-#define STAGE_BUTTON_X 800
-#define STAGE_BUTTON_Y 800
+#define STAGE_BUTTON_W 60
+#define STAGE_BUTTON_H 60
+#define STAGE_BUTTON_X 700
+#define STAGE_BUTTON_Y 820
 
 #define P_BUTTON_H 200
 #define P_BUTTON_W 200
@@ -1323,7 +1323,7 @@ SDL_Rect dm_get_stage_buttons()
 	b.w = scale_to_resolution(STAGE_BUTTON_W);
 	b.h = scale_to_resolution(STAGE_BUTTON_H);
 	b.x = scale_to_resolution(STAGE_BUTTON_X);
-	b.y = g_screen_height - g_screen_height/15;
+	b.y = scale_to_resolution(STAGE_BUTTON_Y);
 	return b;
 }
 

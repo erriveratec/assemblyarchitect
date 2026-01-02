@@ -138,7 +138,6 @@ void bt_draw_iface_btn(iface_btn_t *b)
 	bool clicked = bt_chk_mouse_click_iface_btn(b);
 	int offset = dm_get_ofs_iface_border();
 	
-	
 	if (b->enabled == false){
 		dw_draw_filled_rectangle(b->r, C_BLACK, C_GREY);
 		int offset = dm_get_ofs_iface_border();
@@ -173,6 +172,61 @@ void bt_draw_iface_btn(iface_btn_t *b)
 	assert(status != FAIL && "The texture could not be drawn");
 }
 
+/* Function: bt_draw_iface_btn_nopad
+ * -----------------------------------------------------------------------------
+ * This function draws the interface button 
+ * 	
+ * Arguments:
+ *	b: The button object that is going to be drawn
+ *
+ * Return:
+ *	Void.
+ */
+void bt_draw_iface_btn_nopad(iface_btn_t *b)
+{
+	assert(b != NULL && "The button pointer is NULL");
+	
+	int status = SUCCESS;	
+
+	int shadow_offset = dm_get_ofs_button_shadow();	
+	SDL_Rect shadow = {.x = b->r.x + shadow_offset, .y = b->r.y + shadow_offset,
+					   .w = b->r.w, .h = b->r.h};
+	dw_draw_filled_rectangle(shadow, C_DARKGREY, C_DARKGREY);
+
+	bool clicked = bt_chk_mouse_click_iface_btn(b);
+	int offset = dm_get_ofs_iface_border();
+	
+	if (b->enabled == false){
+		dw_draw_filled_rectangle(b->r, C_BLACK, C_GREY);
+		int offset = dm_get_ofs_iface_border();
+		SDL_Rect in = ax_pad_rectangle(b->r, offset, true);
+		dw_draw_rectangle(in, C_GREY);
+	} else if (clicked == true){
+		dw_draw_filled_rectangle(b->r, C_WHITE, C_WHITE);
+		SDL_Rect in = ax_pad_rectangle(b->r, offset, true);
+		dw_draw_filled_rectangle(in, C_BLACK, C_WHITE);
+	} else {
+		dw_draw_filled_rectangle(b->r, C_BLACK, C_WHITE);
+		int offset = dm_get_ofs_iface_border();
+		SDL_Rect in = ax_pad_rectangle(b->r, offset, true);
+		dw_draw_rectangle(in, C_WHITE);
+	}
+	
+	SDL_Rect p = ax_pad_rectangle(b->r, offset, true);
+	float scale_w = (float)(b->r.w - 2*offset)/b->t->w;
+	float scale_h = (float)(b->r.h - 2*offset)/b->t->h;
+	
+	if (scale_w < scale_h){
+		int y = p.y + (p.h - b->t->h*scale_w)/2;
+		SDL_Rect r = {.x = p.x, .y = y, .w = p.w};
+		dw_draw_texture_fits_width(p, b->t);
+	} else {
+		int x = p.x + (p.w - b->t->w*scale_h)/2;
+		SDL_Rect r = {.x = x, .y = p.y, .h = p.h};
+		dw_draw_texture_fits_height(r, b->t);
+	}
+	assert(status != FAIL && "The texture could not be drawn");
+}
 
 /* Function: bt_create_button
  * -----------------------------------------------------------------------------

@@ -16,6 +16,7 @@
 #include "stages.h"
 
 #define ERROR -1
+
 SDL_Window *g_window = NULL;
 SDL_Renderer *g_renderer = NULL;
 SDL_Surface *g_screen = NULL;
@@ -24,9 +25,7 @@ SDL_Texture *g_screen_texture = NULL;
 int g_width;
 int g_height;
 
-
 TTF_Font *g_font = NULL;
-
 
 /* Function: init_sdl
  * -------------------------------------

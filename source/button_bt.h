@@ -35,6 +35,7 @@ button_t *bt_copy_button(button_t *b);
 void bt_destroy_button(button_t *b);
 iface_btn_t *bt_create_iface_btn(SDL_Rect r, texture_t *t, bool enabled);
 void bt_draw_iface_btn(iface_btn_t *b);
+void bt_draw_iface_btn_nopad(iface_btn_t *b);
 bool bt_chk_mouse_click_iface_btn(iface_btn_t *button);
 bool bt_chk_mouse_rel_iface_btn(iface_btn_t *button);
 void bt_destroy_iface_btn(iface_btn_t *b);

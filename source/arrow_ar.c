@@ -270,7 +270,7 @@ static void initialize_play_arrow()
 	SDL_Rect a = dm_get_arrow_wh();
 	g_arrow_play.box.w = a.w;	
 	g_arrow_play.box.h = a.h;
-	g_arrow_play.box.x = sb_get_play_button_member(MEMBER_X);
+	g_arrow_play.box.x = sb_get_play_button_member(MEMBER_X) + a.w/2;
 	g_arrow_play.box.y = sb.y - 2*a.h;
 	g_arrow_play.in_place = false;
 	g_arrow_play.visible = true;
