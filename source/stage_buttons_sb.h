@@ -20,6 +20,9 @@ bool get_quit_game_value();
 bool sb_get_escape_menu_state();
 void sb_init_escape_menu();
 void sb_set_step_btns_avail(bool state);
+void sb_draw_rst_btn();
+void sb_init_rst_btn();
+bool sb_chk_click_rst_btn();
 
 enum stage_buttons_e {
 	INVALID,
@@ -34,5 +37,6 @@ extern texture_t *step_back_button;
 extern texture_t *play_button;
 extern texture_t *step_forward_button;
 extern texture_t *return_button;
+extern texture_t *reset_button;
 
 #endif

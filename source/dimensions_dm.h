@@ -56,6 +56,7 @@ SDL_Rect dm_get_box_msg_wh();
 
 SDL_Rect dm_get_level_button_box();
 SDL_Rect dm_get_return_button_box();
+SDL_Rect dm_get_rst_btn_box();
 
 SDL_Rect dm_get_stage_registers_box();
 SDL_Rect dm_get_stage_ibox();

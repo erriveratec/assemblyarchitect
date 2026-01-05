@@ -152,6 +152,13 @@ int load_media()
 		return FAIL;
 	}
 
+	reset_button = load_texture_from_file("img/reset.png");
+	if (return_button == NULL){
+		printf("Could not load the level image SDL_Error: %s\n",
+				SDL_GetError());
+		return FAIL;
+	}
+
 	g_reg_arrow = load_texture_from_file("img/rightarrow.png");
 	if (return_button == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
@@ -165,6 +172,7 @@ int load_media()
 				SDL_GetError());
 		return FAIL;
 	}
+
 	g_ib_arrow = load_texture_from_file("img/rightarrow.png");
 	if (return_button == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",

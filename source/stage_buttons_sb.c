@@ -23,12 +23,14 @@ texture_t *step_back_button = NULL;
 texture_t *play_button = NULL;
 texture_t *step_forward_button = NULL;
 texture_t *return_button = NULL;
+texture_t *reset_button = NULL;
 
 iface_btn_t *stop;
 iface_btn_t *step_back;
 iface_btn_t *play;
 iface_btn_t *step_forward;
-iface_btn_t *ret_button;
+iface_btn_t *ret_btn;
+iface_btn_t *rst_btn;
 
 texture_t *g_escape_b1_texture = NULL;
 texture_t *g_escape_b2_texture = NULL;
@@ -124,6 +126,7 @@ void sb_display_escape_menu(bool show_menu)
 	}	
 	return;
 }
+
 
 /* Function: player_pressed_escape_key
  * ----------------------------------------------------------------------------
@@ -275,6 +278,62 @@ void sb_draw_stage_buttons(int code_size)
 	}
 }
 
+
+/* Function: sb_draw_rst_btn
+ * ----------------------------------------------------------------------------
+ * This function draws the reset button that will be shown to clean the code
+ *
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	Void.
+ */
+void sb_draw_rst_btn()
+{
+	bt_draw_iface_btn(rst_btn);
+}
+
+/* Function: sb_init_rst_btn
+ * -----------------------------------------------------------------------------
+ * This function initialises the reset button of the stage.
+ *
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	Void.
+ */
+void sb_init_rst_btn()
+{
+	if (rst_btn == NULL){
+		SDL_Rect r = dm_get_rst_btn_box();
+		rst_btn = malloc(sizeof(iface_btn_t));
+		rst_btn = bt_create_iface_btn(r, reset_button, true);
+	}
+	return;
+}
+
+/* Function: sb_chk_click_rst_btn
+ * -----------------------------------------------------------------------------
+ * Verifies if the reset button has been clicked
+ *
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	true if button clicked, false if otherwise.
+ */
+bool sb_chk_click_rst_btn()
+{
+	int rst = false;
+
+	if (bt_chk_mouse_rel_iface_btn(rst_btn) == true) {
+		rst = true;
+	}
+	return rst;
+}
+
 /* Function: sb_draw_return_button
  * ----------------------------------------------------------------------------
  * This function draws the return button that will be shown on several displays
@@ -287,12 +346,12 @@ void sb_draw_stage_buttons(int code_size)
  */
 void sb_draw_return_button()
 {
-	bt_draw_iface_btn(ret_button);
+	bt_draw_iface_btn(ret_btn);
 }
 
 /* Function: sb_init_return_buttons
  * -----------------------------------------------------------------------------
- * This function initialixses the return button that is used and present in 
+ * This function initialises the return button that is used and present in 
  * several stages.
  *
  * Arguments:
@@ -303,13 +362,14 @@ void sb_draw_return_button()
  */
 void sb_init_return_button()
 {
-	if (ret_button == NULL){
+	if (ret_btn == NULL){
 		SDL_Rect r = dm_get_return_button_box();
-		ret_button = malloc(sizeof(iface_btn_t));
-		ret_button = bt_create_iface_btn(r, return_button, true);
+		ret_btn = malloc(sizeof(iface_btn_t));
+		ret_btn = bt_create_iface_btn(r, return_button, true);
 	}
 	return;
 }
+
 /* Function: sb_initialize_stage_buttons
  * -----------------------------------------------------------------------------
  * Arguments:
@@ -359,7 +419,7 @@ bool sb_check_clicked_ret_button()
 {
 	int ret = false;
 
-	if (bt_chk_mouse_rel_iface_btn(ret_button) == true) {
+	if (bt_chk_mouse_rel_iface_btn(ret_btn) == true) {
 		ret = true;
 	}
 	return ret;

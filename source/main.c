@@ -44,6 +44,7 @@ static void initialize_game_assets()
 
 	sb_init_escape_menu();
 	sb_init_return_button();
+	sb_init_rst_btn();
 	tx_init_global_msgs();
 	iw_init_ins_box_texture();
 	rg_init_reg_texture();

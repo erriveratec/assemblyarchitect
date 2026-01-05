@@ -371,6 +371,7 @@ void stage_drawings(int level)
 	mc_draw_avatar();
 	lv_level_drawings(level);
 	sb_draw_return_button();
+	sb_draw_rst_btn();
 	return;
 }
 
@@ -467,6 +468,10 @@ int stage_select_level()
 			for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
 				bt_destroy_iface_btn(level_buttons[i]);
 			}
+		}
+		if (sb_chk_click_rst_btn() == true){
+			ret_val = LV_SELECT_PLAYER_SCREEN;	
+		
 		}
 	}
 	return ret_val;

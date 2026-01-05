@@ -61,6 +61,11 @@
 #define RET_BUTTON_W 90
 #define RET_BUTTON_H 75
 
+#define RET_RES_OFS 5
+
+#define RST_BUTTON_W 90
+#define RST_BUTTON_H 75
+
 #define RES_BUTTON_H 60
 #define RES_BACK_BUTTON_W 100
 #define RES_CONT_BUTTON_W 200
@@ -1128,6 +1133,27 @@ SDL_Rect dm_get_return_button_box()
 	b.x = SCREEN_BORDERS_OFS;
 	b.y = g_screen_height - b.h - SCREEN_BORDERS_OFS - 
 		  dm_get_ofs_button_shadow();
+	return b;
+}
+
+/* Function: dm_get_rst_btn_box
+ * -----------------------------------------------------------------------------
+ * Returns the box of the reset button of the stage
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_rst_btn_box()
+{
+	SDL_Rect ret_box = dm_get_return_button_box();
+	SDL_Rect b;
+	b.w = scale_to_resolution(RST_BUTTON_W);
+	b.h = scale_to_resolution(RST_BUTTON_H);
+	b.x = ret_box.x + ret_box.w + scale_to_resolution(RET_RES_OFS);
+	b.y = ret_box.y;
 	return b;
 }
 
