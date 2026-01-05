@@ -1788,6 +1788,30 @@ static bool chk_sel_line_in_pos(code_line_t *line)
 	return ret;
 }
 
+/* Function: cw_clear_code_list
+ * -----------------------------------------------------------------------------
+ * This function removes all the instructions contained in the code list
+ *
+ * Arguments:
+ *  Void.
+ *
+ * Return:
+ *	Void.
+ */
+void cw_clear_code_list()
+{
+	int size =  cw_get_code_list_size();
+	List *code = get_code_list();
+
+	for (int i = 0; i < size; i ++){
+		code_line_t *line = cw_get_code_line_at_pos(i);
+		ListNode *node = get_list_node_by_value(line);
+		cl_destroy_code_line(line);
+		List_remove(code, node);
+	}
+}
+
+
 /* Function: cw_player_holding_instruction
  * -----------------------------------------------------------------------------
  * This function contains the window were the programmed code is going to be

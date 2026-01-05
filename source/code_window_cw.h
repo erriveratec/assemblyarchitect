@@ -59,4 +59,5 @@ void cw_init_code_window_texture();
 SDL_Rect cw_get_code_line_coord_at_pos(int code_line_element, int pos);
 int cw_get_code_line_pos_by_ptr(code_line_t *line);
 code_line_t *cw_create_label_code_line();
+void cw_clear_code_list();
 #endif
