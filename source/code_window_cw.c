@@ -1800,11 +1800,10 @@ static bool chk_sel_line_in_pos(code_line_t *line)
  */
 void cw_clear_code_list()
 {
-	int size =  cw_get_code_list_size();
 	List *code = get_code_list();
 
-	for (int i = 0; i < size; i ++){
-		code_line_t *line = cw_get_code_line_at_pos(i);
+	while (cw_get_code_list_size() > 0){
+		code_line_t *line = cw_get_code_line_at_pos(0);
 		ListNode *node = get_list_node_by_value(line);
 		cl_destroy_code_line(line);
 		List_remove(code, node);
