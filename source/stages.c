@@ -67,6 +67,9 @@ static void code_updated_actions(int level_id);
 static void set_code_editable();
 static void reset_code_editable();
 
+
+
+
 /* Function: stage_select_player
  * ----------------------------------------------------------------------------
  * This function displays the screen where the player is selected
@@ -469,10 +472,6 @@ int stage_select_level()
 				bt_destroy_iface_btn(level_buttons[i]);
 			}
 		}
-		if (sb_chk_click_rst_btn() == true){
-			ret_val = LV_SELECT_PLAYER_SCREEN;	
-		
-		}
 	}
 	return ret_val;
 }
@@ -722,8 +721,14 @@ int stage_level(int level_id)
 	static bool run_finished = false;
 	static bool reset = false;
 	static code_line_t *hold_line = NULL;
-	bool back_to_level_selection = sb_check_clicked_ret_button(); 
 	static level_flags_t flags;
+	bool back_to_level_selection = sb_check_clicked_ret_button(); 
+	
+	if (sb_chk_click_rst_btn() == true){
+		sb_set_rst_menu(true);
+	}
+
+	sb_display_rst_menu(sb_chk_rst_menu_state());
 	sb_display_escape_menu(sb_get_escape_menu_state());
 	
 	if (sb_check_clicked_stage_button() == true && 
@@ -740,6 +745,7 @@ int stage_level(int level_id)
 	if (flags.non_stop == false || cw_check_code_pending_operand() == true){
 		hold_line = edit_code(level_id);
 	}
+	
 	if (mc_get_operation_flag() != NO_INVALID_OPERATION){
 		reset = mc_invalid_operation_handler(mc_get_operation_flag());
 		flags.play = false;
@@ -754,6 +760,7 @@ int stage_level(int level_id)
 			back_to_level_selection = true;
 		} 
 	}
+
 	if (flags.play == true && cw_check_code_pending_operand() == false){
 		run_finished = mc_run_code();
 	} else if ((flags.stop == true && flags.stop_enabled == true) ||
@@ -761,12 +768,15 @@ int stage_level(int level_id)
 		reset_level(level_id, &flags, &run_finished);	
 		reset = false;
 	}
+
 	if (back_to_level_selection == true){
 		ret_val = LV_LEVEL_SELECTION;	
 		reset_level(level_id, &flags, &run_finished);		
 		destroy_level(&flags);
 		run_finished = false;
 	}
+
+	sb_display_rst_menu(sb_chk_rst_menu_state());
 	sb_display_escape_menu(sb_get_escape_menu_state());
 	return ret_val;
 }
@@ -792,7 +802,7 @@ static int display_run_result(bool win_check)
 	dw_draw_wrapped_texture_by_h(s, text_h, g_win_text);
 	
 	static bool buttons_created = false;
-	static iface_btn_t *ret;
+	static iface_btn_t *back;
 	static iface_btn_t *con;
 	bool button_pressed = false;
 	int action_selected = NO_BUTTON_PRESSED;
@@ -806,27 +816,27 @@ static int display_run_result(bool win_check)
 		con = bt_create_iface_btn(r, con_texture, true);
 		check_mem(con);
 					
-		texture_t *ret_texture = dw_create_text_texture(
+		texture_t *back_texture = dw_create_text_texture(
 								 STR_BACK, C_WHITE);
-		check_mem(ret_texture);
+		check_mem(back_texture);
 		SDL_Rect b = dm_get_text_box_result_but1();
 
-		ret = bt_create_iface_btn(b, ret_texture, true);
-		check_mem(ret);
+		back = bt_create_iface_btn(b, back_texture, true);
+		check_mem(back);
 	} 
-	bt_draw_iface_btn(ret);
+	bt_draw_iface_btn(back);
 	bt_draw_iface_btn(con);
 
 	if (bt_chk_mouse_click_iface_btn(con) == true){
 		button_pressed = true;
 		action_selected = CONT_BUTTON_PRESSED;
 	} 
-	if (bt_chk_mouse_click_iface_btn(ret) == true){
+	if (bt_chk_mouse_click_iface_btn(back) == true){
 		button_pressed = true;
 		action_selected = BACK_BUTTON_PRESSED;
 	} 	
 	if (button_pressed == true){
-		bt_destroy_iface_btn(ret);
+		bt_destroy_iface_btn(back);
 		if (win_check == true){
 			bt_destroy_iface_btn(con);
 		}

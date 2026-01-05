@@ -11,9 +11,14 @@
 #define ESC_MENU_TEXT2 "Toggle Full Screen"
 #define ESC_MENU_TEXT3 "Exit Game"
 
+#define RST_MENU_TEXT0 "Do you want to reset the current level?"
+#define RST_MENU_TEXT1 "NO"
+#define RST_MENU_TEXT2 "YES"
+
 #define STAGE_BUTTONS_MOVEMENT_DELTA 10
 
 bool g_escape_menu = false;
+bool g_rst_menu = false;
 bool g_quit = false;
 
 bool g_step_btns_avail = false;
@@ -40,6 +45,13 @@ iface_btn_t *g_escape_b1;
 iface_btn_t *g_escape_b2;
 iface_btn_t *g_escape_b3;
 
+texture_array_t *g_rst_menu_text = NULL;
+texture_t *g_rst_b1_texture = NULL;
+texture_t *g_rst_b2_texture = NULL;
+
+iface_btn_t *g_rst_b1;
+iface_btn_t *g_rst_b2;
+
 /* Function: sb_set_step_btns_avail
  * ----------------------------------------------------------------------------
  * Sets the global variable that determines if the step buttons will be shown
@@ -56,7 +68,97 @@ void sb_set_step_btns_avail(bool state)
 	g_step_btns_avail = true;
 }
 
+/* Function: sb_display_rst_menu
+ * -----------------------------------------------------------------------------
+ * Displays the rst menu that is show when the reset button is pressed.
+ * 
+ * Arguments:
+ *	show_menu: a variable that determines if the menu will be shown.
+ *
+ * Return:
+ *	Void.
+ */
+void sb_display_rst_menu(bool show_menu)
+{
+	if (show_menu == true){
+		SDL_Rect r = dm_get_center_screen_box();
+		dw_draw_iface_box(r);
 
+		bt_draw_iface_btn(g_rst_b1);
+		bt_draw_iface_btn(g_rst_b2);
+
+		if (bt_chk_mouse_rel_iface_btn(g_rst_b1) == true){
+			sb_set_rst_menu(false);
+		} else if (bt_chk_mouse_rel_iface_btn(g_rst_b2) == true){
+			sb_set_rst_menu(false);
+		} 	
+	}
+	return;
+}
+
+/* Function: sb_init_rst_menu
+ * ----------------------------------------------------------------------------
+ * Initializes the assets of the reset menu.
+ *
+ * Arguments:
+ * 	Void.
+ *
+ * Return:
+ *	Void.	
+ */
+void sb_init_rst_menu()
+{
+	g_rst_b1_texture = dw_create_text_texture(RST_MENU_TEXT1, C_WHITE);
+	check_mem(g_rst_b1_texture);
+
+	g_rst_b2_texture = dw_create_text_texture(RST_MENU_TEXT2, C_WHITE);
+	check_mem(g_rst_b2_texture);
+	
+	SDL_Rect r = dm_get_rst_b1_box();
+	g_rst_b1 = bt_create_iface_btn(r, g_rst_b1_texture, true);
+	check_mem(g_rst_b1);
+
+	r = dm_get_rst_b2_box();
+	g_rst_b2 = bt_create_iface_btn(r, g_rst_b2_texture, true);
+	check_mem(g_rst_b2);
+
+	int h = dm_get_h_big_text();
+	int w = dm_get_w_msg(dm_get_center_screen_box());
+	g_rst_menu_text = dw_new_text_texture_by_h(w, h, C_BLACK, RST_MENU_TEXT0);
+	
+	error:
+	return;
+}
+
+/* Function: sb_set_rst_menu
+ * ----------------------------------------------------------------------------
+ * Sets the status of the rst menu to be shown to the player
+ *
+ * Arguments:
+ * 	state: state ot it the g_rst_menu variable will be set.
+ *
+ * Return:
+ *	Void.	
+ */
+void sb_set_rst_menu(bool state)
+{
+	g_rst_menu = state;
+}
+
+/* Function: sb_get_rst_menu_state
+ * ----------------------------------------------------------------------------
+ * This function return the boolean state of the rst menu.
+ *
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	Boolean with the state of the rst menu variable
+ */
+bool sb_chk_rst_menu_state()
+{
+	return g_rst_menu;
+}
 
 /* Function: sb_init_escape_menu
  * ----------------------------------------------------------------------------
@@ -109,7 +211,7 @@ void sb_display_escape_menu(bool show_menu)
 {
 	if (show_menu == true){
 		
-		SDL_Rect r = dm_get_escape_menu_box();
+		SDL_Rect r = dm_get_center_screen_box();
 		dw_draw_iface_box(r);
 
 		bt_draw_iface_btn(g_escape_b1);

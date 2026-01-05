@@ -42,10 +42,12 @@ SDL_Rect dm_get_p1_button_box();
 SDL_Rect dm_get_p2_button_box();
 SDL_Rect dm_get_p3_button_box();
 
-SDL_Rect dm_get_escape_menu_box();
+SDL_Rect dm_get_center_screen_box();
 SDL_Rect dm_get_escape_b1_box();
 SDL_Rect dm_get_escape_b2_box();
 SDL_Rect dm_get_escape_b3_box();
+SDL_Rect dm_get_rst_b1_box();
+SDL_Rect dm_get_rst_b2_box();
 
 SDL_Rect dm_get_code_button_wh();
 SDL_Rect dm_get_arrow_wh();

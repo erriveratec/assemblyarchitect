@@ -55,6 +55,9 @@
 #define ESC_MENU_BUTTON_W 350
 #define ESC_MENU_BUTTON_H 60
 
+#define RST_MENU_BUTTON_W 350
+#define RST_MENU_BUTTON_H 60
+
 #define SEL_LEVEL_BUTTON_W 130
 #define SEL_LEVEL_BUTTON_H 60
 
@@ -63,8 +66,11 @@
 
 #define RET_RES_OFS 5
 
-#define RST_BUTTON_W 90
-#define RST_BUTTON_H 75
+#define RST_BTN_W 100
+#define RST_BTN_H 75
+
+#define RST_MENU_BTNS_W 100
+#define RST_MENU_BTNS_H 60
 
 #define RES_BUTTON_H 60
 #define RES_BACK_BUTTON_W 100
@@ -80,7 +86,7 @@
 
 #define IFACE_BUTTON_BORDER_W 5 // Used for the buttons
 #define IFACE_FILLED_OFS 20 // Used for Interface Messages
-#define BUTTON_SHADOW_OFS 10
+#define BUTTON_SHADOW_OFS 10 // The shadow of iface buttons
 #define SCREEN_BORDERS_OFS 2
 
 #define BORDERS_WIDTH 5 //Used for the interface boxes
@@ -1150,8 +1156,8 @@ SDL_Rect dm_get_rst_btn_box()
 {
 	SDL_Rect ret_box = dm_get_return_button_box();
 	SDL_Rect b;
-	b.w = scale_to_resolution(RST_BUTTON_W);
-	b.h = scale_to_resolution(RST_BUTTON_H);
+	b.w = scale_to_resolution(RST_BTN_W);
+	b.h = scale_to_resolution(RST_BTN_H);
 	b.x = ret_box.x + ret_box.w + scale_to_resolution(RET_RES_OFS);
 	b.y = ret_box.y;
 	return b;
@@ -1373,9 +1379,9 @@ SDL_Rect dm_get_code_button_wh()
 	return b;
 }
 
-/* Function: dm_get_escape_menu_box
+/* Function: dm_get_center_screen_box
  * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object.
+ * Returns the box of the center screen for menus
  *
  * Arguments:
  *	Void.
@@ -1383,7 +1389,7 @@ SDL_Rect dm_get_code_button_wh()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-SDL_Rect dm_get_escape_menu_box()
+SDL_Rect dm_get_center_screen_box()
 {
 	SDL_Rect b;
 	b.w = scale_to_resolution(ESC_MENU_BOX_W);
@@ -1405,7 +1411,7 @@ SDL_Rect dm_get_escape_menu_box()
  */
 SDL_Rect dm_get_escape_b1_box()
 {
-	SDL_Rect mb = dm_get_escape_menu_box();
+	SDL_Rect mb = dm_get_center_screen_box();
 
 	SDL_Rect b;
 	b.w = scale_to_resolution(ESC_MENU_BUTTON_W);
@@ -1427,7 +1433,7 @@ SDL_Rect dm_get_escape_b1_box()
  */
 SDL_Rect dm_get_escape_b2_box()
 {
-	SDL_Rect mb = dm_get_escape_menu_box();
+	SDL_Rect mb = dm_get_center_screen_box();
 	SDL_Rect b1 = dm_get_escape_b1_box();
 	
 	SDL_Rect b;
@@ -1450,7 +1456,7 @@ SDL_Rect dm_get_escape_b2_box()
  */
 SDL_Rect dm_get_escape_b3_box()
 {
-	SDL_Rect mb = dm_get_escape_menu_box();
+	SDL_Rect mb = dm_get_center_screen_box();
 	SDL_Rect b2 = dm_get_escape_b2_box();
 	
 	SDL_Rect b;
@@ -1460,6 +1466,51 @@ SDL_Rect dm_get_escape_b3_box()
 	b.y = b2.y + (mb.h - 3*b.h)/4 + b.h;
 	return b;
 }
+
+/* Function: dm_get_rst_b1_box
+ * -----------------------------------------------------------------------------
+ * Box position of the button 1 of the reset menu
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_rst_b1_box()
+{
+	SDL_Rect cs = dm_get_center_screen_box();
+
+	SDL_Rect b;
+	b.w = scale_to_resolution(RST_MENU_BTNS_W);
+	b.h = scale_to_resolution(RST_MENU_BTNS_H);
+	b.x = cs.x + cs.w/2 - 2*b.w;
+	b.y = cs.y + cs.h/2 + b.h;
+	return b;
+}
+
+/* Function: dm_get_rst_b2_box
+ * -----------------------------------------------------------------------------
+ * Box position of the button 2 of the reset menu
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_rst_b2_box()
+{
+	SDL_Rect cs = dm_get_center_screen_box();
+	
+	SDL_Rect b;
+	b.w = scale_to_resolution(RST_MENU_BTNS_W);
+	b.h = scale_to_resolution(RST_MENU_BTNS_H);
+	b.x = cs.x + cs.w/2 + b.w;
+	b.y = cs.y + cs.h/2 + b.h;
+	return b;
+}
+
 /* Function: dm_get_p1_button_box
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object.

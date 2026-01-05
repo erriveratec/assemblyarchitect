@@ -43,6 +43,7 @@ static void initialize_game_assets()
 	g_win_text = dw_new_text_texture_by_h(rb.w, text_h, C_BLACK, WIN_TEXT);
 
 	sb_init_escape_menu();
+	sb_init_rst_menu();
 	sb_init_return_button();
 	sb_init_rst_btn();
 	tx_init_global_msgs();
