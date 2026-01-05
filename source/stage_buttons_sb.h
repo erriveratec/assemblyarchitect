@@ -31,6 +31,7 @@ void sb_init_rst_menu();
 void sb_set_rst_menu(bool state);
 bool sb_chk_rst_menu_state();
 void sb_display_rst_menu(bool show_menu);
+bool sb_chk_rst_menu_btns(bool show_menu);
 
 enum stage_buttons_e {
 	INVALID,

@@ -76,7 +76,7 @@ void sb_set_step_btns_avail(bool state)
  *	show_menu: a variable that determines if the menu will be shown.
  *
  * Return:
- *	Void.
+ *	bool indicating if the menu will be result
  */
 void sb_display_rst_menu(bool show_menu)
 {
@@ -84,16 +84,41 @@ void sb_display_rst_menu(bool show_menu)
 		SDL_Rect r = dm_get_center_screen_box();
 		dw_draw_iface_box(r);
 
+		SDL_Rect text_box = dm_get_center_screen_box_text();
+
+		int text_h = dm_get_h_error_msg();		
+		dw_draw_wrapped_texture_by_h(text_box, text_h, g_rst_menu_text);
+
 		bt_draw_iface_btn(g_rst_b1);
 		bt_draw_iface_btn(g_rst_b2);
+	}
+	return;
+}
+
+/* Function: sb_chk_rst_menu_btns
+ * -----------------------------------------------------------------------------
+ * Returns a boolean indicating what buttons was pressed in the rst menu
+ * 
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	false if not level rst, true if level reset
+ */
+bool sb_chk_rst_menu_btns(bool show_menu)
+{
+	bool reset = false;
+	if (show_menu == true){
 
 		if (bt_chk_mouse_rel_iface_btn(g_rst_b1) == true){
+			reset = false;
 			sb_set_rst_menu(false);
 		} else if (bt_chk_mouse_rel_iface_btn(g_rst_b2) == true){
+			reset = true;
 			sb_set_rst_menu(false);
 		} 	
 	}
-	return;
+	return reset;
 }
 
 /* Function: sb_init_rst_menu

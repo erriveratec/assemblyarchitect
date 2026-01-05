@@ -704,10 +704,10 @@ SDL_Rect dm_get_text_box_result_text()
 {
 	SDL_Rect rb = dm_get_text_box_result();
 	SDL_Rect b;
-	b.w = rb.w - 2*scale_to_resolution(W_PADDING);
+	b.w = rb.w - 2*scale_to_resolution(IFACE_FILLED_OFS);
 	b.h = scale_to_resolution(TEXT_H_TOTAL_MSG);
 	b.x = rb.x + (rb.w - b.w)/2;
-	b.y = rb.y + scale_to_resolution(H_PADDING);
+	b.y = rb.y + scale_to_resolution(IFACE_FILLED_OFS);
 	return b;
 }
 
@@ -1396,6 +1396,27 @@ SDL_Rect dm_get_center_screen_box()
 	b.h = scale_to_resolution(ESC_MENU_BOX_H);
 	b.x = (g_screen_width - b.w)/2;
 	b.y = (g_screen_height - b.h)/2;
+	return b;
+}
+
+/* Function: dm_get_center_screen_box_text
+ * -----------------------------------------------------------------------------
+ * Box used for the text of the center box
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_center_screen_box_text()
+{
+	SDL_Rect rb = dm_get_center_screen_box();
+	SDL_Rect b;
+	b.w = rb.w - 2*scale_to_resolution(IFACE_FILLED_OFS);
+	b.h = scale_to_resolution(TEXT_H_TOTAL_MSG);
+	b.x = rb.x + (rb.w - b.w)/2;
+	b.y = rb.y + scale_to_resolution(IFACE_FILLED_OFS);
 	return b;
 }
 

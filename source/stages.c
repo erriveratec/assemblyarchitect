@@ -727,9 +727,11 @@ int stage_level(int level_id)
 	if (sb_chk_click_rst_btn() == true){
 		sb_set_rst_menu(true);
 	}
+	if (sb_chk_rst_menu_btns(sb_chk_rst_menu_state()) == true){
+		reset_level(level_id, &flags, &run_finished);
+	}
 
-	sb_display_rst_menu(sb_chk_rst_menu_state());
-	sb_display_escape_menu(sb_get_escape_menu_state());
+	//sb_display_escape_menu(sb_get_escape_menu_state());
 	
 	if (sb_check_clicked_stage_button() == true && 
 									  cw_check_code_pending_operand() == false){
