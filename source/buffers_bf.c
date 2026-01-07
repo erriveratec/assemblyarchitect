@@ -35,8 +35,8 @@ SDL_Rect output_box;
 static List *input_list = NULL;
 static List *output_list = NULL;
 
-code_btn_t input_buffer_button;
-code_btn_t output_buffer_button;
+btn_t input_buffer_button;
+btn_t output_buffer_button;
 
 operand_t *input_buffer = NULL;
 operand_t *output_buffer = NULL;
@@ -208,14 +208,14 @@ operand_t *bf_create_buffer_operand_by_id(int id)
 	operand_t *b = malloc(sizeof(operand_t));
 	if (id == IB){
 		texture_t *t = cl_create_operand_texture(id);
-		b->b = bt_create_code_btn(input_buffer->b->r, input_buffer->b->act, 
+		b->b = bt_create_btn(input_buffer->b->r, input_buffer->b->act, 
 							 input_buffer->b->rect, input_buffer->b->fill, 
 							 C_BLACK, C_WHITE, t);
 
 		b->id = input_buffer->id;
 	} else if (id == OB){
 		texture_t *t = cl_create_operand_texture(id);
-		b->b = bt_create_code_btn(output_buffer->b->r, output_buffer->b->act, 
+		b->b = bt_create_btn(output_buffer->b->r, output_buffer->b->act, 
 							 output_buffer->b->rect, output_buffer->b->fill, 
 							 C_BLACK, C_WHITE, t);
 		b->id = output_buffer->id;
@@ -244,7 +244,7 @@ operand_t *bf_create_operand_of_selected_buffer()
 		b = malloc(sizeof(operand_t));
 		texture_t *t = cl_create_operand_texture(IB);
 
-		b->b = bt_create_code_btn(input_buffer->b->r, input_buffer->b->act, 
+		b->b = bt_create_btn(input_buffer->b->r, input_buffer->b->act, 
 							 input_buffer->b->rect, input_buffer->b->fill,
 							 C_BLACK, C_WHITE, t);
 
@@ -254,7 +254,7 @@ operand_t *bf_create_operand_of_selected_buffer()
 	if (bt_check_mouse_released_button(&output_buffer_button) == true){
 		b = malloc(sizeof(operand_t));
 		texture_t *t = cl_create_operand_texture(OB);
-		b->b = bt_create_code_btn(output_buffer->b->r, output_buffer->b->act, 
+		b->b = bt_create_btn(output_buffer->b->r, output_buffer->b->act, 
 							 output_buffer->b->rect, output_buffer->b->fill, 
 							 C_BLACK, C_WHITE, t);
 		b->id = output_buffer->id;
@@ -276,7 +276,7 @@ void bf_initialize_buffer_operands()
 	SDL_Rect r = dm_get_code_button_wh();
 	texture_t *ib = dw_create_text_texture(ib_text, C_WHITE);
 	check_mem(ib);
-	code_btn_t *a = bt_create_code_btn(r, true, false, false, C_BLACK, C_WHITE, 
+	btn_t *a = bt_create_btn(r, true, false, false, C_BLACK, C_WHITE, 
 						        ib);
 	check_mem(a);
 
@@ -286,7 +286,7 @@ void bf_initialize_buffer_operands()
 	
 	texture_t *ob = dw_create_text_texture(ob_text, C_WHITE);
 	check_mem(ob);
-	code_btn_t *b = bt_create_code_btn(r, true, false, false, C_BLACK, C_WHITE,
+	btn_t *b = bt_create_btn(r, true, false, false, C_BLACK, C_WHITE,
 								ob);
 	check_mem(b);
 	output_buffer = cl_create_operand(OB, b);

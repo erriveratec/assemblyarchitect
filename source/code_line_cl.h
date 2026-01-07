@@ -7,13 +7,13 @@
 typedef struct code_line_t code_line_t;
 
 typedef struct operand_t{
-	code_btn_t *b;
+	btn_t *b;
 	int id;
 	code_line_t *jptr;
 } operand_t;
 
 typedef struct instruction_t{
-	code_btn_t *b;
+	btn_t *b;
 	int id;
 } instruction_t;
 
@@ -92,8 +92,8 @@ extern char *ob_text;
 
 code_line_t *cl_create_code_line(instruction_t *ins);
 void cl_destroy_code_line(code_line_t *line);
-instruction_t *cl_create_instruction(int id, code_btn_t *b);
-operand_t *cl_create_operand(int id, code_btn_t *b);
+instruction_t *cl_create_instruction(int id, btn_t *b);
+operand_t *cl_create_operand(int id, btn_t *b);
 void cl_assign_operand_to_line(operand_t *op, code_line_t *line);
 bool cl_check_operand_compatibility(operand_t *op, code_line_t *line);
 int cl_get_instruction_operand_quantity(int instruction_id);

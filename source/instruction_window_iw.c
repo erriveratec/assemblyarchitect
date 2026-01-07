@@ -207,7 +207,7 @@ bool iw_check_clicked_instruction()
 	   
 	   instruction_t *c = cur->value;
 	   
-	   if (bt_check_mouse_click_button(c->b) == true){
+	   if (bt_btn_clicked(c->b) == true){
 		   clicked = true;
 		   break;
 	   } 
@@ -236,7 +236,7 @@ instruction_t *iw_get_clicked_instruction()
 	LIST_FOREACH(instructions, first, next, cur){ 
 		
 		instruction_t *c = cur->value;
-		if (true == bt_check_mouse_click_button(c->b)){
+		if (true == bt_btn_clicked(c->b)){
 			return c;
 		} 
 	}
@@ -285,7 +285,7 @@ void iw_add_instruction_to_list(int id)
 	
 	r.x = x;
 	r.y = y;
-	code_btn_t *b = bt_create_code_btn(r, true, false, false, C_BLACK, 
+	btn_t *b = bt_create_btn(r, true, false, false, C_BLACK, 
 								   C_WHITE, instruction_text);
 	check_mem(b);
 
@@ -320,7 +320,7 @@ void iw_draw_instruction_box()
 
 	LIST_FOREACH(instructions, first, next, cur){
 		instruction_t *c = cur->value;
-		bt_draw_code_btn(c->b);
+		bt_draw_btn(c->b);
 	}
 }
 

@@ -228,7 +228,7 @@ void bt_draw_iface_btn_nopad(iface_btn_t *b)
 	assert(status != FAIL && "The texture could not be drawn");
 }
 
-/* Function: bt_create_code_btn
+/* Function: bt_create_btn
  * -----------------------------------------------------------------------------
  * This function is used to create a button object, it receives as 
  * arguments the parameters of the button. The scale of the texture is 
@@ -246,10 +246,10 @@ void bt_draw_iface_btn_nopad(iface_btn_t *b)
  * Return:
  *	Pointer to the button object
  */
-code_btn_t *bt_create_code_btn(SDL_Rect r, bool act, bool rect, int fill, 
+btn_t *bt_create_btn(SDL_Rect r, bool act, bool rect, int fill, 
 									  SDL_Color in , SDL_Color out,texture_t *t)
 {
-	code_btn_t *new_button = malloc(sizeof(code_btn_t));
+	btn_t *new_button = malloc(sizeof(btn_t));
 
 	new_button->r = r;
 	new_button->act = act;
@@ -265,7 +265,7 @@ code_btn_t *bt_create_code_btn(SDL_Rect r, bool act, bool rect, int fill,
 	return new_button;
 }
 
-/* Function: bt_draw_code_btn
+/* Function: bt_draw_btn
  * -----------------------------------------------------------------------------
  * This function draws the image of a given button using the according
  * scale factor of the image to fit on the button. The texture is centered
@@ -276,7 +276,7 @@ code_btn_t *bt_create_code_btn(SDL_Rect r, bool act, bool rect, int fill,
  * Return:
  *	Void
  */
-void bt_draw_code_btn(code_btn_t *b)
+void bt_draw_btn(btn_t *b)
 {
 	assert(b != NULL && "The button pointer is NULL");
 	
@@ -319,7 +319,7 @@ void bt_draw_code_btn(code_btn_t *b)
  *	void
  *
  */
-void assign_button_parameters(SDL_Rect r, code_btn_t *b)
+void assign_button_parameters(SDL_Rect r, btn_t *b)
 {
 	b->r = r;
 }
@@ -336,7 +336,7 @@ void assign_button_parameters(SDL_Rect r, code_btn_t *b)
  *	false if otherwise
  *
 */
-bool bt_check_mouse_click_button(code_btn_t *button)
+bool bt_btn_clicked(btn_t *button)
 {
 	assert(NULL != button && "The button pointer cannot be NULL");
 
@@ -367,7 +367,7 @@ bool bt_check_mouse_click_button(code_btn_t *button)
  *	true if the mouse clicked inside the button
  *	false if otherwise
 */
-bool bt_check_mouse_released_button(code_btn_t *button)
+bool bt_check_mouse_released_button(btn_t *button)
 {
 	assert(button != NULL && "The button pointer cannot be NULL");
 
@@ -399,9 +399,9 @@ bool bt_check_mouse_released_button(code_btn_t *button)
  *	The new button object 
  *
  */
-code_btn_t *bt_copy_button(code_btn_t *b)
+btn_t *bt_copy_button(btn_t *b)
 {
-	code_btn_t *copied_button = malloc(sizeof(code_btn_t));
+	btn_t *copied_button = malloc(sizeof(btn_t));
 	copied_button->r = b->r;
 	copied_button->act = b->act;
 	copied_button->rect = b->rect;
@@ -427,7 +427,7 @@ code_btn_t *bt_copy_button(code_btn_t *b)
  *	Void
  *
  */
-void bt_destroy_button(code_btn_t *b)
+void bt_destroy_button(btn_t *b)
 {
 	SDL_DestroyTexture(b->t->texture);
 	free(b->t);

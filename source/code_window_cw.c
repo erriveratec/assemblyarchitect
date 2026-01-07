@@ -174,7 +174,7 @@ static operand_t *create_saved_jump_operand(int op1_id)
 	texture_t *t = dw_create_text_texture(op_text, C_WHITE);
 
 	SDL_Rect r = {.x = 0, .y = 0, .w = 2*cb.w, .h = cb.h};
-	b->b = bt_create_code_btn(r, false, false, false, C_BLACK, 
+	b->b = bt_create_btn(r, false, false, false, C_BLACK, 
 							C_WHITE, t);
 
 	b->id = op1_id;
@@ -215,7 +215,7 @@ static operand_t *create_updated_jump_operand(code_line_t *jmp_addr)
 
 	SDL_Rect cb = dm_get_code_button_wh();
 	SDL_Rect r = {.x = 0, .y = 0, .w = 2*cb.w, .h = cb.h};
-	op->b = bt_create_code_btn(r, false, false, false, C_BLACK, C_WHITE, t);
+	op->b = bt_create_btn(r, false, false, false, C_BLACK, C_WHITE, t);
 	op->id = cw_get_code_line_pos_by_ptr(jmp_addr);
 	op->jptr = jmp_addr;
 
@@ -298,7 +298,7 @@ operand_t *cw_create_jump_operand(code_line_t *addr)
 
 	SDL_Rect cb = dm_get_code_button_wh();
 	SDL_Rect r = {.x = 0, .y = 0, .w = 2*cb.w, .h = cb.h};
-	op->b = bt_create_code_btn(r, false, false, false, C_BLACK, 
+	op->b = bt_create_btn(r, false, false, false, C_BLACK, 
 							 C_WHITE, t);
 	op->id = cw_get_code_line_pos_by_ptr(addr);
 	op->jptr = addr;
@@ -436,7 +436,7 @@ static operand_t *create_saved_label_operand(int op1_id)
 	texture_t *t = dw_create_text_texture(op_text, C_WHITE);
 
 	SDL_Rect r = dm_get_code_button_wh();
-	b->b = bt_create_code_btn(r, false, false, false, C_BLACK, 
+	b->b = bt_create_btn(r, false, false, false, C_BLACK, 
 							C_WHITE, t);
 
 	b->id = op1_id;
@@ -474,7 +474,7 @@ static operand_t *create_label_operand(code_line_t *line)
 	texture_t *t = dw_create_text_texture(op_text, C_WHITE);
 
 	SDL_Rect r = dm_get_code_button_wh();
-	b->b = bt_create_code_btn(r, false, false, false, C_BLACK, 
+	b->b = bt_create_btn(r, false, false, false, C_BLACK, 
 							C_WHITE, t);
 
 	b->id = label;
@@ -657,7 +657,7 @@ void cw_add_saved_line(char *line)
 	SDL_Rect r = dm_get_code_button_wh();
 	r.x = x;
 	r.y = y;
-	code_btn_t *b = bt_create_code_btn(r, true, false, false, C_BLACK, 
+	btn_t *b = bt_create_btn(r, true, false, false, C_BLACK, 
 								   C_WHITE, instruction_tex);
 	check_mem(b);
 	instruction_t *new_ins = cl_create_instruction(ins_id, b);
@@ -868,7 +868,7 @@ code_line_t *cw_get_clicked_code()
 		
 		code_line_t *c = cur->value;
 
-		if (true == bt_check_mouse_click_button(c->ins->b)){
+		if (true == bt_btn_clicked(c->ins->b)){
 			clicked = c;
 		} 
 	}
@@ -897,7 +897,7 @@ bool cw_check_clicked_code()
 		
 		code_line_t *c = cur->value;
 		
-		if (true == bt_check_mouse_click_button(c->ins->b)){
+		if (true == bt_btn_clicked(c->ins->b)){
 			clicked = true;
 			break;
 		} 
@@ -1336,13 +1336,13 @@ static void display_player_code()
 	int number_ofs = dm_get_w_border_padding();
 	LIST_FOREACH(code, first, next, cur){
 		code_line_t *line = cur->value;	
-		bt_draw_code_btn(line->ins->b);
+		bt_draw_btn(line->ins->b);
 		
 		if (line->op1 != NULL){
-			bt_draw_code_btn(line->op1->b);
+			bt_draw_btn(line->op1->b);
 		}
 		if (line->op2 != NULL){
-			bt_draw_code_btn(line->op2->b);
+			bt_draw_btn(line->op2->b);
 		}
 	
 		int comma = cl_get_instruction_operand_quantity(line->ins->id);
@@ -1881,14 +1881,14 @@ void cw_player_holding_instruction(code_line_t *line, bool arng, bool del)
 	if (line->op1 != NULL){
 		line->op1->b->r.x = line->ins->b->r.x + op1_ofs;
 		line->op1->b->r.y = line->ins->b->r.y;
-		bt_draw_code_btn(line->op1->b);
+		bt_draw_btn(line->op1->b);
 	}
 	if (line->op2 != NULL){
 		line->op2->b->r.x = line->ins->b->r.x + op2_ofs;
 		line->op2->b->r.y = line->ins->b->r.y;
-		bt_draw_code_btn(line->op2->b);
+		bt_draw_btn(line->op2->b);
 	}
-	bt_draw_code_btn(line->ins->b);
+	bt_draw_btn(line->ins->b);
 }
 
 /* Function: cw_check_code_pending_op1
@@ -2069,7 +2069,7 @@ bool cw_check_code_sorted()
 	LIST_FOREACH(code, first, next, cur){
 
 		code_line_t *value = cur->value;
-		code_btn_t *b = value->ins->b;
+		btn_t *b = value->ins->b;
 		int x = cw_get_code_line_x(value->ins->id);
 
 		if (b->r.x < x || b->r.x > x || b->r.y < y || b->r.y > y){
@@ -2226,7 +2226,7 @@ code_line_t *cw_create_label_code_line()
 	r.x = ms_get_mouse_x() - r.w/2;
 	r.y = ms_get_mouse_y() - r.h/2;
 
-	code_btn_t *b = bt_create_code_btn(r, true, false, false, C_BLACK, C_WHITE, t);
+	btn_t *b = bt_create_btn(r, true, false, false, C_BLACK, C_WHITE, t);
 	check_mem(b);
 	
 	instruction_t *i = cl_create_instruction(LABEL, b);
