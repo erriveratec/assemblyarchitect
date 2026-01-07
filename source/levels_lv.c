@@ -331,9 +331,10 @@ bool lv_is_code_editable()
 		if (pos == exception){
 			editable = true;	
 		}
-	} else if (
-
-	else {
+	} else if (exception == OP2_LAST){
+		int code_size = cw_get_code_list_size();
+		editable = cw_chk_click_code_op2(code_size);
+	} else {
 		editable = g_code_editable;
 	}
 	
@@ -748,7 +749,7 @@ static void level_2_tutorial()
 		tx_text_box(TX_CODE_BOX, MSG4); //Delete the instruction
 		ar_display_arrow(AR_DEL);
 	} else if (change_op == true && hold == false){
-		set_code_editable(false, INS_EXCEPTION);
+		set_code_editable(false, OP2_LAST);
 		if (i2->state != CHANGING_OP2){
 			tx_text_box(TX_CODE_BOX, MSG5); // Select operand
 			ar_display_arrow(AR_OP2);
@@ -761,6 +762,7 @@ static void level_2_tutorial()
 		tx_text_box(TX_CODE_BOX, MSG7); //Mov ins to first pos
 		ar_display_arrow(AR_CODE);
 	} else if (press_play == true && play == false){
+		set_code_editable(false, NO_EXCEPTION);
 		tx_text_box(TX_STAGEBUTTON_BOX, MSG8); //Press play
 		ar_display_arrow(AR_PLAY);
 	}

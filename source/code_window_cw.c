@@ -1821,11 +1821,12 @@ void cw_clear_code_list()
  * Arguments:
  * 	instruction: the instruction that the mouse object is carrying
  *  arrange: boolean indicating if the instructions can be arrangeable.
+ *	del: boolean indicating if the code can be deleted
  *
  * Return:
  *	Void.
  */
-void cw_player_holding_instruction(code_line_t *line, bool arrange)
+void cw_player_holding_instruction(code_line_t *line, bool arrange, bool del)
 {
 	List *code = get_code_list();
 	assert(code != NULL &&  "Code list is NULL");
@@ -2080,39 +2081,35 @@ bool cw_check_code_sorted()
 	return retval;
 }
 
-/* Function: cw_check_clicked_code_op2
+/* Function: cw_chk_click_code_op2
  * -----------------------------------------------------------------------------
- * Verifies if the player clicked a code operand
+ * Verifies if the player clicked the operand 2 of the code
  *
  * Arguments:
- * 	code: the list of code programmed by the player
+ * 	code_line_pos: The position of the codeline that will be verified
  *	
  * Return:
- * 	true if player clicked on operand. 
+ * 	true if player clicked on operand 2.
  *	false if otherwise.
  *
  */
-bool cw_check_clicked_code_operand()
+bool cw_chk_click_code_op2(int code_line_pos)
 {
 	List *code = get_code_list();
 	assert(NULL != code && "The code pointer cannot be NULL");
+
 	bool clicked = false;
 	
+	int i = 1; // code line pos starts a 1
 	LIST_FOREACH(code, first, next, cur){ 
-		
 		code_line_t *c = cur->value;
-		if (NULL != c->op1){
-			if (true == bt_check_mouse_released_button(c->op1->b)){
-				clicked = true;
-				break;
-			}
-		} 
-		if (NULL != c->op2){
+		if (c->op2 != NULL && code_line_pos == i){
 			if (true == bt_check_mouse_released_button(c->op2->b)){
 				clicked = true;
 				break;
 			}
 		}
+		i++;
 	}
 	return clicked;
 }

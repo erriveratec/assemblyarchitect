@@ -609,7 +609,7 @@ static code_line_t *pending_operand_handler()
 
 	if (l->ins->id == JMP){
 		r = cw_create_label_code_line();
-		cw_player_holding_instruction(r, false);
+		cw_player_holding_instruction(r, false, true);
 		operand_t *a = cw_create_jump_operand(r);
 		cl_assign_operand_to_line(a, l);
 	} else if (left_released == true && register_selected == true &&
@@ -673,7 +673,7 @@ static code_line_t *edit_code(int level_id)
 												 lv_is_code_editable() == true){
 		line = cw_get_clicked_code();
 	} else if ((left_pressed == true || hold_line == true) && line != NULL){
-		cw_player_holding_instruction(line, lv_is_arrange_enabled());
+		cw_player_holding_instruction(line, lv_is_arrange_enabled(), true);
 		hold_line = (left_released == true) ? false : true;
 	}  else if (left_pressed == false && NULL != line){
 		if (cw_check_if_in_code_list(line) == false){
