@@ -32,7 +32,8 @@ static bool g_code_editable;
 static int g_code_editable_exception;
 static bool g_buf_selectable;
 static bool g_reg_selectable;
-static bool g_arr_enabled;
+static bool g_arng_enabled;
+static bool g_del_enabled;
 
 static List *g_win_list = NULL;
 static int g_level_instructions_limit;
@@ -285,10 +286,10 @@ static void set_buf_selectable(bool state)
  */
 bool lv_is_arrange_enabled()
 {
-	return g_arr_enabled;
+	return g_arng_enabled;
 }
 
-/* Function: arrange_enabled
+/* Function: set_arrange_enabled
  * ----------------------------------------------------------------------------
  * Sets the arrange_enabled global variable
  *
@@ -300,7 +301,59 @@ bool lv_is_arrange_enabled()
  */
 static void set_arrange_enabled(bool state)
 {
-	g_arr_enabled = state;
+	g_arng_enabled = state;
+}
+
+/* Function: lv_is_del_enabled
+ * ----------------------------------------------------------------------------
+ * Returns a boolean with the value to check if line deleting is enabled
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Boolean indicating if the delete is enabled
+ */
+bool lv_is_del_enabled()
+{
+	return g_del_enabled;
+}
+
+/* Function: set_del_enabled
+ * ----------------------------------------------------------------------------
+ * Sets the arrange_enabled global variable
+ *
+ * Arguments:
+ *	state: state to which the global variable will be set
+ *
+ * Return:
+ *	Void.
+ */
+static void set_del_enabled(bool state)
+{
+	g_del_enabled = state;
+}
+
+/* Function: lv_init_stage_code
+ * ----------------------------------------------------------------------------
+ * Generates the instructions of the levels that have starting code
+ *
+ * Arguments:
+ *	level_id: id of the level that the instructions will be generated
+ *
+ * Return:
+ *	Void.
+ */
+void lv_init_stage_code(int level_id)
+{
+	char i1[] = "MOV [ob], rax";
+	char i2[] = "MOV rax, rax";
+	char i3[] = "MOV rax, rax";
+	if (level_id == 2){
+		cw_add_saved_line(i1);
+		cw_add_saved_line(i2);
+		cw_add_saved_line(i3);
+	}
 }
 
 
@@ -759,6 +812,7 @@ static void level_2_tutorial()
 		}
 	} else if (mov_instruction == true){
 		set_code_editable(false, size);
+		set_del_enabled(false);
 		tx_text_box(TX_CODE_BOX, MSG7); //Mov ins to first pos
 		ar_display_arrow(AR_CODE);
 	} else if (press_play == true && play == false){
@@ -1344,6 +1398,7 @@ void lv_init_level_assets(int level)
 	assert(level < LV_LEVEL_MAX && level > LV_LEVEL_MIN && 
 			          								"Invalid level value");
 	set_arrange_enabled(true);
+	set_del_enabled(true);
 	set_code_editable(true, NO_EXCEPTION);
 	set_buf_selectable(true);
 	set_reg_selectable(true);

@@ -26,7 +26,7 @@ texture_t **g_numbers;
 void display_line_number();
 int get_code_line_position(int y);
 ListNode *get_list_node_by_value(code_line_t *line);
-static bool check_if_inside_code_window();
+static bool in_code_window();
 static bool chk_sel_line_in_pos(code_line_t *line);
 static void set_text_box(int x, int y, int w, int h);
 static void display_player_code();
@@ -621,7 +621,7 @@ void cw_add_saved_line(char *line)
 	int op1_id;
 	int op2_id;
 
-	ins_text =  strtok_r(line, delim, &saveptr1);
+	ins_text = strtok_r(line, delim, &saveptr1);
 	ins_id = cl_text_to_instruction_id(ins_text);
 	
 	int operand_quantity = cl_get_instruction_operand_quantity(ins_id);
@@ -1054,7 +1054,7 @@ SDL_Rect cw_get_text_box_rect()
 	return g_text_box;
 }
 
-/* Function: check_if_inside_code_window
+/* Function: in_code_window
  * -----------------------------------------------------------------------------
  * This function verifies if the mouse coordinates are inside of one of the 
  * spaces where a instruction can be assigned.
@@ -1065,7 +1065,7 @@ SDL_Rect cw_get_text_box_rect()
  * Return:
  *	Void.
  */
-static bool check_if_inside_code_window(){
+static bool in_code_window(){
 	
 	int mouse_x = ms_get_mouse_x();
 	int mouse_y = ms_get_mouse_y();
@@ -1285,7 +1285,7 @@ void cw_draw_code_window()
 	// Adjust the height of the code box
 	code_box_height_adjust();
 
-	if (check_if_inside_code_window() == true){
+	if (in_code_window() == true){
 		adjust_code_box_position();
 	}
 	
@@ -1826,24 +1826,24 @@ void cw_clear_code_list()
  * Return:
  *	Void.
  */
-void cw_player_holding_instruction(code_line_t *line, bool arrange, bool del)
+void cw_player_holding_instruction(code_line_t *line, bool arng, bool del)
 {
 	List *code = get_code_list();
 	assert(code != NULL &&  "Code list is NULL");
 	assert(line != NULL &&  "The code line object is NULL");
 	
-	if (check_if_inside_code_window() == true || line->ins->id == LABEL){
+	if (in_code_window() == true || line->ins->id == LABEL || del == false){
 		if (cw_check_if_in_code_list(line) == true){
-			if (chk_sel_line_in_pos(line) == false && arrange == true){
+			if (chk_sel_line_in_pos(line) == false && arng == true){
 				ListNode *node = get_list_node_by_value(line);
 				List_remove(code, node);
 			}
 		} 
-		if (cw_check_if_in_code_list(line) == false && arrange == true){
+		if (cw_check_if_in_code_list(line) == false && arng == true){
 			add_code_line(line);
 			update_label_instructions();
 			update_jump_instructions();
-		} else if (cw_check_if_in_code_list(line) == false && arrange == false){
+		} else if (cw_check_if_in_code_list(line) == false && arng == false){
 			add_code_line_last_pos(line);
 			update_label_instructions();
 			update_jump_instructions();

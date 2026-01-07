@@ -673,7 +673,9 @@ static code_line_t *edit_code(int level_id)
 												 lv_is_code_editable() == true){
 		line = cw_get_clicked_code();
 	} else if ((left_pressed == true || hold_line == true) && line != NULL){
-		cw_player_holding_instruction(line, lv_is_arrange_enabled(), true);
+		bool arrange = lv_is_arrange_enabled();
+		bool delete = lv_is_del_enabled();
+		cw_player_holding_instruction(line, arrange, delete);
 		hold_line = (left_released == true) ? false : true;
 	}  else if (left_pressed == false && NULL != line){
 		if (cw_check_if_in_code_list(line) == false){
@@ -730,6 +732,7 @@ int stage_level(int level_id)
 	if (sb_chk_rst_menu_btns(sb_chk_rst_menu_state()) == true){
 		reset_level(level_id, &flags, &run_finished);
 		cw_clear_code_list();
+		lv_init_stage_code(level_id);
 		code_updated_actions(level_id);
 		lv_init_level_assets(level_id);
 	}
