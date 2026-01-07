@@ -736,9 +736,8 @@ int stage_level(int level_id)
 		code_updated_actions(level_id);
 		lv_init_level_assets(level_id);
 	}
-
-	//sb_display_escape_menu(sb_get_escape_menu_state());
 	
+	//sb_display_escape_menu(sb_get_escape_menu_state());
 	if (sb_check_clicked_stage_button() == true && 
 									  cw_check_code_pending_operand() == false){
 		flag_handler(&flags, identify_clicked_stage_button());
@@ -835,11 +834,11 @@ static int display_run_result(bool win_check)
 	bt_draw_iface_btn(back);
 	bt_draw_iface_btn(con);
 
-	if (bt_chk_mouse_click_iface_btn(con) == true){
+	if (bt_chk_mouse_rel_iface_btn(con) == true){
 		button_pressed = true;
 		action_selected = CONT_BUTTON_PRESSED;
 	} 
-	if (bt_chk_mouse_click_iface_btn(back) == true){
+	if (bt_chk_mouse_rel_iface_btn(back) == true){
 		button_pressed = true;
 		action_selected = BACK_BUTTON_PRESSED;
 	} 	

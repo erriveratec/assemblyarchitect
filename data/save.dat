@@ -16,8 +16,8 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-MOV rax, [ib]
 MOV [ob], rax
+MOV rax, rax
 CODE ENDS
 
 +++LEVEL ENDS 02
@@ -28,8 +28,6 @@ LEVEL ACTIVE TRUE
 
 CODE STARTS
 MOV rax, [ib]
-MOV [ob], rax
-MOV [ob], rax
 MOV [ob], rax
 CODE ENDS
 
@@ -436,8 +434,8 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-MOV rax, [ib]
 MOV [ob], rax
+MOV rax, rax
 CODE ENDS
 
 +++LEVEL ENDS 02
@@ -448,8 +446,6 @@ LEVEL ACTIVE TRUE
 
 CODE STARTS
 MOV rax, [ib]
-MOV [ob], rax
-MOV [ob], rax
 MOV [ob], rax
 CODE ENDS
 
@@ -856,8 +852,8 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-MOV rax, [ib]
 MOV [ob], rax
+MOV rax, rax
 CODE ENDS
 
 +++LEVEL ENDS 02
@@ -868,8 +864,6 @@ LEVEL ACTIVE TRUE
 
 CODE STARTS
 MOV rax, [ib]
-MOV [ob], rax
-MOV [ob], rax
 MOV [ob], rax
 CODE ENDS
 
