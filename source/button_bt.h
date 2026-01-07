@@ -11,12 +11,10 @@
 
 typedef struct btn_t{
 	SDL_Rect r;
-	bool act;
-	bool rect;
-	bool fill;
-	SDL_Color in;
-	SDL_Color out;
 	texture_t *t;
+	bool animated;
+	int anim_state;
+	bool rect;
 } btn_t;
 
 typedef struct iface_btn_t{
@@ -25,8 +23,7 @@ typedef struct iface_btn_t{
 	bool enabled;
 } iface_btn_t;
 
-btn_t *bt_create_btn(SDL_Rect b, bool act, bool rect, int fill, 
-									 SDL_Color in , SDL_Color out,texture_t *t);
+btn_t *bt_create_btn(SDL_Rect b, texture_t *t);
 void bt_draw_btn(btn_t *button);
 bool bt_btn_clicked(btn_t *button);
 bool bt_check_mouse_released_button(btn_t *button);

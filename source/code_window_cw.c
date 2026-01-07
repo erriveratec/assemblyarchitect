@@ -174,8 +174,7 @@ static operand_t *create_saved_jump_operand(int op1_id)
 	texture_t *t = dw_create_text_texture(op_text, C_WHITE);
 
 	SDL_Rect r = {.x = 0, .y = 0, .w = 2*cb.w, .h = cb.h};
-	b->b = bt_create_btn(r, false, false, false, C_BLACK, 
-							C_WHITE, t);
+	b->b = bt_create_btn(r, t);
 
 	b->id = op1_id;
 	free(line_text);
@@ -215,7 +214,7 @@ static operand_t *create_updated_jump_operand(code_line_t *jmp_addr)
 
 	SDL_Rect cb = dm_get_code_button_wh();
 	SDL_Rect r = {.x = 0, .y = 0, .w = 2*cb.w, .h = cb.h};
-	op->b = bt_create_btn(r, false, false, false, C_BLACK, C_WHITE, t);
+	op->b = bt_create_btn(r, t);
 	op->id = cw_get_code_line_pos_by_ptr(jmp_addr);
 	op->jptr = jmp_addr;
 
@@ -298,8 +297,7 @@ operand_t *cw_create_jump_operand(code_line_t *addr)
 
 	SDL_Rect cb = dm_get_code_button_wh();
 	SDL_Rect r = {.x = 0, .y = 0, .w = 2*cb.w, .h = cb.h};
-	op->b = bt_create_btn(r, false, false, false, C_BLACK, 
-							 C_WHITE, t);
+	op->b = bt_create_btn(r, t);
 	op->id = cw_get_code_line_pos_by_ptr(addr);
 	op->jptr = addr;
 
@@ -436,8 +434,7 @@ static operand_t *create_saved_label_operand(int op1_id)
 	texture_t *t = dw_create_text_texture(op_text, C_WHITE);
 
 	SDL_Rect r = dm_get_code_button_wh();
-	b->b = bt_create_btn(r, false, false, false, C_BLACK, 
-							C_WHITE, t);
+	b->b = bt_create_btn(r, t);
 
 	b->id = op1_id;
 
@@ -474,8 +471,7 @@ static operand_t *create_label_operand(code_line_t *line)
 	texture_t *t = dw_create_text_texture(op_text, C_WHITE);
 
 	SDL_Rect r = dm_get_code_button_wh();
-	b->b = bt_create_btn(r, false, false, false, C_BLACK, 
-							C_WHITE, t);
+	b->b = bt_create_btn(r, t);
 
 	b->id = label;
 
@@ -657,8 +653,7 @@ void cw_add_saved_line(char *line)
 	SDL_Rect r = dm_get_code_button_wh();
 	r.x = x;
 	r.y = y;
-	btn_t *b = bt_create_btn(r, true, false, false, C_BLACK, 
-								   C_WHITE, instruction_tex);
+	btn_t *b = bt_create_btn(r, instruction_tex);
 	check_mem(b);
 	instruction_t *new_ins = cl_create_instruction(ins_id, b);
 	code_line_t *new_line = cl_create_code_line(new_ins);
@@ -2226,7 +2221,7 @@ code_line_t *cw_create_label_code_line()
 	r.x = ms_get_mouse_x() - r.w/2;
 	r.y = ms_get_mouse_y() - r.h/2;
 
-	btn_t *b = bt_create_btn(r, true, false, false, C_BLACK, C_WHITE, t);
+	btn_t *b = bt_create_btn(r, t);
 	check_mem(b);
 	
 	instruction_t *i = cl_create_instruction(LABEL, b);

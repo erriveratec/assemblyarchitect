@@ -285,8 +285,7 @@ void iw_add_instruction_to_list(int id)
 	
 	r.x = x;
 	r.y = y;
-	btn_t *b = bt_create_btn(r, true, false, false, C_BLACK, 
-								   C_WHITE, instruction_text);
+	btn_t *b = bt_create_btn(r, instruction_text);
 	check_mem(b);
 
 	instruction_t *new_ins = cl_create_instruction(id, b);

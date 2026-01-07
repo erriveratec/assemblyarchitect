@@ -534,8 +534,7 @@ operand_t *rg_create_register_operand_by_id(int id)
 	int x = 0;
 	int y = 0;
 	SDL_Rect r = {.x = x, .y = y, .w = cb.w, .h = cb.h};
-	btn_t *b = bt_create_btn(r, true, false, false, C_BLACK, C_WHITE,  
-																	  reg_text);
+	btn_t *b = bt_create_btn(r, reg_text);
 	check_mem(b);
 
 	operand_t *op = malloc(sizeof(operand_t));
@@ -588,8 +587,7 @@ void rg_add_register_to_list(int id)
 		    text_h + cb.h;
 
 	SDL_Rect r = {.x = x, .y = y, .w = cb.w, .h = cb.h};	
-	btn_t *b = bt_create_btn(r,true, false, false, C_BLACK, C_WHITE, 
-																	  reg_text);
+	btn_t *b = bt_create_btn(r, reg_text);
 	check_mem(b);
 
 	reg_t *new_register = create_register(id, b);
@@ -782,8 +780,7 @@ operand_t *rg_create_operand_of_selected_register()
 			texture_t *t = cl_create_operand_texture(c->id);
 			SDL_Rect r = {.x = c->b->r.x, .y = c->b->r.y, .w = c->b->r.w, 
 																.h = c->b->r.h};
-			btn_t *b = bt_create_btn(r, c->b->act, c->b->rect, c->b->fill, 
-													 	c->b->in, c->b->out, t);
+			btn_t *b = bt_create_btn(r, t);
 
 			o = malloc(sizeof(operand_t));
 			o->b = b;

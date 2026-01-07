@@ -236,32 +236,23 @@ void bt_draw_iface_btn_nopad(iface_btn_t *b)
  * 	
  * Arguments:
  *	b: box with x, y, w, h
- *	act: boolean with info if the button is in a stae.
- *  rect: boolean that determines if a rectangle is draw around the button.	
- *	fill: boolean that determines if drawing the rectangle is filles
- *  in: inside color of the button. 
- *  out: outside color of the button.
  *	t: texture of the button.
+ *  animate: boolean that determines if the texture will be animated.	
+ * 	anim_state: 
+ *  rect: boolean that determines if a rectangle is draw around the button.	
  *
  * Return:
  *	Pointer to the button object
  */
-btn_t *bt_create_btn(SDL_Rect r, bool act, bool rect, int fill, 
-									  SDL_Color in , SDL_Color out,texture_t *t)
+btn_t *bt_create_btn(SDL_Rect r, texture_t *t)
 {
 	btn_t *new_button = malloc(sizeof(btn_t));
-
 	new_button->r = r;
-	new_button->act = act;
-	new_button->rect = rect;
-	new_button->fill = fill;
-	new_button->in = in;
-	new_button->out = out;
-
-	float scale_w = (float)r.w/t->w;
-	float scale_h = (float)r.h/t->h;
 	new_button->t = t;
-	
+	new_button->animated = false;
+	new_button->anim_state = 0;
+	new_button->rect = false;
+
 	return new_button;
 }
 
@@ -282,11 +273,8 @@ void bt_draw_btn(btn_t *b)
 	
 	int status = SUCCESS;	
 	
-	if (b->fill == true){
-		dw_draw_filled_rectangle(b->r, b->in, b->in);
-	}
 	if (b->rect == true){
-		dw_draw_rectangle(b->r, b->out);
+		dw_draw_rectangle(b->r, C_WHITE);
 	}
 	
 	float scale_w = (float)b->r.w/b->t->w;
@@ -345,7 +333,7 @@ bool bt_btn_clicked(btn_t *button)
 	int mouse_left_pressed = ms_chk_mouse_left_pressed();
 
 	bool clicked_in_button;
-	if (mouse_left_pressed == false || button->act == false){
+	if (mouse_left_pressed == false){
 		clicked_in_button = false;
 	} else if (mouse_x > button->r.x && 
 			   mouse_x < (button->r.x + button->r.w) && 
@@ -403,15 +391,14 @@ btn_t *bt_copy_button(btn_t *b)
 {
 	btn_t *copied_button = malloc(sizeof(btn_t));
 	copied_button->r = b->r;
-	copied_button->act = b->act;
-	copied_button->rect = b->rect;
-	copied_button->fill = b->fill;
-	copied_button->in = b->in;
-	copied_button->out = b->out;
 	copied_button->t = malloc(sizeof(texture_t));
 	copied_button->t->w = b->t->w;
 	copied_button->t->h = b->t->h;
 	copied_button->t->texture = b->t->texture;
+	copied_button->animated = b->animated;
+	copied_button->anim_state = b->anim_state;
+	copied_button->rect = b->rect;
+
 	
 	return copied_button;
 }

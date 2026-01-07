@@ -90,8 +90,7 @@ bool cl_operands_are_registers(code_line_t *line)
 code_line_t *cl_new_code_line(instruction_t *ins)
 {
 	texture_t *t = cl_create_instruction_texture(ins->id);	
-	btn_t *b = bt_create_btn(ins->b->r, ins->b->act, ins->b->rect,
-								   ins->b->fill, ins->b->in, ins->b->out, t);
+	btn_t *b = bt_create_btn(ins->b->r, t);
 
 	instruction_t *i = cl_create_instruction(ins->id, b);
 	code_line_t *new = cl_create_code_line(i);
