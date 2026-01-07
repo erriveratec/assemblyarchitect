@@ -730,6 +730,8 @@ int stage_level(int level_id)
 	if (sb_chk_rst_menu_btns(sb_chk_rst_menu_state()) == true){
 		reset_level(level_id, &flags, &run_finished);
 		cw_clear_code_list();
+		code_updated_actions(level_id);
+		lv_init_level_assets(level_id);
 	}
 
 	//sb_display_escape_menu(sb_get_escape_menu_state());

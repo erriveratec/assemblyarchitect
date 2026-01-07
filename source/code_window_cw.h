@@ -39,6 +39,7 @@ bool cw_check_code_pending_op1();
 bool cw_check_code_pending_op2();
 code_line_t *cw_get_code_line_pending_operand();
 bool cw_check_clicked_code_operand();
+
 void cw_change_clicked_code_line_state();
 int cw_get_code_list_size();
 int cw_get_instruction_at_code_pos(int position);

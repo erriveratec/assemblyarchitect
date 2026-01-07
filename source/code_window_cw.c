@@ -2080,6 +2080,43 @@ bool cw_check_code_sorted()
 	return retval;
 }
 
+/* Function: cw_check_clicked_code_op2
+ * -----------------------------------------------------------------------------
+ * Verifies if the player clicked a code operand
+ *
+ * Arguments:
+ * 	code: the list of code programmed by the player
+ *	
+ * Return:
+ * 	true if player clicked on operand. 
+ *	false if otherwise.
+ *
+ */
+bool cw_check_clicked_code_operand()
+{
+	List *code = get_code_list();
+	assert(NULL != code && "The code pointer cannot be NULL");
+	bool clicked = false;
+	
+	LIST_FOREACH(code, first, next, cur){ 
+		
+		code_line_t *c = cur->value;
+		if (NULL != c->op1){
+			if (true == bt_check_mouse_released_button(c->op1->b)){
+				clicked = true;
+				break;
+			}
+		} 
+		if (NULL != c->op2){
+			if (true == bt_check_mouse_released_button(c->op2->b)){
+				clicked = true;
+				break;
+			}
+		}
+	}
+	return clicked;
+}
+
 /* Function: cw_check_clicked_code_operand
  * -----------------------------------------------------------------------------
  * This function checks if the player clicked on an operando of the instructions

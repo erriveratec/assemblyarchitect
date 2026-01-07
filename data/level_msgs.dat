@@ -83,11 +83,11 @@ Level 02
 MSG_END
 
 MSG 02
-We will learn how to rearrange, delete and change operands of the instruction
+We will rearrange, delete and change operands of the instruction
 MSG_END
 
 MSG 03
-Select and drag the last instruction by clicking in the instruction name
+Select and drag the last instruction by clicking the instruction name
 MSG_END
 
 MSG 04

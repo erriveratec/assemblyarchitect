@@ -7,7 +7,7 @@
 #include"code_window_cw.h"
 #include"dimensions_dm.h"
 
-#define MSG_CLICKANY "Click anywhere to continue"
+#define MSG_CLICKANY "Click anywhere"
 #define MSG_PRESSPLAY "Press the play button"
 #define MSG_PRESSBACK "Press the back button"
 #define MSG_PRESSCONT "Press the continue button"
@@ -143,7 +143,6 @@ static int get_box_member(SDL_Rect *box, int member){
 	return retval;
 }
 
-
 /* Function: tx_bottom_msg
  * -----------------------------------------------------------------------------
  * Display a message in the bottom of a give box
@@ -197,7 +196,7 @@ void tx_bottom_msg(int pos, int msg_id)
 			text_h = dm_get_h_msg();
 			int h = a->size*text_h;
 			b = dm_get_text_box_big();
-			b.y = dm_get_text_box_big().y + dm_get_text_box_big().h/2 - h;
+			b.y = dm_get_text_box_big().y + dm_get_text_box_big().h/2 - 2*h;
 			break;
 		case TX_ERROR_BOX:
 			b = dm_get_text_box_error(); 
@@ -212,7 +211,9 @@ void tx_bottom_msg(int pos, int msg_id)
 /* Function: tx_text_box
  * -----------------------------------------------------------------------------
  * This function displays a message box in differents part of the screen 
- * according to an identifies
+ * according to an identifies.
+ * Important to notice that the width of the message is defined when te text
+ * texture is created.
  *
  * Arguments:
  *	pos: The position id of where is gonna be displayed.

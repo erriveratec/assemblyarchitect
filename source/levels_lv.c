@@ -24,6 +24,9 @@
 // Exceptions of the selection of the code
 #define NO_EXCEPTION -1
 #define INS_EXCEPTION -2
+#define OP1_LAST -3
+#define OP2_LAST -4
+
 
 static bool g_code_editable;
 static int g_code_editable_exception;
@@ -315,6 +318,7 @@ bool lv_is_code_editable()
 {
 	bool editable;
 	int exception = g_code_editable_exception;
+	
 	if (exception == NO_EXCEPTION){
 		editable = g_code_editable;
 	} else if (iw_check_clicked_instruction() == true && 
@@ -327,7 +331,9 @@ bool lv_is_code_editable()
 		if (pos == exception){
 			editable = true;	
 		}
-	} else {
+	} else if (
+
+	else {
 		editable = g_code_editable;
 	}
 	
@@ -725,10 +731,12 @@ static void level_2_tutorial()
 		}
 	}
 	if (g_lv_msg[MSG1] == true && size == 3){
+		set_code_editable(false, NO_EXCEPTION);
 		tx_text_box(TX_BIG_BOX, MSG1); //Welcome
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
 		chk_ms_pressed_clear_msg(MSG1, true);
 	} else if (g_lv_msg[MSG2] == true && size == 3){
+		set_code_editable(false, NO_EXCEPTION);
 		tx_text_box(TX_UPPER_BOX, MSG2); //Rearrange
 		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
 		chk_ms_pressed_clear_msg(MSG2, true);
@@ -740,6 +748,7 @@ static void level_2_tutorial()
 		tx_text_box(TX_CODE_BOX, MSG4); //Delete the instruction
 		ar_display_arrow(AR_DEL);
 	} else if (change_op == true && hold == false){
+		set_code_editable(false, INS_EXCEPTION);
 		if (i2->state != CHANGING_OP2){
 			tx_text_box(TX_CODE_BOX, MSG5); // Select operand
 			ar_display_arrow(AR_OP2);
@@ -1337,7 +1346,6 @@ void lv_init_level_assets(int level)
 	set_buf_selectable(true);
 	set_reg_selectable(true);
 	init_lv_msgs();
-
 }
 
 /* Function: lv_upd_level_assets
