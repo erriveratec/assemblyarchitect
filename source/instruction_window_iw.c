@@ -285,7 +285,7 @@ void iw_add_instruction_to_list(int id)
 	
 	r.x = x;
 	r.y = y;
-	button_t *b = bt_create_button(r, true, false, false, C_BLACK, 
+	code_btn_t *b = bt_create_code_btn(r, true, false, false, C_BLACK, 
 								   C_WHITE, instruction_text);
 	check_mem(b);
 
@@ -320,7 +320,7 @@ void iw_draw_instruction_box()
 
 	LIST_FOREACH(instructions, first, next, cur){
 		instruction_t *c = cur->value;
-		bt_draw_button(c->b, false);
+		bt_draw_code_btn(c->b);
 	}
 }
 

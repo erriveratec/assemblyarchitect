@@ -399,16 +399,16 @@ static void create_select_level_buttons(iface_btn_t **buttons, bool *levels)
 	SDL_Rect b = r;
 	int y_offset = get_sel_level_offset_y();
 	for (int i = 1; i <= LV_LEVEL_QUANTITY; i++){
-		char *button_text = create_string_append_number(ax_level_text, i);
-		texture_t *button_texture = NULL;
+		char *code_btn_text = create_string_append_number(ax_level_text, i);
+		texture_t *code_btn_texture = NULL;
 		if (levels[i-1] == true){
-			button_texture = dw_create_text_texture(button_text, 
+			code_btn_texture = dw_create_text_texture(code_btn_text, 
 							 C_WHITE);
-			buttons[i-1] = bt_create_iface_btn(b, button_texture, true);
+			buttons[i-1] = bt_create_iface_btn(b, code_btn_texture, true);
 		} else {
-			button_texture = dw_create_text_texture(button_text, 
+			code_btn_texture = dw_create_text_texture(code_btn_text, 
 							 C_GREY);
-			buttons[i-1] = bt_create_iface_btn(b, button_texture, false);
+			buttons[i-1] = bt_create_iface_btn(b, code_btn_texture, false);
 		}
 		b.y += y_offset;	
 		if (i != 0 && i%8 == 0){

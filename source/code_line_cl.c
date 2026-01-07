@@ -90,7 +90,7 @@ bool cl_operands_are_registers(code_line_t *line)
 code_line_t *cl_new_code_line(instruction_t *ins)
 {
 	texture_t *t = cl_create_instruction_texture(ins->id);	
-	button_t *b = bt_create_button(ins->b->r, ins->b->act, ins->b->rect,
+	code_btn_t *b = bt_create_code_btn(ins->b->r, ins->b->act, ins->b->rect,
 								   ins->b->fill, ins->b->in, ins->b->out, t);
 
 	instruction_t *i = cl_create_instruction(ins->id, b);
@@ -424,7 +424,7 @@ char *cl_create_code_line_text(int instruction_id, int op1_id, int op2_id)
  * Return:
  *	Pointer to the created code node
  */
-instruction_t *cl_create_instruction(int id, button_t *b)
+instruction_t *cl_create_instruction(int id, code_btn_t *b)
 {
 	assert(NULL != b && "The button pointer is NULL");
 	assert(id > INSTRUCTION_MIN && id < INSTRUCTION_MAX && 
@@ -519,7 +519,7 @@ void cl_destroy_code_line(code_line_t *line)
 static operand_t *copy_operand(operand_t *op)
 {
 	assert(NULL != op && "The operand pointer cannot be NULL");
-	button_t *b = bt_copy_button(op->b);
+	code_btn_t *b = bt_copy_button(op->b);
 	check_mem(b);
 
 	operand_t *new_op = malloc(sizeof(operand_t));
@@ -701,7 +701,7 @@ void cl_assign_operand_to_line(operand_t *op, code_line_t *line)
  * Return:
  *	Pointer to the created code node
  */
-operand_t *cl_create_operand(int id, button_t *b)
+operand_t *cl_create_operand(int id, code_btn_t *b)
 {
 	assert(NULL != b && "The button pointer is NULL");
 	assert((id > REGISTERS_MIN && id < REGISTERS_MAX ||

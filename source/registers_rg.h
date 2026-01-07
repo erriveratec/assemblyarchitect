@@ -9,7 +9,7 @@
 #include "aux.h"
 
 typedef struct reg_t{
-	button_t *b;
+	code_btn_t *b;
 	int id;
 	value_box_t value;
 } reg_t;

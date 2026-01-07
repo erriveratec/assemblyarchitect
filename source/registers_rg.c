@@ -18,7 +18,7 @@ static List *register_list = NULL;
 static SDL_Rect register_box;
 
 static void set_register_box_member(int value, int member);
-reg_t *create_register(int id, button_t *b);
+reg_t *create_register(int id, code_btn_t *b);
 static void destroy_register_list();
 static void draw_register_text();
 static void draw_register_box();
@@ -489,7 +489,7 @@ static void set_register_box_member(int value, int member)
  * Return:
  *	Pointer to the created code node
  */
-reg_t *create_register(int id, button_t *b)
+reg_t *create_register(int id, code_btn_t *b)
 {
 	assert(NULL != b && "The button pointer is NULL");
 	assert(id > REGISTERS_MIN && id < REGISTERS_MAX && "Invalid operand id");
@@ -534,7 +534,7 @@ operand_t *rg_create_register_operand_by_id(int id)
 	int x = 0;
 	int y = 0;
 	SDL_Rect r = {.x = x, .y = y, .w = cb.w, .h = cb.h};
-	button_t *b = bt_create_button(r, true, false, false, C_BLACK, C_WHITE,  
+	code_btn_t *b = bt_create_code_btn(r, true, false, false, C_BLACK, C_WHITE,  
 																	  reg_text);
 	check_mem(b);
 
@@ -588,7 +588,7 @@ void rg_add_register_to_list(int id)
 		    text_h + cb.h;
 
 	SDL_Rect r = {.x = x, .y = y, .w = cb.w, .h = cb.h};	
-	button_t *b = bt_create_button(r,true, false, false, C_BLACK, C_WHITE, 
+	code_btn_t *b = bt_create_code_btn(r,true, false, false, C_BLACK, C_WHITE, 
 																	  reg_text);
 	check_mem(b);
 
@@ -624,8 +624,8 @@ void rg_draw_registers()
 	
 	LIST_FOREACH(registers, first, next, cur){
 		reg_t *reg = cur->value;
-		button_t *button = reg->b;
-		bt_draw_button(button, false);
+		code_btn_t *button = reg->b;
+		bt_draw_code_btn(button);
 
 		char *number = ax_number_to_string(reg->value.value);
 		ax_draw_value_box(&reg->value, C_WHITE);
@@ -745,7 +745,7 @@ bool rg_check_mouse_released_in_register()
 	   	reg_t *c = cur->value;
 		SDL_Rect r = {.x = c->value.box.x, .y = c->value.box.y, 
 									  .w = c->value.box.w, .h = c->value.box.h};
-	  	button_t b = {.r = r};
+	  	code_btn_t b = {.r = r};
 	   	if (bt_check_mouse_released_button(c->b) == true ||
 									bt_check_mouse_released_button(&b) == true){
 		   	selected = true;
@@ -775,14 +775,14 @@ operand_t *rg_create_operand_of_selected_register()
 		SDL_Rect r = {.x = c->value.box.x, .y = c->value.box.y, 
 									  .w = c->value.box.w, .h = c->value.box.h};
 
-		button_t b = {.r = r};
+		code_btn_t b = {.r = r};
 	   	if (bt_check_mouse_released_button(c->b) == true||
 									bt_check_mouse_released_button(&b) == true){
 			
 			texture_t *t = cl_create_operand_texture(c->id);
 			SDL_Rect r = {.x = c->b->r.x, .y = c->b->r.y, .w = c->b->r.w, 
 																.h = c->b->r.h};
-			button_t *b = bt_create_button(r, c->b->act, c->b->rect, c->b->fill, 
+			code_btn_t *b = bt_create_code_btn(r, c->b->act, c->b->rect, c->b->fill, 
 													 	c->b->in, c->b->out, t);
 
 			o = malloc(sizeof(operand_t));
