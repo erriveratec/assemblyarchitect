@@ -13,8 +13,13 @@ int ms_get_mouse_x();
 int ms_get_mouse_y();
 int ms_get_mouse_scroll_y();
 
-bool ms_chk_mouse_left_pressed();
-bool ms_chk_mouse_left_released(); //not_enables
+bool ms_left_pressed();
+bool ms_left_released(); 
+bool ms_right_pressed();
+bool ms_right_released(); 
+bool ms_chord_pressed();
+bool ms_chord_released(); 
+
 void ms_disable_mouse_button();
 
 void ms_init_mouse();

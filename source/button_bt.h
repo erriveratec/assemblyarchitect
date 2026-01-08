@@ -27,6 +27,8 @@ typedef struct iface_btn_t{
 btn_t *bt_create_btn(SDL_Rect b, texture_t *t);
 void bt_draw_btn(btn_t *button);
 bool bt_btn_clicked(btn_t *button);
+bool bt_btn_rclicked(btn_t *button);
+
 bool bt_check_mouse_released_button(btn_t *button);
 void assign_button_parameters(SDL_Rect r, btn_t *b);
 btn_t *bt_copy_button(btn_t *b);

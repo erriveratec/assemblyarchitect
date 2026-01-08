@@ -46,19 +46,19 @@ enum operands{
 	OP2,
 	BOTH_OPERANDS,
 	NO_OPERAND,
-	REGISTERS_MIN,
+	REG_MIN,
 	RAX,
 	RBX,
 	RCX,
 	RDX,
 	RDI,
-	REGISTERS_MAX,
+	REG_MAX,
 	MEMORY_MIN,
 	MEMORY_MAX,
-	BUFFERS_MIN,
+	BUF_MIN,
 	IB,
 	OB,
-	BUFFERS_MAX,
+	BUF_MAX,
 	RGBOX_MIN,
 	IBOX,
 	OBOX,
@@ -90,7 +90,6 @@ extern char *rdi_text;
 extern char *ib_text;
 extern char *ob_text;
 
-code_line_t *cl_create_code_line(instruction_t *ins);
 void cl_destroy_code_line(code_line_t *line);
 instruction_t *cl_create_instruction(int id, btn_t *b);
 operand_t *cl_create_operand(int id, btn_t *b);
@@ -105,6 +104,7 @@ int cl_text_to_operand_id(char *text);
 texture_t *cl_create_operand_texture(int id);
 texture_t *cl_create_instruction_texture(int id);
 code_line_t *cl_new_code_line(instruction_t *ins);
+code_line_t *cl_create_code_line(instruction_t *ins);
 void cl_destroy_operand(operand_t *op);
 bool cl_operands_are_registers(code_line_t *line);
 bool cl_check_op_is_register(int op_id);

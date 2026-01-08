@@ -492,7 +492,7 @@ static void set_register_box_member(int value, int member)
 reg_t *create_register(int id, btn_t *b)
 {
 	assert(NULL != b && "The button pointer is NULL");
-	assert(id > REGISTERS_MIN && id < REGISTERS_MAX && "Invalid operand id");
+	assert(id > REG_MIN && id < REG_MAX && "Invalid operand id");
 	
 	reg_t *op = malloc(sizeof(reg_t));	
 	check_mem(op);
@@ -524,7 +524,7 @@ error:
  */
 operand_t *rg_create_register_operand_by_id(int id)
 {
-	assert(id > REGISTERS_MIN && id < REGISTERS_MAX && "Incorrect id");
+	assert(id > REG_MIN && id < REG_MAX && "Incorrect id");
 	texture_t *reg_text = cl_create_operand_texture(id);
 	check_mem(reg_text);
 	
@@ -561,7 +561,7 @@ void rg_add_register_to_list(int id)
 {
 	List *registers = rg_get_register_list();
 	assert(NULL != registers && "Register pointer is NULL");
-	assert(id > REGISTERS_MIN && id < REGISTERS_MAX && 
+	assert(id > REG_MIN && id < REG_MAX && 
 		   "The operand id is invalid");
 	
 	int list_size = List_count(registers);
@@ -794,7 +794,7 @@ operand_t *rg_create_operand_of_selected_register()
 
 int rg_get_register_value_box_x_coord_by_id(int id)
 {
-	assert(id > REGISTERS_MIN && id < REGISTERS_MAX && 
+	assert(id > REG_MIN && id < REG_MAX && 
 		   "Invalid register id");
 
 	List *registers = rg_get_register_list();
@@ -812,7 +812,7 @@ int rg_get_register_value_box_x_coord_by_id(int id)
 
 int rg_get_register_value_box_y_coord_by_id(int id)
 {
-	assert(id > REGISTERS_MIN && id < REGISTERS_MAX && 
+	assert(id > REG_MIN && id < REG_MAX && 
 		   "Invalid register id");
 
 	List *registers = rg_get_register_list();
@@ -838,7 +838,7 @@ int rg_get_register_value_box_y_coord_by_id(int id)
 */
 value_box_t rg_get_register_value_box_by_id(int id)
 {
-	assert(id > REGISTERS_MIN && id < REGISTERS_MAX && 
+	assert(id > REG_MIN && id < REG_MAX && 
 		   "Invalid register id");
 
 	List *registers = rg_get_register_list();
@@ -867,7 +867,7 @@ value_box_t rg_get_register_value_box_by_id(int id)
  */
 void rg_set_register_value_box(int id, value_box_t val)
 {
-	assert(id > REGISTERS_MIN && id < REGISTERS_MAX && 
+	assert(id > REG_MIN && id < REG_MAX && 
 		   "Invalid register id");
 
 	List *registers = rg_get_register_list();

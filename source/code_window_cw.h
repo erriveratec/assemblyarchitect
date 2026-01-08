@@ -29,15 +29,20 @@ void cw_set_challenge_text(char *text);
 void cw_set_stage_name(char *text);
 void cw_player_holding_instruction(code_line_t *line, bool arng, bool del);
 bool cw_check_if_in_code_list(code_line_t *instruction);
-bool cw_check_clicked_code();
+bool cw_is_code_clicked();
+bool cw_is_code_rclicked();
+
 code_line_t *cw_get_clicked_code();
+code_line_t *cw_get_rclicked_code();
+code_line_t *cw_clone_rclicked_line(code_line_t *line);
+
 bool cw_check_code_sorted();
 void cw_sort_code();
-bool cw_check_code_pending_operand();
+bool cw_is_operand_pending();
 bool cw_check_code_pending_op1();
 bool cw_check_code_pending_op2();
 code_line_t *cw_get_code_line_pending_operand();
-bool cw_check_clicked_code_operand();
+bool cw_code_operand_clicked();
 bool cw_chk_click_code_op2(int code_line_pos);
 
 void cw_change_clicked_code_line_state();

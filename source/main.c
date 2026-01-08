@@ -118,7 +118,6 @@ int main(int argc, char *args[])
 					break;
 			}
 		}
-
 		// I/O handling
 		const Uint8 *keystate = SDL_GetKeyboardState(NULL);
 		

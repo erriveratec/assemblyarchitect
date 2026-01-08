@@ -599,7 +599,7 @@ static void code_updated_actions(int level_id)
  */
 static code_line_t *pending_operand_handler()
 {
-	bool left_released = ms_chk_mouse_left_released();
+	bool left_released = ms_left_released();
 	bool register_selected = rg_check_mouse_released_in_register();
 	bool buffer_selected = bf_check_released_in_buffer();
 	bool label_selected = cw_check_released_in_label();
@@ -627,6 +627,12 @@ static code_line_t *pending_operand_handler()
 			   buffer_selected == false){
 		if (l->state == CHANGING_OP1 || l->state == CHANGING_OP2){
 			l->state = COMPLETE;	
+			l->op1->b->animated = false;
+			l->op1->b->anim_dir = false;
+			l->op1->b->anim_state = 0;
+			l->op2->b->animated = false;
+			l->op2->b->anim_dir = false;
+			l->op2->b->anim_state = 0;
 		}
 	}
 	return r;
@@ -649,29 +655,38 @@ static code_line_t *edit_code(int level_id)
 		   											"Incorrect level_id value");
 		
 	static code_line_t *line = NULL;
-	bool left_pressed = ms_chk_mouse_left_pressed();
-	bool left_released = ms_chk_mouse_left_released();
+	bool left_pressed = ms_left_pressed();
+	bool left_released = ms_left_released();
 	static bool hold_line = false;
 	
-	if (cw_check_code_pending_operand() == true && line == NULL &&
-		cw_check_code_sorted() == true && cw_check_clicked_code() == false){
+	if (cw_is_operand_pending() == true
+		&& line == NULL 
+		&& cw_check_code_sorted() == true 
+		&& cw_is_code_clicked() == false){
 		line = pending_operand_handler();	
-		if (cw_check_code_pending_operand() == false){
+		if (cw_is_operand_pending() == false){
 			code_updated_actions(level_id);
 		}
 		if (line != NULL){
 			hold_line = true;
 		}
-	} else if (cw_check_clicked_code_operand() == true && line == NULL && 
-												 lv_is_code_editable() == true){
+	} else if (cw_code_operand_clicked() == true
+			   && line == NULL 
+			   && lv_is_code_editable() == true){
 		cw_change_clicked_code_line_state();	
-	} else if (iw_check_clicked_instruction() == true && line == NULL &&
-												 lv_is_code_editable() == true){
+	} else if (iw_check_clicked_instruction() == true 
+			   && line == NULL
+			   && lv_is_code_editable() == true){
 		line = cl_new_code_line(iw_get_clicked_instruction());
-	} else if (cw_check_clicked_code() == true && line == NULL && 
-												 lv_is_code_editable() == true){
+	} else if (cw_is_code_clicked() == true 
+			   && line == NULL 
+			   && lv_is_code_editable() == true){
 		line = cw_get_clicked_code();
-	} else if ((left_pressed == true || hold_line == true) && line != NULL){
+	} else if (cw_is_code_rclicked() == true && line == NULL){
+		line = cw_clone_rclicked_line(cw_get_rclicked_code());
+		hold_line = true;
+	} else if ((left_pressed == true || hold_line == true) 
+			   && line != NULL){
 		bool arrange = lv_is_arrange_enabled();
 		bool delete = lv_is_del_enabled();
 		cw_player_holding_instruction(line, arrange, delete);
@@ -680,7 +695,7 @@ static code_line_t *edit_code(int level_id)
 		if (cw_check_if_in_code_list(line) == false){
 			cl_destroy_code_line(line);
 		} 
-		if (cw_check_code_pending_operand() == false){
+		if (cw_is_operand_pending() == false){
 			code_updated_actions(level_id);
 		}
 		line = NULL;
@@ -738,7 +753,7 @@ int stage_level(int level_id)
 	
 	//sb_display_escape_menu(sb_get_escape_menu_state());
 	if (sb_check_clicked_stage_button() == true && 
-									  cw_check_code_pending_operand() == false){
+									  cw_is_operand_pending() == false){
 		flag_handler(&flags, identify_clicked_stage_button());
 	}
 	
@@ -748,7 +763,7 @@ int stage_level(int level_id)
 	stage_drawings(level_id);
 	cw_sort_code();
 	
-	if (flags.non_stop == false || cw_check_code_pending_operand() == true){
+	if (flags.non_stop == false || cw_is_operand_pending() == true){
 		hold_line = edit_code(level_id);
 	}
 	
@@ -767,7 +782,7 @@ int stage_level(int level_id)
 		} 
 	}
 
-	if (flags.play == true && cw_check_code_pending_operand() == false){
+	if (flags.play == true && cw_is_operand_pending() == false){
 		run_finished = mc_run_code();
 	} else if ((flags.stop == true && flags.stop_enabled == true) ||
 				reset == true){

@@ -718,9 +718,9 @@ int execution_counter(int action, int set)
 static int get_operand_y_dest(int op_id)
 {
 	int y;
-	if (op_id > REGISTERS_MIN && op_id < REGISTERS_MAX){
+	if (op_id > REG_MIN && op_id < REG_MAX){
 		y = rg_get_register_value_box_y_coord_by_id(op_id);
-	} else if (op_id > BUFFERS_MIN && op_id < BUFFERS_MAX){
+	} else if (op_id > BUF_MIN && op_id < BUF_MAX){
 		y = bf_get_buffer_value_box_y_coord_by_id(op_id);	
 	} else if (op_id == IBOX){
 		y = rg_get_ibox_y();
@@ -741,9 +741,9 @@ static int get_operand_y_dest(int op_id)
 static int get_operand_x_dest(int op_id)
 {
 	int x;
-	if (op_id > REGISTERS_MIN && op_id < REGISTERS_MAX){
+	if (op_id > REG_MIN && op_id < REG_MAX){
 		x = rg_get_register_value_box_x_coord_by_id(op_id);
-	} else if (op_id > BUFFERS_MIN && op_id < BUFFERS_MAX){
+	} else if (op_id > BUF_MIN && op_id < BUF_MAX){
 		x = bf_get_buffer_value_box_x_coord_by_id(op_id);	
 	} else if (op_id == IBOX || op_id == OBOX){
 		x = rg_get_ibox_x();
@@ -761,7 +761,7 @@ static int get_operand_x_dest(int op_id)
  */
 static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 {
-	assert(op_id > REGISTERS_MIN && op_id < RGBOX_MAX &&
+	assert(op_id > REG_MIN && op_id < RGBOX_MAX &&
 		   "Invalid operand");
 
 	SDL_Rect avtr = dm_get_avatar_wh();
@@ -769,7 +769,7 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 	int x;
 	int y;
 
-	if (op_id > REGISTERS_MIN && op_id < REGISTERS_MAX){
+	if (op_id > REG_MIN && op_id < REG_MAX){
 		x = get_operand_x_dest(op_id) + avtr.w*3/2;
 	} else {
 		x = get_operand_x_dest(op_id);
@@ -777,7 +777,7 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 
 	SDL_Rect vb = dm_get_value_box_wh();
 	int vbox_offset = dm_get_ofs_reg_value_box();
-	if (op_id > REGISTERS_MIN && op_id < REGISTERS_MAX){
+	if (op_id > REG_MIN && op_id < REG_MAX){
 		y = get_operand_y_dest(op_id);
 	} else if (op_id == IB){
 		y = get_operand_y_dest(op_id) + 1.5*vb.h;
@@ -836,14 +836,14 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
  */
 static value_box_t get_operand_value_box(int op_id)
 {
-	assert((op_id > REGISTERS_MIN && op_id < REGISTERS_MAX) ||
-		   (op_id > BUFFERS_MIN &&  op_id < BUFFERS_MAX) ||
+	assert((op_id > REG_MIN && op_id < REG_MAX) ||
+		   (op_id > BUF_MIN &&  op_id < BUF_MAX) ||
 		   (op_id > RGBOX_MIN &&  op_id < RGBOX_MAX) && 
 		   "The operand id is invalid");
 
 	value_box_t op_value_box;
 
-	if (op_id > REGISTERS_MIN && op_id < REGISTERS_MAX){
+	if (op_id > REG_MIN && op_id < REG_MAX){
 		op_value_box = rg_get_register_value_box_by_id(op_id);	
 	} else if (op_id == IB){
 		op_value_box = bf_get_input_buffer_value_box();
@@ -890,14 +890,14 @@ static bool check_avatar_has_value(avatar_t *avatar)
  */
 static bool check_operand_has_value(int op_id)
 {
-	assert((op_id > REGISTERS_MIN && op_id < REGISTERS_MAX) ||
-		   (op_id > BUFFERS_MIN &&  op_id < BUFFERS_MAX) ||
+	assert((op_id > REG_MIN && op_id < REG_MAX) ||
+		   (op_id > BUF_MIN &&  op_id < BUF_MAX) ||
 		   (op_id > RGBOX_MIN &&  op_id < RGBOX_MAX) && 
 		   "The operand id is invalid");
 
 	value_box_t op_value_box;
 
-	if (op_id > REGISTERS_MIN && op_id < REGISTERS_MAX){
+	if (op_id > REG_MIN && op_id < REG_MAX){
 		op_value_box = rg_get_register_value_box_by_id(op_id);	
 	} else if (op_id == IB){
 		op_value_box = bf_get_input_buffer_value_box();
@@ -929,14 +929,14 @@ static bool check_operand_has_value(int op_id)
  */
 bool set_operand_value_box(int op_id, value_box_t val)
 {
-	assert(((op_id > REGISTERS_MIN && op_id < REGISTERS_MAX) ||
-	       (op_id > BUFFERS_MIN && op_id < BUFFERS_MAX) ||
+	assert(((op_id > REG_MIN && op_id < REG_MAX) ||
+	       (op_id > BUF_MIN && op_id < BUF_MAX) ||
 		   (op_id > RGBOX_MIN && op_id < RGBOX_MAX)) && 
 		   "The operand id is invalid");
 	
 	bool operation_valid = true;
 
-	if (op_id > REGISTERS_MIN && op_id < REGISTERS_MAX){
+	if (op_id > REG_MIN && op_id < REG_MAX){
 		rg_set_register_value_box(op_id, val);	
 	} else if (op_id == OB){
 		bf_set_output_buffer_value_box(val);	
@@ -962,12 +962,12 @@ bool set_operand_value_box(int op_id, value_box_t val)
  */
 bool add_operand_value_box(int op_id, value_box_t val)
 { 
-	assert(op_id > REGISTERS_MIN && op_id < BUFFERS_MAX && 
+	assert(op_id > REG_MIN && op_id < BUF_MAX && 
 		   "The operand id is invalid");
 	
 	bool operation_valid = true;
 
-	if (op_id > REGISTERS_MIN && op_id < REGISTERS_MAX){
+	if (op_id > REG_MIN && op_id < REG_MAX){
 		value_box_t cur_val = rg_get_register_value_box_by_id(op_id);
 		if (cur_val.value == NO_VALUE){
 			operation_valid = false;	

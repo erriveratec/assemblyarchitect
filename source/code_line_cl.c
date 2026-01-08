@@ -35,15 +35,15 @@ char *ob_text = "[ob]";
  */
 bool cl_check_op_is_register(int op_id)
 {
-	assert(((op_id > REGISTERS_MIN && op_id < REGISTERS_MAX) || 
+	assert(((op_id > REG_MIN && op_id < REG_MAX) || 
 			(op_id > MEMORY_MIN && op_id < MEMORY_MAX) || 
-			(op_id > BUFFERS_MIN && op_id < BUFFERS_MAX) || 
+			(op_id > BUF_MIN && op_id < BUF_MAX) || 
 			(op_id > RGBOX_MIN && op_id < RGBOX_MAX)) &&
 			"Invalid operand id");
 	
 	bool is_register = false;	
 	
-	if (op_id > REGISTERS_MIN && op_id < REGISTERS_MAX){
+	if (op_id > REG_MIN && op_id < REG_MAX){
 		is_register = true;		
 	}
 	return is_register;
@@ -65,20 +65,23 @@ bool cl_operands_are_registers(code_line_t *line)
 	bool op1 = false;
 	bool op2 = false;
 
-	if (line->op1->id > REGISTERS_MIN && line->op1->id < REGISTERS_MAX){
+	if (line->op1->id > REG_MIN && line->op1->id < REG_MAX){
 		op1 = true;
 	}
-	if (line->op2->id > REGISTERS_MIN && line->op2->id < REGISTERS_MAX){
+	if (line->op2->id > REG_MIN && line->op2->id < REG_MAX){
 		op2 = true;
 	} 
 	return op1 & op2;
 }
 
+
+
 /* Function: cl_new_code_line
  * -----------------------------------------------------------------------------
  * This function generates a new code_line object of a pointer it creates a 
  * different pointers that can be used on a list. It is used in the instruction
- * window
+ * window. Used when selecting an instruction from the IW and generating a new
+ * line based in which instruction the player selected
  *
  * Arguments:
  * 	instruction: the instruction of the new line that will be created
@@ -93,6 +96,7 @@ code_line_t *cl_new_code_line(instruction_t *ins)
 	btn_t *b = bt_create_btn(ins->b->r, t);
 
 	instruction_t *i = cl_create_instruction(ins->id, b);
+	
 	code_line_t *new = cl_create_code_line(i);
 
 	return new;
@@ -143,8 +147,8 @@ texture_t *cl_create_instruction_texture(int id)
  */
 texture_t *cl_create_operand_texture(int id)
 {
-	assert(((id > REGISTERS_MIN && id < REGISTERS_MAX) ||
-			(id > BUFFERS_MIN && id < BUFFERS_MAX)) &&  "Incorrect id");
+	assert(((id > REG_MIN && id < REG_MAX) ||
+			(id > BUF_MIN && id < BUF_MAX)) &&  "Incorrect id");
 	texture_t *texture = NULL;
 	
 	switch(id){
@@ -329,7 +333,7 @@ error:
  */
 char *get_operand_text(int operand_id)
 {
-	assert(operand_id > REGISTERS_MIN && operand_id < BUFFERS_MAX && 
+	assert(operand_id > REG_MIN && operand_id < BUF_MAX && 
 		   "The operand id is invalid");
 
 	char *text;
@@ -382,8 +386,8 @@ char *cl_create_code_line_text(int instruction_id, int op1_id, int op2_id)
 	if (instruction_id == JMP || instruction_id == LABEL){
 		assert(op1_id >=0 && "Label destitny is negative");
 	} else {
-		assert(op1_id >= NO_OPERAND && op1_id < BUFFERS_MAX && "Invalid OP1");
-		assert(op2_id >= NO_OPERAND && op2_id < BUFFERS_MAX && "Invalid OP2");
+		assert(op1_id >= NO_OPERAND && op1_id < BUF_MAX && "Invalid OP1");
+		assert(op2_id >= NO_OPERAND && op2_id < BUF_MAX && "Invalid OP2");
 	}
 
 	char *line_text = malloc(sizeof(char)*INSTRUCTION_STRING_LENGTH);
@@ -440,7 +444,8 @@ instruction_t *cl_create_instruction(int id, btn_t *b)
 /* Function: cl_create_code_line
  * -----------------------------------------------------------------------------
  * This function creates a code line with a given instruction object, the other
- * elements of the instruction are filled with defaults.
+ * elements of the instruction are filled with defaults. The ins object should
+ * be already created
  *
  * Arguments:
  * 	ins: the button object of the instruction to be added to the new code line.
@@ -545,9 +550,9 @@ bool check_valid_operand(int id)
 {
 	bool valid = false;
 
-	if (id > REGISTERS_MIN && id < REGISTERS_MAX ||
+	if (id > REG_MIN && id < REG_MAX ||
 		id > MEMORY_MIN && id < MEMORY_MAX ||
-		id > BUFFERS_MIN && id < BUFFERS_MAX){
+		id > BUF_MIN && id < BUF_MAX){
 		valid = true;
 	}
 	return valid;
@@ -635,9 +640,9 @@ bool cl_check_operand_compatibility(operand_t *op, code_line_t *line)
 operand_t *cl_create_operand(int id, btn_t *b)
 {
 	assert(NULL != b && "The button pointer is NULL");
-	assert((id > REGISTERS_MIN && id < REGISTERS_MAX ||
+	assert((id > REG_MIN && id < REG_MAX ||
 			id > MEMORY_MIN && id < MEMORY_MAX ||
-			id > BUFFERS_MIN && id < BUFFERS_MAX) && 
+			id > BUF_MIN && id < BUF_MAX) && 
 	        "Invalid operand id");
 	
 	operand_t *op = malloc(sizeof(operand_t));	

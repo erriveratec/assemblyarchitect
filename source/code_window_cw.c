@@ -597,6 +597,53 @@ error:
 	return label;
 }
 
+/* Function: cw_clone_rclicked_line
+ * -----------------------------------------------------------------------------
+ * Clones an instruction from the instruction window
+ *
+ * Arguments:
+ * 	line: The line that will be cloned.
+ *	
+ * Return:
+ *	The cloned code_line_object
+ *
+ */
+code_line_t *cw_clone_rclicked_line(code_line_t *line)
+{
+	texture_t *t = cl_create_instruction_texture(line->ins->id);	
+	btn_t *b = bt_create_btn(line->ins->b->r, t);
+
+	instruction_t *i = cl_create_instruction(line->ins->id, b);
+	
+	code_line_t *new = cl_create_code_line(i);
+
+	int operand_quantity = cl_get_instruction_operand_quantity(line->ins->id);
+	
+	if (operand_quantity == ONE_OPERAND || operand_quantity == TWO_OPERANDS){
+		operand_t *op1;
+		if (line->ins->id == JMP){
+			//op1 = create_saved_jump_operand(line->op1->id);
+		} else if (line->op1->id > REG_MIN && line->op1->id < REG_MAX){
+			op1 = rg_create_register_operand_by_id(line->op1->id);
+		} else if (line->op1->id > BUF_MIN && line->op1->id < BUF_MAX){
+			op1 = bf_create_buffer_operand_by_id(line->op1->id);
+		}
+		cw_assign_operand_to_line(op1, new);
+	}
+	if (operand_quantity == TWO_OPERANDS){
+		operand_t *op2;
+		if (line->op2->id > REG_MIN && line->op2->id < REG_MAX){
+			op2 = rg_create_register_operand_by_id(line->op2->id);
+		} else if (line->op2->id > BUF_MIN && line->op2->id < BUF_MAX){
+			op2 = bf_create_buffer_operand_by_id(line->op2->id);
+		}
+		cw_assign_operand_to_line(op2, new);
+	}
+
+	return new;
+}
+
+
 /* Function: cw_add_saved_line
  *------------------------------------------------------------------------------
  * Arguments:
@@ -664,18 +711,18 @@ void cw_add_saved_line(char *line)
 			op1 = create_saved_jump_operand(op1_id);
 		} else if (ins_id == LABEL){
 			op1 = create_saved_label_operand(op1_id);
-		} else if (op1_id > REGISTERS_MIN && op1_id < REGISTERS_MAX){
+		} else if (op1_id > REG_MIN && op1_id < REG_MAX){
 			op1 = rg_create_register_operand_by_id(op1_id);
-		} else if (op1_id > BUFFERS_MIN && op1_id < BUFFERS_MAX){
+		} else if (op1_id > BUF_MIN && op1_id < BUF_MAX){
 			op1 = bf_create_buffer_operand_by_id(op1_id);
 		}
 		cw_assign_operand_to_line(op1, new_line);
 	}
 	if (operand_quantity == TWO_OPERANDS){
 		operand_t *op2;
-		if (op2_id > REGISTERS_MIN && op2_id < REGISTERS_MAX){
+		if (op2_id > REG_MIN && op2_id < REG_MAX){
 			op2 = rg_create_register_operand_by_id(op2_id);
-		} else if (op2_id > BUFFERS_MIN && op2_id < BUFFERS_MAX){
+		} else if (op2_id > BUF_MIN && op2_id < BUF_MAX){
 			op2 = bf_create_buffer_operand_by_id(op2_id);
 		}
 		cw_assign_operand_to_line(op2, new_line);
@@ -867,11 +914,68 @@ code_line_t *cw_get_clicked_code()
 			clicked = c;
 		} 
 	}
-	
 	return clicked;
 }
 
-/* Function: cw_check_clicked_code
+/* Function: cw_get_rclicked_code
+ *------------------------------------------------------------------------------
+ * This function returns a pointer to the selected code line with rclicked
+ *
+ * Arguments:
+ * 	none.
+ *	
+ * Return:
+ *	the pointer to the specific button that has been rclicked.
+ *	NULL if not button was clicked
+ *
+ */
+code_line_t *cw_get_rclicked_code()
+{
+	List *code = get_code_list();
+	assert(NULL != code && "The code pointer is NULL");
+	int x = List_count(code);
+	
+	code_line_t *clicked = NULL;
+	LIST_FOREACH(code, first, next, cur){ 
+		
+		code_line_t *c = cur->value;
+
+		if (true == bt_btn_rclicked(c->ins->b)){
+			clicked = c;
+		} 
+	}
+	return clicked;
+}
+
+/* Function: cw_is_code_rclicked
+ *------------------------------------------------------------------------------
+ * This functions verifies if the user right clicked one of the code lines
+ *
+ * Arguments:
+ * 	none.
+ *	
+ * Return:
+ *	true if the user clicked over an code instruction, false if otherwise
+ *
+ */
+bool cw_is_code_rclicked()
+{
+	List *code = get_code_list();
+	bool clicked = false;
+
+	LIST_FOREACH(code, first, next, cur){ 
+		
+		code_line_t *c = cur->value;
+		
+		if (true == bt_btn_rclicked(c->ins->b)){
+			clicked = true;
+			break;
+		} 
+	}
+	return clicked;
+}
+
+/* Function: cw_is_code_clicked
  *------------------------------------------------------------------------------
  * This functions verifies if the user clicked one of the code developed by
  * the player
@@ -883,7 +987,7 @@ code_line_t *cw_get_clicked_code()
  *	true if the user clicked over an instructions, false if otherwise
  *
  */
-bool cw_check_clicked_code()
+bool cw_is_code_clicked()
 {
 	List *code = get_code_list();
 	bool clicked = false;
@@ -1940,7 +2044,7 @@ bool cw_check_code_pending_op1()
 	return pending;
 }
 
-/* Function: cw_check_code_pending_operand
+/* Function: cw_is_operand_pending
  * -----------------------------------------------------------------------------
  * This function verifies if any of the programmed lines is pending an operand
  *
@@ -1951,7 +2055,7 @@ bool cw_check_code_pending_op1()
  * 	true if a line is pending operand, false if otherwise
  *
  */
-bool cw_check_code_pending_operand()
+bool cw_is_operand_pending()
 {
 	List *code = get_code_list();
 
@@ -2109,7 +2213,7 @@ bool cw_chk_click_code_op2(int code_line_pos)
 	return clicked;
 }
 
-/* Function: cw_check_clicked_code_operand
+/* Function: cw_code_operand_clicked
  * -----------------------------------------------------------------------------
  * This function checks if the player clicked on an operando of the instructions
  * available in the code window.
@@ -2122,7 +2226,7 @@ bool cw_chk_click_code_op2(int code_line_pos)
  *	false if otherwise.
  *
  */
-bool cw_check_clicked_code_operand()
+bool cw_code_operand_clicked()
 {
 	List *code = get_code_list();
 	assert(NULL != code && "The code pointer cannot be NULL");

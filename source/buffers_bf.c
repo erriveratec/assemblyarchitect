@@ -203,7 +203,7 @@ bool bf_check_released_in_buffer()
 */
 operand_t *bf_create_buffer_operand_by_id(int id)
 {
-	assert(id > BUFFERS_MIN && id < BUFFERS_MAX && "Incorrect buffer id");
+	assert(id > BUF_MIN && id < BUF_MAX && "Incorrect buffer id");
    	
 	operand_t *b = malloc(sizeof(operand_t));
 	if (id == IB){
@@ -663,7 +663,7 @@ void draw_input_buffer()
  */
 int bf_get_buffer_value_box_x_coord_by_id(int id)
 {
-	assert(id > BUFFERS_MIN && id < BUFFERS_MAX && "Invalid buffer id");
+	assert(id > BUF_MIN && id < BUF_MAX && "Invalid buffer id");
 	
 	List *input_list = get_input_list();
 	int x;
@@ -687,7 +687,7 @@ int bf_get_buffer_value_box_x_coord_by_id(int id)
  */
 int bf_get_buffer_value_box_y_coord_by_id(int id)
 {
-	assert(id > BUFFERS_MIN && id < BUFFERS_MAX && "Invalid buffer id");
+	assert(id > BUF_MIN && id < BUF_MAX && "Invalid buffer id");
 	
 	List *input_list = get_input_list();
 	int y;

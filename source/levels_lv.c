@@ -377,7 +377,7 @@ bool lv_is_code_editable()
 	} else if (iw_check_clicked_instruction() == true && 
 													exception == INS_EXCEPTION){
 		editable = true;	
-	} else if (cw_check_clicked_code() == true) {
+	} else if (cw_is_code_clicked() == true) {
 		code_line_t *line = cw_get_clicked_code();
 		int pos = cw_get_code_line_pos_by_ptr(line);
 		pos++;//instruction pos starts at zero;
@@ -426,7 +426,7 @@ static void set_code_editable(bool state, int exception)
  */
 static void chk_ms_released_clear_msg(int message_id, bool reset_mouse)
 {
-	if (ms_chk_mouse_left_released() == true){
+	if (ms_left_released() == true){
 		g_lv_msg[message_id] = false;
 		if (reset_mouse == true){
 			ms_reset_mouse_values();
@@ -448,7 +448,7 @@ static void chk_ms_released_clear_msg(int message_id, bool reset_mouse)
  */
 static void chk_ms_pressed_clear_msg(int message_id, bool reset_mouse)
 {
-	if (ms_chk_mouse_left_pressed() == true){
+	if (ms_left_pressed() == true){
 		g_lv_msg[message_id] = false;
 		if (reset_mouse == true){
 			ms_reset_mouse_values();
@@ -686,7 +686,7 @@ static void level_3_tutorial()
 	bool hold = check_player_is_holding_line();
 	bool miss_op1 = cw_check_code_pending_op1();
 	bool miss_op2 = cw_check_code_pending_op2();
-	bool miss_op = cw_check_code_pending_operand();
+	bool miss_op = cw_is_operand_pending();
 	bool sorted = cw_check_code_sorted();
 
 	if (g_lv_msg[MSG1] == true && size == 0){
@@ -735,7 +735,7 @@ static void level_3_tutorial()
 	} else if (size == 1 && miss_op == false & hold == true){
 		tx_text_box(TX_CODE_BOX, MSG5);//Drop in code box
 		ar_display_arrow(AR_DROP);
-	}else if (size == 2 && cw_check_code_pending_operand() == true){
+	}else if (size == 2 && cw_is_operand_pending() == true){
 		tx_text_box(TX_CODE_BOX, MSG11);//Use mov [ob], rax several times
 	}
 }
@@ -786,6 +786,7 @@ static void level_2_tutorial()
 	}
 	if (g_lv_msg[MSG1] == true && size == 3){
 		set_code_editable(false, NO_EXCEPTION);
+		set_arrange_enabled(false);
 		tx_text_box(TX_BIG_BOX, MSG1); //Welcome
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
 		chk_ms_pressed_clear_msg(MSG1, true);
@@ -813,6 +814,7 @@ static void level_2_tutorial()
 	} else if (mov_instruction == true){
 		set_code_editable(false, size);
 		set_del_enabled(false);
+		set_arrange_enabled(true);
 		tx_text_box(TX_CODE_BOX, MSG7); //Mov ins to first pos
 		ar_display_arrow(AR_CODE);
 	} else if (press_play == true && play == false){
@@ -841,7 +843,7 @@ static void level_1_tutorial()
 	bool hold = check_player_is_holding_line();
 	int size = cw_get_code_list_size();
 	bool sorted = cw_check_code_sorted();
-	bool miss_op = cw_check_code_pending_operand();
+	bool miss_op = cw_is_operand_pending();
 	bool miss_op1 = cw_check_code_pending_op1();
 
 	if (g_lv_msg[MSG1] == true && size == 0){
@@ -943,7 +945,7 @@ static int check_display_buf_arrow()
 {
 	int display_ar = NO_OPERAND;
 	if (cw_check_code_sorted() == true && 
-									   cw_check_code_pending_operand() == true){
+									   cw_is_operand_pending() == true){
 		code_line_t *l = cw_get_code_line_pending_operand();
 		if (l->ins->id != JMP && l->ins->id !=LABEL){
 			operand_t o;
@@ -1000,7 +1002,7 @@ static bool check_display_reg_lv_arrow()
 {
 	bool display_ar = false;
 	if (cw_check_code_sorted() == true && 
-									   cw_check_code_pending_operand() == true){
+									   cw_is_operand_pending() == true){
 		code_line_t *l = cw_get_code_line_pending_operand();
 		if (l->ins->id != JMP && l->ins->id != LABEL){
 			operand_t o;

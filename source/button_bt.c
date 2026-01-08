@@ -41,7 +41,7 @@ bool bt_chk_mouse_rel_iface_btn(iface_btn_t *btn)
 
 	int mouse_x = ms_get_mouse_x();
 	int mouse_y = ms_get_mouse_y();
-	int mouse_left_released = ms_chk_mouse_left_released();
+	int mouse_left_released = ms_left_released();
 	
 	if (mouse_left_released == false || btn->enabled == false){
 		return false;
@@ -74,7 +74,7 @@ bool bt_chk_mouse_click_iface_btn(iface_btn_t *btn)
 
 	int mouse_x = ms_get_mouse_x();
 	int mouse_y = ms_get_mouse_y();
-	int mouse_left_pressed = ms_chk_mouse_left_pressed();
+	int mouse_left_pressed = ms_left_pressed();
 
 	bool clicked_in_button;
 	if (mouse_left_pressed == false || btn->enabled == false){
@@ -294,11 +294,15 @@ void bt_draw_btn(btn_t *b)
 		
 		if (scale_w < scale_h){
 			int y = b->r.y + (b->r.h - b->t->h*scale_w)/2;
-			SDL_Rect r = {.x = b->r.x, .y = y, .w = b->r.w + b->anim_state};
+			SDL_Rect r = {.x = b->r.x - b->anim_state/2, 
+						  .y = y - b->anim_state/2, 
+						  .w = b->r.w + b->anim_state};
 			dw_draw_texture_fits_width(r, b->t);
 		} else {
 			int x = b->r.x + (b->r.w - b->t->w*scale_h)/2;
-			SDL_Rect r = {.x = x, .y = b->r.y, .h = b->r.h + b->anim_state};
+			SDL_Rect r = {.x = x - b->anim_state/2, 
+						  .y = b->r.y - b->anim_state/2, 
+						  .h = b->r.h + b->anim_state};
 			dw_draw_texture_fits_height(r, b->t);
 		}
 		int anim_max = dm_get_btn_anim_max();
@@ -355,10 +359,44 @@ bool bt_btn_clicked(btn_t *button)
 
 	int mouse_x = ms_get_mouse_x();
 	int mouse_y = ms_get_mouse_y();
-	int mouse_left_pressed = ms_chk_mouse_left_pressed();
+	int mouse_left_pressed = ms_left_pressed();
 
 	bool clicked_in_button;
 	if (mouse_left_pressed == false){
+		clicked_in_button = false;
+	} else if (mouse_x > button->r.x && 
+			   mouse_x < (button->r.x + button->r.w) && 
+			   mouse_y > button->r.y && 
+			   mouse_y < (button->r.y + button->r.h)){
+		clicked_in_button = true;
+	} else {
+		clicked_in_button = false;
+	} 
+	return clicked_in_button;
+}
+
+/* Function: bt_btn_rclicked
+ *------------------------------------------------------------------------------
+ * This function verifies is the mouse has right clicked insiden a give button.
+ *
+ * Arguments:
+ * 	button: the button to be verified
+ *	
+ * Return:
+ *	true if the mouse right clicked inside the button
+ *	false if otherwise
+ *
+*/
+bool bt_btn_rclicked(btn_t *button)
+{
+	assert(NULL != button && "The button pointer cannot be NULL");
+
+	int mouse_x = ms_get_mouse_x();
+	int mouse_y = ms_get_mouse_y();
+	int mouse_right_pressed = ms_right_pressed();
+
+	bool clicked_in_button;
+	if (mouse_right_pressed == false){
 		clicked_in_button = false;
 	} else if (mouse_x > button->r.x && 
 			   mouse_x < (button->r.x + button->r.w) && 
@@ -386,7 +424,7 @@ bool bt_check_mouse_released_button(btn_t *button)
 
 	int mouse_x = ms_get_mouse_x();
 	int mouse_y = ms_get_mouse_y();
-	int mouse_left_released = ms_chk_mouse_left_released();
+	int mouse_left_released = ms_left_released();
 	
 	if (mouse_left_released == false){
 		return false;

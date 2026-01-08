@@ -176,7 +176,6 @@ int dm_get_btn_anim_speed()
 }
 
 
-
 /* Function: dm_get_h_between_code
  * -----------------------------------------------------------------------------
  *	Returns the ammount of space that will be between instructions
