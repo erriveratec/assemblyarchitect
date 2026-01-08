@@ -120,11 +120,62 @@
 #define REG_BOX_H 400
 #define REG_BOX_Y 0
 
+#define BTN_ANIM_MAX 15
+#define BTN_ANIM_DELTA 1
+#define BTN_ANIM_SPEED 1 //Lower is faster
+
 int g_res_id;
 int g_screen_width;
 int g_screen_height;
 
 int scale_to_resolution(int dim);
+
+/* Function: dm_get_btn_anim_max
+ * -----------------------------------------------------------------------------
+ *	Return the max level of the button animation
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	The max level of the animation
+ */
+int dm_get_btn_anim_max()
+{
+	return scale_to_resolution(BTN_ANIM_MAX);
+}
+
+/* Function: dm_get_btn_anim_delta
+ * -----------------------------------------------------------------------------
+ *	Return the delta change of the button animation
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	The delta level  of the animation
+ */
+int dm_get_btn_anim_delta()
+{
+	return scale_to_resolution(BTN_ANIM_DELTA);
+}
+
+/* Function: dm_get_btn_anim_speed
+ * -----------------------------------------------------------------------------
+ * Returns the speed level of the animation 
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	The speed level of the animation
+ */
+int dm_get_btn_anim_speed()
+{
+	return BTN_ANIM_SPEED;
+}
+
+
 
 /* Function: dm_get_h_between_code
  * -----------------------------------------------------------------------------

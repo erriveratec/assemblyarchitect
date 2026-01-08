@@ -13,6 +13,7 @@ typedef struct btn_t{
 	SDL_Rect r;
 	texture_t *t;
 	bool animated;
+	bool anim_dir;
 	int anim_state;
 	bool rect;
 } btn_t;

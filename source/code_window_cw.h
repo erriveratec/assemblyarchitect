@@ -33,7 +33,6 @@ bool cw_check_clicked_code();
 code_line_t *cw_get_clicked_code();
 bool cw_check_code_sorted();
 void cw_sort_code();
-void cw_highlight_code_pending_operand();
 bool cw_check_code_pending_operand();
 bool cw_check_code_pending_op1();
 bool cw_check_code_pending_op2();
@@ -62,4 +61,5 @@ SDL_Rect cw_get_code_line_coord_at_pos(int code_line_element, int pos);
 int cw_get_code_line_pos_by_ptr(code_line_t *line);
 code_line_t *cw_create_label_code_line();
 void cw_clear_code_list();
+void cw_assign_operand_to_line(operand_t *op, code_line_t *line);
 #endif

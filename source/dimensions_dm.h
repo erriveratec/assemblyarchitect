@@ -102,4 +102,8 @@ SDL_Rect dm_get_text_box_result_but1();//Back in win condition
 SDL_Rect dm_get_text_box_result_but2();//Continue in win condition
 SDL_Rect dm_get_text_box_result_but3();//Back in error condition
 
+int dm_get_btn_anim_max();
+int dm_get_btn_anim_delta();
+int dm_get_btn_anim_speed();
+
 #endif

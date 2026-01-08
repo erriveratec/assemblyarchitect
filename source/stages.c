@@ -603,7 +603,6 @@ static code_line_t *pending_operand_handler()
 	bool register_selected = rg_check_mouse_released_in_register();
 	bool buffer_selected = bf_check_released_in_buffer();
 	bool label_selected = cw_check_released_in_label();
-	cw_highlight_code_pending_operand();
 	code_line_t *l = cw_get_code_line_pending_operand();
 	code_line_t *r = NULL;
 
@@ -611,16 +610,16 @@ static code_line_t *pending_operand_handler()
 		r = cw_create_label_code_line();
 		cw_player_holding_instruction(r, false, true);
 		operand_t *a = cw_create_jump_operand(r);
-		cl_assign_operand_to_line(a, l);
+		cw_assign_operand_to_line(a, l);
 	} else if (left_released == true && register_selected == true &&
 												lv_is_reg_selectable() == true){
 		operand_t *r = rg_create_operand_of_selected_register();
-		cl_assign_operand_to_line(r, l);
+		cw_assign_operand_to_line(r, l);
 	} else if (left_released == true && buffer_selected == true && 
 												lv_is_buf_selectable() == true){
 		operand_t *b = bf_create_operand_of_selected_buffer();
 		if (cl_check_operand_compatibility(b, l) == true){
-			cl_assign_operand_to_line(b, l);
+			cw_assign_operand_to_line(b, l);
 		} else {
 			cl_destroy_operand(b);
 		}

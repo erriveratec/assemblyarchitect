@@ -250,6 +250,7 @@ btn_t *bt_create_btn(SDL_Rect r, texture_t *t)
 	new_button->r = r;
 	new_button->t = t;
 	new_button->animated = false;
+	new_button->anim_dir = false;
 	new_button->anim_state = 0;
 	new_button->rect = false;
 
@@ -271,7 +272,6 @@ void bt_draw_btn(btn_t *b)
 {
 	assert(b != NULL && "The button pointer is NULL");
 	
-	int status = SUCCESS;	
 	
 	if (b->rect == true){
 		dw_draw_rectangle(b->r, C_WHITE);
@@ -280,17 +280,42 @@ void bt_draw_btn(btn_t *b)
 	float scale_w = (float)b->r.w/b->t->w;
 	float scale_h = (float)b->r.h/b->t->h;
 
-
-	if (scale_w < scale_h){
-		int y = b->r.y + (b->r.h - b->t->h*scale_w)/2;
-		SDL_Rect r = {.x = b->r.x, .y = y, .w = b->r.w};
-		dw_draw_texture_fits_width(r, b->t);
-	} else {
-		int x = b->r.x + (b->r.w - b->t->w*scale_h)/2;
-		SDL_Rect r = {.x = x, .y = b->r.y, .h = b->r.h};
-		dw_draw_texture_fits_height(r, b->t);
+	if (b->animated == false){
+		if (scale_w < scale_h){
+			int y = b->r.y + (b->r.h - b->t->h*scale_w)/2;
+			SDL_Rect r = {.x = b->r.x, .y = y, .w = b->r.w};
+			dw_draw_texture_fits_width(r, b->t);
+		} else {
+			int x = b->r.x + (b->r.w - b->t->w*scale_h)/2;
+			SDL_Rect r = {.x = x, .y = b->r.y, .h = b->r.h};
+			dw_draw_texture_fits_height(r, b->t);
+		}
+	} else if (b->animated == true){
+		
+		if (scale_w < scale_h){
+			int y = b->r.y + (b->r.h - b->t->h*scale_w)/2;
+			SDL_Rect r = {.x = b->r.x, .y = y, .w = b->r.w + b->anim_state};
+			dw_draw_texture_fits_width(r, b->t);
+		} else {
+			int x = b->r.x + (b->r.w - b->t->w*scale_h)/2;
+			SDL_Rect r = {.x = x, .y = b->r.y, .h = b->r.h + b->anim_state};
+			dw_draw_texture_fits_height(r, b->t);
+		}
+		int anim_max = dm_get_btn_anim_max();
+		int anim_delta = dm_get_btn_anim_delta();
+		if (b->anim_dir == false && b->anim_state == anim_max){
+			b->anim_dir = true;
+		} else if (b->anim_dir == true && b->anim_state == 0){
+			b->anim_dir = false;
+		}
+		if (b->anim_dir == false){
+			b->anim_state += anim_delta;
+		} else if (b->anim_dir == true){
+			b->anim_state -= anim_delta;
+		}
 	}
-	assert(status != FAIL && "The texture could not be drawn");
+
+
 }
 
 /* Function: assign_button_parameters

@@ -94,7 +94,6 @@ code_line_t *cl_create_code_line(instruction_t *ins);
 void cl_destroy_code_line(code_line_t *line);
 instruction_t *cl_create_instruction(int id, btn_t *b);
 operand_t *cl_create_operand(int id, btn_t *b);
-void cl_assign_operand_to_line(operand_t *op, code_line_t *line);
 bool cl_check_operand_compatibility(operand_t *op, code_line_t *line);
 int cl_get_instruction_operand_quantity(int instruction_id);
 char *get_operand_text(int operand_id);

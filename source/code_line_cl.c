@@ -619,75 +619,7 @@ bool cl_check_operand_compatibility(operand_t *op, code_line_t *line)
 	return compatible;
 }
 
-/* Function: cl_assign_operand_to_line
- * -----------------------------------------------------------------------------
- * This function assigns an operand to a line that has a state where the 
- * operand is missing, generates error if called to a line that is not in a
- * state of a missing operand.
- *
- * Arguments:
- *	operand: the operand that will be assigned.
- * 	line: the line where the operand will be assigned.
- *	
- * Return:
- *	void.
- *
- */
-void cl_assign_operand_to_line(operand_t *op, code_line_t *line)
-{
-	assert(NULL != op && "The operand cannot be NULL");
-	assert(NULL != line && "The line cannot be NULL");
 
-	int op1_ofs = dm_get_ofs_code_op1();
-	int op2_ofs = dm_get_ofs_code_op2();
-
-	int operand_quantity = cl_get_instruction_operand_quantity(line->ins->id);
-	switch(line->state){
-		case MISSING_BOTH:
-			line->op1 = op;
-			line->op1->b->r.x = line->ins->b->r.x + op1_ofs;
-			line->op1->b->r.y = line->ins->b->r.y;
-			line->state = MISSING_OP2;
-			break;
-		case MISSING_OP1:
-			line->op1 = op;
-			line->op1->b->r.x = line->ins->b->r.x + op1_ofs;
-			line->op1->b->r.y = line->ins->b->r.y;
-			if (operand_quantity == ONE_OPERAND){
-				line->state = COMPLETE;
-			} else {
-				line->state = MISSING_OP2;
-			}
-			break;
-		case MISSING_OP2:
-			line->op2 = op;
-			line->op2->b->r.x = line->ins->b->r.x + op2_ofs;
-			line->op2->b->r.y = line->ins->b->r.y;
-			line->state = COMPLETE;
-			break;
-		case CHANGING_OP1:
-			cl_destroy_operand(line->op1);	
-			line->op1 = op;
-			line->op1->b->r.x = line->ins->b->r.x + op1_ofs;
-			line->op1->b->r.y = line->ins->b->r.y;
-			line->state = COMPLETE;
-			break;
-		case CHANGING_OP2:
-			cl_destroy_operand(line->op2);	
-			line->op2 = op;
-			line->op2->b->r.x = line->ins->b->r.x + op2_ofs;
-			line->op2->b->r.y = line->ins->b->r.y;
-			line->state = COMPLETE;
-			break;
-		case COMPLETE:
-			printf("cl_assign_operand_to line Error, there should not be an" 
-					"operand assigment to a complete instruction. \n");
-			break;
-		default:
-			printf("Error, the state of the code line is invalid\n");
-			break;
-	}
-}
 
 /* Function: cl_create_operand
  * -----------------------------------------------------------------------------
