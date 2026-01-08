@@ -606,6 +606,8 @@ static code_line_t *pending_operand_handler()
 	code_line_t *l = cw_get_code_line_pending_operand();
 	code_line_t *r = NULL;
 
+	cw_highlight_code_pending_operand();
+
 	if (l->ins->id == JMP){
 		r = cw_create_label_code_line();
 		cw_player_holding_instruction(r, false, true);

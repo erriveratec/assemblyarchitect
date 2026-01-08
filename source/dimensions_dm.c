@@ -124,11 +124,30 @@
 #define BTN_ANIM_DELTA 1
 #define BTN_ANIM_SPEED 1 //Lower is faster
 
+#define MISS_OP_W 3
+
+
 int g_res_id;
 int g_screen_width;
 int g_screen_height;
 
 int scale_to_resolution(int dim);
+
+/* Function: dm_get_w_miss_op
+ * -----------------------------------------------------------------------------
+ * Returns the width that is going to be used for the missing op animation
+ * square.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	The max level of the animation
+ */
+int dm_get_w_miss_op()
+{
+	return scale_to_resolution(MISS_OP_W);
+}
 
 /* Function: dm_get_btn_anim_max
  * -----------------------------------------------------------------------------

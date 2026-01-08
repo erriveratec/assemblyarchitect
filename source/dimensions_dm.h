@@ -31,6 +31,7 @@ int dm_get_h_border_padding();
 int dm_get_w_stage_rail();
 int dm_get_w_stage_rail_end();
 int dm_get_w_borders();
+int dm_get_w_miss_op();
 
 SDL_Rect dm_get_studio_name_msg_box();
 SDL_Rect dm_get_game_title_box();

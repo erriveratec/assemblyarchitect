@@ -2122,21 +2122,55 @@ void cw_highlight_code_pending_operand()
 	
 	int op1_ofs = dm_get_ofs_code_op1();
 	int op2_ofs = dm_get_ofs_code_op2();
+	int w = dm_get_w_miss_op();
+	int anim_max = dm_get_btn_anim_max();
+	int anim_delta = dm_get_btn_anim_delta();
 
-	if (MISSING_BOTH == line->state || MISSING_OP1 == line->state ||
-		CHANGING_OP1 == line->state){
-		SDL_Rect r = {.x = line->ins->b->r.x + op1_ofs, 
-					  .y = line->ins->b->r.y, .w = line->ins->b->r.w, 
-					  .h = line->ins->b->r.h};
-		dw_draw_rectangle(r, C_WHITE);
+	static bool anim_dir = false;
+	static int anim_state = 0;
 
-	} else if (MISSING_OP2 == line->state || CHANGING_OP2 == line->state){
-		SDL_Rect r = {.x = line->ins->b->r.x + op2_ofs, 
-					  .y = line->ins->b->r.y, .w = line->ins->b->r.w, 
-					  .h = line->ins->b->r.h};
-		dw_draw_rectangle(r, C_WHITE);
+	if (line->state == MISSING_BOTH || line->state == MISSING_OP1){
+		SDL_Rect r = {.x = line->ins->b->r.x + op1_ofs + anim_state/2, 
+					  .y = line->ins->b->r.y + anim_state/2, 
+					  .w = line->ins->b->r.w - anim_state, 
+					  .h = line->ins->b->r.h - anim_state};
+		dw_draw_thick_rect(r, w, C_WHITE);
+		if (anim_dir == false){
+			anim_state += anim_delta;
+		} else if (anim_dir == true){
+			anim_state -= anim_delta;
+		}
 
+		if (anim_state == anim_max){
+			anim_dir = true;
+		} else if (anim_state == 0){
+			anim_dir = false;
+		}
+
+	} else if (line->state == MISSING_OP2){
+		SDL_Rect r = {.x = line->ins->b->r.x + op2_ofs + anim_state/2, 
+					  .y = line->ins->b->r.y + anim_state/2, 
+					  .w = line->ins->b->r.w - anim_state, 
+					  .h = line->ins->b->r.h - anim_state};
+		dw_draw_thick_rect(r, w, C_WHITE);
+		if (anim_dir == false){
+			anim_state += anim_delta;
+		} else if (anim_dir == true){
+			anim_state -= anim_delta;
+		}
+
+		if (anim_state == anim_max){
+			anim_dir = true;
+		} else if (anim_state == 0){
+			anim_dir = false;
+		}
+	} else if (line->state == COMPLETE 
+			   || line->state == MISSING_OP1
+			   || line->state == MISSING_OP2){
+		anim_dir = false;
+		anim_state = 0;
 	}
+	
 error:
 	return;
 }

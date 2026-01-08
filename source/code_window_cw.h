@@ -67,4 +67,5 @@ int cw_get_code_line_pos_by_ptr(code_line_t *line);
 code_line_t *cw_create_label_code_line();
 void cw_clear_code_list();
 void cw_assign_operand_to_line(operand_t *op, code_line_t *line);
+void cw_highlight_code_pending_operand();
 #endif
