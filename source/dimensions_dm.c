@@ -66,7 +66,7 @@
 
 #define RET_RES_OFS 5
 
-#define RST_BTN_W 100
+#define RST_BTN_W 90
 #define RST_BTN_H 75
 
 #define RST_MENU_BTNS_W 100
@@ -1227,8 +1227,8 @@ SDL_Rect dm_get_rst_btn_box()
 	SDL_Rect b;
 	b.w = scale_to_resolution(RST_BTN_W);
 	b.h = scale_to_resolution(RST_BTN_H);
-	b.x = ret_box.x + ret_box.w + scale_to_resolution(RET_RES_OFS);
-	b.y = ret_box.y;
+	b.x = ret_box.x;
+	b.y = ret_box.y - b.w;	
 	return b;
 }
 

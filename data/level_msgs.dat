@@ -114,7 +114,7 @@ MSG_END
 
 +++LEVEL STARTS 03
 
-QUANTITY 11
+QUANTITY 12
 
 MSG 01
 Level 03
@@ -160,6 +160,10 @@ MSG 11
 Use
 "MOV [ob], rax"
 several times to solve the challenge
+MSG_END
+
+MSG 12
+Right click a complete instruction to copy it
 MSG_END
 
 +++LEVEL ENDS 03

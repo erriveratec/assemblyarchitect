@@ -711,16 +711,20 @@ static void level_3_tutorial()
 	} else if (size == 0 && hold == true){
 		tx_text_box(TX_CODE_BOX, MSG5); // Drop in code box
 		ar_display_arrow(AR_DROP);
-	} else if (size == 1 && sorted == true && hold == false 
-													 && g_lv_msg[MSG6] == true){
+	} else if (size == 1 
+			   && sorted == true 
+			   && hold == false 
+			   && g_lv_msg[MSG6] == true){
 		tx_text_box(TX_LOWER_BOX, MSG6); // All operands are shown
 		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
 		chk_ms_released_clear_msg(MSG6, true);
 	} else if (size == 1 && miss_op1 == true && sorted == true){
 		tx_text_box(TX_CODE_BOX, MSG7); //Sel rax
 		set_buf_selectable(false);
-	} else if (size == 1 && miss_op2 == true && sorted == true && 
-												        g_lv_msg[MSG8] == true){
+	} else if (size == 1 
+			   && miss_op2 == true 
+			   && sorted == true
+			   && g_lv_msg[MSG8] == true){
 		tx_text_box(TX_CENTER_BOX, MSG8); //Valid op combinations
 		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
 		chk_ms_released_clear_msg(MSG8, true);
@@ -735,8 +739,20 @@ static void level_3_tutorial()
 	} else if (size == 1 && miss_op == false & hold == true){
 		tx_text_box(TX_CODE_BOX, MSG5);//Drop in code box
 		ar_display_arrow(AR_DROP);
-	}else if (size == 2 && cw_is_operand_pending() == true){
+	} else if (size == 2 && miss_op1 == true){
 		tx_text_box(TX_CODE_BOX, MSG11);//Use mov [ob], rax several times
+		set_reg_selectable(false);
+		set_buf_selectable(true);
+		ar_init_arrow(AR_CODE);
+	} else if (size == 2 && miss_op1 == false && miss_op2 == true){
+		tx_text_box(TX_CODE_BOX, MSG11);//Use mov [ob], rax several times
+		set_buf_selectable(false);
+		set_reg_selectable(true);
+		ar_init_arrow(AR_CODE);
+	} else if (size == 2 && miss_op == false){
+		tx_text_box(TX_CODE_BOX, MSG12); //Right click a complete instruction
+		set_reg_selectable(true);
+		ar_display_arrow(AR_CODE);
 	}
 }
 
