@@ -31,7 +31,7 @@ texture_array_t *ib_unproc_vals;
 texture_array_t *exc_code_size;
 texture_array_t *ob_incomplete;
 
-static bool finished;
+static bool run_ended;
 
 enum avatar_id{
 	NOAVATAR,
@@ -1462,9 +1462,9 @@ static void execute_instruction(code_line_t *line, int line_pos)
 	}
 }
 
-/* Function: mc_set_run_finished
+/* Function: mc_set_run_ended
  * -----------------------------------------------------------------------------
- * Sets the fun finished variable
+ * Sets the fun ended variable
  *
  * Arguments:
  *	state: state to which the variable will be set.
@@ -1472,9 +1472,24 @@ static void execute_instruction(code_line_t *line, int line_pos)
  * Return:
  *	Void.
  */
-static void mc_set_run_finished(bool state)
+void mc_set_run_ended(bool state)
 {
-	run_finished = state;
+	run_ended = state;
+}
+
+/* Function: mc_get_run_ended
+ * -----------------------------------------------------------------------------
+ * Returns the run_ended variable.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Run ended variable.
+ */
+bool mc_get_run_ended()
+{
+	return run_ended;
 }
 
 /* Function: mc_run_code

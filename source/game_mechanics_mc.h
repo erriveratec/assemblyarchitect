@@ -26,4 +26,6 @@ void mc_reset_invalid_operation_flag();
 bool mc_invalid_operation_handler(int id);
 void mc_init_errors_texture();
 void mc_destroy_avatar_textures();
+void mc_set_run_finished(bool state);
+bool mc_get_run_ended();
 #endif
