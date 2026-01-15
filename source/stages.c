@@ -767,9 +767,10 @@ int stage_level(int level_id)
 	static level_flags_t flags;
 	bool back_to_level_selection = sb_check_clicked_ret_button(); 
 	
+	stage_drawings(level_id);
 	rst_btn_hdl(level_id, &flags, &run_finished);
-	
-	//sb_display_escape_menu(sb_get_escape_menu_state());
+	cw_sort_code();
+
 	if (sb_stage_btn_clicked() == true && cw_is_operand_pending() == false){
 		flag_handler(&flags, identify_clicked_stage_button());
 	}
@@ -777,11 +778,15 @@ int stage_level(int level_id)
 	lv_set_op_flag_state(mc_get_operation_flag());
 	lv_set_play_state(flags.play);
 	lv_set_hold_line(hold_line);
-	stage_drawings(level_id);
-	cw_sort_code();
 	
 	if (flags.non_stop == false || cw_is_operand_pending() == true){
 		hold_line = edit_code(level_id);
+	} else if (flags.play == true && cw_is_operand_pending() == false){
+		run_finished = mc_run_code();
+	} else if ((flags.stop == true && flags.stop_enabled == true) ||
+				reset == true){
+		reset_level(level_id, &flags, &run_finished);	
+		reset = false;
 	}
 	
 	if (mc_get_operation_flag() != NO_INVALID_OPERATION){
@@ -797,14 +802,6 @@ int stage_level(int level_id)
 			fl_enable_next_level(g_player, level_id + 1);
 			back_to_level_selection = true;
 		} 
-	}
-
-	if (flags.play == true && cw_is_operand_pending() == false){
-		run_finished = mc_run_code();
-	} else if ((flags.stop == true && flags.stop_enabled == true) ||
-				reset == true){
-		reset_level(level_id, &flags, &run_finished);	
-		reset = false;
 	}
 
 	if (back_to_level_selection == true){

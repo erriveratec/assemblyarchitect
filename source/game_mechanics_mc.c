@@ -31,6 +31,8 @@ texture_array_t *ib_unproc_vals;
 texture_array_t *exc_code_size;
 texture_array_t *ob_incomplete;
 
+static bool finished;
+
 enum avatar_id{
 	NOAVATAR,
 	IAVATAR,
@@ -53,7 +55,6 @@ typedef struct avatar_t{
 static avatar_t g_iavatar;
 static avatar_t g_oavatar;
 static avatar_t g_ravatar; 
-
 
 enum counter_actions{
 	ADD_1,
@@ -1459,6 +1460,21 @@ static void execute_instruction(code_line_t *line, int line_pos)
 			reset_avatar_no_pos();
 		}	
 	}
+}
+
+/* Function: mc_set_run_finished
+ * -----------------------------------------------------------------------------
+ * Sets the fun finished variable
+ *
+ * Arguments:
+ *	state: state to which the variable will be set.
+ *
+ * Return:
+ *	Void.
+ */
+static void mc_set_run_finished(bool state)
+{
+	run_finished = state;
 }
 
 /* Function: mc_run_code
