@@ -59,14 +59,14 @@ void stage_drawings(int level);
 static code_line_t *pending_operand_handler();
 static void flag_handler(level_flags_t *flags, int clicked_button);
 static code_line_t *edit_code(int level_id);
-static void reset_level(int level_id, level_flags_t *flags, bool *run_finished);
+static void reset_level(int level_id, level_flags_t *flags);
 static int display_run_result(bool win_check);
 static void destroy_level(level_flags_t *flags);
 static void init_stage_assets();
 static void code_updated_actions(int level_id);
 static void set_code_editable();
 static void reset_code_editable();
-static void rst_btn_hdl(int level_id, level_flags_t *f, bool *run_finished);
+static void rst_btn_hdl(int level_id, level_flags_t *f);
 
 /* Function: stage_select_player
  * ----------------------------------------------------------------------------
@@ -711,18 +711,17 @@ static code_line_t *edit_code(int level_id)
  * Arguments:
  * 	level_id: the level number that is going to be reset.
  *	flags: the flags of the level that will be reset.
- *	runf_fineshed: Flag that determines if the run is already finished.
  *
  * Return:
  *	void.
  */
-static void rst_btn_hdl(int level_id, level_flags_t *f, bool *run_finished)
+static void rst_btn_hdl(int level_id, level_flags_t *f)
 {
 	if (sb_chk_click_rst_btn() == true){
 		sb_set_rst_menu(true);
 	}
 	if (sb_chk_rst_menu_btns(sb_chk_rst_menu_state()) == true){
-		reset_level(level_id, f, run_finished);
+		reset_level(level_id, f);
 		cw_clear_code_list();
 		lv_init_stage_code(level_id);
 		code_updated_actions(level_id);
@@ -739,7 +738,7 @@ static void rst_btn_hdl(int level_id, level_flags_t *f, bool *run_finished)
  * Return:
  *	void.
  */
-static void reset_level(int level_id, level_flags_t *flags, bool *run_finished)
+static void reset_level(int level_id, level_flags_t *flags)
 {
 	mc_reset_avatar();			
 	reset_level_flags(flags);
@@ -752,7 +751,7 @@ static void reset_level(int level_id, level_flags_t *flags, bool *run_finished)
 	cw_reset_code_execution();
 	ar_hide_execution_arrow();
 	mc_reset_invalid_operation_flag();
-	*run_finished = false;
+	mc_set_run_ended(false);
 	ms_reset_mouse_values();
 	rg_reset_ibox();
 	rg_reset_obox();
@@ -761,14 +760,13 @@ static void reset_level(int level_id, level_flags_t *flags, bool *run_finished)
 int stage_level(int level_id)
 {
 	int ret_val = LV_PLAY_LEVEL;
-	static bool run_finished = false;
 	static bool reset = false;
 	static code_line_t *hold_line = NULL;
 	static level_flags_t flags;
 	bool back_to_level_selection = sb_check_clicked_ret_button(); 
 	
 	stage_drawings(level_id);
-	rst_btn_hdl(level_id, &flags, &run_finished);
+	rst_btn_hdl(level_id, &flags);
 	cw_sort_code();
 
 	if (sb_stage_btn_clicked() == true && cw_is_operand_pending() == false){
@@ -782,21 +780,25 @@ int stage_level(int level_id)
 	if (flags.non_stop == false || cw_is_operand_pending() == true){
 		hold_line = edit_code(level_id);
 	} else if (flags.play == true && cw_is_operand_pending() == false){
-		run_finished = mc_run_code();
-	} else if ((flags.stop == true && flags.stop_enabled == true) ||
-				reset == true){
-		reset_level(level_id, &flags, &run_finished);	
+		mc_run_code();
+	} else if (flags.step == true && cw_is_operand_pending() == false){
+		mc_run_code();
+		flags.step = !mc_get_step_ended();
+	} else if ((flags.stop == true && flags.stop_enabled == true) 
+			   || reset == true){
+		reset_level(level_id, &flags);	
 		reset = false;
 	}
 	
 	if (mc_get_operation_flag() != NO_INVALID_OPERATION){
 		reset = mc_invalid_operation_handler(mc_get_operation_flag());
 		flags.play = false;
-	} else if (run_finished == true && flags.play == true &&
-													 lv_check_if_win() == true){
+	} else if (mc_get_run_ended() == true 
+			   && flags.play == true 
+			   && lv_check_if_win() == true){
 		int action_selected = display_run_result(lv_check_if_win());
 		if (action_selected == BACK_BUTTON_PRESSED){
-			reset_level(level_id, &flags, &run_finished);		
+			reset_level(level_id, &flags);		
 			fl_enable_next_level(g_player, level_id + 1);
 		} else if (action_selected == CONT_BUTTON_PRESSED){
 			fl_enable_next_level(g_player, level_id + 1);
@@ -806,9 +808,8 @@ int stage_level(int level_id)
 
 	if (back_to_level_selection == true){
 		ret_val = LV_LEVEL_SELECTION;	
-		reset_level(level_id, &flags, &run_finished);		
+		reset_level(level_id, &flags);		
 		destroy_level(&flags);
-		run_finished = false;
 	}
 
 	sb_display_rst_menu(sb_chk_rst_menu_state());

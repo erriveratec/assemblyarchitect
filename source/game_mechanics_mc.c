@@ -32,6 +32,7 @@ texture_array_t *exc_code_size;
 texture_array_t *ob_incomplete;
 
 static bool run_ended;
+static bool step_ended;
 
 enum avatar_id{
 	NOAVATAR,
@@ -1425,6 +1426,7 @@ static void execute_instruction(code_line_t *line, int line_pos)
 	int buffer_inputs = get_input_buffer_list_size();
 	int avatar_id = NOAVATAR;	
 	bool arrow_in_place = ar_move_execution_arrow(line_pos);
+	mc_set_step_ended(false);
 
 	if (line->ins->id == LABEL && arrow_in_place == true){
 		line->state = EXECUTED;
@@ -1443,6 +1445,7 @@ static void execute_instruction(code_line_t *line, int line_pos)
 			if (cl_check_op_is_register(line->op1->id) == true){
 				operate_instruction(line, g_ravatar.value);
 				line->state = EXECUTED;
+				mc_set_step_ended(true);
 			} else{
 				set_operand_value_box(OBOX, g_ravatar.value);
 			}
@@ -1457,6 +1460,7 @@ static void execute_instruction(code_line_t *line, int line_pos)
 			g_oavatar.op1_delivered == true && arrow_in_place == true){
 			operate_instruction(line, g_oavatar.value);
 			line->state = EXECUTED;
+			mc_set_step_ended(true);
 			reset_avatar_no_pos();
 		}	
 	}
@@ -1492,37 +1496,67 @@ bool mc_get_run_ended()
 	return run_ended;
 }
 
+/* Function: mc_set_step_ended
+ * -----------------------------------------------------------------------------
+ * Sets the step ended variable
+ *
+ * Arguments:
+ *	state: state to which the variable will be set.
+ *
+ * Return:
+ *	Void.
+ */
+void mc_set_step_ended(bool state)
+{
+	step_ended = state;
+}
+
+/* Function: mc_get_step_ended
+ * -----------------------------------------------------------------------------
+ * Returns the step_ended variable.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Run ended variable.
+ */
+bool mc_get_step_ended()
+{
+	return step_ended;
+}
+
 /* Function: mc_run_code
  * -----------------------------------------------------------------------------
  * Arguments:
  *	none.
  *
  * Return:
- *	true if finished running code, false otherwise.
+ *	true if a step is pending, false if otherwise
  */
-bool mc_run_code()
+void mc_run_code()
 {
-	bool finished = false;
+	mc_set_run_ended(false);
 	int code_size = cw_get_code_list_size();	
 	
 	if (check_finishes_at_OB_correct_size() == true){
-		finished = true;	
-		return finished;
+		mc_set_run_ended(true);
+		return;
 	} 	
 	for (int i = 0; i < code_size; i++){
 		code_line_t *line = cw_get_code_line_at_pos(i);
 		if (line->state != EXECUTED){
 			execute_instruction(line, i);	
-			return finished;
+			return;
 		}
 	}
-	finished = true;
+	mc_set_run_ended(true);
 	int output_buffer_size = get_output_buffer_list_size();
 	int win_list_size = lv_get_win_list_size();
 	if (output_buffer_size < win_list_size){
 		set_invalid_operation_flag(OUTPUT_BUFFER_INCOMPLETE);
 	}
-	return finished;
+	
 }
 
 
