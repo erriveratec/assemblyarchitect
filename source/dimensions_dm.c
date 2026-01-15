@@ -42,7 +42,7 @@
 
 #define STAGE_BUTTON_W 60
 #define STAGE_BUTTON_H 60
-#define STAGE_BUTTON_X 700
+#define STAGE_BUTTON_X 650
 #define STAGE_BUTTON_Y 820
 
 #define P_BUTTON_H 200

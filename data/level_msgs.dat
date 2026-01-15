@@ -184,7 +184,7 @@ MSG_END
 
 +++LEVEL STARTS 05
 
-QUANTITY 2
+QUANTITY 3
 
 MSG 01
 Level 05
@@ -192,6 +192,10 @@ MSG_END
 
 MSG 02
 There are more registers available. Use them to solve the challenge
+MSG_END
+
+MSG 03
+Notice the STEP-BY-STEP and FAST execution buttons
 MSG_END
 
 +++LEVEL ENDS 05

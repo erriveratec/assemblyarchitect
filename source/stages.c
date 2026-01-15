@@ -38,9 +38,9 @@ typedef struct level_flags_t{
 	bool play;
 	bool stop;
 	bool stop_enabled;
-	bool forward;
-	bool backward;
-	bool backward_enabled;
+	bool fast;
+	bool step;
+	bool step_enabled;
 	bool non_stop;
 } level_flags_t;
 
@@ -66,9 +66,7 @@ static void init_stage_assets();
 static void code_updated_actions(int level_id);
 static void set_code_editable();
 static void reset_code_editable();
-
-
-
+static void rst_btn_hdl(int level_id, level_flags_t *f, bool *run_finished);
 
 /* Function: stage_select_player
  * ----------------------------------------------------------------------------
@@ -242,9 +240,9 @@ void reset_level_flags(level_flags_t *flags)
 	flags->play = false;
 	flags->stop = false;
 	flags->stop_enabled = false;
-	flags->forward = false;
-	flags->backward = false;
-	flags->backward_enabled = false;
+	flags->fast = false;
+	flags->step = false;
+	flags->step_enabled = false;
 	flags->non_stop = false;
 }
 
@@ -492,7 +490,8 @@ void stage_button_handler()
 		case STOP:
 			
 			break;
-		case BACKWARD:
+
+		case STEP:
 
 			break;
 
@@ -500,7 +499,7 @@ void stage_button_handler()
 
 			break;
 
-		case FORWARD:
+		case FAST:
 
 			break;
 
@@ -533,9 +532,9 @@ static void flag_handler(level_flags_t *flags, int clicked_button)
 				flags->non_stop = true;
 				flags->stop = false;
 				flags->stop_enabled = true;
-				flags->forward = false;
-				flags->backward = false;
-				flags->backward_enabled = true;
+				flags->fast = false;
+				flags->step = false;
+				flags->step_enabled = true;
 				ar_reset_execution_arrow();
 			}
 			break;
@@ -543,27 +542,27 @@ static void flag_handler(level_flags_t *flags, int clicked_button)
 			flags->stop = true;
 			flags->non_stop = false;
 			flags->play = false;
-			flags->forward = false;
-			flags->backward = false;
-			flags->backward_enabled = false;
+			flags->fast = false;
+			flags->step = false;
+			flags->step_enabled = false;
 			mc_reset_invalid_operation_flag();	
 			break;
-		case FORWARD:
-			flags->forward = true;
+		case FAST:
+			flags->fast = true;
 			flags->play = true;
 			flags->stop = false;
 			flags->non_stop = true;
 			flags->stop_enabled = true;
-			flags->backward = false;
-			flags->backward_enabled = true;
+			flags->step = false;
+			flags->step_enabled = true;
 			break;
-		case BACKWARD:
-			flags->backward = true;
+		case STEP:
+			flags->step = true;
 			flags->stop = false;
 			flags->non_stop = true;
 			flags->stop_enabled = true;
 			flags->play = false;
-			flags->forward = false;
+			flags->fast = false;
 			break;
 	}
 }
@@ -705,6 +704,32 @@ static code_line_t *edit_code(int level_id)
 	return line; // I must change this as it is not required
 }
 
+/* Function: rst_btn_hdl
+ * ----------------------------------------------------------------------------
+ * Comprirses all the functions related to the rst button
+ *
+ * Arguments:
+ * 	level_id: the level number that is going to be reset.
+ *	flags: the flags of the level that will be reset.
+ *	runf_fineshed: Flag that determines if the run is already finished.
+ *
+ * Return:
+ *	void.
+ */
+static void rst_btn_hdl(int level_id, level_flags_t *f, bool *run_finished)
+{
+	if (sb_chk_click_rst_btn() == true){
+		sb_set_rst_menu(true);
+	}
+	if (sb_chk_rst_menu_btns(sb_chk_rst_menu_state()) == true){
+		reset_level(level_id, f, run_finished);
+		cw_clear_code_list();
+		lv_init_stage_code(level_id);
+		code_updated_actions(level_id);
+		lv_init_level_assets(level_id);
+	}
+}
+
 /* Function: reset_level
  * ----------------------------------------------------------------------------
  * Arguments:
@@ -742,20 +767,10 @@ int stage_level(int level_id)
 	static level_flags_t flags;
 	bool back_to_level_selection = sb_check_clicked_ret_button(); 
 	
-	if (sb_chk_click_rst_btn() == true){
-		sb_set_rst_menu(true);
-	}
-	if (sb_chk_rst_menu_btns(sb_chk_rst_menu_state()) == true){
-		reset_level(level_id, &flags, &run_finished);
-		cw_clear_code_list();
-		lv_init_stage_code(level_id);
-		code_updated_actions(level_id);
-		lv_init_level_assets(level_id);
-	}
+	rst_btn_hdl(level_id, &flags, &run_finished);
 	
 	//sb_display_escape_menu(sb_get_escape_menu_state());
-	if (sb_check_clicked_stage_button() == true && 
-									  cw_is_operand_pending() == false){
+	if (sb_stage_btn_clicked() == true && cw_is_operand_pending() == false){
 		flag_handler(&flags, identify_clicked_stage_button());
 	}
 	

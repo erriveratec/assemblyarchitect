@@ -124,8 +124,8 @@ int load_media()
 		return FAIL;
 	}
 
-	step_back_button = load_texture_from_file("img/step-back.png");
-	if (step_back_button == NULL){
+	fast_button = load_texture_from_file("img/fast.png");
+	if (fast_button == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
 		return FAIL;
@@ -213,7 +213,6 @@ int load_media()
 				SDL_GetError());
 		return FAIL;
 	}
-
 
 	//Open the font
 	g_font = TTF_OpenFont("DOSVGA437.ttf", 130); //96 old value point size

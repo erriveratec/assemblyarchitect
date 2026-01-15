@@ -18,6 +18,8 @@ texture_t *g_reg_arrow;
 static arrow_t g_arrow_ins; 
 static arrow_t g_arrow_drop;
 static arrow_t g_arrow_play;
+static arrow_t g_arrow_step;
+static arrow_t g_arrow_fast;
 static arrow_t g_arrow_code_line;
 static arrow_t g_arrow_del;
 static arrow_t g_arrow_op2;
@@ -270,7 +272,7 @@ static void initialize_play_arrow()
 	SDL_Rect a = dm_get_arrow_wh();
 	g_arrow_play.box.w = a.w;	
 	g_arrow_play.box.h = a.h;
-	g_arrow_play.box.x = sb_get_play_button_member(MEMBER_X) + a.w/2;
+	g_arrow_play.box.x = sb_get_sb_rect(PLAY).x + a.w/2;
 	g_arrow_play.box.y = sb.y - 2*a.h;
 	g_arrow_play.in_place = false;
 	g_arrow_play.visible = true;
@@ -280,6 +282,61 @@ static void initialize_play_arrow()
 	g_arrow_play.dir = AR_DOWN;
 	g_arrow_play.texture = g_lv_arrow;
 }
+
+/* Function: initialize_step_arrow
+ * -----------------------------------------------------------------------------
+ * 
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void initialize_step_arrow()
+{
+	SDL_Rect sb = dm_get_stage_buttons();
+	SDL_Rect a = dm_get_arrow_wh();
+	g_arrow_step.box.w = a.w;	
+	g_arrow_step.box.h = a.h;
+	g_arrow_step.box.x = sb_get_sb_rect(STEP).x + a.w/2;
+	g_arrow_step.box.y = sb.y - 2*a.h;
+	g_arrow_step.in_place = false;
+	g_arrow_step.visible = true;
+	g_arrow_step.startx = sb.x;
+	g_arrow_step.starty = g_arrow_play.box.y;	
+	g_arrow_step.travel = a.h;	
+	g_arrow_step.dir = AR_DOWN;
+	g_arrow_step.texture = g_lv_arrow;
+}
+
+/* Function: initialize_fast_arrow
+ * -----------------------------------------------------------------------------
+ * 
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void initialize_fast_arrow()
+{
+	SDL_Rect sb = dm_get_stage_buttons();
+	SDL_Rect a = dm_get_arrow_wh();
+	g_arrow_fast.box.w = a.w;	
+	g_arrow_fast.box.h = a.h;
+	g_arrow_fast.box.x = sb_get_sb_rect(FAST).x + a.w/2;
+	g_arrow_fast.box.y = sb.y - 2*a.h;
+	g_arrow_fast.in_place = false;
+	g_arrow_fast.visible = true;
+	g_arrow_fast.startx = sb.x;
+	g_arrow_fast.starty = g_arrow_play.box.y;	
+	g_arrow_fast.travel = a.h;	
+	g_arrow_fast.dir = AR_DOWN;
+	g_arrow_fast.texture = g_lv_arrow;
+}
+
 
 /* Function: initialize_code_line_arrow
  * -----------------------------------------------------------------------------
@@ -508,6 +565,8 @@ void ar_initialize_arrows()
 	initialize_ins_arrow();
 	initialize_drop_arrow();
 	initialize_play_arrow();
+	initialize_step_arrow();
+	initialize_fast_arrow();
 	initialize_code_line_arrow();
 	initialize_del_arrow();
 	initialize_op2_arrow();
@@ -538,6 +597,12 @@ void ar_init_arrow(int arrow_id)
 			break;
 		case AR_PLAY:
 			initialize_play_arrow();
+			break;
+		case AR_STEP:
+			initialize_step_arrow();
+			break;
+		case AR_FAST:
+			initialize_fast_arrow();
 			break;
 		case AR_CODE:
 			initialize_code_line_arrow();
@@ -597,6 +662,12 @@ void ar_display_arrow(int arrow_id)
 			break;
 		case AR_PLAY:
 			aptr = &g_arrow_play;
+			break;
+		case AR_STEP:
+			aptr = &g_arrow_step;
+			break;
+		case AR_FAST:
+			aptr = &g_arrow_fast;
 			break;
 		case AR_CODE:
 			aptr = &g_arrow_code_line;

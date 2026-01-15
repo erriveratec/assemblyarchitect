@@ -469,6 +469,7 @@ static void chk_ms_pressed_clear_msg(int message_id, bool reset_mouse)
  */
 static void level_9_tutorial()
 {
+	sb_set_step_btns_avail(true);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 	
@@ -520,6 +521,7 @@ static void level_9_tutorial()
  */
 static void level_8_tutorial()
 {
+	sb_set_step_btns_avail(true);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 
@@ -552,6 +554,7 @@ static void level_8_tutorial()
  */
 static void level_7_tutorial()
 {
+	sb_set_step_btns_avail(true);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 
@@ -584,6 +587,7 @@ static void level_7_tutorial()
  */
 static void level_6_tutorial()
 {
+	sb_set_step_btns_avail(true);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 
@@ -622,21 +626,27 @@ static void level_6_tutorial()
  */
 static void level_5_tutorial()
 {
+	sb_set_step_btns_avail(true);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
+	bool miss_op = cw_is_operand_pending();
 
-	int code_size = cw_get_code_list_size();
+	int size = cw_get_code_list_size();
 
-	if (g_lv_msg[MSG1] && code_size == 0){
+	if (g_lv_msg[MSG1] && size == 0){
 		tx_text_box(TX_BIG_BOX, MSG1); //Welcome
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
 		chk_ms_pressed_clear_msg(MSG1, true);
-	} else if (g_lv_msg[MSG2] == true && code_size == 0){
+	} else if (g_lv_msg[MSG2] == true && size == 0){
 		tx_text_box(TX_UPPER_BOX, MSG2); //More registers available
 		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
+		ar_display_arrow(AR_REG);
 		chk_ms_pressed_clear_msg(MSG2, true);
-	}
-
+	} else if (size == 1 && miss_op == false){
+		tx_text_box(TX_CENTER_BOX, MSG3); // All operands are shown
+		ar_display_arrow(AR_STEP);
+		ar_display_arrow(AR_FAST);
+	} 
 }
 
 /* Function: level_4_tutorial
@@ -651,6 +661,7 @@ static void level_5_tutorial()
  */
 static void level_4_tutorial()
 {
+	sb_set_step_btns_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 
@@ -679,6 +690,7 @@ static void level_4_tutorial()
  */
 static void level_3_tutorial()
 {
+	sb_set_step_btns_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 
@@ -768,6 +780,7 @@ static void level_3_tutorial()
  */
 static void level_2_tutorial()
 {
+	sb_set_step_btns_avail(false);
 	int size = cw_get_code_list_size();
 	bool hold = check_player_is_holding_line();
  	bool play = get_play_state();
@@ -853,6 +866,7 @@ static void level_2_tutorial()
  */
 static void level_1_tutorial()
 {
+	sb_set_step_btns_avail(false);
 	draw_regs_arrow(false);
 	bool flag = get_op_flag();
 	bool play = get_play_state();
@@ -1006,7 +1020,7 @@ static void draw_bufs_arrow(int buf_id)
 /* Function: check_display_reg_lv_arrow
  * -----------------------------------------------------------------------------
  * Analize the state of the operands to determine if the register arrow should
- * be displayedj
+ * be displayed
  * 
  * Arguments:
  * 	None.
@@ -1500,6 +1514,7 @@ void lv_level_drawings(int level)
 			break;
 
 		default:
+			sb_set_step_btns_avail(true);
 			draw_bufs_arrow(check_display_buf_arrow());
 			draw_regs_arrow(check_display_reg_lv_arrow());
 	}

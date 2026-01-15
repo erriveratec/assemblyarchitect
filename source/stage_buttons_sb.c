@@ -21,19 +21,19 @@ bool g_escape_menu = false;
 bool g_rst_menu = false;
 bool g_quit = false;
 
-bool g_step_btns_avail = false;
+bool g_step_btns_avail = true;
 
 texture_t *stop_button = NULL;
-texture_t *step_back_button = NULL;
+texture_t *fast_button = NULL;
 texture_t *play_button = NULL;
 texture_t *step_forward_button = NULL;
 texture_t *return_button = NULL;
 texture_t *reset_button = NULL;
 
 iface_btn_t *stop;
-iface_btn_t *step_back;
+iface_btn_t *fast;
 iface_btn_t *play;
-iface_btn_t *step_forward;
+iface_btn_t *step;
 iface_btn_t *ret_btn;
 iface_btn_t *rst_btn;
 
@@ -316,8 +316,38 @@ bool get_quit_game_value()
 	return g_quit;
 }
 
+/* Function: sb_get_sb_rect
+ * -----------------------------------------------------------------------------
+ * Return the rectangle element of a stage button member
+ *
+ * Arguments:
+ * member: The specific member that is being requested.
+ *
+ * Return:
+ *	The rect of the requested member.
+ */
+SDL_Rect sb_get_sb_rect(int member)
+{
+	SDL_Rect r;
+	switch (member){
+		case STOP:
+			r = stop->r;
+			break;
+		case STEP:
+			r = step->r;
+			break;
+		case PLAY:
+			r = play->r;
+			break;
+		case FAST:
+			r = fast->r;
+			break;
+	}
+	return r;
+}
 
-/* Function: cw_get_play_button_member
+
+/* Function: sb_get_play_button_member
  * -----------------------------------------------------------------------------
  * This function returns the solicited button value from the play button
  *
@@ -374,14 +404,14 @@ void adjust_stage_buttons_position(int code_size)
 
 	if (stop->r.y < y_final){
 		stop->r.y += delta;
-		step_back->r.y += delta;
+		fast->r.y += delta;
 		play->r.y += delta;
-		step_forward->r.y += delta;
+		step->r.y += delta;
 	} else if (stop->r.y > y_final){
 		stop->r.y -= delta;
-		step_back->r.y -= delta;
+		fast->r.y -= delta;
 		play->r.y -= delta;
-		step_forward->r.y -= delta;
+		step->r.y -= delta;
 	}
 
 }
@@ -400,8 +430,8 @@ void sb_draw_stage_buttons(int code_size)
 	bt_draw_iface_btn(stop);
 	bt_draw_iface_btn(play);
 	if (g_step_btns_avail == true){
-		bt_draw_iface_btn(step_back);
-		bt_draw_iface_btn(step_forward);
+		bt_draw_iface_btn(fast);
+		bt_draw_iface_btn(step);
 	}
 }
 
@@ -515,20 +545,30 @@ void sb_initialize_stage_buttons()
 	stop = bt_create_iface_btn(r0, stop_button, true);
 
 	int space =  dm_get_ofs_space_stage_buttons();
-	SDL_Rect r1 = {.x = sb.x + sb.w + space,.y = hidden_y, .w = sb.w, 
-																	 .h = sb.h};
-	step_back = malloc(sizeof(iface_btn_t));
-	step_back = bt_create_iface_btn(r1, step_back_button, true);
+	SDL_Rect r1 = {.x = sb.x + sb.w + space,
+				   .y = hidden_y, 
+				   .w = sb.w, 
+				   .h = sb.h};
 
-	SDL_Rect r2 = {.x = sb.x + 2*sb.w + 2*space, .y = hidden_y, .w = sb.w, 
-																	 .h = sb.h};
+	step = malloc(sizeof(iface_btn_t));
+	step = bt_create_iface_btn(r1, step_forward_button, true);
+	
+	SDL_Rect r2 = {.x = sb.x + 2*sb.w + 2*space, 
+			       .y = hidden_y, 
+				   .w = sb.w, 
+				   .h = sb.h};
+
 	play = malloc(sizeof(iface_btn_t));
 	play = bt_create_iface_btn(r2, play_button, true);
 	
-	SDL_Rect r3 = {.x = sb.x + 3*sb.w + 3*space, .y = hidden_y, .w = sb.w, 
-																	 .h = sb.h};
-	step_forward = malloc(sizeof(iface_btn_t));
-	step_forward = bt_create_iface_btn(r3, step_forward_button, true);
+	SDL_Rect r3 = {.x = sb.x + 3*sb.w + 3*space, 
+				   .y = hidden_y, 
+				   .w = sb.w, 
+				   .h = sb.h};
+	
+	fast = malloc(sizeof(iface_btn_t));
+	fast = bt_create_iface_btn(r3, fast_button, true);
+	
 	return;
 }
 
@@ -552,7 +592,7 @@ bool sb_check_clicked_ret_button()
 	return ret;
 }
 
-/* Function: sb_check_clicked_stage_button
+/* Function: sb_stage_btn_clicked
  * ----------------------------------------------------------------------------
  * Verifies if a stage button was clicked
  *
@@ -562,7 +602,7 @@ bool sb_check_clicked_ret_button()
  * Return:
  *	true if button clicked, false if otherwise.
  */
-bool sb_check_clicked_stage_button()
+bool sb_stage_btn_clicked()
 {
 	int ret = false;
 
@@ -571,13 +611,12 @@ bool sb_check_clicked_stage_button()
 		ret = true;
 	}
 	else if (g_step_btns_avail == true && 
-			 (bt_chk_mouse_click_iface_btn(step_back) == true ||
-			  bt_chk_mouse_click_iface_btn(step_forward) == true)){
+			 (bt_chk_mouse_click_iface_btn(fast) == true ||
+			  bt_chk_mouse_click_iface_btn(step) == true)){
 		ret = true;	
 	}
 	return ret;
 }
-
 
 /* Function: identify_clicked_stage_button
  * -------------------------------------
@@ -593,14 +632,14 @@ int identify_clicked_stage_button()
 	
 	if (bt_chk_mouse_click_iface_btn(stop) == true){
 		clicked_button = STOP;
-	} else if (bt_chk_mouse_click_iface_btn(step_back) == true && 
+	} else if (bt_chk_mouse_click_iface_btn(fast) == true && 
 			   g_step_btns_avail == true){
-		clicked_button = BACKWARD;
+		clicked_button = FAST;
 	} else if (bt_chk_mouse_click_iface_btn(play) == true){
 		clicked_button = PLAY;
-	} else if (bt_chk_mouse_click_iface_btn(step_forward) == true &&
+	} else if (bt_chk_mouse_click_iface_btn(step) == true &&
 			   g_step_btns_avail == true){
-		clicked_button = FORWARD;
+		clicked_button = STEP;
 	}
 	return clicked_button;
 }

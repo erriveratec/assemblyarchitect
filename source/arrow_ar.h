@@ -27,6 +27,8 @@ enum arrow_id{
 	AR_INS,
 	AR_DROP,
 	AR_PLAY,
+	AR_STEP,
+	AR_FAST,
 	AR_CODE,
 	AR_DEL,
 	AR_OP2,
