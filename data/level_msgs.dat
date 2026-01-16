@@ -214,12 +214,12 @@ MSG_END
 
 MSG 03
 Usage:
-"add OP1, OP2"
+ADD OP1, OP2
 does OP1 + OP2 and stores the result in OP1
 MSG_END
 
 MSG 04
-Solve the challenge using the "mov" and "add" instructions
+Solve the challenge using the MOV and ADD instructions
 MSG_END
 
 +++LEVEL ENDS 06
