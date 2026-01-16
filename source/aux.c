@@ -8,6 +8,9 @@
 #include "draw_dw.h"
 #include "dimensions_dm.h"
 
+#define MOVE_DELTA 15
+#define FAST_MOVE_DELTA 25
+
 char *ax_char_space = " ";
 char *ax_char_comma = ",";
 char *ax_char_newline = "\n";
@@ -15,12 +18,41 @@ char *ax_char_colon = ":";
 char *ax_char_dash = "-";
 char *ax_level_text = "Level";
 
+static int move_delta;
 
+/* Function: ax_set_fast_move_delta
+ *------------------------------------------------------------------------------
+ * Sets the move delta variable to delta.
+ *
+ * Arguments:
+ *	state: true if fast enabled, false if otherwise.
+ *
+ * Return:
+ *	Void.
+ */
+void ax_set_fast_move_delta(bool state)
+{
+	if (state == true){
+		move_delta = dm_scale_to_resolution(FAST_MOVE_DELTA);
+	} else if (state == true){
+		move_delta = dm_scale_to_resolution(MOVE_DELTA);
+	}
+}
 
-
-
-
-
+/* Function: ax_get_move_delta
+ *------------------------------------------------------------------------------
+ * Gets the move delta variable
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	delta: The movement ammount.
+ */
+int ax_get_move_delta(bool state)
+{
+	return move_delta;
+}
 
 
 /* Function: ax_pad_rectangle

@@ -131,7 +131,6 @@ int g_res_id;
 int g_screen_width;
 int g_screen_height;
 
-int dm_scale_to_resolution(int dim);
 
 
 /* Function: dm_get_w_miss_op

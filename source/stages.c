@@ -537,7 +537,7 @@ static void flag_handler(level_flags_t *flags, int clicked_button)
 			flags->fast = false;
 			flags->step = false;
 			flags->step_fst = true;
-
+			ax_set_fast_move_delta(false);
 			break;
 		case STOP:
 			flags->stop = true;
@@ -547,15 +547,20 @@ static void flag_handler(level_flags_t *flags, int clicked_button)
 			flags->step = false;
 			flags->step_fst = false;
 			mc_reset_invalid_operation_flag();	
+			ax_set_fast_move_delta(false);
 			break;
 		case FAST:
+			if (flags->play == false && flags->step_fst == false){
+				ar_reset_execution_arrow();
+			}
 			flags->fast = true;
 			flags->play = true;
 			flags->stop = false;
 			flags->non_stop = true;
 			flags->stop_enabled = true;
 			flags->step = false;
-			flags->step_fst = true;
+			flags->step_fst = false;
+			ax_set_fast_move_delta(true);
 			break;
 		case STEP:
 			if (flags->step_fst == false){
@@ -568,6 +573,7 @@ static void flag_handler(level_flags_t *flags, int clicked_button)
 			flags->stop_enabled = true;
 			flags->play = false;
 			flags->fast = false;
+			ax_set_fast_move_delta(false);
 			break;
 	}
 }

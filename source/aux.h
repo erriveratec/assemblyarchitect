@@ -23,10 +23,10 @@
 // Text for the data reading of the levels
 #define CHAR_SIZE 1
 
-#define MOVEMENT_DELTA 15
-
 #define STR_BACK "Back"
 #define STR_CONT "Continue"
+
+#define MOVEMENT_DELTA 15
 
 extern char *ax_char_space;
 extern char *ax_char_comma;
@@ -68,6 +68,10 @@ char *ax_number_to_string_two_digits(int number);
 int ax_get_texture_w_fit_h(int h, texture_t *t);
 int ax_get_texture_h_fit_w(int w, texture_t *t);
 SDL_Rect ax_pad_rectangle(SDL_Rect b, int offset, bool inside);
+
+void ax_set_fast_move_delta(bool state);
+int ax_get_move_delta(bool state);
+
 
 
 #endif
