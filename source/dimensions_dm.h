@@ -107,4 +107,5 @@ int dm_get_btn_anim_max();
 int dm_get_btn_anim_delta();
 int dm_get_btn_anim_speed();
 
+
 #endif
