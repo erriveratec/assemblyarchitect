@@ -40,7 +40,7 @@ typedef struct level_flags_t{
 	bool stop_enabled;
 	bool fast;
 	bool step;
-	bool step_enabled;
+	bool step_fst;
 	bool non_stop;
 } level_flags_t;
 
@@ -242,7 +242,7 @@ void reset_level_flags(level_flags_t *flags)
 	flags->stop_enabled = false;
 	flags->fast = false;
 	flags->step = false;
-	flags->step_enabled = false;
+	flags->step_fst = false;
 	flags->non_stop = false;
 }
 
@@ -527,16 +527,17 @@ static void flag_handler(level_flags_t *flags, int clicked_button)
 	
 	switch(clicked_button){
 		case PLAY: 
-			if (flags->play != true){
-				flags->play = true;
-				flags->non_stop = true;
-				flags->stop = false;
-				flags->stop_enabled = true;
-				flags->fast = false;
-				flags->step = false;
-				flags->step_enabled = true;
+			if (flags->play == false && flags->step_fst == false){
 				ar_reset_execution_arrow();
 			}
+			flags->play = true;
+			flags->non_stop = true;
+			flags->stop = false;
+			flags->stop_enabled = true;
+			flags->fast = false;
+			flags->step = false;
+			flags->step_fst = true;
+
 			break;
 		case STOP:
 			flags->stop = true;
@@ -544,7 +545,7 @@ static void flag_handler(level_flags_t *flags, int clicked_button)
 			flags->play = false;
 			flags->fast = false;
 			flags->step = false;
-			flags->step_enabled = false;
+			flags->step_fst = false;
 			mc_reset_invalid_operation_flag();	
 			break;
 		case FAST:
@@ -554,9 +555,13 @@ static void flag_handler(level_flags_t *flags, int clicked_button)
 			flags->non_stop = true;
 			flags->stop_enabled = true;
 			flags->step = false;
-			flags->step_enabled = true;
+			flags->step_fst = true;
 			break;
 		case STEP:
+			if (flags->step_fst == false){
+				ar_reset_execution_arrow();
+			}
+			flags->step_fst = true;
 			flags->step = true;
 			flags->stop = false;
 			flags->non_stop = true;
@@ -777,24 +782,24 @@ int stage_level(int level_id)
 	lv_set_play_state(flags.play);
 	lv_set_hold_line(hold_line);
 	
-	if (flags.non_stop == false || cw_is_operand_pending() == true){
+	if ((flags.stop == true && flags.stop_enabled == true) 
+			   || reset == true){
+		reset_level(level_id, &flags);	
+		reset = false;
+	} else if (flags.non_stop == false || cw_is_operand_pending() == true){
 		hold_line = edit_code(level_id);
 	} else if (flags.play == true && cw_is_operand_pending() == false){
 		mc_run_code();
 	} else if (flags.step == true && cw_is_operand_pending() == false){
 		mc_run_code();
 		flags.step = !mc_get_step_ended();
-	} else if ((flags.stop == true && flags.stop_enabled == true) 
-			   || reset == true){
-		reset_level(level_id, &flags);	
-		reset = false;
-	}
+	} 
 	
 	if (mc_get_operation_flag() != NO_INVALID_OPERATION){
 		reset = mc_invalid_operation_handler(mc_get_operation_flag());
 		flags.play = false;
 	} else if (mc_get_run_ended() == true 
-			   && flags.play == true 
+			   && flags.step_fst == true 
 			   && lv_check_if_win() == true){
 		int action_selected = display_run_result(lv_check_if_win());
 		if (action_selected == BACK_BUTTON_PRESSED){

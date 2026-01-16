@@ -65,7 +65,7 @@ iface_btn_t *g_rst_b2;
  */
 void sb_set_step_btns_avail(bool state)
 {
-	g_step_btns_avail = true;
+	g_step_btns_avail = state;
 }
 
 /* Function: sb_display_rst_menu

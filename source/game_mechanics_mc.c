@@ -1539,14 +1539,13 @@ void mc_run_code()
 	mc_set_run_ended(false);
 	int code_size = cw_get_code_list_size();	
 	
-	if (check_finishes_at_OB_correct_size() == true){
-		mc_set_run_ended(true);
-		return;
-	} 	
 	for (int i = 0; i < code_size; i++){
 		code_line_t *line = cw_get_code_line_at_pos(i);
 		if (line->state != EXECUTED){
 			execute_instruction(line, i);	
+		if (check_finishes_at_OB_correct_size() == true){
+			mc_set_run_ended(true);
+		}
 			return;
 		}
 	}
@@ -1556,6 +1555,7 @@ void mc_run_code()
 	if (output_buffer_size < win_list_size){
 		set_invalid_operation_flag(OUTPUT_BUFFER_INCOMPLETE);
 	}
+	return;
 	
 }
 
