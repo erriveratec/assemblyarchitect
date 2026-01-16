@@ -798,14 +798,14 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 			y = get_operand_y_dest(op_id);// + vbox_offset;
 		}
 	}
-	
+	int mdelta = ax_get_move_delta();
 	if (avatar->box.x < x){
-		int delta = get_movement_delta(avatar->value.box.x, x, MOVEMENT_DELTA);
+		int delta = get_movement_delta(avatar->value.box.x, x, mdelta);
 		avatar->box.x += delta;
 		avatar->value.box.x += delta;
 		mov = true;
 	} else if (avatar->box.x > x){
-		int delta = get_movement_delta(avatar->value.box.x, x, MOVEMENT_DELTA);
+		int delta = get_movement_delta(avatar->value.box.x, x, mdelta);
 		avatar->box.x -= delta;
 		avatar->value.box.x -= delta;
 		mov = true;
@@ -813,12 +813,12 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 	
 	int avatar_final_y = avatar->box.y - avtr.h;
 	if (avatar_final_y < y){
-		int delta = get_movement_delta(avatar->value.box.y, y, MOVEMENT_DELTA);
+		int delta = get_movement_delta(avatar->value.box.y, y, mdelta);
 		avatar->box.y += delta;
 		avatar->value.box.y += delta;
 		mov = true;
 	} else if (avatar_final_y > y){
-		int delta = get_movement_delta(avatar->value.box.y, y, MOVEMENT_DELTA);
+		int delta = get_movement_delta(avatar->value.box.y, y, mdelta);
 		avatar->box.y -= delta;
 		avatar->value.box.y -= delta;
 		mov = true;
@@ -1031,25 +1031,22 @@ static bool deliver_operand(avatar_t *avatar, int op_id)
 	
 	bool mov = false;
 
+	int mdelta = ax_get_move_delta();
 	if (avatar->value.box.x < x){
-		int delta = get_movement_delta(avatar->value.box.x, x, 
-									   MOVEMENT_DELTA/2);
+		int delta = get_movement_delta(avatar->value.box.x, x, mdelta/2);
 		avatar->value.box.x += delta;
 		mov = true;
 	} else if (avatar->value.box.x > x){
-		int delta = get_movement_delta(avatar->value.box.x, x, 
-									   MOVEMENT_DELTA/2);
+		int delta = get_movement_delta(avatar->value.box.x, x, mdelta/2);
 		avatar->value.box.x -= delta;
 		mov = true;
 	}
 	if (avatar->value.box.y < y){
-		int delta = get_movement_delta(avatar->value.box.y, y, 
-									   MOVEMENT_DELTA/2);
+		int delta = get_movement_delta(avatar->value.box.y, y, mdelta/2);
 		avatar->value.box.y += delta;
 		mov = true;
 	} else if (avatar->value.box.y > y){
-		int delta = get_movement_delta(avatar->value.box.y, y, 
-									   MOVEMENT_DELTA/2);
+		int delta = get_movement_delta(avatar->value.box.y, y, mdelta/2);
 		avatar->value.box.y -= delta;
 		mov = true;
 	}
@@ -1075,26 +1072,22 @@ static bool retrieve_operand(avatar_t *avatar)
 
 	bool mov = false;
 
+	int mdelta = ax_get_move_delta();
 	if (avatar->value.box.x < x){
-		int delta = get_movement_delta(avatar->value.box.x, x, 
-									   MOVEMENT_DELTA/2);
+		int delta = get_movement_delta(avatar->value.box.x, x, mdelta/2);
 		avatar->value.box.x += delta;
 		mov = true;
 	} else if (avatar->value.box.x > x){
-		int delta = get_movement_delta(avatar->value.box.x, x, 
-									   MOVEMENT_DELTA/2);
+		int delta = get_movement_delta(avatar->value.box.x, x, mdelta/2);
 		avatar->value.box.x -= delta;
 		mov = true;
 	}
-
 	if (avatar->value.box.y < y){
-		int delta = get_movement_delta(avatar->value.box.y, y, 
-									   MOVEMENT_DELTA/2);
+		int delta = get_movement_delta(avatar->value.box.y, y, mdelta/2);
 		avatar->value.box.y += delta;
 		mov = true;
 	} else if (avatar->value.box.y > y){
-		int delta = get_movement_delta(avatar->value.box.y, y, 
-									   MOVEMENT_DELTA/2);
+		int delta = get_movement_delta(avatar->value.box.y, y, mdelta/2);
 		avatar->value.box.y -= delta;
 		mov = true;
 	}

@@ -559,7 +559,7 @@ static void flag_handler(level_flags_t *flags, int clicked_button)
 			flags->non_stop = true;
 			flags->stop_enabled = true;
 			flags->step = false;
-			flags->step_fst = false;
+			flags->step_fst = true;
 			ax_set_fast_move_delta(true);
 			break;
 		case STEP:

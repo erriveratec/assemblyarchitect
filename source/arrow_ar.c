@@ -92,11 +92,12 @@ bool ar_move_execution_arrow(int instruction_number)
 	SDL_Rect a = dm_get_arrow_wh();
 	int y = cw_get_instruction_y_coord(instruction_number) + a.h/6;
 	
+	int mdelta = ax_get_arrow_move_delta();
 	if (g_arrow_exec.box.y < y){
-		int delta = get_movement_delta(g_arrow_exec.box.y, y, MOVEMENT_DELTA/3);
+		int delta = get_movement_delta(g_arrow_exec.box.y, y, mdelta);
 		g_arrow_exec.box.y += delta;
 	} else if (g_arrow_exec.box.y > y){
-		int delta = get_movement_delta(g_arrow_exec.box.y, y, MOVEMENT_DELTA/3);
+		int delta = get_movement_delta(g_arrow_exec.box.y, y, mdelta);
 		g_arrow_exec.box.y -= delta;
 	}
 	if (g_arrow_exec.box.y == y){
@@ -125,8 +126,9 @@ static void check_execution_arrow_in_place(int instruction_number)
 	
 	int y = cw_get_instruction_y_coord(instruction_number) + a.h/6;
 	
+	int mdelta = ax_get_arrow_move_delta();
 	if (g_arrow_exec.box.y == y){
-		int delta = get_movement_delta(g_arrow_exec.box.y, y, MOVEMENT_DELTA/6);
+		int delta = get_movement_delta(g_arrow_exec.box.y, y, mdelta/2);
 		g_arrow_exec.box.y += delta;
 	} 
 }

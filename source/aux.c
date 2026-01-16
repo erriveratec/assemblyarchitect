@@ -9,7 +9,9 @@
 #include "dimensions_dm.h"
 
 #define MOVE_DELTA 15
-#define FAST_MOVE_DELTA 25
+#define FAST_MOVE_DELTA 40
+#define ARROW_MDELTA 5
+#define CW_MDELTA 15
 
 char *ax_char_space = " ";
 char *ax_char_comma = ",";
@@ -19,6 +21,37 @@ char *ax_char_dash = "-";
 char *ax_level_text = "Level";
 
 static int move_delta;
+
+/* Function: ax_get_cw_move_delta
+ *------------------------------------------------------------------------------
+ * Returns the move delta for the code window elements
+ *
+ * Arguments:
+ *	Void
+ *
+ * Return:
+ *	Code windows move delta
+ */
+int ax_get_cw_move_delta()
+{
+	return dm_scale_to_resolution(CW_MDELTA);
+}
+
+/* Function: ax_get_arrow_move_delta
+ *------------------------------------------------------------------------------
+ * Returns the move delta for the arrow
+ *
+ * Arguments:
+ *	Void
+ *
+ * Return:
+ *	Arrow move delta
+ */
+int ax_get_arrow_move_delta()
+{
+	return dm_scale_to_resolution(ARROW_MDELTA);
+}
+
 
 /* Function: ax_set_fast_move_delta
  *------------------------------------------------------------------------------
@@ -34,7 +67,7 @@ void ax_set_fast_move_delta(bool state)
 {
 	if (state == true){
 		move_delta = dm_scale_to_resolution(FAST_MOVE_DELTA);
-	} else if (state == true){
+	} else if (state == false){
 		move_delta = dm_scale_to_resolution(MOVE_DELTA);
 	}
 }
@@ -49,7 +82,7 @@ void ax_set_fast_move_delta(bool state)
  * Return:
  *	delta: The movement ammount.
  */
-int ax_get_move_delta(bool state)
+int ax_get_move_delta()
 {
 	return move_delta;
 }

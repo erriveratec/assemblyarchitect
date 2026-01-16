@@ -1301,8 +1301,10 @@ static void code_box_height_adjust()
 		int increase_size = (list_size - CODE_LINES_SIZE)*cbut.h;
 		int new_bottom_border = codbox.y + ogcodbox.h + increase_size;
 		int cur_bottom_border = codbox.h + codbox.y;
-		int delta = get_movement_delta(cur_bottom_border, new_bottom_border, 
-									   MOVEMENT_DELTA/2);
+		int mdelta = ax_get_cw_move_delta();
+		int delta = get_movement_delta(cur_bottom_border, 
+									   new_bottom_border, 
+									   mdelta);
 		
 		if (new_bottom_border > cur_bottom_border){
 			cur_bottom_border += delta;
@@ -1345,7 +1347,8 @@ static void adjust_code_box_position()
 		y_pending_scroll = 0;
 	}
 
-	int delta = get_movement_delta(0, y_pending_scroll, MOVEMENT_DELTA);	
+	int mdelta = ax_get_cw_move_delta();
+	int delta = get_movement_delta(0, y_pending_scroll, mdelta);	
 
 	if (0 != y_pending_scroll){
 		SDL_Rect tb = cw_get_text_box_rect();
@@ -1646,18 +1649,19 @@ void cw_sort_code()
 	int h = cb.h; 
 	int y = cw_get_code_line_y(0);
 
+	int mdelta = ax_get_cw_move_delta();
 	LIST_FOREACH(code, first, next, cur){
 
 		code_line_t *line = cur->value;
 		int x = cw_get_code_line_x(line->ins->id);
-		int delta = get_movement_delta(line->ins->b->r.x, x, MOVEMENT_DELTA);	
+		int delta = get_movement_delta(line->ins->b->r.x, x, mdelta);	
 		
 		if (line->ins->b->r.x < x){
 			line->ins->b->r.x += delta;
 		} else if (line->ins->b->r.x > x){
 			line->ins->b->r.x -= delta;
 		}
-		delta = get_movement_delta(line->ins->b->r.y, y, MOVEMENT_DELTA);	
+		delta = get_movement_delta(line->ins->b->r.y, y, mdelta);	
 		
 		if (line->ins->b->r.y < y){
 			line->ins->b->r.y += delta;
