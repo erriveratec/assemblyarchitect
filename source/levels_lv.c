@@ -500,7 +500,6 @@ static void level_9_tutorial()
 	} else if (code_size == 2 && jmp_pick == false){
 		tx_text_box(TX_INS_BOX, MSG4);// Select and drag jmp
 		ar_display_arrow(AR_INS);
-		chk_ms_pressed_clear_msg(MSG4, false);
 	} else if (code_size == 2 && jmp_pick == true){
 		tx_text_box(TX_CODE_BOX, MSG5); // Drop jmp in the code box
 		ar_display_arrow(AR_DROP);
@@ -526,22 +525,23 @@ static void level_8_tutorial()
 	draw_bufs_arrow(check_display_buf_arrow());
 
 	int code_size = cw_get_code_list_size();
+	static bool msg_descrip2 = true;
 
 	if (g_lv_msg[MSG1] == true && code_size == 0){
 		tx_text_box(TX_BIG_BOX, MSG1);//Welcome
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
 		chk_ms_pressed_clear_msg(MSG1, true);
 	} else if (g_lv_msg[MSG2] == true && code_size == 0){
-		tx_text_box(TX_UPPER_BOX, MSG2);//Both operands can be same register
+		tx_text_box(TX_UPPER_BOX, MSG2);//Can use register as operands
 		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
 		chk_ms_pressed_clear_msg(MSG2, true);
 	} else if (g_lv_msg[MSG3] == true && code_size == 0){
-		tx_text_box(TX_LOWER_BOX, MSG3);//Example of usage
+		tx_text_box(TX_LOWER_BOX, MSG3);//Usage example
 		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
 		chk_ms_pressed_clear_msg(MSG3, true);
-	} 
-
+	}
 }
+
 /* Function: level_7_tutorial
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 3
@@ -559,22 +559,23 @@ static void level_7_tutorial()
 	draw_bufs_arrow(check_display_buf_arrow());
 
 	int code_size = cw_get_code_list_size();
-	static bool msg_descrip2 = true;
 
 	if (g_lv_msg[MSG1] == true && code_size == 0){
 		tx_text_box(TX_BIG_BOX, MSG1);//Welcome
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
 		chk_ms_pressed_clear_msg(MSG1, true);
 	} else if (g_lv_msg[MSG2] == true && code_size == 0){
-		tx_text_box(TX_UPPER_BOX, MSG2);//Can use register as operands
+		tx_text_box(TX_UPPER_BOX, MSG2);//Both operands can be same register
 		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
 		chk_ms_pressed_clear_msg(MSG2, true);
 	} else if (g_lv_msg[MSG3] == true && code_size == 0){
-		tx_text_box(TX_LOWER_BOX, MSG3);//Usage example
+		tx_text_box(TX_LOWER_BOX, MSG3);//Example of usage
 		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
 		chk_ms_pressed_clear_msg(MSG3, true);
-	}
+	} 
+
 }
+
 /* Function: level_6_tutorial
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 3

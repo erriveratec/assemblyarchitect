@@ -57,6 +57,10 @@ LEVEL ACTIVE TRUE
 CODE STARTS
 MOV rax, [ib]
 MOV rbx, [ib]
+MOV rcx, [ib]
+MOV [ob], rcx
+MOV [ob], rbx
+MOV [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 05
@@ -106,10 +110,10 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-line 01
 MOV rax, [ib]
 MOV [ob], rax
-JMP 00
+JMP 03
+line 04
 CODE ENDS
 
 +++LEVEL ENDS 09
@@ -485,6 +489,10 @@ LEVEL ACTIVE TRUE
 CODE STARTS
 MOV rax, [ib]
 MOV rbx, [ib]
+MOV rcx, [ib]
+MOV [ob], rcx
+MOV [ob], rbx
+MOV [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 05
@@ -534,10 +542,10 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-line 01
 MOV rax, [ib]
 MOV [ob], rax
-JMP 00
+JMP 03
+line 04
 CODE ENDS
 
 +++LEVEL ENDS 09
@@ -913,6 +921,10 @@ LEVEL ACTIVE TRUE
 CODE STARTS
 MOV rax, [ib]
 MOV rbx, [ib]
+MOV rcx, [ib]
+MOV [ob], rcx
+MOV [ob], rbx
+MOV [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 05
@@ -962,10 +974,10 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-line 01
 MOV rax, [ib]
 MOV [ob], rax
-JMP 00
+JMP 03
+line 04
 CODE ENDS
 
 +++LEVEL ENDS 09

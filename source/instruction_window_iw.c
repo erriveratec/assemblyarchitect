@@ -275,12 +275,11 @@ void iw_add_instruction_to_list(int id)
 	int x = ib.x + dm_get_w_border_padding()+ dm_get_w_padding();
 	int y;
 	if (list_size == 0){
-		y = ib.y + dm_get_h_border_padding() + dm_get_h_padding() + 
-			list_size*cb.h;
+		y = ib.y + dm_get_h_border_padding() + dm_get_h_padding(); 
 	} else {
-		y = ib.y + 2*dm_get_h_padding() + list_size*cb.h;
+		y = ib.y + dm_get_h_border_padding()+ dm_get_h_padding()
+		    + list_size*dm_get_h_between_code();
 	}
-		
 	SDL_Rect r = dm_get_code_button_wh();
 	
 	r.x = x;

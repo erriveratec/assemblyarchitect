@@ -167,7 +167,6 @@ InstructionsEnd
 
 RegistersBegin
 rax
-rbx
 RegistersEnd
 
 InstructionLimit 99
@@ -194,6 +193,7 @@ InstructionsEnd
 
 RegistersBegin
 rax
+rbx
 RegistersEnd
 
 InstructionLimit 99

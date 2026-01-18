@@ -1449,8 +1449,8 @@ static void display_player_code()
 	
 		int comma = cl_get_instruction_operand_quantity(line->ins->id);
 
-		if (comma == TWO_OPERANDS && (MISSING_BOTH != line->state && 
-							  					  MISSING_OP1 != line->state)){
+		if (comma == TWO_OPERANDS 
+			&& (MISSING_BOTH != line->state && MISSING_OP1 != line->state)){
 		
 			int comma_ofs = dm_get_ofs_code_comma();
 			SDL_Rect r = {.x = line->ins->b->r.x + comma_ofs, 

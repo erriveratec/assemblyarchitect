@@ -697,12 +697,14 @@ static code_line_t *edit_code(int level_id)
 	} else if (cw_is_code_rclicked() == true && line == NULL){
 		line = cw_clone_rclicked_line(cw_get_rclicked_code());
 		hold_line = true;
-	} else if ((left_pressed == true || hold_line == true) 
-			   && line != NULL){
+	} else if ((left_pressed == true || hold_line == true) && line != NULL){
 		bool arrange = lv_is_arrange_enabled();
 		bool delete = lv_is_del_enabled();
 		cw_player_holding_instruction(line, arrange, delete);
 		hold_line = (left_released == true) ? false : true;
+		if (hold_line == false){
+			line = NULL;
+		}
 	}  else if (left_pressed == false && NULL != line){
 		if (cw_check_if_in_code_list(line) == false){
 			cl_destroy_code_line(line);
