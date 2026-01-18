@@ -702,10 +702,7 @@ static code_line_t *edit_code(int level_id)
 		bool delete = lv_is_del_enabled();
 		cw_player_holding_instruction(line, arrange, delete);
 		hold_line = (left_released == true) ? false : true;
-		if (hold_line == false){
-			line = NULL;
-		}
-	}  else if (left_pressed == false && NULL != line){
+	} else if (left_pressed == false && line != NULL){
 		if (cw_check_if_in_code_list(line) == false){
 			cl_destroy_code_line(line);
 		} 
@@ -796,6 +793,7 @@ int stage_level(int level_id)
 		reset = false;
 	} else if (flags.non_stop == false || cw_is_operand_pending() == true){
 		hold_line = edit_code(level_id);
+		lv_set_hold_line(hold_line);
 	} else if (flags.play == true && cw_is_operand_pending() == false){
 		mc_run_code();
 	} else if (flags.step == true && cw_is_operand_pending() == false){
@@ -810,6 +808,7 @@ int stage_level(int level_id)
 			   && flags.step_fst == true 
 			   && lv_check_if_win() == true){
 		int action_selected = display_run_result(lv_check_if_win());
+		flags.play = false;
 		if (action_selected == BACK_BUTTON_PRESSED){
 			reset_level(level_id, &flags);		
 			fl_enable_next_level(g_player, level_id + 1);
