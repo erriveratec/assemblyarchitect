@@ -114,6 +114,7 @@ line 01
 MOV rax, [ib]
 MOV [ob], rax
 JMP 00
+MOV rcx, rcx
 CODE ENDS
 
 +++LEVEL ENDS 09
@@ -546,6 +547,7 @@ line 01
 MOV rax, [ib]
 MOV [ob], rax
 JMP 00
+MOV rcx, rcx
 CODE ENDS
 
 +++LEVEL ENDS 09
@@ -978,6 +980,7 @@ line 01
 MOV rax, [ib]
 MOV [ob], rax
 JMP 00
+MOV rcx, rcx
 CODE ENDS
 
 +++LEVEL ENDS 09

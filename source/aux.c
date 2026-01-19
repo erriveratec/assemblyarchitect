@@ -10,7 +10,8 @@
 
 #define MOVE_DELTA 15
 #define FAST_MOVE_DELTA 40
-#define ARROW_MDELTA 5
+#define ARROW_MDELTA_SLOW 5
+#define ARROW_MDELTA_FAST 20
 #define CW_MDELTA 15
 
 char *ax_char_space = " ";
@@ -21,6 +22,41 @@ char *ax_char_dash = "-";
 char *ax_level_text = "Level";
 
 static int move_delta;
+static int arrow_mdelta;
+
+/* Function: ax_set_arrow_mdelta
+ *------------------------------------------------------------------------------
+ * Sets the fast and slow values for the arrow delta
+ *
+ * Arguments:
+ *	true if fast, false if slow
+ *
+ * Return:
+ *	void
+ */
+void ax_set_arrow_mdelta(bool fast)
+{
+	if (fast == true){
+		arrow_mdelta = dm_scale_to_resolution(ARROW_MDELTA_FAST);
+	} else if (fast == false){
+		arrow_mdelta = dm_scale_to_resolution(ARROW_MDELTA_SLOW);
+	}
+}
+
+/* Function: ax_get_arrow_move_delta
+ *------------------------------------------------------------------------------
+ * Returns the move delta for the arrow
+ *
+ * Arguments:
+ *	Void
+ *
+ * Return:
+ *	Arrow move delta
+ */
+int ax_get_arrow_move_delta()
+{
+	return arrow_mdelta;
+}
 
 /* Function: ax_get_cw_move_delta
  *------------------------------------------------------------------------------
@@ -36,22 +72,6 @@ int ax_get_cw_move_delta()
 {
 	return dm_scale_to_resolution(CW_MDELTA);
 }
-
-/* Function: ax_get_arrow_move_delta
- *------------------------------------------------------------------------------
- * Returns the move delta for the arrow
- *
- * Arguments:
- *	Void
- *
- * Return:
- *	Arrow move delta
- */
-int ax_get_arrow_move_delta()
-{
-	return dm_scale_to_resolution(ARROW_MDELTA);
-}
-
 
 /* Function: ax_set_fast_move_delta
  *------------------------------------------------------------------------------

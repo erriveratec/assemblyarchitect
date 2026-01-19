@@ -73,6 +73,7 @@ void ax_set_fast_move_delta(bool state);
 int ax_get_move_delta();
 int ax_get_arrow_move_delta();
 int ax_get_cw_move_delta();
+void ax_set_arrow_mdelta(bool fast);
 
 #endif
 
