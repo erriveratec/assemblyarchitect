@@ -432,7 +432,7 @@ void fl_file_initialize_level(int level_id)
 	while (READ_ERROR != (read = getline(&line, &len, fp))){
 		if (strstr(line, level) != NULL){
 			level_found = true;
-			char *name = create_string_with_number(STR_LEVEL, level_id);
+			char *name = create_string_append_number(STR_LEVEL, level_id);
 			cw_set_stage_name(name);
 			free(name);
 		} else if (strstr(line, STR_CHALLENGE_TEXT_BEGIN) != NULL &&

@@ -210,7 +210,7 @@ ChallengeTextBegin
 "Move the values from the Input Buffer [ib] to the Output Buffer [ob], using maximum 3 instructions"
 ChallengeTextEnd
 
-InputSize 5
+InputSize 12
 InputType Natural
 
 InstructionsBegin
@@ -221,8 +221,6 @@ InstructionsEnd
 
 RegistersBegin
 rax
-rbx
-rcx
 RegistersEnd
 
 InstructionLimit 4
@@ -236,14 +234,15 @@ WinConditionEnd
 +++LEVEL STARTS 10
 
 ChallengeTextBegin
-"Move the values from the input buffer to the output buffer, using four instructions maximum"
+"Add the values received from the Input Buffer [ib] in groups of 3 and put the result in the Output Buffer [ob], using maximun 5 instructions"
 ChallengeTextEnd
 
-InputSize 5
+InputSize 12
 InputType Natural
 
 InstructionsBegin
 MOV
+ADD
 JMP
 InstructionsEnd
 
@@ -251,10 +250,38 @@ RegistersBegin
 rax
 RegistersEnd
 
-InstructionLimit 4
+InstructionLimit 99
 
 WinConditionBegin
-WIN1 1 1 false
+WIN2 3
+WinConditionEnd
+
++++LEVEL ENDS
+
++++LEVEL STARTS 11
+
+ChallengeTextBegin
+"Add the values received from the Input Buffer [ib] in pairs and put the result in the Output Buffer [ob], using maximum
+4 instructions"
+ChallengeTextEnd
+
+InputSize 10
+InputType Natural
+
+InstructionsBegin
+MOV
+ADD
+JMP
+InstructionsEnd
+
+RegistersBegin
+rax
+RegistersEnd
+
+InstructionLimit 5
+
+WinConditionBegin
+WIN2 2
 WinConditionEnd
 
 +++LEVEL ENDS

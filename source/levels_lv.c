@@ -1122,6 +1122,9 @@ void lv_set_level_win_condition(char *win_condition)
  * -----------------------------------------------------------------------------
  * This function creates the win condition according to what is in the levels
  * file. 
+ * Nomeclature of the win conditions
+ * WIN1: win1_move_input_to_output(rep, mul, rev) 
+ * WIN2: win2_add_inputs_in_groups(group_size)
  *
  * Arguments:
  * 	text: The text with the description of the win condition.
@@ -1286,6 +1289,7 @@ void lv_print_win_list()
  * Arguments:
  *	rep: number of times a element of the IB will be copied to the OB.
  *  mul: multiplication transformation to the output buffer.
+ *  reversed: if the order of the inputs is reversed
  *
  * Return:
  *	Void.
@@ -1352,7 +1356,7 @@ static void win2_add_inputs_in_groups(int group_size)
 
 	int res = 1;
 	int array_index = 0;
-	int *values = malloc(sizeof(int)*win_list_size);
+	int *values = malloc(sizeof(int)*input_list_size);
 			
 	LIST_FOREACH(input_list, first, next, cur){
 		value_box_t *cur_input = cur->value;

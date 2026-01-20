@@ -9,9 +9,9 @@
 #include "dimensions_dm.h"
 
 #define MOVE_DELTA 15
-#define FAST_MOVE_DELTA 40
+#define FAST_MOVE_DELTA 45
 #define ARROW_MDELTA_SLOW 5
-#define ARROW_MDELTA_FAST 20
+#define ARROW_MDELTA_FAST 30
 #define CW_MDELTA 15
 
 char *ax_char_space = " ";

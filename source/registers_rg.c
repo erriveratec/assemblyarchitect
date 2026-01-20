@@ -45,8 +45,6 @@ void rg_init_reg_texture()
 	g_reg_text = dw_create_text_texture(REG_TEXT, C_AMBER);
 }
 
-
-
 /* Function: rg_reset_ibox
  * -----------------------------------------------------------------------------
  * Assigns the value of the ibox to NO_VALUE
