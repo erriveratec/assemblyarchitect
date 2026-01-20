@@ -248,6 +248,8 @@ InstructionsEnd
 
 RegistersBegin
 rax
+rbx
+rcx
 RegistersEnd
 
 InstructionLimit 99
