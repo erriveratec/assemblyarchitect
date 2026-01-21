@@ -62,7 +62,7 @@ SDL_Rect dm_get_level_button_box();
 SDL_Rect dm_get_return_button_box();
 SDL_Rect dm_get_rst_btn_box();
 
-SDL_Rect dm_get_stage_registers_box();
+SDL_Rect dm_get_stage_reg_box();
 SDL_Rect dm_get_stage_ibox();
 SDL_Rect dm_get_stage_obox();
 SDL_Rect dm_get_stage_code_box();
@@ -71,7 +71,7 @@ SDL_Rect dm_get_stage_input_buffer_box();
 SDL_Rect dm_get_stage_output_buffer_box();
 SDL_Rect dm_get_stage_ib_text_box();
 SDL_Rect dm_get_stage_ob_text_box();
-SDL_Rect dm_get_stage_buttons();
+SDL_Rect dm_get_stage_btns();
 
 int dm_get_screen_width();
 int dm_get_screen_height();

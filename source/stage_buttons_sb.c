@@ -392,7 +392,7 @@ static bool sb_check_released_in_stage_button(); // not used
 void adjust_stage_buttons_position(int code_size)
 {
 	int hidden_y = dm_get_y_hidden_stage_buttons();
-	SDL_Rect sb = dm_get_stage_buttons();
+	SDL_Rect sb = dm_get_stage_btns();
 	int y_final;
 	if (code_size == CW_EMPTY){
 		y_final = hidden_y;
@@ -527,7 +527,7 @@ void sb_init_return_button()
 	return;
 }
 
-/* Function: sb_initialize_stage_buttons
+/* Function: sb_init_stage_btns
  * -----------------------------------------------------------------------------
  * Arguments:
  * 	None.
@@ -535,9 +535,9 @@ void sb_init_return_button()
  * Return:
  *	Void.
  */
-void sb_initialize_stage_buttons()
+void sb_init_stage_btns()
 {
-	SDL_Rect sb = dm_get_stage_buttons();
+	SDL_Rect sb = dm_get_stage_btns();
 	int hidden_y = dm_get_y_hidden_stage_buttons();
 	SDL_Rect r0 = {.x = sb.x, .y = hidden_y, .w = sb.w, .h = sb.h};
 	

@@ -1385,10 +1385,10 @@ void cw_draw_code_window()
 	List *code = get_code_list();
 
 	// Adjust the height of the code box
-	code_box_height_adjust();
+	//code_box_height_adjust();
 
 	if (in_code_window() == true){
-		adjust_code_box_position();
+		//adjust_code_box_position();
 	}
 	
 	dw_draw_thick_rect(g_code_box, dm_get_w_borders(), C_GREY);

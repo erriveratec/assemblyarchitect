@@ -42,7 +42,7 @@
 
 #define STAGE_BUTTON_W 60
 #define STAGE_BUTTON_H 60
-#define STAGE_BUTTON_X 650
+//#define STAGE_BUTTON_X 650
 #define STAGE_BUTTON_Y 820
 
 #define P_BUTTON_H 200
@@ -113,10 +113,10 @@
 #define INS_BOX_Y 225
 
 #define CODE_BOX_W 350
-#define CODE_BOX_H 600
+#define CODE_BOX_H 725
 #define CODE_BOX_Y 50
 
-#define REG_BOX_W 320
+#define REG_BOX_W 250
 #define REG_BOX_H 400
 #define REG_BOX_Y 0
 
@@ -312,7 +312,7 @@ int dm_get_screen_width()
  */
 int dm_get_ofs_space_stage_buttons()
 {
-	SDL_Rect sb = dm_get_stage_buttons();
+	SDL_Rect sb = dm_get_stage_btns();
 	return sb.w/2;
 }
 
@@ -1169,7 +1169,7 @@ SDL_Rect dm_get_stage_obox()
 	return b;
 }
 
-/* Function: dm_get_stage_registers_box
+/* Function: dm_get_stage_reg_box
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object, x and y are initialize at 0
  *
@@ -1179,13 +1179,13 @@ SDL_Rect dm_get_stage_obox()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-SDL_Rect dm_get_stage_registers_box()
+SDL_Rect dm_get_stage_reg_box()
 {
 	SDL_Rect cb = dm_get_stage_code_box();
 	SDL_Rect b;
 	b.w = dm_scale_to_resolution(REG_BOX_W);
 	b.h = dm_scale_to_resolution(REG_BOX_H);
-	b.x = cb.x + cb.w;
+	b.x = g_screen_width - b.w; //cb.x + cb.w;
 	b.y = dm_scale_to_resolution(REG_BOX_Y);
 	return b;
 }
@@ -1408,7 +1408,7 @@ SDL_Rect dm_get_avatar_wh()
 	return b;
 }
 
-/* Function: dm_get_stage_buttons
+/* Function: dm_get_stage_btns
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object, x and y are initialize at 0
  *
@@ -1418,12 +1418,13 @@ SDL_Rect dm_get_avatar_wh()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-SDL_Rect dm_get_stage_buttons()
+SDL_Rect dm_get_stage_btns()
 {
 	SDL_Rect b;
+	SDL_Rect ib = dm_get_stage_instruction_box();
 	b.w = dm_scale_to_resolution(STAGE_BUTTON_W);
 	b.h = dm_scale_to_resolution(STAGE_BUTTON_H);
-	b.x = dm_scale_to_resolution(STAGE_BUTTON_X);
+	b.x = ib.x + ib.w;
 	b.y = dm_scale_to_resolution(STAGE_BUTTON_Y);
 	return b;
 }

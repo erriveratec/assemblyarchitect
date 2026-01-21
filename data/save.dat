@@ -123,8 +123,12 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
+line 01
 MOV rax, [ib]
+ADD rax, [ib]
+ADD rax, [ib]
 MOV [ob], rax
+JMP 00
 CODE ENDS
 
 +++LEVEL ENDS 10
@@ -556,8 +560,12 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
+line 01
 MOV rax, [ib]
+ADD rax, [ib]
+ADD rax, [ib]
 MOV [ob], rax
+JMP 00
 CODE ENDS
 
 +++LEVEL ENDS 10
@@ -989,8 +997,12 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
+line 01
 MOV rax, [ib]
+ADD rax, [ib]
+ADD rax, [ib]
 MOV [ob], rax
+JMP 00
 CODE ENDS
 
 +++LEVEL ENDS 10

@@ -261,7 +261,7 @@ void reset_level_flags(level_flags_t *flags)
  */
 static void init_stage_assets()
 {
-	sb_initialize_stage_buttons();
+	sb_init_stage_btns();
 
 	SDL_Rect r0 = dm_get_stage_input_buffer_box();
 	bf_set_input_box(r0);
@@ -304,7 +304,7 @@ void init_level(int level_id)
 	lv_init_level_assets(level_id);
 
 	//goes before the load level
-	SDL_Rect r0 = dm_get_stage_registers_box();
+	SDL_Rect r0 = dm_get_stage_reg_box();
 	rg_set_register_box(r0); 	
 	
 	fl_file_initialize_level(level_id);

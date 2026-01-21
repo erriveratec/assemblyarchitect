@@ -270,7 +270,7 @@ static void initialize_drop_arrow()
  */
 static void initialize_play_arrow()
 {
-	SDL_Rect sb = dm_get_stage_buttons();
+	SDL_Rect sb = dm_get_stage_btns();
 	SDL_Rect a = dm_get_arrow_wh();
 	g_arrow_play.box.w = a.w;	
 	g_arrow_play.box.h = a.h;
@@ -297,7 +297,7 @@ static void initialize_play_arrow()
  */
 static void initialize_step_arrow()
 {
-	SDL_Rect sb = dm_get_stage_buttons();
+	SDL_Rect sb = dm_get_stage_btns();
 	SDL_Rect a = dm_get_arrow_wh();
 	g_arrow_step.box.w = a.w;	
 	g_arrow_step.box.h = a.h;
@@ -324,7 +324,7 @@ static void initialize_step_arrow()
  */
 static void initialize_fast_arrow()
 {
-	SDL_Rect sb = dm_get_stage_buttons();
+	SDL_Rect sb = dm_get_stage_btns();
 	SDL_Rect a = dm_get_arrow_wh();
 	g_arrow_fast.box.w = a.w;	
 	g_arrow_fast.box.h = a.h;
