@@ -120,6 +120,8 @@
 #define REG_BOX_H 400
 #define REG_BOX_Y 0
 
+#define IMM_TXT_UP_Y 0
+
 #define BTN_ANIM_MAX 15
 #define BTN_ANIM_DELTA 1
 #define BTN_ANIM_SPEED 1 //Lower is faster
@@ -1185,7 +1187,7 @@ SDL_Rect dm_get_stage_reg_box()
 	SDL_Rect b;
 	b.w = dm_scale_to_resolution(REG_BOX_W);
 	b.h = dm_scale_to_resolution(REG_BOX_H);
-	b.x = g_screen_width - b.w; //cb.x + cb.w;
+	b.x = cb.x + cb.w;
 	b.y = dm_scale_to_resolution(REG_BOX_Y);
 	return b;
 }
@@ -1426,6 +1428,27 @@ SDL_Rect dm_get_stage_btns()
 	b.h = dm_scale_to_resolution(STAGE_BUTTON_H);
 	b.x = ib.x + ib.w;
 	b.y = dm_scale_to_resolution(STAGE_BUTTON_Y);
+	return b;
+}
+
+/* Function: dm_get_stage_imm_up
+ * -----------------------------------------------------------------------------
+ * Returns the coordinates for the stage immediates for the upper part
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_stage_imm_up()
+{
+	SDL_Rect b;
+	SDL_Rect cb = dm_get_stage_code_box();
+	b.w = 0;
+	b.h = dm_get_h_stage_elements_titles();
+	b.x = cb.x + cb.w;
+	b.y = dm_scale_to_resolution(IMM_TXT_UP_Y);
 	return b;
 }
 

@@ -17,5 +17,6 @@ tabnew file_fl.c | vsplit file_fl.h |
 tabnew sdl_config.c | vsplit sdl_config.h | 
 tabnew draw_dw.c | vsplit draw_dw.h | 
 tabnew mouse_ms.c | vsplit mouse_ms.h |
+tabnew immediates_im.c | vsplit immediates_im.h |
 tabnew help_hp.c | vsplit help_hp.h |
 tabnew dimensions_dm.c | vsplit dimensions_dm.h"

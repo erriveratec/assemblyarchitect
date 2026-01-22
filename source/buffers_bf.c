@@ -766,6 +766,7 @@ value_box_t bf_get_input_buffer_value_box()
 	return ret;	
 
 }
+
 /* Function: bf_reset_input_list_x_pos
  *------------------------------------------------------------------------------
  * Arguments:

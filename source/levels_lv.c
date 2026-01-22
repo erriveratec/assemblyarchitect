@@ -13,6 +13,7 @@
 #include "stage_buttons_sb.h"
 #include "text_tx.h"
 #include "arrow_ar.h"
+#include "immediates_im.h"
 
 //Strings for the win condition
 #define STR_WIN1 "WIN1"
@@ -26,6 +27,7 @@
 #define INS_EXCEPTION -2
 #define OP1_LAST -3
 #define OP2_LAST -4
+
 
 
 static bool g_code_editable;
@@ -470,6 +472,7 @@ static void chk_ms_pressed_clear_msg(int message_id, bool reset_mouse)
 static void level_9_tutorial()
 {
 	sb_set_step_btns_avail(true);
+	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 	
@@ -521,6 +524,7 @@ static void level_9_tutorial()
 static void level_8_tutorial()
 {
 	sb_set_step_btns_avail(true);
+	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 
@@ -555,6 +559,7 @@ static void level_8_tutorial()
 static void level_7_tutorial()
 {
 	sb_set_step_btns_avail(true);
+	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 
@@ -589,6 +594,7 @@ static void level_7_tutorial()
 static void level_6_tutorial()
 {
 	sb_set_step_btns_avail(true);
+	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 
@@ -628,6 +634,7 @@ static void level_6_tutorial()
 static void level_5_tutorial()
 {
 	sb_set_step_btns_avail(true);
+	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 	bool miss_op = cw_is_operand_pending();
@@ -663,6 +670,7 @@ static void level_5_tutorial()
 static void level_4_tutorial()
 {
 	sb_set_step_btns_avail(false);
+	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 
@@ -692,6 +700,7 @@ static void level_4_tutorial()
 static void level_3_tutorial()
 {
 	sb_set_step_btns_avail(false);
+	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 
@@ -782,6 +791,7 @@ static void level_3_tutorial()
 static void level_2_tutorial()
 {
 	sb_set_step_btns_avail(false);
+	im_set_imm_up_avail(false);
 	int size = cw_get_code_list_size();
 	bool hold = check_player_is_holding_line();
  	bool play = get_play_state();
@@ -868,6 +878,7 @@ static void level_2_tutorial()
 static void level_1_tutorial()
 {
 	sb_set_step_btns_avail(false);
+	im_set_imm_up_avail(false);
 	draw_regs_arrow(false);
 	bool flag = get_op_flag();
 	bool play = get_play_state();
@@ -1520,6 +1531,7 @@ void lv_level_drawings(int level)
 
 		default:
 			sb_set_step_btns_avail(true);
+		 	im_set_imm_up_avail(true);
 			draw_bufs_arrow(check_display_buf_arrow());
 			draw_regs_arrow(check_display_reg_lv_arrow());
 	}

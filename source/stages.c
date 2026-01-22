@@ -17,6 +17,7 @@
 #include "mouse_ms.h"
 #include "dbg.h"
 #include "arrow_ar.h"
+#include "immediates_im.h"
 
 #define STUDIO_SCREEN_DELAY 1000 // 1 sec
 #define SELECT_PLAYER_TEXT "Which hacker are you?"
@@ -373,6 +374,7 @@ void stage_drawings(int level)
 	lv_level_drawings(level);
 	sb_draw_return_button();
 	sb_draw_rst_btn();
+	im_draw_imm();
 	return;
 }
 

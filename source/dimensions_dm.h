@@ -72,6 +72,7 @@ SDL_Rect dm_get_stage_output_buffer_box();
 SDL_Rect dm_get_stage_ib_text_box();
 SDL_Rect dm_get_stage_ob_text_box();
 SDL_Rect dm_get_stage_btns();
+SDL_Rect dm_get_stage_imm_up();
 
 int dm_get_screen_width();
 int dm_get_screen_height();
