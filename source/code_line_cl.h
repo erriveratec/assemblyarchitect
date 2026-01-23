@@ -62,7 +62,10 @@ enum operands{
 	RGBOX_MIN,
 	IBOX,
 	OBOX,
-	RGBOX_MAX
+	RGBOX_MAX,
+	IMM_MIN,
+	IMM,
+	IMM_MAX
 };
 
 enum line_state{
@@ -93,7 +96,7 @@ extern char *ob_text;
 void cl_destroy_code_line(code_line_t *line);
 instruction_t *cl_create_instruction(int id, btn_t *b);
 operand_t *cl_create_operand(int id, btn_t *b);
-bool cl_check_operand_compatibility(operand_t *op, code_line_t *line);
+bool cl_is_op_compatible(operand_t *op, code_line_t *line);
 int cl_get_instruction_operand_quantity(int instruction_id);
 char *get_operand_text(int operand_id);
 void print_code_line(code_line_t *line);
@@ -107,6 +110,6 @@ code_line_t *cl_new_code_line(instruction_t *ins);
 code_line_t *cl_create_code_line(instruction_t *ins);
 void cl_destroy_operand(operand_t *op);
 bool cl_operands_are_registers(code_line_t *line);
-bool cl_check_op_is_register(int op_id);
+bool cl_is_op_reg(int op_id);
 
 #endif

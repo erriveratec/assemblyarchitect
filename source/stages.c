@@ -616,10 +616,10 @@ static void code_updated_actions(int level_id)
  */
 static code_line_t *pending_operand_handler()
 {
-	bool left_released = ms_left_released();
-	bool register_selected = rg_check_mouse_released_in_register();
-	bool buffer_selected = bf_check_released_in_buffer();
-	bool label_selected = cw_check_released_in_label();
+	bool reg_sel = rg_ms_rel_in_reg();
+	bool buf_sel = bf_ms_rel_in_buf();
+	bool label_sel = cw_ms_rel_in_label();
+	bool imm_sel = im_ms_rel_in_upimm();
 	
 	code_line_t *l = cw_get_code_line_pending_operand();
 	code_line_t *r = NULL;
@@ -629,22 +629,24 @@ static code_line_t *pending_operand_handler()
 	if (l->ins->id == JMP){
 		r = cw_create_label_code_line();
 		cw_player_holding_instruction(r, false, true);
-		operand_t *a = cw_create_jump_operand(r);
-		cw_assign_operand_to_line(a, l);
-	} else if (left_released == true && register_selected == true &&
-												lv_is_reg_selectable() == true){
-		operand_t *r = rg_create_operand_of_selected_register();
-		cw_assign_operand_to_line(r, l);
-	} else if (left_released == true && buffer_selected == true && 
-												lv_is_buf_selectable() == true){
-		operand_t *b = bf_create_operand_of_selected_buffer();
-		if (cl_check_operand_compatibility(b, l) == true){
-			cw_assign_operand_to_line(b, l);
+		operand_t *a = cw_create_jmp_op(r);
+		cw_assign_op_to_line(a, l);
+	} else if (reg_sel == true && lv_is_reg_selectable() == true){
+		operand_t *r = rg_create_sel_reg_op();
+		cw_assign_op_to_line(r, l);
+	} else if (buf_sel == true && lv_is_buf_selectable() == true){
+		operand_t *b = bf_create_sel_buf_op();
+		if (cl_is_op_compatible(b, l) == true){
+			cw_assign_op_to_line(b, l);
 		} else {
 			cl_destroy_operand(b);
 		}
-	} else if (left_released == true && register_selected == false && 
-			   buffer_selected == false){
+	} else if (imm_sel == true){
+		operand_t *i = im_create_sel_imm_op();
+		if (cl_is_op_compatible(i, l) == true){
+			cw_assign_op_to_line(i, l);
+		}
+	} else if (reg_sel == false && buf_sel == false){
 		if (l->state == CHANGING_OP1 || l->state == CHANGING_OP2){
 			l->state = COMPLETE;	
 			l->op1->b->animated = false;

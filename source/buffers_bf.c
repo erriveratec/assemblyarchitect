@@ -164,7 +164,7 @@ int get_output_buffer_list_size()
 	List *list = get_output_list();
 	return List_count(list);
 }
-/* Function: bf_check_released_in_buffer
+/* Function: bf_ms_rel_in_buf
 *------------------------------------------------------------------------------
 * This functions verifies if the user clicked one of the registers available
 * in the screen
@@ -176,15 +176,15 @@ int get_output_buffer_list_size()
 *	true if the user clicked over an instructions, false if otherwise
 *
 */
-bool bf_check_released_in_buffer()
+bool bf_ms_rel_in_buf()
 {
    	bool selected = false;
 
-	if (bt_check_mouse_released_button(&input_buffer_button) == true){
+	if (bt_ms_rel_btn(&input_buffer_button) == true){
 		selected = true;
 	} 
    	
-	if (bt_check_mouse_released_button(&output_buffer_button) == true){
+	if (bt_ms_rel_btn(&output_buffer_button) == true){
 		selected = true;
 	}
 	return selected;
@@ -221,7 +221,7 @@ operand_t *bf_create_buffer_operand_by_id(int id)
 	return b;
 }
 
-/* Function: bf_create_operand_of_selected_buffer
+/* Function: bf_create_sel_buf_op
 *------------------------------------------------------------------------------
 * This returns the pointer to the buffer where the player clicked
 *
@@ -232,11 +232,11 @@ operand_t *bf_create_buffer_operand_by_id(int id)
 *	The pointer of the buffer that user selected.
 *
 */
-operand_t *bf_create_operand_of_selected_buffer()
+operand_t *bf_create_sel_buf_op()
 {
    	operand_t *b = NULL;
 
-	if (bt_check_mouse_released_button(&input_buffer_button) == true){
+	if (bt_ms_rel_btn(&input_buffer_button) == true){
 		b = malloc(sizeof(operand_t));
 		texture_t *t = cl_create_operand_texture(IB);
 
@@ -245,7 +245,7 @@ operand_t *bf_create_operand_of_selected_buffer()
 		b->id = input_buffer->id;
 	} 
    	
-	if (bt_check_mouse_released_button(&output_buffer_button) == true){
+	if (bt_ms_rel_btn(&output_buffer_button) == true){
 		b = malloc(sizeof(operand_t));
 		texture_t *t = cl_create_operand_texture(OB);
 		b->b = bt_create_btn(output_buffer->b->r, t);

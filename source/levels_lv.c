@@ -1009,11 +1009,11 @@ static int check_display_buf_arrow()
 		if (l->ins->id != JMP && l->ins->id !=LABEL){
 			operand_t o;
 			o.id = IB;
-			if (cl_check_operand_compatibility(&o, l) == true){
+			if (cl_is_op_compatible(&o, l) == true){
 				display_ar = IB;
 			} 
 			o.id = OB;
-			if (cl_check_operand_compatibility(&o, l) == true){
+			if (cl_is_op_compatible(&o, l) == true){
 				display_ar = OB;
 			}
 		}
@@ -1066,7 +1066,7 @@ static bool check_display_reg_lv_arrow()
 		if (l->ins->id != JMP && l->ins->id != LABEL){
 			operand_t o;
 			o.id = RAX;
-			display_ar = cl_check_operand_compatibility(&o, l);
+			display_ar = cl_is_op_compatible(&o, l);
 		}
 	}
 	return display_ar;

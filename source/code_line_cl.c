@@ -21,8 +21,9 @@ char *rdx_text = "rdx";
 char *rdi_text = "rdi";
 char *ib_text = "[ib]";
 char *ob_text = "[ob]";
+char *invalid_op_text = "INVALID_OP";
 
-/* Function: cl_check_op_is_register
+/* Function: cl_is_op_reg
  * -----------------------------------------------------------------------------
  * Verifies using the id of the operand if corresponds to a register
  *
@@ -33,13 +34,14 @@ char *ob_text = "[ob]";
  *	true if the id of the operand corresponds to a register
  *
  */
-bool cl_check_op_is_register(int op_id)
+bool cl_is_op_reg(int op_id)
 {
-	assert(((op_id > REG_MIN && op_id < REG_MAX) || 
-			(op_id > MEMORY_MIN && op_id < MEMORY_MAX) || 
-			(op_id > BUF_MIN && op_id < BUF_MAX) || 
-			(op_id > RGBOX_MIN && op_id < RGBOX_MAX)) &&
-			"Invalid operand id");
+	assert(((op_id > REG_MIN && op_id < REG_MAX) 
+			|| (op_id > MEMORY_MIN && op_id < MEMORY_MAX) 
+			|| (op_id > BUF_MIN && op_id < BUF_MAX) 
+			|| (op_id > RGBOX_MIN && op_id < RGBOX_MAX) 
+			|| (op_id > IMM_MIN && op_id < IMM_MAX))
+			&& "Invalid operand id");
 	
 	bool is_register = false;	
 	
@@ -333,7 +335,7 @@ error:
  */
 char *get_operand_text(int operand_id)
 {
-	assert(operand_id > REG_MIN && operand_id < BUF_MAX && 
+	assert(operand_id > REG_MIN && operand_id < IMM_MAX && 
 		   "The operand id is invalid");
 
 	char *text;
@@ -360,6 +362,8 @@ char *get_operand_text(int operand_id)
 		case OB:
 			text = ob_text;
 			break;
+		default:
+			text = invalid_op_text;
 	}
 error:
 	return text;
@@ -380,14 +384,15 @@ error:
  */
 char *cl_create_code_line_text(int instruction_id, int op1_id, int op2_id)
 {
-	assert(instruction_id > INSTRUCTION_MIN && instruction_id < INSTRUCTION_MAX
-		  && "The instruction id is invalid");
+	assert(instruction_id > INSTRUCTION_MIN 
+		   && instruction_id < INSTRUCTION_MAX
+		   && "The instruction id is invalid");
 	
 	if (instruction_id == JMP || instruction_id == LABEL){
 		assert(op1_id >=0 && "Label destitny is negative");
 	} else {
-		assert(op1_id >= NO_OPERAND && op1_id < BUF_MAX && "Invalid OP1");
-		assert(op2_id >= NO_OPERAND && op2_id < BUF_MAX && "Invalid OP2");
+		assert(op1_id >= NO_OPERAND && op1_id < IMM_MAX && "Invalid OP1");
+		assert(op2_id >= NO_OPERAND && op2_id < IMM_MAX && "Invalid OP2");
 	}
 
 	char *line_text = malloc(sizeof(char)*INSTRUCTION_STRING_LENGTH);
@@ -550,9 +555,10 @@ bool check_valid_operand(int id)
 {
 	bool valid = false;
 
-	if (id > REG_MIN && id < REG_MAX ||
-		id > MEMORY_MIN && id < MEMORY_MAX ||
-		id > BUF_MIN && id < BUF_MAX){
+	if (id > REG_MIN && id < REG_MAX 
+		|| id > MEMORY_MIN && id < MEMORY_MAX 
+		|| id > BUF_MIN && id < BUF_MAX
+		|| id > IMM_MIN && id < IMM_MAX){
 		valid = true;
 	}
 	return valid;
@@ -571,14 +577,14 @@ bool check_valid_operand(int id)
  *	void.
  *
  */
-bool cl_check_operand_compatibility(operand_t *op, code_line_t *line)
+bool cl_is_op_compatible(operand_t *op, code_line_t *line)
 {
 	assert(op != NULL && "The operand cannot be NULL");
 	assert(line != NULL && "The line cannot be NULL");
 	assert(check_valid_operand(op->id) == true && 
 		   "The operand value is not valid");
 
-	if (cl_check_op_is_register(op->id) == true){
+	if (cl_is_op_reg(op->id) == true){
 		return true;
 	}
 	bool compatible = false;
@@ -586,30 +592,32 @@ bool cl_check_operand_compatibility(operand_t *op, code_line_t *line)
 	switch(line->state){
 		case MISSING_BOTH:
 			if (op->id != IB){
-				if (op->id == OB && line->ins->id == MOV){
+				if (op->id == OB && line->ins->id == MOV){//Evaluar cambiar
 					compatible = true;
 				}
 			}
 			break;
 		case MISSING_OP1:
-			if (cl_check_op_is_register(line->op2->id) == true && op->id != IB){
+			if (cl_is_op_reg(line->op2->id) == true 
+				&& op->id != IB
+				&& op->id != IMM){
 				compatible = true;
 			}
 			break;
 		case MISSING_OP2:
-			if (cl_check_op_is_register(line->op1->id) == true && op->id != OB){
+			if (cl_is_op_reg(line->op1->id) == true && op->id != OB){
 				compatible = true;
 			}			
 			break;
 		case CHANGING_OP1:
-			if (cl_check_op_is_register(line->op2->id) == true && op->id != IB){
-				if (op->id == OB && line->ins->id == MOV){
+			if (cl_is_op_reg(line->op2->id) == true && op->id != IB){
+				if (op->id == OB && op->id != IMM && line->ins->id == MOV){
 					compatible = true;
 				}
 			}
 			break;		
 		case CHANGING_OP2:
-			if (cl_check_op_is_register(line->op1->id) == true && op->id != OB){
+			if (cl_is_op_reg(line->op1->id) == true && op->id != OB){
 				compatible = true;
 			}			
 			break;		

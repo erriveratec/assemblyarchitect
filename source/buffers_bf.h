@@ -15,7 +15,7 @@ enum input_list_type{
 extern int g_input_list_type;
 extern int g_input_buffer_size;
 
-bool bf_check_released_in_buffer();
+bool bf_ms_rel_in_buf();
 void bf_set_input_box(SDL_Rect r);
 void bf_set_output_box(SDL_Rect r);
 void bf_set_input_buffer_button(SDL_Rect r);
@@ -40,7 +40,7 @@ int get_output_buffer_list_size();
 List *get_input_list();
 List *get_output_list();
 void print_output_list();
-operand_t *bf_create_operand_of_selected_buffer();
+operand_t *bf_create_sel_buf_op();
 operand_t *bf_create_buffer_operand_by_id(int id);
 void bf_reset_input_list_x_pos();
 void bf_set_input_buffer_size(int size);

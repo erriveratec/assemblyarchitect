@@ -1234,7 +1234,7 @@ static int handle_source_operand(code_line_t *line)
 		} else if (check_avatar_has_value(&g_ravatar) == true){
 			mov_pending = false;
 			avatar_id = RAVATAR;
-		} else if (cl_check_op_is_register(line->op2->id)&& 
+		} else if (cl_is_op_reg(line->op2->id)&& 
 				   check_operand_has_value(OBOX) == false &&
 				   check_avatar_has_value(&g_oavatar) == false){
 			if (g_ravatar.op2_retrieved == false) {
@@ -1297,7 +1297,7 @@ static void handle_destiny_operand(code_line_t *line, int avatar_id)
 	int mov_pending = NO_VALUE;
 	
 	if (avatar_id == RAVATAR && g_ravatar.op2_retrieved == true){
-		if (cl_check_op_is_register(line->op1->id) == true){
+		if (cl_is_op_reg(line->op1->id) == true){
 			mov_pending = move_avatar_to_operand(&g_ravatar, line->op1->id);
 		} else {
 			mov_pending = move_avatar_to_operand(&g_ravatar, OBOX);
@@ -1307,7 +1307,7 @@ static void handle_destiny_operand(code_line_t *line, int avatar_id)
 		}
 		if (mov_pending == false){
 			int deliver_pending;
-			if (cl_check_op_is_register(line->op1->id) == true){
+			if (cl_is_op_reg(line->op1->id) == true){
 				deliver_pending = deliver_operand(&g_ravatar, line->op1->id);
 			} else {
 				deliver_pending = deliver_operand(&g_ravatar, OBOX);
@@ -1435,7 +1435,7 @@ static void execute_instruction(code_line_t *line, int line_pos)
 		
 		if (avatar_id == RAVATAR && g_ravatar.op2_retrieved == true && 
 			g_ravatar.op1_delivered == true && arrow_in_place == true){
-			if (cl_check_op_is_register(line->op1->id) == true){
+			if (cl_is_op_reg(line->op1->id) == true){
 				operate_instruction(line, g_ravatar.value);
 				line->state = EXECUTED;
 				mc_set_step_ended(true);

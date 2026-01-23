@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "immediates_im.h"
+#include "code_line_cl.h"
 #include "dimensions_dm.h"
 #include "draw_dw.h"
 #include "aux.h"
@@ -25,6 +26,36 @@ typedef struct imm_t{
 
 imm_t g_up_imm[TOTAL_IMM];
 
+/* Function: im_create_sel_imm_op
+*------------------------------------------------------------------------------
+*  creates an operand of the selected immediate
+*
+* Arguments:
+*	Void.
+*	
+* Return:
+*	The pointer to the created imm operand
+*
+*/
+operand_t *im_create_sel_imm_op()
+{
+	operand_t *o = NULL;
+	for (int i = 0; i < TOTAL_IMM; i++){
+
+		if (bt_ms_rel_btn(g_up_imm[i].b) == true){
+	   		char *num = ax_number_to_string(g_up_imm[i].val.value);
+			texture_t *t = dw_create_text_texture(num, C_WHITE);
+			free(num);
+			
+			btn_t *b = bt_create_btn(g_up_imm[i].b->r, t);
+			o = malloc(sizeof(operand_t));
+			o->b = b;
+			o->id = IMM; 
+		} 
+	}
+			
+   return o;
+}
 
 /* Function: sb_set_imm_up_avail
  * ----------------------------------------------------------------------------
@@ -92,14 +123,19 @@ void im_init_imm_assets()
  * Return:
  *	True if any of the upper immediates was clicked.
  */
-bool im_up_imm_clicked()
+bool im_ms_rel_in_upimm()
 {
- 	bool click = false;
+ 	bool rel = false;
 
-	return click;
+	for (int i = 0; i < TOTAL_IMM; i++){
+
+		if (bt_ms_rel_btn(g_up_imm[i].b) == true){
+		   	rel = true;
+		   	break;
+	   	} 
+	}
+	return rel;
 }
-
-
 
 /* Function: init_imm_texture
  *------------------------------------------------------------------------------

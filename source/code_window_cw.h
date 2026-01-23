@@ -56,8 +56,8 @@ void cw_destroy_code_window_assets();
 int cw_get_instruction_y_coord(int instruction_position); //review usage
 int cw_get_code_line_x(int instruction_id);
 int cw_get_code_line_y(int pos);
-bool cw_check_released_in_label();
-operand_t *cw_create_jump_operand(code_line_t *addr);
+bool cw_ms_rel_in_label();
+operand_t *cw_create_jmp_op(code_line_t *addr);
 void cw_update_saved_jump_instructions();
 void cw_operate_jump_instruction(code_line_t *line);
 SDL_Rect cw_get_text_box_rect();
@@ -66,6 +66,6 @@ SDL_Rect cw_get_code_line_coord_at_pos(int code_line_element, int pos);
 int cw_get_code_line_pos_by_ptr(code_line_t *line);
 code_line_t *cw_create_label_code_line();
 void cw_clear_code_list();
-void cw_assign_operand_to_line(operand_t *op, code_line_t *line);
+void cw_assign_op_to_line(operand_t *op, code_line_t *line);
 void cw_highlight_code_pending_operand();
 #endif

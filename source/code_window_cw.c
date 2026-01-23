@@ -264,7 +264,7 @@ error:
 	return;
 }
 
-/* Function: cw_create_jump_operand
+/* Function: cw_create_jmp_op
 *------------------------------------------------------------------------------
 * Creates the label operand with the corresponding number that will be shown
 * in the code
@@ -276,7 +276,7 @@ error:
 *	Pointer to the newly created operand
 *
 */
-operand_t *cw_create_jump_operand(code_line_t *addr)
+operand_t *cw_create_jmp_op(code_line_t *addr)
 {
    	operand_t *op = NULL;
 
@@ -330,8 +330,8 @@ static code_line_t *get_clicked_label_code_line()
 	LIST_FOREACH(code, first, next, cur){ 
 		c = cur->value;
 		if (c->ins->id == LABEL){
-			if (bt_check_mouse_released_button(c->ins->b) == true ||
-				bt_check_mouse_released_button(c->op1->b) == true){
+			if (bt_ms_rel_btn(c->ins->b) == true ||
+				bt_ms_rel_btn(c->op1->b) == true){
 				clicked_label = c;
 				break;
 			}
@@ -343,7 +343,7 @@ error:
 
 
 
-/* Function: cw_check_released_in_label
+/* Function: cw_ms_rel_in_label
 *------------------------------------------------------------------------------
 * This function verifies if a mouse click was released on a label instruction
 * present in the code
@@ -355,7 +355,7 @@ error:
 *	boolean with the result if a mouse click was performed
 *
 */
-bool cw_check_released_in_label()
+bool cw_ms_rel_in_label()
 {
 	List *code = get_code_list();
 	check_mem(code);
@@ -365,8 +365,8 @@ bool cw_check_released_in_label()
 	LIST_FOREACH(code, first, next, cur){ 
 		c = cur->value;
 		if (c->ins->id == LABEL){
-			if (bt_check_mouse_released_button(c->ins->b) == true ||
-				bt_check_mouse_released_button(c->op1->b) == true){
+			if (bt_ms_rel_btn(c->ins->b) == true ||
+				bt_ms_rel_btn(c->op1->b) == true){
 				selected = true;
 				break;
 			}
@@ -628,7 +628,7 @@ code_line_t *cw_clone_rclicked_line(code_line_t *line)
 		} else if (line->op1->id > BUF_MIN && line->op1->id < BUF_MAX){
 			op1 = bf_create_buffer_operand_by_id(line->op1->id);
 		}
-		cw_assign_operand_to_line(op1, new);
+		cw_assign_op_to_line(op1, new);
 	}
 	if (operand_quantity == TWO_OPERANDS){
 		operand_t *op2;
@@ -637,7 +637,7 @@ code_line_t *cw_clone_rclicked_line(code_line_t *line)
 		} else if (line->op2->id > BUF_MIN && line->op2->id < BUF_MAX){
 			op2 = bf_create_buffer_operand_by_id(line->op2->id);
 		}
-		cw_assign_operand_to_line(op2, new);
+		cw_assign_op_to_line(op2, new);
 	}
 
 	return new;
@@ -716,7 +716,7 @@ void cw_add_saved_line(char *line)
 		} else if (op1_id > BUF_MIN && op1_id < BUF_MAX){
 			op1 = bf_create_buffer_operand_by_id(op1_id);
 		}
-		cw_assign_operand_to_line(op1, new_line);
+		cw_assign_op_to_line(op1, new_line);
 	}
 	if (operand_quantity == TWO_OPERANDS){
 		operand_t *op2;
@@ -725,7 +725,7 @@ void cw_add_saved_line(char *line)
 		} else if (op2_id > BUF_MIN && op2_id < BUF_MAX){
 			op2 = bf_create_buffer_operand_by_id(op2_id);
 		}
-		cw_assign_operand_to_line(op2, new_line);
+		cw_assign_op_to_line(op2, new_line);
 	}
 
 	new_line->state = COMPLETE;
@@ -2241,7 +2241,7 @@ bool cw_chk_click_code_op2(int code_line_pos)
 	LIST_FOREACH(code, first, next, cur){ 
 		code_line_t *c = cur->value;
 		if (c->op2 != NULL && code_line_pos == i){
-			if (true == bt_check_mouse_released_button(c->op2->b)){
+			if (true == bt_ms_rel_btn(c->op2->b)){
 				clicked = true;
 				break;
 			}
@@ -2274,13 +2274,13 @@ bool cw_code_operand_clicked()
 		
 		code_line_t *c = cur->value;
 		if (NULL != c->op1){
-			if (true == bt_check_mouse_released_button(c->op1->b)){
+			if (true == bt_ms_rel_btn(c->op1->b)){
 				clicked = true;
 				break;
 			}
 		} 
 		if (NULL != c->op2){
-			if (true == bt_check_mouse_released_button(c->op2->b)){
+			if (true == bt_ms_rel_btn(c->op2->b)){
 				clicked = true;
 				break;
 			}
@@ -2310,7 +2310,7 @@ void cw_change_clicked_code_line_state()
 		code_line_t *c = cur->value;
 		if (c->ins->id != LABEL && c->ins->id != JMP){
 			if (c->op1 != NULL){
-				if (bt_check_mouse_released_button(c->op1->b) == true){
+				if (bt_ms_rel_btn(c->op1->b) == true){
 					c->state = CHANGING_OP1;
 					c->op1->b->animated = true;
 					c->op1->b->anim_dir = false;
@@ -2318,7 +2318,7 @@ void cw_change_clicked_code_line_state()
 				}
 			} 
 			if (c->op2 != NULL){
-				if (bt_check_mouse_released_button(c->op2->b) == true){
+				if (bt_ms_rel_btn(c->op2->b) == true){
 					c->state = CHANGING_OP2;
 					c->op2->b->animated = true;
 					c->op2->b->anim_dir = false;
@@ -2330,7 +2330,7 @@ void cw_change_clicked_code_line_state()
 }
 
 
-/* Function: cw_assign_operand_to_line
+/* Function: cw_assign_op_to_line
  * -----------------------------------------------------------------------------
  * This function assigns an operand to a line that has a state where the 
  * operand is missing, generates error if called to a line that is not in a
@@ -2344,7 +2344,7 @@ void cw_change_clicked_code_line_state()
  *	void.
  *
  */
-void cw_assign_operand_to_line(operand_t *op, code_line_t *line)
+void cw_assign_op_to_line(operand_t *op, code_line_t *line)
 {
 	assert(NULL != op && "The operand cannot be NULL");
 	assert(NULL != line && "The line cannot be NULL");

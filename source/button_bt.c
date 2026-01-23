@@ -418,7 +418,7 @@ bool bt_btn_rclicked(btn_t *button)
  *	true if the mouse clicked inside the button
  *	false if otherwise
 */
-bool bt_check_mouse_released_button(btn_t *button)
+bool bt_ms_rel_btn(btn_t *button)
 {
 	assert(button != NULL && "The button pointer cannot be NULL");
 

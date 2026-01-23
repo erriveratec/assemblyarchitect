@@ -714,7 +714,7 @@ static void draw_register_text()
 	dw_draw_texture_fits_height(r, g_reg_text);
 }
 
-/* Function: rg_check_mouse_released_in_register
+/* Function: rg_ms_rel_in_reg
 *------------------------------------------------------------------------------
 * This functions verifies if the user clicked one of the registers available
 * in the screen
@@ -727,7 +727,7 @@ static void draw_register_text()
 *
 */
 
-bool rg_check_mouse_released_in_register()
+bool rg_ms_rel_in_reg()
 {
 	List *registers = rg_get_register_list();
 	assert(registers != NULL && "The registers pointer cannot be NULL");
@@ -737,11 +737,13 @@ bool rg_check_mouse_released_in_register()
    	LIST_FOREACH(registers, first, next, cur){ 
 	   
 	   	reg_t *c = cur->value;
-		SDL_Rect r = {.x = c->value.box.x, .y = c->value.box.y, 
-									  .w = c->value.box.w, .h = c->value.box.h};
-	  	btn_t b = {.r = r};
-	   	if (bt_check_mouse_released_button(c->b) == true ||
-									bt_check_mouse_released_button(&b) == true){
+		SDL_Rect r = {.x = c->value.box.x, 
+					  .y = c->value.box.y, 
+					  .w = c->value.box.w, 
+					  .h = c->value.box.h};
+	  	
+		btn_t b = {.r = r};
+	   	if (bt_ms_rel_btn(c->b) == true || bt_ms_rel_btn(&b) == true){
 		   	selected = true;
 		   	break;
 	   	} 
@@ -757,7 +759,7 @@ bool rg_check_mouse_released_in_register()
 *	The pointer to the clicked register in an operand form 
 *
 */
-operand_t *rg_create_operand_of_selected_register()
+operand_t *rg_create_sel_reg_op()
 {
 	List *registers = rg_get_register_list();
    	int x = List_count(registers);
@@ -766,18 +768,21 @@ operand_t *rg_create_operand_of_selected_register()
    	LIST_FOREACH(registers, first, next, cur){ 
 
 		reg_t *c = cur->value;
-		SDL_Rect r = {.x = c->value.box.x, .y = c->value.box.y, 
-									  .w = c->value.box.w, .h = c->value.box.h};
+		SDL_Rect r = {.x = c->value.box.x, 
+					  .y = c->value.box.y, 
+					  .w = c->value.box.w, 
+					  .h = c->value.box.h};
 
 		btn_t b = {.r = r};
-	   	if (bt_check_mouse_released_button(c->b) == true||
-									bt_check_mouse_released_button(&b) == true){
+	   	if (bt_ms_rel_btn(c->b) == true|| bt_ms_rel_btn(&b) == true){
 			
 			texture_t *t = cl_create_operand_texture(c->id);
-			SDL_Rect r = {.x = c->b->r.x, .y = c->b->r.y, .w = c->b->r.w, 
-																.h = c->b->r.h};
+			SDL_Rect r = {.x = c->b->r.x, 
+						  .y = c->b->r.y, 
+						  .w = c->b->r.w, 
+						  .h = c->b->r.h};
+			
 			btn_t *b = bt_create_btn(r, t);
-
 			o = malloc(sizeof(operand_t));
 			o->b = b;
 			o->id = c->id;
