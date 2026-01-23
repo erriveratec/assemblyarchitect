@@ -18,7 +18,7 @@ RegistersEnd
 InstructionLimit 99
 
 WinConditionBegin
-WIN1 1 1 false
+WIN1 1 1 0 false
 WinConditionEnd
 
 +++LEVEL ENDS
@@ -43,7 +43,7 @@ RegistersEnd
 InstructionLimit 2
 
 WinConditionBegin
-WIN1 1 1 false
+WIN1 1 1 0 false
 WinConditionEnd
 
 +++LEVEL ENDS
@@ -68,7 +68,7 @@ RegistersEnd
 InstructionLimit 99
 
 WinConditionBegin
-WIN1 3 1 false
+WIN1 3 1 0 false
 WinConditionEnd
 
 +++LEVEL ENDS
@@ -91,7 +91,7 @@ rax
 RegistersEnd
 
 WinConditionBegin
-WIN1 1 1 false
+WIN1 1 1 0 false
 WinConditionEnd
 
 InstructionLimit 99
@@ -120,7 +120,7 @@ RegistersEnd
 InstructionLimit 99
 
 WinConditionBegin
-WIN1 1 1 true
+WIN1 1 1 0 true
 WinConditionEnd
 
 +++LEVEL ENDS
@@ -172,7 +172,7 @@ RegistersEnd
 InstructionLimit 99
 
 WinConditionBegin
-WIN1 1 2 false
+WIN1 1 2 0 false
 WinConditionEnd
 
 +++LEVEL ENDS
@@ -199,7 +199,7 @@ RegistersEnd
 InstructionLimit 99
 
 WinConditionBegin
-WIN1 1 4 false
+WIN1 1 4 0 false
 WinConditionEnd
 
 +++LEVEL ENDS
@@ -226,7 +226,7 @@ RegistersEnd
 InstructionLimit 4
 
 WinConditionBegin
-WIN1 1 1 false
+WIN1 1 1 0 false
 WinConditionEnd
 
 +++LEVEL ENDS
@@ -252,7 +252,7 @@ rbx
 rcx
 RegistersEnd
 
-InstructionLimit 99
+InstructionLimit 6
 
 WinConditionBegin
 WIN2 3
@@ -263,8 +263,34 @@ WinConditionEnd
 +++LEVEL STARTS 11
 
 ChallengeTextBegin
-"Add the values received from the Input Buffer [ib] in pairs and put the result in the Output Buffer [ob], using maximum
-4 instructions"
+"Add 5 to all the values received fromthe Input Buffer [ib] and put the result in the Output Buffer [ob]. Use 4 instructions maximum"
+ChallengeTextEnd
+
+InputSize 10
+InputType Natural
+
+InstructionsBegin
+MOV
+ADD
+JMP
+InstructionsEnd
+
+RegistersBegin
+rax
+RegistersEnd
+
+InstructionLimit 5
+
+WinConditionBegin
+WIN1 1 5 0 false
+WinConditionEnd
+
++++LEVEL ENDS
+
++++LEVEL STARTS 12
+
+ChallengeTextBegin
+"PLACEHOLDER"
 ChallengeTextEnd
 
 InputSize 10

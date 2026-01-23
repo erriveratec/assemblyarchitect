@@ -621,11 +621,9 @@ void rg_draw_registers()
 	LIST_FOREACH(registers, first, next, cur){
 		reg_t *reg = cur->value;
 		btn_t *button = reg->b;
-		bt_draw_btn(button);
+		bt_draw_btn(button); //Register name
 
-		char *number = ax_number_to_string(reg->value.value);
-		ax_draw_value_box(&reg->value, C_WHITE);
-		free(number);
+		ax_draw_value_box(&reg->value, C_WHITE); //The value box of the value
 	}
 }
 

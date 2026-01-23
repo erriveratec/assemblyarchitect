@@ -57,9 +57,10 @@ static void level_6_tutorial();
 static void level_7_tutorial();
 static void level_8_tutorial();
 static void level_9_tutorial();
+static void level_10_tutorial();
 static bool check_display_reg_lv_arrow();
 static int check_display_buf_arrow();
-static void win1_move_input_to_output(int rep, int mul, bool reversed);
+static void win1_move_input_to_output(int rep, int mul,int sum, bool reversed);
 static void win2_add_inputs_in_groups(int group_size);
 static void set_win_condition(char *win_condition);
 static void draw_regs_arrow(bool show_arrows);
@@ -456,6 +457,22 @@ static void chk_ms_pressed_clear_msg(int message_id, bool reset_mouse)
 			ms_reset_mouse_values();
 		}
 	}
+}
+
+/* Function: level_10_tutorial
+ * -----------------------------------------------------------------------------
+ * This functions handles all the special cases of the tutorial of level 10
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void level_10_tutorial()
+{
+	sb_set_step_btns_avail(true);
+	im_set_imm_up_avail(false);
 }
 
 
@@ -1158,6 +1175,8 @@ static void set_win_condition(char *win_condition)
 		int rep = atoi(rep_text);
 		char *mul_text = strtok_r(NULL, delim, &saveptr1);
 		int mul = atoi(mul_text);
+		char *sum_text = strtok_r(NULL, delim, &saveptr1);
+		int sum = atoi(sum_text);
 		char *reversed = strtok_r(NULL, delim, &saveptr1);
 		bool rev;
 		if (strstr(reversed, "true") != NULL){
@@ -1165,7 +1184,7 @@ static void set_win_condition(char *win_condition)
 		} else if (strstr(reversed, "false") != NULL){
 			rev = false;
 		}
-		win1_move_input_to_output(rep, mul, rev);
+		win1_move_input_to_output(rep, mul, sum, rev);
 	} else if (strstr(win_cond, STR_WIN2) != NULL){
 		char *group_size_text = strtok_r(NULL, delim, &saveptr1);
 		int group_size = atoi(group_size_text);
@@ -1300,12 +1319,13 @@ void lv_print_win_list()
  * Arguments:
  *	rep: number of times a element of the IB will be copied to the OB.
  *  mul: multiplication transformation to the output buffer.
+ *	sum: value that will be added to the output
  *  reversed: if the order of the inputs is reversed
  *
  * Return:
  *	Void.
  */
-static void win1_move_input_to_output(int rep, int mul, bool reversed)
+static void win1_move_input_to_output(int rep, int mul, int sum, bool reversed)
 {
 	List *input_list = get_input_list();
 	List *win_list = get_win_list();
@@ -1326,7 +1346,7 @@ static void win1_move_input_to_output(int rep, int mul, bool reversed)
 		value_box_t *new_win; 
 		for (int i = 0; i < rep; i++){
 			new_win = malloc(sizeof(value_box_t));
-			new_win->value = mul*cur_input->value;
+			new_win->value = mul*cur_input->value + sum;
 			new_win->type = cur_input->type;
 			if (reversed == false){
 				List_push(win_list, new_win);
@@ -1529,6 +1549,9 @@ void lv_level_drawings(int level)
 			level_9_tutorial();
 			break;
 
+		case LV_LEVEL_10:
+			level_10_tutorial();
+			break;
 		default:
 			sb_set_step_btns_avail(true);
 		 	im_set_imm_up_avail(true);

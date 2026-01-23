@@ -352,6 +352,7 @@ static void destroy_level(level_flags_t *flags)
 	mc_destroy_avatar_textures();
 	return ;
 }
+
 /* Function: stages_drawings
  * -----------------------------------------------------------------------------
  * Does all the drawings regarding a level
@@ -619,6 +620,7 @@ static code_line_t *pending_operand_handler()
 	bool register_selected = rg_check_mouse_released_in_register();
 	bool buffer_selected = bf_check_released_in_buffer();
 	bool label_selected = cw_check_released_in_label();
+	
 	code_line_t *l = cw_get_code_line_pending_operand();
 	code_line_t *r = NULL;
 

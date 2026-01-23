@@ -1445,9 +1445,10 @@ SDL_Rect dm_get_stage_imm_up()
 {
 	SDL_Rect b;
 	SDL_Rect cb = dm_get_stage_code_box();
+	SDL_Rect vb = dm_get_value_box_wh();
 	b.w = 0;
 	b.h = dm_get_h_stage_elements_titles();
-	b.x = cb.x + cb.w;
+	b.x = cb.x + cb.w + 3*vb.w;
 	b.y = dm_scale_to_resolution(IMM_TXT_UP_Y);
 	return b;
 }

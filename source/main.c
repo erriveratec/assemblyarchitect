@@ -53,7 +53,7 @@ static void initialize_game_assets()
 	bf_init_buffer_assets();
 	mc_init_errors_texture();
 	cw_init_code_window_texture();
-	im_init_imm_texture();
+	im_init_imm_assets();
 }
 
 
