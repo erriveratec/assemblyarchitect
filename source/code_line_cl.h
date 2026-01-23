@@ -59,13 +59,22 @@ enum operands{
 	IB,
 	OB,
 	BUF_MAX,
+	IMM_MIN,
+	IMM0,
+	IMM1,
+	IMM2,
+	IMM3,
+	IMM4,
+	IMM5, 
+	IMM6, 
+	IMM7,
+	IMM8,
+	IMM9,
+	IMM_MAX
 	RGBOX_MIN,
 	IBOX,
 	OBOX,
 	RGBOX_MAX,
-	IMM_MIN,
-	IMM,
-	IMM_MAX
 };
 
 enum line_state{
