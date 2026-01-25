@@ -620,6 +620,8 @@ static code_line_t *pending_operand_handler()
 	bool buf_sel = bf_ms_rel_in_buf();
 	bool label_sel = cw_ms_rel_in_label();
 	bool imm_sel = im_ms_rel_in_upimm();
+	bool click = ms_left_pressed();
+
 	
 	code_line_t *l = cw_get_code_line_pending_operand();
 	code_line_t *r = NULL;
@@ -646,7 +648,10 @@ static code_line_t *pending_operand_handler()
 		if (cl_is_op_compatible(i, l) == true){
 			cw_assign_op_to_line(i, l);
 		}
-	} else if (reg_sel == false && buf_sel == false){
+	} else if (click == true 
+			   && reg_sel == false 
+			   && buf_sel == false
+			   && imm_sel == false){
 		if (l->state == CHANGING_OP1 || l->state == CHANGING_OP2){
 			l->state = COMPLETE;	
 			l->op1->b->animated = false;

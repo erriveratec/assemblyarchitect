@@ -45,6 +45,7 @@ MOV rax, [ib]
 MOV [ob], rax
 MOV rax, [ib]
 MOV [ob], rax
+MOV rax, [ib]
 CODE ENDS
 
 +++LEVEL ENDS 04
@@ -138,6 +139,8 @@ LEVEL ACTIVE TRUE
 
 CODE STARTS
 MOV rax, [ib]
+MOV rax, IMMUP8
+MOV rax, IMMUP8
 CODE ENDS
 
 +++LEVEL ENDS 11
@@ -481,6 +484,7 @@ MOV rax, [ib]
 MOV [ob], rax
 MOV rax, [ib]
 MOV [ob], rax
+MOV rax, [ib]
 CODE ENDS
 
 +++LEVEL ENDS 04
@@ -574,7 +578,8 @@ LEVEL ACTIVE TRUE
 
 CODE STARTS
 MOV rax, [ib]
-MOV rax, INVALID_OP
+MOV rax, IMMUP8
+MOV rax, IMMUP8
 CODE ENDS
 
 +++LEVEL ENDS 11
@@ -918,6 +923,7 @@ MOV rax, [ib]
 MOV [ob], rax
 MOV rax, [ib]
 MOV [ob], rax
+MOV rax, [ib]
 CODE ENDS
 
 +++LEVEL ENDS 04
@@ -1011,7 +1017,8 @@ LEVEL ACTIVE TRUE
 
 CODE STARTS
 MOV rax, [ib]
-MOV rax, INVALID_OP
+MOV rax, IMMUP8
+MOV rax, IMMUP8
 CODE ENDS
 
 +++LEVEL ENDS 11

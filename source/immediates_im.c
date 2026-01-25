@@ -26,6 +26,38 @@ typedef struct imm_t{
 
 imm_t g_up_imm[TOTAL_IMM];
 
+
+/* Function: im_create_imm_op_by_id
+*------------------------------------------------------------------------------
+*  creates an operand of the selected immediate
+*
+* Arguments:
+*	Void.
+*	
+* Return:
+*	The pointer to the created imm operand
+*
+*/
+operand_t *im_create_imm_op_by_id(int op_id)
+{
+	operand_t *o = NULL;
+	for (int i = IMM_MIN; i < IMM_MAX; i++){
+		if (i == op_id){
+	   		char *num = ax_number_to_string((i-(IMM_MIN+1))%10);
+			texture_t *t = dw_create_text_texture(num, C_WHITE);
+			free(num);
+			SDL_Rect cb = dm_get_code_button_wh();
+			SDL_Rect r = {.x = 0, .y = 0, .w = cb.w, .h = cb.h};
+			btn_t *b = bt_create_btn(r, t);
+			o = malloc(sizeof(operand_t));
+			o->b = b;
+			o->id = op_id; 
+		} 
+	}
+			
+   return o;
+}
+
 /* Function: im_create_sel_imm_op
 *------------------------------------------------------------------------------
 *  creates an operand of the selected immediate
@@ -40,8 +72,8 @@ imm_t g_up_imm[TOTAL_IMM];
 operand_t *im_create_sel_imm_op()
 {
 	operand_t *o = NULL;
+	int imm_id = IMMUP0;
 	for (int i = 0; i < TOTAL_IMM; i++){
-
 		if (bt_ms_rel_btn(g_up_imm[i].b) == true){
 	   		char *num = ax_number_to_string(g_up_imm[i].val.value);
 			texture_t *t = dw_create_text_texture(num, C_WHITE);
@@ -50,8 +82,9 @@ operand_t *im_create_sel_imm_op()
 			btn_t *b = bt_create_btn(g_up_imm[i].b->r, t);
 			o = malloc(sizeof(operand_t));
 			o->b = b;
-			o->id = IMM; 
+			o->id = imm_id; 
 		} 
+		imm_id++;
 	}
 			
    return o;

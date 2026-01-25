@@ -60,17 +60,27 @@ enum operands{
 	OB,
 	BUF_MAX,
 	IMM_MIN,
-	IMM0,
-	IMM1,
-	IMM2,
-	IMM3,
-	IMM4,
-	IMM5, 
-	IMM6, 
-	IMM7,
-	IMM8,
-	IMM9,
-	IMM_MAX
+	IMMUP0,
+	IMMUP1,
+	IMMUP2,
+	IMMUP3,
+	IMMUP4,
+	IMMUP5, 
+	IMMUP6, 
+	IMMUP7,
+	IMMUP8,
+	IMMUP9,
+	IMMDO0,
+	IMMDO1,
+	IMMDO2,
+	IMMDO3,
+	IMMDO4,
+	IMMDO5, 
+	IMMDO6, 
+	IMMDO7,
+	IMMDO8,
+	IMMDO9,
+	IMM_MAX,
 	RGBOX_MIN,
 	IBOX,
 	OBOX,
@@ -120,5 +130,6 @@ code_line_t *cl_create_code_line(instruction_t *ins);
 void cl_destroy_operand(operand_t *op);
 bool cl_operands_are_registers(code_line_t *line);
 bool cl_is_op_reg(int op_id);
+bool cl_is_op_imm(int op_id);
 
 #endif

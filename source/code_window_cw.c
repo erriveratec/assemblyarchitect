@@ -9,6 +9,7 @@
 #include "buffers_bf.h"
 #include "registers_rg.h"
 #include "draw_dw.h"
+#include "immediates_im.h"
 
 #define NOT_FOUND -1
 #define CODE_LINES_SIZE 5
@@ -724,6 +725,8 @@ void cw_add_saved_line(char *line)
 			op2 = rg_create_register_operand_by_id(op2_id);
 		} else if (op2_id > BUF_MIN && op2_id < BUF_MAX){
 			op2 = bf_create_buffer_operand_by_id(op2_id);
+		} else if (op2_id > IMM_MIN && op2_id < IMM_MAX){
+			op2 = im_create_imm_op_by_id(op2_id);
 		}
 		cw_assign_op_to_line(op2, new_line);
 	}

@@ -11,6 +11,7 @@ void im_draw_imm();
 void im_init_imm_assets();
 bool im_ms_rel_in_upimm();
 operand_t *im_create_sel_imm_op();
+operand_t *im_create_imm_op_by_id(int op_id);
 
 
 

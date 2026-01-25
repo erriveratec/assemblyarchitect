@@ -21,7 +21,55 @@ char *rdx_text = "rdx";
 char *rdi_text = "rdi";
 char *ib_text = "[ib]";
 char *ob_text = "[ob]";
+char *immup0_text = "IMMUP0";
+char *immup1_text = "IMMUP1";
+char *immup2_text = "IMMUP2";
+char *immup3_text = "IMMUP3";
+char *immup4_text = "IMMUP4";
+char *immup5_text = "IMMUP5";
+char *immup6_text = "IMMUP6";
+char *immup7_text = "IMMUP7";
+char *immup8_text = "IMMUP8";
+char *immup9_text = "IMMUP9";
+char *immdo0_text = "IMMDO0";
+char *immdo1_text = "IMMDO1";
+char *immdo2_text = "IMMDO2";
+char *immdo3_text = "IMMDO3";
+char *immdo4_text = "IMMDO4";
+char *immdo5_text = "IMMDO5";
+char *immdo6_text = "IMMDO6";
+char *immdo7_text = "IMMDO7";
+char *immdo8_text = "IMMDO8";
+char *immdo9_text = "IMMDO9";
 char *invalid_op_text = "INVALID_OP";
+
+/* Function: cl_is_op_imm
+ * -----------------------------------------------------------------------------
+ * Verifies using the id of the operand if corresponds to a register
+ *
+ * Arguments:
+ * 	op_id: Te id of the operand that will be verified
+ *	
+ * Return:
+ *	true if the id of the operand corresponds to a register
+ *
+ */
+bool cl_is_op_imm(int op_id)
+{
+	assert(((op_id > REG_MIN && op_id < REG_MAX) 
+			|| (op_id > MEMORY_MIN && op_id < MEMORY_MAX) 
+			|| (op_id > BUF_MIN && op_id < BUF_MAX) 
+			|| (op_id > RGBOX_MIN && op_id < RGBOX_MAX) 
+			|| (op_id > IMM_MIN && op_id < IMM_MAX))
+			&& "Invalid operand id");
+	
+	bool is_imm = false;	
+	
+	if (op_id > IMM_MIN && op_id < IMM_MAX){
+		is_imm = true;		
+	}
+	return is_imm;
+}
 
 /* Function: cl_is_op_reg
  * -----------------------------------------------------------------------------
@@ -207,7 +255,48 @@ int cl_text_to_operand_id(char *text)
 		operand_id = IB;
 	} else if (strstr(text, ob_text)!= NULL){
 		operand_id = OB;
-	} 
+	} else if (strstr(text, immup0_text)!= NULL){
+		operand_id = IMMUP0;
+	} else if (strstr(text, immup1_text)!= NULL){
+		operand_id = IMMUP1;
+	} else if (strstr(text, immup2_text)!= NULL){
+		operand_id = IMMUP2;
+	} else if (strstr(text, immup3_text)!= NULL){
+		operand_id = IMMUP3;
+	} else if (strstr(text, immup4_text)!= NULL){
+		operand_id = IMMUP4;
+	} else if (strstr(text, immup5_text)!= NULL){
+		operand_id = IMMUP5;
+	} else if (strstr(text, immup6_text)!= NULL){
+		operand_id = IMMUP6;
+	} else if (strstr(text, immup7_text)!= NULL){
+		operand_id = IMMUP7;
+	} else if (strstr(text, immup8_text)!= NULL){
+		operand_id = IMMUP8;
+	} else if (strstr(text, immup9_text)!= NULL){
+		operand_id = IMMUP9;
+	} else if (strstr(text, immdo0_text)!= NULL){
+		operand_id = IMMDO0;
+	} else if (strstr(text, immdo1_text)!= NULL){
+		operand_id = IMMDO1;
+	} else if (strstr(text, immdo2_text)!= NULL){
+		operand_id = IMMDO2;
+	} else if (strstr(text, immdo3_text)!= NULL){
+		operand_id = IMMDO3;
+	} else if (strstr(text, immdo4_text)!= NULL){
+		operand_id = IMMDO4;
+	} else if (strstr(text, immdo5_text)!= NULL){
+		operand_id = IMMDO5;
+	} else if (strstr(text, immdo6_text)!= NULL){
+		operand_id = IMMDO6;
+	} else if (strstr(text, immdo7_text)!= NULL){
+		operand_id = IMMDO7;
+	} else if (strstr(text, immdo8_text)!= NULL){
+		operand_id = IMMDO8;
+	} else if (strstr(text, immdo9_text)!= NULL){
+		operand_id = IMMDO9;
+	}
+
 	assert(operand_id != INVALID_OPERAND && "Operand id is invalid");
 	return operand_id;
 }
@@ -361,6 +450,66 @@ char *get_operand_text(int operand_id)
 			break;
 		case OB:
 			text = ob_text;
+			break;
+		case IMMUP0:
+			text = immup0_text;
+			break;
+		case IMMUP1:
+			text = immup1_text;
+			break;
+		case IMMUP2:
+			text = immup2_text;
+			break;
+		case IMMUP3:
+			text = immup3_text;
+			break;
+		case IMMUP4:
+			text = immup4_text;
+			break;
+		case IMMUP5:
+			text = immup5_text;
+			break;
+		case IMMUP6:
+			text = immup6_text;
+			break;
+		case IMMUP7:
+			text = immup7_text;
+			break;
+		case IMMUP8:
+			text = immup8_text;
+			break;
+		case IMMUP9:
+			text = immup9_text;
+			break;
+		case IMMDO0:
+			text = immdo0_text;
+			break;
+		case IMMDO1:
+			text = immdo1_text;
+			break;
+		case IMMDO2:
+			text = immdo2_text;
+			break;
+		case IMMDO3:
+			text = immdo3_text;
+			break;
+		case IMMDO4:
+			text = immdo4_text;
+			break;
+		case IMMDO5:
+			text = immdo5_text;
+			break;
+		case IMMDO6:
+			text = immdo6_text;
+			break;
+		case IMMDO7:
+			text = immdo7_text;
+			break;
+		case IMMDO8:
+			text = immdo8_text;
+			break;
+		case IMMDO9:
+			text = immdo9_text;
 			break;
 		default:
 			text = invalid_op_text;
@@ -587,6 +736,8 @@ bool cl_is_op_compatible(operand_t *op, code_line_t *line)
 	if (cl_is_op_reg(op->id) == true){
 		return true;
 	}
+
+	bool is_op_imm = cl_is_op_imm(op->id);
 	bool compatible = false;
 
 	switch(line->state){
@@ -600,7 +751,7 @@ bool cl_is_op_compatible(operand_t *op, code_line_t *line)
 		case MISSING_OP1:
 			if (cl_is_op_reg(line->op2->id) == true 
 				&& op->id != IB
-				&& op->id != IMM){
+				&& is_op_imm == false){
 				compatible = true;
 			}
 			break;
@@ -611,7 +762,7 @@ bool cl_is_op_compatible(operand_t *op, code_line_t *line)
 			break;
 		case CHANGING_OP1:
 			if (cl_is_op_reg(line->op2->id) == true && op->id != IB){
-				if (op->id == OB && op->id != IMM && line->ins->id == MOV){
+				if (op->id == OB && is_op_imm == false && line->ins->id == MOV){
 					compatible = true;
 				}
 			}
