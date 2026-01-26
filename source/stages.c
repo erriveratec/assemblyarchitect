@@ -621,7 +621,7 @@ static code_line_t *pending_operand_handler()
 	bool buf_sel = bf_ms_rel_in_buf();
 	bool label_sel = cw_ms_rel_in_label();
 	bool imm_sel = im_ms_rel_in_upimm();
-	bool click = ms_left_pressed();
+	bool rel = ms_left_released();
 
 	
 	code_line_t *l = cw_get_code_line_pending_operand();
@@ -649,7 +649,7 @@ static code_line_t *pending_operand_handler()
 		if (cl_is_op_compatible(i, l) == true){
 			cw_assign_op_to_line(i, l);
 		}
-	} else if (click == true 
+	} else if (rel == true 
 			   && reg_sel == false 
 			   && buf_sel == false
 			   && imm_sel == false){

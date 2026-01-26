@@ -16,8 +16,9 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-MOV rax, [ib]
 MOV [ob], rax
+MOV rax, rax
+MOV rax, rax
 CODE ENDS
 
 +++LEVEL ENDS 02
@@ -46,7 +47,6 @@ MOV rax, [ib]
 MOV [ob], rax
 MOV rax, [ib]
 MOV [ob], rax
-MOV rax, [ib]
 CODE ENDS
 
 +++LEVEL ENDS 04
@@ -87,8 +87,9 @@ LEVEL ACTIVE TRUE
 
 CODE STARTS
 MOV rax, [ib]
-ADD rax, rax
-MOV [ob], rax
+MOV rbx, rax
+ADD rbx, rbx
+MOV [ob], rbx
 CODE ENDS
 
 +++LEVEL ENDS 07
@@ -111,10 +112,8 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-line 01
 MOV rax, [ib]
 MOV [ob], rax
-JMP 00
 CODE ENDS
 
 +++LEVEL ENDS 09
@@ -142,6 +141,7 @@ CODE STARTS
 MOV rax, [ib]
 MOV [ob], rax
 MOV rax, IMMUP0
+MOV rax, [ib]
 CODE ENDS
 
 +++LEVEL ENDS 11
@@ -456,8 +456,9 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-MOV rax, [ib]
 MOV [ob], rax
+MOV rax, rax
+MOV rax, rax
 CODE ENDS
 
 +++LEVEL ENDS 02
@@ -486,7 +487,6 @@ MOV rax, [ib]
 MOV [ob], rax
 MOV rax, [ib]
 MOV [ob], rax
-MOV rax, [ib]
 CODE ENDS
 
 +++LEVEL ENDS 04
@@ -527,8 +527,9 @@ LEVEL ACTIVE TRUE
 
 CODE STARTS
 MOV rax, [ib]
-ADD rax, rax
-MOV [ob], rax
+MOV rbx, rax
+ADD rbx, rbx
+MOV [ob], rbx
 CODE ENDS
 
 +++LEVEL ENDS 07
@@ -551,10 +552,8 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-line 01
 MOV rax, [ib]
 MOV [ob], rax
-JMP 00
 CODE ENDS
 
 +++LEVEL ENDS 09
@@ -582,6 +581,7 @@ CODE STARTS
 MOV rax, [ib]
 MOV [ob], rax
 MOV rax, IMMUP0
+MOV rax, [ib]
 CODE ENDS
 
 +++LEVEL ENDS 11
@@ -896,8 +896,9 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-MOV rax, [ib]
 MOV [ob], rax
+MOV rax, rax
+MOV rax, rax
 CODE ENDS
 
 +++LEVEL ENDS 02
@@ -926,7 +927,6 @@ MOV rax, [ib]
 MOV [ob], rax
 MOV rax, [ib]
 MOV [ob], rax
-MOV rax, [ib]
 CODE ENDS
 
 +++LEVEL ENDS 04
@@ -967,8 +967,9 @@ LEVEL ACTIVE TRUE
 
 CODE STARTS
 MOV rax, [ib]
-ADD rax, rax
-MOV [ob], rax
+MOV rbx, rax
+ADD rbx, rbx
+MOV [ob], rbx
 CODE ENDS
 
 +++LEVEL ENDS 07
@@ -991,10 +992,8 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-line 01
 MOV rax, [ib]
 MOV [ob], rax
-JMP 00
 CODE ENDS
 
 +++LEVEL ENDS 09
@@ -1022,6 +1021,7 @@ CODE STARTS
 MOV rax, [ib]
 MOV [ob], rax
 MOV rax, IMMUP0
+MOV rax, [ib]
 CODE ENDS
 
 +++LEVEL ENDS 11

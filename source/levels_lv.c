@@ -14,6 +14,7 @@
 #include "text_tx.h"
 #include "arrow_ar.h"
 #include "immediates_im.h"
+#include "file_fl.h"
 
 //Strings for the win condition
 #define STR_WIN1 "WIN1"
@@ -349,13 +350,22 @@ static void set_del_enabled(bool state)
  */
 void lv_init_stage_code(int level_id)
 {
-	char i1[] = "MOV [ob], rax";
-	char i2[] = "MOV rax, rax";
-	char i3[] = "MOV rax, rax";
-	if (level_id == 2){
-		cw_add_saved_line(i1);
-		cw_add_saved_line(i2);
-		cw_add_saved_line(i3);
+	assert(level_id < LV_LEVEL_MAX 
+		   && level_id > LV_LEVEL_MIN 
+		   && "Invalid level value");
+
+	if (level_id == LV_LEVEL_2){
+			char i1[] = FL_L2_CODE_1;
+			char i2[] = FL_L2_CODE_2;
+			char i3[] = FL_L2_CODE_3;
+			cw_add_saved_line(i1);
+			cw_add_saved_line(i2);
+			cw_add_saved_line(i3);
+	} else if (level_id == LV_LEVEL_9){
+			char i1[] = FL_L9_CODE_1;
+			char i2[] = FL_L9_CODE_2;
+			cw_add_saved_line(i1);
+			cw_add_saved_line(i2);
 	}
 }
 
@@ -876,7 +886,7 @@ static void level_2_tutorial()
 		ar_display_arrow(AR_CODE);
 	} else if (press_play == true && play == false){
 		set_code_editable(false, NO_EXCEPTION);
-		tx_text_box(TX_STAGEBUTTON_BOX, MSG8); //Press play
+		tx_text_box(TX_CODE_BOX, MSG8); //Press play
 		ar_display_arrow(AR_PLAY);
 	}
 }
