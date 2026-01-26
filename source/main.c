@@ -59,7 +59,8 @@ static void initialize_game_assets()
 
 int main(int argc, char *args[])
 {
-	dm_set_screen_resolution(R1600X900);
+	dm_set_screen_resolution(R1920X1080);
+	//dm_set_screen_resolution(R1600X900);
 	int screen_width = dm_get_screen_width();
 	int screen_height = dm_get_screen_height();
 

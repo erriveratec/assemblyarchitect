@@ -904,6 +904,7 @@ static void level_1_tutorial()
 	bool sorted = cw_check_code_sorted();
 	bool miss_op = cw_is_operand_pending();
 	bool miss_op1 = cw_check_code_pending_op1();
+	bool win = lv_check_if_win();
 
 	if (g_lv_msg[MSG1] == true && size == 0){
 		tx_text_box(TX_BIG_BOX, MSG1); //Welcome message
@@ -952,15 +953,15 @@ static void level_1_tutorial()
 		ar_display_arrow(AR_IB);
 	} else if(size == 1 && miss_op == false && g_lv_msg[MSG10] == true){
 		set_code_editable(false, INS_EXCEPTION);
-		tx_text_box(TX_STAGEBUTTON_BOX, MSG10);// Press play button
+		tx_text_box(TX_CODE_BOX, MSG10);// Press play button
 		ar_display_arrow(AR_PLAY);
 		set_arrange_enabled(false);
 		if (play == true){
 			g_lv_msg[MSG10] = false;
 		}
 	} else if (flag != 0){
-		tx_text_box(TX_LOWER_BOX, MSG11); //ERROR
-		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_PRESSBACK);
+		tx_text_box(TX_CENTER_BOX, MSG11); //ERROR
+		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_PRESSBACK);
 		ar_display_arrow(AR_ERROR);
 	} else if(size == 1 && hold == false && play == false 
 												   && g_lv_msg[MSG10] == false){
@@ -980,12 +981,12 @@ static void level_1_tutorial()
 		set_reg_selectable(true);
 		tx_text_box(TX_CODE_BOX, MSG15); //Select rax
 		draw_regs_arrow(true);
-	} else if(size == 2 && miss_op == false && play == false){
+	} else if(size == 2 && miss_op == false && play == false && win == false){
 		set_code_editable(false, NO_EXCEPTION);
-		tx_text_box(TX_STAGEBUTTON_BOX, MSG16);	//Press play
+		tx_text_box(TX_CODE_BOX, MSG16);	//Press play
 		ar_display_arrow(AR_PLAY);
 	} else if (lv_check_if_win() == true){
-		tx_text_box(TX_LOWER_BOX, MSG17);//Congrats 
+		tx_text_box(TX_CENTER_BOX, MSG17);//Congrats 
 	}
 }
 

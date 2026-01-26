@@ -7,8 +7,6 @@
 #define ESC_MENU_BOX_W 600
 #define ESC_MENU_BOX_H 320
 
-#define RES_BOX_X 120
-#define RES_BOX_Y 565
 #define RES_BOX_W 450
 #define RES_BOX_H 270
 #define RES_BOX_OFFSET 35
@@ -38,11 +36,10 @@
 #define TEXT_H_TOTAL_MSG 160
 #define TEXT_H_STAGE_ELEMENTS_TITLES 25
 #define TEXT_H_STAGE_TITLES 70
-#define TEXT_H_LINE_NUMBER 40
+#define TEXT_H_CODE 40
 
 #define STAGE_BUTTON_W 60
 #define STAGE_BUTTON_H 60
-//#define STAGE_BUTTON_X 650
 #define STAGE_BUTTON_Y 820
 
 #define P_BUTTON_H 200
@@ -113,7 +110,6 @@
 #define INS_BOX_Y 225
 
 #define CODE_BOX_W 350
-#define CODE_BOX_H 725
 #define CODE_BOX_Y 50
 
 #define REG_BOX_W 250
@@ -128,12 +124,16 @@
 
 #define MISS_OP_W 3
 
+#define BUF_X 1450
+#define BUF_H 75
+#define BUF_W 1000
+
+
+
 
 int g_res_id;
 int g_screen_width;
 int g_screen_height;
-
-
 
 /* Function: dm_get_w_miss_op
  * -----------------------------------------------------------------------------
@@ -798,8 +798,9 @@ SDL_Rect dm_get_text_box_result()
 	SDL_Rect b;
 	b.w = dm_scale_to_resolution(RES_BOX_W);
 	b.h = dm_scale_to_resolution(RES_BOX_H);
-	b.x = dm_scale_to_resolution(RES_BOX_X);;
-	b.y = dm_scale_to_resolution(RES_BOX_Y);
+	b.x = dm_get_screen_width()/2 - b.w/2;
+	b.y = dm_get_screen_height() - b.h -
+		  dm_scale_to_resolution(IFACE_FILLED_OFS);
 	return b;
 }
 
@@ -864,8 +865,9 @@ SDL_Rect dm_get_text_box_lower()
 	SDL_Rect b;
 	b.w = mb.w;
 	b.h = mb.h;
-	b.x = dm_scale_to_resolution(TEXT_BOX_LOWER_X);
-	b.y = dm_scale_to_resolution(TEXT_BOX_LOWER_Y);
+	b.x = dm_get_screen_width()/2 - mb.w/2;
+	b.y = dm_get_screen_height() - mb.h - 
+		  dm_scale_to_resolution(IFACE_FILLED_OFS);
 	return b;
 }
 
@@ -929,7 +931,7 @@ SDL_Rect dm_get_text_box_code()
 	b.w = mb.w;
 	b.h = mb.h;
 	b.x = cb.x + (cb.w - mb.w)/2;
-	b.y = cb.y + cb.h - mb.h/2;
+	b.y = cb.y + cb.h - mb.h - 2*dm_get_w_borders();
 	return b;
 }
 /* Function: dm_get_text_box_ins
@@ -951,7 +953,7 @@ SDL_Rect dm_get_text_box_ins()
 	b.w = mb.w;
 	b.h = mb.h;
 	b.x = ib.x;
-	b.y = ib.y + ib.h;
+	b.y = ib.y + ib.h + dm_get_w_borders();
 	return b;
 }
 
@@ -971,10 +973,11 @@ SDL_Rect dm_get_text_box_center()
 {
 	SDL_Rect mb = dm_get_box_msg_wh();	
 	SDL_Rect ib = dm_get_stage_input_buffer_box();	
+	int width = dm_get_screen_width();
 	SDL_Rect b;
 	b.w = mb.w;
 	b.h = mb.h;
-	b.x = ib.x - mb.w/2;
+	b.x = width/2 - mb.w/2;
 	b.y = g_screen_height/2 - mb.h/2;
 	return b;
 }
@@ -996,7 +999,7 @@ SDL_Rect dm_get_text_box_upper()
 	b.w = mb.w;
 	b.h = mb.h;
 	b.x = g_screen_width/2 - mb.w/2;
-	b.y = dm_scale_to_resolution(TEXT_H_STAGE_ELEMENTS_TITLES);
+	b.y = dm_scale_to_resolution(IFACE_FILLED_OFS);
 	return b;
 }
 
@@ -1016,7 +1019,7 @@ SDL_Rect dm_get_stage_ib_text_box()
 	SDL_Rect ib = dm_get_stage_input_buffer_box();
 	SDL_Rect b;
 	b.w = 0;
-	b.h = g_screen_height/20;
+	b.h = dm_get_h_code_text();
 	b.x = ib.x;
 	b.y = 0;
 	return b;
@@ -1037,7 +1040,7 @@ SDL_Rect dm_get_stage_ob_text_box()
 	SDL_Rect ob = dm_get_stage_output_buffer_box();
 	SDL_Rect b;
 	b.w = 0;
-	b.h = g_screen_height/20;
+	b.h = dm_get_h_code_text();
 	b.x = ob.x;
 	b.y = g_screen_height - b.h;
 	return b;
@@ -1056,10 +1059,11 @@ SDL_Rect dm_get_stage_ob_text_box()
 SDL_Rect dm_get_stage_input_buffer_box()
 {
 	SDL_Rect b;
-	b.w = g_screen_width*3/5;
-	b.h = g_screen_height/12;
-	b.x = g_screen_width*4/6;
-	b.y = g_screen_height/20;
+	b.w = dm_scale_to_resolution(BUF_W);
+	b.h = dm_scale_to_resolution(BUF_H);
+	b.x = dm_scale_to_resolution(BUF_X);
+	b.y = dm_get_h_code_text();
+
 	return b;
 }
 
@@ -1077,9 +1081,9 @@ SDL_Rect dm_get_stage_output_buffer_box()
 {
 	SDL_Rect ib = dm_get_stage_ib_text_box();
 	SDL_Rect b;
-	b.w = g_screen_width*3/5;
-	b.h = g_screen_height/12;
-	b.x = g_screen_width*4/6;
+	b.w = dm_scale_to_resolution(BUF_W);
+	b.h = dm_scale_to_resolution(BUF_H);
+	b.x = dm_scale_to_resolution(BUF_X);
 	b.y = g_screen_height - ib.h - b.h;
 	return b;
 }
@@ -1118,12 +1122,13 @@ SDL_Rect dm_get_stage_instruction_box()
 SDL_Rect dm_get_stage_code_box()
 {
 	SDL_Rect ib = dm_get_stage_instruction_box();
+	SDL_Rect sb = dm_get_stage_btns();
 	SDL_Rect b;
-
-	b.w = dm_scale_to_resolution(CODE_BOX_W);
-	b.h = dm_scale_to_resolution(CODE_BOX_H);
+	
 	b.x = ib.x + ib.w;
 	b.y = dm_scale_to_resolution(CODE_BOX_Y);
+	b.w = dm_scale_to_resolution(CODE_BOX_W);
+	b.h = sb.y - 2*b.y;
 	return b;
 }
 
@@ -1208,8 +1213,7 @@ SDL_Rect dm_get_return_button_box()
 	b.w = dm_scale_to_resolution(RET_BUTTON_W);
 	b.h = dm_scale_to_resolution(RET_BUTTON_H);
 	b.x = SCREEN_BORDERS_OFS;
-	b.y = g_screen_height - b.h - SCREEN_BORDERS_OFS - 
-		  dm_get_ofs_button_shadow();
+	b.y = g_screen_height - b.h - 2*dm_get_ofs_button_shadow();
 	return b;
 }
 
@@ -1230,7 +1234,7 @@ SDL_Rect dm_get_rst_btn_box()
 	b.w = dm_scale_to_resolution(RST_BTN_W);
 	b.h = dm_scale_to_resolution(RST_BTN_H);
 	b.x = ret_box.x;
-	b.y = ret_box.y - b.w;	
+	b.y = ret_box.y - b.h - 2*dm_get_ofs_button_shadow();	
 	return b;
 }
 
@@ -1311,9 +1315,9 @@ int dm_get_h_msg()
  * Return:
  *	int with the height for the line number
  */
-int dm_get_h_line_number()
+int dm_get_h_code_text()
 {
-	int h = dm_scale_to_resolution(TEXT_H_LINE_NUMBER);
+	int h = dm_scale_to_resolution(TEXT_H_CODE);
 	return h;
 }
 /* Function: dm_get_big_msg_h
@@ -1424,10 +1428,12 @@ SDL_Rect dm_get_stage_btns()
 {
 	SDL_Rect b;
 	SDL_Rect ib = dm_get_stage_instruction_box();
+	int sh = dm_get_screen_height();
+	int shadow = dm_get_ofs_button_shadow();
 	b.w = dm_scale_to_resolution(STAGE_BUTTON_W);
 	b.h = dm_scale_to_resolution(STAGE_BUTTON_H);
 	b.x = ib.x + ib.w;
-	b.y = dm_scale_to_resolution(STAGE_BUTTON_Y);
+	b.y = sh - b.h - 2*shadow;
 	return b;
 }
 
@@ -1778,6 +1784,11 @@ SDL_Rect dm_get_game_title_box()
 void dm_set_screen_resolution(int resolution_id)
 {
 	switch(resolution_id){
+		case R1920X1080:
+			g_screen_width = 1920;
+			g_screen_height = 1080;
+			g_res_id = R1920X1080;
+			break;
 		case R1600X900:
 			g_screen_width = 1600;
 			g_screen_height = 900;
@@ -1807,6 +1818,10 @@ int dm_scale_to_resolution(int dim)
 	int scaled_dim;
 
 	switch(g_res_id){
+		case R1920X1080:
+			scaled_dim = dim*1;
+			break;
+
 		case R1600X900:
 			scaled_dim = dim*1;
 			break;

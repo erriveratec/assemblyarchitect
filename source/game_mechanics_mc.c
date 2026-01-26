@@ -33,6 +33,7 @@ texture_array_t *ob_incomplete;
 
 static bool run_ended;
 static bool step_ended;
+static bool rst_lvl = false;
 
 enum avatar_id{
 	NOAVATAR,
@@ -90,6 +91,36 @@ static void draw_iavatar();
 static void draw_oavatar();
 static void draw_ravatar();
 
+/* Function: mc_set_rst_lvl
+ *------------------------------------------------------------------------------
+ * Sets the variable to reset the level
+ *
+ * Arguments:
+ *	state: The state to which the variable will be set.
+ *
+ * Return:
+ *	Void.
+ */
+void mc_set_rst_lvl(bool state)
+{
+	rst_lvl = state;
+}
+
+/* Function: mc_get_rst_lvl
+ *------------------------------------------------------------------------------
+ * Sets the variable to reset the level
+ *
+ * Arguments:
+ *	state: The state to which the variable will be set.
+ *
+ * Return:
+ *	Void.
+ */
+bool mc_get_rst_lvl()
+{
+	return rst_lvl;
+}
+
 /* Function: mc_init_errors_texture
  *------------------------------------------------------------------------------
  * Creates the instructions texture of the instruction box
@@ -105,18 +136,30 @@ void mc_init_errors_texture()
 	int text_h = dm_get_h_error_msg();		
 	SDL_Rect rb = dm_get_text_box_result_text();
 
-	ib_empty = dw_new_text_texture_by_h(rb.w, text_h, C_BLACK, 
-													   INPUT_BUFFER_EMPTY_TEXT);
-	reg_val_bad = dw_new_text_texture_by_h(rb.w, text_h, C_BLACK, 
-														REG_VALUE_INVALID_TEXT);
-	ob_val_bad = dw_new_text_texture_by_h(rb.w, text_h, C_BLACK, 
-													 INVALID_OUTPUT_VALUE_TEXT);
-	ib_unproc_vals = dw_new_text_texture_by_h(rb.w, text_h, C_BLACK, 
-													UNPROCESSED_IB_VALUES_TEXT);
-	exc_code_size = dw_new_text_texture_by_h(rb.w, text_h, C_BLACK, 
-													   EXCEEDS_CODE_LIMIT_TEXT);
-	ob_incomplete = dw_new_text_texture_by_h(rb.w, text_h, C_BLACK, 
-												 OUTPUT_BUFFER_INCOMPLETE_TEXT);
+	ib_empty = dw_new_text_texture_by_h(rb.w, 
+										text_h, 
+										C_BLACK, 
+										INPUT_BUFFER_EMPTY_TEXT);
+	reg_val_bad = dw_new_text_texture_by_h(rb.w, 
+										   text_h, 
+										   C_BLACK, 
+											REG_VALUE_INVALID_TEXT);
+	ob_val_bad = dw_new_text_texture_by_h(rb.w, 
+										  text_h, 
+										  C_BLACK, 
+										  INVALID_OUTPUT_VALUE_TEXT);
+	ib_unproc_vals = dw_new_text_texture_by_h(rb.w, 
+											  text_h,
+											  C_BLACK, 
+											  UNPROCESSED_IB_VALUES_TEXT);
+	exc_code_size = dw_new_text_texture_by_h(rb.w, 
+											 text_h, 
+											 C_BLACK, 
+											 EXCEEDS_CODE_LIMIT_TEXT);
+	ob_incomplete = dw_new_text_texture_by_h(rb.w, 
+											 text_h, 
+											 C_BLACK, 
+										     OUTPUT_BUFFER_INCOMPLETE_TEXT);
 }
 
 /* Function: mc_reset_invalid_operation_flag
@@ -162,69 +205,73 @@ int mc_get_operation_flag()
  * Return:
  *	void.
  */
-bool mc_invalid_operation_handler(int id)
+void mc_display_invalid_operation_handler(int id)
 {
 	assert(id >= NO_INVALID_OPERATION && id < INVALID_OPERATION_MAX &&
 		   "Incorrect id for the invalid operation handler");
 
-	bool reset_level = false;
-	SDL_Rect r = dm_get_text_box_result();
-	dw_draw_iface_box(r);
-	texture_array_t *message;
 	
-	switch(id){
-		case INPUT_BUFFER_EMPTY:
-			message = ib_empty;
-			break;
-		case REG_VALUE_INVALID:
-			message = reg_val_bad;
-			break;
-		case INVALID_OUTPUT_VALUE:
-			message = ob_val_bad;
-			break;
-		case UNPROCESSED_IB_VALUES:
-			message = ib_unproc_vals;
-			break;
-		case EXCEEDS_CODE_LIMIT:
-			message = exc_code_size;
-			break;
-		case OUTPUT_BUFFER_INCOMPLETE:
-			message = ob_incomplete;
-			break;
-		default: 
-			puts("ERROR: Invalid operation incorrec id");
-	}
-	
-	SDL_Rect b = dm_get_text_box_result_text();
-	int text_h = dm_get_h_error_msg();		
-	dw_draw_wrapped_texture_by_h(b, text_h, message);
-	
-	static bool button_created = false;
-	static iface_btn_t *ret;
-	bool button_pressed = false;
-
-	if (button_created == false){
-		button_created = true;
-		texture_t *ret_texture = dw_create_text_texture(STR_BACK, C_WHITE);
-		check_mem(ret_texture);
+	if (id != NO_INVALID_OPERATION){
+		SDL_Rect r = dm_get_text_box_result();
+		dw_draw_iface_box(r);
+		texture_array_t *message;
 		
-		SDL_Rect r = dm_get_text_box_result_but3();		
-		ret = bt_create_iface_btn(r, ret_texture, true);
-		check_mem(ret);
-	} 
-	bt_draw_iface_btn(ret);
-
-		if (bt_chk_mouse_rel_iface_btn(ret) == true){
-			reset_level = true;
-			button_pressed = true;
-		} 
-		if (button_pressed == true){
-			bt_destroy_iface_btn(ret);
-			button_created = false;
+		switch(id){
+			case INPUT_BUFFER_EMPTY:
+				message = ib_empty;
+				break;
+			case REG_VALUE_INVALID:
+				message = reg_val_bad;
+				break;
+			case INVALID_OUTPUT_VALUE:
+				message = ob_val_bad;
+				break;
+			case UNPROCESSED_IB_VALUES:
+				message = ib_unproc_vals;
+				break;
+			case EXCEEDS_CODE_LIMIT:
+				message = exc_code_size;
+				break;
+			case OUTPUT_BUFFER_INCOMPLETE:
+				message = ob_incomplete;
+				break;
+			default: 
+				puts("ERROR: Invalid operation incorrec id");
 		}
+		
+		SDL_Rect b = dm_get_text_box_result_text();
+		int text_h = dm_get_h_error_msg();		
+		dw_draw_wrapped_texture_by_h(b, text_h, message);
+		
+		static bool button_created = false;
+		static iface_btn_t *ret;
+		bool button_pressed = false;
 
+		if (button_created == false){
+			button_created = true;
+			texture_t *ret_texture = dw_create_text_texture(STR_BACK, C_WHITE);
+			check_mem(ret_texture);
+			
+			SDL_Rect r = dm_get_text_box_result_but3();		
+			ret = bt_create_iface_btn(r, ret_texture, true);
+			check_mem(ret);
+		} 
+		bt_draw_iface_btn(ret);
+
+			if (bt_chk_mouse_rel_iface_btn(ret) == true){
+				mc_set_rst_lvl(true);
+				button_pressed = true;
+			} 
+			if (button_pressed == true){
+				bt_destroy_iface_btn(ret);
+				button_created = false;
+			}
+
+	} else {
+		mc_set_rst_lvl(false);
+	}
 	error:
-	return reset_level;
+	return;
 }
 
 

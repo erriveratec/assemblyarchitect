@@ -5,7 +5,8 @@
 #include<stdlib.h>
 #include <SDL.h>
 
-enum resolutionos{
+enum resolutions{
+	R1920X1080,
 	R1600X900	
 };
 
@@ -20,7 +21,7 @@ int dm_get_w_msg(SDL_Rect r);
 int dm_get_h_error_msg();
 int dm_get_h_stage_elements_titles();
 int dm_get_h_stage_titles();
-int dm_get_h_line_number();
+int dm_get_h_code_text();
 int dm_get_w_code_box_text();
 int dm_get_w_button_padding();
 int dm_get_h_button_padding();

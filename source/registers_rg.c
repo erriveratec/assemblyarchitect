@@ -12,7 +12,6 @@
 #include "dimensions_dm.h"
 
 #define DEFAULT_OPERAND RAX
-#define REG_TEXT "Registers"
 
 static List *register_list = NULL;
 static SDL_Rect register_box;
@@ -42,7 +41,7 @@ texture_t *g_reg_text = NULL;
  */
 void rg_init_reg_texture()
 {
-	g_reg_text = dw_create_text_texture(REG_TEXT, C_AMBER);
+	g_reg_text = dw_create_text_texture(AX_REG_TEXT, C_AMBER);
 }
 
 /* Function: rg_reset_ibox
@@ -528,7 +527,7 @@ operand_t *rg_create_register_operand_by_id(int id)
 	
 	SDL_Rect cb = dm_get_code_button_wh();
 	int text_h = dm_get_h_stage_elements_titles();
-	int register_text_w = get_text_width_fits_height(text_h, REG_TEXT);
+	int register_text_w = get_text_width_fits_height(text_h, AX_REG_TEXT);
 	int x = 0;
 	int y = 0;
 	SDL_Rect r = {.x = x, .y = y, .w = cb.w, .h = cb.h};
@@ -578,7 +577,7 @@ void rg_add_register_to_list(int id)
 	check_mem(reg_text);
 
 	int text_h = dm_get_h_stage_elements_titles();
-	int register_text_w = get_text_width_fits_height(text_h, REG_TEXT);
+	int register_text_w = get_text_width_fits_height(text_h, AX_REG_TEXT);
 	int x = register_box.x + ofs;
 
 	int y = register_box.y + ofs + list_size*2*(cb.h + 5) +
@@ -641,7 +640,7 @@ void rg_draw_registers()
 int rg_get_registers_text_width(int h)
 {
 	assert(h > 0 && "Height value must be greater than zero.");
-	int width = get_text_width_fits_height(h, REG_TEXT);
+	int width = get_text_width_fits_height(h, AX_REG_TEXT);
 	
 	return width;
 }
@@ -706,7 +705,7 @@ static void draw_register_box()
 static void draw_register_text()
 {
 	int text_h = dm_get_h_stage_elements_titles();
-	int text_w = get_text_width_fits_height(text_h, REG_TEXT);
+	int text_w = get_text_width_fits_height(text_h, AX_REG_TEXT);
 	int x = register_box.x;
 	int y = register_box.y - text_h;
 

@@ -54,7 +54,7 @@ static void display_arrow_registers();
  *	
  * Return:
  *	Void.
- */
+ *
 static void display_arrow_registers()
 {
 	List *registers = rg_get_register_list();
@@ -70,7 +70,7 @@ static void display_arrow_registers()
 	}
 	g_arrow_regs.travel = g_arrow_regs.box.w;
 	ar_animate_arrow(&g_arrow_regs);
-}
+}*/
 
 /* Function: ar_move_execution_arrow
  * -----------------------------------------------------------------------------
@@ -186,16 +186,18 @@ void ar_hide_execution_arrow()
 static void initialize_regs_arrow()
 {
 	List *registers = rg_get_register_list();
-	reg_t *c = registers->first->value;
 	SDL_Rect rb = rg_get_register_box();
 	SDL_Rect a = dm_get_arrow_wh();
+	int text_h = dm_get_h_stage_elements_titles();
+	int text_w = get_text_width_fits_height(text_h, AX_REG_TEXT);
 	
-	g_arrow_regs.box.x = c->b->r.x + c->b->r.w + a.w;
+	g_arrow_regs.box.x = rb.x + text_w/2 - a.w/2;
+	g_arrow_regs.box.y = rb.y - 2*text_h - a.h;
 	g_arrow_regs.box.w = a.w;
 	g_arrow_regs.box.h = a.h;
 	g_arrow_regs.travel = a.w;
-	g_arrow_regs.startx = g_arrow_regs.box.x;
-	g_arrow_regs.dir = AR_LEFT;
+	g_arrow_regs.starty = g_arrow_regs.box.y;
+	g_arrow_regs.dir = AR_DOWN;
 	g_arrow_regs.in_place = false;
 	g_arrow_regs.texture = g_reg_arrow;
 	g_arrow_regs.visible =  true;
@@ -450,19 +452,19 @@ static void initialize_op2_arrow()
 static void initialize_error_arrow()
 {
 	SDL_Rect a = dm_get_arrow_wh();
-	SDL_Rect rb = dm_get_text_box_result();
+	SDL_Rect rb = dm_get_text_box_result_but3();		
 	SDL_Rect eb = dm_get_text_box_error();
 	SDL_Rect back_but =  dm_get_text_box_result_but1();
-	g_arrow_error.box.x = rb.x + rb.w/2 - a.w/2;
-	g_arrow_error.box.y = eb.y - a.h;
+	g_arrow_error.box.x = rb.x - a.w;
+	g_arrow_error.box.y = rb.y + rb.h/2 - a.h/2;
 	g_arrow_error.box.w = a.w;
 	g_arrow_error.box.h = a.h;
 	g_arrow_error.in_place = false;
 	g_arrow_error.visible = true;
 	g_arrow_error.startx = rb.x + rb.w/2 - back_but.w/2 - 2*a.w;			
-	g_arrow_error.starty = eb.y - a.h;
+	g_arrow_error.starty = g_arrow_error.box.y;
 	g_arrow_error.travel = a.h;
-	g_arrow_error.dir = AR_UP;
+	g_arrow_error.dir = AR_RIGHT;
 	g_arrow_error.texture = g_lv_arrow;
 }
 
@@ -697,12 +699,11 @@ void ar_display_arrow(int arrow_id)
 			break;
 		case AR_REG:
 			aptr = &g_arrow_regs;
-			display_arrow_registers();
 			break;
 		default:
 			break;
 	}
-	if (aptr->visible == true && arrow_id != AR_REG){
+	if (aptr->visible == true){
 		ar_animate_arrow(aptr);
 	}
 }

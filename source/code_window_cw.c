@@ -1268,7 +1268,7 @@ int cw_get_code_line_x(int instruction_id)
 	int x;  
 	int number_ofs = dm_get_w_border_padding();
 	SDL_Rect sb = dm_get_stage_code_box();
-	int number_h = dm_get_h_line_number();
+	int number_h = dm_get_h_code_text();
 	int number_w = ax_get_texture_w_fit_h(number_h, g_numbers[0]);
 	if (instruction_id == LABEL){
 		x = sb.x;
@@ -1524,7 +1524,7 @@ void display_line_number()
 	SDL_Rect sb = dm_get_stage_code_box();
 	int x = sb.x + number_ofs;
 	int y = cw_get_code_line_y(0);
-	int h = dm_get_h_line_number();
+	int h = dm_get_h_code_text();
 	char *number = NULL;
 	
 	int line_number = 1;
