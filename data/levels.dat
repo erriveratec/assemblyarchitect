@@ -13,9 +13,6 @@ InstructionsEnd
 
 RegistersBegin
 rax
-rbx
-rcx
-rdx
 RegistersEnd
 
 InstructionLimit 99

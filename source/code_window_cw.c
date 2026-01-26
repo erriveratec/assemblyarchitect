@@ -1305,7 +1305,7 @@ static void code_box_height_adjust()
 		int new_bottom_border = codbox.y + ogcodbox.h + increase_size;
 		int cur_bottom_border = codbox.h + codbox.y;
 		int mdelta = ax_get_cw_move_delta();
-		int delta = get_movement_delta(cur_bottom_border, 
+		int delta = ax_get_movement_delta(cur_bottom_border, 
 									   new_bottom_border, 
 									   mdelta);
 		
@@ -1351,7 +1351,7 @@ static void adjust_code_box_position()
 	}
 
 	int mdelta = ax_get_cw_move_delta();
-	int delta = get_movement_delta(0, y_pending_scroll, mdelta);	
+	int delta = ax_get_movement_delta(0, y_pending_scroll, mdelta);	
 
 	if (0 != y_pending_scroll){
 		SDL_Rect tb = cw_get_text_box_rect();
@@ -1657,14 +1657,14 @@ void cw_sort_code()
 
 		code_line_t *line = cur->value;
 		int x = cw_get_code_line_x(line->ins->id);
-		int delta = get_movement_delta(line->ins->b->r.x, x, mdelta);	
+		int delta = ax_get_movement_delta(line->ins->b->r.x, x, mdelta);	
 		
 		if (line->ins->b->r.x < x){
 			line->ins->b->r.x += delta;
 		} else if (line->ins->b->r.x > x){
 			line->ins->b->r.x -= delta;
 		}
-		delta = get_movement_delta(line->ins->b->r.y, y, mdelta);	
+		delta = ax_get_movement_delta(line->ins->b->r.y, y, mdelta);	
 		
 		if (line->ins->b->r.y < y){
 			line->ins->b->r.y += delta;

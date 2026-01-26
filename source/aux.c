@@ -353,7 +353,63 @@ float get_scale_fit_width(int w, texture_t *texture)
 	return scale_w;
 }
 
-/* Function: get_movement_delta
+
+/* Function: ax_get_x_delta_div
+ * ----------------------------------------------------------------------------
+ * Delta will be calculated according to the proportions of the x and y 
+ * of the final values
+ *
+ * Arguments:
+ *	x1: origin
+ *	x2: destiny
+ * 	y1: origin
+ *	y2: destiny
+ *
+ * Return:
+ * 	The delta movement according to distance.
+ */
+int ax_get_x_delta_div(int x1, int x2, int y1, int y2)
+{
+	int x_dis = abs(x1 - x2);
+	int y_dis = abs(y1 - y2);
+	float prop;	
+	
+	if (x_dis > y_dis){
+	 	prop = 1;
+	} else {
+		prop = (float) y_dis/(float) x_dis;
+	}
+	return prop;
+}
+
+/* Function: ax_get_y_delta_div
+ * ----------------------------------------------------------------------------
+ * Delta will be calculated according to the proportions of the x and y 
+ * of the final values
+ *
+ * Arguments:
+ *	x1: origin
+ *	x2: destiny
+ * 	y1: origin
+ *	y2: destiny
+ *
+ * Return:
+ * 	The delta movement according to distance.
+ */
+int ax_get_y_delta_div(int x1, int x2, int y1, int y2)
+{
+	int x_dis = abs(x1 - x2);
+	int y_dis = abs(y1 - y2);
+	float prop;	
+	
+	if (y_dis > x_dis){
+	 	prop = 1;
+	} else {
+		prop = (float) x_dis/(float) y_dis;
+	}
+	return prop;
+}
+/* Function: ax_get_movement_delta
  * ----------------------------------------------------------------------------
  * This function receives two values and returns a movement delta, according
  * to the distance of the two values, higher the distance, higher de movement
@@ -367,7 +423,7 @@ float get_scale_fit_width(int w, texture_t *texture)
  * Return:
  * 	The delta movement according to distance.
  */
-int get_movement_delta(int v1, int v2, int max_delta)
+int ax_get_movement_delta(int v1, int v2, int max_delta)
 {
 	int distance = abs(v1 - v2);
 	float half_delta = (float)max_delta/2;

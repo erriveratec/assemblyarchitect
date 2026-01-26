@@ -569,7 +569,7 @@ void draw_output_buffer()
 			draw_x -= val.w + ofsval;
 		}
 		if (g_output_list_x_pos < x){
-			g_output_list_x_pos += get_movement_delta(x, g_output_list_x_pos, 
+			g_output_list_x_pos += ax_get_movement_delta(x, g_output_list_x_pos, 
 								   						BUFFER_MOVEMENT_DELTA);
 		}
 	}
@@ -643,7 +643,7 @@ void draw_input_buffer()
 			draw_x += val.w + ofsval;
 		}
 		if (g_input_list_x_pos > x){
-			g_input_list_x_pos -= get_movement_delta(x, g_input_list_x_pos, 
+			g_input_list_x_pos -= ax_get_movement_delta(x, g_input_list_x_pos, 
 								  BUFFER_MOVEMENT_DELTA);
 		}
 	}

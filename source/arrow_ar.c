@@ -94,10 +94,10 @@ bool ar_move_execution_arrow(int instruction_number)
 	
 	int mdelta = ax_get_arrow_move_delta();
 	if (g_arrow_exec.box.y < y){
-		int delta = get_movement_delta(g_arrow_exec.box.y, y, mdelta);
+		int delta = ax_get_movement_delta(g_arrow_exec.box.y, y, mdelta);
 		g_arrow_exec.box.y += delta;
 	} else if (g_arrow_exec.box.y > y){
-		int delta = get_movement_delta(g_arrow_exec.box.y, y, mdelta);
+		int delta = ax_get_movement_delta(g_arrow_exec.box.y, y, mdelta);
 		g_arrow_exec.box.y -= delta;
 	}
 	if (g_arrow_exec.box.y == y){
@@ -128,7 +128,7 @@ static void check_execution_arrow_in_place(int instruction_number)
 	
 	int mdelta = ax_get_arrow_move_delta();
 	if (g_arrow_exec.box.y == y){
-		int delta = get_movement_delta(g_arrow_exec.box.y, y, mdelta/2);
+		int delta = ax_get_movement_delta(g_arrow_exec.box.y, y, mdelta/2);
 		g_arrow_exec.box.y += delta;
 	} 
 }
