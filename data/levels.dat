@@ -13,6 +13,9 @@ InstructionsEnd
 
 RegistersBegin
 rax
+rbx
+rcx
+rdx
 RegistersEnd
 
 InstructionLimit 99
@@ -277,6 +280,9 @@ InstructionsEnd
 
 RegistersBegin
 rax
+rbx
+rcx
+rdx
 RegistersEnd
 
 InstructionLimit 5

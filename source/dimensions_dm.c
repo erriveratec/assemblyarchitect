@@ -124,7 +124,7 @@
 
 #define MISS_OP_W 3
 
-#define BUF_X 1450
+#define BUF_X 1400
 #define BUF_H 75
 #define BUF_W 1000
 
