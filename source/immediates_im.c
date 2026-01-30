@@ -76,7 +76,6 @@ operand_t *im_create_imm_op_by_id(int op_id)
 	assert(op_id > IMM_MIN && op_id < IMM_MAX && "Invalid op_id");
 	operand_t *o = NULL;
 	for (int i = IMMUP0; i < IMM_MAX; i++){
-		printf("i %d\n", i);
 		if (i == op_id){
 			char *num;
 			if (op_id < IMMUP_1){

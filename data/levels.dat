@@ -263,7 +263,7 @@ WinConditionEnd
 +++LEVEL STARTS 11
 
 ChallengeTextBegin
-"Add 5 to all the values received fromthe Input Buffer [ib] and put the result in the Output Buffer [ob]. Use 4 instructions maximum"
+"Add 5 to all the values received from the Input Buffer [ib] and put the result in the Output Buffer [ob]. Use 4 instructions maximum"
 ChallengeTextEnd
 
 InputSize 10
@@ -285,7 +285,7 @@ RegistersEnd
 InstructionLimit 5
 
 WinConditionBegin
-WIN1 1 5 0 false
+WIN1 1 1 5 false
 WinConditionEnd
 
 +++LEVEL ENDS
