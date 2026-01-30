@@ -515,9 +515,14 @@ char *ax_number_to_string(int number)
 	if (number == 0){
 		c = malloc(sizeof(char)*2);
 		sprintf(c, "%d", number);
+	} else if (number == NO_VALUE){
+		c = malloc(sizeof(char)*2);
+		char negative[] = "-";
+		strcpy(c, negative);
 	} else if (number < 0){
 		int absolute = abs(number);
 		char *abs_number = malloc(sizeof(char)*(int)log10(absolute)+2);
+		sprintf(abs_number, "%d", absolute);
 		c = malloc(sizeof(char)*(int)log10(absolute)+3);
 		char negative[] = "-";
 		strcpy(c, negative);

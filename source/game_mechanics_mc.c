@@ -11,6 +11,7 @@
 #include "dbg.h"
 #include "levels_lv.h"
 #include "arrow_ar.h"
+#include "immediates_im.h"
 
 #define INPUT_BUFFER_EMPTY_TEXT "ERROR: A value cannot be recovered if the "\
 "Input Buffer [IB] is empty"
@@ -771,6 +772,9 @@ static int get_operand_y_dest(int op_id)
 		y = rg_get_register_value_box_y_coord_by_id(op_id);
 	} else if (op_id > BUF_MIN && op_id < BUF_MAX){
 		y = bf_get_buffer_value_box_y_coord_by_id(op_id);	
+	} else if (op_id > IMM_MIN && op_id < IMM_MAX){
+		y = im_get_imm_value_box_y_coord_by_id(op_id) 
+		    +  dm_get_avatar_wh().h;
 	} else if (op_id == IBOX){
 		y = rg_get_ibox_y();
 	} else if (op_id == OBOX){
@@ -794,6 +798,8 @@ static int get_operand_x_dest(int op_id)
 		x = rg_get_register_value_box_x_coord_by_id(op_id);
 	} else if (op_id > BUF_MIN && op_id < BUF_MAX){
 		x = bf_get_buffer_value_box_x_coord_by_id(op_id);	
+	} else if (op_id > IMM_MIN && op_id < IMM_MAX){
+		x = im_get_imm_value_box_x_coord_by_id(op_id);	
 	} else if (op_id == IBOX || op_id == OBOX){
 		x = rg_get_ibox_x();
 	}
@@ -827,6 +833,8 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 	SDL_Rect vb = dm_get_value_box_wh();
 	int vbox_offset = dm_get_ofs_reg_value_box();
 	if (op_id > REG_MIN && op_id < REG_MAX){
+		y = get_operand_y_dest(op_id);
+	} else if (op_id > IMM_MIN && op_id < IMM_MAX){
 		y = get_operand_y_dest(op_id);
 	} else if (op_id == IB){
 		y = get_operand_y_dest(op_id) + 1.5*vb.h;
@@ -891,17 +899,20 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
  * Return:
  *	bool indicating if part of the retriving is pending
  */
-static value_box_t get_operand_value_box(int op_id)
+static value_box_t get_operand_value_box(int op_id)		
 {
-	assert((op_id > REG_MIN && op_id < REG_MAX) ||
-		   (op_id > BUF_MIN &&  op_id < BUF_MAX) ||
-		   (op_id > RGBOX_MIN &&  op_id < RGBOX_MAX) && 
-		   "The operand id is invalid");
-
+	assert((op_id > REG_MIN && op_id < REG_MAX) 
+		   || (op_id > BUF_MIN &&  op_id < BUF_MAX) 
+		   || (op_id > RGBOX_MIN &&  op_id < RGBOX_MAX) 
+		   || (op_id > IMM_MIN &&  op_id < IMM_MAX) 
+		   && "The operand id is invalid");
+	
 	value_box_t op_value_box;
 
 	if (op_id > REG_MIN && op_id < REG_MAX){
 		op_value_box = rg_get_register_value_box_by_id(op_id);	
+	}else if (op_id > IMM_MIN && op_id < IMM_MAX){
+		op_value_box = im_get_imm_value_box_by_id(op_id);	
 	} else if (op_id == IB){
 		op_value_box = bf_get_input_buffer_value_box();
 	} else if (op_id == OB){
@@ -1183,12 +1194,18 @@ static bool is_operand_retrievable(int id)
 static bool handle_iavatar_source_operand(int op_id)
 {
 	bool mov_pending = true;
-
 	mov_pending = move_avatar_to_operand(&g_iavatar, op_id);
-	if (mov_pending == false && g_iavatar.in_place == false && 
-							  g_iavatar.op2_retrieved == false){
+	if (mov_pending == false 
+		&& g_iavatar.in_place == false 
+		&& g_iavatar.op2_retrieved == false){
 		g_iavatar.in_place = true;
 		if (op_id == IB && is_operand_retrievable(op_id) == true){
+			value_box_t b = get_operand_value_box(op_id);
+			ax_copy_vbox(&g_iavatar.value, b);
+			g_iavatar.value.visible_box = true;
+		} else if (op_id > IMM_MIN 
+				   && op_id < IMM_MAX 
+				   && is_operand_retrievable(op_id) == true){
 			value_box_t b = get_operand_value_box(op_id);
 			ax_copy_vbox(&g_iavatar.value, b);
 			g_iavatar.value.visible_box = true;
@@ -1297,6 +1314,11 @@ static int handle_source_operand(code_line_t *line)
 			}
 			avatar_id = RAVATAR;
 		} else if (line->op2->id == IB){
+			if (g_iavatar.op2_retrieved == false){
+				mov_pending = handle_iavatar_source_operand(line->op2->id);	
+			}
+			avatar_id = IAVATAR;
+		} else if (line->op2->id > IMM_MIN && line->op2->id < IMM_MAX){
 			if (g_iavatar.op2_retrieved == false){
 				mov_pending = handle_iavatar_source_operand(line->op2->id);	
 			}

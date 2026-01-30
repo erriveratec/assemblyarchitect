@@ -11,6 +11,7 @@ extern texture_t *g_ib_arrow;
 extern texture_t *g_ob_arrow;
 extern texture_t *g_exec_arrow;
 extern texture_t *g_reg_arrow;
+extern texture_t *g_imm_up_arrow;
 
 typedef struct arrow_t{
 	SDL_Rect box;
@@ -38,6 +39,7 @@ enum arrow_id{
 	AR_OB,
 	AR_EXEC,
 	AR_REG,
+	AR_IMM_UP
 };
 
 void ar_init_arrow(int arrow_id);

@@ -14,6 +14,7 @@ texture_t *g_ib_arrow;
 texture_t *g_ob_arrow;
 texture_t *g_exec_arrow;
 texture_t *g_reg_arrow;
+texture_t *g_imm_up_arrow;
 
 static arrow_t g_arrow_ins; 
 static arrow_t g_arrow_drop;
@@ -29,6 +30,7 @@ static arrow_t g_arrow_ib;
 static arrow_t g_arrow_ob;
 static arrow_t g_arrow_exec;
 static arrow_t g_arrow_regs;
+static arrow_t g_arrow_imm_up;
 
 static void initialize_ins_arrow();
 static void initialize_drop_arrow();
@@ -41,6 +43,7 @@ static void initialize_challenge_arrow();
 static void initialize_ib_arrow();
 static void initialize_ob_arrow();
 static void initialize_regs_arrow();
+static void initialize_imm_up_arrow();
 static void check_execution_arrow_in_place(int instruction_number);
 bool ar_move_execution_arrow(int instruction_number);
 static void display_arrow_registers();
@@ -203,6 +206,41 @@ static void initialize_regs_arrow()
 	g_arrow_regs.visible =  true;
 	SDL_SetTextureColorMod(g_arrow_regs.texture->texture, 255, 255, 0);
 }
+
+/* Function: initialize_reg_arrow
+ * -----------------------------------------------------------------------------
+ * 
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void initialize_imm_up_arrow()
+{
+	SDL_Rect a = dm_get_arrow_wh();
+	SDL_Rect imm_box = dm_get_stage_imm_up();
+	SDL_Rect vb = dm_get_value_box_wh();
+	int text_h = dm_get_h_stage_elements_titles();
+	int text_w = get_text_width_fits_height(text_h, IMM_TXT);
+	int x = imm_box.x + (11*vb.w)/2;
+	int y = 2*vb.h;
+
+	g_arrow_imm_up.box.x = x - a.w/2;
+	g_arrow_imm_up.box.y = imm_box.y + text_h + 2*vb.h + a.h;
+	g_arrow_imm_up.box.w = a.w;
+	g_arrow_imm_up.box.h = a.h;
+	g_arrow_imm_up.travel = a.w;
+	g_arrow_imm_up.starty = g_arrow_imm_up.box.y;
+	g_arrow_imm_up.dir = AR_UP;
+	g_arrow_imm_up.in_place = false;
+	g_arrow_imm_up.texture = g_imm_up_arrow;
+	g_arrow_imm_up.visible =  true;
+	SDL_SetTextureColorMod(g_arrow_imm_up.texture->texture, 255, 0, 255);
+}
+
+
 /* Function: initialize_ins_arrow
  * -----------------------------------------------------------------------------
  * 
@@ -579,6 +617,7 @@ void ar_initialize_arrows()
 	initialize_ib_arrow();
 	initialize_ob_arrow();
 	initialize_regs_arrow();
+	initialize_imm_up_arrow();
 }
 /* Function: ar_init_arrow
  * -----------------------------------------------------------------------------
@@ -635,6 +674,10 @@ void ar_init_arrow(int arrow_id)
 		case AR_REG:
 			initialize_regs_arrow();
 			break;
+		case AR_IMM_UP:
+			initialize_imm_up_arrow();
+			break;
+
 		default:
 			break;
 	}
@@ -699,6 +742,9 @@ void ar_display_arrow(int arrow_id)
 			break;
 		case AR_REG:
 			aptr = &g_arrow_regs;
+			break;
+		case AR_IMM_UP:
+			aptr = &g_arrow_imm_up;
 			break;
 		default:
 			break;

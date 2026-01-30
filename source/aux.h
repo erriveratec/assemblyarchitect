@@ -26,6 +26,8 @@
 #define STR_BACK "Back"
 #define STR_CONT "Continue"
 #define AX_REG_TEXT "Registers"
+#define IMM_TXT "Immediates"
+
 
 //#define MOVEMENT_DELTA 15
 

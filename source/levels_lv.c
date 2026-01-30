@@ -61,6 +61,7 @@ static void level_9_tutorial();
 static void level_10_tutorial();
 static bool check_display_reg_lv_arrow();
 static int check_display_buf_arrow();
+static bool check_display_imm_arrow();
 static void win1_move_input_to_output(int rep, int mul,int sum, bool reversed);
 static void win2_add_inputs_in_groups(int group_size);
 static void set_win_condition(char *win_condition);
@@ -1071,12 +1072,36 @@ static void draw_bufs_arrow(int buf_id)
 static bool check_display_reg_lv_arrow() 
 {
 	bool display_ar = false;
-	if (cw_check_code_sorted() == true && 
-									   cw_is_operand_pending() == true){
+	if (cw_check_code_sorted() == true && cw_is_operand_pending() == true){
 		code_line_t *l = cw_get_code_line_pending_operand();
 		if (l->ins->id != JMP && l->ins->id != LABEL){
 			operand_t o;
 			o.id = RAX;
+			display_ar = cl_is_op_compatible(&o, l);
+		}
+	}
+	return display_ar;
+}
+
+/* Function: check_display_imm_arrow
+ * -----------------------------------------------------------------------------
+ * Analize the state of the operands to determine if the immediate arrow should
+ * be displayed
+ * 
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	true if the pointing arrow to the registers should be displayed
+ */
+static bool check_display_imm_arrow() 
+{
+	bool display_ar = false;
+	if (cw_check_code_sorted() == true && cw_is_operand_pending() == true){
+		code_line_t *l = cw_get_code_line_pending_operand();
+		if (l->ins->id != JMP && l->ins->id != LABEL){
+			operand_t o;
+			o.id = IMMUP0 ;
 			display_ar = cl_is_op_compatible(&o, l);
 		}
 	}
@@ -1098,6 +1123,24 @@ static void draw_regs_arrow(bool show_arrows)
 {
 	if (show_arrows == true){
 		ar_display_arrow(AR_REG);
+	}
+}
+
+/* Function: draw_imm_arrow
+ * -----------------------------------------------------------------------------
+ * Function that verifies according to the flags if the register arrows must
+ * be drawn
+ * 
+ * Arguments:
+ * 	show_arrow: true displays arros, false does not show arrows.
+ *
+ * Return:
+ *	Void.
+ */
+static void draw_imm_arrow(bool show_arrows) 
+{
+	if (show_arrows == true){
+		ar_display_arrow(AR_IMM_UP);
 	}
 }
 /* Function: lv_get_level_instructions_limit
@@ -1567,6 +1610,7 @@ void lv_level_drawings(int level)
 			sb_set_step_btns_avail(true);
 		 	im_set_imm_up_avail(true);
 			draw_bufs_arrow(check_display_buf_arrow());
+			draw_imm_arrow(check_display_imm_arrow());
 			draw_regs_arrow(check_display_reg_lv_arrow());
 	}
 }

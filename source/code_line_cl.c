@@ -31,6 +31,16 @@ char *immup6_text = "IMMUP6";
 char *immup7_text = "IMMUP7";
 char *immup8_text = "IMMUP8";
 char *immup9_text = "IMMUP9";
+char *immup10_text = "IMMUP10";
+char *immup_1_text = "IMMUP_1";
+char *immup_2_text = "IMMUP_2";
+char *immup_3_text = "IMMUP_3";
+char *immup_4_text = "IMMUP_4";
+char *immup_5_text = "IMMUP_5";
+char *immup_6_text = "IMMUP_6";
+char *immup_7_text = "IMMUP_7";
+char *immup_8_text = "IMMUP_8";
+char *immup_9_text = "IMMUP_9";
 char *immdo0_text = "IMMDO0";
 char *immdo1_text = "IMMDO1";
 char *immdo2_text = "IMMDO2";
@@ -232,6 +242,7 @@ texture_t *cl_create_operand_texture(int id)
 
 /* Function: cl_text_to_operand_id
  *------------------------------------------------------------------------------
+ * If operand can be first, should us str str
  * Arguments:
  * 	text: the text of the instruction that will be converted
  *	
@@ -255,45 +266,65 @@ int cl_text_to_operand_id(char *text)
 		operand_id = IB;
 	} else if (strstr(text, ob_text)!= NULL){
 		operand_id = OB;
-	} else if (strstr(text, immup0_text)!= NULL){
+	} else if (strcmp(text, immup0_text) == STRING_EQUAL){
 		operand_id = IMMUP0;
-	} else if (strstr(text, immup1_text)!= NULL){
+	} else if (strcmp(text, immup1_text) == STRING_EQUAL){
 		operand_id = IMMUP1;
-	} else if (strstr(text, immup2_text)!= NULL){
+	} else if (strcmp(text, immup2_text) == STRING_EQUAL){
 		operand_id = IMMUP2;
-	} else if (strstr(text, immup3_text)!= NULL){
+	} else if (strcmp(text, immup3_text) == STRING_EQUAL){
 		operand_id = IMMUP3;
-	} else if (strstr(text, immup4_text)!= NULL){
+	} else if (strcmp(text, immup4_text) == STRING_EQUAL){
 		operand_id = IMMUP4;
-	} else if (strstr(text, immup5_text)!= NULL){
+	} else if (strcmp(text, immup5_text) == STRING_EQUAL){
 		operand_id = IMMUP5;
-	} else if (strstr(text, immup6_text)!= NULL){
+	} else if (strcmp(text, immup6_text) == STRING_EQUAL){
 		operand_id = IMMUP6;
-	} else if (strstr(text, immup7_text)!= NULL){
+	} else if (strcmp(text, immup7_text) == STRING_EQUAL){
 		operand_id = IMMUP7;
-	} else if (strstr(text, immup8_text)!= NULL){
+	} else if (strcmp(text, immup8_text) == STRING_EQUAL){
 		operand_id = IMMUP8;
-	} else if (strstr(text, immup9_text)!= NULL){
+	} else if (strcmp(text, immup9_text) == STRING_EQUAL){
 		operand_id = IMMUP9;
-	} else if (strstr(text, immdo0_text)!= NULL){
+	} else if (strcmp(text, immup10_text) == STRING_EQUAL){
+		operand_id = IMMUP10;
+	} else if (strcmp(text, immup_1_text) == STRING_EQUAL){
+		operand_id = IMMUP_1;
+	} else if (strcmp(text, immup_2_text) == STRING_EQUAL){
+		operand_id = IMMUP_2;
+	} else if (strcmp(text, immup_3_text) == STRING_EQUAL){
+		operand_id = IMMUP_3;
+	} else if (strcmp(text, immup_4_text) == STRING_EQUAL){
+		operand_id = IMMUP_4;
+	} else if (strcmp(text, immup_5_text) == STRING_EQUAL){
+		operand_id = IMMUP_5;
+	} else if (strcmp(text, immup_6_text) == STRING_EQUAL){
+		operand_id = IMMUP_6;
+	} else if (strcmp(text, immup_7_text) == STRING_EQUAL){
+		operand_id = IMMUP_7;
+	} else if (strcmp(text, immup_8_text) == STRING_EQUAL){
+		operand_id = IMMUP_8;
+	} else if (strcmp(text, immup_9_text) == STRING_EQUAL){
+		operand_id = IMMUP_9;
+	} else if (strcmp(text, immdo0_text) == STRING_EQUAL){
 		operand_id = IMMDO0;
-	} else if (strstr(text, immdo1_text)!= NULL){
+	} else if (strcmp(text, immdo1_text) == STRING_EQUAL){
 		operand_id = IMMDO1;
-	} else if (strstr(text, immdo2_text)!= NULL){
+	} else if (strcmp(text, immdo2_text) == STRING_EQUAL){
 		operand_id = IMMDO2;
-	} else if (strstr(text, immdo3_text)!= NULL){
+	} else if (strcmp(text, immdo3_text) == STRING_EQUAL){
 		operand_id = IMMDO3;
-	} else if (strstr(text, immdo4_text)!= NULL){
+	} else if (strcmp(text, immdo4_text) == STRING_EQUAL){
 		operand_id = IMMDO4;
-	} else if (strstr(text, immdo5_text)!= NULL){
+	} else if (strcmp(text, immdo5_text) == STRING_EQUAL){
 		operand_id = IMMDO5;
-	} else if (strstr(text, immdo6_text)!= NULL){
+	} else if (strcmp(text, immdo6_text) == STRING_EQUAL){
 		operand_id = IMMDO6;
-	} else if (strstr(text, immdo7_text)!= NULL){
+	} else if (strcmp(text, immdo7_text) == STRING_EQUAL){
 		operand_id = IMMDO7;
-	} else if (strstr(text, immdo8_text)!= NULL){
+	} else if (strcmp(text, immdo8_text) == STRING_EQUAL){
 		operand_id = IMMDO8;
-	} else if (strstr(text, immdo9_text)!= NULL){
+	} else if (strcmp(text, immdo9_text) == STRING_EQUAL){
 		operand_id = IMMDO9;
 	}
 
@@ -480,6 +511,36 @@ char *get_operand_text(int operand_id)
 			break;
 		case IMMUP9:
 			text = immup9_text;
+			break;
+		case IMMUP10:
+			text = immup10_text;
+			break;
+		case IMMUP_1:
+			text = immup_1_text;
+			break;
+		case IMMUP_2:
+			text = immup_2_text;
+			break;
+		case IMMUP_3:
+			text = immup_3_text;
+			break;
+		case IMMUP_4:
+			text = immup_4_text;
+			break;
+		case IMMUP_5:
+			text = immup_5_text;
+			break;
+		case IMMUP_6:
+			text = immup_6_text;
+			break;
+		case IMMUP_7:
+			text = immup_7_text;
+			break;
+		case IMMUP_8:
+			text = immup_8_text;
+			break;
+		case IMMUP_9:
+			text = immup_9_text;
 			break;
 		case IMMDO0:
 			text = immdo0_text;

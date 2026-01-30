@@ -1146,10 +1146,11 @@ SDL_Rect dm_get_stage_ibox()
 {
 	SDL_Rect vb = dm_get_value_box_wh();
 	SDL_Rect rb = rg_get_register_box();
+	SDL_Rect rbi = dm_get_stage_reg_box();
 	SDL_Rect b;
 	b.w = vb.w;
 	b.h = vb.h;
-	b.x = rb.x + rb.w - b.w - b.w/5;
+	b.x = rbi.x + rbi.w - b.w - b.w/5;
 	b.y = rb.y - b.h - b.h/4;
 	return b;
 }
@@ -1168,10 +1169,11 @@ SDL_Rect dm_get_stage_obox()
 {
 	SDL_Rect vb = dm_get_value_box_wh();
 	SDL_Rect rb = rg_get_register_box();
+	SDL_Rect rbi = dm_get_stage_reg_box();
 	SDL_Rect b;
 	b.w = vb.w;
 	b.h = vb.h;
-	b.x = rb.x + rb.w - b.w - b.w/5;
+	b.x = rbi.x + rbi.w - b.w - b.w/5;
 	b.y = rb.y + rb.h + b.h/4;
 	return b;
 }
@@ -1454,7 +1456,7 @@ SDL_Rect dm_get_stage_imm_up()
 	SDL_Rect vb = dm_get_value_box_wh();
 	b.w = 0;
 	b.h = dm_get_h_stage_elements_titles();
-	b.x = cb.x + cb.w + 3*vb.w;
+	b.x = dm_get_stage_ibox().x;
 	b.y = dm_scale_to_resolution(IMM_TXT_UP_Y);
 	return b;
 }

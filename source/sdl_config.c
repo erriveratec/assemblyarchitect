@@ -166,6 +166,13 @@ int load_media()
 		return FAIL;
 	}
 	
+	g_imm_up_arrow = load_texture_from_file("img/rightarrow.png");
+	if (return_button == NULL){
+		printf("Could not load the level image SDL_Error: %s\n",
+				SDL_GetError());
+		return FAIL;
+	}
+
 	g_lv_arrow = load_texture_from_file("img/rightarrow.png");
 	if (return_button == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
