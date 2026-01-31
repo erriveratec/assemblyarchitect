@@ -484,6 +484,16 @@ static void level_10_tutorial()
 {
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(false);
+	draw_regs_arrow(check_display_reg_lv_arrow());
+	draw_bufs_arrow(check_display_buf_arrow());
+
+	int code_size = cw_get_code_list_size();
+
+	if (g_lv_msg[MSG1] == true && code_size == 0){
+		tx_text_box(TX_BIG_BOX, MSG1); //Welcome msg
+		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
+		chk_ms_pressed_clear_msg(MSG1, true);
+	}
 }
 
 
@@ -761,6 +771,9 @@ static void level_3_tutorial()
 	} else if (size == 0 && hold == true){
 		tx_text_box(TX_CODE_BOX, MSG5); // Drop in code box
 		ar_display_arrow(AR_DROP);
+	} else if (size == 1 && hold == true && miss_op == true){
+		tx_text_box(TX_CODE_BOX, MSG5); // Drop in code box
+		ar_display_arrow(AR_DROP);
 	} else if (size == 1 
 			   && sorted == true 
 			   && hold == false 
@@ -830,6 +843,7 @@ static void level_2_tutorial()
 	bool change_op = false;
 	bool mov_instruction = false;
 	bool press_play = false;
+	bool win = lv_check_if_win();
 	code_line_t *i1= NULL;
 	code_line_t *i2 = NULL;
 
@@ -885,7 +899,7 @@ static void level_2_tutorial()
 		set_arrange_enabled(true);
 		tx_text_box(TX_CODE_BOX, MSG7); //Mov ins to first pos
 		ar_display_arrow(AR_CODE);
-	} else if (press_play == true && play == false){
+	} else if (press_play == true && play == false && win == false){
 		set_code_editable(false, NO_EXCEPTION);
 		tx_text_box(TX_CODE_BOX, MSG8); //Press play
 		ar_display_arrow(AR_PLAY);

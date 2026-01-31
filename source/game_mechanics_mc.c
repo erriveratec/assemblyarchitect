@@ -15,8 +15,8 @@
 
 #define INPUT_BUFFER_EMPTY_TEXT "ERROR: A value cannot be recovered if the "\
 "Input Buffer [IB] is empty"
-#define REG_VALUE_INVALID_TEXT "ERROR:Register cannot be read if a value has "\
-"been stored first"
+#define REG_VALUE_INVALID_TEXT "ERROR:Register cannot be read if a value "\
+"hasn't been stored first"
 #define INVALID_OUTPUT_VALUE_TEXT "ERROR: Incorrect value in the output buffer"
 #define UNPROCESSED_IB_VALUES_TEXT "ERROR: Output is correct but only works by"\
 " that specific set of values"
