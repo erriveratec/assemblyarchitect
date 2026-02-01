@@ -293,7 +293,7 @@ WinConditionEnd
 +++LEVEL STARTS 12
 
 ChallengeTextBegin
-"PLACEHOLDER"
+"Add the values from [IB] in pairs and put them in to [OB] with a ZERO between each added value"
 ChallengeTextEnd
 
 InputSize 10
@@ -307,9 +307,12 @@ InstructionsEnd
 
 RegistersBegin
 rax
+rbx
+rcx
+rdx
 RegistersEnd
 
-InstructionLimit 5
+InstructionLimit 99
 
 WinConditionBegin
 WIN2 2

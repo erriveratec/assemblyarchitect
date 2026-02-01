@@ -59,6 +59,8 @@ static void level_7_tutorial();
 static void level_8_tutorial();
 static void level_9_tutorial();
 static void level_10_tutorial();
+static void level_11_tutorial();
+static void level_12_tutorial();
 static bool check_display_reg_lv_arrow();
 static int check_display_buf_arrow();
 static bool chk_display_imm_up_arrow();
@@ -471,7 +473,34 @@ static void chk_ms_pressed_clear_msg(int message_id, bool reset_mouse)
 	}
 }
 
-/* Function: level_10_tutorial
+/* Function: level_12_tutorial
+ * -----------------------------------------------------------------------------
+ * This functions handles all the special cases of the tutorial of level 10
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void level_12_tutorial()
+{
+	sb_set_step_btns_avail(true);
+	im_set_imm_up_avail(true);
+	draw_regs_arrow(check_display_reg_lv_arrow());
+	draw_bufs_arrow(check_display_buf_arrow());
+	draw_im_up_arrow(chk_display_imm_up_arrow());
+
+	int size = cw_get_code_list_size();
+
+	if (g_lv_msg[MSG1] == true && size == 0){
+		tx_text_box(TX_BIG_BOX, MSG1); //Welcome msg
+		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
+		chk_ms_pressed_clear_msg(MSG1, true);
+	} 
+}
+
+/* Function: level_12_tutorial
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 10
  *
@@ -1671,6 +1700,10 @@ void lv_level_drawings(int level)
 
 		case LV_LEVEL_11:
 			level_11_tutorial();
+			break;
+		
+		case LV_LEVEL_12:
+			level_12_tutorial();
 			break;
 
 		default:
