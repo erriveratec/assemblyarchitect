@@ -863,12 +863,12 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 //	printf("xd = %d, yd = %d\n", xd, yd);
 
 	if (avatar->box.x < x){
-		int delta = ax_get_movement_delta(avatar->value.box.x, x, mdelta);
+		int delta = ax_get_movement_delta(avatar->box.x, x, mdelta);
 		avatar->box.x += delta;
 		avatar->value.box.x += delta;
 		mov = true;
 	} else if (avatar->box.x > x){
-		int delta = ax_get_movement_delta(avatar->value.box.x, x, mdelta);
+		int delta = ax_get_movement_delta(avatar->box.x, x, mdelta);
 		avatar->box.x -= delta;
 		avatar->value.box.x -= delta;
 		mov = true;

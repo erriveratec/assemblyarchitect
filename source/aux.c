@@ -9,7 +9,7 @@
 #include "dimensions_dm.h"
 
 #define MOVE_DELTA 15
-#define FAST_MOVE_DELTA 45
+#define FAST_MOVE_DELTA 60
 #define ARROW_MDELTA_SLOW 5
 #define ARROW_MDELTA_FAST 30
 #define CW_MDELTA 15
@@ -426,19 +426,23 @@ int ax_get_y_delta_div(int x1, int x2, int y1, int y2)
 int ax_get_movement_delta(int v1, int v2, int max_delta)
 {
 	int distance = abs(v1 - v2);
+	
 	float half_delta = (float)max_delta/2;
 
-	if(distance < 3){
-		return 1;
-	} else if (distance < half_delta/2){
-		return half_delta/4;
-	}else if (distance < half_delta){
-		return half_delta/2;
-	} else if (distance < max_delta){
-		return half_delta;
+	int delta = 0;
+	
+	if(distance < 4){
+		delta = 1;
+	} else if (distance <= half_delta/2){
+		delta = half_delta/4;
+	} else if (distance <= half_delta){
+		delta = half_delta/2;
+	} else if (distance <= max_delta){
+		delta = half_delta;
 	} else {
-		return max_delta;
+		delta = max_delta;
 	}
+	return delta;
 }
 
 /* Function: ax_number_to_string_two_digits

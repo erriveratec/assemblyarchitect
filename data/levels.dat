@@ -146,7 +146,7 @@ RegistersEnd
 InstructionLimit 99
 
 WinConditionBegin
-WIN2 2
+WIN2 2 false 0
 WinConditionEnd
 
 +++LEVEL ENDS
@@ -210,7 +210,7 @@ ChallengeTextBegin
 "Move the values from the Input Buffer [ib] to the Output Buffer [ob], using maximum 3 instructions"
 ChallengeTextEnd
 
-InputSize 12
+InputSize 6
 InputType Natural
 
 InstructionsBegin
@@ -255,7 +255,7 @@ RegistersEnd
 InstructionLimit 6
 
 WinConditionBegin
-WIN2 3
+WIN2 3 false 0
 WinConditionEnd
 
 +++LEVEL ENDS
@@ -266,7 +266,7 @@ ChallengeTextBegin
 "Add 5 to all the values received from the Input Buffer [ib] and put the result in the Output Buffer [ob]. Use 4 instructions maximum"
 ChallengeTextEnd
 
-InputSize 10
+InputSize 6
 InputType Natural
 
 InstructionsBegin
@@ -315,7 +315,7 @@ RegistersEnd
 InstructionLimit 99
 
 WinConditionBegin
-WIN2 2
+WIN2 2 true 0
 WinConditionEnd
 
 +++LEVEL ENDS

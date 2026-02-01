@@ -65,7 +65,7 @@ static bool check_display_reg_lv_arrow();
 static int check_display_buf_arrow();
 static bool chk_display_imm_up_arrow();
 static void win1_move_input_to_output(int rep, int mul,int sum, bool reversed);
-static void win2_add_inputs_in_groups(int group_size);
+static void win2_add_inputs_in_groups(int grp_size, bool between, int in_val);
 static void set_win_condition(char *win_condition);
 static void draw_regs_arrow(bool show_arrows);
 static void draw_bufs_arrow(int buf_id);
@@ -1333,7 +1333,16 @@ static void set_win_condition(char *win_condition)
 	} else if (strstr(win_cond, STR_WIN2) != NULL){
 		char *group_size_text = strtok_r(NULL, delim, &saveptr1);
 		int group_size = atoi(group_size_text);
-		win2_add_inputs_in_groups(group_size);
+		char *bet_text = strtok_r(NULL, delim, &saveptr1);
+		bool between;
+		if (strstr(bet_text, "true") != NULL){
+			between = true;
+		} else if (strstr(bet_text, "false") != NULL){
+			between = false;
+		}
+		char *in_val_text = strtok_r(NULL, delim, &saveptr1);
+		int in_val = atoi(in_val_text);
+		win2_add_inputs_in_groups(group_size, between, in_val);
 	}
 	return;
 }
@@ -1509,12 +1518,14 @@ static void win1_move_input_to_output(int rep, int mul, int sum, bool reversed)
  * in groups
  *
  * Arguments:
- *	group_size: The size of the input group tha will be added
+ *	grp_size: The size of the input group tha will be added
+ *  between: If active the function inserts a value between each output
+ *	in_value: Value that will be inserted between each output
  *
  * Return:
  *	Void.
  */
-static void win2_add_inputs_in_groups(int group_size)
+static void win2_add_inputs_in_groups(int grp_size, bool between, int in_val)
 {
 	List *input_list = get_input_list();
 	List *win_list = get_win_list();
@@ -1523,7 +1534,7 @@ static void win2_add_inputs_in_groups(int group_size)
 	assert(win_list != NULL && "Win list pointer is NULL");
 
 	int input_list_size = List_count(input_list);
-	assert(input_list_size % group_size == 0 && 
+	assert(input_list_size % grp_size == 0 && 
 					"The input size must be a multiple of group size");
 	
 	int win_list_size = List_count(win_list);
@@ -1537,15 +1548,21 @@ static void win2_add_inputs_in_groups(int group_size)
 	LIST_FOREACH(input_list, first, next, cur){
 		value_box_t *cur_input = cur->value;
 		values[array_index] = cur_input->value;
-		if (res % group_size == 0){
+		if (res % grp_size == 0){
 			value_box_t *new_win = malloc(sizeof(value_box_t));
 			int val = 0;
-			for (int i = 0; i < group_size; i++){
+			for (int i = 0; i < grp_size; i++){
 				val += values[array_index - i];
 			}
 			new_win->value = val;
 			new_win->type = cur_input->type;
 			List_push(win_list, new_win);
+			if (between == true && array_index != (input_list_size - 1)){
+				value_box_t *inserted = malloc(sizeof(value_box_t));
+				inserted->value = in_val;
+				inserted->type = cur_input->type;
+				List_push(win_list, inserted);
+			}
 		}
 		res++;
 		array_index++;
