@@ -93,6 +93,7 @@ int dm_get_ofs_iface_filled_border();
 SDL_Rect dm_get_text_box_big();
 SDL_Rect dm_get_text_box_error();
 SDL_Rect dm_get_text_box_upper();
+SDL_Rect dm_get_text_box_upper_right();
 SDL_Rect dm_get_text_box_center();
 SDL_Rect dm_get_text_box_lower();
 SDL_Rect dm_get_text_box_ins();

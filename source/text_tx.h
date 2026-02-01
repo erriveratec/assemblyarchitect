@@ -16,6 +16,7 @@ enum text_box_positions{
 	TX_BOX_MIN,
 	TX_INS_BOX,
 	TX_UPPER_BOX,
+	TX_UPPER_RIGHT_BOX,
 	TX_CENTER_BOX,
 	TX_LOWER_BOX,
 	TX_CODE_BOX,

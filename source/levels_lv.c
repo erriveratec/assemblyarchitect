@@ -61,12 +61,13 @@ static void level_9_tutorial();
 static void level_10_tutorial();
 static bool check_display_reg_lv_arrow();
 static int check_display_buf_arrow();
-static bool check_display_imm_arrow();
+static bool chk_display_imm_up_arrow();
 static void win1_move_input_to_output(int rep, int mul,int sum, bool reversed);
 static void win2_add_inputs_in_groups(int group_size);
 static void set_win_condition(char *win_condition);
 static void draw_regs_arrow(bool show_arrows);
 static void draw_bufs_arrow(int buf_id);
+static void draw_im_up_arrow(bool show_arrows);
 static void set_code_editable(bool state, int exception);
 static void set_buf_selectable(bool state);
 static void set_reg_selectable(bool state);
@@ -468,6 +469,53 @@ static void chk_ms_pressed_clear_msg(int message_id, bool reset_mouse)
 			ms_reset_mouse_values();
 		}
 	}
+}
+
+/* Function: level_10_tutorial
+ * -----------------------------------------------------------------------------
+ * This functions handles all the special cases of the tutorial of level 10
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void level_11_tutorial()
+{
+	sb_set_step_btns_avail(true);
+	im_set_imm_up_avail(true);
+	draw_regs_arrow(check_display_reg_lv_arrow());
+	draw_bufs_arrow(check_display_buf_arrow());
+	draw_im_up_arrow(chk_display_imm_up_arrow());
+
+	int size = cw_get_code_list_size();
+
+	if (g_lv_msg[MSG1] == true && size == 0){
+		tx_text_box(TX_BIG_BOX, MSG1); //Welcome msg
+		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
+		chk_ms_pressed_clear_msg(MSG1, true);
+	} else if (g_lv_msg[MSG2] == true && size == 0){
+		tx_text_box(TX_CENTER_BOX, MSG2); //New section on the screen
+		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
+		ar_display_arrow(AR_IMM_UP);
+		chk_ms_pressed_clear_msg(MSG2, true);
+	} else if (g_lv_msg[MSG3] == true && size == 0){
+		tx_text_box(TX_UPPER_RIGHT_BOX, MSG3); //Can select immediate values
+		tx_bottom_msg(TX_UPPER_RIGHT_BOX, TX_MSG_CLICKANY);
+		ar_display_arrow(AR_IMM_UP);
+		chk_ms_pressed_clear_msg(MSG3, true);
+	} else if (g_lv_msg[MSG4] == true && size == 0){
+		tx_text_box(TX_CENTER_BOX, MSG4); //Imm can only be read
+		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
+		ar_display_arrow(AR_IMM_UP);
+		chk_ms_pressed_clear_msg(MSG4, true);
+	} else if (g_lv_msg[MSG5] == true && size == 0){
+		tx_text_box(TX_UPPER_RIGHT_BOX, MSG5); //Imm can only be read
+		tx_bottom_msg(TX_UPPER_RIGHT_BOX, TX_MSG_CLICKANY);
+		ar_display_arrow(AR_IMM_UP);
+		chk_ms_pressed_clear_msg(MSG5, true);
+	} 
 }
 
 /* Function: level_10_tutorial
@@ -1097,7 +1145,7 @@ static bool check_display_reg_lv_arrow()
 	return display_ar;
 }
 
-/* Function: check_display_imm_arrow
+/* Function: chk_display_imm_up_arrow
  * -----------------------------------------------------------------------------
  * Analize the state of the operands to determine if the immediate arrow should
  * be displayed
@@ -1108,7 +1156,7 @@ static bool check_display_reg_lv_arrow()
  * Return:
  *	true if the pointing arrow to the registers should be displayed
  */
-static bool check_display_imm_arrow() 
+static bool chk_display_imm_up_arrow() 
 {
 	bool display_ar = false;
 	if (cw_check_code_sorted() == true && cw_is_operand_pending() == true){
@@ -1140,7 +1188,7 @@ static void draw_regs_arrow(bool show_arrows)
 	}
 }
 
-/* Function: draw_imm_arrow
+/* Function: draw_im_up_arrow
  * -----------------------------------------------------------------------------
  * Function that verifies according to the flags if the register arrows must
  * be drawn
@@ -1151,7 +1199,7 @@ static void draw_regs_arrow(bool show_arrows)
  * Return:
  *	Void.
  */
-static void draw_imm_arrow(bool show_arrows) 
+static void draw_im_up_arrow(bool show_arrows) 
 {
 	if (show_arrows == true){
 		ar_display_arrow(AR_IMM_UP);
@@ -1620,11 +1668,16 @@ void lv_level_drawings(int level)
 		case LV_LEVEL_10:
 			level_10_tutorial();
 			break;
+
+		case LV_LEVEL_11:
+			level_11_tutorial();
+			break;
+
 		default:
 			sb_set_step_btns_avail(true);
 		 	im_set_imm_up_avail(true);
 			draw_bufs_arrow(check_display_buf_arrow());
-			draw_imm_arrow(check_display_imm_arrow());
+			draw_im_up_arrow(chk_display_imm_up_arrow());
 			draw_regs_arrow(check_display_reg_lv_arrow());
 	}
 }

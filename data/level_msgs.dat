@@ -304,6 +304,33 @@ MSG_END
 
 +++LEVEL ENDS 10
 
++++LEVEL STARTS 11
+
+QUANTITY 5
+
+MSG 01
+Level 11
+MSG_END
+
+MSG 02
+Notice there is a new section available on the screen
+MSG_END
+
+MSG 03
+You can select immediate values from this section
+MSG_END
+
+MSG 04
+Immediate values can only be read (used as a source operand)
+MSG_END
+
+MSG 05
+Examples:
+MOV rax, 5
+ADD rbx, 10
+MSG_END
+
++++LEVEL ENDS 11
 
 
 

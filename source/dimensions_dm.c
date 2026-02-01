@@ -1003,6 +1003,26 @@ SDL_Rect dm_get_text_box_upper()
 	return b;
 }
 
+/* Function: dm_get_text_box_upper_right
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_text_box_upper_right()
+{
+	SDL_Rect mb = dm_get_box_msg_wh();	
+	SDL_Rect b;
+	b.w = mb.w;
+	b.h = mb.h;
+	b.x = dm_get_stage_imm_up().x + 12*dm_get_value_box_wh().w;
+	b.y = dm_scale_to_resolution(IFACE_FILLED_OFS);
+	return b;
+}
 
 /* Function: dm_get_stage_ib_text_box
  * -----------------------------------------------------------------------------

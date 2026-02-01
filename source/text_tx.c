@@ -174,6 +174,11 @@ void tx_bottom_msg(int pos, int msg_id)
 			b = dm_get_text_box_upper(); 
 			b.y += (dm_get_text_box_upper().h/2 - text_h - offset);
 			break;
+		case TX_UPPER_RIGHT_BOX:
+			text_h = dm_get_h_bottom_msg();
+			b = dm_get_text_box_upper_right(); 
+			b.y += (dm_get_text_box_upper_right().h/2 - text_h - offset);
+			break;
 		case TX_CENTER_BOX:
 			text_h = dm_get_h_bottom_msg();
 			b = dm_get_text_box_center(); 
@@ -237,6 +242,10 @@ void tx_text_box(int pos, int msg_id)
 			break;
 		case TX_UPPER_BOX:
 			b = dm_get_text_box_upper(); 
+			text_h = dm_get_h_msg();
+			break;
+		case TX_UPPER_RIGHT_BOX:
+			b = dm_get_text_box_upper_right(); 
 			text_h = dm_get_h_msg();
 			break;
 		case TX_CENTER_BOX:
