@@ -320,3 +320,34 @@ WinConditionEnd
 
 +++LEVEL ENDS
 
++++LEVEL STARTS 13
+
+ChallengeTextBegin
+"PLACEHOLDER"
+ChallengeTextEnd
+
+InputSize 10
+InputType Natural
+
+InstructionsBegin
+MOV
+ADD
+CMP
+JMP
+InstructionsEnd
+
+RegistersBegin
+rax
+rbx
+rcx
+rdx
+RegistersEnd
+
+InstructionLimit 99
+
+WinConditionBegin
+WIN2 2 true 0
+WinConditionEnd
+
++++LEVEL ENDS
+

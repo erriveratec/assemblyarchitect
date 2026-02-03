@@ -352,6 +352,8 @@ static void parse_instructions(FILE *fp)
 			iw_add_instruction_to_list(LABEL);
 		} else if (strstr(line, jmp_text) != NULL){
 			iw_add_instruction_to_list(JMP);
+		} else if (strstr(line, cmp_text) != NULL){
+			iw_add_instruction_to_list(CMP);
 		} else if (strstr(line, STR_INSTRUCTIONS_END)){
 			break;
 		} else {
