@@ -22,6 +22,7 @@
 #define VALUE_BOX_H 40
 #define VALUE_BOX_W 50
 #define REG_BOX_OFS 25
+#define BET_REG_OFS 5
 
 #define ARROW_H 30
 #define ARROW_W 30
@@ -561,6 +562,24 @@ int dm_get_ofs_code_op2()
 	int ofs = 2*cb.w + dm_get_w_padding();
 	return ofs;
 }
+
+/* Function: dm_get_ofs_bet_regs
+ * -----------------------------------------------------------------------------
+ *	Return the offset value of the contents of the buffer. 
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset
+ */
+int dm_get_ofs_bet_regs()
+{
+	int offset = dm_scale_to_resolution(BET_REG_OFS);
+	return offset;
+	
+}
+
 /* Function: dm_get_ofs_reg_box
  * -----------------------------------------------------------------------------
  *	Return the offset value of the contents of the buffer. 
@@ -1211,13 +1230,12 @@ SDL_Rect dm_get_stage_obox()
 SDL_Rect dm_get_stage_zfbox()
 {
 	SDL_Rect vb = dm_get_value_box_wh();
-	SDL_Rect rb = rg_get_register_box();
 	SDL_Rect rbi = dm_get_stage_reg_box();
 	SDL_Rect b;
 	b.w = vb.w;
 	b.h = vb.h;
 	b.x = rbi.x + rbi.w;
-	b.y = rb.y + rb.h + b.h/4;
+	b.y = rg_get_reg_box_y_pos(1);
 	return b;
 }
 

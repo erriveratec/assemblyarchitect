@@ -234,7 +234,7 @@ void rg_init_flag_and_vboxes()
 	g_obox.visible_box = true;
 	g_obox.t = dw_create_text_texture(ax_char_dash, C_WHITE);
 
-	g_zf.box = dm_get_stage_obox();
+	g_zf.box = dm_get_stage_zfbox();
 	g_zf.value = NO_VALUE;
 	g_zf.visible_box = true;
 	g_zf.t = dw_create_text_texture(ax_char_dash, C_GREY);
@@ -278,7 +278,7 @@ static void draw_value_boxes()
 	return;
 }
 
-/* Function: draw_flag_boxes
+/* Function: rg_draw_flag_boxes
  * -----------------------------------------------------------------------------
  * Draws the register value boxes with white color
  *
@@ -294,6 +294,27 @@ void rg_draw_flag_boxes()
 	ax_draw_value_box(&g_zf, C_GREY);
 	return;
 }
+
+/* Function: rg_get_reg_box_y_pos
+ * -----------------------------------------------------------------------------
+ * Arguments:
+ * 	pos: The position number of the register/used also for flags
+ *	
+ * Return:
+ *	void
+ *
+ */
+int rg_get_reg_box_y_pos(int pos)
+{
+	SDL_Rect cb = dm_get_code_button_wh();
+	int text_h = dm_get_h_stage_elements_titles();
+	int ofs = dm_get_ofs_stage_reg_box();
+	int bet_reg = dm_get_ofs_bet_regs();
+	int y = register_box.y + ofs + pos*2*(cb.h + bet_reg);
+
+	return y;
+}
+
 /* Function: rg_update_register_box_position
  * -----------------------------------------------------------------------------
  * The final position of the register box will be calculated in the middle of
@@ -322,10 +343,11 @@ void rg_update_register_box_position()
 
 	SDL_Rect cb = dm_get_code_button_wh();
 	int ofs = dm_get_ofs_stage_reg_box();
+	int bet_reg = dm_get_ofs_bet_regs();
 	int i = 0;
 	LIST_FOREACH(registers, first, next, cur){ 
 		reg_t *c = cur->value;
-		c->b->r.y = register_box.y + ofs + i*2*(cb.h + 5) + 
+		c->b->r.y = register_box.y + ofs + i*2*(cb.h + bet_reg) + 
 				  cb.h;
 		c->value.box.y = c->b->r.y - cb.h;
 		i++;
@@ -570,6 +592,7 @@ operand_t *rg_create_register_operand_by_id(int id)
 
 
 
+
 /* Function: rg_add_register_to_list
  * -----------------------------------------------------------------------------
  * Arguments:
@@ -605,8 +628,9 @@ void rg_add_register_to_list(int id)
 	int register_text_w = get_text_width_fits_height(text_h, AX_REG_TEXT);
 	int x = register_box.x + ofs;
 
-	int y = register_box.y + ofs + list_size*2*(cb.h + 5) +
-		    text_h + cb.h;
+	int y = 0;//rg_get_reg_box_y_pos(list_size);
+		//	register_box.y + ofs + list_size*2*(cb.h + 5) +
+		//    text_h + cb.h;
 
 	SDL_Rect r = {.x = x, .y = y, .w = cb.w, .h = cb.h};	
 	btn_t *b = bt_create_btn(r, reg_text);
@@ -646,7 +670,6 @@ void rg_draw_registers()
 		reg_t *reg = cur->value;
 		btn_t *button = reg->b;
 		bt_draw_btn(button); //Register name
-
 		ax_draw_value_box(&reg->value, C_WHITE); //The value box of the value
 	}
 }

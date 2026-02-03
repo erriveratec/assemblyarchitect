@@ -86,6 +86,7 @@ int dm_get_ofs_code_comma();
 int dm_get_ofs_buffer_value_box();
 int dm_get_ofs_between_value_box();
 int dm_get_ofs_reg_value_box();
+int dm_get_ofs_bet_regs();
 int dm_get_ofs_space_stage_buttons();
 int dm_get_ofs_iface_border();
 int dm_get_ofs_button_shadow();
