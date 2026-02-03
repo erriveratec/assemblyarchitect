@@ -1198,6 +1198,29 @@ SDL_Rect dm_get_stage_obox()
 	return b;
 }
 
+/* Function: dm_get_stage_zfbox
+ * -----------------------------------------------------------------------------
+ * Returns the box for the object
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dm_get_stage_zfbox()
+{
+	SDL_Rect vb = dm_get_value_box_wh();
+	SDL_Rect rb = rg_get_register_box();
+	SDL_Rect rbi = dm_get_stage_reg_box();
+	SDL_Rect b;
+	b.w = vb.w;
+	b.h = vb.h;
+	b.x = rbi.x + rbi.w;
+	b.y = rb.y + rb.h + b.h/4;
+	return b;
+}
+
 /* Function: dm_get_stage_reg_box
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object, x and y are initialize at 0

@@ -356,6 +356,8 @@ int cl_text_to_instruction_id(char *text)
 		instruction_id = LABEL;
 	} else if (strstr(text, jmp_text)!= NULL){
 		instruction_id = JMP;
+	} else if (strstr(text, cmp_text)!= NULL){
+		instruction_id = CMP;
 	}
 
 	assert(instruction_id != INVALID_OPERAND && "Instruction id is invalid");

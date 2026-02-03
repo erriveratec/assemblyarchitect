@@ -27,6 +27,8 @@ static void display_arrow_registers();
 value_box_t g_ibox;
 value_box_t g_obox;
 
+value_box_t g_zf;
+
 texture_t *g_reg_text = NULL;
 
 /* Function: iw_init_reg_texture
@@ -220,7 +222,7 @@ int rg_get_obox_y()
  *	Void.
  *
  */
-void rg_init_value_boxes()
+void rg_init_flag_and_vboxes()
 {
 	g_ibox.box = dm_get_stage_ibox();	
 	g_ibox.value = NO_VALUE;
@@ -231,6 +233,12 @@ void rg_init_value_boxes()
 	g_obox.value = NO_VALUE;
 	g_obox.visible_box = true;
 	g_obox.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+
+	g_zf.box = dm_get_stage_obox();
+	g_zf.value = NO_VALUE;
+	g_zf.visible_box = true;
+	g_zf.t = dw_create_text_texture(ax_char_dash, C_GREY);
+
 	return;
 }
 
@@ -267,6 +275,23 @@ static void draw_value_boxes()
 {
 	ax_draw_value_box(&g_ibox, C_MAGENTA);
 	ax_draw_value_box(&g_obox, C_CYAN);
+	return;
+}
+
+/* Function: draw_flag_boxes
+ * -----------------------------------------------------------------------------
+ * Draws the register value boxes with white color
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ *
+ */
+void rg_draw_flag_boxes()
+{
+	ax_draw_value_box(&g_zf, C_GREY);
 	return;
 }
 /* Function: rg_update_register_box_position

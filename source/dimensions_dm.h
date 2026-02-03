@@ -66,6 +66,7 @@ SDL_Rect dm_get_rst_btn_box();
 SDL_Rect dm_get_stage_reg_box();
 SDL_Rect dm_get_stage_ibox();
 SDL_Rect dm_get_stage_obox();
+SDL_Rect dm_get_stage_zfbox();
 SDL_Rect dm_get_stage_code_box();
 SDL_Rect dm_get_stage_instruction_box();
 SDL_Rect dm_get_stage_input_buffer_box();

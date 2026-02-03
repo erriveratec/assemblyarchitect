@@ -473,6 +473,28 @@ static void chk_ms_pressed_clear_msg(int message_id, bool reset_mouse)
 	}
 }
 
+/* Function: level_13_tutorial
+ * -----------------------------------------------------------------------------
+ * This functions handles all the special cases of the tutorial of level 10
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void level_13_tutorial()
+{
+	sb_set_step_btns_avail(true);
+	im_set_imm_up_avail(true);
+	draw_regs_arrow(check_display_reg_lv_arrow());
+	draw_bufs_arrow(check_display_buf_arrow());
+	draw_im_up_arrow(chk_display_imm_up_arrow());
+	rg_draw_flag_boxes();
+
+	int size = cw_get_code_list_size();
+	 
+}
 /* Function: level_12_tutorial
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 10
@@ -1722,8 +1744,13 @@ void lv_level_drawings(int level)
 		case LV_LEVEL_12:
 			level_12_tutorial();
 			break;
+		
+		case LV_LEVEL_13:
+			level_13_tutorial();
+			break;
 
 		default:
+			rg_draw_flag_boxes();
 			sb_set_step_btns_avail(true);
 		 	im_set_imm_up_avail(true);
 			draw_bufs_arrow(check_display_buf_arrow());
