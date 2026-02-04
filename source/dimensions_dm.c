@@ -21,6 +21,7 @@
 
 #define VALUE_BOX_H 40
 #define VALUE_BOX_W 50
+#define VAL_BOX_XOFS 10
 #define REG_BOX_OFS 25
 #define BET_REG_OFS 5
 
@@ -129,12 +130,11 @@
 #define BUF_H 75
 #define BUF_W 1000
 
-
-
-
 int g_res_id;
 int g_screen_width;
 int g_screen_height;
+
+static int dm_get_ofs_val_box_x();
 
 /* Function: dm_get_w_miss_op
  * -----------------------------------------------------------------------------
@@ -576,6 +576,23 @@ int dm_get_ofs_code_op2()
 int dm_get_ofs_bet_regs()
 {
 	int offset = dm_scale_to_resolution(BET_REG_OFS);
+	return offset;
+	
+}
+
+/* Function: dm_get_ofs_val_box_x
+ * -----------------------------------------------------------------------------
+ *	Return the offset value of the contents of the buffer. 
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset
+ */
+static int dm_get_ofs_val_box_x()
+{
+	int offset = dm_scale_to_resolution(VAL_BOX_XOFS);
 	return offset;
 	
 }
@@ -1234,8 +1251,8 @@ SDL_Rect dm_get_stage_zfbox()
 	SDL_Rect b;
 	b.w = vb.w;
 	b.h = vb.h;
-	b.x = rbi.x + rbi.w;
-	b.y = rg_get_reg_box_y_pos(1);
+	b.x = rbi.x + rbi.w + dm_get_ofs_val_box_x();
+	b.y = rg_get_reg_box_y_pos(0);
 	return b;
 }
 

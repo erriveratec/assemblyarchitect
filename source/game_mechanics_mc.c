@@ -91,6 +91,7 @@ static bool check_avatar_has_value(avatar_t *avatar);
 static void draw_iavatar();
 static void draw_oavatar();
 static void draw_ravatar();
+bool cmp_substract(int op_id, value_box_t val);
 
 /* Function: mc_set_rst_lvl
  *------------------------------------------------------------------------------
@@ -1016,6 +1017,38 @@ bool set_operand_value_box(int op_id, value_box_t val)
 	return operation_valid;
 }
 
+/* Function: cmp_substract
+ * -----------------------------------------------------------------------------
+ * Substract the current value of the operand with the value provided 
+ * by the avatar.
+ * if the operand value is not valid, it returns an invalid operation.
+ *  
+ * Arguments:
+ *	op_id: the id of the operand the avatar will retrieve
+ *  val: the avatar value box that will modify the operand.
+ *
+ * Return:
+ *	bool indicating if part of the retriving is pending
+ */
+bool cmp_substract(int op_id, value_box_t val)
+{ 
+	assert(op_id > REG_MIN && op_id < BUF_MAX && 
+		   "The operand id is invalid");
+	
+	bool operation_valid = true;
+
+	if (op_id > REG_MIN && op_id < REG_MAX){
+		value_box_t cur_val = rg_get_register_value_box_by_id(op_id);
+		if (cur_val.value == NO_VALUE){
+			operation_valid = false;	
+		} else {
+			cur_val.value -= val.value;
+		//	rg_set_register_value_box(op_id, cur_val);	
+		}
+	} 	
+	return operation_valid;
+}
+
 /* Function: add_operand_value_box
  * -----------------------------------------------------------------------------
  * Adds the current value of the operand with the value provided by the avatar.
@@ -1068,6 +1101,12 @@ void operate_instruction(code_line_t *line, value_box_t value)
 			break;
 		case ADD:
 			op_status = add_operand_value_box(line->op1->id, value);
+			if (op_status == false){
+				set_invalid_operation_flag(REG_VALUE_INVALID);
+			}
+			break;
+		case CMP:
+			op_status = cmp_substract(line->op1->id, value);
 			if (op_status == false){
 				set_invalid_operation_flag(REG_VALUE_INVALID);
 			}
@@ -1510,8 +1549,10 @@ static void execute_instruction(code_line_t *line, int line_pos)
 		avatar_id = handle_source_operand(line);
 		handle_destiny_operand(line, avatar_id);
 		
-		if (avatar_id == RAVATAR && g_ravatar.op2_retrieved == true && 
-			g_ravatar.op1_delivered == true && arrow_in_place == true){
+		if (avatar_id == RAVATAR 
+			&& g_ravatar.op2_retrieved == true 
+			&& g_ravatar.op1_delivered == true 
+			&& arrow_in_place == true){
 			if (cl_is_op_reg(line->op1->id) == true){
 				operate_instruction(line, g_ravatar.value);
 				line->state = EXECUTED;

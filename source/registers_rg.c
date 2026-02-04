@@ -13,6 +13,10 @@
 
 #define DEFAULT_OPERAND RAX
 
+#define ZF_TEXT "ZF"
+
+
+
 static List *register_list = NULL;
 static SDL_Rect register_box;
 
@@ -30,6 +34,8 @@ value_box_t g_obox;
 value_box_t g_zf;
 
 texture_t *g_reg_text = NULL;
+texture_t *g_zf_text = NULL;
+
 
 /* Function: iw_init_reg_texture
  *------------------------------------------------------------------------------
@@ -238,6 +244,7 @@ void rg_init_flag_and_vboxes()
 	g_zf.value = NO_VALUE;
 	g_zf.visible_box = true;
 	g_zf.t = dw_create_text_texture(ax_char_dash, C_GREY);
+	g_zf_text = dw_create_text_texture(ZF_TEXT, C_GREY);
 
 	return;
 }
@@ -292,6 +299,13 @@ static void draw_value_boxes()
 void rg_draw_flag_boxes()
 {
 	ax_draw_value_box(&g_zf, C_GREY);
+	SDL_Rect text = g_zf.box;
+	text.h = dm_get_code_button_wh().h;
+	int w = get_text_width_fits_height(text.h, ZF_TEXT);
+	text.y += text.h;
+	text.x += (dm_get_value_box_wh().w - w)/2;
+	dw_draw_texture_fits_height(text, g_zf_text);
+	
 	return;
 }
 
@@ -347,9 +361,8 @@ void rg_update_register_box_position()
 	int i = 0;
 	LIST_FOREACH(registers, first, next, cur){ 
 		reg_t *c = cur->value;
-		c->b->r.y = register_box.y + ofs + i*2*(cb.h + bet_reg) + 
-				  cb.h;
-		c->value.box.y = c->b->r.y - cb.h;
+		c->b->r.y = rg_get_reg_box_y_pos(i) + cb.h;
+		c->value.box.y = rg_get_reg_box_y_pos(i);
 		i++;
    	}
 
