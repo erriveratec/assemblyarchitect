@@ -92,6 +92,7 @@ static void draw_iavatar();
 static void draw_oavatar();
 static void draw_ravatar();
 bool cmp_substract(int op_id, value_box_t val);
+static bool handle_ravatar_cmp(int op_id);
 
 /* Function: mc_set_rst_lvl
  *------------------------------------------------------------------------------
@@ -1287,6 +1288,39 @@ static bool handle_ravatar_source_operand(int op_id)
 	}
 	return mov_pending;
 }
+
+/* Function: handle_ravatar_cmp
+ * -----------------------------------------------------------------------------
+ * Performs the action of handling and moving the rvatar in the cases that are
+ * applicable
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Void.
+ */
+static bool handle_ravatar_cmp(int op_id)
+{
+	bool mov_pending = true;
+
+	mov_pending = move_avatar_to_operand(&g_ravatar, op_id);
+	if (mov_pending == false 
+		&& g_ravatar.in_place == false 
+		&& g_ravatar.op2_retrieved == false){
+		g_ravatar.in_place = true;
+		if (check_operand_has_value(op_id) == true){
+			value_box_t b = get_operand_value_box(op_id);
+			//ax_copy_vbox(&g_ravatar.value, b);
+			g_ravatar.value.visible_box = true;
+			//rg_reset_ibox();
+		}
+		else {
+			set_invalid_operation_flag(REG_VALUE_INVALID);
+		}
+	}
+	return mov_pending;
+}
 /* Function: handle_ovatar_operand
  * -----------------------------------------------------------------------------
  * Performs the action of handling and moving the ovatar in the cases that are
@@ -1342,12 +1376,19 @@ static int handle_source_operand(code_line_t *line)
 		if (check_operand_has_value(IBOX) == true){
 			mov_pending = handle_ravatar_source_operand(IBOX);	
 			avatar_id = RAVATAR;
+		} else if (line->ins->id == CMP // aca lo dejo, ma;ana entiendo
+				   && check_avatar_has_value(&g_ravatar) == true){
+			puts("This happens");
+			if (g_ravatar.op2_retrieved == false) {
+				mov_pending = handle_ravatar_cmp(line->op1->id);	
+			}
+			avatar_id = RAVATAR;
 		} else if (check_avatar_has_value(&g_ravatar) == true){
 			mov_pending = false;
 			avatar_id = RAVATAR;
-		} else if (cl_is_op_reg(line->op2->id)&& 
-				   check_operand_has_value(OBOX) == false &&
-				   check_avatar_has_value(&g_oavatar) == false){
+		} else if (cl_is_op_reg(line->op2->id)
+				   && check_operand_has_value(OBOX) == false 
+				   && check_avatar_has_value(&g_oavatar) == false){
 			if (g_ravatar.op2_retrieved == false) {
 				mov_pending = handle_ravatar_source_operand(line->op2->id);	
 			}
