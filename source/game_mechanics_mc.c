@@ -1584,8 +1584,9 @@ static void execute_instruction(code_line_t *line, int line_pos)
 	} else if (line->ins->id == JMP && arrow_in_place == true){
 		cw_operate_jump_instruction(line);
 		reset_avatar_no_pos();
-	} else if (buffer_inputs != CW_EMPTY || line->state == IN_EXECUTION || 
-													 line->state == COMPLETE){
+	} else if (buffer_inputs != CW_EMPTY 
+			  || line->state == IN_EXECUTION 
+			  || line->state == COMPLETE){
 		line->state = IN_EXECUTION;
 		avatar_id = handle_source_operand(line);
 		handle_destiny_operand(line, avatar_id);
