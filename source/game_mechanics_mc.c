@@ -50,7 +50,8 @@ typedef struct avatar_t{
 	int id;
 	bool in_place;
 	bool op2_retrieved;
-	bool op1_delivered;
+	bool op1_retrieved;
+	bool op_delivered;
 	value_box_t value;
 	SDL_Color color;
 } avatar_t;
@@ -332,7 +333,7 @@ void mc_init_avatar()
 	g_iavatar.value.visible_box = false;
 	g_iavatar.in_place = false;
 	g_iavatar.op2_retrieved = false;
-	g_iavatar.op1_delivered = false;
+	g_iavatar.op_delivered = false;
 
 	g_iavatar.value.value = NO_VALUE;
 	g_iavatar.value.box.x = ib.x;
@@ -352,7 +353,7 @@ void mc_init_avatar()
 	g_oavatar.value.visible_box = false;
 	g_oavatar.in_place = false;
 	g_oavatar.op2_retrieved = false;
-	g_oavatar.op1_delivered = false;
+	g_oavatar.op_delivered = false;
 
 	g_oavatar.value.value = NO_VALUE;
 	g_oavatar.value.box.x = ob.x;
@@ -374,7 +375,7 @@ void mc_init_avatar()
 	g_ravatar.value.visible_box = false;
 	g_ravatar.in_place = false;
 	g_ravatar.op2_retrieved = false;
-	g_ravatar.op1_delivered = false;
+	g_ravatar.op_delivered = false;
 
 	g_ravatar.value.value = NO_VALUE;
 	g_ravatar.value.box.x = g_ravatar.box.x;
@@ -406,7 +407,8 @@ void mc_reset_avatar()
 	g_iavatar.value.visible_box = false;
 	g_iavatar.in_place = false;
 	g_iavatar.op2_retrieved = false;
-	g_iavatar.op1_delivered = false;
+	g_iavatar.op1_retrieved = false;
+	g_iavatar.op_delivered = false;
 
 	g_iavatar.value.value = NO_VALUE;
 	g_iavatar.value.box.x = ib.x;
@@ -428,7 +430,8 @@ void mc_reset_avatar()
 	g_oavatar.value.visible_box = false;
 	g_oavatar.in_place = false;
 	g_oavatar.op2_retrieved = false;
-	g_oavatar.op1_delivered = false;
+	g_oavatar.op1_retrieved = false;
+	g_oavatar.op_delivered = false;
 
 	g_oavatar.value.value = NO_VALUE;
 	g_oavatar.value.box.x = ob.x;
@@ -452,7 +455,8 @@ void mc_reset_avatar()
 	g_ravatar.value.visible_box = false;
 	g_ravatar.in_place = false;
 	g_ravatar.op2_retrieved = false;
-	g_ravatar.op1_delivered = false;
+	g_ravatar.op1_retrieved = false;
+	g_ravatar.op_delivered = false;
 
 	g_ravatar.value.value = NO_VALUE;
 	g_ravatar.value.box.x = g_ravatar.box.x;
@@ -480,7 +484,8 @@ void reset_avatar_no_pos()
 	g_iavatar.value.visible_box = false;
 	g_iavatar.in_place = false;
 	g_iavatar.op2_retrieved = false;
-	g_iavatar.op1_delivered = false;
+	g_iavatar.op1_retrieved = false;
+	g_iavatar.op_delivered = false;
 
 	g_iavatar.value.value = NO_VALUE;
 	g_iavatar.value.box.x = g_iavatar.box.x;
@@ -493,7 +498,8 @@ void reset_avatar_no_pos()
 	g_oavatar.value.visible_box = false;
 	g_oavatar.in_place = false;
 	g_oavatar.op2_retrieved = false;
-	g_oavatar.op1_delivered = false;
+	g_oavatar.op1_retrieved = false;
+	g_oavatar.op_delivered = false;
 
 	g_oavatar.value.value = NO_VALUE;
 	g_oavatar.value.box.x = g_oavatar.box.x;
@@ -505,7 +511,8 @@ void reset_avatar_no_pos()
 	g_ravatar.value.visible_box = false;
 	g_ravatar.in_place = false;
 	g_ravatar.op2_retrieved = false;
-	g_ravatar.op1_delivered = false;
+	g_ravatar.op1_retrieved = false;
+	g_ravatar.op_delivered = false;
 
 	g_ravatar.value.value = NO_VALUE;
 	g_ravatar.value.box.x = g_ravatar.box.x;
@@ -1273,8 +1280,9 @@ static bool handle_ravatar_source_operand(int op_id)
 	bool mov_pending = true;
 
 	mov_pending = move_avatar_to_operand(&g_ravatar, op_id);
-	if (mov_pending == false && g_ravatar.in_place == false && 
-							  				 g_ravatar.op2_retrieved == false){
+	if (mov_pending == false 
+		&& g_ravatar.in_place == false 
+		&& g_ravatar.op2_retrieved == false){
 		g_ravatar.in_place = true;
 		if (check_operand_has_value(op_id) == true){
 			value_box_t b = get_operand_value_box(op_id);
@@ -1305,15 +1313,19 @@ static bool handle_ravatar_cmp(int op_id)
 	bool mov_pending = true;
 
 	mov_pending = move_avatar_to_operand(&g_ravatar, op_id);
-	if (mov_pending == false 
+	printf("mov = %d, place = %d, retrieved = %d\n", mov_pending, g_ravatar.in_place, 
+	g_ravatar.op1_retrieved);
+
+	if (mov_pending == false
 		&& g_ravatar.in_place == false 
-		&& g_ravatar.op2_retrieved == false){
+		&& g_ravatar.op1_retrieved == false){
 		g_ravatar.in_place = true;
+		puts("dentro");
 		if (check_operand_has_value(op_id) == true){
+			puts("This was never happening");
 			value_box_t b = get_operand_value_box(op_id);
-			//ax_copy_vbox(&g_ravatar.value, b);
+			ax_copy_vbox(&g_ravatar.value, b);
 			g_ravatar.value.visible_box = true;
-			//rg_reset_ibox();
 		}
 		else {
 			set_invalid_operation_flag(REG_VALUE_INVALID);
@@ -1321,6 +1333,9 @@ static bool handle_ravatar_cmp(int op_id)
 	}
 	return mov_pending;
 }
+
+
+
 /* Function: handle_ovatar_operand
  * -----------------------------------------------------------------------------
  * Performs the action of handling and moving the ovatar in the cases that are
@@ -1376,12 +1391,10 @@ static int handle_source_operand(code_line_t *line)
 		if (check_operand_has_value(IBOX) == true){
 			mov_pending = handle_ravatar_source_operand(IBOX);	
 			avatar_id = RAVATAR;
-		} else if (line->ins->id == CMP // aca lo dejo, ma;ana entiendo
-				   && check_avatar_has_value(&g_ravatar) == true){
-			puts("This happens");
-			if (g_ravatar.op2_retrieved == false) {
-				mov_pending = handle_ravatar_cmp(line->op1->id);	
-			}
+		} else if (line->ins->id == CMP 
+				   && check_avatar_has_value(&g_ravatar) == true
+				   && g_ravatar.op2_retrieved == true){
+			mov_pending = handle_ravatar_cmp(line->op1->id);	
 			avatar_id = RAVATAR;
 		} else if (check_avatar_has_value(&g_ravatar) == true){
 			mov_pending = false;
@@ -1412,13 +1425,25 @@ static int handle_source_operand(code_line_t *line)
 		}
 
 	}
+	
 	if (mov_pending == false){
 		bool retrieve_pending; 
-		if (avatar_id == RAVATAR && g_ravatar.op2_retrieved == false){
+		if (avatar_id == RAVATAR 
+			&& line->ins->id == CMP			
+			&& g_ravatar.op2_retrieved == true
+			&& g_ravatar.op1_retrieved == false){
+			retrieve_pending = retrieve_operand(&g_ravatar);
+			if (retrieve_pending == false){
+				puts("pasa");
+				g_ravatar.op1_retrieved = true;
+				g_ravatar.in_place = false;
+			}
+		} else if (avatar_id == RAVATAR && g_ravatar.op2_retrieved == false){
 			retrieve_pending = retrieve_operand(&g_ravatar);
 			if (retrieve_pending == false){
 				g_ravatar.op2_retrieved = true;
 				g_ravatar.in_place = false;
+				puts("Cuando hace retrieve de la primer value box");
 			}
 		} else if (avatar_id == IAVATAR){
 			retrieve_pending = retrieve_operand(&g_iavatar);
@@ -1453,13 +1478,20 @@ static void handle_destiny_operand(code_line_t *line, int avatar_id)
 	assert(line != NULL && "The value of line cannot be NULL");
 	int mov_pending = NO_VALUE;
 	
-	if (avatar_id == RAVATAR && g_ravatar.op2_retrieved == true){
+	if (avatar_id == RAVATAR 
+		&& line->ins->id == CMP 
+		&& g_ravatar.op1_retrieved == true){
+		puts("debe hacer entrega");	
+	} else if (avatar_id == RAVATAR 
+			   && line->ins->id != CMP
+			   && g_ravatar.op2_retrieved == true){
 		if (cl_is_op_reg(line->op1->id) == true){
 			mov_pending = move_avatar_to_operand(&g_ravatar, line->op1->id);
 		} else {
 			mov_pending = move_avatar_to_operand(&g_ravatar, OBOX);
 		}
 		if (mov_pending == false && g_ravatar.in_place == false){
+				puts("Intenta hacer deliver");
 			g_ravatar.in_place = true;
 		}
 		if (mov_pending == false){
@@ -1470,11 +1502,12 @@ static void handle_destiny_operand(code_line_t *line, int avatar_id)
 				deliver_pending = deliver_operand(&g_ravatar, OBOX);
 			}
 			if (deliver_pending == false){
-				g_ravatar.op1_delivered = true;
+				g_ravatar.op_delivered = true;
 				g_ravatar.value.visible_box = false;
 			}
 		}
 	}
+	
 	if (avatar_id == IAVATAR && g_iavatar.op2_retrieved == true){
 		mov_pending = move_avatar_to_operand(&g_iavatar, IBOX);
 		if (mov_pending == false && g_iavatar.in_place == false){
@@ -1483,7 +1516,7 @@ static void handle_destiny_operand(code_line_t *line, int avatar_id)
 		if (mov_pending == false){
 			int deliver_pending = deliver_operand(&g_iavatar, IBOX);
 			if (deliver_pending == false){
-				g_iavatar.op1_delivered = true;
+				g_iavatar.op_delivered = true;
 				g_iavatar.value.visible_box = false;
 			}
 		}
@@ -1496,7 +1529,7 @@ static void handle_destiny_operand(code_line_t *line, int avatar_id)
 		if (mov_pending == false){
 			int deliver_pending = deliver_operand(&g_oavatar ,line->op1->id);
 			if (deliver_pending == false){
-				g_oavatar.op1_delivered = true;
+				g_oavatar.op_delivered = true;
 				g_oavatar.value.visible_box = false;
 			}
 		}
@@ -1593,7 +1626,7 @@ static void execute_instruction(code_line_t *line, int line_pos)
 		
 		if (avatar_id == RAVATAR 
 			&& g_ravatar.op2_retrieved == true 
-			&& g_ravatar.op1_delivered == true 
+			&& g_ravatar.op_delivered == true 
 			&& arrow_in_place == true){
 			if (cl_is_op_reg(line->op1->id) == true){
 				operate_instruction(line, g_ravatar.value);
@@ -1605,12 +1638,12 @@ static void execute_instruction(code_line_t *line, int line_pos)
 			reset_avatar_no_pos();
 		}
 		if (avatar_id == IAVATAR && g_iavatar.op2_retrieved == true && 
-			g_iavatar.op1_delivered == true && arrow_in_place == true){
+			g_iavatar.op_delivered == true && arrow_in_place == true){
 			set_operand_value_box(IBOX, g_iavatar.value);
 			reset_avatar_no_pos();
 		}
 		if (avatar_id == OAVATAR && g_oavatar.op2_retrieved == true && 
-			g_oavatar.op1_delivered == true && arrow_in_place == true){
+			g_oavatar.op_delivered == true && arrow_in_place == true){
 			operate_instruction(line, g_oavatar.value);
 			line->state = EXECUTED;
 			mc_set_step_ended(true);

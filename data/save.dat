@@ -99,6 +99,9 @@ CODE STARTS
 MOV rax, [ib]
 ADD rax, rax
 ADD rax, rax
+ADD rax, rax
+ADD rax, rax
+ADD rax, rax
 MOV [ob], rax
 CODE ENDS
 
@@ -167,10 +170,8 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-MOV rax, IMMUP4
-CMP rax, IMMUP4
-MOV [ob], rax
-CMP rax, [ib]
+MOV rax, IMMUP5
+CMP rax, IMMUP6
 CODE ENDS
 
 +++LEVEL ENDS 13
@@ -549,6 +550,9 @@ CODE STARTS
 MOV rax, [ib]
 ADD rax, rax
 ADD rax, rax
+ADD rax, rax
+ADD rax, rax
+ADD rax, rax
 MOV [ob], rax
 CODE ENDS
 
@@ -617,10 +621,8 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-MOV rax, IMMUP4
-CMP rax, IMMUP4
-MOV [ob], rax
-CMP rax, [ib]
+MOV rax, IMMUP5
+CMP rax, IMMUP6
 CODE ENDS
 
 +++LEVEL ENDS 13
@@ -999,6 +1001,9 @@ CODE STARTS
 MOV rax, [ib]
 ADD rax, rax
 ADD rax, rax
+ADD rax, rax
+ADD rax, rax
+ADD rax, rax
 MOV [ob], rax
 CODE ENDS
 
@@ -1067,10 +1072,8 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-MOV rax, IMMUP4
-CMP rax, IMMUP4
-MOV [ob], rax
-CMP rax, [ib]
+MOV rax, IMMUP5
+CMP rax, IMMUP6
 CODE ENDS
 
 +++LEVEL ENDS 13
