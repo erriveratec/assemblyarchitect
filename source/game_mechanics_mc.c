@@ -52,7 +52,8 @@ typedef struct avatar_t{
 	bool op2_retrieved;
 	bool op1_retrieved;
 	bool op_delivered;
-	value_box_t value;
+	value_box_t mainval;
+	value_box_t secval;
 	SDL_Color color;
 } avatar_t;
 
@@ -306,9 +307,12 @@ static void set_invalid_operation_flag(int flag_id)
  */
 void mc_destroy_avatar_textures()
 {
-	dw_free_texture(g_iavatar.value.t);
-	dw_free_texture(g_oavatar.value.t);
-	dw_free_texture(g_ravatar.value.t);
+	dw_free_texture(g_iavatar.mainval.t);
+	dw_free_texture(g_iavatar.secval.t);
+	dw_free_texture(g_oavatar.mainval.t);
+	dw_free_texture(g_oavatar.secval.t);
+	dw_free_texture(g_ravatar.mainval.t);
+	dw_free_texture(g_ravatar.secval.t);
 }
 
 /* Function: mc_init_avatar
@@ -330,17 +334,25 @@ void mc_init_avatar()
 	g_iavatar.box.w = avatar.w;
 	g_iavatar.box.h = avatar.h;
 
-	g_iavatar.value.visible_box = false;
+	g_iavatar.mainval.visible_box = false;
+	g_iavatar.secval.visible_box = false;
 	g_iavatar.in_place = false;
 	g_iavatar.op2_retrieved = false;
 	g_iavatar.op_delivered = false;
 
-	g_iavatar.value.value = NO_VALUE;
-	g_iavatar.value.box.x = ib.x;
-	g_iavatar.value.box.y = g_iavatar.box.y - avatar.h;
-	g_iavatar.value.box.w = vb.w;
-	g_iavatar.value.box.h = vb.h;
-	g_iavatar.value.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_iavatar.mainval.value = NO_VALUE;
+	g_iavatar.secval.value = NO_VALUE;
+	g_iavatar.mainval.box.x = ib.x;
+	g_iavatar.mainval.box.y = g_iavatar.box.y - avatar.h;
+	g_iavatar.mainval.box.w = vb.w;
+	g_iavatar.mainval.box.h = vb.h;
+	g_iavatar.secval.box.x = ib.x;
+	g_iavatar.secval.box.y = g_iavatar.box.y - avatar.h;
+	g_iavatar.secval.box.w = vb.w;
+	g_iavatar.secval.box.h = vb.h;
+
+	g_iavatar.mainval.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_iavatar.secval.t = dw_create_text_texture(ax_char_dash, C_WHITE);
 	g_iavatar.color = C_MAGENTA;
 
 	SDL_Rect ob = dm_get_stage_output_buffer_box();
@@ -350,17 +362,24 @@ void mc_init_avatar()
 	g_oavatar.box.w = avatar.w;
 	g_oavatar.box.h = avatar.h;
 
-	g_oavatar.value.visible_box = false;
+	g_oavatar.mainval.visible_box = false;
+	g_oavatar.secval.visible_box = false;
 	g_oavatar.in_place = false;
 	g_oavatar.op2_retrieved = false;
 	g_oavatar.op_delivered = false;
 
-	g_oavatar.value.value = NO_VALUE;
-	g_oavatar.value.box.x = ob.x;
-	g_oavatar.value.box.y = g_oavatar.box.y - avatar.h;
-	g_oavatar.value.box.w = vb.w;
-	g_oavatar.value.box.h = vb.h;
-	g_oavatar.value.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_oavatar.mainval.value = NO_VALUE;
+	g_oavatar.secval.value = NO_VALUE;
+	g_oavatar.mainval.box.x = ob.x;
+	g_oavatar.mainval.box.y = g_oavatar.box.y - avatar.h;
+	g_oavatar.mainval.box.w = vb.w;
+	g_oavatar.mainval.box.h = vb.h;
+	g_oavatar.mainval.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_oavatar.secval.box.x = ob.x;
+	g_oavatar.secval.box.y = g_oavatar.box.y - avatar.h;
+	g_oavatar.secval.box.w = vb.w;
+	g_oavatar.secval.box.h = vb.h;
+	g_oavatar.secval.t = dw_create_text_texture(ax_char_dash, C_WHITE);
 	g_oavatar.color = C_CYAN;
 
 	int ofs = dm_get_ofs_stage_reg_box();
@@ -372,17 +391,25 @@ void mc_init_avatar()
 	g_ravatar.box.w = avatar.w;
 	g_ravatar.box.h = avatar.h;
 
-	g_ravatar.value.visible_box = false;
+	g_ravatar.mainval.visible_box = false;
+	g_ravatar.secval.visible_box = false;
 	g_ravatar.in_place = false;
 	g_ravatar.op2_retrieved = false;
 	g_ravatar.op_delivered = false;
 
-	g_ravatar.value.value = NO_VALUE;
-	g_ravatar.value.box.x = g_ravatar.box.x;
-	g_ravatar.value.box.y = g_ravatar.box.y - avatar.h;
-	g_ravatar.value.box.w = vb.w;
-	g_ravatar.value.box.h = vb.h;
-	g_ravatar.value.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_ravatar.mainval.value = NO_VALUE;
+	g_ravatar.mainval.box.x = g_ravatar.box.x;
+	g_ravatar.mainval.box.y = g_ravatar.box.y - avatar.h;
+	g_ravatar.mainval.box.w = vb.w;
+	g_ravatar.mainval.box.h = vb.h;
+	g_ravatar.mainval.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_ravatar.secval.value = NO_VALUE;
+	g_ravatar.secval.box.x = g_ravatar.box.x;
+	g_ravatar.secval.box.y = g_ravatar.box.y - avatar.h;
+	g_ravatar.secval.box.w = vb.w;
+	g_ravatar.secval.box.h = vb.h;
+	g_ravatar.secval.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+
 	g_ravatar.color = C_YELLOW;
 }
 /* Function: mc_reset_avatar
@@ -395,79 +422,22 @@ void mc_init_avatar()
  */
 void mc_reset_avatar()
 {
-	SDL_Rect avatar =  dm_get_avatar_wh();
-	SDL_Rect ib = dm_get_stage_input_buffer_box();
-	SDL_Rect vb = dm_get_value_box_val_wh();
-	g_iavatar.id = IAVATAR;
-	g_iavatar.box.x = bf_get_buffer_value_box_x_coord_by_id(IB);	
-	g_iavatar.box.y = ib.y + ib.h + avatar.h;
-	g_iavatar.box.w = avatar.w;
-	g_iavatar.box.h = avatar.h;
+	dw_free_texture(g_iavatar.mainval.t);
+	g_iavatar.mainval.t = NULL;
+	dw_free_texture(g_iavatar.secval.t);
+	g_iavatar.secval.t = NULL;
+	
+	dw_free_texture(g_oavatar.mainval.t);
+	g_oavatar.mainval.t = NULL;
+	dw_free_texture(g_oavatar.secval.t);
+	g_oavatar.secval.t = NULL;
 
-	g_iavatar.value.visible_box = false;
-	g_iavatar.in_place = false;
-	g_iavatar.op2_retrieved = false;
-	g_iavatar.op1_retrieved = false;
-	g_iavatar.op_delivered = false;
+	dw_free_texture(g_ravatar.mainval.t);
+	g_ravatar.mainval.t = NULL;
+	dw_free_texture(g_ravatar.secval.t);
+	g_ravatar.secval.t = NULL;
 
-	g_iavatar.value.value = NO_VALUE;
-	g_iavatar.value.box.x = ib.x;
-	g_iavatar.value.box.y = g_iavatar.box.y - avatar.h;
-	g_iavatar.value.box.w = vb.w;
-	g_iavatar.value.box.h = vb.h;
-	dw_free_texture(g_iavatar.value.t);
-	g_iavatar.value.t = NULL;
-	g_iavatar.value.t = dw_create_text_texture(ax_char_dash, C_WHITE);
-	g_iavatar.color = C_MAGENTA;
-
-	SDL_Rect ob = dm_get_stage_output_buffer_box();
-	g_oavatar.id = OAVATAR;
-	g_oavatar.box.x = bf_get_buffer_value_box_x_coord_by_id(OB);	
-	g_oavatar.box.y = ob.y - 2*avatar.h;
-	g_oavatar.box.w = avatar.w;
-	g_oavatar.box.h = avatar.h;
-
-	g_oavatar.value.visible_box = false;
-	g_oavatar.in_place = false;
-	g_oavatar.op2_retrieved = false;
-	g_oavatar.op1_retrieved = false;
-	g_oavatar.op_delivered = false;
-
-	g_oavatar.value.value = NO_VALUE;
-	g_oavatar.value.box.x = ob.x;
-	g_oavatar.value.box.y = g_oavatar.box.y - avatar.h;
-	g_oavatar.value.box.w = vb.w;
-	g_oavatar.value.box.h = vb.h;
-	dw_free_texture(g_oavatar.value.t);
-	g_oavatar.value.t = NULL;
-	g_oavatar.value.t = dw_create_text_texture(ax_char_dash, C_WHITE);
-	g_oavatar.color = C_CYAN;
-
-	int ofs = dm_get_ofs_stage_reg_box();
-	SDL_Rect rb = rg_get_register_box();
-
-	g_ravatar.id = RAVATAR;
-	g_ravatar.box.x = rb.x + rb.w - 2*avatar.w;
-	g_ravatar.box.y = rb.y + rb.h/2 - avatar.h/2; 
-	g_ravatar.box.w = avatar.w;
-	g_ravatar.box.h = avatar.h;
-
-	g_ravatar.value.visible_box = false;
-	g_ravatar.in_place = false;
-	g_ravatar.op2_retrieved = false;
-	g_ravatar.op1_retrieved = false;
-	g_ravatar.op_delivered = false;
-
-	g_ravatar.value.value = NO_VALUE;
-	g_ravatar.value.box.x = g_ravatar.box.x;
-	g_ravatar.value.box.y = g_ravatar.box.y - avatar.h;
-	g_ravatar.value.box.w = vb.w;
-	g_ravatar.value.box.h = vb.h;
-	dw_free_texture(g_ravatar.value.t);
-	g_ravatar.value.t = NULL;
-	g_ravatar.value.t = dw_create_text_texture(ax_char_dash, C_WHITE);
-	g_ravatar.color = C_YELLOW;
-
+	mc_init_avatar();	
 }
 
 /* Function: reset_avatar_no_pos
@@ -481,45 +451,69 @@ void mc_reset_avatar()
 void reset_avatar_no_pos()
 {
 	SDL_Rect avatar =  dm_get_avatar_wh();
-	g_iavatar.value.visible_box = false;
+	g_iavatar.mainval.visible_box = false;
+	g_iavatar.secval.visible_box = false;
 	g_iavatar.in_place = false;
 	g_iavatar.op2_retrieved = false;
 	g_iavatar.op1_retrieved = false;
 	g_iavatar.op_delivered = false;
 
-	g_iavatar.value.value = NO_VALUE;
-	g_iavatar.value.box.x = g_iavatar.box.x;
-	g_iavatar.value.box.y = g_iavatar.box.y - avatar.h;
-	dw_free_texture(g_iavatar.value.t);
-	g_iavatar.value.t = NULL;
-	g_iavatar.value.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_iavatar.mainval.value = NO_VALUE;
+	g_iavatar.mainval.box.x = g_iavatar.box.x;
+	g_iavatar.mainval.box.y = g_iavatar.box.y - avatar.h;
+	dw_free_texture(g_iavatar.mainval.t);
+	g_iavatar.mainval.t = NULL;
+	g_iavatar.mainval.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	
+	g_iavatar.secval.value = NO_VALUE;
+	g_iavatar.secval.box.x = g_iavatar.box.x;
+	g_iavatar.secval.box.y = g_iavatar.box.y - avatar.h;
+	dw_free_texture(g_iavatar.secval.t);
+	g_iavatar.secval.t = NULL;
+	g_iavatar.secval.t = dw_create_text_texture(ax_char_dash, C_WHITE);
 
 
-	g_oavatar.value.visible_box = false;
+	g_oavatar.mainval.visible_box = false;
+	g_oavatar.secval.visible_box = false;
 	g_oavatar.in_place = false;
 	g_oavatar.op2_retrieved = false;
 	g_oavatar.op1_retrieved = false;
 	g_oavatar.op_delivered = false;
 
-	g_oavatar.value.value = NO_VALUE;
-	g_oavatar.value.box.x = g_oavatar.box.x;
-	g_oavatar.value.box.y = g_oavatar.box.y - avatar.h;
-	dw_free_texture(g_oavatar.value.t);
-	g_oavatar.value.t = NULL;
-	g_oavatar.value.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_oavatar.mainval.value = NO_VALUE;
+	g_oavatar.mainval.box.x = g_oavatar.box.x;
+	g_oavatar.mainval.box.y = g_oavatar.box.y - avatar.h;
+	dw_free_texture(g_oavatar.mainval.t);
+	g_oavatar.mainval.t = NULL;
+	g_oavatar.mainval.t = dw_create_text_texture(ax_char_dash, C_WHITE);
 
-	g_ravatar.value.visible_box = false;
+	g_oavatar.secval.value = NO_VALUE;
+	g_oavatar.secval.box.x = g_oavatar.box.x;
+	g_oavatar.secval.box.y = g_oavatar.box.y - avatar.h;
+	dw_free_texture(g_oavatar.secval.t);
+	g_oavatar.secval.t = NULL;
+	g_oavatar.secval.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+
+	g_ravatar.mainval.visible_box = false;
+	g_ravatar.secval.visible_box = false;
 	g_ravatar.in_place = false;
 	g_ravatar.op2_retrieved = false;
 	g_ravatar.op1_retrieved = false;
 	g_ravatar.op_delivered = false;
 
-	g_ravatar.value.value = NO_VALUE;
-	g_ravatar.value.box.x = g_ravatar.box.x;
-	g_ravatar.value.box.y = g_ravatar.box.y - avatar.h;
-	dw_free_texture(g_ravatar.value.t);
-	g_ravatar.value.t = NULL;
-	g_ravatar.value.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_ravatar.mainval.value = NO_VALUE;
+	g_ravatar.mainval.box.x = g_ravatar.box.x;
+	g_ravatar.mainval.box.y = g_ravatar.box.y - avatar.h;
+	dw_free_texture(g_ravatar.mainval.t);
+	g_ravatar.mainval.t = NULL;
+	g_ravatar.mainval.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+
+	g_ravatar.secval.value = NO_VALUE;
+	g_ravatar.secval.box.x = g_ravatar.box.x;
+	g_ravatar.secval.box.y = g_ravatar.box.y - avatar.h;
+	dw_free_texture(g_ravatar.secval.t);
+	g_ravatar.secval.t = NULL;
+	g_ravatar.secval.t = dw_create_text_texture(ax_char_dash, C_WHITE);
 
 }
 /* Function: draw_iavatar
@@ -534,8 +528,8 @@ void reset_avatar_no_pos()
  */
 static void draw_iavatar()
 {
-	if (g_iavatar.value.visible_box == true){
-		ax_draw_value_box(&g_iavatar.value, g_iavatar.color);
+	if (g_iavatar.mainval.visible_box == true){
+		ax_draw_value_box(&g_iavatar.mainval, g_iavatar.color);
 	}
 	SDL_Rect r0 = {.x = g_iavatar.box.x, .y = g_iavatar.box.y, 
 				  .w= g_iavatar.box.w, .h = g_iavatar.box.h};
@@ -600,8 +594,8 @@ static void draw_iavatar()
  */
 static void draw_oavatar()
 {
-	if (g_oavatar.value.visible_box == true){
-		ax_draw_value_box(&g_oavatar.value, g_oavatar.color);
+	if (g_oavatar.mainval.visible_box == true){
+		ax_draw_value_box(&g_oavatar.mainval, g_oavatar.color);
 	}
 	SDL_Rect r0 = {.x = g_oavatar.box.x, .y = g_oavatar.box.y, 
 				  .w = g_oavatar.box.w, .h = g_oavatar.box.h};
@@ -667,8 +661,8 @@ static void draw_oavatar()
 void draw_ravatar()
 {
 	
-	if (g_ravatar.value.visible_box == true){
-		ax_draw_value_box(&g_ravatar.value, g_ravatar.color);
+	if (g_ravatar.mainval.visible_box == true){
+		ax_draw_value_box(&g_ravatar.mainval, g_ravatar.color);
 	}
 	SDL_Rect r0 = {.x = g_ravatar.box.x, .y =  g_ravatar.box.y, 
 				   .w = g_ravatar.box.w, .h = g_ravatar.box.h};
@@ -874,25 +868,25 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 	if (avatar->box.x < x){
 		int delta = ax_get_movement_delta(avatar->box.x, x, mdelta);
 		avatar->box.x += delta;
-		avatar->value.box.x += delta;
+		avatar->mainval.box.x += delta;
 		mov = true;
 	} else if (avatar->box.x > x){
 		int delta = ax_get_movement_delta(avatar->box.x, x, mdelta);
 		avatar->box.x -= delta;
-		avatar->value.box.x -= delta;
+		avatar->mainval.box.x -= delta;
 		mov = true;
 	}
 	
 	int avatar_final_y = avatar->box.y - avtr.h;
 	if (avatar_final_y < y){
-		int delta = ax_get_movement_delta(avatar->value.box.y, y, mdelta);
+		int delta = ax_get_movement_delta(avatar->mainval.box.y, y, mdelta);
 		avatar->box.y += delta;
-		avatar->value.box.y += delta;
+		avatar->mainval.box.y += delta;
 		mov = true;
 	} else if (avatar_final_y > y){
-		int delta = ax_get_movement_delta(avatar->value.box.y, y, mdelta);
+		int delta = ax_get_movement_delta(avatar->mainval.box.y, y, mdelta);
 		avatar->box.y -= delta;
-		avatar->value.box.y -= delta;
+		avatar->mainval.box.y -= delta;
 		mov = true;
 	}
 
@@ -949,7 +943,7 @@ static bool check_avatar_has_value(avatar_t *avatar)
 	assert(avatar != NULL && "Avatar pointer is NULL");
 	
 	bool valid_value = true;
-	if (avatar->value.value == NO_VALUE){
+	if (avatar->mainval.value == NO_VALUE){
 		valid_value = false;
 	}
 	return valid_value;
@@ -1145,22 +1139,22 @@ static bool deliver_operand(avatar_t *avatar, int op_id)
 	bool mov = false;
 
 	int mdelta = ax_get_move_delta();
-	if (avatar->value.box.x < x){
-		int delta = ax_get_movement_delta(avatar->value.box.x, x, mdelta/2);
-		avatar->value.box.x += delta;
+	if (avatar->mainval.box.x < x){
+		int delta = ax_get_movement_delta(avatar->mainval.box.x, x, mdelta/2);
+		avatar->mainval.box.x += delta;
 		mov = true;
-	} else if (avatar->value.box.x > x){
-		int delta = ax_get_movement_delta(avatar->value.box.x, x, mdelta/2);
-		avatar->value.box.x -= delta;
+	} else if (avatar->mainval.box.x > x){
+		int delta = ax_get_movement_delta(avatar->mainval.box.x, x, mdelta/2);
+		avatar->mainval.box.x -= delta;
 		mov = true;
 	}
-	if (avatar->value.box.y < y){
-		int delta = ax_get_movement_delta(avatar->value.box.y, y, mdelta/2);
-		avatar->value.box.y += delta;
+	if (avatar->mainval.box.y < y){
+		int delta = ax_get_movement_delta(avatar->mainval.box.y, y, mdelta/2);
+		avatar->mainval.box.y += delta;
 		mov = true;
-	} else if (avatar->value.box.y > y){
-		int delta = ax_get_movement_delta(avatar->value.box.y, y, mdelta/2);
-		avatar->value.box.y -= delta;
+	} else if (avatar->mainval.box.y > y){
+		int delta = ax_get_movement_delta(avatar->mainval.box.y, y, mdelta/2);
+		avatar->mainval.box.y -= delta;
 		mov = true;
 	}
 	return mov;
@@ -1186,22 +1180,22 @@ static bool retrieve_operand(avatar_t *avatar)
 	bool mov = false;
 
 	int mdelta = ax_get_move_delta();
-	if (avatar->value.box.x < x){
-		int delta = ax_get_movement_delta(avatar->value.box.x, x, mdelta/2);
-		avatar->value.box.x += delta;
+	if (avatar->mainval.box.x < x){
+		int delta = ax_get_movement_delta(avatar->mainval.box.x, x, mdelta/2);
+		avatar->mainval.box.x += delta;
 		mov = true;
-	} else if (avatar->value.box.x > x){
-		int delta = ax_get_movement_delta(avatar->value.box.x, x, mdelta/2);
-		avatar->value.box.x -= delta;
+	} else if (avatar->mainval.box.x > x){
+		int delta = ax_get_movement_delta(avatar->mainval.box.x, x, mdelta/2);
+		avatar->mainval.box.x -= delta;
 		mov = true;
 	}
-	if (avatar->value.box.y < y){
-		int delta = ax_get_movement_delta(avatar->value.box.y, y, mdelta/2);
-		avatar->value.box.y += delta;
+	if (avatar->mainval.box.y < y){
+		int delta = ax_get_movement_delta(avatar->mainval.box.y, y, mdelta/2);
+		avatar->mainval.box.y += delta;
 		mov = true;
-	} else if (avatar->value.box.y > y){
-		int delta = ax_get_movement_delta(avatar->value.box.y, y, mdelta/2);
-		avatar->value.box.y -= delta;
+	} else if (avatar->mainval.box.y > y){
+		int delta = ax_get_movement_delta(avatar->mainval.box.y, y, mdelta/2);
+		avatar->mainval.box.y -= delta;
 		mov = true;
 	}
 	return mov;
@@ -1248,14 +1242,14 @@ static bool handle_iavatar_source_operand(int op_id)
 		g_iavatar.in_place = true;
 		if (op_id == IB && is_operand_retrievable(op_id) == true){
 			value_box_t b = get_operand_value_box(op_id);
-			ax_copy_vbox(&g_iavatar.value, b);
-			g_iavatar.value.visible_box = true;
+			ax_copy_vbox(&g_iavatar.mainval, b);
+			g_iavatar.mainval.visible_box = true;
 		} else if (op_id > IMM_MIN 
 				   && op_id < IMM_MAX 
 				   && is_operand_retrievable(op_id) == true){
 			value_box_t b = get_operand_value_box(op_id);
-			ax_copy_vbox(&g_iavatar.value, b);
-			g_iavatar.value.visible_box = true;
+			ax_copy_vbox(&g_iavatar.mainval, b);
+			g_iavatar.mainval.visible_box = true;
 		}
 		else if (op_id == IB && is_operand_retrievable(op_id) == false){
 			set_invalid_operation_flag(INPUT_BUFFER_EMPTY);
@@ -1286,8 +1280,8 @@ static bool handle_ravatar_source_operand(int op_id)
 		g_ravatar.in_place = true;
 		if (check_operand_has_value(op_id) == true){
 			value_box_t b = get_operand_value_box(op_id);
-			ax_copy_vbox(&g_ravatar.value, b);
-			g_ravatar.value.visible_box = true;
+			ax_copy_vbox(&g_ravatar.mainval, b);
+			g_ravatar.mainval.visible_box = true;
 			rg_reset_ibox();
 		}
 		else {
@@ -1324,8 +1318,8 @@ static bool handle_ravatar_cmp(int op_id)
 		if (check_operand_has_value(op_id) == true){
 			puts("This was never happening");
 			value_box_t b = get_operand_value_box(op_id);
-			ax_copy_vbox(&g_ravatar.value, b);
-			g_ravatar.value.visible_box = true;
+			ax_copy_vbox(&g_ravatar.mainval, b);
+			g_ravatar.mainval.visible_box = true;
 		}
 		else {
 			set_invalid_operation_flag(REG_VALUE_INVALID);
@@ -1359,8 +1353,8 @@ static bool handle_oavatar_source_operand(int op_id)
 		g_oavatar.in_place = true;
 		if (check_operand_has_value(op_id) == true){
 			value_box_t b = get_operand_value_box(op_id);
-			ax_copy_vbox(&g_oavatar.value, b);
-			g_oavatar.value.visible_box = true;
+			ax_copy_vbox(&g_oavatar.mainval, b);
+			g_oavatar.mainval.visible_box = true;
 			rg_reset_obox();
 		}
 		else {
@@ -1503,7 +1497,7 @@ static void handle_destiny_operand(code_line_t *line, int avatar_id)
 			}
 			if (deliver_pending == false){
 				g_ravatar.op_delivered = true;
-				g_ravatar.value.visible_box = false;
+				g_ravatar.mainval.visible_box = false;
 			}
 		}
 	}
@@ -1517,7 +1511,7 @@ static void handle_destiny_operand(code_line_t *line, int avatar_id)
 			int deliver_pending = deliver_operand(&g_iavatar, IBOX);
 			if (deliver_pending == false){
 				g_iavatar.op_delivered = true;
-				g_iavatar.value.visible_box = false;
+				g_iavatar.mainval.visible_box = false;
 			}
 		}
 	}
@@ -1530,7 +1524,7 @@ static void handle_destiny_operand(code_line_t *line, int avatar_id)
 			int deliver_pending = deliver_operand(&g_oavatar ,line->op1->id);
 			if (deliver_pending == false){
 				g_oavatar.op_delivered = true;
-				g_oavatar.value.visible_box = false;
+				g_oavatar.mainval.visible_box = false;
 			}
 		}
 	}
@@ -1629,22 +1623,22 @@ static void execute_instruction(code_line_t *line, int line_pos)
 			&& g_ravatar.op_delivered == true 
 			&& arrow_in_place == true){
 			if (cl_is_op_reg(line->op1->id) == true){
-				operate_instruction(line, g_ravatar.value);
+				operate_instruction(line, g_ravatar.mainval);
 				line->state = EXECUTED;
 				mc_set_step_ended(true);
 			} else{
-				set_operand_value_box(OBOX, g_ravatar.value);
+				set_operand_value_box(OBOX, g_ravatar.mainval);
 			}
 			reset_avatar_no_pos();
 		}
 		if (avatar_id == IAVATAR && g_iavatar.op2_retrieved == true && 
 			g_iavatar.op_delivered == true && arrow_in_place == true){
-			set_operand_value_box(IBOX, g_iavatar.value);
+			set_operand_value_box(IBOX, g_iavatar.mainval);
 			reset_avatar_no_pos();
 		}
 		if (avatar_id == OAVATAR && g_oavatar.op2_retrieved == true && 
 			g_oavatar.op_delivered == true && arrow_in_place == true){
-			operate_instruction(line, g_oavatar.value);
+			operate_instruction(line, g_oavatar.mainval);
 			line->state = EXECUTED;
 			mc_set_step_ended(true);
 			reset_avatar_no_pos();
