@@ -531,6 +531,10 @@ static void draw_iavatar()
 	if (g_iavatar.mainval.visible_box == true){
 		ax_draw_value_box(&g_iavatar.mainval, g_iavatar.color);
 	}
+	if (g_iavatar.secval.visible_box == true){
+		ax_draw_value_box(&g_iavatar.secval, g_iavatar.color);
+	}
+
 	SDL_Rect r0 = {.x = g_iavatar.box.x, .y = g_iavatar.box.y, 
 				  .w= g_iavatar.box.w, .h = g_iavatar.box.h};
 	dw_draw_filled_rectangle(r0, g_iavatar.color, g_iavatar.color);
@@ -597,6 +601,9 @@ static void draw_oavatar()
 	if (g_oavatar.mainval.visible_box == true){
 		ax_draw_value_box(&g_oavatar.mainval, g_oavatar.color);
 	}
+	if (g_oavatar.secval.visible_box == true){
+		ax_draw_value_box(&g_oavatar.secval, g_oavatar.color);
+	}
 	SDL_Rect r0 = {.x = g_oavatar.box.x, .y = g_oavatar.box.y, 
 				  .w = g_oavatar.box.w, .h = g_oavatar.box.h};
 	dw_draw_filled_rectangle(r0, g_oavatar.color, g_oavatar.color);
@@ -660,10 +667,13 @@ static void draw_oavatar()
  */
 void draw_ravatar()
 {
-	
 	if (g_ravatar.mainval.visible_box == true){
 		ax_draw_value_box(&g_ravatar.mainval, g_ravatar.color);
 	}
+	if (g_ravatar.secval.visible_box == true){
+		ax_draw_value_box(&g_ravatar.secval, g_ravatar.color);
+	}
+
 	SDL_Rect r0 = {.x = g_ravatar.box.x, .y =  g_ravatar.box.y, 
 				   .w = g_ravatar.box.w, .h = g_ravatar.box.h};
 	dw_draw_filled_rectangle(r0, g_ravatar.color, g_ravatar.color);
@@ -1139,22 +1149,22 @@ static bool deliver_operand(avatar_t *avatar, int op_id)
 	bool mov = false;
 
 	int mdelta = ax_get_move_delta();
-	if (avatar->mainval.box.x < x){
-		int delta = ax_get_movement_delta(avatar->mainval.box.x, x, mdelta/2);
-		avatar->mainval.box.x += delta;
+	if (avatar->secval.box.x < x){
+		int delta = ax_get_movement_delta(avatar->secval.box.x, x, mdelta/2);
+		avatar->secval.box.x += delta;
 		mov = true;
-	} else if (avatar->mainval.box.x > x){
-		int delta = ax_get_movement_delta(avatar->mainval.box.x, x, mdelta/2);
-		avatar->mainval.box.x -= delta;
+	} else if (avatar->secval.box.x > x){
+		int delta = ax_get_movement_delta(avatar->secval.box.x, x, mdelta/2);
+		avatar->secval.box.x -= delta;
 		mov = true;
 	}
-	if (avatar->mainval.box.y < y){
-		int delta = ax_get_movement_delta(avatar->mainval.box.y, y, mdelta/2);
-		avatar->mainval.box.y += delta;
+	if (avatar->secval.box.y < y){
+		int delta = ax_get_movement_delta(avatar->secval.box.y, y, mdelta/2);
+		avatar->secval.box.y += delta;
 		mov = true;
-	} else if (avatar->mainval.box.y > y){
-		int delta = ax_get_movement_delta(avatar->mainval.box.y, y, mdelta/2);
-		avatar->mainval.box.y -= delta;
+	} else if (avatar->secval.box.y > y){
+		int delta = ax_get_movement_delta(avatar->secval.box.y, y, mdelta/2);
+		avatar->secval.box.y -= delta;
 		mov = true;
 	}
 	return mov;
@@ -1180,22 +1190,22 @@ static bool retrieve_operand(avatar_t *avatar)
 	bool mov = false;
 
 	int mdelta = ax_get_move_delta();
-	if (avatar->mainval.box.x < x){
-		int delta = ax_get_movement_delta(avatar->mainval.box.x, x, mdelta/2);
-		avatar->mainval.box.x += delta;
+	if (avatar->secval.box.x < x){
+		int delta = ax_get_movement_delta(avatar->secval.box.x, x, mdelta/2);
+		avatar->secval.box.x += delta;
 		mov = true;
-	} else if (avatar->mainval.box.x > x){
-		int delta = ax_get_movement_delta(avatar->mainval.box.x, x, mdelta/2);
-		avatar->mainval.box.x -= delta;
+	} else if (avatar->secval.box.x > x){
+		int delta = ax_get_movement_delta(avatar->secval.box.x, x, mdelta/2);
+		avatar->secval.box.x -= delta;
 		mov = true;
 	}
-	if (avatar->mainval.box.y < y){
-		int delta = ax_get_movement_delta(avatar->mainval.box.y, y, mdelta/2);
-		avatar->mainval.box.y += delta;
+	if (avatar->secval.box.y < y){
+		int delta = ax_get_movement_delta(avatar->secval.box.y, y, mdelta/2);
+		avatar->secval.box.y += delta;
 		mov = true;
-	} else if (avatar->mainval.box.y > y){
-		int delta = ax_get_movement_delta(avatar->mainval.box.y, y, mdelta/2);
-		avatar->mainval.box.y -= delta;
+	} else if (avatar->secval.box.y > y){
+		int delta = ax_get_movement_delta(avatar->secval.box.y, y, mdelta/2);
+		avatar->secval.box.y -= delta;
 		mov = true;
 	}
 	return mov;
@@ -1242,14 +1252,18 @@ static bool handle_iavatar_source_operand(int op_id)
 		g_iavatar.in_place = true;
 		if (op_id == IB && is_operand_retrievable(op_id) == true){
 			value_box_t b = get_operand_value_box(op_id);
-			ax_copy_vbox(&g_iavatar.mainval, b);
-			g_iavatar.mainval.visible_box = true;
+			ax_copy_vbox(&g_iavatar.mainval, b, false);
+			g_iavatar.mainval.visible_box = false;
+			ax_copy_vbox(&g_iavatar.secval, b, true);
+			g_iavatar.secval.visible_box = true;
 		} else if (op_id > IMM_MIN 
 				   && op_id < IMM_MAX 
 				   && is_operand_retrievable(op_id) == true){
 			value_box_t b = get_operand_value_box(op_id);
-			ax_copy_vbox(&g_iavatar.mainval, b);
-			g_iavatar.mainval.visible_box = true;
+			ax_copy_vbox(&g_iavatar.mainval, b, false);
+			g_iavatar.mainval.visible_box = false;
+			ax_copy_vbox(&g_iavatar.secval, b, true);
+			g_iavatar.secval.visible_box = true;
 		}
 		else if (op_id == IB && is_operand_retrievable(op_id) == false){
 			set_invalid_operation_flag(INPUT_BUFFER_EMPTY);
@@ -1280,8 +1294,11 @@ static bool handle_ravatar_source_operand(int op_id)
 		g_ravatar.in_place = true;
 		if (check_operand_has_value(op_id) == true){
 			value_box_t b = get_operand_value_box(op_id);
-			ax_copy_vbox(&g_ravatar.mainval, b);
-			g_ravatar.mainval.visible_box = true;
+			ax_copy_vbox(&g_ravatar.mainval, b, false);
+			g_ravatar.mainval.visible_box = false;
+			ax_copy_vbox(&g_ravatar.secval, b, true);
+			g_ravatar.secval.visible_box = true;
+
 			rg_reset_ibox();
 		}
 		else {
@@ -1318,8 +1335,11 @@ static bool handle_ravatar_cmp(int op_id)
 		if (check_operand_has_value(op_id) == true){
 			puts("This was never happening");
 			value_box_t b = get_operand_value_box(op_id);
-			ax_copy_vbox(&g_ravatar.mainval, b);
-			g_ravatar.mainval.visible_box = true;
+			ax_copy_vbox(&g_ravatar.mainval, b, false);
+			g_ravatar.mainval.visible_box = false;
+			ax_copy_vbox(&g_ravatar.secval, b, true);
+			g_ravatar.secval.visible_box = true;
+
 		}
 		else {
 			set_invalid_operation_flag(REG_VALUE_INVALID);
@@ -1353,8 +1373,10 @@ static bool handle_oavatar_source_operand(int op_id)
 		g_oavatar.in_place = true;
 		if (check_operand_has_value(op_id) == true){
 			value_box_t b = get_operand_value_box(op_id);
-			ax_copy_vbox(&g_oavatar.mainval, b);
-			g_oavatar.mainval.visible_box = true;
+			ax_copy_vbox(&g_oavatar.mainval, b, false);
+			g_oavatar.mainval.visible_box = false;
+			ax_copy_vbox(&g_oavatar.secval, b, true);
+			g_oavatar.secval.visible_box = true;
 			rg_reset_obox();
 		}
 		else {
@@ -1363,6 +1385,7 @@ static bool handle_oavatar_source_operand(int op_id)
 	}
 	return mov_pending;
 }
+
 /* Function: handle_source_operand
  * -----------------------------------------------------------------------------
  * Moves the corresponding avatar depending of the kind of source operand that
@@ -1428,28 +1451,38 @@ static int handle_source_operand(code_line_t *line)
 			&& g_ravatar.op1_retrieved == false){
 			retrieve_pending = retrieve_operand(&g_ravatar);
 			if (retrieve_pending == false){
-				puts("pasa");
 				g_ravatar.op1_retrieved = true;
 				g_ravatar.in_place = false;
+				g_ravatar.secval.visible_box = false;
+				g_ravatar.mainval.visible_box = true;
+				g_ravatar.mainval.box = g_ravatar.secval.box;
 			}
 		} else if (avatar_id == RAVATAR && g_ravatar.op2_retrieved == false){
 			retrieve_pending = retrieve_operand(&g_ravatar);
 			if (retrieve_pending == false){
 				g_ravatar.op2_retrieved = true;
 				g_ravatar.in_place = false;
-				puts("Cuando hace retrieve de la primer value box");
+				g_ravatar.secval.visible_box = false;
+				g_ravatar.mainval.visible_box = true;
+				g_ravatar.mainval.box = g_ravatar.secval.box;
 			}
 		} else if (avatar_id == IAVATAR){
 			retrieve_pending = retrieve_operand(&g_iavatar);
 			if (retrieve_pending == false){
 				g_iavatar.op2_retrieved = true;
 				g_iavatar.in_place = false;
+				g_iavatar.secval.visible_box = false;
+				g_iavatar.mainval.visible_box = true;
+				g_iavatar.mainval.box = g_iavatar.secval.box;
 			}
 		} else if (avatar_id == OAVATAR && g_oavatar.op2_retrieved == false){
 			retrieve_pending = retrieve_operand(&g_oavatar);
 			if (retrieve_pending == false){
 				g_oavatar.op2_retrieved = true;
 				g_oavatar.in_place = false;
+				g_oavatar.secval.visible_box = false;
+				g_oavatar.mainval.visible_box = true;
+				g_oavatar.mainval.box = g_oavatar.secval.box;
 				if (line->op1->id == OB){
 					bf_add_output_to_list();
 				}
@@ -1487,6 +1520,9 @@ static void handle_destiny_operand(code_line_t *line, int avatar_id)
 		if (mov_pending == false && g_ravatar.in_place == false){
 				puts("Intenta hacer deliver");
 			g_ravatar.in_place = true;
+			g_ravatar.mainval.visible_box = false;
+			g_ravatar.secval.visible_box = true;
+			g_ravatar.secval.box = g_ravatar.mainval.box;
 		}
 		if (mov_pending == false){
 			int deliver_pending;
@@ -1497,7 +1533,7 @@ static void handle_destiny_operand(code_line_t *line, int avatar_id)
 			}
 			if (deliver_pending == false){
 				g_ravatar.op_delivered = true;
-				g_ravatar.mainval.visible_box = false;
+				g_ravatar.secval.visible_box = false;
 			}
 		}
 	}
@@ -1506,12 +1542,15 @@ static void handle_destiny_operand(code_line_t *line, int avatar_id)
 		mov_pending = move_avatar_to_operand(&g_iavatar, IBOX);
 		if (mov_pending == false && g_iavatar.in_place == false){
 			g_iavatar.in_place = true;
+			g_iavatar.mainval.visible_box = false;
+			g_iavatar.secval.visible_box = true;
+			g_iavatar.secval.box = g_iavatar.mainval.box;
 		}
 		if (mov_pending == false){
 			int deliver_pending = deliver_operand(&g_iavatar, IBOX);
 			if (deliver_pending == false){
 				g_iavatar.op_delivered = true;
-				g_iavatar.mainval.visible_box = false;
+				g_iavatar.secval.visible_box = false;
 			}
 		}
 	}
@@ -1519,6 +1558,9 @@ static void handle_destiny_operand(code_line_t *line, int avatar_id)
 		mov_pending = move_avatar_to_operand(&g_oavatar, line->op1->id);
 		if (mov_pending == false && g_oavatar.in_place == false){
 			g_oavatar.in_place = true;
+			g_oavatar.mainval.visible_box = false;
+			g_oavatar.secval.visible_box = true;
+			g_oavatar.secval.box = g_oavatar.mainval.box;
 		}
 		if (mov_pending == false){
 			int deliver_pending = deliver_operand(&g_oavatar ,line->op1->id);

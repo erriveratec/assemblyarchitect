@@ -208,16 +208,19 @@ error:
  * Arguments:
  *	*vb: A pointer to the value box that will be modified.
  * 	val: The value that will be assigned
+ *	pos: Determines if the position of the box will be copied
  *
  * Return:
  *	Void.
  */
-void ax_copy_vbox(value_box_t *dst, value_box_t src)
+void ax_copy_vbox(value_box_t *dst, value_box_t src, bool pos)
 {
 	dst->value = src.value;
 	dst->type = src.type;
 	dst->visible_box = src.visible_box;
-	dst->box = src.box;
+	if (pos == true){
+		dst->box = src.box;
+	}
 	dw_free_texture(dst->t);
 	char *number = ax_number_to_string(src.value);
 	dst->t = dw_create_text_texture(number, C_WHITE);
