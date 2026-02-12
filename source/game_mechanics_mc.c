@@ -1335,8 +1335,8 @@ static bool handle_ravatar_cmp(int op_id)
 		if (check_operand_has_value(op_id) == true){
 			puts("This was never happening");
 			value_box_t b = get_operand_value_box(op_id);
-			ax_copy_vbox(&g_ravatar.mainval, b, false);
-			g_ravatar.mainval.visible_box = false;
+			//ax_copy_vbox(&g_ravatar.mainval, b, false);
+			//g_ravatar.mainval.visible_box = false;
 			ax_copy_vbox(&g_ravatar.secval, b, true);
 			g_ravatar.secval.visible_box = true;
 
