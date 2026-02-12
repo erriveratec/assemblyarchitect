@@ -52,6 +52,7 @@ typedef struct avatar_t{
 	bool op2_retrieved;
 	bool op1_retrieved;
 	bool op_delivered;
+	bool valop;
 	value_box_t mainval;
 	value_box_t secval;
 	SDL_Color color;
@@ -338,7 +339,9 @@ void mc_init_avatar()
 	g_iavatar.secval.visible_box = false;
 	g_iavatar.in_place = false;
 	g_iavatar.op2_retrieved = false;
+	g_iavatar.op1_retrieved = false;
 	g_iavatar.op_delivered = false;
+	g_iavatar.valop = false;
 
 	g_iavatar.mainval.value = NO_VALUE;
 	g_iavatar.secval.value = NO_VALUE;
@@ -366,7 +369,9 @@ void mc_init_avatar()
 	g_oavatar.secval.visible_box = false;
 	g_oavatar.in_place = false;
 	g_oavatar.op2_retrieved = false;
+	g_oavatar.op1_retrieved = false;
 	g_oavatar.op_delivered = false;
+	g_oavatar.valop = false;
 
 	g_oavatar.mainval.value = NO_VALUE;
 	g_oavatar.secval.value = NO_VALUE;
@@ -395,7 +400,9 @@ void mc_init_avatar()
 	g_ravatar.secval.visible_box = false;
 	g_ravatar.in_place = false;
 	g_ravatar.op2_retrieved = false;
+	g_ravatar.op1_retrieved = false;
 	g_ravatar.op_delivered = false;
+	g_ravatar.valop = false;
 
 	g_ravatar.mainval.value = NO_VALUE;
 	g_ravatar.mainval.box.x = g_ravatar.box.x;
@@ -1055,7 +1062,8 @@ bool cmp_substract(int op_id, value_box_t val)
 			operation_valid = false;	
 		} else {
 			cur_val.value -= val.value;
-		//	rg_set_register_value_box(op_id, cur_val);	
+			ax_copy_vbox(&g_ravatar.mainval, cur_val, false);
+			g_ravatar.mainval.visible_box = true;
 		}
 	} 	
 	return operation_valid;
@@ -1324,19 +1332,13 @@ static bool handle_ravatar_cmp(int op_id)
 	bool mov_pending = true;
 
 	mov_pending = move_avatar_to_operand(&g_ravatar, op_id);
-	printf("mov = %d, place = %d, retrieved = %d\n", mov_pending, g_ravatar.in_place, 
-	g_ravatar.op1_retrieved);
 
 	if (mov_pending == false
 		&& g_ravatar.in_place == false 
 		&& g_ravatar.op1_retrieved == false){
 		g_ravatar.in_place = true;
-		puts("dentro");
 		if (check_operand_has_value(op_id) == true){
-			puts("This was never happening");
 			value_box_t b = get_operand_value_box(op_id);
-			//ax_copy_vbox(&g_ravatar.mainval, b, false);
-			//g_ravatar.mainval.visible_box = false;
 			ax_copy_vbox(&g_ravatar.secval, b, true);
 			g_ravatar.secval.visible_box = true;
 
@@ -1659,20 +1661,40 @@ static void execute_instruction(code_line_t *line, int line_pos)
 		line->state = IN_EXECUTION;
 		avatar_id = handle_source_operand(line);
 		handle_destiny_operand(line, avatar_id);
-		
+	
+		bool rst = false;
 		if (avatar_id == RAVATAR 
 			&& g_ravatar.op2_retrieved == true 
-			&& g_ravatar.op_delivered == true 
+			&& (g_ravatar.op_delivered == true 
+				|| g_ravatar.op1_retrieved == true)
 			&& arrow_in_place == true){
-			if (cl_is_op_reg(line->op1->id) == true){
+			
+			if (line->ins->id == CMP){
+				if (g_ravatar.op_delivered == false 
+					&& g_ravatar.valop == false){
+					g_ravatar.valop = true;
+					puts("llega aca");
+					operate_instruction(line, g_ravatar.mainval);
+				} else if (g_ravatar.op_delivered == true){
+					puts("resetea");
+					line->state = EXECUTED;
+					mc_set_step_ended(true);
+					rst = true;
+				}
+			} else if (cl_is_op_reg(line->op1->id) == true){
 				operate_instruction(line, g_ravatar.mainval);
 				line->state = EXECUTED;
 				mc_set_step_ended(true);
+				rst = true;
 			} else{
 				set_operand_value_box(OBOX, g_ravatar.mainval);
+				rst = true;
 			}
-			reset_avatar_no_pos();
+			if (rst == true){
+				reset_avatar_no_pos();
+			}
 		}
+
 		if (avatar_id == IAVATAR && g_iavatar.op2_retrieved == true && 
 			g_iavatar.op_delivered == true && arrow_in_place == true){
 			set_operand_value_box(IBOX, g_iavatar.mainval);
