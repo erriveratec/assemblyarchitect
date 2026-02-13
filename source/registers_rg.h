@@ -47,4 +47,5 @@ void rg_init_reg_texture();
 SDL_Rect rg_get_register_box();
 List *rg_get_register_list();
 int rg_get_reg_box_y_pos(int pos);
+value_box_t rg_get_flag_value_box_by_id(int id);
 #endif

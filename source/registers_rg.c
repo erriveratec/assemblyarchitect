@@ -889,13 +889,37 @@ int rg_get_register_value_box_y_coord_by_id(int id)
    return c->value.box.y;
 }
 
+/* Function: rg_get_flag_value_box_by_id
+*------------------------------------------------------------------------------
+* Arguments:
+*	id: The id of the flag value box that will be retrieved	
+*
+* Return:
+*	Copy to the requested value box
+*/
+value_box_t rg_get_flag_value_box_by_id(int id)
+{
+	assert(id > FLAG_MIN && id < FLAG_MAX && "Invalid flag id");
+	
+	value_box_t value;
+	switch (id){
+		case ZF:
+			value = g_zf;
+			break;
+		default:
+			value = g_zf;
+			break;
+	}
+	return value;
+}
+
 /* Function: rg_get_register_value_box_by_id
 *------------------------------------------------------------------------------
 * Arguments:
 *	id: The id of the value box that will be retrieved	
 *
 * Return:
-*	The pointer to the clicked register in an operand form 
+*	Copy to the requested value box
 */
 value_box_t rg_get_register_value_box_by_id(int id)
 {
