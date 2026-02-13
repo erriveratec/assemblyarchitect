@@ -41,6 +41,9 @@
 #define STR_INPUT_SIZE "InputSize"
 #define STR_INSTRUCTION_LIMIT "InstructionLimit"
 #define STR_INPUT_TYPE "InputType"
+#define STR_INPUT_MOD "InputMod"
+#define STR_MOD_NONE "None"
+#define STR_MOD_FORCE "Force"
 #define STR_NATURAL "Natural"
 #define STR_WHOLE "Whole"
 #define STR_CHAR "Char"
@@ -57,6 +60,10 @@
 #define STR_MSG "MSG"
 #define STR_MSG_END "MSG_END"
 
+enum InputMods {
+	NONE,
+	FORCE
+};
 
 
 static char *get_level_id_string(int level_id);
@@ -423,6 +430,11 @@ void fl_file_initialize_level(int level_id)
 
 	char *level = get_level_id_string(level_id);
 	bool level_found = false;
+
+	int input_mod;
+	int input_mod_num;
+	int input_mod_qty;
+
 	while (READ_ERROR != (read = getline(&line, &len, fp))){
 		if (strstr(line, level) != NULL){
 			level_found = true;
@@ -435,14 +447,22 @@ void fl_file_initialize_level(int level_id)
 		} else if (strstr(line, STR_INPUT_SIZE) != NULL && level_found == true){
 			char *size = strchr(line, CHAR_SPACE);
 			bf_set_input_buffer_size(atoi(size));
-		} else if (strstr(line, STR_INSTRUCTION_LIMIT) != NULL && 
-				   										   level_found == true){
-			char *size = strchr(line, CHAR_SPACE);
-			lv_set_level_instructions_limit(atoi(size));
-		} else if (strstr(line, STR_INPUT_TYPE) != NULL && level_found == true){
+		} else if (strstr(line, STR_INPUT_MOD) != NULL && level_found == true){
+			if (strstr(line, STR_MOD_NONE)){
+				input_mod = NONE;
+			} else if (strstr(line, STR_MOD_FORCE)){
+				input_mod = FORCE;
+				char *num = strchr(line, CHAR_SPACE);
+				input_mod_num = atoi(num);
+			}
+		}  else if (strstr(line, STR_INPUT_TYPE) != NULL && level_found == true){
 			if (strstr(line, STR_NATURAL)){
-				bf_create_natural_numbers_input_list(g_input_buffer_size);
-				g_input_list_type = NATURAL;
+				if (input_mod == NONE){
+					bf_create_natural_numbers_input_list(g_input_buffer_size);
+					g_input_list_type = NATURAL;
+				} else if (input_mod == FORCE){
+
+				}
 			} else if (strstr(line, STR_WHOLE)){
 
 			} else if (strstr(line, STR_CHAR)){
@@ -451,16 +471,20 @@ void fl_file_initialize_level(int level_id)
 
 			}
 
-		} else if (strstr(line, STR_INSTRUCTIONS_BEGIN) != NULL &&
-				   										   level_found == true){
+		} else if (strstr(line, STR_INSTRUCTION_LIMIT) != NULL 
+				   && level_found == true){
+			char *size = strchr(line, CHAR_SPACE);
+			lv_set_level_instructions_limit(atoi(size));
+		} else if (strstr(line, STR_INSTRUCTIONS_BEGIN) != NULL 
+				   && level_found == true){
 			iw_create_instruction_list();
 			parse_instructions(fp);
-		} else if (strstr(line, STR_REGISTERS_BEGIN) != NULL &&
-				   										   level_found == true){
+		} else if (strstr(line, STR_REGISTERS_BEGIN) != NULL 
+				   && level_found == true){
 			create_register_list();
 			parse_registers(fp);
-		} else if (strstr(line, STR_WIN_CONDITION_BEGIN) != NULL &&
-				   										   level_found == true){
+		} else if (strstr(line, STR_WIN_CONDITION_BEGIN) != NULL 
+		           && level_found == true){
 			parse_win_condition(fp);
 		} else if (strstr(line, STR_LEVEL_ENDS) != NULL && level_found == true){
 			level_found= false;

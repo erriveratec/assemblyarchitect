@@ -26,6 +26,13 @@
 #define OUTPUT_BUFFER_TEXT "Output Buffer [ob]"
 #define OUTPUT_BUFFER_WIN_X 10000
 
+
+typedef struct input_properties_t{
+
+} input_properties_t;
+
+input_properties_t g_ip;
+
 texture_t *input_text; 
 texture_t *output_text;
 
@@ -40,6 +47,7 @@ btn_t output_buffer_button;
 
 operand_t *input_buffer = NULL;
 operand_t *output_buffer = NULL;
+
 
 static bool g_win_condition;
 

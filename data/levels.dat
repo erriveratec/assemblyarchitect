@@ -5,6 +5,7 @@ ChallengeTextBegin
 ChallengeTextEnd
 
 InputSize 1
+InputMod None
 InputType Natural
 
 InstructionsBegin
@@ -30,6 +31,7 @@ ChallengeTextBegin
 ChallengeTextEnd
 
 InputSize 1
+InputMod None
 InputType Natural
 
 InstructionsBegin
@@ -55,6 +57,7 @@ ChallengeTextBegin
 ChallengeTextEnd
 
 InputSize 1
+InputMod None
 InputType Natural
 
 InstructionsBegin
@@ -80,6 +83,7 @@ ChallengeTextBegin
 ChallengeTextEnd
 
 InputSize 3
+InputMod None
 InputType Natural
 
 InstructionsBegin
@@ -105,6 +109,7 @@ ChallengeTextBegin
 ChallengeTextEnd
 
 InputSize 3
+InputMod None
 InputType Natural
 
 InstructionsBegin
@@ -132,6 +137,7 @@ ChallengeTextBegin
 ChallengeTextEnd
 
 InputSize 4
+InputMod None
 InputType Natural
 
 InstructionsBegin
@@ -158,6 +164,7 @@ ChallengeTextBegin
 ChallengeTextEnd
 
 InputSize 1
+InputMod None
 InputType Natural
 
 InstructionsBegin
@@ -185,6 +192,7 @@ ChallengeTextBegin
 ChallengeTextEnd
 
 InputSize 1
+InputMod None
 InputType Natural
 
 InstructionsBegin
@@ -211,6 +219,7 @@ ChallengeTextBegin
 ChallengeTextEnd
 
 InputSize 6
+InputMod None
 InputType Natural
 
 InstructionsBegin
@@ -238,6 +247,7 @@ ChallengeTextBegin
 ChallengeTextEnd
 
 InputSize 12
+InputMod None
 InputType Natural
 
 InstructionsBegin
@@ -267,6 +277,7 @@ ChallengeTextBegin
 ChallengeTextEnd
 
 InputSize 6
+InputMod None
 InputType Natural
 
 InstructionsBegin
@@ -297,6 +308,7 @@ ChallengeTextBegin
 ChallengeTextEnd
 
 InputSize 10
+InputMod None
 InputType Natural
 
 InstructionsBegin
@@ -327,11 +339,11 @@ ChallengeTextBegin
 ChallengeTextEnd
 
 InputSize 10
+InputMod None
 InputType Natural
 
 InstructionsBegin
 MOV
-ADD
 CMP
 JE
 InstructionsEnd
