@@ -246,7 +246,7 @@ static void update_jump_instructions()
 	code_line_t *c;
 	LIST_FOREACH(code, first, next, cur){ 
 		c = cur->value;
-		if (c->ins->id == JMP || c->ins->id == JMP){
+		if (c->ins->id == JMP || c->ins->id == JE){
 			if (c->op1 != NULL){
 				code_line_t *jmp_addr = c->op1->jptr;
 				cl_destroy_operand(c->op1);	
@@ -708,7 +708,7 @@ void cw_add_saved_line(char *line)
 	
 	if (operand_quantity == ONE_OPERAND || operand_quantity == TWO_OPERANDS){
 		operand_t *op1;
-		if (ins_id == JMP){
+		if (ins_id == JMP || ins_id == JE){
 			op1 = create_saved_jump_operand(op1_id);
 		} else if (ins_id == LABEL){
 			op1 = create_saved_label_operand(op1_id);
@@ -1966,7 +1966,8 @@ void cw_player_holding_instruction(code_line_t *line, bool arng, bool del)
 		}
 	} else {
 		if (cw_check_if_in_code_list(line) == true){
-			if (line->ins->id == JMP && line->op1 != NULL){
+			if ((line->ins->id == JMP || line->ins->id == JE) 
+				 && line->op1 != NULL){
 				code_line_t *addr = line->op1->jptr;
 				ListNode *node = get_list_node_by_value(addr);
 				cl_destroy_code_line(addr);
@@ -2311,7 +2312,7 @@ void cw_change_clicked_code_line_state()
 	LIST_FOREACH(code, first, next, cur){ 
 		
 		code_line_t *c = cur->value;
-		if (c->ins->id != LABEL && c->ins->id != JMP){
+		if (c->ins->id != LABEL && c->ins->id != JMP && c->ins->id != JE){
 			if (c->op1 != NULL){
 				if (bt_ms_rel_btn(c->op1->b) == true){
 					c->state = CHANGING_OP1;

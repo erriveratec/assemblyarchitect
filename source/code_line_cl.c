@@ -626,7 +626,7 @@ char *cl_create_code_line_text(int ins_id, int op1_id, int op2_id)
 		   && ins_id < INSTRUCTION_MAX
 		   && "The instruction id is invalid");
 	
-	if (ins_id == JMP || ins_id == LABEL){
+	if (ins_id == JMP || ins_id == LABEL || ins_id == JE){
 		assert(op1_id >=0 && "Label destitny is negative");
 	} else {
 		assert(op1_id >= NO_OPERAND && op1_id < IMM_MAX && "Invalid OP1");
