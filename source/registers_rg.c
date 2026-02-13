@@ -939,6 +939,50 @@ value_box_t rg_get_register_value_box_by_id(int id)
    return c->value;
 }
 
+/* Function: rg_reset_rflags
+ * -----------------------------------------------------------------------------
+ * Resets all the rflags values
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ *
+ */
+void rg_reset_rflags()
+{
+	g_zf.value = NO_VALUE;
+	dw_free_texture(g_zf.t);
+	g_zf.t = NULL;
+	g_zf.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+}
+
+/* Function: rg_set_flag_value_box
+ *------------------------------------------------------------------------------
+ * Asseigns a value to a value box
+ *
+ * Arguments:
+ *	id: id of the operand that will be set
+ *	value: the value that wll be set
+ *
+ * Return:
+ *	void.
+ */
+void rg_set_flag_value_box(int id, value_box_t val)
+{
+	assert(id > FLAG_MIN && id < FLAG_MAX && "Invalid flag id");
+	
+	switch(id){
+		case ZF:
+			ax_copy_vbox(&g_zf, val, true);
+			break;
+		default:
+			break;
+	}
+
+}
+
 /* Function: rg_set_value_box_value
  *------------------------------------------------------------------------------
  * Puts a value in a register

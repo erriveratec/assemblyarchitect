@@ -333,6 +333,7 @@ InstructionsBegin
 MOV
 ADD
 CMP
+JE
 JMP
 InstructionsEnd
 

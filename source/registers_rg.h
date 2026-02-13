@@ -42,10 +42,12 @@ void rg_set_ibox_value_box(value_box_t value);
 void rg_set_obox_value_box(value_box_t value);	
 void rg_reset_ibox();
 void rg_reset_obox();
+void rg_reset_rflags();
 void rg_destroy_value_boxes();
 void rg_init_reg_texture();
 SDL_Rect rg_get_register_box();
 List *rg_get_register_list();
 int rg_get_reg_box_y_pos(int pos);
 value_box_t rg_get_flag_value_box_by_id(int id);
+void rg_set_flag_value_box(int id, value_box_t val);
 #endif

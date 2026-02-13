@@ -671,7 +671,7 @@ void cw_add_saved_line(char *line)
 	int operand_quantity = cl_get_instruction_operand_quantity(ins_id);
 
 	if (operand_quantity == ONE_OPERAND || operand_quantity == TWO_OPERANDS){
-		if (ins_id == LABEL || ins_id == JMP){
+		if (ins_id == LABEL || ins_id == JMP || ins_id == JE){
 			op1_text =  strtok_r(NULL, delim, &saveptr1);
 			op1_id = atoi(op1_text);
 		} else {

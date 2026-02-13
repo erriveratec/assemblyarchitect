@@ -32,6 +32,7 @@ enum instructions{
 	LABEL,
 	JMP,
 	CMP,
+	JE,
 	INSTRUCTION_MAX
 };
 
@@ -119,6 +120,7 @@ extern char *mov_text;
 extern char *label_text;
 extern char *jmp_text;
 extern char *cmp_text;
+extern char *je_text;
 extern char *rax_text;
 extern char *rbx_text;
 extern char *rcx_text;

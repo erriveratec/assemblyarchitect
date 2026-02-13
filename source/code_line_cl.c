@@ -15,6 +15,7 @@ char *mov_text = "MOV";
 char *label_text = "line";
 char *jmp_text = "JMP";
 char *cmp_text = "CMP";
+char *je_text = "JE";
 char *rax_text = "rax";
 char *rbx_text = "rbx";
 char *rcx_text = "rcx";
@@ -193,6 +194,9 @@ texture_t *cl_create_instruction_texture(int id)
 		case CMP:
 			texture = dw_create_text_texture(cmp_text, C_WHITE);
 			break;
+		case JE:
+			texture = dw_create_text_texture(je_text, C_WHITE);
+			break;
 		default:
 			printf("Error: the id of the register is invalid");
 				
@@ -358,7 +362,10 @@ int cl_text_to_instruction_id(char *text)
 		instruction_id = JMP;
 	} else if (strstr(text, cmp_text)!= NULL){
 		instruction_id = CMP;
+	} else if (strstr(text, je_text)!= NULL){
+		instruction_id = JE;
 	}
+
 
 	assert(instruction_id != INVALID_OPERAND && "Instruction id is invalid");
 	return instruction_id;
@@ -412,6 +419,9 @@ int cl_get_instruction_operand_quantity(int instruction_id)
 		case CMP:
 			number_of_operands = TWO_OPERANDS;
 			break;
+		case JE:
+			number_of_operands = ONE_OPERAND;
+			break;
 		default:
 			number_of_operands = ZERO_OPERANDS;
 			break;
@@ -452,6 +462,10 @@ char *cl_get_instruction_text(int instruction_id)
 		case CMP:
 			text = cmp_text;
 			break;
+		case JE:
+			text = je_text;
+			break;
+
 		default: 
 			text = "INVALID";
 	}

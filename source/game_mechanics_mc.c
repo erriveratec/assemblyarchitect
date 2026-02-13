@@ -98,6 +98,7 @@ static void draw_oavatar();
 static void draw_ravatar();
 bool cmp_substract(int op_id, value_box_t val);
 static bool handle_ravatar_cmp(int op_id);
+static void rflag_generator(avatar_t *avatar, int id);
 
 /* Function: mc_set_rst_lvl
  *------------------------------------------------------------------------------
@@ -330,7 +331,7 @@ void mc_init_avatar()
 {
 	SDL_Rect avatar =  dm_get_avatar_wh();
 	SDL_Rect ib = dm_get_stage_input_buffer_box();
-	SDL_Rect vb = dm_get_value_box_val_wh();
+	SDL_Rect vb = dm_get_value_box_wh();
 	g_iavatar.id = IAVATAR;
 	g_iavatar.box.x = bf_get_buffer_value_box_x_coord_by_id(IB);	
 	g_iavatar.box.y = ib.y + ib.h + avatar.h;
@@ -953,6 +954,7 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 static value_box_t get_operand_value_box(int op_id)		
 {
 	assert((op_id > REG_MIN && op_id < REG_MAX) 
+		   || (op_id > FLAG_MIN &&  op_id < FLAG_MAX)
 		   || (op_id > BUF_MIN &&  op_id < BUF_MAX) 
 		   || (op_id > RGBOX_MIN &&  op_id < RGBOX_MAX) 
 		   || (op_id > IMM_MIN &&  op_id < IMM_MAX) 
@@ -962,7 +964,9 @@ static value_box_t get_operand_value_box(int op_id)
 
 	if (op_id > REG_MIN && op_id < REG_MAX){
 		op_value_box = rg_get_register_value_box_by_id(op_id);	
-	}else if (op_id > IMM_MIN && op_id < IMM_MAX){
+	} else if (op_id > FLAG_MIN && op_id < FLAG_MAX){
+		op_value_box = rg_get_flag_value_box_by_id(op_id);	
+	} else if (op_id > IMM_MIN && op_id < IMM_MAX){
 		op_value_box = im_get_imm_value_box_by_id(op_id);	
 	} else if (op_id == IB){
 		op_value_box = bf_get_input_buffer_value_box();
@@ -1048,15 +1052,18 @@ static bool check_operand_has_value(int op_id)
  */
 bool set_operand_value_box(int op_id, value_box_t val)
 {
-	assert(((op_id > REG_MIN && op_id < REG_MAX) ||
-	       (op_id > BUF_MIN && op_id < BUF_MAX) ||
-		   (op_id > RGBOX_MIN && op_id < RGBOX_MAX)) && 
-		   "The operand id is invalid");
+	assert(((op_id > REG_MIN && op_id < REG_MAX) 
+			|| (op_id > FLAG_MIN && op_id < FLAG_MAX) 
+			|| (op_id > BUF_MIN && op_id < BUF_MAX) 
+			|| (op_id > RGBOX_MIN && op_id < RGBOX_MAX)) && 
+		    "The operand id is invalid");
 	
 	bool operation_valid = true;
 
 	if (op_id > REG_MIN && op_id < REG_MAX){
 		rg_set_register_value_box(op_id, val);	
+	} else if (op_id > FLAG_MIN && op_id < FLAG_MAX){
+		rg_set_flag_value_box(op_id, val);	
 	} else if (op_id == OB){
 		bf_set_output_buffer_value_box(val);	
 	} else if (op_id == IBOX){
@@ -1526,6 +1533,37 @@ static int handle_source_operand(code_line_t *line)
 	return avatar_id;
 }
 
+/* Function: rflag_generator 
+ * -----------------------------------------------------------------------------
+ * This function sets the flag in the second value box, according to the 
+ * contents of the first value box
+ *
+ * Arguments:
+ *	avatar: The avatar that will be used to generate the flag.
+ * 	id: The id of the flag that will be generated.
+ *
+ * Return:
+ *	void.
+ */
+static void rflag_generator(avatar_t *avatar, int id)
+{
+	value_box_t flag;
+	switch(id){
+		case ZF:
+			if (avatar->mainval.value == 0){
+				flag = avatar->mainval;
+				flag.value = 1;
+				ax_copy_vbox(&g_ravatar.secval, flag, true);
+			} else if (avatar->mainval.value != 0){
+				flag = avatar->mainval;
+				flag.value = 0;
+				ax_copy_vbox(&g_ravatar.secval, flag, true);
+			}
+			break;
+	}	
+}
+
+
 /* Function: handle_destiny_operand
  * -----------------------------------------------------------------------------
  * Arguments:
@@ -1544,8 +1582,22 @@ static void handle_destiny_operand(code_line_t *line, int avatar_id)
 		&& g_ravatar.op2_retrieved == true
 		&& g_ravatar.op1_retrieved == true
 		&& g_ravatar.op_delivered == false){
-		puts("debe hacer entrega");	
 			mov_pending = move_avatar_to_operand(&g_ravatar, ZF);
+		if (mov_pending == false && g_ravatar.in_place == false){
+			rflag_generator(&g_ravatar, ZF);
+			g_ravatar.in_place = true;
+			g_ravatar.mainval.visible_box = true;
+			g_ravatar.secval.visible_box = true;
+			g_ravatar.secval.box = g_ravatar.mainval.box;
+		}
+		if (mov_pending == false){
+			int deliver_pending;
+			deliver_pending = deliver_operand(&g_ravatar, ZF);
+			if (deliver_pending == false){
+				g_ravatar.op_delivered = true;
+				g_ravatar.secval.visible_box = false;
+			}
+		}
 	} else if (avatar_id == RAVATAR 
 			   && line->ins->id != CMP
 			   && g_ravatar.op2_retrieved == true){
@@ -1710,6 +1762,8 @@ static void execute_instruction(code_line_t *line, int line_pos)
 					operate_instruction(line, g_ravatar.mainval);
 				} else if (g_ravatar.op_delivered == true){
 					puts("resetea");
+					set_operand_value_box(ZF, g_ravatar.secval);
+					operate_instruction(line, g_ravatar.mainval);
 					line->state = EXECUTED;
 					mc_set_step_ended(true);
 					rst = true;

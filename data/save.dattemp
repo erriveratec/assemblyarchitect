@@ -1,0 +1,173 @@
+PLAYER 01
+
++++LEVEL STARTS 01
+
+LEVEL ACTIVE TRUE
+
+CODE STARTS
+MOV rax, [ib]
+MOV [ob], rax
+CODE ENDS
+
++++LEVEL ENDS 01
+
++++LEVEL STARTS 02
+
+LEVEL ACTIVE TRUE
+
+CODE STARTS
+MOV rax, [ib]
+MOV [ob], rax
+CODE ENDS
+
++++LEVEL ENDS 02
+
++++LEVEL STARTS 03
+
+LEVEL ACTIVE TRUE
+
+CODE STARTS
+MOV rax, [ib]
+MOV [ob], rax
+MOV [ob], rax
+MOV [ob], rax
+CODE ENDS
+
++++LEVEL ENDS 03
+
++++LEVEL STARTS 04
+
+LEVEL ACTIVE TRUE
+
+CODE STARTS
+MOV rax, [ib]
+MOV [ob], rax
+MOV rax, [ib]
+MOV [ob], rax
+MOV rax, [ib]
+MOV [ob], rax
+CODE ENDS
+
++++LEVEL ENDS 04
+
++++LEVEL STARTS 05
+
+LEVEL ACTIVE TRUE
+
+CODE STARTS
+MOV rax, [ib]
+MOV rbx, [ib]
+MOV rcx, [ib]
+MOV [ob], rcx
+MOV [ob], rbx
+MOV [ob], rax
+CODE ENDS
+
++++LEVEL ENDS 05
+
++++LEVEL STARTS 06
+
+LEVEL ACTIVE TRUE
+
+CODE STARTS
+MOV rax, [ib]
+ADD rax, [ib]
+MOV [ob], rax
+ADD rax, [ib]
+MOV [ob], rax
+CODE ENDS
+
++++LEVEL ENDS 06
+
++++LEVEL STARTS 07
+
+LEVEL ACTIVE TRUE
+
+CODE STARTS
+MOV rax, [ib]
+ADD rax, rax
+MOV [ob], rax
+CODE ENDS
+
++++LEVEL ENDS 07
+
++++LEVEL STARTS 08
+
+LEVEL ACTIVE TRUE
+
+CODE STARTS
+MOV rax, [ib]
+ADD rax, rax
+ADD rax, rax
+MOV [ob], rax
+CODE ENDS
+
++++LEVEL ENDS 08
+
++++LEVEL STARTS 09
+
+LEVEL ACTIVE TRUE
+
+CODE STARTS
+line 01
+MOV rax, [ib]
+MOV [ob], rax
+JMP 00
+CODE ENDS
+
++++LEVEL ENDS 09
+
++++LEVEL STARTS 10
+
+LEVEL ACTIVE TRUE
+
+CODE STARTS
+line 01
+MOV rax, [ib]
+ADD rax, [ib]
+ADD rax, [ib]
+MOV [ob], rax
+JMP 00
+CODE ENDS
+
++++LEVEL ENDS 10
+
++++LEVEL STARTS 11
+
+LEVEL ACTIVE TRUE
+
+CODE STARTS
+line 01
+MOV rax, [ib]
+ADD rax, IMMUP5
+MOV [ob], rax
+JMP 00
+CODE ENDS
+
++++LEVEL ENDS 11
+
++++LEVEL STARTS 12
+
+LEVEL ACTIVE TRUE
+
+CODE STARTS
+MOV rbx, IMMUP0
+line 02
+MOV rax, [ib]
+ADD rax, [ib]
+MOV [ob], rax
+MOV [ob], rbx
+JMP 01
+CODE ENDS
+
++++LEVEL ENDS 12
+
++++LEVEL STARTS 13
+
+LEVEL ACTIVE TRUE
+
+CODE STARTS
+MOV rax, IMMUP5
+CMP rax, IMMUP5
+MOV [ob], rax
+CMP rax, rax

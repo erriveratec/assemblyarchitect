@@ -629,7 +629,7 @@ static code_line_t *pending_operand_handler()
 
 	cw_highlight_code_pending_operand();
 
-	if (l->ins->id == JMP){
+	if (l->ins->id == JMP || l->ins->id == JE){
 		r = cw_create_label_code_line();
 		cw_player_holding_instruction(r, false, true);
 		operand_t *a = cw_create_jmp_op(r);
@@ -781,6 +781,7 @@ static void reset_level(int level_id, level_flags_t *flags)
 	ms_reset_mouse_values();
 	rg_reset_ibox();
 	rg_reset_obox();
+	rg_reset_rflags();
 }
 
 int stage_level(int level_id)
