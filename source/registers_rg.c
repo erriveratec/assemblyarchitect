@@ -554,7 +554,7 @@ reg_t *create_register(int id, btn_t *b)
 	reg_t *op = malloc(sizeof(reg_t));	
 	check_mem(op);
 
-	SDL_Rect vb = dm_get_value_box_val_wh();
+	SDL_Rect vb = dm_get_value_box_wh();
 	SDL_Rect cb = dm_get_code_button_wh();
 	op->b = b;
 	op->id = id;
