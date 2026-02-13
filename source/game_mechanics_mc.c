@@ -1013,15 +1013,18 @@ static bool check_avatar_has_value(avatar_t *avatar)
  */
 static bool check_operand_has_value(int op_id)
 {
-	assert((op_id > REG_MIN && op_id < REG_MAX) ||
-		   (op_id > BUF_MIN &&  op_id < BUF_MAX) ||
-		   (op_id > RGBOX_MIN &&  op_id < RGBOX_MAX) && 
+	assert((op_id > REG_MIN && op_id < REG_MAX)
+		   || (op_id > FLAG_MIN && op_id < FLAG_MAX)
+		   || (op_id > BUF_MIN &&  op_id < BUF_MAX) 
+		   || (op_id > RGBOX_MIN &&  op_id < RGBOX_MAX) && 
 		   "The operand id is invalid");
 
 	value_box_t op_value_box;
 
 	if (op_id > REG_MIN && op_id < REG_MAX){
 		op_value_box = rg_get_register_value_box_by_id(op_id);	
+	} else  if (op_id > FLAG_MIN && op_id < FLAG_MAX){
+		op_value_box = rg_get_flag_value_box_by_id(op_id);	
 	} else if (op_id == IB){
 		op_value_box = bf_get_input_buffer_value_box();
 	} else if (op_id == OB){
@@ -1335,8 +1338,8 @@ static bool handle_ravatar_source_operand(int op_id)
 
 	mov_pending = move_avatar_to_operand(&g_ravatar, op_id);
 	if (mov_pending == false 
-		&& g_ravatar.in_place == false 
-		&& g_ravatar.op2_retrieved == false){
+		&& g_ravatar.in_place == false ){
+	//	&& g_ravatar.op2_retrieved == false){
 		g_ravatar.in_place = true;
 		if (check_operand_has_value(op_id) == true){
 			value_box_t b = get_operand_value_box(op_id);
@@ -1365,7 +1368,7 @@ static bool handle_ravatar_source_operand(int op_id)
  * Return:
  *	Void.
  */
-static bool handle_ravatar_cmp(int op_id)
+static bool handle_ravatar_cmp_source(int op_id)
 {
 	bool mov_pending = true;
 
@@ -1379,7 +1382,6 @@ static bool handle_ravatar_cmp(int op_id)
 			value_box_t b = get_operand_value_box(op_id);
 			ax_copy_vbox(&g_ravatar.secval, b, true);
 			g_ravatar.secval.visible_box = true;
-
 		}
 		else {
 			set_invalid_operation_flag(REG_VALUE_INVALID);
@@ -1440,11 +1442,11 @@ static bool handle_oavatar_source_operand(int op_id)
 static int handle_source_operand(code_line_t *line)
 {
 	assert(line != NULL && "The value of line cannot be NULL");
-	int operand_quantity = cl_get_instruction_operand_quantity(line->ins->id);
+	int op_qty = cl_get_instruction_operand_quantity(line->ins->id);
 	int mov_pending = NO_VALUE;
 	int avatar_id = NOAVATAR;
 
-	if(operand_quantity == TWO_OPERANDS){
+	if(op_qty == TWO_OPERANDS){
 		if (check_operand_has_value(IBOX) == true){
 			mov_pending = handle_ravatar_source_operand(IBOX);	
 			avatar_id = RAVATAR;
@@ -1452,7 +1454,7 @@ static int handle_source_operand(code_line_t *line)
 				   && check_avatar_has_value(&g_ravatar) == true
 				   && g_ravatar.op2_retrieved == true
 				   && g_ravatar.op1_retrieved == false){
-			mov_pending = handle_ravatar_cmp(line->op1->id);	
+			mov_pending = handle_ravatar_cmp_source(line->op1->id);	
 			avatar_id = RAVATAR;
 		} else if (check_avatar_has_value(&g_ravatar) == true){
 			mov_pending = false;
@@ -1482,11 +1484,28 @@ static int handle_source_operand(code_line_t *line)
 			avatar_id = OAVATAR;
 		}
 
+	} else if(op_qty == ONE_OPERAND){
+		if (line->ins->id == JE && g_ravatar.op1_retrieved == false){
+			mov_pending = handle_ravatar_source_operand(ZF);	
+			avatar_id = RAVATAR;
+		}
 	}
-	
+
 	if (mov_pending == false){
 		bool retrieve_pending; 
+		
 		if (avatar_id == RAVATAR 
+			&& line->ins->id == JE
+			&& g_ravatar.op1_retrieved == false){
+			retrieve_pending = retrieve_operand(&g_ravatar);
+			if (retrieve_pending == false){
+				g_ravatar.op1_retrieved = true;
+				g_ravatar.in_place = false;
+				g_ravatar.secval.visible_box = false;
+				g_ravatar.mainval.visible_box = true;
+				g_ravatar.mainval.box = g_ravatar.secval.box;
+			}
+		} else if (avatar_id == RAVATAR 
 			&& line->ins->id == CMP			
 			&& g_ravatar.op2_retrieved == true
 			&& g_ravatar.op1_retrieved == false){
@@ -1498,7 +1517,9 @@ static int handle_source_operand(code_line_t *line)
 				g_ravatar.mainval.visible_box = true;
 				g_ravatar.mainval.box = g_ravatar.secval.box;
 			}
-		} else if (avatar_id == RAVATAR && g_ravatar.op2_retrieved == false){
+		} else if (avatar_id == RAVATAR 
+				   && op_qty == TWO_OPERANDS
+				   && g_ravatar.op2_retrieved == false){
 			retrieve_pending = retrieve_operand(&g_ravatar);
 			if (retrieve_pending == false){
 				g_ravatar.op2_retrieved = true;
@@ -1761,7 +1782,6 @@ static void execute_instruction(code_line_t *line, int line_pos)
 					g_ravatar.valop = true;
 					operate_instruction(line, g_ravatar.mainval);
 				} else if (g_ravatar.op_delivered == true){
-					puts("resetea");
 					set_operand_value_box(ZF, g_ravatar.secval);
 					operate_instruction(line, g_ravatar.mainval);
 					line->state = EXECUTED;

@@ -727,7 +727,7 @@ static code_line_t *edit_code(int level_id)
 		}
 		line = NULL;
 	}
-	return line; // I must change this as it is not required
+	return line; 
 }
 
 /* Function: rst_btn_hdl
