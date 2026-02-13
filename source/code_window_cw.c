@@ -85,7 +85,8 @@ void cw_init_code_window_texture()
  */
 void cw_operate_jump_instruction(code_line_t *line)
 {
-	assert(line->ins->id == JMP && "Invalid instruction for jump");
+	assert((line->ins->id == JMP || line->ins->id == JE)
+	&& "Invalid instruction for jump");
 
 	List *code = get_code_list();
 	check_mem(code);

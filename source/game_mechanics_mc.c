@@ -1500,6 +1500,8 @@ static int handle_source_operand(code_line_t *line)
 			retrieve_pending = retrieve_operand(&g_ravatar);
 			if (retrieve_pending == false){
 				g_ravatar.op1_retrieved = true;
+				g_ravatar.op2_retrieved = true;
+				g_ravatar.op_delivered = true;
 				g_ravatar.in_place = false;
 				g_ravatar.secval.visible_box = false;
 				g_ravatar.mainval.visible_box = true;
@@ -1621,7 +1623,8 @@ static void handle_destiny_operand(code_line_t *line, int avatar_id)
 		}
 	} else if (avatar_id == RAVATAR 
 			   && line->ins->id != CMP
-			   && g_ravatar.op2_retrieved == true){
+			   && g_ravatar.op2_retrieved == true
+			   && g_ravatar.op_delivered == false){
 		if (cl_is_op_reg(line->op1->id) == true){
 			mov_pending = move_avatar_to_operand(&g_ravatar, line->op1->id);
 		} else {
@@ -1788,6 +1791,13 @@ static void execute_instruction(code_line_t *line, int line_pos)
 					mc_set_step_ended(true);
 					rst = true;
 				}
+			} else if (line->ins->id == JE){
+				if (g_ravatar.mainval.value == 1){
+				cw_operate_jump_instruction(line);
+				} else if (g_ravatar.mainval.value == 0){
+					line->state = EXECUTED;
+				}
+				reset_avatar_no_pos();
 			} else if (cl_is_op_reg(line->op1->id) == true){
 				operate_instruction(line, g_ravatar.mainval);
 				line->state = EXECUTED;
