@@ -150,6 +150,7 @@ operand_t *im_create_sel_imm_op()
    return o;
 }
 
+
 /* Function: sb_set_imm_up_avail
  * ----------------------------------------------------------------------------
  * Sets the global variable that determines if the up immediates will be 

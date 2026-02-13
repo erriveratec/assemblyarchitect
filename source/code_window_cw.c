@@ -623,24 +623,31 @@ code_line_t *cw_clone_rclicked_line(code_line_t *line)
 	if (operand_quantity == ONE_OPERAND || operand_quantity == TWO_OPERANDS){
 		operand_t *op1;
 		if (line->ins->id == JMP){
-			//op1 = create_saved_jump_operand(line->op1->id);
 		} else if (line->op1->id > REG_MIN && line->op1->id < REG_MAX){
 			op1 = rg_create_register_operand_by_id(line->op1->id);
+			cw_assign_op_to_line(op1, new);
 		} else if (line->op1->id > BUF_MIN && line->op1->id < BUF_MAX){
 			op1 = bf_create_buffer_operand_by_id(line->op1->id);
+			cw_assign_op_to_line(op1, new);
+		} else {
+			printf("Error: no operand 1 determined");
 		}
-		cw_assign_op_to_line(op1, new);
 	}
 	if (operand_quantity == TWO_OPERANDS){
 		operand_t *op2;
 		if (line->op2->id > REG_MIN && line->op2->id < REG_MAX){
 			op2 = rg_create_register_operand_by_id(line->op2->id);
+			cw_assign_op_to_line(op2, new);
 		} else if (line->op2->id > BUF_MIN && line->op2->id < BUF_MAX){
 			op2 = bf_create_buffer_operand_by_id(line->op2->id);
+			cw_assign_op_to_line(op2, new);
+		} else if (line->op2->id > IMM_MIN && line->op2->id < IMM_MAX){
+			op2 = im_create_imm_op_by_id(line->op2->id);
+			cw_assign_op_to_line(op2, new);
+		} else {
+			printf("Error: no operand 2 determined");
 		}
-		cw_assign_op_to_line(op2, new);
 	}
-
 	return new;
 }
 
