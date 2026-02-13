@@ -15,8 +15,11 @@
 
 #define INPUT_BUFFER_EMPTY_TEXT "ERROR: A value cannot be recovered if the "\
 "Input Buffer [IB] is empty"
-#define REG_VALUE_INVALID_TEXT "ERROR:Register cannot be read if a value "\
+#define REG_VALUE_INVALID_TEXT "ERROR: Register cannot be read if a value "\
 "hasn't been stored first"
+#define FLAG_VALUE_INVALID_TEXT "ERROR: FLAG cannot be read if a value "\
+"hasn't been stored first"
+
 #define INVALID_OUTPUT_VALUE_TEXT "ERROR: Incorrect value in the output buffer"
 #define UNPROCESSED_IB_VALUES_TEXT "ERROR: Output is correct but only works by"\
 " that specific set of values"
@@ -28,6 +31,7 @@
 
 texture_array_t *ib_empty;
 texture_array_t *reg_val_bad;
+texture_array_t *flag_val_bad;
 texture_array_t *ob_val_bad;
 texture_array_t *ib_unproc_vals;
 texture_array_t *exc_code_size;
@@ -153,6 +157,10 @@ void mc_init_errors_texture()
 										   text_h, 
 										   C_BLACK, 
 											REG_VALUE_INVALID_TEXT);
+	flag_val_bad = dw_new_text_texture_by_h(rb.w, 
+										    text_h, 
+										    C_BLACK, 
+											FLAG_VALUE_INVALID_TEXT);
 	ob_val_bad = dw_new_text_texture_by_h(rb.w, 
 										  text_h, 
 										  C_BLACK, 
@@ -231,6 +239,9 @@ void mc_display_invalid_operation_handler(int id)
 				break;
 			case REG_VALUE_INVALID:
 				message = reg_val_bad;
+				break;
+			case FLAG_VALUE_INVALID:
+				message = flag_val_bad;
 				break;
 			case INVALID_OUTPUT_VALUE:
 				message = ob_val_bad;
@@ -1350,8 +1361,10 @@ static bool handle_ravatar_source_operand(int op_id)
 
 			rg_reset_ibox();
 		}
-		else {
+		else if (cl_is_op_reg(op_id)){
 			set_invalid_operation_flag(REG_VALUE_INVALID);
+		} else {
+			set_invalid_operation_flag(FLAG_VALUE_INVALID);
 		}
 	}
 	return mov_pending;

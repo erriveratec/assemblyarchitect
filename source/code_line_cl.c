@@ -97,6 +97,7 @@ bool cl_is_op_imm(int op_id)
 bool cl_is_op_reg(int op_id)
 {
 	assert(((op_id > REG_MIN && op_id < REG_MAX) 
+			|| (op_id > FLAG_MIN && op_id < FLAG_MAX) 
 			|| (op_id > MEMORY_MIN && op_id < MEMORY_MAX) 
 			|| (op_id > BUF_MIN && op_id < BUF_MAX) 
 			|| (op_id > RGBOX_MIN && op_id < RGBOX_MAX) 
