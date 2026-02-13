@@ -136,7 +136,7 @@ void cw_update_saved_jump_instructions()
 	code_line_t *c;
 	LIST_FOREACH(code, first, next, cur){ 
 		c = cur->value;
-		if (c->ins->id == JMP){
+		if (c->ins->id == JMP || c->ins->id == JE){
 			assert(c->op1 != NULL && "op1 should't be NULL");
 			code_line_t  *jmp_addr = cw_get_code_line_at_pos(c->op1->id);
 			cl_destroy_operand(c->op1);	
@@ -246,7 +246,7 @@ static void update_jump_instructions()
 	code_line_t *c;
 	LIST_FOREACH(code, first, next, cur){ 
 		c = cur->value;
-		if (c->ins->id == JMP){
+		if (c->ins->id == JMP || c->ins->id == JMP){
 			if (c->op1 != NULL){
 				code_line_t *jmp_addr = c->op1->jptr;
 				cl_destroy_operand(c->op1);	

@@ -620,13 +620,13 @@ error:
  * Return:
  *	Pointer to the created string
  */
-char *cl_create_code_line_text(int instruction_id, int op1_id, int op2_id)
+char *cl_create_code_line_text(int ins_id, int op1_id, int op2_id)
 {
-	assert(instruction_id > INSTRUCTION_MIN 
-		   && instruction_id < INSTRUCTION_MAX
+	assert(ins_id > INSTRUCTION_MIN 
+		   && ins_id < INSTRUCTION_MAX
 		   && "The instruction id is invalid");
 	
-	if (instruction_id == JMP || instruction_id == LABEL){
+	if (ins_id == JMP || ins_id == LABEL){
 		assert(op1_id >=0 && "Label destitny is negative");
 	} else {
 		assert(op1_id >= NO_OPERAND && op1_id < IMM_MAX && "Invalid OP1");
@@ -634,10 +634,10 @@ char *cl_create_code_line_text(int instruction_id, int op1_id, int op2_id)
 	}
 
 	char *line_text = malloc(sizeof(char)*INSTRUCTION_STRING_LENGTH);
-	char *instruction = cl_get_instruction_text(instruction_id);
+	char *instruction = cl_get_instruction_text(ins_id);
 	strcpy(line_text, instruction);
 	
-	if (instruction_id == LABEL || instruction_id == JMP) {
+	if (ins_id == LABEL || ins_id == JMP || ins_id == JE){
 		char *op1 = NULL;
 		op1 = ax_number_to_string_two_digits(op1_id);
 		strcat(line_text, ax_char_space);
