@@ -335,6 +335,37 @@ WinConditionEnd
 +++LEVEL STARTS 13
 
 ChallengeTextBegin
+"Move the values from [IB] to [OB] until the first 0 is found in the Input Buffer"
+ChallengeTextEnd
+
+InputSize 10
+InputMod Force 0
+InputType Natural
+
+InstructionsBegin
+MOV
+CMP
+JE
+InstructionsEnd
+
+RegistersBegin
+rax
+rbx
+rcx
+rdx
+RegistersEnd
+
+InstructionLimit 99
+
+WinConditionBegin
+WIN2 2 true 0
+WinConditionEnd
+
++++LEVEL ENDS
+
++++LEVEL STARTS 14
+
+ChallengeTextBegin
 "PLACEHOLDER"
 ChallengeTextEnd
 

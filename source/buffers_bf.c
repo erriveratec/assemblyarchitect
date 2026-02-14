@@ -28,7 +28,10 @@
 
 
 typedef struct input_properties_t{
-
+	int type;
+	int size;
+	int mod;
+	int mod_num;
 } input_properties_t;
 
 input_properties_t g_ip;
@@ -48,13 +51,13 @@ btn_t output_buffer_button;
 operand_t *input_buffer = NULL;
 operand_t *output_buffer = NULL;
 
-
 static bool g_win_condition;
+
+int g_input_list_type = NOT_ASSIGNED;  
+int g_input_buffer_size = DEFAULT_BUFFER_SIZE;
 
 static int g_input_list_x_pos;
 static int g_output_list_x_pos;
-int g_input_list_type = NOT_ASSIGNED;  
-int g_input_buffer_size = DEFAULT_BUFFER_SIZE;
 void add_input_to_list(int value, int type);
 void draw_output_buffer();
 void draw_input_buffer();

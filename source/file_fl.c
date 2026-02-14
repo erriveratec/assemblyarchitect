@@ -60,12 +60,6 @@
 #define STR_MSG "MSG"
 #define STR_MSG_END "MSG_END"
 
-enum InputMods {
-	NONE,
-	FORCE
-};
-
-
 static char *get_level_id_string(int level_id);
 static char *get_player_id_string(int player_id);
 static char *get_player_end_string(int player_id);
