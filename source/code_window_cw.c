@@ -1776,7 +1776,8 @@ int get_code_line_position(int y)
 	int first_y = cw_get_code_line_y(0);
 
 	SDL_Rect cb = dm_get_code_button_wh();
-	int h = cb.h;
+	//int h = cb.h;
+	int h = dm_get_h_between_code();
 	int list_size = List_count(code);
 
 	for(int i = 0; i < list_size; i++){
@@ -1847,13 +1848,14 @@ static void add_code_line(code_line_t *line)
 	code_line_t *last = code->last->value;
 	y = last->ins->b->r.y;
 	int h = last->ins->b->r.h;
+	//int h = dm_get_h_between_code();
 	if (mouse_y >= y + h){
 		List_push(code, line);
 		return;
 	}
 
 	int position = get_code_line_position(mouse_y);
-	if (NOT_FOUND != position){
+	if (position != NOT_FOUND){
 		List_insert_at_position(code, line, position);
 		return;
 	} else {
