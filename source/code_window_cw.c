@@ -623,7 +623,7 @@ code_line_t *cw_clone_rclicked_line(code_line_t *line)
 	
 	if (operand_quantity == ONE_OPERAND || operand_quantity == TWO_OPERANDS){
 		operand_t *op1;
-		if (line->ins->id == JMP){
+		if (line->ins->id == JMP || line->ins->id == JE){
 		} else if (line->op1->id > REG_MIN && line->op1->id < REG_MAX){
 			op1 = rg_create_register_operand_by_id(line->op1->id);
 			cw_assign_op_to_line(op1, new);
@@ -631,7 +631,7 @@ code_line_t *cw_clone_rclicked_line(code_line_t *line)
 			op1 = bf_create_buffer_operand_by_id(line->op1->id);
 			cw_assign_op_to_line(op1, new);
 		} else {
-			printf("Error: no operand 1 determined");
+			printf("Error: no operand 1 determined\n");
 		}
 	}
 	if (operand_quantity == TWO_OPERANDS){
@@ -646,7 +646,7 @@ code_line_t *cw_clone_rclicked_line(code_line_t *line)
 			op2 = im_create_imm_op_by_id(line->op2->id);
 			cw_assign_op_to_line(op2, new);
 		} else {
-			printf("Error: no operand 2 determined");
+			printf("Error: no operand 2 determined\n");
 		}
 	}
 	return new;
@@ -951,7 +951,7 @@ code_line_t *cw_get_rclicked_code()
 		
 		code_line_t *c = cur->value;
 
-		if (true == bt_btn_rclicked(c->ins->b)){
+		if (bt_btn_rclicked(c->ins->b) == true){
 			clicked = c;
 		} 
 	}
@@ -978,8 +978,13 @@ bool cw_is_code_rclicked()
 		
 		code_line_t *c = cur->value;
 		
-		if (true == bt_btn_rclicked(c->ins->b)){
-			clicked = true;
+		if (bt_btn_rclicked(c->ins->b) == true){
+			if (c->ins->id == LABEL){
+				clicked = false;
+			} else {
+				clicked = true;
+			}
+
 			break;
 		} 
 	}
@@ -1738,6 +1743,10 @@ bool cw_check_if_in_code_list(code_line_t *line)
 	List *code = get_code_list();
 	assert(NULL != code && "The code pointer is NULL");
 	assert(NULL != line && "The line pointer is NULL");
+
+	if (line == NULL){
+		return false;
+	}
 
 	LIST_FOREACH(code, first, next, cur){
 		
