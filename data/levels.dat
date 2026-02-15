@@ -358,7 +358,7 @@ RegistersEnd
 InstructionLimit 99
 
 WinConditionBegin
-WIN2 2 true 0
+WIN3 0
 WinConditionEnd
 
 +++LEVEL ENDS

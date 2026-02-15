@@ -292,7 +292,7 @@ static void parse_win_condition(FILE *fp)
 		if (strstr(STR_WIN_CONDITION_END, line) != NULL){
 			break;
 		} else if (strcmp(line, ax_char_newline) != STRING_EQUAL){
-			lv_set_level_win_condition(text);			
+			lv_set_level_win_condition_text(text);			
 		} 	
 	}
 	return;
@@ -425,9 +425,7 @@ void fl_file_initialize_level(int level_id)
 	char *level = get_level_id_string(level_id);
 	bool level_found = false;
 
-	int input_mod;
-	int input_mod_num;
-	int input_mod_qty;
+	input_properties_t ip;
 
 	while (READ_ERROR != (read = getline(&line, &len, fp))){
 		if (strstr(line, level) != NULL){
@@ -440,23 +438,18 @@ void fl_file_initialize_level(int level_id)
 			parse_challenge_text(fp);
 		} else if (strstr(line, STR_INPUT_SIZE) != NULL && level_found == true){
 			char *size = strchr(line, CHAR_SPACE);
-			bf_set_input_buffer_size(atoi(size));
+			ip.size = atoi(size);
 		} else if (strstr(line, STR_INPUT_MOD) != NULL && level_found == true){
 			if (strstr(line, STR_MOD_NONE)){
-				input_mod = NONE;
+				ip.mod = NONE;
 			} else if (strstr(line, STR_MOD_FORCE)){
-				input_mod = FORCE;
+				ip.mod = FORCE;
 				char *num = strchr(line, CHAR_SPACE);
-				input_mod_num = atoi(num);
+				ip.mod_num = atoi(num);
 			}
 		}  else if (strstr(line, STR_INPUT_TYPE) != NULL && level_found == true){
 			if (strstr(line, STR_NATURAL)){
-				if (input_mod == NONE){
-					bf_create_natural_numbers_input_list(g_input_buffer_size);
-					g_input_list_type = NATURAL;
-				} else if (input_mod == FORCE){
-
-				}
+				ip.type = NATURAL;
 			} else if (strstr(line, STR_WHOLE)){
 
 			} else if (strstr(line, STR_CHAR)){
@@ -486,6 +479,10 @@ void fl_file_initialize_level(int level_id)
 		}
 
 	}
+	// Init the level 
+	bf_set_input_properties(ip);
+	bf_generate_input_list();
+	lv_reset_level_win_condition();
 	rg_update_register_box_position();
 error:
 	free(level);

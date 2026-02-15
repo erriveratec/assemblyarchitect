@@ -27,14 +27,10 @@
 #define OUTPUT_BUFFER_WIN_X 10000
 
 
-typedef struct input_properties_t{
-	int type;
-	int size;
-	int mod;
-	int mod_num;
-} input_properties_t;
-
 input_properties_t g_ip;
+
+int g_input_list_type = NOT_ASSIGNED;  
+int g_input_buffer_size = DEFAULT_BUFFER_SIZE;
 
 texture_t *input_text; 
 texture_t *output_text;
@@ -53,8 +49,6 @@ operand_t *output_buffer = NULL;
 
 static bool g_win_condition;
 
-int g_input_list_type = NOT_ASSIGNED;  
-int g_input_buffer_size = DEFAULT_BUFFER_SIZE;
 
 static int g_input_list_x_pos;
 static int g_output_list_x_pos;
@@ -64,6 +58,8 @@ void draw_input_buffer();
 static bool check_win_condition();
 static void destroy_input_list();
 static void destroy_output_list();
+static void bf_create_natural_input_list(int size);
+static void bf_create_natural_force_input_list();
 
 
 /* Function: iw_init_buf_texture
@@ -131,19 +127,20 @@ static bool check_win_condition()
 	return g_win_condition;
 }
 
-/* Function: bf_set_input_buffer_size
+/* Function: bf_set_input_properties
 *------------------------------------------------------------------------------
-* Sets a value to the input buffer
+* Sets al lthe input properties needed for the creation of the inputs of the
+* game
 *
 * Arguments:
-* 	size: The size that will be set
+* 	ip: The input properties object needed 
 *	
 * Return:
 *	void.
 */
-void bf_set_input_buffer_size(int size)
+void bf_set_input_properties(input_properties_t ip)
 {
-	g_input_buffer_size = size;
+	g_ip = ip;
 }
 
 /* Function: get_input_buffer_list_size
@@ -429,6 +426,52 @@ error:
 	return;
 }
 
+/* Function: bf_create_input_list
+ * -----------------------------------------------------------------------------
+ * Arguments:
+ *	Creates the input list according to what is found in the input properties
+ *	object. 
+ *	
+ * Return:
+ *	void
+ */
+void bf_generate_input_list()
+{
+	if (g_ip.type == NATURAL && g_ip.mod == NONE){
+		bf_create_natural_input_list(g_ip.size);
+	} else if (g_ip.type == NATURAL && g_ip.mod == FORCE){
+		bf_create_natural_force_input_list();
+	}
+
+}
+
+/* Function: bf_create_natural_force_input_list
+ * -----------------------------------------------------------------------------
+ * Arguments:
+ *	Size: the size of the input list.
+ *	
+ * Return:
+ *	void
+ */
+static void bf_create_natural_force_input_list()
+{
+
+	int list_half = g_ip.size/2;
+	int rng = (rand() % list_half) + NATURAL_NMIN;
+	int node = list_half + rng;
+	int x = 1;	
+
+	for (int i = 0; i < g_ip.size; i++){
+		if (x == node){
+			add_input_to_list(g_ip.mod_num, NATURAL);
+		} else {
+			int value = (rand() % NATURAL_NMAX) + NATURAL_NMIN;
+			add_input_to_list(value, NATURAL);
+		}
+		x++;
+	}
+}
+
 /* Function: bf_create_natural_input_list
  * -----------------------------------------------------------------------------
  * Arguments:
@@ -437,11 +480,11 @@ error:
  * Return:
  *	void
  */
-void bf_create_natural_numbers_input_list(int size)
+static void bf_create_natural_input_list(int size)
 {
 	for (int i = 0; i < size; i++){
 		int value = (rand() % NATURAL_NMAX) + NATURAL_NMIN;
-		add_input_to_list(value, WHOLE);
+		add_input_to_list(value, NATURAL);
 	}
 }
 
@@ -840,7 +883,7 @@ void bf_reset_input_list()
 {
 	destroy_input_list();
 	bf_create_input_list();
-	bf_create_natural_numbers_input_list(g_input_buffer_size);
+	bf_generate_input_list();
 	bf_reset_input_list_x_pos();
 }
 
@@ -876,6 +919,31 @@ void bf_destroy_buffer_lists()
 	destroy_input_list();
 	destroy_output_list();
 }
+
+/* Function: print_input_list
+ *------------------------------------------------------------------------------
+ * Arguments:
+ *	None.
+ *
+ * Return:
+ *	
+ */
+void print_input_list()
+{
+	List *input_list = get_input_list();
+
+	assert(input_list != NULL && "Output list pointer is NULL");
+
+	int input_list_size = List_count(input_list);
+
+	printf("The size of the input list is %d\n", input_list_size);	
+
+	LIST_FOREACH(input_list, first, next, cur){
+		value_box_t *cur_input = cur->value;
+		printf("List value: %d\n", cur_input->value);
+	}
+}
+
 /* Function: print_output_list
  *------------------------------------------------------------------------------
  * Arguments:

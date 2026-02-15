@@ -17,6 +17,14 @@ enum InputMods {
 	FORCE
 };
 
+typedef struct input_properties_t{
+	int type;
+	int size;
+	int mod;
+	int mod_num;
+} input_properties_t;
+
+
 extern int g_input_list_type;
 extern int g_input_buffer_size;
 
@@ -29,7 +37,6 @@ void bf_set_output_buffer_button(SDL_Rect r);
 void bf_create_input_list();
 void bf_create_output_list();
 void bf_destroy_buffer_lists();
-void bf_create_natural_numbers_input_list(int size);
 void bf_initialize_buffer_operands();
 void bf_draw_buffers();
 int bf_get_buffer_value_box_x_coord_by_id(int op_id);
@@ -47,12 +54,14 @@ int get_output_buffer_list_size();
 List *get_input_list();
 List *get_output_list();
 void print_output_list();
+void print_input_list();
 
 operand_t *bf_create_sel_buf_op();
 operand_t *bf_create_buffer_operand_by_id(int id);
 void bf_reset_input_list_x_pos();
-void bf_set_input_buffer_size(int size);
 void bf_set_win_condition();
 void bf_reset_win_condition();
 void bf_init_buffer_assets();
+void bf_set_input_properties(input_properties_t ip);
+void bf_generate_input_list();
 #endif

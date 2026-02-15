@@ -19,6 +19,7 @@
 //Strings for the win condition
 #define STR_WIN1 "WIN1"
 #define STR_WIN2 "WIN2"
+#define STR_WIN3 "WIN3"
 
 #define WIN_CONDITION_LENGTH 30
 #define LV_MSGS_QTY 15
@@ -66,6 +67,7 @@ static int check_display_buf_arrow();
 static bool chk_display_imm_up_arrow();
 static void win1_move_input_to_output(int rep, int mul,int sum, bool reversed);
 static void win2_add_inputs_in_groups(int grp_size, bool between, int in_val);
+static void win3_move_input_to_output_stop(int stop);
 static void set_win_condition(char *win_condition);
 static void draw_regs_arrow(bool show_arrows);
 static void draw_bufs_arrow(int buf_id);
@@ -1307,10 +1309,9 @@ void lv_reset_level_win_condition()
  * Return:
  *	Void.
  */
-void lv_set_level_win_condition(char *win_condition)
+void lv_set_level_win_condition_text(char *win_condition)
 {
 	strcpy(level_win_condition, win_condition);
-	set_win_condition(level_win_condition);
 }
 
 /* Function: set_win_condition
@@ -1365,7 +1366,12 @@ static void set_win_condition(char *win_condition)
 		char *in_val_text = strtok_r(NULL, delim, &saveptr1);
 		int in_val = atoi(in_val_text);
 		win2_add_inputs_in_groups(group_size, between, in_val);
+	} else if (strstr(win_cond, STR_WIN3) != NULL){
+		char *stop_text = strtok_r(NULL, delim, &saveptr1);
+		int stop = atoi(stop_text);
+		win3_move_input_to_output_stop(stop);
 	}
+
 	return;
 }
 
@@ -1501,7 +1507,7 @@ void lv_print_win_list()
  * Return:
  *	Void.
  */
-static void win1_move_input_to_output(int rep, int mul, int sum, bool reversed)
+static void win1_move_input_to_output(int rep, int mul, int sum, bool rev)
 {
 	List *input_list = get_input_list();
 	List *win_list = get_win_list();
@@ -1524,15 +1530,51 @@ static void win1_move_input_to_output(int rep, int mul, int sum, bool reversed)
 			new_win = malloc(sizeof(value_box_t));
 			new_win->value = mul*cur_input->value + sum;
 			new_win->type = cur_input->type;
-			if (reversed == false){
+			if (rev == false){
 				List_push(win_list, new_win);
-			} else if (reversed == true){
+			} else if (rev == true){
 				List_unshift(win_list, new_win);
 			}
 		}
 	}
 }
 
+/* Function: win3_move_input_to_output_stop
+ *------------------------------------------------------------------------------
+ * Generates a win condition that is achieved by moving the elements from the
+ * input buffer to the output buffer up to a stop element
+ *
+ * Arguments:
+ *	stop: stop element that will be used to stop the movement
+ *
+ * Return:
+ *	Void.
+ */
+static void win3_move_input_to_output_stop(int stop)
+{
+	List *input_list = get_input_list();
+	List *win_list = get_win_list();
+
+	int input_list_size = List_count(input_list);
+	int win_list_size = List_count(win_list);
+
+	assert(input_list_size > 0 && "The size of the input list is incorrect");
+	assert(win_list_size == 0 && "The win list has elements");
+
+	LIST_FOREACH(input_list, first, next, cur){
+		value_box_t *cur_input = cur->value;
+		value_box_t *new_win; 
+		if (cur_input->value != stop){
+			new_win = malloc(sizeof(value_box_t));
+			new_win->value = cur_input->value;
+			new_win->type = cur_input->type;
+			List_push(win_list, new_win);
+		} else {
+			break;
+		}
+	}
+	lv_print_win_list();
+}
 
 /* Function: win2_add_inputs_in_groups
  *------------------------------------------------------------------------------
