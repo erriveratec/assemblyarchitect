@@ -457,7 +457,7 @@ static void bf_create_natural_force_input_list()
 {
 
 	int list_half = g_ip.size/2;
-	int rng = (rand() % list_half) + NATURAL_NMIN;
+	int rng = (rand() % list_half) + NATURAL_NMIN - 2;//Always 2 el at IB
 	int node = list_half + rng;
 	int x = 1;	
 
@@ -466,6 +466,9 @@ static void bf_create_natural_force_input_list()
 			add_input_to_list(g_ip.mod_num, NATURAL);
 		} else {
 			int value = (rand() % NATURAL_NMAX) + NATURAL_NMIN;
+			if (value == g_ip.mod_num){
+				value++;
+			}
 			add_input_to_list(value, NATURAL);
 		}
 		x++;

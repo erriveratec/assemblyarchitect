@@ -1745,7 +1745,7 @@ static bool check_finishes_at_OB_correct_size()
 	bool correct_code_size = check_correct_code_size();
 
 	if (win == true && input_buffer_size !=0) {
-		set_invalid_operation_flag(UNPROCESSED_IB_VALUES);
+	//	set_invalid_operation_flag(UNPROCESSED_IB_VALUES);
 	} else if (win == true && correct_code_size == false) {
 		set_invalid_operation_flag(EXCEEDS_CODE_LIMIT);
 	} else if (win == true && input_buffer_size == 0){

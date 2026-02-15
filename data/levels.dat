@@ -338,7 +338,7 @@ ChallengeTextBegin
 "Move the values from [IB] to [OB] until the first 0 is found in the Input Buffer"
 ChallengeTextEnd
 
-InputSize 10
+InputSize 6
 InputMod Force 0
 InputType Natural
 
@@ -346,6 +346,7 @@ InstructionsBegin
 MOV
 CMP
 JE
+JMP
 InstructionsEnd
 
 RegistersBegin

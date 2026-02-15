@@ -1573,7 +1573,6 @@ static void win3_move_input_to_output_stop(int stop)
 			break;
 		}
 	}
-	lv_print_win_list();
 }
 
 /* Function: win2_add_inputs_in_groups
@@ -1656,6 +1655,9 @@ bool lv_evaluate_output_correctness()
 
 	assert(win_list_size > 0 && "The win list has no elements");
 
+	if (output_list_size > win_list_size){
+		return false;
+	}
 	if (output_list_size == 0){
 		return true;
 	}
