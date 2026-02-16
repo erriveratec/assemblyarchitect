@@ -1312,15 +1312,18 @@ static void code_box_height_adjust()
 	SDL_Rect cbut = dm_get_code_button_wh();
 	SDL_Rect codbox = get_code_box();
 	SDL_Rect ogcodbox = dm_get_stage_code_box();
-	if (CODE_LINES_SIZE < list_size){
+	
+	int y = cw_get_code_line_y(list_size - 1);
+	if ( y > (ogcodbox.h + ogcodbox.y)){
 		
-		int increase_size = (list_size - CODE_LINES_SIZE)*cbut.h;
-		int new_bottom_border = codbox.y + ogcodbox.h + increase_size;
+		int inc = y + dm_get_h_between_code() - (codbox.h + codbox.y);
+		int new_bottom_border = codbox.y + ogcodbox.h + inc;
 		int cur_bottom_border = codbox.h + codbox.y;
+		
 		int mdelta = ax_get_cw_move_delta();
 		int delta = ax_get_movement_delta(cur_bottom_border, 
-									   new_bottom_border, 
-									   mdelta);
+									   	  new_bottom_border, 
+									   	  mdelta);
 		
 		if (new_bottom_border > cur_bottom_border){
 			cur_bottom_border += delta;
@@ -1332,7 +1335,37 @@ static void code_box_height_adjust()
 		
 	}
 }
+/*
+static void code_box_height_adjust()
+{
+	List *code = get_code_list();
+	assert(NULL != code && "The code list cannot be NULL");
 
+	int list_size = List_count(code);
+
+	SDL_Rect cbut = dm_get_code_button_wh();
+	SDL_Rect codbox = get_code_box();
+	SDL_Rect ogcodbox = dm_get_stage_code_box();
+	if (CODE_LINES_SIZE < list_size){
+		
+		int increase_size = (list_size - CODE_LINES_SIZE)*cbut.h;
+		int new_bottom_border = codbox.y + ogcodbox.h + increase_size;
+		int cur_bottom_border = codbox.h + codbox.y;
+		int mdelta = ax_get_cw_move_delta();
+		int delta = ax_get_movement_delta(cur_bottom_border, 
+									   	  new_bottom_border, 
+									   	  mdelta);
+		
+		if (new_bottom_border > cur_bottom_border){
+			cur_bottom_border += delta;
+			set_code_box_member(cur_bottom_border - codbox.y, MEMBER_H);
+		} else if (new_bottom_border < cur_bottom_border){
+			cur_bottom_border -= delta;
+			set_code_box_member(cur_bottom_border - codbox.y, MEMBER_H);
+		} 
+		
+	}
+}*/
 /* Function: adjust_code_box_position
  * -----------------------------------------------------------------------------
  * This function handles the length position of the code box according to mouse
@@ -1401,10 +1434,10 @@ void cw_draw_code_window()
 	List *code = get_code_list();
 
 	// Adjust the height of the code box
-	//code_box_height_adjust();
+	code_box_height_adjust();
 
 	if (in_code_window() == true){
-		//adjust_code_box_position();
+		adjust_code_box_position();
 	}
 	
 	dw_draw_thick_rect(g_code_box, dm_get_w_borders(), C_GREY);
