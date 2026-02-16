@@ -13,5 +13,6 @@ void iw_draw_instruction_box();
 int iw_get_instruction_y_by_id(int id);
 int iw_get_instruction_list_size();
 SDL_Rect iw_get_instruction_rect_by_pos(int pos);
-void iw_init_ins_box_texture();
+void iw_init_ins_box();
+void iw_update_ins_box_size();
 #endif

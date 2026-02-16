@@ -484,6 +484,7 @@ void fl_file_initialize_level(int level_id)
 	bf_generate_input_list();
 	lv_reset_level_win_condition();
 	rg_update_register_box_position();
+	iw_update_ins_box_size();
 error:
 	free(level);
 	fclose(fp);

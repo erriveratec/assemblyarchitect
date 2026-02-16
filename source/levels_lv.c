@@ -496,6 +496,42 @@ static void level_13_tutorial()
 
 	int size = cw_get_code_list_size();
 	 
+	 if (g_lv_msg[MSG1] == true && size == 0){
+		tx_text_box(TX_BIG_BOX, MSG1); //Welcome msg
+		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
+		chk_ms_pressed_clear_msg(MSG1, true);
+	} else if (g_lv_msg[MSG2] == true && size == 0){
+		tx_text_box(TX_UPPER_BOX, MSG2);//New instruction je and cmp
+		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
+		ar_display_arrow(AR_INS_MINUS);
+		ar_display_arrow(AR_INS);
+		chk_ms_pressed_clear_msg(MSG2, true);
+	} else if (g_lv_msg[MSG3] == true && size == 0){
+		tx_text_box(TX_CENTER_BOX, MSG3);//Explains CMP
+		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
+		ar_display_arrow(AR_INS_MINUS);
+		chk_ms_pressed_clear_msg(MSG3, true);
+	} else if (g_lv_msg[MSG4] == true && size == 0){
+		tx_text_box(TX_UPPER_BOX, MSG4);//CMP modifies ZF
+		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
+		ar_display_arrow(AR_ZF);
+		chk_ms_pressed_clear_msg(MSG4, true);
+	} else if (g_lv_msg[MSG5] == true && size == 0){
+		tx_text_box(TX_LOWER_BOX, MSG5);//Different operands 0 in ZF
+		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
+		ar_display_arrow(AR_ZF);
+		chk_ms_pressed_clear_msg(MSG5, true);
+	} else if (g_lv_msg[MSG6] == true && size == 0){
+		tx_text_box(TX_INS_BOX, MSG6);// How JE works
+		tx_bottom_msg(TX_INS_BOX, TX_MSG_CLICKANY);
+		ar_display_arrow(AR_INS);
+		chk_ms_pressed_clear_msg(MSG6, true);
+	} else if (g_lv_msg[MSG7] == true && size == 0){
+		tx_text_box(TX_CENTER_BOX, MSG7);// How JE works
+		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
+		ar_display_arrow(AR_CHALLENGE);
+		chk_ms_pressed_clear_msg(MSG7, true);
+	} 
 }
 /* Function: level_12_tutorial
  * -----------------------------------------------------------------------------
@@ -1551,6 +1587,43 @@ static void win1_move_input_to_output(int rep, int mul, int sum, bool rev)
  *	Void.
  */
 static void win3_move_input_to_output_stop(int stop)
+{
+	List *input_list = get_input_list();
+	List *win_list = get_win_list();
+
+	int input_list_size = List_count(input_list);
+	int win_list_size = List_count(win_list);
+
+	assert(input_list_size > 0 && "The size of the input list is incorrect");
+	assert(win_list_size == 0 && "The win list has elements");
+
+	LIST_FOREACH(input_list, first, next, cur){
+		value_box_t *cur_input = cur->value;
+		value_box_t *new_win; 
+		if (cur_input->value != stop){
+			new_win = malloc(sizeof(value_box_t));
+			new_win->value = cur_input->value;
+			new_win->type = cur_input->type;
+			List_push(win_list, new_win);
+		} else {
+			break;
+		}
+	}
+}
+
+/* Function: win4_count_values_till_stop
+ *------------------------------------------------------------------------------
+ * Generates a win condition that is achieved by counting the number of 
+ * appearances of an element until a stop  condition
+ *
+ * Arguments:
+ *	element: element that will be counted
+ *	stop: stop element that will be used to stop the movement
+ *
+ * Return:
+ *	Void.
+ */
+static void win4_count_values_till_stop(int element, int stop)
 {
 	List *input_list = get_input_list();
 	List *win_list = get_win_list();

@@ -17,6 +17,7 @@ texture_t *g_reg_arrow;
 texture_t *g_imm_up_arrow;
 
 static arrow_t g_arrow_ins; 
+static arrow_t g_arrow_ins_minus; 
 static arrow_t g_arrow_drop;
 static arrow_t g_arrow_play;
 static arrow_t g_arrow_step;
@@ -30,6 +31,7 @@ static arrow_t g_arrow_ib;
 static arrow_t g_arrow_ob;
 static arrow_t g_arrow_exec;
 static arrow_t g_arrow_regs;
+static arrow_t g_arrow_zf; 
 static arrow_t g_arrow_imm_up;
 
 static void initialize_ins_arrow();
@@ -43,6 +45,7 @@ static void initialize_challenge_arrow();
 static void initialize_ib_arrow();
 static void initialize_ob_arrow();
 static void initialize_regs_arrow();
+static void initialize_zf_arrow();
 static void initialize_imm_up_arrow();
 static void check_execution_arrow_in_place(int instruction_number);
 bool ar_move_execution_arrow(int instruction_number);
@@ -188,7 +191,6 @@ void ar_hide_execution_arrow()
  */
 static void initialize_regs_arrow()
 {
-	List *registers = rg_get_register_list();
 	SDL_Rect rb = rg_get_register_box();
 	SDL_Rect a = dm_get_arrow_wh();
 	int text_h = dm_get_h_stage_elements_titles();
@@ -205,6 +207,35 @@ static void initialize_regs_arrow()
 	g_arrow_regs.texture = g_reg_arrow;
 	g_arrow_regs.visible =  true;
 	SDL_SetTextureColorMod(g_arrow_regs.texture->texture, 255, 255, 0);
+}
+
+/* Function: initialize_zf_arrow
+ * -----------------------------------------------------------------------------
+ * 
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void initialize_zf_arrow()
+{
+	SDL_Rect rb = rg_get_flag_value_box_by_id(ZF).box;
+	SDL_Rect a = dm_get_arrow_wh();
+	
+	g_arrow_zf.box.x = rb.x + rb.w + a.h;
+	g_arrow_zf.box.y = rb.y + rb.h/2 - a.w/2;
+	g_arrow_zf.box.w = a.w;
+	g_arrow_zf.box.h = a.h;
+	g_arrow_zf.travel = a.w;
+	g_arrow_zf.startx = g_arrow_zf.box.x;
+	g_arrow_zf.starty = g_arrow_zf.box.y;
+	g_arrow_zf.dir = AR_LEFT;
+	g_arrow_zf.in_place = false;
+	g_arrow_zf.texture = g_reg_arrow;
+	g_arrow_zf.visible =  true;
+	SDL_SetTextureColorMod(g_arrow_regs.texture->texture, 255, 0, 0);
 }
 
 /* Function: initialize_reg_arrow
@@ -256,18 +287,54 @@ static void initialize_ins_arrow()
 	int size = iw_get_instruction_list_size();
 	SDL_Rect ir = iw_get_instruction_rect_by_pos(size - 1);
 	SDL_Rect a = dm_get_arrow_wh();
-	g_arrow_ins.box.x = ir.x + a.w/2; 
-	g_arrow_ins.box.y = ir.y + ir.h + a.h;
+	g_arrow_ins.box.x = ir.x + ir.w + a.w/2; 
+	g_arrow_ins.box.y = ir.y + ir.h/2 - a.h/2;
 	g_arrow_ins.box.w = a.w; 
 	g_arrow_ins.box.h = a.h;
 	g_arrow_ins.startx = g_arrow_ins.box.x;
 	g_arrow_ins.starty = g_arrow_ins.box.y;
 	g_arrow_ins.travel = a.h;			
-	g_arrow_ins.dir = AR_UP;
+	g_arrow_ins.dir = AR_LEFT;
 	g_arrow_ins.in_place = false;
 	g_arrow_ins.visible =  true;
 	g_arrow_ins.texture =  g_lv_arrow;
 }
+
+/* Function: initialize_ins_minus_arrow
+ * -----------------------------------------------------------------------------
+ * 
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void initialize_ins_minus_arrow()
+{
+	int size = iw_get_instruction_list_size();
+	
+	SDL_Rect ir;
+	if ((size - 2) < 0){
+		ir = iw_get_instruction_rect_by_pos(size - 1);
+	} else {
+		ir = iw_get_instruction_rect_by_pos(size - 2);
+	}
+	SDL_Rect a = dm_get_arrow_wh();
+	g_arrow_ins_minus.box.x = ir.x + ir.w + a.w/2; 
+	g_arrow_ins_minus.box.y = ir.y + ir.h/2 - a.h/2;
+	g_arrow_ins_minus.box.w = a.w; 
+	g_arrow_ins_minus.box.h = a.h;
+	g_arrow_ins_minus.startx = g_arrow_ins_minus.box.x;
+	g_arrow_ins_minus.starty = g_arrow_ins_minus.box.y;
+	g_arrow_ins_minus.travel = a.h;			
+	g_arrow_ins_minus.dir = AR_LEFT;
+	g_arrow_ins_minus.in_place = false;
+	g_arrow_ins_minus.visible =  true;
+	g_arrow_ins_minus.texture =  g_lv_arrow;
+}
+
+
 
 /* Function: initialize_code_arrow
  * -----------------------------------------------------------------------------
@@ -605,6 +672,7 @@ void ar_initialize_arrows()
 {
 	SDL_SetTextureColorMod(g_lv_arrow->texture, 255, 0, 0);
 	initialize_ins_arrow();
+	initialize_ins_minus_arrow();
 	initialize_drop_arrow();
 	initialize_play_arrow();
 	initialize_step_arrow();
@@ -617,6 +685,7 @@ void ar_initialize_arrows()
 	initialize_ib_arrow();
 	initialize_ob_arrow();
 	initialize_regs_arrow();
+	initialize_zf_arrow();
 	initialize_imm_up_arrow();
 }
 /* Function: ar_init_arrow
@@ -634,6 +703,9 @@ void ar_init_arrow(int arrow_id)
 	switch(arrow_id){
 		case AR_INS:
 			initialize_ins_arrow();
+			break;
+		case AR_INS_MINUS:
+			initialize_ins_minus_arrow();
 			break;
 		case AR_DROP:
 			initialize_drop_arrow();
@@ -674,6 +746,9 @@ void ar_init_arrow(int arrow_id)
 		case AR_REG:
 			initialize_regs_arrow();
 			break;
+		case AR_ZF:
+			initialize_zf_arrow();
+			break;
 		case AR_IMM_UP:
 			initialize_imm_up_arrow();
 			break;
@@ -703,6 +778,9 @@ void ar_display_arrow(int arrow_id)
 	switch(arrow_id){
 		case AR_INS:
 			aptr = &g_arrow_ins;
+			break;
+		case AR_INS_MINUS:
+			aptr = &g_arrow_ins_minus;
 			break;
 		case AR_DROP:
 			aptr = &g_arrow_drop;
@@ -742,6 +820,9 @@ void ar_display_arrow(int arrow_id)
 			break;
 		case AR_REG:
 			aptr = &g_arrow_regs;
+			break;
+		case AR_ZF:
+			aptr = &g_arrow_zf;
 			break;
 		case AR_IMM_UP:
 			aptr = &g_arrow_imm_up;

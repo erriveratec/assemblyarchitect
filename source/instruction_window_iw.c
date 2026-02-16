@@ -19,7 +19,7 @@ SDL_Rect g_instruction_box;
 static List *get_instruction_list();
 static void draw_instruction_text();
 
-/* Function: iw_init_ins_box_texture
+/* Function: iw_init_ins_box
  *------------------------------------------------------------------------------
  * Creates the instructions texture of the instruction box
  *
@@ -29,9 +29,10 @@ static void draw_instruction_text();
  * Return:
  *	Void.
  */
-void iw_init_ins_box_texture()
+void iw_init_ins_box()
 {
 	instructions_text = dw_create_text_texture(INSTRUCTIONS_TEXT, C_AMBER);
+	g_instruction_box = dm_get_stage_instruction_box();
 }
 
 /* Function: iw_get_instruction_box_by_pos
@@ -52,11 +53,13 @@ SDL_Rect iw_get_instruction_rect_by_pos(int pos)
 	List *instructions = get_instruction_list();
 	instruction_t *i;
 	int count = 0;
+
 	LIST_FOREACH(instructions, first, next, cur){ 
 		i = cur->value;
 		if (count == pos){
 			break;
 	   	}
+		count++;
    }
    assert(i != NULL && "null pointer returned for instruction");
    return i->b->r;
@@ -294,6 +297,27 @@ error:
 	return;
 }
 
+/* Function: iw_update_ins_box_size
+ * -----------------------------------------------------------------------------
+ * Updates the size of the instruction box according to the number of
+ * instructions available to the player
+ *
+ * Arguments:
+ *	Void.
+ *	
+ * Return:
+ *	void
+ *
+ */
+void iw_update_ins_box_size()
+{
+ 	int size = iw_get_instruction_list_size();
+	if (size > 4){
+		int increase_factor = size - 4;
+		g_instruction_box.h += increase_factor*dm_get_h_between_code();
+	}
+}
+
 /* Function: iw_draw_instruction_box
  * -----------------------------------------------------------------------------
  * This function displays the instructions available for a level.
@@ -312,9 +336,7 @@ void iw_draw_instruction_box()
 
 	draw_instruction_text();
 	
-	SDL_Rect r = dm_get_stage_instruction_box();
-	
-	dw_draw_thick_rect(r, dm_get_w_borders(), C_GREY);
+	dw_draw_thick_rect(g_instruction_box, dm_get_w_borders(), C_GREY);
 
 	LIST_FOREACH(instructions, first, next, cur){
 		instruction_t *c = cur->value;

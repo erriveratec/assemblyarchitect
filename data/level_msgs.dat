@@ -340,8 +340,77 @@ MSG 01
 Level 12
 MSG_END
 
-+++LEVEL ENDS 11
++++LEVEL ENDS 12
 
++++LEVEL STARTS 13
+
+QUANTITY 7
+
+MSG 01
+Level 13
+MSG_END
+
+MSG 02
+Notice there are two new instructions: CMP and JE
+MSG_END
+
+MSG 03
+CMP compares two operands
+ 
+Examples:
+CMP rax, rbx
+CMP rax, 4
+MSG_END
+
+MSG 04
+CMP sets ZF to 1 when the operands are equal
+MSG_END
+
+MSG 05
+CMP sets ZF to 0 when the operands are different
+MSG_END
+
+MSG 06
+JE jumps if 
+ZF = 1
+Otherwise it continues to the next instruction
+MSG_END
+
+MSG 07
+You will need CMP and JE to solve the challenge
+MSG_END
+
++++LEVEL ENDS 13
+
++++LEVEL STARTS 14
+
+QUANTITY 5
+
+MSG 01
+Level 13
+MSG_END
+
+MSG 02
+Notice there are two new instructions: CMP and JE
+MSG_END
+
+MSG 03
+CMP compares two operands
+ 
+Examples:
+CMP rax, rbx
+CMP rax, 4
+MSG_END
+
+MSG 04
+If the operands are equal, a 1 is stored in the ZF flag
+MSG_END
+
+MSG 05
+If the operands are different, a 0 is stored in ZF
+MSG_END
+
++++LEVEL ENDS 14
 
 
 

@@ -26,6 +26,7 @@ typedef struct arrow_t{
 
 enum arrow_id{
 	AR_INS,
+	AR_INS_MINUS,
 	AR_DROP,
 	AR_PLAY,
 	AR_STEP,
@@ -39,6 +40,7 @@ enum arrow_id{
 	AR_OB,
 	AR_EXEC,
 	AR_REG,
+	AR_ZF,
 	AR_IMM_UP
 };
 

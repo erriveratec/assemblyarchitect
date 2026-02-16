@@ -164,10 +164,9 @@ void tx_bottom_msg(int pos, int msg_id)
 	int offset = dm_get_ofs_iface_filled_border();
 	switch(pos){
 		case TX_INS_BOX:
-			b = dm_get_text_box_ins(); 
-			b.y = dm_get_text_box_ins().y + dm_get_text_box_ins().h*4/6;
-			b.h = dm_get_text_box_ins().h/6;
 			text_h = dm_get_h_bottom_msg();
+			b = dm_get_text_box_ins(); 
+			b.y  += (dm_get_text_box_ins().h/2 - text_h - offset);
 			break;
 		case TX_UPPER_BOX:
 			text_h = dm_get_h_bottom_msg();

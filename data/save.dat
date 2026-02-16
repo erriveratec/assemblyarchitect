@@ -5,8 +5,6 @@ PLAYER 01
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-MOV rax, [ib]
-MOV [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 01
@@ -70,11 +68,6 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-MOV rax, [ib]
-ADD rax, [ib]
-MOV [ob], rax
-ADD rax, [ib]
-MOV [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 06
@@ -109,8 +102,10 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
+line 01
 MOV rax, [ib]
 MOV [ob], rax
+JMP 00
 CODE ENDS
 
 +++LEVEL ENDS 09
@@ -120,12 +115,6 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-line 01
-MOV rax, [ib]
-ADD rax, [ib]
-ADD rax, [ib]
-MOV [ob], rax
-JMP 00
 CODE ENDS
 
 +++LEVEL ENDS 10
@@ -149,13 +138,6 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-MOV rbx, IMMUP0
-line 02
-MOV rax, [ib]
-ADD rax, [ib]
-MOV [ob], rax
-MOV [ob], rbx
-JMP 01
 CODE ENDS
 
 +++LEVEL ENDS 12
@@ -165,14 +147,10 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-JE 01
-line 02
-line 02
-line 02
-line 02
-JE 02
-JE 03
-JE 04
+line 01
+MOV rax, [ib]
+CMP rax, IMMUP0
+JMP 00
 CODE ENDS
 
 +++LEVEL ENDS 13
@@ -182,7 +160,20 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-
+MOV rbx, IMMUP0
+line 02
+line 02
+MOV rax, [ib]
+CMP rax, IMMUP0
+line 04
+JE 12
+JMP 01
+CMP rax, IMMUP3
+JE 05
+ADD rbx, IMMUP1
+JMP 02
+line 10
+MOV [ob], rbx
 CODE ENDS
 
 +++LEVEL ENDS 14
@@ -457,8 +448,6 @@ PLAYER 02
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-MOV rax, [ib]
-MOV [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 01
@@ -522,11 +511,6 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-MOV rax, [ib]
-ADD rax, [ib]
-MOV [ob], rax
-ADD rax, [ib]
-MOV [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 06
@@ -561,8 +545,10 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
+line 01
 MOV rax, [ib]
 MOV [ob], rax
+JMP 00
 CODE ENDS
 
 +++LEVEL ENDS 09
@@ -572,12 +558,6 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-line 01
-MOV rax, [ib]
-ADD rax, [ib]
-ADD rax, [ib]
-MOV [ob], rax
-JMP 00
 CODE ENDS
 
 +++LEVEL ENDS 10
@@ -601,13 +581,6 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-MOV rbx, IMMUP0
-line 02
-MOV rax, [ib]
-ADD rax, [ib]
-MOV [ob], rax
-MOV [ob], rbx
-JMP 01
 CODE ENDS
 
 +++LEVEL ENDS 12
@@ -617,14 +590,10 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-JE 01
-line 02
-line 02
-line 02
-line 02
-JE 02
-JE 03
-JE 04
+line 01
+MOV rax, [ib]
+CMP rax, IMMUP0
+JMP 00
 CODE ENDS
 
 +++LEVEL ENDS 13
@@ -634,7 +603,20 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-
+MOV rbx, IMMUP0
+line 02
+line 02
+MOV rax, [ib]
+CMP rax, IMMUP0
+line 04
+JE 12
+JMP 01
+CMP rax, IMMUP3
+JE 05
+ADD rbx, IMMUP1
+JMP 02
+line 10
+MOV [ob], rbx
 CODE ENDS
 
 +++LEVEL ENDS 14
@@ -909,8 +891,6 @@ PLAYER 03
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-MOV rax, [ib]
-MOV [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 01
@@ -974,11 +954,6 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-MOV rax, [ib]
-ADD rax, [ib]
-MOV [ob], rax
-ADD rax, [ib]
-MOV [ob], rax
 CODE ENDS
 
 +++LEVEL ENDS 06
@@ -1013,8 +988,10 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
+line 01
 MOV rax, [ib]
 MOV [ob], rax
+JMP 00
 CODE ENDS
 
 +++LEVEL ENDS 09
@@ -1024,12 +1001,6 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-line 01
-MOV rax, [ib]
-ADD rax, [ib]
-ADD rax, [ib]
-MOV [ob], rax
-JMP 00
 CODE ENDS
 
 +++LEVEL ENDS 10
@@ -1053,13 +1024,6 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-MOV rbx, IMMUP0
-line 02
-MOV rax, [ib]
-ADD rax, [ib]
-MOV [ob], rax
-MOV [ob], rbx
-JMP 01
 CODE ENDS
 
 +++LEVEL ENDS 12
@@ -1069,14 +1033,10 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-JE 01
-line 02
-line 02
-line 02
-line 02
-JE 02
-JE 03
-JE 04
+line 01
+MOV rax, [ib]
+CMP rax, IMMUP0
+JMP 00
 CODE ENDS
 
 +++LEVEL ENDS 13
@@ -1086,7 +1046,20 @@ CODE ENDS
 LEVEL ACTIVE TRUE
 
 CODE STARTS
-
+MOV rbx, IMMUP0
+line 02
+line 02
+MOV rax, [ib]
+CMP rax, IMMUP0
+line 04
+JE 12
+JMP 01
+CMP rax, IMMUP3
+JE 05
+ADD rbx, IMMUP1
+JMP 02
+line 10
+MOV [ob], rbx
 CODE ENDS
 
 +++LEVEL ENDS 14
