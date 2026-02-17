@@ -49,7 +49,7 @@ static void update_jump_instructions();
 static operand_t *create_updated_jump_operand(code_line_t *jmp_addr);
 static code_line_t *get_clicked_label_code_line();
 static operand_t *create_saved_jump_operand(int op1_id);
-static SDL_Rect get_code_box();
+static SDL_Rect get_scroll_box();
 
 /* Function: cw_init_code_window_texture
  * -----------------------------------------------------------------------------
@@ -1079,7 +1079,7 @@ void cw_destroy_code_window_assets()
  * Return:
  *	The accessed member.
  */
-static SDL_Rect get_code_box()
+static SDL_Rect get_scroll_box()
 {
 	return g_scroll_box;
 }
@@ -1371,14 +1371,14 @@ static void code_box_height_adjust()
 	int list_size = List_count(code);
 
 	SDL_Rect cbut = dm_get_code_button_wh();
-	SDL_Rect codbox = get_code_box();
+	SDL_Rect codbox = get_scroll_box();
 	SDL_Rect ogcodbox = dm_get_stage_code_box();
 	
 	int y = cw_get_code_line_y(list_size - 1);
 	if ( y > (ogcodbox.h + ogcodbox.y)){
 		
 		int inc = y + dm_get_h_between_code() - (codbox.h + codbox.y);
-		int new_bottom_border = codbox.y + ogcodbox.h + inc;
+		int new_bottom_border = codbox.y + codbox.h + inc;
 		int cur_bottom_border = codbox.h + codbox.y;
 		
 		int mdelta = ax_get_cw_move_delta();
@@ -1413,7 +1413,7 @@ static void adjust_code_box_position()
 	
 	y_pending_scroll += 3*ms_get_mouse_scroll_y();
 	SDL_Rect cb = dm_get_stage_code_box();
-	SDL_Rect codbox = get_code_box();
+	SDL_Rect codbox = get_scroll_box();
 
 	int cur_y = codbox.y;
 	int max_upper_border_y = cb.y;
@@ -1470,9 +1470,9 @@ void cw_draw_code_window()
 		adjust_code_box_position();
 	}
 	
-	dw_draw_thick_rect(g_code_box, dm_get_w_borders(), C_GREY);
 	
 	dw_draw_thick_rect(g_code_box, dm_get_w_borders(), C_GREY);
+//	dw_draw_thick_rect(g_scroll_box, dm_get_w_borders(), C_GREY);
 
 	display_player_code();
 	display_line_number();

@@ -312,6 +312,8 @@ error:
 void iw_update_ins_box_size()
 {
  	int size = iw_get_instruction_list_size();
+
+	g_instruction_box.h = dm_get_stage_instruction_box().h;
 	if (size > 4){
 		int increase_factor = size - 4;
 		g_instruction_box.h += increase_factor*dm_get_h_between_code();

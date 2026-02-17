@@ -43,7 +43,8 @@
 #define STR_INPUT_TYPE "InputType"
 #define STR_INPUT_MOD "InputMod"
 #define STR_MOD_NONE "None"
-#define STR_MOD_FORCE "Force"
+#define STR_MOD_FORCE "Force"//stop
+#define STR_MOD_INCREASE "Increase"// stop, number, probability
 #define STR_NATURAL "Natural"
 #define STR_WHOLE "Whole"
 #define STR_CHAR "Char"
@@ -443,10 +444,22 @@ void fl_file_initialize_level(int level_id)
 			if (strstr(line, STR_MOD_NONE)){
 				ip.mod = NONE;
 			} else if (strstr(line, STR_MOD_FORCE)){
-				ip.mod = FORCE;
+				ip.mod = FORCE; //funciona de wava
 				char *num = strchr(line, CHAR_SPACE);
-				ip.mod_num = atoi(num);
+				ip.mod_num1 = atoi(num);
+			} else if (strstr(line, STR_MOD_INCREASE)){
+				char *delim = ax_char_space;
+				ip.mod = INCREASE;
+				strtok_r(line, delim, &saveptr1);
+				strtok_r(NULL, delim, &saveptr1);
+				char *num1= strtok_r(NULL, delim, &saveptr1);
+				ip.mod_num1 = atoi(num1);
+				char *num2 = strtok_r(NULL, delim, &saveptr1);
+				ip.mod_num2 = atoi(num2);
+				char *num3 = strtok_r(NULL, delim,  &saveptr1);
+				ip.mod_num3 = atoi(num3);
 			}
+
 		}  else if (strstr(line, STR_INPUT_TYPE) != NULL && level_found == true){
 			if (strstr(line, STR_NATURAL)){
 				ip.type = NATURAL;

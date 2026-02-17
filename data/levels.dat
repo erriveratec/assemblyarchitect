@@ -371,7 +371,7 @@ ChallengeTextBegin
 ChallengeTextEnd
 
 InputSize 16
-InputMod Force 0
+InputMod Increase 0 3 5
 InputType Natural
 
 InstructionsBegin

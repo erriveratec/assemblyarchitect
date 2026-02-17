@@ -14,14 +14,17 @@ enum input_list_type{
 
 enum InputMods {
 	NONE,
-	FORCE
+	FORCE,
+	INCREASE
 };
 
 typedef struct input_properties_t{
 	int type;
 	int size;
 	int mod;
-	int mod_num;
+	int mod_num1;
+	int mod_num2;
+	int mod_num3;
 } input_properties_t;
 
 

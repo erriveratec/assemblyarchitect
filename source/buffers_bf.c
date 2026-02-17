@@ -60,6 +60,7 @@ static void destroy_input_list();
 static void destroy_output_list();
 static void bf_create_natural_input_list(int size);
 static void bf_create_natural_force_input_list();
+static void bf_create_natural_increase_input_list();
 
 
 /* Function: iw_init_buf_texture
@@ -441,9 +442,49 @@ void bf_generate_input_list()
 		bf_create_natural_input_list(g_ip.size);
 	} else if (g_ip.type == NATURAL && g_ip.mod == FORCE){
 		bf_create_natural_force_input_list();
+	} else if (g_ip.type == NATURAL && g_ip.mod == INCREASE){
+		bf_create_natural_increase_input_list();
 	}
 
+
 }
+
+/* Function: bf_create_natural_force_increase_input_list
+ * -----------------------------------------------------------------------------
+ * Arguments:
+ *	Size: the size of the input list.
+ *	
+ * Return:
+ *	void
+ */
+static void bf_create_natural_increase_input_list()
+{
+	int list_half = g_ip.size/2;
+	int rng = (rand() % list_half) + NATURAL_NMIN - 2;//Always 2 el at IB
+	int node = list_half + rng;
+	int x = 1;	
+
+	for (int i = 0; i < g_ip.size; i++){
+		if (x == node){
+			add_input_to_list(g_ip.mod_num1, NATURAL);
+		} else {
+			int value = (rand() % NATURAL_NMAX) + NATURAL_NMIN;
+			if (value == g_ip.mod_num1){
+				value++;
+			} 
+			for (int j = 0; j < g_ip.mod_num3; j++){
+				if (value != g_ip.mod_num2){
+					value = (rand() % NATURAL_NMAX) + NATURAL_NMIN;
+				} else {
+					break;
+				}
+			}
+			add_input_to_list(value, NATURAL);
+		}
+		x++;
+	}
+}
+
 
 /* Function: bf_create_natural_force_input_list
  * -----------------------------------------------------------------------------
@@ -463,10 +504,10 @@ static void bf_create_natural_force_input_list()
 
 	for (int i = 0; i < g_ip.size; i++){
 		if (x == node){
-			add_input_to_list(g_ip.mod_num, NATURAL);
+			add_input_to_list(g_ip.mod_num1, NATURAL);
 		} else {
 			int value = (rand() % NATURAL_NMAX) + NATURAL_NMIN;
-			if (value == g_ip.mod_num){
+			if (value == g_ip.mod_num1){
 				value++;
 			}
 			add_input_to_list(value, NATURAL);
