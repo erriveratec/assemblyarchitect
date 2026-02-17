@@ -33,6 +33,33 @@ static void set_mouse_chord_pressed(bool s);
 static void set_mouse_chord_released(bool s);
 
 
+/* Function: ms_click_inside_rect
+ * -----------------------------------------------------------------------------
+ * Verifies if the mouse click whas done inside an area defined by a rect
+ *
+ * Arguments:
+ *	r: The rectangle that will be set
+ *
+ * Return:
+ *	true if the left button of the mouse is pressed, false if otherwise
+ */
+bool ms_click_inside_rect(SDL_Rect r)
+{
+	bool in = false;
+
+	if (ms_left_pressed() == true){
+		int x = ms_get_mouse_x();
+		int y = ms_get_mouse_y();
+		
+		if (x > r.x && x < (r.x + r.w) && y > r.y && y < (r.y + r.h)){
+			in = true;
+		} 
+
+	}
+
+	return in;
+}
+
 /* Function: ms_left_pressed
  * -----------------------------------------------------------------------------
  * This functions verifies if the left button of the mouse is pressed.

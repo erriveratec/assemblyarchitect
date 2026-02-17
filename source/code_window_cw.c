@@ -16,7 +16,9 @@
 
 static List *code_list = NULL;
 
+
 static SDL_Rect g_code_box;
+static SDL_Rect g_scroll_box;
 static SDL_Rect g_text_box;
 
 texture_array_t *g_challenge_text;
@@ -1008,14 +1010,16 @@ bool cw_is_code_clicked()
 	List *code = get_code_list();
 	bool clicked = false;
 
-	LIST_FOREACH(code, first, next, cur){ 
-		
-		code_line_t *c = cur->value;
-		
-		if (true == bt_btn_clicked(c->ins->b)){
-			clicked = true;
-			break;
-		} 
+	if (ms_click_inside_rect(g_code_box) == true){
+		LIST_FOREACH(code, first, next, cur){ 
+			
+			code_line_t *c = cur->value;
+			
+			if (true == bt_btn_clicked(c->ins->b)){
+				clicked = true;
+				break;
+			} 
+		}
 	}
 	return clicked;
 }
@@ -1077,7 +1081,7 @@ void cw_destroy_code_window_assets()
  */
 static SDL_Rect get_code_box()
 {
-	return g_code_box;
+	return g_scroll_box;
 }
 
 /* Function: set_code_box_member
@@ -1098,16 +1102,16 @@ static void set_code_box_member(int value, int member)
 	switch (member){
 		
 		case MEMBER_X:
-			g_code_box.x = value;
+			g_scroll_box.x = value;
 			break;
 		case MEMBER_Y:
-			g_code_box.y = value;
+			g_scroll_box.y = value;
 			break;
 		case MEMBER_W:
-			g_code_box.w = value;
+			g_scroll_box.w = value;
 			break;
 		case MEMBER_H:
-			g_code_box.h = value;
+			g_scroll_box.h = value;
 			break;
 		default:
 			perror("Error: defaulting on invalid case");
@@ -1185,8 +1189,8 @@ static bool in_code_window(){
 	int mouse_x = ms_get_mouse_x();
 	int mouse_y = ms_get_mouse_y();
 
-	if (mouse_x > g_code_box.x && mouse_x < (g_code_box.x + g_code_box.w) &&
-		mouse_y > g_code_box.y && mouse_y < (g_code_box.y + g_code_box.h)) {
+	if (mouse_x > g_scroll_box.x && mouse_x < (g_scroll_box.x + g_scroll_box.w) &&
+		mouse_y > g_scroll_box.y && mouse_y < (g_scroll_box.y + g_scroll_box.h)) {
 		return true;
 	} else {
 		return false;
@@ -1212,7 +1216,7 @@ void cw_set_challenge_text(char *text)
 	g_challenge_text = dw_new_text_texture_by_h(w, h, C_SILVERGREY, text);
 }
 
-/* Function: cw_set_code_box
+/* Function: cw_set_scroll_box
  * -----------------------------------------------------------------------------
  * This function is called to set the value on the code box object
  *
@@ -1232,14 +1236,38 @@ void cw_set_code_box(SDL_Rect r)
 	g_code_box.w = r.w;
 	g_code_box.h = r.h;
 
+}
+
+/* Function: cw_set_scroll_box
+ * -----------------------------------------------------------------------------
+ * This function is called to set the value on the code box object
+ *
+ * Arguments:
+ * x: x coordinate of the box
+ * y: y coordinate of the box
+ * w: width of the box
+ * h: height of the box
+ *
+ * Return:
+ *	void
+ */
+void cw_set_scroll_box(SDL_Rect r)
+{
+	g_scroll_box.x = r.x;
+	g_scroll_box.y = r.y;
+	g_scroll_box.w = r.w;
+	g_scroll_box.h = r.h;
+
 	int w = dm_get_w_code_box_text();
 	int h = dm_get_h_msg();
 
 	int text_h = dm_get_h_big_text();
 	int border_ofs = dm_get_w_button_padding();
 	int text_box_height = g_challenge_text->size * h;
-	set_text_box(r.x + border_ofs, r.y + border_ofs + text_h + border_ofs, w, 
-															   text_box_height);
+	set_text_box(r.x + border_ofs, 
+				 r.y + border_ofs + text_h + border_ofs, 
+				 w, 
+				 text_box_height);
 }
 
 /* Function: set_text_box
@@ -1291,6 +1319,39 @@ int cw_get_code_line_x(int instruction_id)
 	return x;
 }
 
+
+/*
+static void code_box_height_adjust()
+{
+	List *code = get_code_list();
+	assert(NULL != code && "The code list cannot be NULL");
+
+	int list_size = List_count(code);
+
+	SDL_Rect cbut = dm_get_code_button_wh();
+	SDL_Rect codbox = get_code_box();
+	SDL_Rect ogcodbox = dm_get_stage_code_box();
+	if (CODE_LINES_SIZE < list_size){
+		
+		int increase_size = (list_size - CODE_LINES_SIZE)*cbut.h;
+		int new_bottom_border = codbox.y + ogcodbox.h + increase_size;
+		int cur_bottom_border = codbox.h + codbox.y;
+		int mdelta = ax_get_cw_move_delta();
+		int delta = ax_get_movement_delta(cur_bottom_border, 
+									   	  new_bottom_border, 
+									   	  mdelta);
+		
+		if (new_bottom_border > cur_bottom_border){
+			cur_bottom_border += delta;
+			set_code_box_member(cur_bottom_border - codbox.y, MEMBER_H);
+		} else if (new_bottom_border < cur_bottom_border){
+			cur_bottom_border -= delta;
+			set_code_box_member(cur_bottom_border - codbox.y, MEMBER_H);
+		} 
+		
+	}
+}*/
+
 /* Function: code_box_height_adjust
  * -----------------------------------------------------------------------------
  * This function handles the length of the code box handler according to the 
@@ -1335,37 +1396,6 @@ static void code_box_height_adjust()
 		
 	}
 }
-/*
-static void code_box_height_adjust()
-{
-	List *code = get_code_list();
-	assert(NULL != code && "The code list cannot be NULL");
-
-	int list_size = List_count(code);
-
-	SDL_Rect cbut = dm_get_code_button_wh();
-	SDL_Rect codbox = get_code_box();
-	SDL_Rect ogcodbox = dm_get_stage_code_box();
-	if (CODE_LINES_SIZE < list_size){
-		
-		int increase_size = (list_size - CODE_LINES_SIZE)*cbut.h;
-		int new_bottom_border = codbox.y + ogcodbox.h + increase_size;
-		int cur_bottom_border = codbox.h + codbox.y;
-		int mdelta = ax_get_cw_move_delta();
-		int delta = ax_get_movement_delta(cur_bottom_border, 
-									   	  new_bottom_border, 
-									   	  mdelta);
-		
-		if (new_bottom_border > cur_bottom_border){
-			cur_bottom_border += delta;
-			set_code_box_member(cur_bottom_border - codbox.y, MEMBER_H);
-		} else if (new_bottom_border < cur_bottom_border){
-			cur_bottom_border -= delta;
-			set_code_box_member(cur_bottom_border - codbox.y, MEMBER_H);
-		} 
-		
-	}
-}*/
 /* Function: adjust_code_box_position
  * -----------------------------------------------------------------------------
  * This function handles the length position of the code box according to mouse
@@ -1399,7 +1429,7 @@ static void adjust_code_box_position()
 	int mdelta = ax_get_cw_move_delta();
 	int delta = ax_get_movement_delta(0, y_pending_scroll, mdelta);	
 
-	if (0 != y_pending_scroll){
+	if (y_pending_scroll != 0){
 		SDL_Rect tb = cw_get_text_box_rect();
 		int text_box_y = tb.y;
 		
@@ -1441,6 +1471,8 @@ void cw_draw_code_window()
 	}
 	
 	dw_draw_thick_rect(g_code_box, dm_get_w_borders(), C_GREY);
+	
+	dw_draw_thick_rect(g_code_box, dm_get_w_borders(), C_GREY);
 
 	display_player_code();
 	display_line_number();
@@ -1457,10 +1489,23 @@ void cw_draw_code_window()
 	int border_ofs = dm_get_w_border_padding();
 	int text_h = dm_get_h_big_text();
 	int w = ax_get_texture_w_fit_h(text_h, g_stage_name);
-	SDL_Rect b = {.x = g_code_box.x + border_ofs, 
-				  .y = g_code_box.y + border_ofs,
+	SDL_Rect b = {.x = g_scroll_box.x + border_ofs, 
+				  .y = g_scroll_box.y + border_ofs,
 				  .h = text_h};
 	dw_draw_texture_fits_height(b, g_stage_name);
+
+	SDL_Rect upbox = {.x = g_code_box.x,
+					  .y = 0,
+					  .w = g_code_box.w,
+					  .h = g_code_box.y};
+	dw_draw_filled_rectangle(upbox, C_BLACK, C_BLACK);
+	SDL_Rect downbox = {.x = g_code_box.x,
+			 			.y = g_code_box.y + g_code_box.h,
+			 			.w = g_code_box.w,
+		     			.h = g_code_box.h};
+	dw_draw_filled_rectangle(downbox, C_BLACK, C_BLACK);
+
+
 }
 
 /* Function: display_player_code

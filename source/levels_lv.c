@@ -20,6 +20,7 @@
 #define STR_WIN1 "WIN1"
 #define STR_WIN2 "WIN2"
 #define STR_WIN3 "WIN3"
+#define STR_WIN4 "WIN4"
 
 #define WIN_CONDITION_LENGTH 30
 #define LV_MSGS_QTY 15
@@ -68,6 +69,7 @@ static bool chk_display_imm_up_arrow();
 static void win1_move_input_to_output(int rep, int mul,int sum, bool reversed);
 static void win2_add_inputs_in_groups(int grp_size, bool between, int in_val);
 static void win3_move_input_to_output_stop(int stop);
+static void win4_count_values_till_stop(int element, int stop);
 static void set_win_condition(char *win_condition);
 static void draw_regs_arrow(bool show_arrows);
 static void draw_bufs_arrow(int buf_id);
@@ -1406,6 +1408,12 @@ static void set_win_condition(char *win_condition)
 		char *stop_text = strtok_r(NULL, delim, &saveptr1);
 		int stop = atoi(stop_text);
 		win3_move_input_to_output_stop(stop);
+	} else if (strstr(win_cond, STR_WIN4) != NULL){
+		char *element_text = strtok_r(NULL, delim, &saveptr1);
+		int element = atoi(element_text);
+		char *stop_text = strtok_r(NULL, delim, &saveptr1);
+		int stop = atoi(stop_text);
+		win4_count_values_till_stop(element, stop);
 	}
 
 	return;
@@ -1634,15 +1642,14 @@ static void win4_count_values_till_stop(int element, int stop)
 	assert(input_list_size > 0 && "The size of the input list is incorrect");
 	assert(win_list_size == 0 && "The win list has elements");
 
+	value_box_t *new_win = malloc(sizeof(value_box_t));
 	LIST_FOREACH(input_list, first, next, cur){
 		value_box_t *cur_input = cur->value;
-		value_box_t *new_win; 
-		if (cur_input->value != stop){
-			new_win = malloc(sizeof(value_box_t));
-			new_win->value = cur_input->value;
+		if (cur_input->value == element){
+			new_win->value++;
+		} else if (cur_input->value == stop){
 			new_win->type = cur_input->type;
 			List_push(win_list, new_win);
-		} else {
 			break;
 		}
 	}

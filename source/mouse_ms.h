@@ -20,8 +20,9 @@ bool ms_right_released();
 bool ms_chord_pressed();
 bool ms_chord_released(); 
 
-void ms_disable_mouse_button();
+bool ms_click_inside_rect(SDL_Rect r);
 
+void ms_disable_mouse_button();
 void ms_init_mouse();
 void ms_clear_mouse_values();
 void ms_reset_mouse_values();

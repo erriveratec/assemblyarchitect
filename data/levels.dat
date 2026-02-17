@@ -338,7 +338,7 @@ ChallengeTextBegin
 "Move the values from the Input Buffer [ib] to Output Buffer [ob] until you encounter the fist 0 in [ob]"
 ChallengeTextEnd
 
-InputSize 6
+InputSize 10
 InputMod Force 0
 InputType Natural
 
@@ -392,12 +392,43 @@ RegistersEnd
 InstructionLimit 99
 
 WinConditionBegin
-WIN2 2 true 0
+WIN4 3 0
 WinConditionEnd
 
 +++LEVEL ENDS
 
 +++LEVEL STARTS 15
+
+ChallengeTextBegin
+"PLACEHOLDER"
+ChallengeTextEnd
+
+InputSize 10
+InputMod None
+InputType Natural
+
+InstructionsBegin
+MOV
+CMP
+JE
+InstructionsEnd
+
+RegistersBegin
+rax
+rbx
+rcx
+rdx
+RegistersEnd
+
+InstructionLimit 99
+
+WinConditionBegin
+WIN2 2 true 0
+WinConditionEnd
+
++++LEVEL ENDS
+
++++LEVEL STARTS 16
 
 ChallengeTextBegin
 "PLACEHOLDER"

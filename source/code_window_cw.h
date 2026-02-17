@@ -24,6 +24,7 @@ enum code_line_element{
 
 void cw_draw_code_window();
 void cw_create_code_list();
+void cw_set_scroll_box(SDL_Rect r);
 void cw_set_code_box(SDL_Rect r);
 void cw_set_challenge_text(char *text);
 void cw_set_stage_name(char *text);
