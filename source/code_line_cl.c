@@ -823,6 +823,10 @@ bool cl_is_op_compatible(operand_t *op, code_line_t *line)
 	assert(check_valid_operand(op->id) == true && 
 		   "The operand value is not valid");
 
+	if (line->ins->id == JMP || line->ins->id == JE){
+		return false;
+	}
+	
 	if (cl_is_op_reg(op->id) == true){
 		return true;
 	}

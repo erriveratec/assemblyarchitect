@@ -624,13 +624,11 @@ static code_line_t *pending_operand_handler()
 	bool imm_sel = im_ms_rel_in_upimm();
 	bool rel = ms_left_released();
 
-	
 	code_line_t *l = cw_get_code_line_pending_operand();
 	code_line_t *r = NULL;
-
 	cw_highlight_code_pending_operand();
 
-	if (l->ins->id == JMP || l->ins->id == JE){
+	if ((l->ins->id == JMP || l->ins->id == JE) && l->state == MISSING_OP1){
 		r = cw_create_label_code_line();
 		cw_player_holding_instruction(r, false, true);
 		operand_t *a = cw_create_jmp_op(r);
@@ -656,12 +654,21 @@ static code_line_t *pending_operand_handler()
 			   && imm_sel == false){
 		if (l->state == CHANGING_OP1 || l->state == CHANGING_OP2){
 			l->state = COMPLETE;	
-			l->op1->b->animated = false;
-			l->op1->b->anim_dir = false;
-			l->op1->b->anim_state = 0;
-			l->op2->b->animated = false;
-			l->op2->b->anim_dir = false;
-			l->op2->b->anim_state = 0;
+			int qty = cl_get_instruction_operand_quantity(l->ins->id);
+			if (qty == ONE_OPERAND || qty == TWO_OPERANDS){
+				l->op1->b->animated = false;
+				l->op1->b->anim_dir = false;
+				l->op1->b->anim_state = 0;
+				if (l->ins->id == JMP || l->ins->id == JE){
+					l->op1->jptr->op1->b->animated = false;
+					l->op1->jptr->op1->b->anim_dir = false;
+					l->op1->jptr->op1->b->anim_state = 0;
+				}
+			} else if (qty == TWO_OPERANDS){
+				l->op2->b->animated = false;
+				l->op2->b->anim_dir = false;
+				l->op2->b->anim_state = 0;
+			}
 		}
 	}
 	return r;

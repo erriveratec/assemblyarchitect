@@ -2424,6 +2424,18 @@ void cw_change_clicked_code_line_state()
 					break;
 				}
 			}
+		} 
+		else if (c->ins->id == JMP || c->ins->id == JE){
+			if (c->op1 != NULL){
+				if (bt_ms_rel_btn(c->op1->b) == true){
+					c->state = CHANGING_OP1;
+					c->op1->b->animated = true;
+					c->op1->b->anim_dir = false;
+					c->op1->jptr->op1->b->animated = true;
+					c->op1->jptr->op1->b->anim_dir = false;
+					break;
+				}
+			}
 		}
 	}
 }
