@@ -384,30 +384,21 @@ MSG_END
 
 +++LEVEL STARTS 14
 
-QUANTITY 5
+QUANTITY 1
 
 MSG 01
-Level 13
+Level 14
 MSG_END
 
-MSG 02
-Notice there are two new instructions: CMP and JE
-MSG_END
++++LEVEL ENDS 14
 
-MSG 03
-CMP compares two operands
- 
-Examples:
-CMP rax, rbx
-CMP rax, 4
-MSG_END
 
-MSG 04
-If the operands are equal, a 1 is stored in the ZF flag
-MSG_END
++++LEVEL STARTS 15
 
-MSG 05
-If the operands are different, a 0 is stored in ZF
+QUANTITY 1
+
+MSG 01
+Level 15
 MSG_END
 
 +++LEVEL ENDS 14

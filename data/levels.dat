@@ -359,12 +359,44 @@ RegistersEnd
 InstructionLimit 99
 
 WinConditionBegin
-WIN3 0
+WIN3 0 0 0
 WinConditionEnd
 
 +++LEVEL ENDS
 
 +++LEVEL STARTS 14
+
+ChallengeTextBegin
+"Move the values equal to 7 from the Input Buffer [ib] to the Output Buffer [ob]. Stop processing when the value 0 appears"
+ChallengeTextEnd
+
+InputSize 16
+InputMod Increase 0 7 5
+InputType Natural
+
+InstructionsBegin
+MOV
+JMP
+CMP
+JE
+InstructionsEnd
+
+RegistersBegin
+rax
+rbx
+rcx
+rdx
+RegistersEnd
+
+InstructionLimit 99
+
+WinConditionBegin
+WIN3 1 7 0
+WinConditionEnd
+
++++LEVEL ENDS
+
++++LEVEL STARTS 15
 
 ChallengeTextBegin
 "Store in the Output Buffer [ob] the number of times 3 appears in Input Buffer [ib]. The input sequence ends at the first 0"
@@ -393,37 +425,6 @@ InstructionLimit 99
 
 WinConditionBegin
 WIN4 3 0
-WinConditionEnd
-
-+++LEVEL ENDS
-
-+++LEVEL STARTS 15
-
-ChallengeTextBegin
-"PLACEHOLDER"
-ChallengeTextEnd
-
-InputSize 10
-InputMod None
-InputType Natural
-
-InstructionsBegin
-MOV
-CMP
-JE
-InstructionsEnd
-
-RegistersBegin
-rax
-rbx
-rcx
-rdx
-RegistersEnd
-
-InstructionLimit 99
-
-WinConditionBegin
-WIN2 2 true 0
 WinConditionEnd
 
 +++LEVEL ENDS

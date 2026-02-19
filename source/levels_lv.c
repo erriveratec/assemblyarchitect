@@ -51,24 +51,26 @@ static bool g_op_flag;
 
 List *get_win_list();
 void add_to_win_list(int value, int type);
-static void level_1_tutorial();
-static void level_2_tutorial();
-static void level_3_tutorial();
-static void level_4_tutorial();
-static void level_5_tutorial();
-static void level_6_tutorial();
-static void level_7_tutorial();
-static void level_8_tutorial();
-static void level_9_tutorial();
-static void level_10_tutorial();
-static void level_11_tutorial();
-static void level_12_tutorial();
+static void level_1();
+static void level_2();
+static void level_3();
+static void level_4();
+static void level_5();
+static void level_6();
+static void level_7();
+static void level_8();
+static void level_9();
+static void level_10();
+static void level_11();
+static void level_12();
+static void level_13();
+static void level_14();
 static bool check_display_reg_lv_arrow();
 static int check_display_buf_arrow();
 static bool chk_display_imm_up_arrow();
 static void win1_move_input_to_output(int rep, int mul,int sum, bool reversed);
 static void win2_add_inputs_in_groups(int grp_size, bool between, int in_val);
-static void win3_move_input_to_output_stop(int stop);
+static void win3_move_input_to_output_stop(bool target, int tval, int stop);
 static void win4_count_values_till_stop(int element, int stop);
 static void set_win_condition(char *win_condition);
 static void draw_regs_arrow(bool show_arrows);
@@ -477,7 +479,7 @@ static void chk_ms_pressed_clear_msg(int message_id, bool reset_mouse)
 	}
 }
 
-/* Function: level_13_tutorial
+/* Function: level_14
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 10
  *
@@ -487,7 +489,34 @@ static void chk_ms_pressed_clear_msg(int message_id, bool reset_mouse)
  * Return:
  *	Void.
  */
-static void level_13_tutorial()
+static void level_14()
+{
+	sb_set_step_btns_avail(true);
+	im_set_imm_up_avail(true);
+	draw_regs_arrow(check_display_reg_lv_arrow());
+	draw_bufs_arrow(check_display_buf_arrow());
+	draw_im_up_arrow(chk_display_imm_up_arrow());
+	rg_draw_flag_boxes();
+
+	int size = cw_get_code_list_size();
+	 
+	 if (g_lv_msg[MSG1] == true && size == 0){
+		tx_text_box(TX_BIG_BOX, MSG1); //Welcome msg
+		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
+		chk_ms_pressed_clear_msg(MSG1, true);
+	} 
+}
+/* Function: level_13
+ * -----------------------------------------------------------------------------
+ * This functions handles all the special cases of the tutorial of level 10
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void level_13()
 {
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(true);
@@ -535,7 +564,7 @@ static void level_13_tutorial()
 		chk_ms_pressed_clear_msg(MSG7, true);
 	} 
 }
-/* Function: level_12_tutorial
+/* Function: level_12
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 10
  *
@@ -545,7 +574,7 @@ static void level_13_tutorial()
  * Return:
  *	Void.
  */
-static void level_12_tutorial()
+static void level_12()
 {
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(true);
@@ -562,7 +591,7 @@ static void level_12_tutorial()
 	} 
 }
 
-/* Function: level_12_tutorial
+/* Function: level_12
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 10
  *
@@ -572,7 +601,7 @@ static void level_12_tutorial()
  * Return:
  *	Void.
  */
-static void level_11_tutorial()
+static void level_11()
 {
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(true);
@@ -609,7 +638,7 @@ static void level_11_tutorial()
 	} 
 }
 
-/* Function: level_10_tutorial
+/* Function: level_10
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 10
  *
@@ -619,7 +648,7 @@ static void level_11_tutorial()
  * Return:
  *	Void.
  */
-static void level_10_tutorial()
+static void level_10()
 {
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(false);
@@ -636,7 +665,7 @@ static void level_10_tutorial()
 }
 
 
-/* Function: level_9_tutorial
+/* Function: level_9
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 3
  *
@@ -646,7 +675,7 @@ static void level_10_tutorial()
  * Return:
  *	Void.
  */
-static void level_9_tutorial()
+static void level_9()
 {
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(false);
@@ -688,7 +717,7 @@ static void level_9_tutorial()
 	} 
 }
 
-/* Function: level_8_tutorial
+/* Function: level_8
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 3
  *
@@ -698,7 +727,7 @@ static void level_9_tutorial()
  * Return:
  *	Void.
  */
-static void level_8_tutorial()
+static void level_8()
 {
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(false);
@@ -723,7 +752,7 @@ static void level_8_tutorial()
 	}
 }
 
-/* Function: level_7_tutorial
+/* Function: level_7
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 3
  *
@@ -733,7 +762,7 @@ static void level_8_tutorial()
  * Return:
  *	Void.
  */
-static void level_7_tutorial()
+static void level_7()
 {
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(false);
@@ -758,7 +787,7 @@ static void level_7_tutorial()
 
 }
 
-/* Function: level_6_tutorial
+/* Function: level_6
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 3
  *
@@ -768,7 +797,7 @@ static void level_7_tutorial()
  * Return:
  *	Void.
  */
-static void level_6_tutorial()
+static void level_6()
 {
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(false);
@@ -798,7 +827,7 @@ static void level_6_tutorial()
 	} 
 }
 
-/* Function: level_5_tutorial
+/* Function: level_5
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 3
  *
@@ -808,7 +837,7 @@ static void level_6_tutorial()
  * Return:
  *	Void.
  */
-static void level_5_tutorial()
+static void level_5()
 {
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(false);
@@ -834,7 +863,7 @@ static void level_5_tutorial()
 	} 
 }
 
-/* Function: level_4_tutorial
+/* Function: level_4
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 3
  *
@@ -844,7 +873,7 @@ static void level_5_tutorial()
  * Return:
  *	Void.
  */
-static void level_4_tutorial()
+static void level_4()
 {
 	sb_set_step_btns_avail(false);
 	im_set_imm_up_avail(false);
@@ -864,7 +893,7 @@ static void level_4_tutorial()
 	}
 }
 
-/* Function: level_3_tutorial
+/* Function: level_3
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 3
  *
@@ -874,7 +903,7 @@ static void level_4_tutorial()
  * Return:
  *	Void.
  */
-static void level_3_tutorial()
+static void level_3()
 {
 	sb_set_step_btns_avail(false);
 	im_set_imm_up_avail(false);
@@ -958,7 +987,7 @@ static void level_3_tutorial()
 	}
 }
 
-/* Function: level_2_tutorial
+/* Function: level_2
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 1
  *
@@ -968,7 +997,7 @@ static void level_3_tutorial()
  * Return:
  *	Void.
  */
-static void level_2_tutorial()
+static void level_2()
 {
 	sb_set_step_btns_avail(false);
 	im_set_imm_up_avail(false);
@@ -1045,7 +1074,7 @@ static void level_2_tutorial()
 	}
 }
 
-/* Function: level_1_tutorial
+/* Function: level_1
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 1
  *
@@ -1056,7 +1085,7 @@ static void level_2_tutorial()
  * Return:
  *	Void.
  */
-static void level_1_tutorial()
+static void level_1()
 {
 	sb_set_step_btns_avail(false);
 	im_set_imm_up_avail(false);
@@ -1405,9 +1434,13 @@ static void set_win_condition(char *win_condition)
 		int in_val = atoi(in_val_text);
 		win2_add_inputs_in_groups(group_size, between, in_val);
 	} else if (strstr(win_cond, STR_WIN3) != NULL){
+		char *target_text = strtok_r(NULL, delim, &saveptr1);
+		int target = atoi(target_text);
+		char *tval_text = strtok_r(NULL, delim, &saveptr1);
+		int tval = atoi(tval_text);
 		char *stop_text = strtok_r(NULL, delim, &saveptr1);
 		int stop = atoi(stop_text);
-		win3_move_input_to_output_stop(stop);
+		win3_move_input_to_output_stop(target, tval, stop);
 	} else if (strstr(win_cond, STR_WIN4) != NULL){
 		char *element_text = strtok_r(NULL, delim, &saveptr1);
 		int element = atoi(element_text);
@@ -1589,12 +1622,14 @@ static void win1_move_input_to_output(int rep, int mul, int sum, bool rev)
  * input buffer to the output buffer up to a stop element
  *
  * Arguments:
+ *  target: if activated, only specific values should be move the OB
+ * 	target_val: 
  *	stop: stop element that will be used to stop the movement
  *
  * Return:
  *	Void.
  */
-static void win3_move_input_to_output_stop(int stop)
+static void win3_move_input_to_output_stop(bool target, int tval, int stop)
 {
 	List *input_list = get_input_list();
 	List *win_list = get_win_list();
@@ -1608,14 +1643,19 @@ static void win3_move_input_to_output_stop(int stop)
 	LIST_FOREACH(input_list, first, next, cur){
 		value_box_t *cur_input = cur->value;
 		value_box_t *new_win; 
-		if (cur_input->value != stop){
+		if (cur_input->value == stop){
+			break;
+		} else if (target == true && cur_input->value == tval){
 			new_win = malloc(sizeof(value_box_t));
 			new_win->value = cur_input->value;
 			new_win->type = cur_input->type;
 			List_push(win_list, new_win);
-		} else {
-			break;
-		}
+		} else if (target == false){
+			new_win = malloc(sizeof(value_box_t));
+			new_win->value = cur_input->value;
+			new_win->type = cur_input->type;
+			List_push(win_list, new_win);
+		} 
 	}
 }
 
@@ -1822,56 +1862,61 @@ void lv_level_drawings(int level)
 	
 	switch(level){
 		case LV_LEVEL_1:
-			level_1_tutorial();
+			level_1();
 			break;
 
 		case LV_LEVEL_2:
-			level_2_tutorial();
+			level_2();
 			break;
 	
 		case LV_LEVEL_3:
-			level_3_tutorial();
+			level_3();
 			break;
 
 		case LV_LEVEL_4:
-			level_4_tutorial();
+			level_4();
 			break;
 	
 		case LV_LEVEL_5:
-			level_5_tutorial();
+			level_5();
 			break;
 	
 		case LV_LEVEL_6:
-			level_6_tutorial();
+			level_6();
 			break;
 		
 		case LV_LEVEL_7:
-			level_7_tutorial();
+			level_7();
 			break;
 
 		case LV_LEVEL_8:
-			level_8_tutorial();
+			level_8();
 			break;
 
 		case LV_LEVEL_9:
-			level_9_tutorial();
+			level_9();
 			break;
 
 		case LV_LEVEL_10:
-			level_10_tutorial();
+			level_10();
 			break;
 
 		case LV_LEVEL_11:
-			level_11_tutorial();
+			level_11();
 			break;
 		
 		case LV_LEVEL_12:
-			level_12_tutorial();
+			level_12();
 			break;
 		
 		case LV_LEVEL_13:
-			level_13_tutorial();
+			level_13();
 			break;
+		
+		case LV_LEVEL_14:
+			level_14();
+			break;
+
 
 		default:
 			rg_draw_flag_boxes();
