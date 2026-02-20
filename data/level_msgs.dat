@@ -384,45 +384,31 @@ MSG_END
 
 +++LEVEL STARTS 14
 
-QUANTITY 7
+QUANTITY 5
 
 MSG 01
 Level 14
 MSG_END
 
 MSG 02
-Notice there are two new instructions: JNE
+Notice there is a new instruction: JNE (Jump if Not Equal)
 MSG_END
 
 MSG 03
-CMP compares two operands
- 
-Examples:
-CMP rax, rbx
-CMP rax, 4
-MSG_END
-
-MSG 04
-CMP sets ZF to 1 when the operands are equal
-MSG_END
-
-MSG 05
-CMP sets ZF to 0 when the operands are different
-MSG_END
-
-MSG 06
-JE jumps if 
-ZF = 1
+JNE jumps if 
+ZF = 0
 Otherwise it continues to the next instruction
 MSG_END
 
-MSG 07
-You will need CMP and JE to solve the challenge
+MSG 04
+CMP sets ZF to 0 when the operands are different
 MSG_END
 
+MSG 05
+CMP sets ZF to 1 when the operands are equal
+MSG_END
 
 +++LEVEL ENDS 14
-
 
 +++LEVEL STARTS 15
 
@@ -432,7 +418,17 @@ MSG 01
 Level 15
 MSG_END
 
-+++LEVEL ENDS 14
++++LEVEL ENDS 15
+
++++LEVEL STARTS 16
+
+QUANTITY 1
+
+MSG 01
+Level 16
+MSG_END
+
++++LEVEL ENDS 16
 
 
 

@@ -413,6 +413,7 @@ ADD
 JMP
 CMP
 JE
+JNE
 InstructionsEnd
 
 RegistersBegin

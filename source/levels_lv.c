@@ -479,6 +479,33 @@ static void chk_ms_pressed_clear_msg(int message_id, bool reset_mouse)
 	}
 }
 
+/* Function: level_15
+ * -----------------------------------------------------------------------------
+ * This functions handles all the special cases of the tutorial of level 10
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void level_15()
+{
+	sb_set_step_btns_avail(true);
+	im_set_imm_up_avail(true);
+	draw_regs_arrow(check_display_reg_lv_arrow());
+	draw_bufs_arrow(check_display_buf_arrow());
+	draw_im_up_arrow(chk_display_imm_up_arrow());
+	rg_draw_flag_boxes();
+
+	int size = cw_get_code_list_size();
+	 
+	 if (g_lv_msg[MSG1] == true && size == 0){
+		tx_text_box(TX_BIG_BOX, MSG1); //Welcome msg
+		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
+		chk_ms_pressed_clear_msg(MSG1, true);
+	} 
+}
 /* Function: level_14
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 10
@@ -504,7 +531,28 @@ static void level_14()
 		tx_text_box(TX_BIG_BOX, MSG1); //Welcome msg
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
 		chk_ms_pressed_clear_msg(MSG1, true);
+	} else if (g_lv_msg[MSG2] == true && size == 0){
+		tx_text_box(TX_CODE_BOX, MSG2);//New instruction jNE
+		tx_bottom_msg(TX_CODE_BOX, TX_MSG_CLICKANY);
+		ar_display_arrow(AR_INS);
+		chk_ms_pressed_clear_msg(MSG2, true);
+	} else if (g_lv_msg[MSG3] == true && size == 0){
+		tx_text_box(TX_UPPER_BOX, MSG3);//CMP modifies ZF
+		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
+		ar_display_arrow(AR_ZF);
+		chk_ms_pressed_clear_msg(MSG3, true);
+	} else if (g_lv_msg[MSG4] == true && size == 0){
+		tx_text_box(TX_LOWER_BOX, MSG4);//Different operands 0 in ZF
+		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
+		ar_display_arrow(AR_ZF);
+		chk_ms_pressed_clear_msg(MSG4, true);
+	} else if (g_lv_msg[MSG5] == true && size == 0){
+		tx_text_box(TX_UPPER_BOX, MSG5);//Different equal 1 in ZF
+		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
+		ar_display_arrow(AR_ZF);
+		chk_ms_pressed_clear_msg(MSG5, true);
 	} 
+
 }
 /* Function: level_13
  * -----------------------------------------------------------------------------

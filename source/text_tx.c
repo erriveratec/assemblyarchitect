@@ -189,8 +189,9 @@ void tx_bottom_msg(int pos, int msg_id)
 			b.y += (dm_get_text_box_lower().h/2 - text_h - offset);
 			break;
 		case TX_CODE_BOX:
+			text_h = dm_get_h_bottom_msg();
 			b = dm_get_text_box_code(); 
-			text_h = dm_get_h_msg();
+			b.y += (dm_get_text_box_code().h/2 - text_h - offset);
 			break;
 		case TX_STAGEBUTTON_BOX:
 			b = dm_get_text_box_stagebutton(); 
