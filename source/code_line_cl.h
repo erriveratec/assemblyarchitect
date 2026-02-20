@@ -33,6 +33,7 @@ enum instructions{
 	JMP,
 	CMP,
 	JE,
+	JNE,
 	INSTRUCTION_MAX
 };
 
@@ -121,6 +122,7 @@ extern char *label_text;
 extern char *jmp_text;
 extern char *cmp_text;
 extern char *je_text;
+extern char *jne_text;
 extern char *rax_text;
 extern char *rbx_text;
 extern char *rcx_text;
@@ -148,5 +150,6 @@ void cl_destroy_operand(operand_t *op);
 bool cl_operands_are_registers(code_line_t *line);
 bool cl_is_op_reg(int op_id);
 bool cl_is_op_imm(int op_id);
+bool cl_is_ins_jmp_type(int ins_id);
 
 #endif

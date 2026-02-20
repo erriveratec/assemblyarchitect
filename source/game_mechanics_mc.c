@@ -1498,7 +1498,8 @@ static int handle_source_operand(code_line_t *line)
 		}
 
 	} else if(op_qty == ONE_OPERAND){
-		if (line->ins->id == JE && g_ravatar.op1_retrieved == false){
+		if ((line->ins->id == JE || line->ins->id == JNE)
+			&& g_ravatar.op1_retrieved == false){
 			mov_pending = handle_ravatar_source_operand(ZF);	
 			avatar_id = RAVATAR;
 		}
@@ -1508,7 +1509,7 @@ static int handle_source_operand(code_line_t *line)
 		bool retrieve_pending; 
 		
 		if (avatar_id == RAVATAR 
-			&& line->ins->id == JE
+			&& (line->ins->id == JE || line->ins->id == JNE)
 			&& g_ravatar.op1_retrieved == false){
 			retrieve_pending = retrieve_operand(&g_ravatar);
 			if (retrieve_pending == false){
@@ -1808,6 +1809,13 @@ static void execute_instruction(code_line_t *line, int line_pos)
 				if (g_ravatar.mainval.value == 1){
 				cw_operate_jump_instruction(line);
 				} else if (g_ravatar.mainval.value == 0){
+					line->state = EXECUTED;
+				}
+				reset_avatar_no_pos();
+			} else if (line->ins->id == JNE){
+				if (g_ravatar.mainval.value == 0){
+				cw_operate_jump_instruction(line);
+				} else if (g_ravatar.mainval.value == 1){
 					line->state = EXECUTED;
 				}
 				reset_avatar_no_pos();

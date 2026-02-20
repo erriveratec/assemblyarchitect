@@ -16,6 +16,7 @@ char *label_text = "line";
 char *jmp_text = "JMP";
 char *cmp_text = "CMP";
 char *je_text = "JE";
+char *jne_text = "JNE";
 char *rax_text = "rax";
 char *rbx_text = "rbx";
 char *rcx_text = "rcx";
@@ -198,6 +199,9 @@ texture_t *cl_create_instruction_texture(int id)
 		case JE:
 			texture = dw_create_text_texture(je_text, C_WHITE);
 			break;
+		case JNE:
+			texture = dw_create_text_texture(jne_text, C_WHITE);
+			break;
 		default:
 			printf("Error: the id of the register is invalid");
 				
@@ -365,7 +369,10 @@ int cl_text_to_instruction_id(char *text)
 		instruction_id = CMP;
 	} else if (strstr(text, je_text)!= NULL){
 		instruction_id = JE;
+	} else if (strstr(text, jne_text)!= NULL){
+		instruction_id = JNE;
 	}
+
 
 
 	assert(instruction_id != INVALID_OPERAND && "Instruction id is invalid");
@@ -423,6 +430,9 @@ int cl_get_instruction_operand_quantity(int instruction_id)
 		case JE:
 			number_of_operands = ONE_OPERAND;
 			break;
+		case JNE:
+			number_of_operands = ONE_OPERAND;
+			break;
 		default:
 			number_of_operands = ZERO_OPERANDS;
 			break;
@@ -466,6 +476,10 @@ char *cl_get_instruction_text(int instruction_id)
 		case JE:
 			text = je_text;
 			break;
+		case JNE:
+			text = jne_text;
+			break;
+
 
 		default: 
 			text = "INVALID";
@@ -608,6 +622,27 @@ error:
 	return text;
 }
 
+/* Function: cl_is_ins__jmp_type
+ * -----------------------------------------------------------------------------
+ * This function determines if an instruction is of the type jmp
+ *
+ * Arguments:
+ * 	ins_id: The number id of the instruction
+ *
+ * Return:
+ *	boolean true or false
+ */
+bool cl_is_ins_jmp_type(int ins_id){
+	
+	bool is_jmp_type = false;
+
+	if (ins_id == JMP || ins_id == JE || ins_id == JNE){
+		is_jmp_type = true;	
+	}
+	return is_jmp_type;
+}
+
+
 /* Function: cl_create_code_line_text
  * -----------------------------------------------------------------------------
  * This function generates the string of a code line, the string will be single
@@ -627,7 +662,7 @@ char *cl_create_code_line_text(int ins_id, int op1_id, int op2_id)
 		   && ins_id < INSTRUCTION_MAX
 		   && "The instruction id is invalid");
 	
-	if (ins_id == JMP || ins_id == LABEL || ins_id == JE){
+	if (cl_is_ins_jmp_type(ins_id) == true || ins_id == LABEL){
 		assert(op1_id >=0 && "Label destitny is negative");
 	} else {
 		assert(op1_id >= NO_OPERAND && op1_id < IMM_MAX && "Invalid OP1");
@@ -638,7 +673,7 @@ char *cl_create_code_line_text(int ins_id, int op1_id, int op2_id)
 	char *instruction = cl_get_instruction_text(ins_id);
 	strcpy(line_text, instruction);
 	
-	if (ins_id == LABEL || ins_id == JMP || ins_id == JE){
+	if (ins_id == LABEL || cl_is_ins_jmp_type(ins_id) == true ){
 		char *op1 = NULL;
 		op1 = ax_number_to_string_two_digits(op1_id);
 		strcat(line_text, ax_char_space);
@@ -823,7 +858,7 @@ bool cl_is_op_compatible(operand_t *op, code_line_t *line)
 	assert(check_valid_operand(op->id) == true && 
 		   "The operand value is not valid");
 
-	if (line->ins->id == JMP || line->ins->id == JE){
+	if (cl_is_ins_jmp_type(line->ins->id) == true ){
 		return false;
 	}
 	

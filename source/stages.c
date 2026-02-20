@@ -628,7 +628,7 @@ static code_line_t *pending_operand_handler()
 	code_line_t *r = NULL;
 	cw_highlight_code_pending_operand();
 
-	if ((l->ins->id == JMP || l->ins->id == JE) && l->state == MISSING_OP1){
+	if (cl_is_ins_jmp_type(l->ins->id) == true && l->state == MISSING_OP1){
 		r = cw_create_label_code_line();
 		cw_player_holding_instruction(r, false, true);
 		operand_t *a = cw_create_jmp_op(r);
@@ -659,7 +659,7 @@ static code_line_t *pending_operand_handler()
 				l->op1->b->animated = false;
 				l->op1->b->anim_dir = false;
 				l->op1->b->anim_state = 0;
-				if (l->ins->id == JMP || l->ins->id == JE){
+				if (cl_is_ins_jmp_type(l->ins->id) == true){
 					l->op1->jptr->op1->b->animated = false;
 					l->op1->jptr->op1->b->anim_dir = false;
 					l->op1->jptr->op1->b->anim_state = 0;

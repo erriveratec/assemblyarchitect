@@ -87,7 +87,7 @@ void cw_init_code_window_texture()
  */
 void cw_operate_jump_instruction(code_line_t *line)
 {
-	assert((line->ins->id == JMP || line->ins->id == JE)
+	assert(cl_is_ins_jmp_type(line->ins->id) == true
 	&& "Invalid instruction for jump");
 
 	List *code = get_code_list();
@@ -139,7 +139,7 @@ void cw_update_saved_jump_instructions()
 	code_line_t *c;
 	LIST_FOREACH(code, first, next, cur){ 
 		c = cur->value;
-		if (c->ins->id == JMP || c->ins->id == JE){
+		if (cl_is_ins_jmp_type(c->ins->id) == true){
 			assert(c->op1 != NULL && "op1 should't be NULL");
 			code_line_t  *jmp_addr = cw_get_code_line_at_pos(c->op1->id);
 			cl_destroy_operand(c->op1);	
@@ -249,7 +249,7 @@ static void update_jump_instructions()
 	code_line_t *c;
 	LIST_FOREACH(code, first, next, cur){ 
 		c = cur->value;
-		if (c->ins->id == JMP || c->ins->id == JE){
+		if (cl_is_ins_jmp_type(c->ins->id) == true){
 			if (c->op1 != NULL){
 				code_line_t *jmp_addr = c->op1->jptr;
 				cl_destroy_operand(c->op1);	
@@ -625,7 +625,7 @@ code_line_t *cw_clone_rclicked_line(code_line_t *line)
 	
 	if (operand_quantity == ONE_OPERAND || operand_quantity == TWO_OPERANDS){
 		operand_t *op1;
-		if (line->ins->id == JMP || line->ins->id == JE){
+		if (cl_is_ins_jmp_type(line->ins->id) == true){
 		} else if (line->op1->id > REG_MIN && line->op1->id < REG_MAX){
 			op1 = rg_create_register_operand_by_id(line->op1->id);
 			cw_assign_op_to_line(op1, new);
@@ -681,7 +681,7 @@ void cw_add_saved_line(char *line)
 	int operand_quantity = cl_get_instruction_operand_quantity(ins_id);
 
 	if (operand_quantity == ONE_OPERAND || operand_quantity == TWO_OPERANDS){
-		if (ins_id == LABEL || ins_id == JMP || ins_id == JE){
+		if (ins_id == LABEL || cl_is_ins_jmp_type(ins_id) == true){
 			op1_text =  strtok_r(NULL, delim, &saveptr1);
 			op1_id = atoi(op1_text);
 		} else {
@@ -718,7 +718,7 @@ void cw_add_saved_line(char *line)
 	
 	if (operand_quantity == ONE_OPERAND || operand_quantity == TWO_OPERANDS){
 		operand_t *op1;
-		if (ins_id == JMP || ins_id == JE){
+		if (cl_is_ins_jmp_type(ins_id) == true){
 			op1 = create_saved_jump_operand(op1_id);
 		} else if (ins_id == LABEL){
 			op1 = create_saved_label_operand(op1_id);
@@ -2061,8 +2061,7 @@ void cw_player_holding_instruction(code_line_t *line, bool arng, bool del)
 		}
 	} else {
 		if (cw_check_if_in_code_list(line) == true){
-			if ((line->ins->id == JMP || line->ins->id == JE) 
-				 && line->op1 != NULL){
+			if (cl_is_ins_jmp_type(line->ins->id) == true && line->op1 != NULL){
 				code_line_t *addr = line->op1->jptr;
 				ListNode *node = get_list_node_by_value(addr);
 				cl_destroy_code_line(addr);
@@ -2407,7 +2406,7 @@ void cw_change_clicked_code_line_state()
 	LIST_FOREACH(code, first, next, cur){ 
 		
 		code_line_t *c = cur->value;
-		if (c->ins->id != LABEL && c->ins->id != JMP && c->ins->id != JE){
+		if (c->ins->id != LABEL && cl_is_ins_jmp_type(c->ins->id) == false){
 			if (c->op1 != NULL){
 				if (bt_ms_rel_btn(c->op1->b) == true){
 					c->state = CHANGING_OP1;
@@ -2425,7 +2424,7 @@ void cw_change_clicked_code_line_state()
 				}
 			}
 		} 
-		else if (c->ins->id == JMP || c->ins->id == JE){
+		else if (cl_is_ins_jmp_type(c->ins->id) == true){
 			if (c->op1 != NULL){
 				if (bt_ms_rel_btn(c->op1->b) == true){
 					c->state = CHANGING_OP1;
