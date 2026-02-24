@@ -664,7 +664,8 @@ static code_line_t *pending_operand_handler()
 					l->op1->jptr->op1->b->anim_dir = false;
 					l->op1->jptr->op1->b->anim_state = 0;
 				}
-			} else if (qty == TWO_OPERANDS){
+			} 
+			if (qty == TWO_OPERANDS){
 				l->op2->b->animated = false;
 				l->op2->b->anim_dir = false;
 				l->op2->b->anim_state = 0;
