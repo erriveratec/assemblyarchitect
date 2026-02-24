@@ -344,10 +344,20 @@ MSG_END
 
 +++LEVEL STARTS 13
 
-QUANTITY 7
+QUANTITY 1
 
 MSG 01
 Level 13
+MSG_END
+
++++LEVEL ENDS 13
+
++++LEVEL STARTS 14
+
+QUANTITY 7
+
+MSG 01
+Level 14
 MSG_END
 
 MSG 02
@@ -380,14 +390,14 @@ MSG 07
 You will need CMP and JE to solve the challenge
 MSG_END
 
-+++LEVEL ENDS 13
++++LEVEL ENDS 14
 
-+++LEVEL STARTS 14
++++LEVEL STARTS 15
 
 QUANTITY 5
 
 MSG 01
-Level 14
+Level 15
 MSG_END
 
 MSG 02
@@ -408,16 +418,6 @@ MSG 05
 CMP sets ZF to 1 when the operands are equal
 MSG_END
 
-+++LEVEL ENDS 14
-
-+++LEVEL STARTS 15
-
-QUANTITY 1
-
-MSG 01
-Level 15
-MSG_END
-
 +++LEVEL ENDS 15
 
 +++LEVEL STARTS 16
@@ -429,6 +429,16 @@ Level 16
 MSG_END
 
 +++LEVEL ENDS 16
+
++++LEVEL STARTS 17
+
+QUANTITY 1
+
+MSG 01
+Level 17
+MSG_END
+
++++LEVEL ENDS 17
 
 
 

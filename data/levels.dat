@@ -335,6 +335,35 @@ WinConditionEnd
 +++LEVEL STARTS 13
 
 ChallengeTextBegin
+"For each value in the Input Buffer [ib], add a decreasing offset (starting a 10 for the first value, 9 for the second, 8 for the third...) and send each result to the Output Buffer [ob]"
+ChallengeTextEnd
+
+InputSize 10
+InputMod None
+InputType Natural
+
+InstructionsBegin
+MOV
+ADD
+JMP
+InstructionsEnd
+
+RegistersBegin
+rax
+rbx
+RegistersEnd
+
+InstructionLimit 99
+
+WinConditionBegin
+WIN5 10
+WinConditionEnd
+
++++LEVEL ENDS
+
++++LEVEL STARTS 14
+
+ChallengeTextBegin
 "Move the values from the Input Buffer [ib] to Output Buffer [ob] until you encounter the fist 0 in [ob]"
 ChallengeTextEnd
 
@@ -364,7 +393,7 @@ WinConditionEnd
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 14
++++LEVEL STARTS 15
 
 ChallengeTextBegin
 "Move the values equal to 7 from the Input Buffer [ib] to the Output Buffer [ob]. Stop processing when the value 0 appears"
@@ -397,7 +426,7 @@ WinConditionEnd
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 15
++++LEVEL STARTS 16
 
 ChallengeTextBegin
 "Store in the Output Buffer [ob] the number of times 3 appears in Input Buffer [ib]. The input sequence ends at the first 0"
@@ -431,7 +460,7 @@ WinConditionEnd
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 16
++++LEVEL STARTS 17
 
 ChallengeTextBegin
 "PLACEHOLDER"

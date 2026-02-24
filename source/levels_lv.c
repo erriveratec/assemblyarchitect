@@ -21,6 +21,7 @@
 #define STR_WIN2 "WIN2"
 #define STR_WIN3 "WIN3"
 #define STR_WIN4 "WIN4"
+#define STR_WIN5 "WIN5"
 
 #define WIN_CONDITION_LENGTH 30
 #define LV_MSGS_QTY 15
@@ -65,6 +66,9 @@ static void level_11();
 static void level_12();
 static void level_13();
 static void level_14();
+static void level_15();
+static void level_16();
+static void level_17();
 static bool check_display_reg_lv_arrow();
 static int check_display_buf_arrow();
 static bool chk_display_imm_up_arrow();
@@ -72,6 +76,7 @@ static void win1_move_input_to_output(int rep, int mul,int sum, bool reversed);
 static void win2_add_inputs_in_groups(int grp_size, bool between, int in_val);
 static void win3_move_input_to_output_stop(bool target, int tval, int stop);
 static void win4_count_values_till_stop(int element, int stop);
+static void win5_move_input_to_output_add_dec_ofs(int dec);
 static void set_win_condition(char *win_condition);
 static void draw_regs_arrow(bool show_arrows);
 static void draw_bufs_arrow(int buf_id);
@@ -479,7 +484,7 @@ static void chk_ms_pressed_clear_msg(int message_id, bool reset_mouse)
 	}
 }
 
-/* Function: level_15
+/* Function: level_16
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 10
  *
@@ -489,7 +494,7 @@ static void chk_ms_pressed_clear_msg(int message_id, bool reset_mouse)
  * Return:
  *	Void.
  */
-static void level_15()
+static void level_16()
 {
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(true);
@@ -516,7 +521,7 @@ static void level_15()
  * Return:
  *	Void.
  */
-static void level_14()
+static void level_15()
 {
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(true);
@@ -554,7 +559,8 @@ static void level_14()
 	} 
 
 }
-/* Function: level_13
+
+/* Function: level_14
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 10
  *
@@ -564,7 +570,7 @@ static void level_14()
  * Return:
  *	Void.
  */
-static void level_13()
+static void level_14()
 {
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(true);
@@ -612,6 +618,35 @@ static void level_13()
 		chk_ms_pressed_clear_msg(MSG7, true);
 	} 
 }
+
+/* Function: level_13
+ * -----------------------------------------------------------------------------
+ * This functions handles all the special cases of the tutorial of level 10
+ *
+ * Arguments:
+ * 	Void.
+ *	
+ * Return:
+ *	Void.
+ */
+static void level_13()
+{
+	sb_set_step_btns_avail(true);
+	im_set_imm_up_avail(true);
+	draw_regs_arrow(check_display_reg_lv_arrow());
+	draw_bufs_arrow(check_display_buf_arrow());
+	draw_im_up_arrow(chk_display_imm_up_arrow());
+	rg_draw_flag_boxes();
+
+	int size = cw_get_code_list_size();
+	 
+	 if (g_lv_msg[MSG1] == true && size == 0){
+		tx_text_box(TX_BIG_BOX, MSG1); //Welcome msg
+		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
+		chk_ms_pressed_clear_msg(MSG1, true);
+	} 
+}
+
 /* Function: level_12
  * -----------------------------------------------------------------------------
  * This functions handles all the special cases of the tutorial of level 10
@@ -1495,6 +1530,10 @@ static void set_win_condition(char *win_condition)
 		char *stop_text = strtok_r(NULL, delim, &saveptr1);
 		int stop = atoi(stop_text);
 		win4_count_values_till_stop(element, stop);
+	} else if (strstr(win_cond, STR_WIN5) != NULL){
+		char *dec_text = strtok_r(NULL, delim, &saveptr1);
+		int dec = atoi(dec_text);
+		win5_move_input_to_output_add_dec_ofs(dec);
 	}
 
 	return;
@@ -1743,6 +1782,39 @@ static void win4_count_values_till_stop(int element, int stop)
 	}
 }
 
+/* Function: win5_move_input_to_output_add_dec_ofs
+ *------------------------------------------------------------------------------
+ * Generates a win condition that is generating moving the inputs to the outputs
+ * and adding a decreasing offset
+ *
+ * Arguments:
+ *	dec: starting point of the dreceasing offset
+ *
+ * Return:
+ *	Void.
+ */
+static void win5_move_input_to_output_add_dec_ofs(int dec)
+{
+	List *input_list = get_input_list();
+	List *win_list = get_win_list();
+
+	int input_list_size = List_count(input_list);
+	int win_list_size = List_count(win_list);
+
+	assert(input_list_size > 0 && "The size of the input list is incorrect");
+	assert(win_list_size == 0 && "The win list has elements");
+
+	LIST_FOREACH(input_list, first, next, cur){
+		value_box_t *cur_input = cur->value;
+		value_box_t *new_win; 
+		new_win = malloc(sizeof(value_box_t));
+		new_win->value = cur_input->value + dec;
+		new_win->type = cur_input->type;
+		List_push(win_list, new_win);
+		dec--;
+	}
+}
+
 /* Function: win2_add_inputs_in_groups
  *------------------------------------------------------------------------------
  * The solution of the challenge will be achieved is the player adds the inputs
@@ -1964,7 +2036,14 @@ void lv_level_drawings(int level)
 		case LV_LEVEL_14:
 			level_14();
 			break;
+		
+		case LV_LEVEL_15:
+			level_15();
+			break;
 
+		case LV_LEVEL_16:
+			level_16();
+			break;
 
 		default:
 			rg_draw_flag_boxes();
