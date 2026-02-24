@@ -130,11 +130,30 @@
 #define BUF_H 75
 #define BUF_W 1000
 
+#define HOVER_OFS 2
+
+
 int g_res_id;
 int g_screen_width;
 int g_screen_height;
 
 static int dm_get_ofs_val_box_x();
+
+
+/* Function: dm_get_ofs_hover
+ * -----------------------------------------------------------------------------
+ * Returns the increment of the elements during hover
+ * 
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	The hover incremente ofs
+ */
+int dm_get_ofs_hover()
+{
+	return dm_scale_to_resolution(HOVER_OFS);
+}
 
 /* Function: dm_get_w_miss_op
  * -----------------------------------------------------------------------------

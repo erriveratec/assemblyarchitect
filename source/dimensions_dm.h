@@ -91,6 +91,7 @@ int dm_get_ofs_space_stage_buttons();
 int dm_get_ofs_iface_border();
 int dm_get_ofs_button_shadow();
 int dm_get_ofs_iface_filled_border();
+int dm_get_ofs_hover();
 
 SDL_Rect dm_get_text_box_big();
 SDL_Rect dm_get_text_box_error();

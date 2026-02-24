@@ -6,6 +6,7 @@
 #include "list.h"
 #include "mouse_ms.h"
 
+static bool chk_mouse_click_hover_btn(iface_btn_t *btn);
 
 /* Function: bt_destroy_iface_btn
  *-----------------------------------------------------------------------------
@@ -90,6 +91,36 @@ bool bt_chk_mouse_click_iface_btn(iface_btn_t *btn)
 	return clicked_in_button;
 }
 
+/* Function: chk_mouse_hover_iface_button
+ *------------------------------------------------------------------------------
+ * This function verifies is the mouse has clicked insiden an iface button.
+ *
+ * Arguments:
+ * 	button: the button to be verified
+ *	
+ * Return:
+ *	true if the mouse clicked inside the button
+ *	false if otherwise
+ *
+*/
+static bool chk_mouse_click_hover_btn(iface_btn_t *btn)
+{
+	assert(NULL != btn && "The button pointer cannot be NULL");
+
+	int mouse_x = ms_get_mouse_x();
+	int mouse_y = ms_get_mouse_y();
+
+	bool hover;
+	if (mouse_x > btn->r.x 
+		&& mouse_x < (btn->r.x + btn->r.w) 
+		&& mouse_y > btn->r.y 
+		&& mouse_y < (btn->r.y + btn->r.h)){
+		hover = true;
+	} else {
+		hover = false;
+	} 
+	return hover;
+}
 /* Function: bt_create_iface_btn
  * -----------------------------------------------------------------------------
  * Creates an interface button used for menus with letters
@@ -127,30 +158,51 @@ iface_btn_t *bt_create_iface_btn(SDL_Rect r, texture_t *t, bool enabled)
 void bt_draw_iface_btn(iface_btn_t *b)
 {
 	assert(b != NULL && "The button pointer is NULL");
-	
 	int status = SUCCESS;	
-
-	int shadow_offset = dm_get_ofs_button_shadow();	
-	SDL_Rect shadow = {.x = b->r.x + shadow_offset, .y = b->r.y + shadow_offset,
-					   .w = b->r.w, .h = b->r.h};
-	dw_draw_filled_rectangle(shadow, C_DARKGREY, C_DARKGREY);
-
+	
+	SDL_Rect box = b->r;
+ 	bool hover = chk_mouse_click_hover_btn(b);
 	bool clicked = bt_chk_mouse_click_iface_btn(b);
 	int offset = dm_get_ofs_iface_border();
+	int shadow_offset = dm_get_ofs_button_shadow();	
+	
+	if (hover == true){
+		int h_ofs = dm_get_ofs_hover();
+		box.x -= h_ofs;
+		box.y -= h_ofs;
+		box.w += 2*h_ofs;
+		box.h += 2*h_ofs;
+		shadow_offset += 2*h_ofs;
+	}
 	
 	if (b->enabled == false){
+		SDL_Rect shadow = {.x = b->r.x + dm_get_ofs_button_shadow(), 
+						   .y = b->r.y + dm_get_ofs_button_shadow(),
+					   	   .w = b->r.w, 
+						   .h = b->r.h};
+		dw_draw_filled_rectangle(shadow, C_DARKGREY, C_DARKGREY);
 		dw_draw_filled_rectangle(b->r, C_BLACK, C_GREY);
 		int offset = dm_get_ofs_iface_border();
 		SDL_Rect in = ax_pad_rectangle(b->r, offset, true);
 		dw_draw_rectangle(in, C_GREY);
 	} else if (clicked == true){
-		dw_draw_filled_rectangle(b->r, C_WHITE, C_WHITE);
-		SDL_Rect in = ax_pad_rectangle(b->r, offset, true);
+		SDL_Rect shadow = {.x = box.x + shadow_offset, 
+						   .y = box.y + shadow_offset,
+					   	   .w = box.w, 
+						   .h = box.h};
+		dw_draw_filled_rectangle(shadow, C_DARKGREY, C_DARKGREY);
+		dw_draw_filled_rectangle(box, C_WHITE, C_WHITE);
+		SDL_Rect in = ax_pad_rectangle(box, offset, true);
 		dw_draw_filled_rectangle(in, C_BLACK, C_WHITE);
 	} else {
-		dw_draw_filled_rectangle(b->r, C_BLACK, C_WHITE);
+		SDL_Rect shadow = {.x = box.x + shadow_offset, 
+						   .y = box.y + shadow_offset,
+					   	   .w = box.w, 
+						   .h = box.h};
+		dw_draw_filled_rectangle(shadow, C_DARKGREY, C_DARKGREY);
+		dw_draw_filled_rectangle(box, C_BLACK, C_WHITE);
 		int offset = dm_get_ofs_iface_border();
-		SDL_Rect in = ax_pad_rectangle(b->r, offset, true);
+		SDL_Rect in = ax_pad_rectangle(box, offset, true);
 		dw_draw_rectangle(in, C_WHITE);
 	}
 	
