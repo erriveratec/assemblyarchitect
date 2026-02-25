@@ -92,7 +92,9 @@ int main(int argc, char *args[])
 		
 		// Check for new events every frame
 		SDL_Event event;
-		
+	
+		bool key_pressed = false;
+
 		while (SDL_PollEvent(&event)){
 			
 			switch (event.type){
@@ -112,6 +114,7 @@ int main(int argc, char *args[])
 					set_quit_game();
 					break;
 				case SDL_KEYDOWN:
+					key_pressed = true;
 					if (event.key.repeat == 0 && event.key.keysym.sym ==
 					    SDLK_ESCAPE){
 						toggle_escape_menu();
@@ -123,7 +126,6 @@ int main(int argc, char *args[])
 		}
 		// I/O handling
 		const Uint8 *keystate = SDL_GetKeyboardState(NULL);
-		
 		// Draw background
 		SDL_RenderClear(g_renderer);
 		// before color define as 0x000000FF
@@ -132,7 +134,9 @@ int main(int argc, char *args[])
 
 		switch (state){
 			case LV_STUDIO_SCREEN:
-				state = stage_studio(studio_screen_time, SDL_GetTicks64());
+				state = stage_studio(studio_screen_time, 
+									 SDL_GetTicks64(), 
+									 key_pressed);
 				break;
 			case LV_TITLE_SCREEN:
 				state = stage_title(keystate);

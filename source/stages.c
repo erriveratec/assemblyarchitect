@@ -19,13 +19,24 @@
 #include "arrow_ar.h"
 #include "immediates_im.h"
 
-#define STUDIO_SCREEN_DELAY 1000 // 1 sec
 #define SELECT_PLAYER_TEXT "Which hacker are you?"
 #define SELECT_LEVEL_TEXT "Select Level"
 #define PLAYER_1_TEXT "HACKER W"
 #define PLAYER_2_TEXT "HACKER X"
 #define PLAYER_3_TEXT "HACKER Y"
 
+
+static const Uint32 STUDIO_SCREEN_DELAY_MS = 2500; 
+static const Uint32 FADE_IN_MS = 500;
+static const Uint32 HOLD_MS = 1500;
+static const Uint32 FADE_OUT_MS = 500;
+
+typedef enum {
+	PHASE_FADE_IN,
+	PHASE_HOLD,
+	PHASE_FADE_OUT,
+	PHASE_DONE
+} IntroPhase;
 
 
 // Escape option menu variables
@@ -208,7 +219,7 @@ int stage_title(const Uint8 *keystate)
  *	TITLE_SCREEN if the delay time is already finished
  *	LEVEL_SELECTION if otherwise
  */
-int stage_studio(Uint64 start_time, Uint64 cur_time)
+int stage_studio(Uint64 start_time, Uint64 cur_time, bool key_pressed)
 {
 	int delay = cur_time - start_time;	
 	
@@ -219,8 +230,11 @@ int stage_studio(Uint64 start_time, Uint64 cur_time)
 	b.w = w;
 	SDL_SetTextureColorMod(g_logo->texture, 192, 192, 192);
 	dw_draw_texture_fits_height(b, g_logo);
-	
-	if (delay > STUDIO_SCREEN_DELAY){
+
+	IntroPhase phase = PHASE_FADE_IN;
+	Uint alpha = 255;
+
+	if (delay > STUDIO_SCREEN_DELAY_MS || key_pressed == true){
 		dw_free_texture(g_logo);
 		return LV_TITLE_SCREEN;
 	} else {
