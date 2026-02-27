@@ -4,6 +4,7 @@
 #include "sdl_config.h"
 #include "aux.h"
 #include "stages.h"
+#include "intro_screen_is.h"
 #include "levels_lv.h"
 #include "file_fl.h"
 #include "stage_buttons_sb.h"

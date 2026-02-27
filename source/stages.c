@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdbool.h>
+#include <SDL_mixer.h>
 #include "game_mechanics_mc.h"
 #include "aux.h"
 #include "button_bt.h"
@@ -25,9 +26,6 @@
 #define PLAYER_2_TEXT "HACKER X"
 #define PLAYER_3_TEXT "HACKER Y"
 
-
-static const Uint32 STUDIO_SCREEN_DELAY_MS = 2500; 
-static const Uint32 FADE_MS = 1250;
 
 
 
@@ -56,8 +54,8 @@ texture_array_t *g_game_title = NULL;
 texture_t *g_press_space = NULL;
 texture_array_t *g_win_text = NULL;
 texture_t *g_title_background = NULL;
-texture_t *g_logo = NULL;
 texture_t *g_chip = NULL;
+
 
 void stage_drawings(int level);
 static code_line_t *pending_operand_handler();
@@ -199,50 +197,7 @@ int stage_title(const Uint8 *keystate)
 	return ret_val;
 }
 
-/* Function: stage_studio
- * ----------------------------------------------------------------------------
- * This function displays the stage where the name of the studio is shown.
- *
- * Arguments:
- *	start_time: starting time that will be used for the delay of the screen.
- *	cur_time: the current time used to calculate the delay of the screen.
- *
- * Return:
- *	TITLE_SCREEN if the delay time is already finished
- *	LEVEL_SELECTION if otherwise
- */
-int stage_studio(Uint64 start_time, Uint64 cur_time, bool key_pressed)
-{
-	int delay = cur_time - start_time;	
-	
-	SDL_Rect b = dm_get_studio_name_msg_box();
-	
-	int w = ax_get_texture_w_fit_h(b.h, g_logo);
-	b.x = (dm_get_screen_width() - w)/2;
-	b.w = w;
 
-	Uint8 alpha = 255;
-	
-	if (delay <= FADE_MS){
-		float k = (float)delay / (float)FADE_MS;
-		alpha = (Uint8)(k * 255.0f);
-		SDL_SetTextureAlphaMod(g_logo->texture, alpha);
-	} else if (delay > FADE_MS){
-		float k = 1.0f - (float)(delay - FADE_MS) / (float)FADE_MS;
-		alpha = (Uint8)(k * 255.0f);
-		SDL_SetTextureAlphaMod(g_logo->texture, alpha);
-	}
-
-	SDL_SetTextureColorMod(g_logo->texture, 192, 192, 192);
-	dw_draw_texture_fits_height(b, g_logo);
-	
-	if (delay > STUDIO_SCREEN_DELAY_MS || key_pressed == true){
-		dw_free_texture(g_logo);
-		return LV_TITLE_SCREEN;
-	} else {
-		return LV_STUDIO_SCREEN;
-	}
-}
 
 /* Function: reset_level_flags
  * -------------------------------------

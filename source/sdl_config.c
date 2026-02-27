@@ -2,9 +2,11 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
+#include <SDL_mixer.h>
 #include <stdio.h>
 #include <string.h>
 #include "sdl_config.h"
+#include "intro_screen_is.h"
 #include "aux.h"
 #include "draw_dw.h"
 #include "stage_buttons_sb.h"
@@ -27,6 +29,36 @@ int g_height;
 
 TTF_Font *g_font = NULL;
 
+static bool init_audio();
+
+
+
+/* Function: init_audio
+ * -------------------------------------
+ * Initializes the audio for the sdl game
+ *
+ * Arguments:
+ *	None.
+ *
+ * Return:
+ *	boolean with the state
+ */
+static bool init_audio()
+{
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) < 0) {
+		SDL_Log("Mix_OpenAudio: %s", Mix_GetError());
+		return false;
+	}
+	
+	Mix_AllocateChannels(8);
+
+	Mix_Volume(-1, (int)(MIX_MAX_VOLUME * 0.85f));
+
+	return true;
+}
+
+
+
 /* Function: init_sdl
  * -------------------------------------
  * This function initialises what is necessary for SDL
@@ -41,21 +73,23 @@ TTF_Font *g_font = NULL;
 int init_sdl(int width, int height, int argc, char *args[])
 {
 	// Initialize SDL
-	if (SDL_Init(SDL_INIT_VIDEO) < 0){
-		
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0){
 		printf("SDL could not initialize! SDL_Error: %s\n", 
 				SDL_GetError());
 		return FAIL;
-
-	}// end if
+	}
 	//Set texture filtering to linear	
 	if (SDL_FALSE == SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1")){
 		printf("Warning: Linear texture filtering could not be enabled!");
-	}//end if
+	}
 
+	if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) < 0){
+		SDL_Log("Mix_OpenAudio failed: %s", Mix_GetError());
+		return FAIL;
+	}
+
+	//Create window
 	for (int i = 0; i < argc; i++){
-		
-		//Create window
 		if (strcmp(args[i], "-f")){
 			SDL_CreateWindowAndRenderer(width,
 										height,
@@ -68,8 +102,8 @@ int init_sdl(int width, int height, int argc, char *args[])
 										SDL_WINDOW_FULLSCREEN_DESKTOP,
 										&g_window,
 										&g_renderer);
-		}// end else
-	}//end for
+		}
+	}
 	if (g_window == NULL){
 		printf("Window could not be created! SDL_Error: %s\n", 
 				SDL_GetError());
@@ -221,13 +255,21 @@ int load_media()
 		return FAIL;
 	}
 
-	//Open the font
+		//Open the font
 	g_font = TTF_OpenFont("DOSVGA437.ttf", 130); //96 old value point size
 	if (NULL == g_font){
 		printf("Failed to load font! SDL_ttf Error: %s\n", 
 				TTF_GetError());
 		return FAIL;
 	} 
+	
+	//Audio downloaded
+	g_studio_sfx = Mix_LoadWAV("sound/studio.wav");
+	if (g_studio_sfx == NULL){
+		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
+		return FAIL;
+	}
+
 
 	return SUCCESS;
 }
