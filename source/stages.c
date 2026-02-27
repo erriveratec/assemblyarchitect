@@ -27,16 +27,8 @@
 
 
 static const Uint32 STUDIO_SCREEN_DELAY_MS = 2500; 
-static const Uint32 FADE_IN_MS = 500;
-static const Uint32 HOLD_MS = 1500;
-static const Uint32 FADE_OUT_MS = 500;
+static const Uint32 FADE_MS = 1250;
 
-typedef enum {
-	PHASE_FADE_IN,
-	PHASE_HOLD,
-	PHASE_FADE_OUT,
-	PHASE_DONE
-} IntroPhase;
 
 
 // Escape option menu variables
@@ -228,12 +220,22 @@ int stage_studio(Uint64 start_time, Uint64 cur_time, bool key_pressed)
 	int w = ax_get_texture_w_fit_h(b.h, g_logo);
 	b.x = (dm_get_screen_width() - w)/2;
 	b.w = w;
+
+	Uint8 alpha = 255;
+	
+	if (delay <= FADE_MS){
+		float k = (float)delay / (float)FADE_MS;
+		alpha = (Uint8)(k * 255.0f);
+		SDL_SetTextureAlphaMod(g_logo->texture, alpha);
+	} else if (delay > FADE_MS){
+		float k = 1.0f - (float)(delay - FADE_MS) / (float)FADE_MS;
+		alpha = (Uint8)(k * 255.0f);
+		SDL_SetTextureAlphaMod(g_logo->texture, alpha);
+	}
+
 	SDL_SetTextureColorMod(g_logo->texture, 192, 192, 192);
 	dw_draw_texture_fits_height(b, g_logo);
-
-	IntroPhase phase = PHASE_FADE_IN;
-	Uint alpha = 255;
-
+	
 	if (delay > STUDIO_SCREEN_DELAY_MS || key_pressed == true){
 		dw_free_texture(g_logo);
 		return LV_TITLE_SCREEN;
