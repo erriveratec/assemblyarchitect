@@ -5,16 +5,133 @@
 #include "dimensions_dm.h"
 #include "levels_lv.h"
 #include "aux.h"
+#include "stage_buttons_sb.h"
+#include "dbg.h"
+#include "file_fl.h"
+#include "stages.h"
 
 const char *STUDIO = "One Man Studio";
+char *GAME_TITLE = "ASSEMBLY ARCHITECT";
+char *PRESS_SPACE = "PRESS SPACE";
+char *SELECT_PLAYER_TEXT = "Which hacker are you?";
+char *SELECT_LEVEL_TEXT = "Select Level";
+char *PLAYER_1_TEXT = "HACKER W";
+char *PLAYER_2_TEXT = "HACKER X";
+char *PLAYER_3_TEXT = "HACKER Y";
+
 
 static const Uint32 STUDIO_SCREEN_DELAY_MS = 2500; 
 static const Uint32 FADE_MS = 1250;
 
+
+texture_array_t *g_game_title = NULL;
+texture_t *g_press_space = NULL;
+texture_t *g_chip = NULL;
 texture_t *g_logo = NULL;
+texture_t *g_title_background = NULL;
 Mix_Chunk *g_studio_sfx = NULL;
 
+static void create_select_level_buttons(iface_btn_t **buttons, bool *levels);
 
+/* Function: create_select_level_buttons
+ * -----------------------------------------------------------------------------
+ * Creates the total of buttons according to the numbers of levels that will be
+ * present in the game.
+ * 	
+ * Arguments:
+ * 	buttons_array: an array of buttons that will be created.
+ *  player_levels: the list of levels that the player will have available
+ *
+ * Return:
+ *	void
+ */
+static void create_select_level_buttons(iface_btn_t **buttons, bool *levels)
+{
+	assert(buttons != NULL && "The buttons pointer is NULL");
+	assert(levels != NULL && "The levels pointer is NULL");
+	
+	SDL_Rect r = dm_get_level_button_box();
+	SDL_Rect b = r;
+	int y_offset = get_sel_level_offset_y();
+	for (int i = 1; i <= LV_LEVEL_QUANTITY; i++){
+		char *btn_text = create_string_append_number(ax_level_text, i);
+		texture_t *btn_texture = NULL;
+		if (levels[i-1] == true){
+			btn_texture = dw_create_text_texture(btn_text, 
+							 C_WHITE);
+			buttons[i-1] = bt_create_iface_btn(b, btn_texture, true);
+		} else {
+			btn_texture = dw_create_text_texture(btn_text, 
+							 C_GREY);
+			buttons[i-1] = bt_create_iface_btn(b, btn_texture, false);
+		}
+		b.y += y_offset;	
+		if (i != 0 && i%8 == 0){
+			b.x += r.x + r.w;
+			b.y = r.y;
+		}
+	}
+}
+
+
+
+/* Function: stage_select_level
+ * -----------------------------------------------------------------------------
+ * Displays the levels that a player has available according to its save file
+ * 	
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	The number of the level selected, if not valid press was performed
+ *	the number of the select label stage will be returned.
+ */
+int stage_select_level()
+{
+	static texture_array_t *select_level = NULL;
+
+	static bool level_initialized = false;
+	static iface_btn_t *level_buttons[40];
+	static bool player_levels[LV_LEVEL_QUANTITY];
+	int ret_val = LV_LEVEL_SELECTION;
+	SDL_Rect r = dm_get_upper_title_box();
+
+	if (level_initialized == false){
+		fl_load_player_levels(g_player, player_levels);
+		level_initialized = true;
+		create_select_level_buttons(level_buttons, player_levels);
+		select_level = dw_new_text_texture_by_h(r.w, r.h, C_SILVERGREY, 
+															 SELECT_LEVEL_TEXT);
+	}
+	dw_draw_wrapped_texture_by_h(r, r.h, select_level);
+	sb_draw_return_button();
+	for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
+			bt_draw_iface_btn(level_buttons[i]);
+	}
+	
+	bool escape = sb_get_escape_menu_state();
+	if (escape == true){
+		sb_display_escape_menu(escape);
+	} else {
+		for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
+			if (bt_chk_mouse_rel_iface_btn(level_buttons[i]) == true){
+				ret_val = LV_LEVEL_1 + i;
+				level_initialized = false;
+				for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
+					bt_destroy_iface_btn(level_buttons[i]);
+				}
+			}
+		}
+		if (sb_check_clicked_ret_button() == true){
+			ret_val = LV_SELECT_PLAYER_SCREEN;	
+			level_initialized = false;
+			for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
+				bt_destroy_iface_btn(level_buttons[i]);
+			}
+		}
+	}
+	return ret_val;
+}
 
 /* Function: stage_studio
  * ----------------------------------------------------------------------------
@@ -62,4 +179,132 @@ int stage_studio(Uint64 start_time, Uint64 cur_time, bool key_pressed)
 	} else {
 		return LV_STUDIO_SCREEN;
 	}
+}
+
+/* Function: stage_title
+ * -----------------------------------------------------------------------------
+ * This function renders the title screen of the game
+ *
+ * Arguments:
+ *	None;
+ *
+ * Return:
+ *	TITLE_SCREEN if user has not pressed spacebar, 
+ *	LEVEL_SELECTION if otherwise
+ */
+int stage_title(const Uint8 *keystate)
+{
+	int ret_val;
+
+	int w = dm_get_screen_width();
+	int h = dm_get_screen_height();
+	SDL_Rect screen = {0, 0, w, h};
+	dw_draw_texture_fits_width(screen, g_title_background);
+	
+
+	SDL_Rect t = dm_get_game_title_box();
+	dw_draw_wrapped_texture_by_h(t, t.h, g_game_title);
+
+	SDL_Rect img =  dm_get_game_title_img_box();
+
+	SDL_SetTextureColorMod(g_chip->texture, 192, 192, 192);
+	dw_draw_texture_fits_height(img, g_chip);
+
+	SDL_Rect s = dm_get_press_space_box();
+	s.x = (w - get_text_width_fits_height(s.h, PRESS_SPACE))/2;
+	dw_draw_texture_fits_height(s, g_press_space);
+
+	if (keystate[SDL_SCANCODE_SPACE]){
+		dw_free_texture(g_chip);
+		dw_free_texture(g_title_background);
+		dw_free_texture(g_press_space);
+		dw_free_texture_array(g_game_title);
+		ret_val = LV_SELECT_PLAYER_SCREEN;
+	} else {
+		ret_val = LV_TITLE_SCREEN;
+	}
+
+	sb_display_escape_menu(sb_get_escape_menu_state());
+	return ret_val;
+}
+
+
+/* Function: stage_select_player
+ * ----------------------------------------------------------------------------
+ * This function displays the screen where the player is selected
+ *
+ * Arguments:
+ *	None.
+ *
+ * Return:
+ *	SELECT_PLAYER_SCREEN if the user have not selected a player. 
+ *	LEVEL_SELECTION if a player has been chosen
+ */
+int stage_select_player()
+{
+	static texture_array_t *select_player = NULL;
+	static bool buttons_created = false;
+	static iface_btn_t *player_1;
+	static iface_btn_t *player_2;
+	static iface_btn_t *player_3;
+	int ret_val = LV_SELECT_PLAYER_SCREEN;
+	bool player_chosen = false;
+	
+	SDL_Rect b = dm_get_upper_title_box();
+	int text_h = dm_get_h_stage_titles();
+
+	if (buttons_created == false){
+	
+		buttons_created = true;
+		select_player = dw_new_text_texture_by_h(b.w, text_h, C_SILVERGREY, 
+															SELECT_PLAYER_TEXT);
+		texture_t *b1_texture = dw_create_text_texture(PLAYER_1_TEXT, C_WHITE);
+		check_mem(b1_texture);
+		texture_t *b2_texture = dw_create_text_texture(PLAYER_2_TEXT, C_WHITE);
+		check_mem(b2_texture);
+		texture_t *b3_texture = dw_create_text_texture(PLAYER_3_TEXT, C_WHITE);
+		check_mem(b3_texture);
+		
+		SDL_Rect b = dm_get_p1_button_box();
+		player_1 = bt_create_iface_btn(b, b1_texture, true);
+		check_mem(player_1);
+		
+		b = dm_get_p2_button_box();
+		player_2 = bt_create_iface_btn(b, b2_texture, true);
+		check_mem(player_2);
+
+		b = dm_get_p3_button_box();
+		player_3 = bt_create_iface_btn(b, b3_texture, true);
+		check_mem(player_3);
+	}
+	dw_draw_wrapped_texture_by_h(b, text_h, select_player);
+	
+	bt_draw_iface_btn(player_1);
+	bt_draw_iface_btn(player_2);
+	bt_draw_iface_btn(player_3);
+
+	bool escape_menu = sb_get_escape_menu_state();
+	if (escape_menu == true){
+		sb_display_escape_menu(escape_menu);
+	} else {
+		if (bt_chk_mouse_rel_iface_btn(player_1) == true){
+			player_chosen = true;
+			g_player = FL_PLAYER_1;
+		} else if (bt_chk_mouse_rel_iface_btn(player_2) == true){
+			player_chosen = true;
+			g_player = FL_PLAYER_2;
+		} else if (bt_chk_mouse_rel_iface_btn(player_3) == true){
+			player_chosen = true;
+			g_player = FL_PLAYER_3;
+		}
+		if (player_chosen == true){
+			ret_val = LV_LEVEL_SELECTION;		
+			bt_destroy_iface_btn(player_1);
+			bt_destroy_iface_btn(player_2);
+			bt_destroy_iface_btn(player_3);
+			buttons_created = false;
+		}
+	}
+	error:
+	return ret_val;
 }

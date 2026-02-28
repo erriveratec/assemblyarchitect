@@ -36,10 +36,12 @@ static void initialize_game_assets();
 static void initialize_game_assets()
 {
 	SDL_Rect title = dm_get_game_title_box();	
-	g_game_title = dw_new_text_texture_by_h(title.w, title.h, C_SILVERGREY, 
-											GAME_TITLE_TEXT);
-	dw_create_text_texture(GAME_TITLE_TEXT, C_SILVERGREY);
-	g_press_space = dw_create_text_texture(PRESS_SPACE_TEXT, C_SILVERGREY);
+	g_game_title = dw_new_text_texture_by_h(title.w, 
+											title.h, 
+											C_SILVERGREY, 
+											GAME_TITLE);
+	dw_create_text_texture(GAME_TITLE, C_SILVERGREY);
+	g_press_space = dw_create_text_texture(PRESS_SPACE, C_SILVERGREY);
 	SDL_Rect rb = dm_get_text_box_result_text();
 	int text_h = dm_get_h_error_msg();		
 	g_win_text = dw_new_text_texture_by_h(rb.w, text_h, C_BLACK, WIN_TEXT);
