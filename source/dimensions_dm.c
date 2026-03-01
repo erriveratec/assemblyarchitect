@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include"dimensions_dm.h"
 #include"registers_rg.h"
+#include"aux.h"
 #include <SDL.h>
 
 #define ESC_MENU_BOX_W 600
@@ -1860,13 +1861,15 @@ SDL_Rect dm_get_game_title_img_box()
  * Return:
  *	SDL_Rect with the positions of the object.
  */
-SDL_Rect dm_get_game_title_box()
+SDL_Rect dm_get_game_title_box(char *title)
 {
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(TITLE_W);
+	//b.w = dm_scale_to_resolution(TITLE_W);
+	b.h = dm_scale_to_resolution(TITLE_H);
+	b.w =get_text_width_fits_height(b.h, title);
 	b.x = (g_screen_width - b.w)/2;
 	b.y = dm_scale_to_resolution(TITLE_Y);
-	b.h = dm_scale_to_resolution(TITLE_H);
+
 	return b;
 }
 

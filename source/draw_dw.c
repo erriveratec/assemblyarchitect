@@ -330,7 +330,7 @@ texture_t *dw_create_text_texture(char *texture_text,
  */
 void dw_free_texture_array(texture_array_t *t)
 {
-	assert(t != NULL && "The texture pointer is NULL");
+	if (t != NULL){
 	
 	for (int i = 0; i < t->size; i++){
 		dw_free_texture(t->t[i]);
@@ -340,6 +340,7 @@ void dw_free_texture_array(texture_array_t *t)
 	t->t = NULL;
 	free(t);
 	t = NULL;
+	}
 }
 
 /* Function: dw_free_texture
@@ -355,13 +356,15 @@ void dw_free_texture_array(texture_array_t *t)
  */
 void dw_free_texture(texture_t *texture)
 {
-	if (texture->texture != NULL){
-		SDL_DestroyTexture(texture->texture);
-		texture->texture = NULL;
-		texture->w = 0;
-		texture->h = 0;
-	} 	
-	free(texture);
+	if (texture != NULL){
+		if (texture->texture != NULL){
+			SDL_DestroyTexture(texture->texture);
+			texture->texture = NULL;
+			texture->w = 0;
+			texture->h = 0;
+		} 	
+		free(texture);
+	}
 }
 
 /* Function: dw_new_text_texture_by_h

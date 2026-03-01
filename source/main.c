@@ -35,12 +35,12 @@ static void initialize_game_assets();
  */
 static void initialize_game_assets()
 {
-	SDL_Rect title = dm_get_game_title_box();	
-	g_game_title = dw_new_text_texture_by_h(title.w, 
-											title.h, 
-											C_SILVERGREY, 
-											GAME_TITLE);
-	dw_create_text_texture(GAME_TITLE, C_SILVERGREY);
+	//SDL_Rect title = dm_get_game_title_box();	
+	//g_game_title = dw_new_text_texture_by_h(title.w, 
+	//										title.h, 
+	//										C_SILVERGREY, 
+	//										GAME_TITLE);
+	//dw_create_text_texture(GAME_TITLE, C_SILVERGREY);
 	g_press_space = dw_create_text_texture(PRESS_SPACE, C_SILVERGREY);
 	SDL_Rect rb = dm_get_text_box_result_text();
 	int text_h = dm_get_h_error_msg();		
@@ -84,6 +84,7 @@ int main(int argc, char *args[])
 	int stage = LV_NO_STAGE;
 	Uint64 next_game_tick = SDL_GetTicks64();
 	Uint64 studio_screen_time = SDL_GetTicks64();
+	Uint64 title_screen_time = SDL_GetTicks64();
 	ms_init_mouse();
 	
 	// Render loop
@@ -140,9 +141,12 @@ int main(int argc, char *args[])
 				state = stage_studio(studio_screen_time, 
 									 SDL_GetTicks64(), 
 									 key_pressed);
+				title_screen_time = SDL_GetTicks64();
 				break;
 			case LV_TITLE_SCREEN:
-				state = stage_title(keystate);
+				state = stage_title(title_screen_time,
+									SDL_GetTicks64(), 
+									keystate);
 				break;
 			case LV_SELECT_PLAYER_SCREEN:
 				state = stage_select_player();

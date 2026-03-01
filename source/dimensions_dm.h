@@ -35,7 +35,7 @@ int dm_get_w_borders();
 int dm_get_w_miss_op();
 
 SDL_Rect dm_get_studio_name_msg_box();
-SDL_Rect dm_get_game_title_box();
+SDL_Rect dm_get_game_title_box(char *title);
 SDL_Rect dm_get_game_title_img_box();
 SDL_Rect dm_get_press_space_box();
 SDL_Rect dm_get_upper_title_box();
