@@ -23,7 +23,7 @@ char *PLAYER_3_TEXT = "HACKER Y";
 static const Uint32 STUDIO_SCREEN_DELAY_MS = 2500; 
 static const Uint32 FADE_MS = 1250;
 static const Uint32 TYPE_DELAY_MS = 90;  
-
+static const Uint32 CHIP_FADE_MS = 1000;   // ~1s fade
 
 texture_t *g_press_space = NULL;
 texture_t *g_chip = NULL;
@@ -204,15 +204,19 @@ int stage_title(Uint64 start_time, Uint64 cur_time, const Uint8 *keystate)
 	
 	//dw_draw_wrapped_texture_by_h(t, t.h, g_game_title);
 
+    const float blink_period_ms = 1500.0f;
 	static bool last_type_set = false;
 	static Uint64 last_type_ms;
 	static Uint64 chip_start_ms;
 	static size_t type_index = 0;
 	static bool title_done = false;
+    Uint8 chip_alpha = 0;              
 
 	if (last_type_set == false){
 		last_type_ms = start_time;
 		last_type_set = true;
+		SDL_SetTextureColorMod(g_chip->texture, 192, 192, 192);
+		SDL_SetTextureAlphaMod(g_chip->texture, chip_alpha);
 	}
 
 	static texture_t *game_title = NULL;
@@ -235,7 +239,6 @@ int stage_title(Uint64 start_time, Uint64 cur_time, const Uint8 *keystate)
 			game_title = dw_create_text_texture(buf, C_SILVERGREY);
 			dw_draw_texture_fits_height(t, game_title);
 
-			// Play type SFX (skip spaces so it feels like keystrokes)
             if (g_sfx_type && buf[n-1] != ' ') {
             	Mix_PlayChannel(-1, g_sfx_type, 0);
             }
@@ -247,17 +250,41 @@ int stage_title(Uint64 start_time, Uint64 cur_time, const Uint8 *keystate)
         }
 	}
 	
+	float chip_scale = 1.0f;
+        if (title_done == true) {
+            Uint64 elapsed = cur_time - chip_start_ms;
+            if (elapsed < CHIP_FADE_MS) {
+                // ease-in alpha
+                float t = (float)elapsed / (float)CHIP_FADE_MS;
+                if (t < 0.0f) t = 0.0f; if (t > 1.0f) t = 1.0f;
+                chip_alpha = (Uint8)(t * 255.0f);
+            } else {
+                chip_alpha = 255;
+            }
+            // Pulse scale: ±2% over 2s
+            float pulse = sinf((cur_time - chip_start_ms) * 
+						  (2.0f * (float)M_PI / 2000.0f));
+            chip_scale = 1.0f + 0.02f * pulse;
+			SDL_SetTextureAlphaMod(g_chip->texture, chip_alpha);
+        }
+	
 	if (game_title != NULL){
 		dw_draw_texture_fits_height(t, game_title);
 	}
 	
-	SDL_Rect img =  dm_get_game_title_img_box();
+	float blink_phase = fmodf((float)(cur_time - start_time), blink_period_ms) 
+					   / blink_period_ms; // 0..1
+    float blink_alpha_f = (blink_phase < 0.5f) ? (blink_phase * 2.0f)  
+						: ((1.0f - blink_phase) * 2.0f);
+    Uint8 press_alpha = (Uint8)(blink_alpha_f * 255.0f);
+	SDL_SetTextureAlphaMod(g_press_space->texture, press_alpha);
 
-	SDL_SetTextureColorMod(g_chip->texture, 192, 192, 192);
+	
+	SDL_Rect img =  dm_get_game_title_img_box();
+	img = ax_scale_rect(img, chip_scale);
 	dw_draw_texture_fits_height(img, g_chip);
 
-	SDL_Rect s = dm_get_press_space_box();
-	s.x = (w - get_text_width_fits_height(s.h, PRESS_SPACE))/2;
+	SDL_Rect s = dm_get_press_space_box(PRESS_SPACE);
 	dw_draw_texture_fits_height(s, g_press_space);
 
 	if (keystate[SDL_SCANCODE_SPACE]){

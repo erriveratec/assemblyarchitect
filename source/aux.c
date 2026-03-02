@@ -133,6 +133,32 @@ SDL_Rect ax_pad_rectangle(SDL_Rect b, int offset, bool inside)
 	return r;
 }
 
+/* Function: ax_scale_rect
+ *------------------------------------------------------------------------------
+ * This function scales a rectangle and keeps the center. It scales it according
+ * to the width and height of the rectangle.
+ *
+ * Arguments:
+ *	r: The original rectable.
+ *	scale: The value to which the rectangle will be scaled.
+ *
+ * Return:
+ *	The new rectangle
+ */
+SDL_Rect ax_scale_rect(SDL_Rect r, float scale)
+{
+	SDL_Rect b;
+	b.w = (int)r.w * scale;
+	b.h = (int)r.h * scale;
+
+	int x_center = r.x + r.w/2;
+	int y_center = r.y + r.h/2;
+	
+	b.x = x_center - b.w/2;
+	b.y = y_center - b.h/2;
+
+	return b;
+}
 
 /* Function: ax_get_w_fit_h
  *------------------------------------------------------------------------------

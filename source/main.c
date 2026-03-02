@@ -35,12 +35,7 @@ static void initialize_game_assets();
  */
 static void initialize_game_assets()
 {
-	//SDL_Rect title = dm_get_game_title_box();	
-	//g_game_title = dw_new_text_texture_by_h(title.w, 
-	//										title.h, 
-	//										C_SILVERGREY, 
-	//										GAME_TITLE);
-	//dw_create_text_texture(GAME_TITLE, C_SILVERGREY);
+	
 	g_press_space = dw_create_text_texture(PRESS_SPACE, C_SILVERGREY);
 	SDL_Rect rb = dm_get_text_box_result_text();
 	int text_h = dm_get_h_error_msg();		
@@ -63,7 +58,6 @@ static void initialize_game_assets()
 int main(int argc, char *args[])
 {
 	dm_set_screen_resolution(R1920X1080);
-	//dm_set_screen_resolution(R1600X900);
 	int screen_width = dm_get_screen_width();
 	int screen_height = dm_get_screen_height();
 
@@ -191,6 +185,7 @@ int main(int argc, char *args[])
 		}
 
 	}
+
 
 }
 

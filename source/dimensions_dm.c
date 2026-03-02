@@ -97,11 +97,10 @@
 
 #define TITLE_IMG_H 475
 #define TITLE_IMG_W 475
-#define TITLE_IMG_Y 275
+#define TITLE_IMG_Y 325
 
-#define PRESS_W 1000
 #define PRESS_H 60
-#define PRESS_Y 750
+#define PRESS_Y 950
 
 #define STUDIO_W 600
 #define STUDIO_H 600
@@ -1790,6 +1789,7 @@ SDL_Rect dm_get_p3_button_box()
 	b.y = g_screen_height/3;
 	return b;
 }
+
 /* Function: dm_get_press_space_box
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object.
@@ -1800,13 +1800,13 @@ SDL_Rect dm_get_p3_button_box()
  * Return:
  *	SDL_Rect with the positions of the object.
  */
-SDL_Rect dm_get_press_space_box()
+SDL_Rect dm_get_press_space_box(char *msg)
 {
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(PRESS_W);
-	b.x = (g_screen_width - b.w)/2;
-	b.y = dm_scale_to_resolution(PRESS_Y);
 	b.h = dm_scale_to_resolution(PRESS_H);
+	b.w = get_text_width_fits_height(b.h, msg);
+	b.x = g_screen_width/2 - b.w/2;
+	b.y = dm_scale_to_resolution(PRESS_Y);
 	return b;
 }
 
