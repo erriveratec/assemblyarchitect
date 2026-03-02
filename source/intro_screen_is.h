@@ -14,6 +14,7 @@ extern texture_t *g_chip;
 extern texture_t *g_logo;
 extern Mix_Chunk *g_studio_sfx;
 extern Mix_Chunk *g_sfx_type;
+extern Mix_Chunk *g_sfx_ready;
 
 
 int stage_studio(Uint64 start_time, Uint64 cur_time, bool key_pressed);

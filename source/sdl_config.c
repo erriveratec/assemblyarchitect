@@ -269,12 +269,18 @@ int load_media()
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}
+	
 	g_sfx_type = Mix_LoadWAV("sound/key_press.wav");
 	if (g_sfx_type == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}
 
+	g_sfx_ready = Mix_LoadWAV("sound/ready.wav");
+	if (g_sfx_ready == NULL){
+		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
+		return FAIL;
+	}
 	return SUCCESS;
 }
 

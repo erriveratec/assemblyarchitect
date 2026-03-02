@@ -92,7 +92,6 @@
 #define BORDERS_WIDTH 5 //Used for the interface boxes
 
 // Intro screens
-#define TITLE_W 1000
 #define TITLE_H	140
 #define TITLE_Y	80
 
@@ -1864,7 +1863,6 @@ SDL_Rect dm_get_game_title_img_box()
 SDL_Rect dm_get_game_title_box(char *title)
 {
 	SDL_Rect b;
-	//b.w = dm_scale_to_resolution(TITLE_W);
 	b.h = dm_scale_to_resolution(TITLE_H);
 	b.w =get_text_width_fits_height(b.h, title);
 	b.x = (g_screen_width - b.w)/2;

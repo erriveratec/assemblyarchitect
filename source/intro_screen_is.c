@@ -31,6 +31,7 @@ texture_t *g_logo = NULL;
 texture_t *g_title_background = NULL;
 Mix_Chunk *g_studio_sfx = NULL;
 Mix_Chunk *g_sfx_type = NULL;
+Mix_Chunk *g_sfx_ready = NULL;
 
 static void create_select_level_buttons(iface_btn_t **buttons, bool *levels);
 
@@ -203,10 +204,11 @@ int stage_title(Uint64 start_time, Uint64 cur_time, const Uint8 *keystate)
 	
 	//dw_draw_wrapped_texture_by_h(t, t.h, g_game_title);
 
-	static bool title_done = false;
 	static bool last_type_set = false;
-	static int last_type_ms;
+	static Uint64 last_type_ms;
+	static Uint64 chip_start_ms;
 	static size_t type_index = 0;
+	static bool title_done = false;
 
 	if (last_type_set == false){
 		last_type_ms = start_time;
@@ -217,7 +219,6 @@ int stage_title(Uint64 start_time, Uint64 cur_time, const Uint8 *keystate)
 	SDL_Rect t = dm_get_game_title_box(GAME_TITLE);
 	size_t full_length = strlen(GAME_TITLE);
 
-	//dw_create_text_texture(GAME_TITLE, C_SILVERGREY);
 	if (title_done == false && (cur_time - last_type_ms) >= TYPE_DELAY_MS){
 		last_type_ms = cur_time;
 		
@@ -239,10 +240,15 @@ int stage_title(Uint64 start_time, Uint64 cur_time, const Uint8 *keystate)
             	Mix_PlayChannel(-1, g_sfx_type, 0);
             }
 
-		}
+		} else {
+			title_done = true;
+			chip_start_ms = cur_time;
+			if (g_sfx_ready) Mix_PlayChannel(-1, g_sfx_ready, 0);
+        }
 	}
+	
 	if (game_title != NULL){
-	dw_draw_texture_fits_height(t, game_title);
+		dw_draw_texture_fits_height(t, game_title);
 	}
 	
 	SDL_Rect img =  dm_get_game_title_img_box();
@@ -258,7 +264,7 @@ int stage_title(Uint64 start_time, Uint64 cur_time, const Uint8 *keystate)
 		dw_free_texture(g_chip);
 		dw_free_texture(g_title_background);
 		dw_free_texture(g_press_space);
-		//dw_free_texture_array(g_game_title);
+		dw_free_texture(game_title);
 		ret_val = LV_SELECT_PLAYER_SCREEN;
 	} else {
 		ret_val = LV_TITLE_SCREEN;
