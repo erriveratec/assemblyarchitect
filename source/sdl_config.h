@@ -15,11 +15,12 @@ extern SDL_Texture *g_screen_texture;
 extern int g_width;
 extern int g_height;
 
-int init_sdl(int width, int height, int argc, char *args[]);
 
 extern TTF_Font *g_font;
 
 int load_media();
+void close_sdl();
+int init_sdl(int width, int height, int argc, char *args[]);
 
 
 #endif

@@ -140,6 +140,7 @@ int init_sdl(int width, int height, int argc, char *args[])
 
 
 
+
 /* Function: load_media
  * ----------------------------
  * Arguments: 
@@ -284,4 +285,26 @@ int load_media()
 	return SUCCESS;
 }
 
+/* Function: close_sdl
+ * ----------------------------------------------------------------------------
+ * 	Closes all the resources regarding sdl.
+ *
+ * Arguments: 
+ * 	None.
+ *
+ * Return:
+ *	SUCCESS or FAIL
+ */
+void close_sdl()
+{
 
+    if (g_studio_sfx)  Mix_FreeChunk(g_studio_sfx);
+    if (g_sfx_type) Mix_FreeChunk(g_sfx_type);
+    if (g_sfx_ready) Mix_FreeChunk(g_sfx_ready);
+    TTF_CloseFont(g_font);
+    SDL_DestroyRenderer(g_renderer);
+    SDL_DestroyWindow(g_window);
+    Mix_CloseAudio();
+    TTF_Quit();
+    SDL_Quit();
+}

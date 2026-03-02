@@ -9,6 +9,8 @@
 #include "dbg.h"
 #include "file_fl.h"
 #include "stages.h"
+#include "electron_fx.h"
+#include "sdl_config.h"
 
 const char *STUDIO = "One Man Studio";
 char *GAME_TITLE = "ASSEMBLY ARCHITECT";
@@ -196,28 +198,40 @@ int stage_studio(Uint64 start_time, Uint64 cur_time, bool key_pressed)
  */
 int stage_title(Uint64 start_time, Uint64 cur_time, const Uint8 *keystate)
 {
-	int ret_val;
-	int w = dm_get_screen_width();
-	int h = dm_get_screen_height();
-	SDL_Rect screen = {0, 0, w, h};
-	dw_draw_texture_fits_width(screen, g_title_background);
+//	int w = dm_get_screen_width();
+//	int h = dm_get_screen_height();
+//	SDL_Rect screen = {0, 0, w, h};
+//	dw_draw_texture_fits_width(screen, g_title_background);
 	
 	//dw_draw_wrapped_texture_by_h(t, t.h, g_game_title);
-
-    const float blink_period_ms = 1500.0f;
+ 	
+	int ret_val;
+	const float blink_period_ms = 1500.0f;
 	static bool last_type_set = false;
 	static Uint64 last_type_ms;
 	static Uint64 chip_start_ms;
+	static Uint64 anim_prev_ms;
 	static size_t type_index = 0;
 	static bool title_done = false;
     Uint8 chip_alpha = 0;              
-
+	
+	int W = dm_get_screen_width();
+	int H = dm_get_screen_height();   
+  	static AA_ElectronFX* fx;
+	
 	if (last_type_set == false){
 		last_type_ms = start_time;
-		last_type_set = true;
+		anim_prev_ms = start_time;
+  		fx = aa_electron_fx_create(g_renderer, W, H, NULL);
 		SDL_SetTextureColorMod(g_chip->texture, 192, 192, 192);
 		SDL_SetTextureAlphaMod(g_chip->texture, chip_alpha);
+		last_type_set = true;
 	}
+	
+	float dt=(cur_time - anim_prev_ms)/1000.0f;
+	anim_prev_ms = cur_time;
+    aa_electron_fx_update(fx, dt);
+    aa_electron_fx_render(fx, g_renderer);
 
 	static texture_t *game_title = NULL;
 	SDL_Rect t = dm_get_game_title_box(GAME_TITLE);
