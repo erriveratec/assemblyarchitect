@@ -1,11 +1,13 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<assert.h>
+#include <SDL_mixer.h>
 #include"text_tx.h"
 #include"draw_dw.h"
 #include"instruction_window_iw.h"
 #include"code_window_cw.h"
 #include"dimensions_dm.h"
+#include "sdl_config.h"
 
 #define MSG_CLICKANY "Click anywhere"
 #define MSG_PRESSPLAY "Press the play button"
@@ -22,6 +24,46 @@ int g_gbl_msgs_size;
 texture_array_t **g_gbl_msgs = NULL;
 
 static int get_box_member(SDL_Rect *box, int member);
+
+/* Function: tx_draw_create_typewriter_text
+ * -----------------------------------------------------------------------------
+ * This function is used to create the typewriter effect wheen neeeded
+ * 
+ * Arguments:
+ *	t: pointer to the texture t of the texture
+ * 	text: text that will be progresively created
+ *	
+ * Return:
+ * 	bool indicating if the writing is complete
+ */
+bool tx_draw_create_typewriter_text(texture_t **t, 
+									SDL_Rect r, 
+									char *text, 
+									size_t *index)
+{
+	bool complete = false;
+	size_t full_length = strlen(text);
+	if (*index < full_length){
+		(*index)++;
+		char buf[256];
+		size_t n = (*index < sizeof(buf)-1 ? 
+					*index : sizeof(buf)-1);
+		memcpy(buf, text, n);
+		buf[n] = '\0';
+
+		dw_free_texture(*t);
+		
+		*t = dw_create_text_texture(buf, C_SILVERGREY);
+		dw_draw_texture_fits_height(r, *t);
+
+		if (g_sfx_type && buf[n-1] != ' ') {
+			Mix_PlayChannel(-1, g_sfx_type, 0);
+		}
+	} else if (*index == full_length){
+		complete = true;
+	}
+	return complete;
+}
 
 /* Function: tx_set_and_allocate_msgs_array
  * -----------------------------------------------------------------------------

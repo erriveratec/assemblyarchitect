@@ -11,6 +11,7 @@
 #include "stages.h"
 #include "electron_fx.h"
 #include "sdl_config.h"
+#include"text_tx.h"
 
 const char *STUDIO = "One Man Studio";
 char *GAME_TITLE = "ASSEMBLY ARCHITECT";
@@ -31,9 +32,6 @@ texture_t *g_press_space = NULL;
 texture_t *g_chip = NULL;
 texture_t *g_logo = NULL;
 texture_t *g_title_background = NULL;
-Mix_Chunk *g_studio_sfx = NULL;
-Mix_Chunk *g_sfx_type = NULL;
-Mix_Chunk *g_sfx_ready = NULL;
 
 static void create_select_level_buttons(iface_btn_t **buttons, bool *levels);
 
@@ -238,24 +236,12 @@ int stage_title(Uint64 start_time, Uint64 cur_time, const Uint8 *keystate)
 	if (title_done == false && (cur_time - last_type_ms) >= TYPE_DELAY_MS){
 		last_type_ms = cur_time;
 		
-		if (type_index < full_length){
-			type_index++;
-			char buf[256];
-            size_t n = (type_index < sizeof(buf)-1 ? 
-						type_index : sizeof(buf)-1);
-            memcpy(buf, GAME_TITLE, n);
-            buf[n] = '\0';
+		bool write_complete = tx_draw_create_typewriter_text(&game_title, 
+															 t, 
+															 GAME_TITLE, 
+															 &type_index);
 
-			dw_free_texture(game_title);
-			
-			game_title = dw_create_text_texture(buf, C_SILVERGREY);
-			dw_draw_texture_fits_height(t, game_title);
-
-            if (g_sfx_type && buf[n-1] != ' ') {
-            	Mix_PlayChannel(-1, g_sfx_type, 0);
-            }
-
-		} else {
+		 if (write_complete == true){
 			title_done = true;
 			chip_start_ms = cur_time;
 			if (g_sfx_ready) Mix_PlayChannel(-1, g_sfx_ready, 0);

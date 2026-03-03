@@ -29,6 +29,11 @@ int g_height;
 
 TTF_Font *g_font = NULL;
 
+Mix_Chunk *g_studio_sfx = NULL;
+Mix_Chunk *g_sfx_type = NULL;
+Mix_Chunk *g_sfx_ready = NULL;
+
+
 static bool init_audio();
 
 

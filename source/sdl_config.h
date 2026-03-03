@@ -3,6 +3,7 @@
 
 #include <SDL.h>
 #include <SDL_ttf.h>
+#include <SDL_mixer.h>
 #include "draw_dw.h"
 #include "dimensions_dm.h"
 
@@ -15,8 +16,11 @@ extern SDL_Texture *g_screen_texture;
 extern int g_width;
 extern int g_height;
 
-
 extern TTF_Font *g_font;
+
+extern Mix_Chunk *g_studio_sfx;
+extern Mix_Chunk *g_sfx_type;
+extern Mix_Chunk *g_sfx_ready;
 
 int load_media();
 void close_sdl();
