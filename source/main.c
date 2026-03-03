@@ -78,7 +78,6 @@ int main(int argc, char *args[])
 	int stage = LV_NO_STAGE;
 	Uint64 next_game_tick = SDL_GetTicks64();
 	Uint64 studio_screen_time = SDL_GetTicks64();
-	Uint64 title_screen_time = SDL_GetTicks64();
 	ms_init_mouse();
 	
 	// Render loop
@@ -135,12 +134,9 @@ int main(int argc, char *args[])
 				state = stage_studio(studio_screen_time, 
 									 SDL_GetTicks64(), 
 									 key_pressed);
-				title_screen_time = SDL_GetTicks64();
 				break;
 			case LV_TITLE_SCREEN:
-				state = stage_title(title_screen_time,
-									SDL_GetTicks64(), 
-									keystate);
+				state = stage_title(keystate);
 				break;
 			case LV_SELECT_PLAYER_SCREEN:
 				state = stage_select_player();

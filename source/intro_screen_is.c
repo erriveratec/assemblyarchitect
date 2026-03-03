@@ -194,7 +194,7 @@ int stage_studio(Uint64 start_time, Uint64 cur_time, bool key_pressed)
  *	TITLE_SCREEN if user has not pressed spacebar, 
  *	LEVEL_SELECTION if otherwise
  */
-int stage_title(Uint64 start_time, Uint64 cur_time, const Uint8 *keystate)
+int stage_title(const Uint8 *keystate)
 {
 	int w = dm_get_screen_width();
 	int h = dm_get_screen_height();
@@ -203,7 +203,8 @@ int stage_title(Uint64 start_time, Uint64 cur_time, const Uint8 *keystate)
  	
 	int ret_val;
 	const float blink_period_ms = 1500.0f;
-	static bool last_type_set = false;
+	static bool init = false;
+	static Uint64 start_time;
 	static Uint64 last_type_ms;
 	static Uint64 chip_start_ms;
 	static Uint64 anim_prev_ms;
@@ -213,21 +214,23 @@ int stage_title(Uint64 start_time, Uint64 cur_time, const Uint8 *keystate)
 	
 	int W = dm_get_screen_width();
 	int H = dm_get_screen_height();   
-  	static AA_ElectronFX* fx;
+  	static fx_electron_t* fx;
 	
-	if (last_type_set == false){
-		last_type_ms = start_time;
-		anim_prev_ms = start_time;
-  		fx = aa_electron_fx_create(g_renderer, W, H, NULL);
+	Uint64 cur_time = SDL_GetTicks64();
+	if (init == false){
+		last_type_ms = cur_time;
+		anim_prev_ms = cur_time;
+		start_time = cur_time;
+  		fx = fx_electron_create(g_renderer, W, H, NULL);
 		SDL_SetTextureColorMod(g_chip->texture, 192, 192, 192);
 		SDL_SetTextureAlphaMod(g_chip->texture, chip_alpha);
-		last_type_set = true;
+		init = true;
 	}
 	
 	float dt=(cur_time - anim_prev_ms)/1000.0f;
 	anim_prev_ms = cur_time;
-    aa_electron_fx_update(fx, dt);
-    aa_electron_fx_render(fx, g_renderer);
+    fx_electron_update(fx, dt);
+    fx_electron_render(fx, g_renderer);
 
 	static texture_t *game_title = NULL;
 	SDL_Rect t = dm_get_game_title_box(GAME_TITLE);
@@ -240,8 +243,7 @@ int stage_title(Uint64 start_time, Uint64 cur_time, const Uint8 *keystate)
 															 t, 
 															 GAME_TITLE, 
 															 &type_index);
-
-		 if (write_complete == true){
+		if (write_complete == true){
 			title_done = true;
 			chip_start_ms = cur_time;
 			if (g_sfx_ready) Mix_PlayChannel(-1, g_sfx_ready, 0);
@@ -291,6 +293,7 @@ int stage_title(Uint64 start_time, Uint64 cur_time, const Uint8 *keystate)
 		dw_free_texture(g_press_space);
 		dw_free_texture(game_title);
   		aa_electron_fx_destroy(fx);
+		init = false;
 		ret_val = LV_SELECT_PLAYER_SCREEN;
 	} else {
 		ret_val = LV_TITLE_SCREEN;
@@ -315,21 +318,35 @@ int stage_title(Uint64 start_time, Uint64 cur_time, const Uint8 *keystate)
 int stage_select_player()
 {
 	static texture_array_t *select_player = NULL;
-	static bool buttons_created = false;
+	static bool init = false;
 	static iface_btn_t *player_1;
 	static iface_btn_t *player_2;
 	static iface_btn_t *player_3;
 	int ret_val = LV_SELECT_PLAYER_SCREEN;
 	bool player_chosen = false;
+
+	int W = dm_get_screen_width();
+	int H = dm_get_screen_height();   
+  	static fx_electron_t* fx;
+	static Uint64 last_type_ms;
+	static Uint64 anim_prev_ms;
 	
 	SDL_Rect b = dm_get_upper_title_box();
 	int text_h = dm_get_h_stage_titles();
-
-	if (buttons_created == false){
 	
-		buttons_created = true;
-		select_player = dw_new_text_texture_by_h(b.w, text_h, C_SILVERGREY, 
-															SELECT_PLAYER_TEXT);
+	 Uint64 cur_time = SDL_GetTicks64();
+
+	if (init == false){
+	
+		init = true;
+  		last_type_ms = cur_time;
+		anim_prev_ms = cur_time;
+		fx = fx_electron_create(g_renderer, W, H, NULL);
+		
+		select_player = dw_new_text_texture_by_h(b.w, 
+												 text_h, 
+												 C_SILVERGREY, 
+												 SELECT_PLAYER_TEXT);
 		texture_t *b1_texture = dw_create_text_texture(PLAYER_1_TEXT, C_WHITE);
 		check_mem(b1_texture);
 		texture_t *b2_texture = dw_create_text_texture(PLAYER_2_TEXT, C_WHITE);
@@ -349,11 +366,18 @@ int stage_select_player()
 		player_3 = bt_create_iface_btn(b, b3_texture, true);
 		check_mem(player_3);
 	}
+	
+	float dt=(cur_time - anim_prev_ms)/1000.0f;
+	anim_prev_ms = cur_time;
+	fx_electron_update(fx, dt);
+    fx_electron_render(fx, g_renderer);
+
 	dw_draw_wrapped_texture_by_h(b, text_h, select_player);
 	
 	bt_draw_iface_btn(player_1);
 	bt_draw_iface_btn(player_2);
 	bt_draw_iface_btn(player_3);
+
 
 	bool escape_menu = sb_get_escape_menu_state();
 	if (escape_menu == true){
@@ -374,7 +398,7 @@ int stage_select_player()
 			bt_destroy_iface_btn(player_1);
 			bt_destroy_iface_btn(player_2);
 			bt_destroy_iface_btn(player_3);
-			buttons_created = false;
+			init = false;
 		}
 	}
 	error:

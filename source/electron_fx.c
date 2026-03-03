@@ -72,7 +72,7 @@ typedef struct {
     SDL_Color  color;
 } Electron;
 
-struct AA_ElectronFX {
+struct fx_electron_t {
     int W, H;
 
     /* Escena */
@@ -517,10 +517,10 @@ static void electron_reset(Electron* e, int poly_count){
 /* ============================================================
    API pública
    ============================================================ */
-AA_ElectronFX* aa_electron_fx_create(SDL_Renderer* r, int W, int H, const char* electron_png){
+fx_electron_t* fx_electron_create(SDL_Renderer* r, int W, int H, const char* electron_png){
     if (!r || W <= 0 || H <= 0) return NULL;
 
-    AA_ElectronFX* fx = (AA_ElectronFX*)calloc(1, sizeof(AA_ElectronFX));
+    fx_electron_t* fx = (fx_electron_t*)calloc(1, sizeof(fx_electron_t));
     if (!fx) return NULL;
     fx->W = W; fx->H = H;
 
@@ -569,7 +569,7 @@ AA_ElectronFX* aa_electron_fx_create(SDL_Renderer* r, int W, int H, const char* 
     return fx;
 }
 
-void aa_electron_fx_update(AA_ElectronFX* fx, float dt){
+void fx_electron_update(fx_electron_t* fx, float dt){
     if (!fx) return;
 
     /* sub-steps para estabilidad si dt es grande */
@@ -606,7 +606,7 @@ void aa_electron_fx_update(AA_ElectronFX* fx, float dt){
     }
 }
 
-void aa_electron_fx_render(AA_ElectronFX* fx, SDL_Renderer* r){
+void fx_electron_render(fx_electron_t* fx, SDL_Renderer* r){
     if (!fx || !r) return;
 
     /* 1) Actualizar la textura de trails con fade */
@@ -656,7 +656,7 @@ void aa_electron_fx_render(AA_ElectronFX* fx, SDL_Renderer* r){
     }
 }
 
-void aa_electron_fx_clear_trails(AA_ElectronFX* fx, SDL_Renderer* r){
+void aa_electron_fx_clear_trails(fx_electron_t* fx, SDL_Renderer* r){
     if (!fx || !r || !fx->trails) return;
     if (SDL_SetRenderTarget(r, fx->trails) == 0){
         SDL_SetRenderDrawColor(r, 0,0,0, 255);
@@ -665,7 +665,7 @@ void aa_electron_fx_clear_trails(AA_ElectronFX* fx, SDL_Renderer* r){
     }
 }
 
-void aa_electron_fx_destroy(AA_ElectronFX* fx){
+void aa_electron_fx_destroy(fx_electron_t* fx){
     if (!fx) return;
     if (fx->board)        SDL_DestroyTexture(fx->board);
     if (fx->trails)       SDL_DestroyTexture(fx->trails);

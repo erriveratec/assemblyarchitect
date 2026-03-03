@@ -4,15 +4,15 @@
 extern "C" {
 #endif
 
-typedef struct AA_ElectronFX AA_ElectronFX;
+typedef struct fx_electron_t fx_electron_t;
 
-AA_ElectronFX* aa_electron_fx_create(SDL_Renderer* r, 
+fx_electron_t* fx_electron_create(SDL_Renderer* r, 
 									 int window_w, 
 									 int window_h, 
 									 const char* electron_png_or_null);
-void           aa_electron_fx_update(AA_ElectronFX* fx, float dt);
-void           aa_electron_fx_render(AA_ElectronFX* fx, SDL_Renderer* r);
-void           aa_electron_fx_destroy(AA_ElectronFX* fx);
+void           fx_electron_update(fx_electron_t* fx, float dt);
+void           fx_electron_render(fx_electron_t* fx, SDL_Renderer* r);
+void           aa_electron_fx_destroy(fx_electron_t* fx);
 
 #ifdef __cplusplus
 }

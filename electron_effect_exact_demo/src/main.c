@@ -14,7 +14,7 @@ int main(){
   if(!r){ SDL_Log("CreateRenderer: %s", SDL_GetError()); return 1; }
 
   // Pass NULL so it uses the same radial fallback as your original code if PNG is absent
-  AA_ElectronFX* fx = aa_electron_fx_create(r, W, H, NULL);
+  fx_electron_t* fx = fx_electron_create(r, W, H, NULL);
 
   int running=1; Uint32 prev=SDL_GetTicks();
   while(running){
@@ -22,8 +22,8 @@ int main(){
       if(ev.type==SDL_QUIT) running=0; if(ev.type==SDL_KEYDOWN && (ev.key.keysym.sym==SDLK_ESCAPE || ev.key.keysym.sym==SDLK_SPACE || ev.key.keysym.sym==SDLK_RETURN)) running=0;
     }
     Uint32 now=SDL_GetTicks(); float dt=(now - prev)/1000.0f; prev=now;
-    aa_electron_fx_update(fx, dt);
-    aa_electron_fx_render(fx, r);
+    fx_electron_update(fx, dt);
+    fx_electron_render(fx, r);
     SDL_RenderPresent(r);
   }
 
