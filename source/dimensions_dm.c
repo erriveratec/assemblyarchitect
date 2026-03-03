@@ -93,14 +93,14 @@
 
 // Intro screens
 #define TITLE_H	140
-#define TITLE_Y	80
+#define TITLE_Y	140
 
-#define TITLE_IMG_H 475
-#define TITLE_IMG_W 475
+#define TITLE_IMG_H 480
+#define TITLE_IMG_W 480
 #define TITLE_IMG_Y 325
 
 #define PRESS_H 60
-#define PRESS_Y 950
+#define PRESS_Y 870
 
 #define STUDIO_W 600
 #define STUDIO_H 600

@@ -198,12 +198,10 @@ int stage_studio(Uint64 start_time, Uint64 cur_time, bool key_pressed)
  */
 int stage_title(Uint64 start_time, Uint64 cur_time, const Uint8 *keystate)
 {
-//	int w = dm_get_screen_width();
-//	int h = dm_get_screen_height();
-//	SDL_Rect screen = {0, 0, w, h};
-//	dw_draw_texture_fits_width(screen, g_title_background);
-	
-	//dw_draw_wrapped_texture_by_h(t, t.h, g_game_title);
+	int w = dm_get_screen_width();
+	int h = dm_get_screen_height();
+	SDL_Rect screen = {0, 0, w, h};
+	dw_draw_texture_fits_width(screen, g_title_background);
  	
 	int ret_val;
 	const float blink_period_ms = 1500.0f;
@@ -306,6 +304,7 @@ int stage_title(Uint64 start_time, Uint64 cur_time, const Uint8 *keystate)
 		dw_free_texture(g_title_background);
 		dw_free_texture(g_press_space);
 		dw_free_texture(game_title);
+  		aa_electron_fx_destroy(fx);
 		ret_val = LV_SELECT_PLAYER_SCREEN;
 	} else {
 		ret_val = LV_TITLE_SCREEN;

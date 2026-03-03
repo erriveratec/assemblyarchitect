@@ -7,7 +7,7 @@
 #include <string.h>
 
 /* ============================================================
-   Parámetros de apariencia y simulación (puedes ajustar aquí)
+   Simulation and appearence parameters
    ============================================================ */
 enum {
     TRACE_W_PX        = 1,
@@ -41,11 +41,11 @@ static const float SPEED_MIN = 140.0f, SPEED_MAX = 260.0f;
 static const float PAD_DWELL_MIN = 0.03f, PAD_DWELL_MAX = 0.10f;
 
 static const SDL_Color COL_COPPER  = {66, 66, 66, 255};
-static const SDL_Color COL_MASK_L  = {120,130,120,255};
+static const SDL_Color COL_MASK_L  = {120,120,120,255};
 static const SDL_Color COL_MASK_D  = {20, 20, 20, 255};
 
 /* ============================================================
-   Tipos de datos internos
+   Internal data types
    ============================================================ */
 typedef struct { int gx, gy; } GPoint;
 
@@ -317,7 +317,8 @@ static Poly build_poly(int W, int H, const TraceDef* tr){
    ============================================================ */
 static void draw_bg(SDL_Renderer* r,int W,int H){
     /* fondo muy sutil verdoso (no uniforme) */
-    const Uint8 top[3]={8,10,8}, bot[3]={6,8,6};
+//    const Uint8 top[3]={8,10,8}, bot[3]={6,8,6};
+    const Uint8 top[3]={0,0,0}, bot[3]={0,0,0};
     for (int y=0; y<H; y++){
         float t=(float)y/(float)(H-1);
         Uint8 R=(Uint8)lerpf(top[0],bot[0],t);
@@ -626,12 +627,18 @@ void aa_electron_fx_render(AA_ElectronFX* fx, SDL_Renderer* r){
                 int s = (fx->E[i].dwell > 0.0f ? DOT_SIZE + 2 : DOT_SIZE);
                 if (fx->electron_tex){
                     SDL_SetTextureColorMod(fx->electron_tex,
-                                           fx->E[i].color.r, fx->E[i].color.g, fx->E[i].color.b);
+                                           fx->E[i].color.r, 
+										   fx->E[i].color.g, 
+										   fx->E[i].color.b);
 #if SDL_VERSION_ATLEAST(2,0,10)
-                    SDL_FRect dst = { pos.x - s*0.5f, pos.y - s*0.5f, (float)s, (float)s };
+                    SDL_FRect dst = { pos.x - s*0.5f, 
+									  pos.y - s*0.5f, 
+									  (float)s, 
+									  (float)s };
                     SDL_RenderCopyF(r, fx->electron_tex, NULL, &dst);
 #else
-                    SDL_Rect dst = { (int)(pos.x - s*0.5f), (int)(pos.y - s*0.5f), s, s };
+                    SDL_Rect dst = { (int)(pos.x - s*0.5f), 
+									 (int)(pos.y - s*0.5f), s, s };
                     SDL_RenderCopy(r, fx->electron_tex, NULL, &dst);
 #endif
                 }
