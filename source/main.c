@@ -36,7 +36,6 @@ static void initialize_game_assets();
 static void initialize_game_assets()
 {
 	
-	g_press_space = dw_create_text_texture(PRESS_SPACE, C_SILVERGREY);
 	SDL_Rect rb = dm_get_text_box_result_text();
 	int text_h = dm_get_h_error_msg();		
 	g_win_text = dw_new_text_texture_by_h(rb.w, text_h, C_BLACK, WIN_TEXT);

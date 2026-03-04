@@ -208,15 +208,21 @@ CODE STARTS
 MOV rbx, IMMUP0
 line 02
 line 02
+JE 02
+line 03
+JE 04
+line 04
+JE 06
+line 05
 MOV rax, [ib]
 CMP rax, IMMUP0
-JE 10
+JE 17
 CMP rax, IMMUP3
-JNE 02
+JNE 08
 ADD rbx, IMMUP1
 JMP 01
-line 09
 MOV [ob], rbx
+line 13
 CODE ENDS
 
 +++LEVEL ENDS 16
@@ -674,15 +680,21 @@ CODE STARTS
 MOV rbx, IMMUP0
 line 02
 line 02
+JE 02
+line 03
+JE 04
+line 04
+JE 06
+line 05
 MOV rax, [ib]
 CMP rax, IMMUP0
-JE 10
+JE 17
 CMP rax, IMMUP3
-JNE 02
+JNE 08
 ADD rbx, IMMUP1
 JMP 01
-line 09
 MOV [ob], rbx
+line 13
 CODE ENDS
 
 +++LEVEL ENDS 16
@@ -1140,15 +1152,21 @@ CODE STARTS
 MOV rbx, IMMUP0
 line 02
 line 02
+JE 02
+line 03
+JE 04
+line 04
+JE 06
+line 05
 MOV rax, [ib]
 CMP rax, IMMUP0
-JE 10
+JE 17
 CMP rax, IMMUP3
-JNE 02
+JNE 08
 ADD rbx, IMMUP1
 JMP 01
-line 09
 MOV [ob], rbx
+line 13
 CODE ENDS
 
 +++LEVEL ENDS 16

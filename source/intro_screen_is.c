@@ -218,13 +218,14 @@ int stage_title(const Uint8 *keystate)
 	
 	Uint64 cur_time = SDL_GetTicks64();
 	if (init == false){
+		init = true;
+		g_press_space = dw_create_text_texture(PRESS_SPACE, C_SILVERGREY);
 		last_type_ms = cur_time;
 		anim_prev_ms = cur_time;
 		start_time = cur_time;
   		fx = fx_electron_create(g_renderer, W, H, NULL);
 		SDL_SetTextureColorMod(g_chip->texture, 192, 192, 192);
 		SDL_SetTextureAlphaMod(g_chip->texture, chip_alpha);
-		init = true;
 	}
 	
 	float dt=(cur_time - anim_prev_ms)/1000.0f;
@@ -317,7 +318,8 @@ int stage_title(const Uint8 *keystate)
  */
 int stage_select_player()
 {
-	static texture_array_t *select_player = NULL;
+	static texture_t *select_player = NULL;
+	
 	static bool init = false;
 	static iface_btn_t *player_1;
 	static iface_btn_t *player_2;
@@ -330,6 +332,9 @@ int stage_select_player()
   	static fx_electron_t* fx;
 	static Uint64 last_type_ms;
 	static Uint64 anim_prev_ms;
+	static size_t type_index = 0;
+	
+	static bool title_done = false;
 	
 	SDL_Rect b = dm_get_upper_title_box();
 	int text_h = dm_get_h_stage_titles();
@@ -343,10 +348,10 @@ int stage_select_player()
 		anim_prev_ms = cur_time;
 		fx = fx_electron_create(g_renderer, W, H, NULL);
 		
-		select_player = dw_new_text_texture_by_h(b.w, 
-												 text_h, 
-												 C_SILVERGREY, 
-												 SELECT_PLAYER_TEXT);
+		//select_player = dw_new_text_texture_by_h(b.w, 
+		//										 text_h, 
+		//										 C_SILVERGREY, 
+		//										 SELECT_PLAYER_TEXT);
 		texture_t *b1_texture = dw_create_text_texture(PLAYER_1_TEXT, C_WHITE);
 		check_mem(b1_texture);
 		texture_t *b2_texture = dw_create_text_texture(PLAYER_2_TEXT, C_WHITE);
@@ -371,8 +376,23 @@ int stage_select_player()
 	anim_prev_ms = cur_time;
 	fx_electron_update(fx, dt);
     fx_electron_render(fx, g_renderer);
-
-	dw_draw_wrapped_texture_by_h(b, text_h, select_player);
+	
+	if (title_done == false && (cur_time - last_type_ms) >= TYPE_DELAY_MS){
+		last_type_ms = cur_time;
+		
+		bool write_complete = tx_draw_create_typewriter_text(&select_player, 
+															 b, 
+															 SELECT_PLAYER_TEXT, 
+															 &type_index);
+		if (write_complete == true){
+			title_done = true;
+			if (g_sfx_ready) Mix_PlayChannel(-1, g_sfx_ready, 0);
+        }
+	}
+	if (select_player != NULL){
+		dw_draw_texture_fits_height(b, select_player);
+	}
+//	dw_draw_wrapped_texture_by_h(b, text_h, select_player);
 	
 	bt_draw_iface_btn(player_1);
 	bt_draw_iface_btn(player_2);
