@@ -1492,7 +1492,7 @@ void cw_draw_code_window()
 	SDL_Rect b = {.x = g_scroll_box.x + border_ofs, 
 				  .y = g_scroll_box.y + border_ofs,
 				  .h = text_h};
-	dw_draw_texture_fits_height(b, g_stage_name);
+	dw_draw_texture_fit_h(b, g_stage_name);
 
 	SDL_Rect upbox = {.x = g_code_box.x,
 					  .y = 0,
@@ -1550,7 +1550,7 @@ static void display_player_code()
 			SDL_Rect r = {.x = line->ins->b->r.x + comma_ofs, 
 						  .y = line->ins->b->r.y, .h = cb.h};
 
-			dw_draw_texture_fits_height(r, g_comma_tex);
+			dw_draw_texture_fit_h(r, g_comma_tex);
 		}
 	}
 	return;
@@ -1623,7 +1623,7 @@ void display_line_number()
 	int instruction = cw_get_instruction_at_code_pos(i);
 		if (instruction != LABEL){
 			SDL_Rect r = {.x = x, .y = y, .h = h};
-			dw_draw_texture_fits_height(r, g_numbers[line_number]);
+			dw_draw_texture_fit_h(r, g_numbers[line_number]);
 			line_number++;
 		}
 		y += dm_get_h_between_code();

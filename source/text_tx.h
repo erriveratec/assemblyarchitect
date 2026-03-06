@@ -14,7 +14,8 @@ void tx_set_message_in_array(int pos, char *msg);
 bool tx_draw_create_typewriter_text(texture_t **t, 
 									SDL_Rect r, 
 									char *text, 
-									size_t *index);
+									size_t *index, 
+									SDL_Color color);
 
 enum text_box_positions{
 	TX_BOX_MIN,

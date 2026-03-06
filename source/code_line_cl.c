@@ -7,7 +7,7 @@
 
 #define INSTRUCTION_STRING_LENGTH 20
 
-static operand_t *copy_operand(operand_t *op);
+//static operand_t *copy_operand(operand_t *op);
 bool check_valid_operand(int id);
 
 char *add_text = "ADD";
@@ -798,7 +798,7 @@ void cl_destroy_code_line(code_line_t *line)
  * Return:
  *	object to the new operand that is a copy.
  *
- */
+ *
 static operand_t *copy_operand(operand_t *op)
 {
 	assert(NULL != op && "The operand pointer cannot be NULL");
@@ -812,7 +812,7 @@ static operand_t *copy_operand(operand_t *op)
 	
 error:
 	return new_op;
-}
+} */
 
 /* Function: check_valid_operand
  * -----------------------------------------------------------------------------

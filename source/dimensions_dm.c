@@ -38,15 +38,19 @@
 #define TEXT_H_ERROR_MSG 35
 #define TEXT_H_TOTAL_MSG 160
 #define TEXT_H_STAGE_ELEMENTS_TITLES 25
-#define TEXT_H_STAGE_TITLES 70
 #define TEXT_H_CODE 40
 
+#define TEXT_H_STAGE_TITLES 110
 #define STAGE_BUTTON_W 60
 #define STAGE_BUTTON_H 60
 #define STAGE_BUTTON_Y 820
 
-#define P_BUTTON_H 200
-#define P_BUTTON_W 200
+#define P_BUTTON_H 280
+#define P_BUTTON_W 280
+#define P_BUTTON_Y 425
+#define P_NAME_OFS 80
+#define P_NAME_H 50
+#define P_DARK_PLATE_OFS 6
 
 #define CODE_BUTTON_W 90
 #define CODE_BUTTON_H 40
@@ -99,6 +103,8 @@
 #define TITLE_IMG_W 480
 #define TITLE_IMG_Y 325
 
+#define SEL_PLAYER_Y 155
+
 #define PRESS_H 60
 #define PRESS_Y 870
 
@@ -129,7 +135,7 @@
 #define BUF_H 75
 #define BUF_W 1000
 
-#define HOVER_OFS 2
+#define HOVER_SCALE 0.06f
 
 
 int g_res_id;
@@ -149,9 +155,9 @@ static int dm_get_ofs_val_box_x();
  * Return:
  *	The hover incremente ofs
  */
-int dm_get_ofs_hover()
+float dm_get_hover_scale()
 {
-	return dm_scale_to_resolution(HOVER_OFS);
+	return HOVER_SCALE;
 }
 
 /* Function: dm_get_w_miss_op
@@ -1482,13 +1488,14 @@ SDL_Rect dm_get_level_button_box()
  * Return:
  *	SDL_Rect with the positions of the object.
  */
-SDL_Rect dm_get_upper_title_box()
+SDL_Rect dm_get_upper_title_box(char *msg)
 {
 	SDL_Rect b;
 	b.h = dm_scale_to_resolution(TEXT_H_STAGE_TITLES);
-	b.x = 0;
-	b.y = g_screen_height/36;
-	b.w = g_screen_width;
+	b.w = get_text_width_fits_height(b.h, msg);
+	b.x = g_screen_width/2 - b.w/2;
+	b.y = dm_scale_to_resolution(SEL_PLAYER_Y);
+;
 	return b;
 }
 
@@ -1746,7 +1753,7 @@ SDL_Rect dm_get_p1_button_box()
 	b.w = dm_scale_to_resolution(P_BUTTON_W);
 	b.h = dm_scale_to_resolution(P_BUTTON_H);
 	b.x = (g_screen_width - 3*b.w)/4;
-	b.y = g_screen_height/3;
+	b.y = dm_scale_to_resolution(P_BUTTON_Y);
 	return b;
 }
 
@@ -1766,7 +1773,7 @@ SDL_Rect dm_get_p2_button_box()
 	b.w = dm_scale_to_resolution(P_BUTTON_W);
 	b.h = dm_scale_to_resolution(P_BUTTON_H);
 	b.x = 2*(g_screen_width - 3*b.w)/4 + b.w;
-	b.y = g_screen_height/3;
+	b.y = dm_scale_to_resolution(P_BUTTON_Y);
 	return b;
 }
 
@@ -1786,8 +1793,54 @@ SDL_Rect dm_get_p3_button_box()
 	b.w = dm_scale_to_resolution(P_BUTTON_W);
 	b.h = dm_scale_to_resolution(P_BUTTON_H);
 	b.x = 3*(g_screen_width - 3*b.w)/4 + 2*b.w;
-	b.y = g_screen_height/3;
+	b.y = dm_scale_to_resolution(P_BUTTON_Y);
 	return b;
+}
+
+/* Function: dm_get_ofs_player_name
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset value.
+ */
+int dm_get_ofs_player_name()
+{
+	return dm_scale_to_resolution(P_NAME_OFS);
+}
+
+/* Function: dm_get_ofs_player_dark_plate
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset value.
+ */
+int dm_get_ofs_player_dark_plate()
+{
+	return dm_scale_to_resolution(P_DARK_PLATE_OFS);
+}
+
+
+/* Function: dm_get_h_player_name
+ * -----------------------------------------------------------------------------
+ * Returns the text height of the player name.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the height of the player name.
+ */
+int dm_get_h_player_name()
+{
+	return dm_scale_to_resolution(P_NAME_H);
 }
 
 /* Function: dm_get_press_space_box

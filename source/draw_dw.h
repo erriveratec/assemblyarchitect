@@ -26,7 +26,8 @@ void dw_free_texture_array(texture_array_t *t);
 void dw_draw_rectangle(SDL_Rect r, SDL_Color c);
 void dw_draw_filled_rectangle(SDL_Rect r, SDL_Color in, SDL_Color out);
 
-int dw_draw_texture_fits_height(SDL_Rect r, texture_t *t);
+int dw_draw_texture_fit_h(SDL_Rect r, texture_t *t);
+int dw_draw_texture_center_fit_h(SDL_Rect r, texture_t *t);
 int dw_draw_texture_fits_width(SDL_Rect r, texture_t *t);
 void dw_draw_wrapped_texture_by_h(SDL_Rect r, int h, texture_array_t *a);
 void dw_draw_rotated_texture_fits_h(int x, int y, int h, double angle, 

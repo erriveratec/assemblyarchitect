@@ -111,7 +111,7 @@ static void draw_instruction_text()
 	int y = ib.y - h;
 	int text_h = dm_get_h_stage_elements_titles();
 	SDL_Rect r = {.x = x, .y = y, .w = ib.w, .h = text_h};
-	dw_draw_texture_fits_height(r, instructions_text);
+	dw_draw_texture_fit_h(r, instructions_text);
 }
 
 /* Function: iw_get_instruction_list_size

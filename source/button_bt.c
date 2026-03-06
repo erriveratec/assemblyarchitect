@@ -167,11 +167,12 @@ void bt_draw_iface_btn(iface_btn_t *b)
 	int shadow_offset = dm_get_ofs_button_shadow();	
 	
 	if (hover == true){
-		int h_ofs = dm_get_ofs_hover();
-		box.x -= h_ofs;
-		box.y -= h_ofs;
-		box.w += 2*h_ofs;
-		box.h += 2*h_ofs;
+		float h_ofs = dm_get_hover_scale();
+		box.x -= (int)(h_ofs * (float)box.w);
+		box.y -= (int)(h_ofs * (float)box.h);
+		box.w += (int)(2*h_ofs * (float)box.w);
+		box.h += (int)(2*h_ofs * (float)box.h);
+
 		shadow_offset += 2*h_ofs;
 	}
 	int w_pad = dm_get_w_button_padding();
@@ -198,7 +199,7 @@ void bt_draw_iface_btn(iface_btn_t *b)
 		} else {
 			int x = b->r.x + (b->r.w - b->t->w*scale_h)/2;
 			SDL_Rect r = {.x = x, .y = b->r.y + w_pad, .h = b->r.h - 2*h_pad};
-			dw_draw_texture_fits_height(r, b->t);
+			dw_draw_texture_fit_h(r, b->t);
 		}
 	} else if (clicked == true){
 		SDL_Rect shadow = {.x = box.x + shadow_offset, 
@@ -220,7 +221,7 @@ void bt_draw_iface_btn(iface_btn_t *b)
 		} else {
 			int x = box.x + (box.w - b->t->w*scale_h)/2;
 			SDL_Rect r = {.x = x, .y = box.y + w_pad, .h = box.h - 2*h_pad};
-			dw_draw_texture_fits_height(r, b->t);
+			dw_draw_texture_fit_h(r, b->t);
 		}
 	} else {
 		SDL_Rect shadow = {.x = box.x + shadow_offset, 
@@ -242,7 +243,7 @@ void bt_draw_iface_btn(iface_btn_t *b)
 		} else {
 			int x = box.x + (box.w - b->t->w*scale_h)/2;
 			SDL_Rect r = {.x = x, .y = box.y + w_pad, .h = box.h - 2*h_pad};
-			dw_draw_texture_fits_height(r, b->t);
+			dw_draw_texture_fit_h(r, b->t);
 		}
 	}
 	
@@ -300,7 +301,7 @@ void bt_draw_iface_btn_nopad(iface_btn_t *b)
 	} else {
 		int x = p.x + (p.w - b->t->w*scale_h)/2;
 		SDL_Rect r = {.x = x, .y = p.y, .h = p.h};
-		dw_draw_texture_fits_height(r, b->t);
+		dw_draw_texture_fit_h(r, b->t);
 	}
 	assert(status != FAIL && "The texture could not be drawn");
 }
@@ -365,7 +366,7 @@ void bt_draw_btn(btn_t *b)
 		} else {
 			int x = b->r.x + (b->r.w - b->t->w*scale_h)/2;
 			SDL_Rect r = {.x = x, .y = b->r.y, .h = b->r.h};
-			dw_draw_texture_fits_height(r, b->t);
+			dw_draw_texture_fit_h(r, b->t);
 		}
 	} else if (b->animated == true){
 		
@@ -380,7 +381,7 @@ void bt_draw_btn(btn_t *b)
 			SDL_Rect r = {.x = x - b->anim_state/2, 
 						  .y = b->r.y - b->anim_state/2, 
 						  .h = b->r.h + b->anim_state};
-			dw_draw_texture_fits_height(r, b->t);
+			dw_draw_texture_fit_h(r, b->t);
 		}
 		int anim_max = dm_get_btn_anim_max();
 		int anim_delta = dm_get_btn_anim_delta();

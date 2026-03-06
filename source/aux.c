@@ -125,11 +125,17 @@ int ax_get_move_delta()
 SDL_Rect ax_pad_rectangle(SDL_Rect b, int offset, bool inside)
 {
 	SDL_Rect r;
-	r.x = b.x + offset;
-	r.y = b.y + offset;
-	r.w = b.w - 2*offset;
-	r.h = b.h - 2*offset;
-
+	if (inside == true){
+		r.x = b.x + offset;
+		r.y = b.y + offset;
+		r.w = b.w - 2*offset;
+		r.h = b.h - 2*offset;
+	} else if (inside == false){
+		r.x = b.x - offset;
+		r.y = b.y - offset;
+		r.w = b.w + 2*offset;
+		r.h = b.h + 2*offset;
+	}
 	return r;
 }
 
@@ -277,7 +283,7 @@ void ax_draw_value_box(value_box_t *box, SDL_Color color)
 	SDL_Rect r = {.x = box->box.x + x_offset, .y = box->box.y + y_offset,
 				  .h = val.h};
 	if(box->t != NULL){
-		dw_draw_texture_fits_height(r, box->t);
+		dw_draw_texture_fit_h(r, box->t);
 	}	
 
 	dw_draw_rectangle(box->box, color);

@@ -8,10 +8,11 @@ extern char *GAME_TITLE;
 extern char *PRESS_SPACE;
 
 extern texture_t *g_press_space;
-extern texture_t *g_title_background;
 extern texture_t *g_chip;
-
 extern texture_t *g_logo;
+extern texture_t *g_playerx;
+extern texture_t *g_playery;
+extern texture_t *g_playerz;
 
 
 int stage_studio(Uint64 start_time, Uint64 cur_time, bool key_pressed);

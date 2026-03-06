@@ -304,7 +304,7 @@ void rg_draw_flag_boxes()
 	int w = get_text_width_fits_height(text.h, ZF_TEXT);
 	text.y += text.h;
 	text.x += (dm_get_value_box_wh().w - w)/2;
-	dw_draw_texture_fits_height(text, g_zf_text);
+	dw_draw_texture_fit_h(text, g_zf_text);
 	
 	return;
 }
@@ -771,7 +771,7 @@ static void draw_register_text()
 	int y = register_box.y - text_h;
 
 	SDL_Rect r = {.x = x, .y = y, .h = text_h};
-	dw_draw_texture_fits_height(r, g_reg_text);
+	dw_draw_texture_fit_h(r, g_reg_text);
 }
 
 /* Function: rg_ms_rel_in_reg

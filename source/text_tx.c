@@ -39,7 +39,8 @@ static int get_box_member(SDL_Rect *box, int member);
 bool tx_draw_create_typewriter_text(texture_t **t, 
 									SDL_Rect r, 
 									char *text, 
-									size_t *index)
+									size_t *index,
+									SDL_Color color)
 {
 	bool complete = false;
 	size_t full_length = strlen(text);
@@ -53,8 +54,8 @@ bool tx_draw_create_typewriter_text(texture_t **t,
 
 		dw_free_texture(*t);
 		
-		*t = dw_create_text_texture(buf, C_SILVERGREY);
-		dw_draw_texture_fits_height(r, *t);
+		*t = dw_create_text_texture(buf, color);
+		dw_draw_texture_fit_h(r, *t);
 
 		if (g_sfx_type && buf[n-1] != ' ') {
 			Mix_PlayChannel(-1, g_sfx_type, 0);

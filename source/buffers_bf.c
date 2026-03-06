@@ -673,7 +673,7 @@ void draw_output_buffer()
 	}
 	dw_draw_rectangle(output_box, C_WHITE);
 	SDL_Rect ob = dm_get_stage_ob_text_box();
-	dw_draw_texture_fits_height(ob, output_text);
+	dw_draw_texture_fit_h(ob, output_text);
 error:
 	return;
 }
@@ -748,7 +748,7 @@ void draw_input_buffer()
 
 	dw_draw_rectangle(input_box, C_WHITE);
 	SDL_Rect ib = dm_get_stage_ib_text_box();
-	dw_draw_texture_fits_height(ib, input_text);
+	dw_draw_texture_fit_h(ib, input_text);
 }
 
 /* Function: bf_get_buffer_value_box_x_coord_by_id

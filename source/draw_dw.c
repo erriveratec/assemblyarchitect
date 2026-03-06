@@ -111,7 +111,7 @@ void dw_draw_rotated_texture_fits_h(int x, int y, int h, double angle,
 	}
 }
 
-/* Function: dw_draw_texture_fits_height
+/* Function: dw_draw_texture_fit_h
  * -----------------------------------------------------------------------------
  * Draws a texture scaling it correctly to a given height
  * 
@@ -122,7 +122,7 @@ void dw_draw_rotated_texture_fits_h(int x, int y, int h, double angle,
  * Return:
  *	SUCCESS or FAIL
  */
-int dw_draw_texture_fits_height(SDL_Rect r, texture_t *t)
+int dw_draw_texture_fit_h(SDL_Rect r, texture_t *t)
 {
 	assert(r.h > 0 && "The height value is invalid");
 	assert(t != NULL && "The texture pointer cannot be NULL");
@@ -133,6 +133,41 @@ int dw_draw_texture_fits_height(SDL_Rect r, texture_t *t)
 	SDL_Rect d;
 
 	d.x = r.x;
+	d.y = r.y;
+	d.w =(int)w;
+	d.h = r.h;
+	
+	if (SDL_RenderCopy(g_renderer, t->texture, NULL, &d) < 0){
+		printf("Texture could not be copied SDL_Error: %s\n", 
+				SDL_GetError());
+		return FAIL;
+	}
+	return SUCCESS;
+}
+
+/* Function: dw_draw_texture_fit_h
+ * -----------------------------------------------------------------------------
+ * Draws a texture scaling it correctly to a given height
+ * 
+ * Arguments:
+ *	r: rectangle position of the texture, height value will be used
+ *	t: texture object that is going to be drawn.
+ *
+ * Return:
+ *	SUCCESS or FAIL
+ */
+int dw_draw_texture_center_fit_h(SDL_Rect r, texture_t *t)
+{
+	assert(r.h > 0 && "The height value is invalid");
+	assert(t != NULL && "The texture pointer cannot be NULL");
+	
+
+	// The scaling of the image resolution
+	float w = (float) (t->w * r.h)/t->h;
+
+	SDL_Rect d;
+
+	d.x = r.x + r.w/2 - (int)w/2;
 	d.y = r.y;
 	d.w =(int)w;
 	d.h = r.h;
@@ -459,7 +494,7 @@ void dw_draw_wrapped_texture_by_h(SDL_Rect r, int h, texture_array_t *a)
 		int w = ax_get_texture_w_fit_h(h, a->t[i]);
 		int x_pos = r.x + (r.w - w)/2;
 		SDL_Rect r = {.x = x_pos, .y = y_pos, .w = r.w, .h = h};
-		dw_draw_texture_fits_height(r, a->t[i]);
+		dw_draw_texture_fit_h(r, a->t[i]);
 		y_pos += y_offset;
 	}	 
 error:
@@ -519,7 +554,7 @@ void dw_draw_rectangle(SDL_Rect r, SDL_Color c)
 	SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
 }
 
-/* Function: dw_ draw_filled_rectangle
+/* Function: dw_draw_filled_rectangle
  *----------------------------------------------------------------------------- 
  * Draw rectangle with filled content, a color for tthe outline can be 
  * specified

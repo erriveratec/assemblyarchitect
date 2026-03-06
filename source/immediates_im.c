@@ -296,7 +296,7 @@ static void draw_imm_txt_up()
 	int y = 2*vb.h;
 
 	SDL_Rect r = {.x = x, .y = y, .h = text_h};
-	dw_draw_texture_fits_height(r, g_imm_txt);
+	dw_draw_texture_fit_h(r, g_imm_txt);
 }
 
 

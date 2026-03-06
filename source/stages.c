@@ -61,7 +61,6 @@ static void rst_btn_hdl(int level_id, level_flags_t *f);
 
 
 
-
 /* Function: reset_level_flags
  * -------------------------------------
  * Arguments:
