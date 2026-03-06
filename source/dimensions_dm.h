@@ -34,6 +34,7 @@ int dm_get_w_stage_rail_end();
 int dm_get_w_borders();
 int dm_get_w_miss_op();
 int dm_get_h_player_name();
+int dm_get_h_player_lore();
 
 SDL_Rect dm_get_studio_name_msg_box();
 SDL_Rect dm_get_game_title_box(char *title);
@@ -93,6 +94,7 @@ int dm_get_ofs_iface_border();
 int dm_get_ofs_button_shadow();
 int dm_get_ofs_iface_filled_border();
 int dm_get_ofs_player_name();
+int dm_get_ofs_player_lore();
 int dm_get_ofs_player_dark_plate();
 
 float dm_get_hover_scale();

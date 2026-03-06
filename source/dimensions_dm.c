@@ -50,6 +50,8 @@
 #define P_BUTTON_Y 425
 #define P_NAME_OFS 80
 #define P_NAME_H 50
+#define P_LORE_H 35
+#define P_LORE_OFS 18
 #define P_DARK_PLATE_OFS 6
 
 #define CODE_BUTTON_W 90
@@ -1812,6 +1814,21 @@ int dm_get_ofs_player_name()
 	return dm_scale_to_resolution(P_NAME_OFS);
 }
 
+/* Function: dm_get_ofs_player_lore
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset value.
+ */
+int dm_get_ofs_player_lore()
+{
+	return dm_scale_to_resolution(P_LORE_OFS);
+}
+
 /* Function: dm_get_ofs_player_dark_plate
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object.
@@ -1843,6 +1860,20 @@ int dm_get_h_player_name()
 	return dm_scale_to_resolution(P_NAME_H);
 }
 
+/* Function: dm_get_h_player_lore
+ * -----------------------------------------------------------------------------
+ * Returns the text height of the player name.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the height of the player name.
+ */
+int dm_get_h_player_lore()
+{
+	return dm_scale_to_resolution(P_LORE_H);
+}
 /* Function: dm_get_press_space_box
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object.

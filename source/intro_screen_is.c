@@ -21,9 +21,9 @@ char *SELECT_LEVEL_TEXT = "Select Level";
 char *PLAYER_1_TEXT = "EXECUTOR X";
 char *PLAYER_2_TEXT = "OPERATIVE Y";
 char *PLAYER_3_TEXT = "HANDLER Z";
-char *P1_SUBTEXT = "Cross-Branch Executor";
-char *P2_SUBTEXT = "Yield-Loop Operative";
-char *P3_SUBTEXT = "Zero-Flag Handler";
+char *P1_LORETEXT = "Cross-Branch Executor";
+char *P2_LORETEXT = "Yield-Loop Operative";
+char *P3_LORETEXT = "Zero-Flag Handler";
 
 
 static const Uint32 STUDIO_SCREEN_DELAY_MS = 2500; 
@@ -329,7 +329,10 @@ int stage_select_player()
 	static texture_t *p1_text = NULL;
 	static texture_t *p2_text = NULL;
 	static texture_t *p3_text = NULL;
-	
+	static texture_t *p1_lore = NULL;
+	static texture_t *p2_lore = NULL;
+	static texture_t *p3_lore = NULL;
+
 	int ret_val = LV_SELECT_PLAYER_SCREEN;
 	bool player_chosen = false;
 	int W = dm_get_screen_width();
@@ -358,6 +361,13 @@ int stage_select_player()
 		check_mem(p2_text);
 		p3_text = dw_create_text_texture(PLAYER_3_TEXT, C_SILVERGREY);
 		check_mem(p3_text);
+
+		p1_lore = dw_create_text_texture(P1_LORETEXT, C_SILVERGREY);
+		check_mem(p1_lore);
+		p2_lore = dw_create_text_texture(P2_LORETEXT, C_SILVERGREY);
+		check_mem(p2_lore);
+		p3_lore = dw_create_text_texture(P3_LORETEXT, C_SILVERGREY);
+		check_mem(p3_lore);
 		
 		player_1 = bt_create_iface_btn(p1_box, g_playerx, true);
 		check_mem(player_1);
@@ -397,7 +407,7 @@ int stage_select_player()
 	SDL_Rect dark_plate_2 = ax_pad_rectangle(p2_box, plate_ofs, false);
 	SDL_Rect dark_plate_3 = ax_pad_rectangle(p3_box, plate_ofs, false);
 	SDL_Color bg_plate = C_BLACK;
-	bg_plate.a = 60;
+	bg_plate.a = 140;
 	dw_draw_filled_rectangle(dark_plate_1, bg_plate, bg_plate);
 	dw_draw_filled_rectangle(dark_plate_2, bg_plate, bg_plate);
 	dw_draw_filled_rectangle(dark_plate_3, bg_plate, bg_plate);
@@ -416,10 +426,24 @@ int stage_select_player()
 	dw_draw_texture_center_fit_h(p2_box, p2_text);
 	dw_draw_texture_center_fit_h(p3_box, p3_text);
 	
+	int lore_ofs = dm_get_ofs_player_lore();
+	int lore_h = dm_get_h_player_lore();
+	p1_box.y += (p1_box.h + lore_ofs);
+	p1_box.h = lore_h;
+	p2_box.y += (p2_box.h + lore_ofs);
+	p2_box.h = lore_h;
+	p3_box.y += (p3_box.h + lore_ofs);
+	p3_box.h = lore_h;
+
+	dw_draw_texture_center_fit_h(p1_box, p1_lore);
+	dw_draw_texture_center_fit_h(p2_box, p2_lore);
+	dw_draw_texture_center_fit_h(p3_box, p3_lore);
+
+
+
 	bt_draw_iface_btn(player_1);
 	bt_draw_iface_btn(player_2);
 	bt_draw_iface_btn(player_3);
-
 
 	bool escape_menu = sb_get_escape_menu_state();
 	if (escape_menu == true){
