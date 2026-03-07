@@ -31,6 +31,24 @@ texture_t *g_arrow = NULL;
 static void draw_text(int x, int y, float s, SDL_Color c, char *t);
 static int draw_scaled_texture(int x, int y, float s, texture_t *t);
 
+/* Function: dw_draw_inner_shadow_lines
+ * -----------------------------------------------------------------------------
+ * Draws a rectangle of inner shadow lines and two colors
+ * 
+ * Arguments:
+ *	r: The box where the rectangle will be drawn
+ * 	top_left: The color for the top left lines
+ * 	bottom_right: The color of the bottom right lines
+ *	 
+ * Return:
+ *	Void.
+ */
+void dw_draw_inner_shadow_lines(SDL_Rect r, 
+								SDL_Color top_left, 
+								SDL_Color bottom_right)
+{
+}
+
 /* Function: dw_draw_thick_rect
  * -----------------------------------------------------------------------------
  * Draws a rectangle with a given thickness
