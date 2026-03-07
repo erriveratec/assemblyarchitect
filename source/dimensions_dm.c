@@ -47,11 +47,11 @@
 
 #define P_BUTTON_H 280
 #define P_BUTTON_W 280
-#define P_BUTTON_Y 425
+#define P_BUTTON_Y 405
 #define P_NAME_OFS 80
 #define P_NAME_H 50
 #define P_LORE_H 35
-#define P_LORE_OFS 18
+#define P_LORE_OFS 22
 #define P_DARK_PLATE_OFS 6
 
 #define CODE_BUTTON_W 90
@@ -90,7 +90,8 @@
 #define H_PADDING 10
 #define BUT_PADDING 25
 
-#define IFACE_BUTTON_BORDER_W 5 // Used for the buttons
+#define IFACE_BUTTON_SPACE_W 7 // Used for the buttons
+#define IFACE_BUTTON_OUTER_W 3 //Outer width of the iface button
 #define IFACE_FILLED_OFS 20 // Used for Interface Messages
 #define BUTTON_SHADOW_OFS 10 // The shadow of iface buttons
 #define SCREEN_BORDERS_OFS 2
@@ -294,9 +295,24 @@ int dm_get_ofs_iface_filled_border()
  * Return:
  *	The offset that will be use of the rectangle padding of the interface
  */
-int dm_get_ofs_iface_border()
+int dm_get_w_iface_space_border()
 {
-	return dm_scale_to_resolution(IFACE_BUTTON_BORDER_W);
+	return dm_scale_to_resolution(IFACE_BUTTON_SPACE_W);
+}
+
+/* Function: dm_get_ofs_outer_border
+ * -----------------------------------------------------------------------------
+ *	Returns the interfacer border space that will be use for interface buttons
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	The offset that will be use of the rectangle padding of the interface
+ */
+int dm_get_w_iface_outer_border()
+{
+	return dm_scale_to_resolution(IFACE_BUTTON_OUTER_W);
 }
 
 /* Function: dm_get_screen_height
@@ -486,7 +502,7 @@ int dm_get_h_padding()
 int dm_get_w_button_padding()
 {
 	return dm_scale_to_resolution(W_PADDING) + 
-	       dm_scale_to_resolution(IFACE_BUTTON_BORDER_W);
+	       dm_scale_to_resolution(IFACE_BUTTON_SPACE_W);
 }
 
 /* Function: dm_get_h_but_padding
@@ -502,7 +518,7 @@ int dm_get_w_button_padding()
 int dm_get_h_button_padding()
 {
 	return dm_scale_to_resolution(H_PADDING) + 
-		   dm_scale_to_resolution(IFACE_BUTTON_BORDER_W);
+		   dm_scale_to_resolution(IFACE_BUTTON_SPACE_W);
 }
 
 

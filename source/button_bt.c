@@ -163,7 +163,7 @@ void bt_draw_iface_btn(iface_btn_t *b)
 	SDL_Rect box = b->r;
  	bool hover = chk_mouse_click_hover_btn(b);
 	bool clicked = bt_chk_mouse_click_iface_btn(b);
-	int offset = dm_get_ofs_iface_border();
+	int offset = dm_get_w_iface_space_border();
 	int shadow_offset = dm_get_ofs_button_shadow();	
 	
 	if (hover == true){
@@ -185,7 +185,6 @@ void bt_draw_iface_btn(iface_btn_t *b)
 						   .h = b->r.h};
 		dw_draw_filled_rectangle(shadow, C_DARKGREY, C_DARKGREY);
 		dw_draw_filled_rectangle(b->r, C_BLACK, C_GREY);
-		int offset = dm_get_ofs_iface_border();
 		SDL_Rect in = ax_pad_rectangle(b->r, offset, true);
 		dw_draw_rectangle(in, C_GREY);
 
@@ -229,10 +228,13 @@ void bt_draw_iface_btn(iface_btn_t *b)
 					   	   .w = box.w, 
 						   .h = box.h};
 		dw_draw_filled_rectangle(shadow, C_DARKGREY, C_DARKGREY);
-		dw_draw_filled_rectangle(box, C_BLACK, C_WHITE);
-		int offset = dm_get_ofs_iface_border();
+		
+		int outer_border = dm_get_w_iface_outer_border();
+		dw_draw_thick_rect(box, outer_border, C_WHITE);
+
 		SDL_Rect in = ax_pad_rectangle(box, offset, true);
-		dw_draw_rectangle(in, C_WHITE);
+		dw_draw_filled_rectangle(in, C_NEARBLACK, C_WHITE);
+		
 		float scale_w = (float)(box.w - 2*w_pad)/b->t->w;
 		float scale_h = (float)(box.h - 2*h_pad)/b->t->h;
 		
@@ -272,11 +274,10 @@ void bt_draw_iface_btn_nopad(iface_btn_t *b)
 	dw_draw_filled_rectangle(shadow, C_DARKGREY, C_DARKGREY);
 
 	bool clicked = bt_chk_mouse_click_iface_btn(b);
-	int offset = dm_get_ofs_iface_border();
+	int offset = dm_get_w_iface_space_border();
 	
 	if (b->enabled == false){
 		dw_draw_filled_rectangle(b->r, C_BLACK, C_GREY);
-		int offset = dm_get_ofs_iface_border();
 		SDL_Rect in = ax_pad_rectangle(b->r, offset, true);
 		dw_draw_rectangle(in, C_GREY);
 	} else if (clicked == true){
@@ -285,7 +286,6 @@ void bt_draw_iface_btn_nopad(iface_btn_t *b)
 		dw_draw_filled_rectangle(in, C_BLACK, C_WHITE);
 	} else {
 		dw_draw_filled_rectangle(b->r, C_BLACK, C_WHITE);
-		int offset = dm_get_ofs_iface_border();
 		SDL_Rect in = ax_pad_rectangle(b->r, offset, true);
 		dw_draw_rectangle(in, C_WHITE);
 	}

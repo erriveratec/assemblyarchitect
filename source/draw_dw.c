@@ -11,6 +11,7 @@
 
 SDL_Color C_WHITE = {255,255,255,255};
 SDL_Color C_BLACK = {0, 0, 0, 255};
+SDL_Color C_NEARBLACK = {12, 12, 12, 255};
 SDL_Color C_RED = {255, 0, 0, 255};
 SDL_Color C_BLUE = {0, 0, 255, 255};
 SDL_Color C_ORANGE = {0xF8, 0x71, 0x3A, 255};

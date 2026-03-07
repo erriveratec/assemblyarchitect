@@ -38,6 +38,7 @@ void dw_draw_thick_rect(SDL_Rect r, int w, SDL_Color c);
 
 extern SDL_Color C_WHITE;
 extern SDL_Color C_BLACK;
+extern SDL_Color C_NEARBLACK;
 extern SDL_Color C_RED;
 extern SDL_Color C_ORANGE;
 extern SDL_Color C_CYAN;

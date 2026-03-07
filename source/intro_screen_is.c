@@ -362,11 +362,11 @@ int stage_select_player()
 		p3_text = dw_create_text_texture(PLAYER_3_TEXT, C_SILVERGREY);
 		check_mem(p3_text);
 
-		p1_lore = dw_create_text_texture(P1_LORETEXT, C_SILVERGREY);
+		p1_lore = dw_create_text_texture(P1_LORETEXT, C_GREY);
 		check_mem(p1_lore);
-		p2_lore = dw_create_text_texture(P2_LORETEXT, C_SILVERGREY);
+		p2_lore = dw_create_text_texture(P2_LORETEXT, C_GREY);
 		check_mem(p2_lore);
-		p3_lore = dw_create_text_texture(P3_LORETEXT, C_SILVERGREY);
+		p3_lore = dw_create_text_texture(P3_LORETEXT, C_GREY);
 		check_mem(p3_lore);
 		
 		player_1 = bt_create_iface_btn(p1_box, g_playerx, true);
@@ -382,8 +382,8 @@ int stage_select_player()
 	float dt=(cur_time - anim_prev_ms)/1000.0f;
 	anim_prev_ms = cur_time;
 	SDL_Rect b = dm_get_upper_title_box(SELECT_PLAYER_TEXT);
-	fx_electron_update(fx, dt);
-    fx_electron_render(fx, g_renderer);
+	//fx_electron_update(fx, dt);
+   // fx_electron_render(fx, g_renderer);
 	
 	if (title_done == false && (cur_time - last_type_ms) >= TYPE_DELAY_MS){
 		last_type_ms = cur_time;

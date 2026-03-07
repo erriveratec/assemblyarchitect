@@ -35,6 +35,8 @@ int dm_get_w_borders();
 int dm_get_w_miss_op();
 int dm_get_h_player_name();
 int dm_get_h_player_lore();
+int dm_get_w_iface_space_border();
+int dm_get_w_iface_outer_border();
 
 SDL_Rect dm_get_studio_name_msg_box();
 SDL_Rect dm_get_game_title_box(char *title);
@@ -90,7 +92,6 @@ int dm_get_ofs_between_value_box();
 int dm_get_ofs_reg_value_box();
 int dm_get_ofs_bet_regs();
 int dm_get_ofs_space_stage_buttons();
-int dm_get_ofs_iface_border();
 int dm_get_ofs_button_shadow();
 int dm_get_ofs_iface_filled_border();
 int dm_get_ofs_player_name();
