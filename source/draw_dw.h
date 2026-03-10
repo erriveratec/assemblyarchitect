@@ -44,6 +44,7 @@ void dw_draw_inner_shadow_lines(SDL_Rect r,
 extern SDL_Color C_WHITE;
 extern SDL_Color C_BLACK;
 extern SDL_Color C_NEARBLACK;
+extern SDL_Color C_SOFTBLACK;
 extern SDL_Color C_RED;
 extern SDL_Color C_ORANGE;
 extern SDL_Color C_CYAN;

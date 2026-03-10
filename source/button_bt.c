@@ -169,7 +169,7 @@ void bt_draw_iface_btn(iface_btn_t *b)
 	if (hover == true){
 		float h_ofs = dm_get_hover_scale();
 		box.x -= (int)(h_ofs * (float)box.w);
-		box.y -= (int)(h_ofs * (float)box.h);
+		box.y -= (int)(h_ofs * (float)box.h) + 4;
 		box.w += (int)(2*h_ofs * (float)box.w);
 		box.h += (int)(2*h_ofs * (float)box.h);
 
@@ -179,11 +179,6 @@ void bt_draw_iface_btn(iface_btn_t *b)
 	int h_pad = dm_get_h_button_padding();
 
 	if (b->enabled == false){
-		SDL_Rect shadow = {.x = b->r.x + dm_get_ofs_button_shadow(), 
-						   .y = b->r.y + dm_get_ofs_button_shadow(),
-					   	   .w = b->r.w, 
-						   .h = b->r.h};
-		dw_draw_filled_rectangle(shadow, C_DARKGREY, C_DARKGREY);
 		dw_draw_filled_rectangle(b->r, C_BLACK, C_GREY);
 		SDL_Rect in = ax_pad_rectangle(b->r, offset, true);
 		dw_draw_rectangle(in, C_GREY);
@@ -205,7 +200,7 @@ void bt_draw_iface_btn(iface_btn_t *b)
 						   .y = box.y + shadow_offset,
 					   	   .w = box.w, 
 						   .h = box.h};
-		dw_draw_filled_rectangle(shadow, C_DARKGREY, C_DARKGREY);
+		dw_draw_filled_rectangle(shadow, C_DIMGREY, C_DIMGREY);
 		dw_draw_filled_rectangle(box, C_WHITE, C_WHITE);
 		SDL_Rect in = ax_pad_rectangle(box, offset, true);
 		dw_draw_filled_rectangle(in, C_NEARBLACK, C_WHITE);
@@ -227,14 +222,26 @@ void bt_draw_iface_btn(iface_btn_t *b)
 						   .y = box.y + shadow_offset,
 					   	   .w = box.w, 
 						   .h = box.h};
-		dw_draw_filled_rectangle(shadow, C_DARKGREY, C_DARKGREY);
+		dw_draw_filled_rectangle(shadow, C_DIMGREY, C_DIMGREY);
 		
 		int outer_border = dm_get_w_iface_outer_border();
 		dw_draw_thick_rect(box, outer_border, C_WHITE);
 
 		SDL_Rect in = ax_pad_rectangle(box, offset, true);
-		dw_draw_filled_rectangle(in, C_NEARBLACK, C_WHITE);
+		if (hover == true){
+			dw_draw_filled_rectangle(in, C_SOFTBLACK, C_LIGHTGREY);
+		} else {
+			dw_draw_filled_rectangle(in, C_NEARBLACK, C_LIGHTGREY);
+		}
 		
+		in = ax_pad_rectangle(in, 1, true);
+		dw_draw_inner_shadow_lines(in, C_GREY, C_SILVERGREY);
+		in = ax_pad_rectangle(in, 1, true);
+		dw_draw_inner_shadow_lines(in, C_GREY, C_SILVERGREY);
+		if (hover == true){
+			in = ax_pad_rectangle(in, 1, true);
+			dw_draw_inner_shadow_lines(in, C_GREY, C_SILVERGREY);
+		}
 		float scale_w = (float)(box.w - 2*w_pad)/b->t->w;
 		float scale_h = (float)(box.h - 2*h_pad)/b->t->h;
 		

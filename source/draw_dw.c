@@ -11,7 +11,6 @@
 
 SDL_Color C_WHITE = {255,255,255,255};
 SDL_Color C_BLACK = {0, 0, 0, 255};
-SDL_Color C_NEARBLACK = {12, 12, 12, 255};
 SDL_Color C_RED = {255, 0, 0, 255};
 SDL_Color C_BLUE = {0, 0, 255, 255};
 SDL_Color C_ORANGE = {0xF8, 0x71, 0x3A, 255};
@@ -24,6 +23,8 @@ SDL_Color C_LIGHTGREY = {234, 234, 234, 255};
 SDL_Color C_GREY = {127, 127, 127, 255};
 SDL_Color C_DIMGREY = {64, 64, 64, 255};
 SDL_Color C_DARKGREY = {31, 31, 31, 255};
+SDL_Color C_SOFTBLACK = {20, 20, 20, 255};
+SDL_Color C_NEARBLACK = {16, 16, 16, 255};
 SDL_Color C_AMBER = {0xFF, 0xBF, 0x00, 255};
 
 texture_t *g_arrow = NULL;
@@ -47,6 +48,27 @@ void dw_draw_inner_shadow_lines(SDL_Rect r,
 								SDL_Color top_left, 
 								SDL_Color bottom_right)
 {
+	SDL_SetRenderDrawColor(g_renderer, 
+						   top_left.r, 	
+						   top_left.g, 
+						   top_left.b, 
+						   255);
+	SDL_RenderDrawLine(g_renderer, r.x, r.y, r.x + r.w - 1, r.y);
+	SDL_RenderDrawLine(g_renderer, r.x, r.y, r.x, r.y + r.h - 1);
+	SDL_SetRenderDrawColor(g_renderer, 
+						   bottom_right.r, 	
+						   bottom_right.g, 
+						   bottom_right.b, 
+						   255);
+	SDL_RenderDrawLine(g_renderer, r.x + r.w - 1, 
+								   r.y, 
+								   r.x + r.w - 1, 
+								   r.y + r.h - 1);
+	SDL_RenderDrawLine(g_renderer, r.x, 
+								   r.y + r.h - 1, 
+								   r.x + r.w - 1, 
+								   r.y + r.h - 1);
+	SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
 }
 
 /* Function: dw_draw_thick_rect

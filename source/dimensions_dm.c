@@ -93,7 +93,7 @@
 #define IFACE_BUTTON_SPACE_W 7 // Used for the buttons
 #define IFACE_BUTTON_OUTER_W 3 //Outer width of the iface button
 #define IFACE_FILLED_OFS 20 // Used for Interface Messages
-#define BUTTON_SHADOW_OFS 10 // The shadow of iface buttons
+#define BUTTON_SHADOW_OFS 5 // The shadow of iface buttons
 #define SCREEN_BORDERS_OFS 2
 
 #define BORDERS_WIDTH 5 //Used for the interface boxes

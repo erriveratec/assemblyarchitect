@@ -187,15 +187,13 @@ LEVEL ACTIVE TRUE
 
 CODE STARTS
 line 01
-line 01
 MOV rax, [ib]
 CMP rax, IMMUP0
-JE 09
+JE 07
 CMP rax, IMMUP7
-JNE 01
+JNE 00
 MOV [ob], rax
-JMP 00
-line 08
+line 07
 CODE ENDS
 
 +++LEVEL ENDS 15
@@ -659,15 +657,13 @@ LEVEL ACTIVE TRUE
 
 CODE STARTS
 line 01
-line 01
 MOV rax, [ib]
 CMP rax, IMMUP0
-JE 09
+JE 07
 CMP rax, IMMUP7
-JNE 01
+JNE 00
 MOV [ob], rax
-JMP 00
-line 08
+line 07
 CODE ENDS
 
 +++LEVEL ENDS 15
@@ -1131,15 +1127,13 @@ LEVEL ACTIVE TRUE
 
 CODE STARTS
 line 01
-line 01
 MOV rax, [ib]
 CMP rax, IMMUP0
-JE 09
+JE 07
 CMP rax, IMMUP7
-JNE 01
+JNE 00
 MOV [ob], rax
-JMP 00
-line 08
+line 07
 CODE ENDS
 
 +++LEVEL ENDS 15
