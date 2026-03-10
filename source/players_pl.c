@@ -9,16 +9,29 @@ static inline void setc(SDL_Renderer* r, SDL_Color c){
     SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(r, c.r, c.g, c.b, c.a);
 }
-static void fill_cell(SDL_Renderer* r, int ox, int oy, int cs,
-                      int cx, int cy, int cw, int ch, SDL_Color col){
+static void fill_cell(SDL_Renderer* r, 
+					  int ox, 
+					  int oy, 
+					  int cs,
+					  int cx, 
+					  int cy, 
+					  int cw, 
+					  int ch, 
+						 SDL_Color col){
     SDL_Rect rr = { ox + cx*cs, oy + cy*cs, cw*cs, ch*cs };
-    setc(r, col); SDL_RenderFillRect(r, &rr);
+    setc(r, col); 
+	SDL_RenderFillRect(r, &rr);
 }
 
 // ============================================================================
 // Glyphs (5x5) — complex but blocky, for 7x7 sign inner field with padding
 // ============================================================================
-static const unsigned char G5_X[5][5]={{1,0,1,0,1},{0,1,0,1,0},{0,0,1,0,0},{0,1,0,1,0},{1,0,1,0,1}};
+static const unsigned char G5_X[5][5]={{1,0,0,0,1},
+									   {0,1,0,1,0},
+									   {0,0,1,0,0},
+									   {0,1,0,1,0},
+									   {1,0,0,0,1}};
+
 static const unsigned char G5_Y[5][5]={{1,0,0,0,1},{0,1,0,1,0},{0,0,1,0,0},{0,0,1,0,0},{0,0,1,0,0}};
 static const unsigned char G5_Z[5][5]={{1,1,1,1,1},{0,0,0,0,1},{0,0,1,1,1},{0,1,0,0,0},{1,1,1,1,1}};
 static const unsigned char (*glyph5_for(char L))[5]{
@@ -30,23 +43,24 @@ static const unsigned char (*glyph5_for(char L))[5]{
 // ============================================================================
 static void body_wide(SDL_Renderer* r,int ox,int oy,int cs, SDL_Color fg){
     // head + neck
-    fill_cell(r,ox,oy,cs, 4,2, 2,2, fg);  // 2x2 head
+    fill_cell(r,ox,oy,cs, 4,1, 3,3, fg);  // 2x2 head
     fill_cell(r,ox,oy,cs, 5,4, 1,1, fg);  // 1x1 neck
     // shoulders shelf
-    fill_cell(r,ox,oy,cs, 3,5, 4,1, fg);
-    fill_cell(r,ox,oy,cs, 3,6, 5,1, fg);
+    fill_cell(r,ox,oy,cs, 3,5, 5,1, fg);
+    fill_cell(r,ox,oy,cs, 2,6, 7,1, fg);
     // chest + waist
-    fill_cell(r,ox,oy,cs, 4,7, 3,3, fg);  // 3x3 chest
-    fill_cell(r,ox,oy,cs, 4,10,3,2, fg);  // 3x2 waist
+    fill_cell(r,ox,oy,cs, 3,7, 5,6, fg);  // 3x3 chest
     // legs + feet
-    fill_cell(r,ox,oy,cs, 4,12,1,6, fg);
-    fill_cell(r,ox,oy,cs, 6,12,1,6, fg);
-    fill_cell(r,ox,oy,cs, 4,18,2,1, fg);  // 2x1 feet (grounded)
-    // arms (left down; right stepped toward pole)
-    fill_cell(r,ox,oy,cs, 3,9,1,5, fg);
-    fill_cell(r,ox,oy,cs, 7,8,1,2, fg);
-    fill_cell(r,ox,oy,cs, 8,9,1,1, fg);
-    fill_cell(r,ox,oy,cs, 9,10,1,1, fg);
+    fill_cell(r,ox,oy,cs, 3,13,1,6, fg);
+    fill_cell(r,ox,oy,cs, 2,19,2,1, fg);
+    fill_cell(r,ox,oy,cs, 7,13,1,6, fg);
+    fill_cell(r,ox,oy,cs, 7,19,2,1, fg);
+  //   arms (left down; right stepped toward pole)
+     fill_cell(r,ox,oy,cs, 1,7,1,6, fg);
+     fill_cell(r,ox,oy,cs, 9,7,1,1, fg);
+     fill_cell(r,ox,oy,cs, 10,8,2,1, fg);
+     fill_cell(r,ox,oy,cs, 12,7,1,1, fg);
+     fill_cell(r,ox,oy,cs, 13,6,1,1, fg);
 }
 
 static void body_med(SDL_Renderer* r,int ox,int oy,int cs, SDL_Color fg){
@@ -81,7 +95,8 @@ static void draw_sign(SDL_Renderer* r,int ox,int oy,int cs,
     if(opts & AA_OPT_LIFT) oy -= 2; // pixel-safe lift for entire figure
 
     // Board anchor relative to body origin
-    const int bx = 12, by = 4; // 9x9 outer board starts here
+    const int bx = 10, 
+	by = -5; // 9x9 outer board starts here
 
     // Pole (attached to bottom frame)
     SDL_Color poleC = fg; if(opts & AA_OPT_DIM) poleC.a = 140;
@@ -101,8 +116,8 @@ static void draw_sign(SDL_Renderer* r,int ox,int oy,int cs,
     // 5x5 glyph centered in 7x7 → starts at (bx+2, by+2). Blink + afterglow unless DIM.
     const unsigned char (*G)[5] = glyph5_for(letter);
     int on = 1; if(!(opts & AA_OPT_DIM)){ float ph = fmodf(t, 1.0f); on = (ph < 0.65f); }
-    SDL_Color gcol = (opts & AA_OPT_INVERT) ? (SDL_Color){ plate.r, plate.g, plate.b, plate.a }
-                                            : fg;
+    SDL_Color gcol = (opts & AA_OPT_INVERT) ? (SDL_Color)
+	{ plate.r, plate.g, plate.b, plate.a } : fg;
     gcol.a = (opts & AA_OPT_DIM) ? 120 : (on ? 255 : 70);
     for(int yy=0; yy<5; yy++)
         for(int xx=0; xx<5; xx++)

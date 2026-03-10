@@ -1,7 +1,7 @@
 vim -c ":edit main.c |
 tabnew intro_screen_is.c | vsplit intro_screen_is.h | 
 tabnew stages.c | vsplit stages.h | 
-tabnew players_pl.c | vsplit players_pl.h | 
+tabnew electron_fx.c | vsplit electron_fx.h | 
 tabnew game_mechanics_mc.c | vsplit game_mechanics_mc.h | 
 tabnew levels_lv.c | vsplit levels_lv.h | 
 tabnew stage_buttons_sb.c | vsplit stage_buttons_sb.h |
@@ -21,5 +21,4 @@ tabnew draw_dw.c | vsplit draw_dw.h |
 tabnew mouse_ms.c | vsplit mouse_ms.h |
 tabnew immediates_im.c | vsplit immediates_im.h |
 tabnew help_hp.c | vsplit help_hp.h |
-tabnew dimensions_dm.c | vsplit dimensions_dm.h |
-tabnew electron_fx.c | vsplit electron_fx.h " 
+tabnew dimensions_dm.c | vsplit dimensions_dm.h"

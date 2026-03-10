@@ -254,27 +254,7 @@ int load_media()
 		return FAIL;
 	}
 
-	g_playerx = load_texture_from_file("img/players/x.png");
-	if (g_playerx == NULL){
-		printf("Could not load the level image SDL_Error: %s\n",
-				SDL_GetError());
-		return FAIL;
-	}
-
-	g_playery = load_texture_from_file("img/players/y.png");
-	if (g_playery == NULL){
-		printf("Could not load the level image SDL_Error: %s\n",
-				SDL_GetError());
-		return FAIL;
-	}
-
-	g_playerz = load_texture_from_file("img/players/z.png");
-	if (g_playerz == NULL){
-		printf("Could not load the level image SDL_Error: %s\n",
-				SDL_GetError());
-		return FAIL;
-	}
-		//Open the font
+	//Open the font
 	g_font = TTF_OpenFont("DOSVGA437.ttf", 130); //96 old value point size
 	if (NULL == g_font){
 		printf("Failed to load font! SDL_ttf Error: %s\n", 

@@ -12,6 +12,7 @@
 #include "electron_fx.h"
 #include "sdl_config.h"
 #include"text_tx.h"
+#include"players_pl.h"
 
 const char *STUDIO = "One Man Studio";
 char *GAME_TITLE = "ASSEMBLY ARCHITECT";
@@ -25,7 +26,6 @@ char *P1_LORETEXT = "Cross-Branch Executor";
 char *P2_LORETEXT = "Yield-Loop Operative";
 char *P3_LORETEXT = "Zero-Flag Handler";
 
-
 static const Uint32 STUDIO_SCREEN_DELAY_MS = 2500; 
 static const Uint32 FADE_MS = 1250;
 static const Uint32 TYPE_DELAY_MS = 90;  
@@ -34,9 +34,9 @@ static const Uint32 CHIP_FADE_MS = 1000;   // ~1s fade
 texture_t *g_press_space = NULL;
 texture_t *g_chip = NULL;
 texture_t *g_logo = NULL;
-texture_t *g_playerx = NULL;
-texture_t *g_playery = NULL;
-texture_t *g_playerz = NULL;
+
+
+
 
 static void create_select_level_buttons(iface_btn_t **buttons, bool *levels);
 
@@ -79,7 +79,6 @@ static void create_select_level_buttons(iface_btn_t **buttons, bool *levels)
 		}
 	}
 }
-
 
 
 /* Function: stage_select_level
@@ -307,6 +306,24 @@ int stage_title(const Uint8 *keystate)
 }
 
 
+/* Function: create_player_btns
+ * -----------------------------------------------------------------------------
+ * Creates the player buttons of the level
+ * 	
+ * Arguments:
+ * 	buttons_array: an array of buttons that will be created.
+ *  player_levels: the list of levels that the player will have available
+ *
+ * Return:
+ *	void
+ */
+static void create_player_btns(iface_btn_t **buttons)
+{
+	assert(buttons != NULL && "The buttons pointer is NULL");
+	
+}
+
+
 /* Function: stage_select_player
  * ----------------------------------------------------------------------------
  * This function displays the screen where the player is selected
@@ -369,18 +386,26 @@ int stage_select_player()
 		p3_lore = dw_create_text_texture(P3_LORETEXT, C_GREY);
 		check_mem(p3_lore);
 		
-		player_1 = bt_create_iface_btn(p1_box, g_playerx, true);
+		player_1 = bt_create_iface_btn(p1_box, 
+								       dw_create_text_texture(" ", C_BLACK), 
+									   true);
 		check_mem(player_1);
 		
-		player_2 = bt_create_iface_btn(p2_box, g_playery, true);
+		player_2 = bt_create_iface_btn(p2_box, 
+									   dw_create_text_texture(" ", C_BLACK), 
+									   true);
 		check_mem(player_2);
 
-		player_3 = bt_create_iface_btn(p3_box, g_playerz, true);
+		player_3 = bt_create_iface_btn(p3_box, 
+								       dw_create_text_texture(" ", C_BLACK),
+									   true);
 		check_mem(player_3);
 	}
-		
+
+	static float t = 0.0f;
 	float dt=(cur_time - anim_prev_ms)/1000.0f;
 	anim_prev_ms = cur_time;
+	t += dt;
 	SDL_Rect b = dm_get_upper_title_box(SELECT_PLAYER_TEXT);
 	fx_electron_update(fx, dt);
     fx_electron_render(fx, g_renderer);
@@ -439,11 +464,22 @@ int stage_select_player()
 	dw_draw_texture_center_fit_h(p2_box, p2_lore);
 	dw_draw_texture_center_fit_h(p3_box, p3_lore);
 
-
-
 	bt_draw_iface_btn(player_1);
 	bt_draw_iface_btn(player_2);
 	bt_draw_iface_btn(player_3);
+
+	p1_box = dm_get_p1_button_box();
+	p2_box = dm_get_p2_button_box();
+	p3_box = dm_get_p3_button_box();
+	
+	struct Item { AA_FigureType type; int x,y; char L; } A[3] = {
+        {AA_FIG_WIDE, p1_box.x, p1_box.y,'X'},
+        {AA_FIG_MED,  610,240,'Y'},
+        {AA_FIG_SLIM, 960,240,'Z'}
+    };
+	aa_draw_human(g_renderer, A[0].type, A[0].x, A[0].y, 8, C_WHITE, 
+							  C_NEARBLACK, A[0].L, t, AA_OPT_NONE);
+
 
 	bool escape_menu = sb_get_escape_menu_state();
 	if (escape_menu == true){

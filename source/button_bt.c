@@ -7,6 +7,7 @@
 #include "mouse_ms.h"
 
 static bool chk_mouse_click_hover_btn(iface_btn_t *btn);
+static void draw_btn_scaled_texture(SDL_Rect box, iface_btn_t *b);
 
 /* Function: bt_destroy_iface_btn
  *-----------------------------------------------------------------------------
@@ -136,13 +137,45 @@ static bool chk_mouse_click_hover_btn(iface_btn_t *btn)
 iface_btn_t *bt_create_iface_btn(SDL_Rect r, texture_t *t, bool enabled)
 {
 	iface_btn_t *new_button = malloc(sizeof(iface_btn_t));
-
 	new_button->r = r;
 	float scale_w = (float)r.w/t->w;
 	float scale_h = (float)r.h/t->h;
 	new_button->t = t;
 	new_button->enabled = enabled;
 	return new_button;
+}
+
+/* Function: draw_btn_scaled_texture
+ * -----------------------------------------------------------------------------
+ * Scales the texture of the interface button according to whats needed.
+ * If the texture is NULL does not do anything.
+ * 	
+ * Arguments:
+ *	box: The box that will be used to calculate the texture.
+ *	b: The button that contains the texture.
+ *
+ * Return:
+ *	Void.
+ */
+static void draw_btn_scaled_texture(SDL_Rect box, iface_btn_t *b)
+{
+	if (b->t == NULL) return;
+	
+	int w_pad = dm_get_w_button_padding();
+	int h_pad = dm_get_h_button_padding();
+	
+	float scale_w = (float)(b->r.w - 2*w_pad)/b->t->w;
+	float scale_h = (float)(b->r.h - 2*h_pad)/b->t->h;
+
+	if (scale_w < scale_h){
+		int y = box.y + (box.h - b->t->h*scale_w)/2;
+		SDL_Rect r = {.x = box.x + w_pad, .y = y, .w = box.w - 2*w_pad};
+		dw_draw_texture_fits_width(r, b->t);
+	} else {
+		int x = box.x + (box.w - b->t->w*scale_h)/2;
+		SDL_Rect r = {.x = x, .y = box.y + w_pad, .h = box.h - 2*h_pad};
+		dw_draw_texture_fit_h(r, b->t);
+	}
 }
 
 /* Function: bt_draw_iface_btn
@@ -166,7 +199,7 @@ void bt_draw_iface_btn(iface_btn_t *b)
 	int offset = dm_get_w_iface_space_border();
 	int shadow_offset = dm_get_ofs_button_shadow();	
 	
-	if (hover == true){
+	if (hover == true && b->enabled == true){
 		float h_ofs = dm_get_hover_scale();
 		box.x -= (int)(h_ofs * (float)box.w);
 		box.y -= (int)(h_ofs * (float)box.h) + 4;
@@ -175,26 +208,12 @@ void bt_draw_iface_btn(iface_btn_t *b)
 
 		shadow_offset += 2*h_ofs;
 	}
-	int w_pad = dm_get_w_button_padding();
-	int h_pad = dm_get_h_button_padding();
 
 	if (b->enabled == false){
-		dw_draw_filled_rectangle(b->r, C_BLACK, C_GREY);
+		dw_draw_filled_rectangle(box, C_BLACK, C_GREY);
 		SDL_Rect in = ax_pad_rectangle(b->r, offset, true);
 		dw_draw_rectangle(in, C_GREY);
-
-		float scale_w = (float)(b->r.w - 2*w_pad)/b->t->w;
-		float scale_h = (float)(b->r.h - 2*h_pad)/b->t->h;
-		
-		if (scale_w < scale_h){
-			int y = b->r.y + (b->r.h - b->t->h*scale_w)/2;
-			SDL_Rect r = {.x = b->r.x + w_pad, .y = y, .w = b->r.w - 2*w_pad};
-			dw_draw_texture_fits_width(r, b->t);
-		} else {
-			int x = b->r.x + (b->r.w - b->t->w*scale_h)/2;
-			SDL_Rect r = {.x = x, .y = b->r.y + w_pad, .h = b->r.h - 2*h_pad};
-			dw_draw_texture_fit_h(r, b->t);
-		}
+		draw_btn_scaled_texture(box, b);
 	} else if (clicked == true){
 		SDL_Rect shadow = {.x = box.x + shadow_offset, 
 						   .y = box.y + shadow_offset,
@@ -204,19 +223,7 @@ void bt_draw_iface_btn(iface_btn_t *b)
 		dw_draw_filled_rectangle(box, C_WHITE, C_WHITE);
 		SDL_Rect in = ax_pad_rectangle(box, offset, true);
 		dw_draw_filled_rectangle(in, C_NEARBLACK, C_WHITE);
-		
-		float scale_w = (float)(box.w - 2*w_pad)/b->t->w;
-		float scale_h = (float)(box.h - 2*h_pad)/b->t->h;
-		
-		if (scale_w < scale_h){
-			int y = box.y + (box.h - b->t->h*scale_w)/2;
-			SDL_Rect r = {.x = box.x + w_pad, .y = y, .w = box.w - 2*w_pad};
-			dw_draw_texture_fits_width(r, b->t);
-		} else {
-			int x = box.x + (box.w - b->t->w*scale_h)/2;
-			SDL_Rect r = {.x = x, .y = box.y + w_pad, .h = box.h - 2*h_pad};
-			dw_draw_texture_fit_h(r, b->t);
-		}
+		draw_btn_scaled_texture(box, b);
 	} else {
 		SDL_Rect shadow = {.x = box.x + shadow_offset, 
 						   .y = box.y + shadow_offset,
@@ -242,18 +249,7 @@ void bt_draw_iface_btn(iface_btn_t *b)
 			in = ax_pad_rectangle(in, 1, true);
 			dw_draw_inner_shadow_lines(in, C_GREY, C_SILVERGREY);
 		}
-		float scale_w = (float)(box.w - 2*w_pad)/b->t->w;
-		float scale_h = (float)(box.h - 2*h_pad)/b->t->h;
-		
-		if (scale_w < scale_h){
-			int y = box.y + (box.h - b->t->h*scale_w)/2;
-			SDL_Rect r = {.x = box.x + w_pad, .y = y, .w = box.w - 2*w_pad};
-			dw_draw_texture_fits_width(r, b->t);
-		} else {
-			int x = box.x + (box.w - b->t->w*scale_h)/2;
-			SDL_Rect r = {.x = x, .y = box.y + w_pad, .h = box.h - 2*h_pad};
-			dw_draw_texture_fit_h(r, b->t);
-		}
+		draw_btn_scaled_texture(box, b);
 	}
 	
 	assert(status != FAIL && "The texture could not be drawn");
