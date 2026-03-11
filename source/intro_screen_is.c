@@ -31,14 +31,17 @@ static const Uint32 FADE_MS = 1250;
 static const Uint32 TYPE_DELAY_MS = 90;  
 static const Uint32 CHIP_FADE_MS = 1000;   // ~1s fade
 
+static const Uint32 PLAYER_BLOCK_W = 8;
+
+
 texture_t *g_press_space = NULL;
 texture_t *g_chip = NULL;
 texture_t *g_logo = NULL;
 
 
-
-
 static void create_select_level_buttons(iface_btn_t **buttons, bool *levels);
+static void create_player_btns(iface_btn_t **player_btns);
+static void draw_player_texts(texture_t **player_text, texture_t **lore);
 
 /* Function: create_select_level_buttons
  * -----------------------------------------------------------------------------
@@ -317,12 +320,126 @@ int stage_title(const Uint8 *keystate)
  * Return:
  *	void
  */
-static void create_player_btns(iface_btn_t **buttons)
+static void create_player_btns(iface_btn_t **player_btns)
 {
-	assert(buttons != NULL && "The buttons pointer is NULL");
+	assert(player_btns != NULL && "The buttons pointer is NULL");
+	SDL_Rect p1_box = dm_get_p1_button_box();
+	SDL_Rect p2_box = dm_get_p2_button_box();
+	SDL_Rect p3_box = dm_get_p3_button_box();
 	
+	player_btns[0] = bt_create_iface_btn(p1_box, 
+								   dw_create_text_texture(" ", C_BLACK), 
+								   true);
+	
+	player_btns[1] = bt_create_iface_btn(p2_box, 
+								   dw_create_text_texture(" ", C_BLACK), 
+								   true);
+
+	player_btns[2] = bt_create_iface_btn(p3_box, 
+								   dw_create_text_texture(" ", C_BLACK),
+								   true);
 }
 
+/* Function: create_player_texts
+ * -----------------------------------------------------------------------------
+ * Creates the player buttons of the level
+ * 	
+ * Arguments:
+ * 	player_text: The texts with the name of the player
+ *  lore: The lore of each player
+ *
+ * Return:
+ *	void
+ */
+static void create_player_texts(texture_t **player_text, texture_t **lore)
+{
+	assert(player_text != NULL && "The texture is NULL");
+	assert(lore != NULL && "The texture is NULL");
+	
+	player_text[0] = dw_create_text_texture(PLAYER_1_TEXT, C_SILVERGREY);
+	player_text[1] = dw_create_text_texture(PLAYER_2_TEXT, C_SILVERGREY);
+	player_text[2] = dw_create_text_texture(PLAYER_3_TEXT, C_SILVERGREY);
+
+	lore[0] = dw_create_text_texture(P1_LORETEXT, C_GREY);
+	lore[1] = dw_create_text_texture(P2_LORETEXT, C_GREY);
+	lore[2] = dw_create_text_texture(P3_LORETEXT, C_GREY);
+}
+
+/* Function: draw_player_texts
+ * -----------------------------------------------------------------------------
+ * Creates the player buttons of the level
+ * 	
+ * Arguments:
+ * 	player_text: The texts with the name of the player
+ *  lore: The lore of each player
+ *
+ * Return:
+ *	void
+ */
+static void draw_player_texts(texture_t **player_text, texture_t **lore)
+{
+	assert(player_text != NULL && "The texture is NULL");
+	assert(lore != NULL && "The texture is NULL");
+	
+	SDL_Rect p1_box = dm_get_p1_button_box();
+	SDL_Rect p2_box = dm_get_p2_button_box();
+	SDL_Rect p3_box = dm_get_p3_button_box();
+
+	int box_ofs = dm_get_ofs_player_name();
+	int player_h = dm_get_h_player_name();
+	p1_box.y += (p1_box.h + box_ofs);
+	p1_box.h = player_h;
+	p2_box.y += (p2_box.h + box_ofs);
+	p2_box.h = player_h;
+	p3_box.y += (p3_box.h + box_ofs);
+	p3_box.h = player_h;
+
+	dw_draw_texture_center_fit_h(p1_box, player_text[0]);
+	dw_draw_texture_center_fit_h(p2_box, player_text[1]);
+	dw_draw_texture_center_fit_h(p3_box, player_text[2]);
+	
+	int lore_ofs = dm_get_ofs_player_lore();
+	int lore_h = dm_get_h_player_lore();
+	p1_box.y += (p1_box.h + lore_ofs);
+	p1_box.h = lore_h;
+	p2_box.y += (p2_box.h + lore_ofs);
+	p2_box.h = lore_h;
+	p3_box.y += (p3_box.h + lore_ofs);
+	p3_box.h = lore_h;
+
+	dw_draw_texture_center_fit_h(p1_box, lore[0]);
+	dw_draw_texture_center_fit_h(p2_box, lore[1]);
+	dw_draw_texture_center_fit_h(p3_box, lore[1]);
+
+}
+
+/* Function: draw_player_figures
+ * -----------------------------------------------------------------------------
+ * Draws the player figures at the center of the boxes
+ * 	
+ * Arguments:
+ * 	t: Time needed for updating the sign effect
+ *
+ * Return:
+ *	void
+ */
+static void draw_player_figures(float t)
+{
+	int cs = dm_scale_to_resolution(PLAYER_BLOCK_W);
+	SDL_Rect p1_box = dm_get_p1_button_box();
+	SDL_Rect p2_box = dm_get_p2_button_box();
+	SDL_Rect p3_box = dm_get_p3_button_box();
+  
+	struct Item { AA_FigureType type; int x,y; char L; } A[3] = {
+        {AA_FIG_WIDE, p1_box.x, p1_box.y,'X'},
+        {AA_FIG_MED,  610,240,'Y'},
+        {AA_FIG_SLIM, 960,240,'Z'}
+    };
+	aa_draw_human(g_renderer, A[0].type, A[0].x, A[0].y, cs, C_WHITE, 
+							  C_NEARBLACK, A[0].L, t, AA_OPT_NONE);
+
+
+}
 
 /* Function: stage_select_player
  * ----------------------------------------------------------------------------
@@ -340,15 +457,9 @@ int stage_select_player()
 	static texture_t *select_player = NULL;
 	
 	static bool init = false;
-	static iface_btn_t *player_1;
-	static iface_btn_t *player_2;
-	static iface_btn_t *player_3;
-	static texture_t *p1_text = NULL;
-	static texture_t *p2_text = NULL;
-	static texture_t *p3_text = NULL;
-	static texture_t *p1_lore = NULL;
-	static texture_t *p2_lore = NULL;
-	static texture_t *p3_lore = NULL;
+	static iface_btn_t *player_btns[3];
+	static texture_t *player_text[3];
+	static texture_t *player_lore[3];
 
 	int ret_val = LV_SELECT_PLAYER_SCREEN;
 	bool player_chosen = false;
@@ -368,38 +479,11 @@ int stage_select_player()
 	if (init == false){
 	
 		init = true;
-  		last_type_ms = cur_time;
+		create_player_btns(player_btns);
+		create_player_texts(player_text, player_lore);
+		last_type_ms = cur_time;
 		anim_prev_ms = cur_time;
 		fx = fx_electron_create(g_renderer, W, H, NULL);
-		
-		p1_text = dw_create_text_texture(PLAYER_1_TEXT, C_SILVERGREY);
-		check_mem(p1_text);
-		p2_text = dw_create_text_texture(PLAYER_2_TEXT, C_SILVERGREY);
-		check_mem(p2_text);
-		p3_text = dw_create_text_texture(PLAYER_3_TEXT, C_SILVERGREY);
-		check_mem(p3_text);
-
-		p1_lore = dw_create_text_texture(P1_LORETEXT, C_GREY);
-		check_mem(p1_lore);
-		p2_lore = dw_create_text_texture(P2_LORETEXT, C_GREY);
-		check_mem(p2_lore);
-		p3_lore = dw_create_text_texture(P3_LORETEXT, C_GREY);
-		check_mem(p3_lore);
-		
-		player_1 = bt_create_iface_btn(p1_box, 
-								       dw_create_text_texture(" ", C_BLACK), 
-									   true);
-		check_mem(player_1);
-		
-		player_2 = bt_create_iface_btn(p2_box, 
-									   dw_create_text_texture(" ", C_BLACK), 
-									   true);
-		check_mem(player_2);
-
-		player_3 = bt_create_iface_btn(p3_box, 
-								       dw_create_text_texture(" ", C_BLACK),
-									   true);
-		check_mem(player_3);
 	}
 
 	static float t = 0.0f;
@@ -436,70 +520,34 @@ int stage_select_player()
 	dw_draw_filled_rectangle(dark_plate_1, bg_plate, bg_plate);
 	dw_draw_filled_rectangle(dark_plate_2, bg_plate, bg_plate);
 	dw_draw_filled_rectangle(dark_plate_3, bg_plate, bg_plate);
-
-	//dw_draw_thick_rect(p1_box, dm_get_w_borders(), C_GREY);
-	int box_ofs = dm_get_ofs_player_name();
-	int player_h = dm_get_h_player_name();
-	p1_box.y += (p1_box.h + box_ofs);
-	p1_box.h = player_h;
-	p2_box.y += (p2_box.h + box_ofs);
-	p2_box.h = player_h;
-	p3_box.y += (p3_box.h + box_ofs);
-	p3_box.h = player_h;
-
-	dw_draw_texture_center_fit_h(p1_box, p1_text);
-	dw_draw_texture_center_fit_h(p2_box, p2_text);
-	dw_draw_texture_center_fit_h(p3_box, p3_text);
 	
-	int lore_ofs = dm_get_ofs_player_lore();
-	int lore_h = dm_get_h_player_lore();
-	p1_box.y += (p1_box.h + lore_ofs);
-	p1_box.h = lore_h;
-	p2_box.y += (p2_box.h + lore_ofs);
-	p2_box.h = lore_h;
-	p3_box.y += (p3_box.h + lore_ofs);
-	p3_box.h = lore_h;
+	bt_draw_iface_btn(player_btns[0]);
+	bt_draw_iface_btn(player_btns[1]);
+	bt_draw_iface_btn(player_btns[2]);
 
-	dw_draw_texture_center_fit_h(p1_box, p1_lore);
-	dw_draw_texture_center_fit_h(p2_box, p2_lore);
-	dw_draw_texture_center_fit_h(p3_box, p3_lore);
-
-	bt_draw_iface_btn(player_1);
-	bt_draw_iface_btn(player_2);
-	bt_draw_iface_btn(player_3);
-
-	p1_box = dm_get_p1_button_box();
-	p2_box = dm_get_p2_button_box();
-	p3_box = dm_get_p3_button_box();
-	
-	struct Item { AA_FigureType type; int x,y; char L; } A[3] = {
-        {AA_FIG_WIDE, p1_box.x, p1_box.y,'X'},
-        {AA_FIG_MED,  610,240,'Y'},
-        {AA_FIG_SLIM, 960,240,'Z'}
-    };
-	aa_draw_human(g_renderer, A[0].type, A[0].x, A[0].y, 8, C_WHITE, 
-							  C_NEARBLACK, A[0].L, t, AA_OPT_NONE);
+	draw_player_texts(player_text, player_lore);
+	draw_player_figures(t);
 
 
 	bool escape_menu = sb_get_escape_menu_state();
 	if (escape_menu == true){
 		sb_display_escape_menu(escape_menu);
 	} else {
-		if (bt_chk_mouse_rel_iface_btn(player_1) == true){
+		if (bt_chk_mouse_rel_iface_btn(player_btns[0]) == true){
 			player_chosen = true;
 			g_player = FL_PLAYER_1;
-		} else if (bt_chk_mouse_rel_iface_btn(player_2) == true){
+		} else if (bt_chk_mouse_rel_iface_btn(player_btns[1]) == true){
 			player_chosen = true;
 			g_player = FL_PLAYER_2;
-		} else if (bt_chk_mouse_rel_iface_btn(player_3) == true){
+		} else if (bt_chk_mouse_rel_iface_btn(player_btns[2]) == true){
 			player_chosen = true;
 			g_player = FL_PLAYER_3;
 		}
 		if (player_chosen == true){
 			ret_val = LV_LEVEL_SELECTION;		
-			bt_destroy_iface_btn(player_1);
-			bt_destroy_iface_btn(player_2);
-			bt_destroy_iface_btn(player_3);
+			bt_destroy_iface_btn(player_btns[0]);
+			bt_destroy_iface_btn(player_btns[1]);
+			bt_destroy_iface_btn(player_btns[2]);
 			init = false;
 		}
 	}

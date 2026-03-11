@@ -37,6 +37,7 @@ int dm_get_h_player_name();
 int dm_get_h_player_lore();
 int dm_get_w_iface_space_border();
 int dm_get_w_iface_outer_border();
+int dm_get_w_player_block();
 
 SDL_Rect dm_get_studio_name_msg_box();
 SDL_Rect dm_get_game_title_box(char *title);
