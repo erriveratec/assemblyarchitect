@@ -15,7 +15,17 @@
 #define RST_MENU_TEXT1 "NO"
 #define RST_MENU_TEXT2 "YES"
 
-#define STAGE_BUTTONS_MOVEMENT_DELTA 10
+static Uint32 STAGE_BUTTONS_MOVEMENT_DELTA = 10;
+static Uint32 RET_BUTTON_W = 90;
+static Uint32 RET_BUTTON_H = 75;
+static Uint32 RST_BTN_W = 90;
+static Uint32 RST_BTN_H = 75;
+
+static Uint32 STAGE_BUTTON_W = 60;
+static Uint32 STAGE_BUTTON_H = 60;
+static Uint32 STAGE_BUTTON_Y = 820;
+
+static Uint32 SCREEN_BORDERS_OFS = 2;
 
 bool g_escape_menu = false;
 bool g_rst_menu = false;
@@ -51,6 +61,93 @@ texture_t *g_rst_b2_texture = NULL;
 
 iface_btn_t *g_rst_b1;
 iface_btn_t *g_rst_b2;
+
+static SDL_Rect get_return_button_box();
+static SDL_Rect get_rst_btn_box();
+static int get_ofs_space_stage_buttons();
+
+/* Function: dm_get_ofs_space_stage_buttons
+ * -----------------------------------------------------------------------------
+ *	Return the offset value of the contents of the buffer. 
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset
+ */
+static int get_ofs_space_stage_buttons()
+{
+	SDL_Rect sb = sb_get_stage_btns();
+	return sb.w/2;
+}
+
+/* Function: sb_get_stage_btns
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object, x and y are initialize at 0
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect sb_get_stage_btns()
+{
+	SDL_Rect b;
+	SDL_Rect ib = dm_get_stage_instruction_box();
+	int sh = dm_get_screen_height();
+	int shadow = bt_get_ofs_button_shadow();
+	b.w = dm_scale_to_resolution(STAGE_BUTTON_W);
+	b.h = dm_scale_to_resolution(STAGE_BUTTON_H);
+	b.x = ib.x + ib.w;
+	b.y = sh - b.h - 2*shadow;
+	return b;
+}
+
+/* Function: dm_get_rst_btn_box
+ * -----------------------------------------------------------------------------
+ * Returns the box of the reset button of the stage
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+static SDL_Rect get_rst_btn_box()
+{
+	SDL_Rect ret_box = get_return_button_box();
+	SDL_Rect b;
+	b.w = dm_scale_to_resolution(RST_BTN_W);
+	b.h = dm_scale_to_resolution(RST_BTN_H);
+	b.x = ret_box.x;
+	b.y = ret_box.y - b.h - 2*bt_get_ofs_button_shadow();	
+	return b;
+}
+
+
+
+/* Function: get_return_button_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object, x and y are initialize at 0
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+static SDL_Rect get_return_button_box()
+{
+	int screen_height = dm_get_screen_height();
+	SDL_Rect b;
+	b.w = dm_scale_to_resolution(RET_BUTTON_W);
+	b.h = dm_scale_to_resolution(RET_BUTTON_H);
+	b.x = SCREEN_BORDERS_OFS;
+	b.y = screen_height - b.h - 2*bt_get_ofs_button_shadow();
+	return b;
+}
 
 /* Function: sb_set_step_btns_avail
  * ----------------------------------------------------------------------------
@@ -392,7 +489,7 @@ static bool sb_check_released_in_stage_button(); // not used
 void adjust_stage_buttons_position(int code_size)
 {
 	int hidden_y = dm_get_y_hidden_stage_buttons();
-	SDL_Rect sb = dm_get_stage_btns();
+	SDL_Rect sb = sb_get_stage_btns();
 	int y_final;
 	if (code_size == CW_EMPTY){
 		y_final = hidden_y;
@@ -464,7 +561,7 @@ void sb_draw_rst_btn()
 void sb_init_rst_btn()
 {
 	if (rst_btn == NULL){
-		SDL_Rect r = dm_get_rst_btn_box();
+		SDL_Rect r = get_rst_btn_box();
 		rst_btn = malloc(sizeof(iface_btn_t));
 		rst_btn = bt_create_iface_btn(r, reset_button, true);
 	}
@@ -520,7 +617,7 @@ void sb_draw_return_button()
 void sb_init_return_button()
 {
 	if (ret_btn == NULL){
-		SDL_Rect r = dm_get_return_button_box();
+		SDL_Rect r = get_return_button_box();
 		ret_btn = malloc(sizeof(iface_btn_t));
 		ret_btn = bt_create_iface_btn(r, return_button, true);
 	}
@@ -537,14 +634,14 @@ void sb_init_return_button()
  */
 void sb_init_stage_btns()
 {
-	SDL_Rect sb = dm_get_stage_btns();
+	SDL_Rect sb = sb_get_stage_btns();
 	int hidden_y = dm_get_y_hidden_stage_buttons();
 	SDL_Rect r0 = {.x = sb.x, .y = hidden_y, .w = sb.w, .h = sb.h};
 	
 	stop = malloc(sizeof(iface_btn_t));
 	stop = bt_create_iface_btn(r0, stop_button, true);
 
-	int space =  dm_get_ofs_space_stage_buttons();
+	int space =  get_ofs_space_stage_buttons();
 	SDL_Rect r1 = {.x = sb.x + sb.w + space,
 				   .y = hidden_y, 
 				   .w = sb.w, 

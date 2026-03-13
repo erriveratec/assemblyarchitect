@@ -5,6 +5,22 @@
 #include <stdio.h>
 #include "button_bt.h"
 
+enum stage_buttons_e {
+	INVALID,
+	STOP,
+	STEP,
+	PLAY,
+	FAST
+};
+
+extern texture_t *stop_button;
+extern texture_t *fast_button;
+extern texture_t *play_button;
+extern texture_t *step_forward_button;
+extern texture_t *return_button;
+extern texture_t *reset_button;
+
+
 void sb_draw_return_button();
 void sb_init_return_button();
 
@@ -34,20 +50,7 @@ void sb_set_rst_menu(bool state);
 bool sb_chk_rst_menu_state();
 void sb_display_rst_menu(bool show_menu);
 bool sb_chk_rst_menu_btns(bool show_menu);
+SDL_Rect sb_get_stage_btns();
 
-enum stage_buttons_e {
-	INVALID,
-	STOP,
-	STEP,
-	PLAY,
-	FAST
-};
-
-extern texture_t *stop_button;
-extern texture_t *fast_button;
-extern texture_t *play_button;
-extern texture_t *step_forward_button;
-extern texture_t *return_button;
-extern texture_t *reset_button;
 
 #endif

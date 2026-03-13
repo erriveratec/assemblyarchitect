@@ -10,9 +10,12 @@
 #include "registers_rg.h"
 #include "draw_dw.h"
 #include "immediates_im.h"
+#include "stage_buttons_sb.h"
 
 #define NOT_FOUND -1
 #define CODE_LINES_SIZE 5
+static Uint32 CODE_BOX_W = 350;
+static Uint32 CODE_BOX_Y = 50;
 
 static List *code_list = NULL;
 
@@ -50,6 +53,29 @@ static operand_t *create_updated_jump_operand(code_line_t *jmp_addr);
 static code_line_t *get_clicked_label_code_line();
 static operand_t *create_saved_jump_operand(int op1_id);
 static SDL_Rect get_scroll_box();
+
+/* Function: cw_get_code_stage_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object, x and y are initialize at 0
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect cw_get_stage_code_box()
+{
+	SDL_Rect ib = dm_get_stage_instruction_box();
+	SDL_Rect sb = sb_get_stage_btns();
+	SDL_Rect b;
+	
+	b.x = ib.x + ib.w;
+	b.y = dm_scale_to_resolution(CODE_BOX_Y);
+	b.w = dm_scale_to_resolution(CODE_BOX_W);
+	b.h = sb.y - 2*b.y;
+	return b;
+}
 
 /* Function: cw_init_code_window_texture
  * -----------------------------------------------------------------------------
@@ -1308,7 +1334,7 @@ int cw_get_code_line_x(int instruction_id)
 {
 	int x;  
 	int number_ofs = dm_get_w_border_padding();
-	SDL_Rect sb = dm_get_stage_code_box();
+	SDL_Rect sb = cw_get_stage_code_box();
 	int number_h = dm_get_h_code_text();
 	int number_w = ax_get_texture_w_fit_h(number_h, g_numbers[0]);
 	if (instruction_id == LABEL){
@@ -1330,7 +1356,7 @@ static void code_box_height_adjust()
 
 	SDL_Rect cbut = dm_get_code_button_wh();
 	SDL_Rect codbox = get_code_box();
-	SDL_Rect ogcodbox = dm_get_stage_code_box();
+	SDL_Rect ogcodbox = cw_get_stage_code_box();
 	if (CODE_LINES_SIZE < list_size){
 		
 		int increase_size = (list_size - CODE_LINES_SIZE)*cbut.h;
@@ -1372,7 +1398,7 @@ static void code_box_height_adjust()
 
 	SDL_Rect cbut = dm_get_code_button_wh();
 	SDL_Rect codbox = get_scroll_box();
-	SDL_Rect ogcodbox = dm_get_stage_code_box();
+	SDL_Rect ogcodbox = cw_get_stage_code_box();
 	
 	int y = cw_get_code_line_y(list_size - 1);
 	if ( y > (ogcodbox.h + ogcodbox.y)){
@@ -1412,7 +1438,7 @@ static void adjust_code_box_position()
 	static int y_pending_scroll = 0;
 	
 	y_pending_scroll += 3*ms_get_mouse_scroll_y();
-	SDL_Rect cb = dm_get_stage_code_box();
+	SDL_Rect cb = cw_get_stage_code_box();
 	SDL_Rect codbox = get_scroll_box();
 
 	int cur_y = codbox.y;
@@ -1612,7 +1638,7 @@ void display_line_number()
 
 	SDL_Rect cb = dm_get_code_button_wh();
 	int number_ofs = dm_get_w_border_padding();
-	SDL_Rect sb = dm_get_stage_code_box();
+	SDL_Rect sb = cw_get_stage_code_box();
 	int x = sb.x + number_ofs;
 	int y = cw_get_code_line_y(0);
 	int h = dm_get_h_code_text();

@@ -8,10 +8,25 @@
 
 static const Uint32 BUTTON_LIFT = 4;
 static const float HOVER_SCALE = 0.06f;
+static const Uint32 BUTTON_SHADOW_OFS = 5; // The shadow of iface buttons
 
 static bool chk_mouse_hover_iface_btn(iface_btn_t *btn);
 static void draw_btn_scaled_texture(SDL_Rect box, iface_btn_t *b);
 
+/* Function: dm_get_ofs_button_shadow
+ * -----------------------------------------------------------------------------
+ *	Returns the shadow offset for the buttons
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	The offset that will be used for the shadow of the buttons
+ */
+int bt_get_ofs_button_shadow()
+{
+	return dm_scale_to_resolution(BUTTON_SHADOW_OFS);
+}
 
 /* Function: get_hover_factor
  * -----------------------------------------------------------------------------
@@ -231,7 +246,7 @@ void bt_draw_iface_btn(iface_btn_t *b)
  	bool hover = chk_mouse_hover_iface_btn(b);
 	bool clicked = bt_chk_mouse_click_iface_btn(b);
 	int offset = dm_get_w_iface_space_border();
-	int shadow_offset = dm_get_ofs_button_shadow();	
+	int shadow_offset = bt_get_ofs_button_shadow();	
 	
 	if (hover == true && b->enabled == true){
 		float h_ofs = bt_get_hover_factor();
@@ -303,7 +318,7 @@ void bt_draw_iface_btn_nopad(iface_btn_t *b)
 	
 	int status = SUCCESS;	
 
-	int shadow_offset = dm_get_ofs_button_shadow();	
+	int shadow_offset = bt_get_ofs_button_shadow();	
 	SDL_Rect shadow = {.x = b->r.x + shadow_offset, .y = b->r.y + shadow_offset,
 					   .w = b->r.w, .h = b->r.h};
 	dw_draw_filled_rectangle(shadow, C_DARKGREY, C_DARKGREY);

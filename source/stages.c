@@ -146,7 +146,7 @@ void init_level(int level_id)
 	// must go after level loading
 	rg_init_flag_and_vboxes(); 	
 
-	SDL_Rect r1 = dm_get_stage_code_box();
+	SDL_Rect r1 = cw_get_stage_code_box();
 	cw_set_scroll_box(r1);
 	cw_set_code_box(r1);
 	

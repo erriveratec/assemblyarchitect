@@ -69,4 +69,5 @@ code_line_t *cw_create_label_code_line();
 void cw_clear_code_list();
 void cw_assign_op_to_line(operand_t *op, code_line_t *line);
 void cw_highlight_code_pending_operand();
+SDL_Rect cw_get_stage_code_box();
 #endif

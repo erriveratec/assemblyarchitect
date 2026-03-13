@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include"dimensions_dm.h"
 #include"registers_rg.h"
+#include"code_window_cw.h"
 #include"aux.h"
 #include <SDL.h>
 
@@ -41,9 +42,6 @@
 #define TEXT_H_CODE 40
 
 #define TEXT_H_STAGE_TITLES 110
-#define STAGE_BUTTON_W 60
-#define STAGE_BUTTON_H 60
-#define STAGE_BUTTON_Y 820
 
 #define P_NAME_OFS 80
 #define P_NAME_H 50
@@ -64,13 +62,7 @@
 #define SEL_LEVEL_BUTTON_W 130
 #define SEL_LEVEL_BUTTON_H 60
 
-#define RET_BUTTON_W 90
-#define RET_BUTTON_H 75
-
 #define RET_RES_OFS 5
-
-#define RST_BTN_W 90
-#define RST_BTN_H 75
 
 #define RST_MENU_BTNS_W 100
 #define RST_MENU_BTNS_H 60
@@ -90,8 +82,6 @@
 #define IFACE_BUTTON_SPACE_W 7 // Used for the buttons
 #define IFACE_BUTTON_OUTER_W 3 //Outer width of the iface button
 #define IFACE_FILLED_OFS 20 // Used for Interface Messages
-#define BUTTON_SHADOW_OFS 5 // The shadow of iface buttons
-#define SCREEN_BORDERS_OFS 2
 
 #define BORDERS_WIDTH 5 //Used for the interface boxes
 
@@ -112,8 +102,6 @@
 #define INS_BOX_H 225
 #define INS_BOX_Y 225
 
-#define CODE_BOX_W 350
-#define CODE_BOX_Y 50
 
 #define REG_BOX_W 250
 #define REG_BOX_H 400
@@ -233,20 +221,6 @@ int dm_get_w_borders()
 	return dm_scale_to_resolution(BORDERS_WIDTH);
 }
 
-/* Function: dm_get_ofs_button_shadow
- * -----------------------------------------------------------------------------
- *	Returns the shadow offset for the buttons
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	The offset that will be used for the shadow of the buttons
- */
-int dm_get_ofs_button_shadow()
-{
-	return dm_scale_to_resolution(BUTTON_SHADOW_OFS);
-}
 
 /* Function: dm_get_ofs_iface_filled_border
  * -----------------------------------------------------------------------------
@@ -323,22 +297,6 @@ int dm_get_screen_width()
 	return g_screen_width;
 }
 
-/* Function: dm_get_ofs_space_stage_buttons
- * -----------------------------------------------------------------------------
- *	Return the offset value of the contents of the buffer. 
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	int with the offset
- */
-int dm_get_ofs_space_stage_buttons()
-{
-	SDL_Rect sb = dm_get_stage_btns();
-	return sb.w/2;
-}
-
 /* Function: dm_get_ofs_reg_value_box
  * -----------------------------------------------------------------------------
  *	Return the offset value of the contents of the buffer. 
@@ -402,7 +360,7 @@ int dm_get_ofs_buffer_value_box()
 int dm_get_w_code_box_text()
 {
 	int ofs = dm_get_w_border_padding();
-	SDL_Rect cb = dm_get_stage_code_box();
+	SDL_Rect cb = cw_get_stage_code_box();
 	int w = cb.w - 2*ofs;
 	return w;
 }
@@ -959,7 +917,7 @@ SDL_Rect dm_get_text_box_big()
  */
 SDL_Rect dm_get_text_box_stagebutton()
 {
-	SDL_Rect cb = dm_get_stage_code_box();	
+	SDL_Rect cb = cw_get_stage_code_box();	
 	SDL_Rect mb = dm_get_box_msg_wh();	
 	SDL_Rect b;
 	b.w = mb.w;
@@ -981,7 +939,7 @@ SDL_Rect dm_get_text_box_stagebutton()
  */
 SDL_Rect dm_get_text_box_code()
 {
-	SDL_Rect cb = dm_get_stage_code_box();	
+	SDL_Rect cb = cw_get_stage_code_box();	
 	SDL_Rect mb = dm_get_box_msg_wh();	
 	SDL_Rect b;
 	b.w = mb.w;
@@ -1185,28 +1143,7 @@ SDL_Rect dm_get_stage_instruction_box()
 	return b;
 }
 
-/* Function: dm_get_code_stage_box
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object, x and y are initialize at 0
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_stage_code_box()
-{
-	SDL_Rect ib = dm_get_stage_instruction_box();
-	SDL_Rect sb = dm_get_stage_btns();
-	SDL_Rect b;
-	
-	b.x = ib.x + ib.w;
-	b.y = dm_scale_to_resolution(CODE_BOX_Y);
-	b.w = dm_scale_to_resolution(CODE_BOX_W);
-	b.h = sb.y - 2*b.y;
-	return b;
-}
+
 
 /* Function: dm_get_stage_ibox
  * -----------------------------------------------------------------------------
@@ -1288,7 +1225,7 @@ SDL_Rect dm_get_stage_zfbox()
  */
 SDL_Rect dm_get_stage_reg_box()
 {
-	SDL_Rect cb = dm_get_stage_code_box();
+	SDL_Rect cb = cw_get_stage_code_box();
 	SDL_Rect b;
 	b.w = dm_scale_to_resolution(REG_BOX_W);
 	b.h = dm_scale_to_resolution(REG_BOX_H);
@@ -1297,46 +1234,8 @@ SDL_Rect dm_get_stage_reg_box()
 	return b;
 }
 
-/* Function: dm_get_return_button_box
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object, x and y are initialize at 0
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_return_button_box()
-{
-	SDL_Rect b;
-	b.w = dm_scale_to_resolution(RET_BUTTON_W);
-	b.h = dm_scale_to_resolution(RET_BUTTON_H);
-	b.x = SCREEN_BORDERS_OFS;
-	b.y = g_screen_height - b.h - 2*dm_get_ofs_button_shadow();
-	return b;
-}
 
-/* Function: dm_get_rst_btn_box
- * -----------------------------------------------------------------------------
- * Returns the box of the reset button of the stage
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_rst_btn_box()
-{
-	SDL_Rect ret_box = dm_get_return_button_box();
-	SDL_Rect b;
-	b.w = dm_scale_to_resolution(RST_BTN_W);
-	b.h = dm_scale_to_resolution(RST_BTN_H);
-	b.x = ret_box.x;
-	b.y = ret_box.y - b.h - 2*dm_get_ofs_button_shadow();	
-	return b;
-}
+
 
 /* Function: dm_get_h_bottom_msg
  * -----------------------------------------------------------------------------
@@ -1515,28 +1414,7 @@ SDL_Rect dm_get_avatar_wh()
 	return b;
 }
 
-/* Function: dm_get_stage_btns
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object, x and y are initialize at 0
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_stage_btns()
-{
-	SDL_Rect b;
-	SDL_Rect ib = dm_get_stage_instruction_box();
-	int sh = dm_get_screen_height();
-	int shadow = dm_get_ofs_button_shadow();
-	b.w = dm_scale_to_resolution(STAGE_BUTTON_W);
-	b.h = dm_scale_to_resolution(STAGE_BUTTON_H);
-	b.x = ib.x + ib.w;
-	b.y = sh - b.h - 2*shadow;
-	return b;
-}
+
 
 /* Function: dm_get_stage_imm_up
  * -----------------------------------------------------------------------------
@@ -1551,7 +1429,7 @@ SDL_Rect dm_get_stage_btns()
 SDL_Rect dm_get_stage_imm_up()
 {
 	SDL_Rect b;
-	SDL_Rect cb = dm_get_stage_code_box();
+	SDL_Rect cb = cw_get_stage_code_box();
 	SDL_Rect vb = dm_get_value_box_wh();
 	b.w = 0;
 	b.h = dm_get_h_stage_elements_titles();

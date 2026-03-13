@@ -60,20 +60,16 @@ SDL_Rect dm_get_avatar_wh();
 SDL_Rect dm_get_box_msg_wh();
 
 SDL_Rect dm_get_level_button_box();
-SDL_Rect dm_get_return_button_box();
-SDL_Rect dm_get_rst_btn_box();
 
 SDL_Rect dm_get_stage_reg_box();
 SDL_Rect dm_get_stage_ibox();
 SDL_Rect dm_get_stage_obox();
 SDL_Rect dm_get_stage_zfbox();
-SDL_Rect dm_get_stage_code_box();
 SDL_Rect dm_get_stage_instruction_box();
 SDL_Rect dm_get_stage_input_buffer_box();
 SDL_Rect dm_get_stage_output_buffer_box();
 SDL_Rect dm_get_stage_ib_text_box();
 SDL_Rect dm_get_stage_ob_text_box();
-SDL_Rect dm_get_stage_btns();
 SDL_Rect dm_get_stage_imm_up();
 
 int dm_get_screen_width();
@@ -87,8 +83,6 @@ int dm_get_ofs_buffer_value_box();
 int dm_get_ofs_between_value_box();
 int dm_get_ofs_reg_value_box();
 int dm_get_ofs_bet_regs();
-int dm_get_ofs_space_stage_buttons();
-int dm_get_ofs_button_shadow();
 int dm_get_ofs_iface_filled_border();
 int dm_get_ofs_player_name();
 int dm_get_ofs_player_lore();

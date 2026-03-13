@@ -148,7 +148,7 @@ static void check_execution_arrow_in_place(int instruction_number)
  */
 void ar_reset_execution_arrow()
 {
-	SDL_Rect cb = dm_get_stage_code_box();
+	SDL_Rect cb = cw_get_stage_code_box();
 	SDL_Rect a = dm_get_arrow_wh();
 	
 	g_arrow_exec.box.x = cb.x - a.w;
@@ -350,7 +350,7 @@ static void initialize_drop_arrow()
 {
 	SDL_Rect a = dm_get_arrow_wh();
 	SDL_Rect bi = dm_get_text_box_ins();
-	SDL_Rect cb = dm_get_stage_code_box();
+	SDL_Rect cb = cw_get_stage_code_box();
 	
 	g_arrow_drop.box.x = (cb.x - 2*a.w);
 	g_arrow_drop.box.y = bi.y - a.h*3/2;
@@ -377,7 +377,7 @@ static void initialize_drop_arrow()
  */
 static void initialize_play_arrow()
 {
-	SDL_Rect sb = dm_get_stage_btns();
+	SDL_Rect sb = sb_get_stage_btns();
 	SDL_Rect a = dm_get_arrow_wh();
 	g_arrow_play.box.w = a.w;	
 	g_arrow_play.box.h = a.h;
@@ -404,7 +404,7 @@ static void initialize_play_arrow()
  */
 static void initialize_step_arrow()
 {
-	SDL_Rect sb = dm_get_stage_btns();
+	SDL_Rect sb = sb_get_stage_btns();
 	SDL_Rect a = dm_get_arrow_wh();
 	g_arrow_step.box.w = a.w;	
 	g_arrow_step.box.h = a.h;
@@ -431,7 +431,7 @@ static void initialize_step_arrow()
  */
 static void initialize_fast_arrow()
 {
-	SDL_Rect sb = dm_get_stage_btns();
+	SDL_Rect sb = sb_get_stage_btns();
 	SDL_Rect a = dm_get_arrow_wh();
 	g_arrow_fast.box.w = a.w;	
 	g_arrow_fast.box.h = a.h;
@@ -495,7 +495,7 @@ static void initialize_code_line_arrow()
 static void initialize_del_arrow()
 {
 	SDL_Rect a = dm_get_arrow_wh();
-	SDL_Rect cb = dm_get_stage_code_box();
+	SDL_Rect cb = cw_get_stage_code_box();
 	SDL_Rect tb = cw_get_text_box_rect();
 	g_arrow_del.box.x = cb.x + cb.w;
 	g_arrow_del.box.y = tb.y + tb.h/2;
@@ -588,7 +588,7 @@ static void initialize_challenge_arrow()
 {
 	SDL_Rect a = dm_get_arrow_wh();
 	SDL_Rect tb = cw_get_text_box_rect();
-	SDL_Rect cb = dm_get_stage_code_box();
+	SDL_Rect cb = cw_get_stage_code_box();
 	g_arrow_challenge.box.x = cb.x + cb.w + a.w;
 	g_arrow_challenge.box.y = tb.y + tb.h/2 - a.h/2;
 	g_arrow_challenge.box.w = a.w;

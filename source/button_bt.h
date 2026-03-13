@@ -41,4 +41,6 @@ bool bt_chk_mouse_rel_iface_btn(iface_btn_t *button);
 void bt_destroy_iface_btn(iface_btn_t *b);
 float bt_get_hover_factor();
 int bt_get_btn_lift();
+
+int bt_get_ofs_button_shadow();
 #endif
