@@ -32,7 +32,7 @@ static int get_h_button_padding();
  */
 static int get_w_button_padding()
 {
-	return dm_get_w_border_padding() + 
+	return dm_get_w_padding() + 
 		   dm_scale_to_resolution(IFACE_BUTTON_SPACE_W);
 }
 
@@ -48,7 +48,7 @@ static int get_w_button_padding()
  */
 static int get_h_button_padding()
 {
-	return dm_get_h_border_padding() + 
+	return dm_get_h_padding() + 
 		   dm_scale_to_resolution(IFACE_BUTTON_SPACE_W);
 }
 

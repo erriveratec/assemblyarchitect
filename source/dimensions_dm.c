@@ -322,6 +322,7 @@ int dm_get_w_code_box_text()
 	return w;
 }
 
+
 /* Function: dm_get_w_border_padding
  * -----------------------------------------------------------------------------
  *	Return the value of the padding
