@@ -6,8 +6,42 @@
 #include "list.h"
 #include "mouse_ms.h"
 
-static bool chk_mouse_click_hover_btn(iface_btn_t *btn);
+static const Uint32 BUTTON_LIFT = 4;
+static const float HOVER_SCALE = 0.06f;
+
+static bool chk_mouse_hover_iface_btn(iface_btn_t *btn);
 static void draw_btn_scaled_texture(SDL_Rect box, iface_btn_t *b);
+
+
+/* Function: get_hover_factor
+ * -----------------------------------------------------------------------------
+ * Returns the increment of the elements during hover
+ * 
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	The hover factor
+ */
+int bt_get_btn_lift()
+{
+	return dm_scale_to_resolution(BUTTON_LIFT);
+}
+
+/* Function: get_hover_factor
+ * -----------------------------------------------------------------------------
+ * Returns the increment of the elements during hover
+ * 
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	The hover factor
+ */
+float bt_get_hover_factor()
+{
+	return HOVER_SCALE;
+}
 
 /* Function: bt_destroy_iface_btn
  *-----------------------------------------------------------------------------
@@ -104,7 +138,7 @@ bool bt_chk_mouse_click_iface_btn(iface_btn_t *btn)
  *	false if otherwise
  *
 */
-static bool chk_mouse_click_hover_btn(iface_btn_t *btn)
+static bool chk_mouse_hover_iface_btn(iface_btn_t *btn)
 {
 	assert(NULL != btn && "The button pointer cannot be NULL");
 
@@ -194,17 +228,15 @@ void bt_draw_iface_btn(iface_btn_t *b)
 	int status = SUCCESS;	
 	
 	SDL_Rect box = b->r;
- 	bool hover = chk_mouse_click_hover_btn(b);
+ 	bool hover = chk_mouse_hover_iface_btn(b);
 	bool clicked = bt_chk_mouse_click_iface_btn(b);
 	int offset = dm_get_w_iface_space_border();
 	int shadow_offset = dm_get_ofs_button_shadow();	
 	
 	if (hover == true && b->enabled == true){
-		float h_ofs = dm_get_hover_scale();
-		box.x -= (int)(h_ofs * (float)box.w);
-		box.y -= (int)(h_ofs * (float)box.h) + 4;
-		box.w += (int)(2*h_ofs * (float)box.w);
-		box.h += (int)(2*h_ofs * (float)box.h);
+		float h_ofs = bt_get_hover_factor();
+		box = ax_scale_rect_percentage(box, h_ofs);
+		box.y += bt_get_btn_lift();
 
 		shadow_offset += 2*h_ofs;
 	}

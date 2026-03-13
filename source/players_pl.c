@@ -1,10 +1,58 @@
 #include "players_pl.h"
 #include <math.h>
 
-// ============================================================================
-// Internal helpers (pixel-safe drawing)
-// ============================================================================
-static inline int iroundf(float v){ return (int)lroundf(v); }
+
+static const int SIGN_OFS = -5;
+
+static const Uint32 FIGURE_W = 18 ;
+static const Uint32 FIGURE_H = 25 ;
+
+/* Function: pl_get_sign_y_ofs
+ * -----------------------------------------------------------------------------
+ * The sign whas an offset in the y axis, this function provides the offset for
+ * correction in the intro
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with absolute value of the offset
+ */
+int pl_get_sign_y_ofs()
+{
+	return abs(SIGN_OFS);
+}
+
+/* Function: pl_get_fig_block_w
+ * -----------------------------------------------------------------------------
+ * Returns the number of blocks of the width of the figure
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Number of blocks of the width the figure.
+ */
+int pl_get_fig_block_w()
+{
+	return FIGURE_W;
+}
+
+/* Function: pl_get_fig_block_h
+ * -----------------------------------------------------------------------------
+ * Returns the number of blocks of the height of the figure
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Number of blocks of the height the figure.
+ */
+int pl_get_fig_block_h()
+{
+	return FIGURE_H;
+}
+
 static inline void setc(SDL_Renderer* r, SDL_Color c){
     SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(r, c.r, c.g, c.b, c.a);
@@ -43,48 +91,73 @@ static const unsigned char (*glyph5_for(char L))[5]{
 // ============================================================================
 static void body_wide(SDL_Renderer* r,int ox,int oy,int cs, SDL_Color fg){
     // head + neck
-    fill_cell(r,ox,oy,cs, 4,1, 3,3, fg);  // 2x2 head
-    fill_cell(r,ox,oy,cs, 5,4, 1,1, fg);  // 1x1 neck
+    fill_cell(r,ox,oy,cs, 3,1, 3,3, fg);  // 2x2 head
+    fill_cell(r,ox,oy,cs, 4,4, 1,1, fg);  // 1x1 neck
     // shoulders shelf
-    fill_cell(r,ox,oy,cs, 3,5, 5,1, fg);
-    fill_cell(r,ox,oy,cs, 2,6, 7,1, fg);
+    fill_cell(r,ox,oy,cs, 2,5, 5,1, fg);
+    fill_cell(r,ox,oy,cs, 1,6, 7,1, fg);
     // chest + waist
-    fill_cell(r,ox,oy,cs, 3,7, 5,6, fg);  // 3x3 chest
+    fill_cell(r,ox,oy,cs, 2,7, 5,6, fg);  // 3x3 chest
     // legs + feet
-    fill_cell(r,ox,oy,cs, 3,13,1,6, fg);
-    fill_cell(r,ox,oy,cs, 2,19,2,1, fg);
-    fill_cell(r,ox,oy,cs, 7,13,1,6, fg);
-    fill_cell(r,ox,oy,cs, 7,19,2,1, fg);
+    fill_cell(r,ox,oy,cs, 2,13,1,6, fg);
+    fill_cell(r,ox,oy,cs, 1,19,2,1, fg);
+    fill_cell(r,ox,oy,cs, 6,13,1,6, fg);
+    fill_cell(r,ox,oy,cs, 6,19,2,1, fg);
   //   arms (left down; right stepped toward pole)
-     fill_cell(r,ox,oy,cs, 1,7,1,6, fg);
-     fill_cell(r,ox,oy,cs, 9,7,1,1, fg);
-     fill_cell(r,ox,oy,cs, 10,8,2,1, fg);
-     fill_cell(r,ox,oy,cs, 12,7,1,1, fg);
-     fill_cell(r,ox,oy,cs, 13,6,1,1, fg);
+     fill_cell(r,ox,oy,cs, 0,7,1,6, fg);
+     fill_cell(r,ox,oy,cs, 8,7,1,1, fg);
+     fill_cell(r,ox,oy,cs, 9,8,2,1, fg);
+     fill_cell(r,ox,oy,cs, 11,7,1,1, fg);
+     fill_cell(r,ox,oy,cs, 12,6,1,1, fg);
 }
 
 static void body_med(SDL_Renderer* r,int ox,int oy,int cs, SDL_Color fg){
-    fill_cell(r,ox,oy,cs, 4,2,2,2, fg); fill_cell(r,ox,oy,cs, 5,4,1,1, fg);
-    fill_cell(r,ox,oy,cs, 3,5,3,1, fg); fill_cell(r,ox,oy,cs, 3,6,4,1, fg);
-    fill_cell(r,ox,oy,cs, 4,7,2,5, fg); fill_cell(r,ox,oy,cs, 4,12,2,1, fg);
-    // legs with tiny gap + knee hint
-    fill_cell(r,ox,oy,cs, 3,13,1,3, fg); fill_cell(r,ox,oy,cs, 3,16,1,2, fg);
-    fill_cell(r,ox,oy,cs, 5,13,1,3, fg); fill_cell(r,ox,oy,cs, 5,16,1,2, fg);
-    fill_cell(r,ox,oy,cs, 3,18,1,1, fg); fill_cell(r,ox,oy,cs, 5,18,1,1, fg);
-    // arms
-    fill_cell(r,ox,oy,cs, 2,9,1,4, fg);
-    fill_cell(r,ox,oy,cs, 6,8,1,2, fg); fill_cell(r,ox,oy,cs, 7,9,1,1, fg); fill_cell(r,ox,oy,cs, 8,10,1,1, fg);
+	// head + neck
+    fill_cell(r,ox,oy,cs, 3,1, 3,3, fg);  // 2x2 head
+    fill_cell(r,ox,oy,cs, 4,4, 1,1, fg);  // 1x1 neck
+    // shoulders shelf
+    fill_cell(r,ox,oy,cs, 2,5, 5,1, fg);
+    fill_cell(r,ox,oy,cs, 1,6, 7,1, fg);
+    fill_cell(r,ox,oy,cs, 1,7, 7,1, fg);
+    // chest + waist
+    fill_cell(r,ox,oy,cs, 2,7, 5,6, fg);  // 3x3 chest
+    // legs + feet
+    fill_cell(r,ox,oy,cs, 2,13,1,6, fg);
+    fill_cell(r,ox,oy,cs, 3,13,1,6, fg);
+    fill_cell(r,ox,oy,cs, 1,19,3,1, fg);
+    fill_cell(r,ox,oy,cs, 6,13,1,6, fg);
+    fill_cell(r,ox,oy,cs, 5,13,1,6, fg);
+    fill_cell(r,ox,oy,cs, 5,19,3,1, fg);
+  //   arms (left down; right stepped toward pole)
+     fill_cell(r,ox,oy,cs, 0,7,1,6, fg);
+     fill_cell(r,ox,oy,cs, 8,7,1,1, fg);
+     fill_cell(r,ox,oy,cs, 8,8,3,1, fg);
+     fill_cell(r,ox,oy,cs, 10,7,2,1, fg);
+     fill_cell(r,ox,oy,cs, 12,6,1,1, fg);
 }
 
 static void body_slim(SDL_Renderer* r,int ox,int oy,int cs, SDL_Color fg){
-    fill_cell(r,ox,oy,cs, 4,2,2,2, fg); fill_cell(r,ox,oy,cs, 5,4,1,1, fg);
-    fill_cell(r,ox,oy,cs, 4,5,2,1, fg); fill_cell(r,ox,oy,cs, 5,6,1,6, fg);
-    fill_cell(r,ox,oy,cs, 5,12,1,1, fg);
-    fill_cell(r,ox,oy,cs, 4,13,1,7, fg); fill_cell(r,ox,oy,cs, 6,13,1,7, fg);
-    fill_cell(r,ox,oy,cs, 4,20,1,1, fg); fill_cell(r,ox,oy,cs, 6,20,1,1, fg);
-    // arms
-    fill_cell(r,ox,oy,cs, 3,9,1,4, fg);
-    fill_cell(r,ox,oy,cs, 7,8,1,2, fg); fill_cell(r,ox,oy,cs, 8,9,1,1, fg); fill_cell(r,ox,oy,cs, 9,10,1,1, fg);
+    // head + neck
+    fill_cell(r,ox,oy,cs, 3,1, 3,3, fg);  // 2x2 head
+    fill_cell(r,ox,oy,cs, 4,4, 1,1, fg);  // 1x1 neck
+    // shoulders shelf
+    fill_cell(r,ox,oy,cs, 2,5, 5,1, fg);
+    fill_cell(r,ox,oy,cs, 1,6, 7,1, fg);
+    // chest + waist
+    fill_cell(r,ox,oy,cs, 3,7, 3,6, fg);  // 3x3 chest
+    // legs + feet
+    fill_cell(r,ox,oy,cs, 3,13,1,6, fg);
+    fill_cell(r,ox,oy,cs, 2,19,2,1, fg);
+    fill_cell(r,ox,oy,cs, 5,13,1,6, fg);
+    fill_cell(r,ox,oy,cs, 5,19,2,1, fg);
+  //   arms (left down; right stepped toward pole)
+     fill_cell(r,ox,oy,cs, 0,7,1,6, fg);
+     fill_cell(r,ox,oy,cs, 1,7,1,1, fg);
+     fill_cell(r,ox,oy,cs, 8,7,1,1, fg);
+     fill_cell(r,ox,oy,cs, 7,7,1,1, fg);
+     fill_cell(r,ox,oy,cs, 8,8,3,1, fg);
+     fill_cell(r,ox,oy,cs, 11,7,1,1, fg);
+     fill_cell(r,ox,oy,cs, 12,6,1,1, fg);
 }
 
 // ============================================================================
@@ -95,8 +168,8 @@ static void draw_sign(SDL_Renderer* r,int ox,int oy,int cs,
     if(opts & AA_OPT_LIFT) oy -= 2; // pixel-safe lift for entire figure
 
     // Board anchor relative to body origin
-    const int bx = 10, 
-	by = -5; // 9x9 outer board starts here
+    const int bx = 9, 
+	by = SIGN_OFS; // 9x9 outer board starts here
 
     // Pole (attached to bottom frame)
     SDL_Color poleC = fg; if(opts & AA_OPT_DIM) poleC.a = 140;

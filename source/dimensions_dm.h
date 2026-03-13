@@ -37,17 +37,12 @@ int dm_get_h_player_name();
 int dm_get_h_player_lore();
 int dm_get_w_iface_space_border();
 int dm_get_w_iface_outer_border();
-int dm_get_w_player_block();
 
 SDL_Rect dm_get_studio_name_msg_box();
 SDL_Rect dm_get_game_title_box(char *title);
-SDL_Rect dm_get_game_title_img_box();
 SDL_Rect dm_get_press_space_box(char *msg);
 SDL_Rect dm_get_upper_title_box(char *msg);
 
-SDL_Rect dm_get_p1_button_box();
-SDL_Rect dm_get_p2_button_box();
-SDL_Rect dm_get_p3_button_box();
 
 SDL_Rect dm_get_center_screen_box();
 SDL_Rect dm_get_center_screen_box_text();
@@ -98,8 +93,6 @@ int dm_get_ofs_iface_filled_border();
 int dm_get_ofs_player_name();
 int dm_get_ofs_player_lore();
 int dm_get_ofs_player_dark_plate();
-
-float dm_get_hover_scale();
 
 SDL_Rect dm_get_text_box_big();
 SDL_Rect dm_get_text_box_error();

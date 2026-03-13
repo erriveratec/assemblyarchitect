@@ -71,7 +71,8 @@ char *ax_number_to_string_two_digits(int number);
 int ax_get_texture_w_fit_h(int h, texture_t *t);
 int ax_get_texture_h_fit_w(int w, texture_t *t);
 SDL_Rect ax_pad_rectangle(SDL_Rect b, int offset, bool inside);
-SDL_Rect ax_scale_rect(SDL_Rect b, float scale);
+SDL_Rect ax_scale_rect_proportion(SDL_Rect b, float scale);
+SDL_Rect ax_scale_rect_percentage(SDL_Rect b, float scale);
 
 void ax_set_fast_move_delta(bool state);
 int ax_get_move_delta();
@@ -81,6 +82,8 @@ void ax_set_arrow_mdelta(bool fast);
 
 int ax_get_x_delta_div(int x1, int x2, int y1, int y2);
 int ax_get_y_delta_div(int x1, int x2, int y1, int y2);
+
+bool ax_chk_mouse_hover_rect(SDL_Rect r);
 #endif
 
 

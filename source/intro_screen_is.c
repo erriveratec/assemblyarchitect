@@ -33,15 +33,129 @@ static const Uint32 CHIP_FADE_MS = 1000;   // ~1s fade
 
 static const Uint32 PLAYER_BLOCK_W = 8;
 
+static const Uint32 P_BUTTON_H = 280;
+static const Uint32 P_BUTTON_W = 280;
+static const Uint32 P_BUTTON_Y = 405;
+
+static const Uint32 TITLE_IMG_H = 480;
+static const Uint32 TITLE_IMG_W = 480;
+static const Uint32 TITLE_IMG_Y = 325;
 
 texture_t *g_press_space = NULL;
 texture_t *g_chip = NULL;
 texture_t *g_logo = NULL;
 
-
 static void create_select_level_buttons(iface_btn_t **buttons, bool *levels);
 static void create_player_btns(iface_btn_t **player_btns);
 static void draw_player_texts(texture_t **player_text, texture_t **lore);
+
+static SDL_Rect get_p1_button_box();
+static SDL_Rect get_p2_button_box();
+static SDL_Rect get_p3_button_box();
+static SDL_Rect get_game_title_img_box();
+
+static int get_player_block_size();
+
+/* Function: get_block_size
+ * -----------------------------------------------------------------------------
+ * Returns the size of the block used for the figures
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Block size of the figures
+ */
+static int get_player_block_size()
+{
+	return dm_scale_to_resolution(PLAYER_BLOCK_W);
+}
+
+/* Function: get_game_title_img_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object.
+ */
+static SDL_Rect get_game_title_img_box()
+{
+	int screen_width = dm_get_screen_width();
+	SDL_Rect b;
+	b.w = dm_scale_to_resolution(TITLE_IMG_W);
+	b.h = dm_scale_to_resolution(TITLE_IMG_H);
+	b.x = (screen_width - b.w)/2;
+	b.y = dm_scale_to_resolution(TITLE_IMG_Y);
+	return b;
+}
+
+/* Function: get_p1_button_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+static SDL_Rect get_p1_button_box()
+{
+	int screen_width = dm_get_screen_width();
+
+	SDL_Rect b;
+	b.w = dm_scale_to_resolution(P_BUTTON_W);
+	b.h = dm_scale_to_resolution(P_BUTTON_H);
+	b.x = (screen_width - 3*b.w)/4;
+	b.y = dm_scale_to_resolution(P_BUTTON_Y);
+	return b;
+}
+
+/* Function: get_p2_button_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+static SDL_Rect get_p2_button_box()
+{
+	int screen_width = dm_get_screen_width();
+	SDL_Rect b;
+	b.w = dm_scale_to_resolution(P_BUTTON_W);
+	b.h = dm_scale_to_resolution(P_BUTTON_H);
+	b.x = 2*(screen_width - 3*b.w)/4 + b.w;
+	b.y = dm_scale_to_resolution(P_BUTTON_Y);
+	return b;
+}
+
+/* Function: get_p3_button_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect get_p3_button_box()
+{
+	int screen_width = dm_get_screen_width();
+	SDL_Rect b;
+	b.w = dm_scale_to_resolution(P_BUTTON_W);
+	b.h = dm_scale_to_resolution(P_BUTTON_H);
+	b.x = 3*(screen_width - 3*b.w)/4 + 2*b.w;
+	b.y = dm_scale_to_resolution(P_BUTTON_Y);
+	return b;
+}
+
 
 /* Function: create_select_level_buttons
  * -----------------------------------------------------------------------------
@@ -285,9 +399,8 @@ int stage_title(const Uint8 *keystate)
     Uint8 press_alpha = (Uint8)(blink_alpha_f * 255.0f);
 	SDL_SetTextureAlphaMod(g_press_space->texture, press_alpha);
 
-	
-	SDL_Rect img =  dm_get_game_title_img_box();
-	img = ax_scale_rect(img, chip_scale);
+	SDL_Rect img =  get_game_title_img_box();
+	img = ax_scale_rect_proportion(img, chip_scale);
 	dw_draw_texture_fit_h(img, g_chip);
 
 	SDL_Rect s = dm_get_press_space_box(PRESS_SPACE);
@@ -323,9 +436,9 @@ int stage_title(const Uint8 *keystate)
 static void create_player_btns(iface_btn_t **player_btns)
 {
 	assert(player_btns != NULL && "The buttons pointer is NULL");
-	SDL_Rect p1_box = dm_get_p1_button_box();
-	SDL_Rect p2_box = dm_get_p2_button_box();
-	SDL_Rect p3_box = dm_get_p3_button_box();
+	SDL_Rect p1_box = get_p1_button_box();
+	SDL_Rect p2_box = get_p2_button_box();
+	SDL_Rect p3_box = get_p3_button_box();
 	
 	player_btns[0] = bt_create_iface_btn(p1_box, 
 								   dw_create_text_texture(" ", C_BLACK), 
@@ -381,9 +494,9 @@ static void draw_player_texts(texture_t **player_text, texture_t **lore)
 	assert(player_text != NULL && "The texture is NULL");
 	assert(lore != NULL && "The texture is NULL");
 	
-	SDL_Rect p1_box = dm_get_p1_button_box();
-	SDL_Rect p2_box = dm_get_p2_button_box();
-	SDL_Rect p3_box = dm_get_p3_button_box();
+	SDL_Rect p1_box = get_p1_button_box();
+	SDL_Rect p2_box = get_p2_button_box();
+	SDL_Rect p3_box = get_p3_button_box();
 
 	int box_ofs = dm_get_ofs_player_name();
 	int player_h = dm_get_h_player_name();
@@ -409,7 +522,7 @@ static void draw_player_texts(texture_t **player_text, texture_t **lore)
 
 	dw_draw_texture_center_fit_h(p1_box, lore[0]);
 	dw_draw_texture_center_fit_h(p2_box, lore[1]);
-	dw_draw_texture_center_fit_h(p3_box, lore[1]);
+	dw_draw_texture_center_fit_h(p3_box, lore[2]);
 
 }
 
@@ -425,19 +538,66 @@ static void draw_player_texts(texture_t **player_text, texture_t **lore)
  */
 static void draw_player_figures(float t)
 {
-	int cs = dm_scale_to_resolution(PLAYER_BLOCK_W);
-	SDL_Rect p1_box = dm_get_p1_button_box();
-	SDL_Rect p2_box = dm_get_p2_button_box();
-	SDL_Rect p3_box = dm_get_p3_button_box();
-  
+	SDL_Rect p1_box = get_p1_button_box();
+	SDL_Rect p2_box = get_p2_button_box();
+	SDL_Rect p3_box = get_p3_button_box();
+
+	bool hover_p1 = ax_chk_mouse_hover_rect(p1_box);
+	bool hover_p2 = ax_chk_mouse_hover_rect(p2_box);
+	bool hover_p3 = ax_chk_mouse_hover_rect(p3_box);
+
+	int p1_bs = get_player_block_size();
+	int p2_bs = get_player_block_size();
+	int p3_bs = get_player_block_size();
+
+	int p1_state = AA_OPT_NONE;
+	int p2_state = AA_OPT_NONE;
+	int p3_state = AA_OPT_NONE;
+
+	float s = bt_get_hover_factor();
+	
+	if (hover_p1 == true){
+		p1_bs += (int)ceil(((float)p1_bs * s));		
+		p1_state = AA_OPT_INVERT;
+ 		p1_box.y += bt_get_btn_lift();
+	}
+	if (hover_p2 == true){
+		p2_bs += (int)ceil(((float)p2_bs * s));		
+		p2_state = AA_OPT_INVERT;
+ 		p2_box.y += bt_get_btn_lift();
+	}
+	if (hover_p3 == true){
+		p3_bs += (int)ceil(((float)p3_bs * s));		
+		p3_state = AA_OPT_INVERT;
+ 		p3_box.y += bt_get_btn_lift();
+	}
+
+	p1_box.y += pl_get_sign_y_ofs() * p1_bs;
+	p2_box.y += pl_get_sign_y_ofs() * p2_bs;
+	p3_box.y += pl_get_sign_y_ofs() * p3_bs;
+
+
+	int fig_w = pl_get_fig_block_w();
+	int fig_h = pl_get_fig_block_h();
+	
+	p1_box.x += (p1_box.w - fig_w*p1_bs)/2;
+	p1_box.y += (p1_box.h - fig_h*p1_bs)/2;
+	p2_box.x += (p2_box.w - fig_w*p2_bs)/2;
+	p2_box.y += (p2_box.h - fig_h*p2_bs)/2;
+	p3_box.x += (p3_box.w - fig_w*p3_bs)/2;
+	p3_box.y += (p3_box.h - fig_h*p3_bs)/2;
+
 	struct Item { AA_FigureType type; int x,y; char L; } A[3] = {
         {AA_FIG_WIDE, p1_box.x, p1_box.y,'X'},
-        {AA_FIG_MED,  610,240,'Y'},
-        {AA_FIG_SLIM, 960,240,'Z'}
+        {AA_FIG_MED,  p2_box.x, p2_box.y,'Y'},
+        {AA_FIG_SLIM, p3_box.x, p3_box.y,'Z'}
     };
-	aa_draw_human(g_renderer, A[0].type, A[0].x, A[0].y, cs, C_WHITE, 
-							  C_NEARBLACK, A[0].L, t, AA_OPT_NONE);
-
+	aa_draw_human(g_renderer, A[0].type, A[0].x, A[0].y, p1_bs, C_WHITE, 
+							  C_NEARBLACK, A[0].L, t, p1_state);
+	aa_draw_human(g_renderer, A[1].type, A[1].x, A[1].y, p2_bs, C_WHITE, 
+							  C_NEARBLACK, A[1].L, t, p2_state);
+	aa_draw_human(g_renderer, A[2].type, A[2].x, A[2].y, p3_bs, C_WHITE, 
+							  C_NEARBLACK, A[2].L, t, p3_state);
 
 }
 
@@ -472,9 +632,9 @@ int stage_select_player()
 	static bool title_done = false;
 	Uint64 cur_time = SDL_GetTicks64();
 
-	SDL_Rect p1_box = dm_get_p1_button_box();
-	SDL_Rect p2_box = dm_get_p2_button_box();
-	SDL_Rect p3_box = dm_get_p3_button_box();
+	SDL_Rect p1_box = get_p1_button_box();
+	SDL_Rect p2_box = get_p2_button_box();
+	SDL_Rect p3_box = get_p3_button_box();
 
 	if (init == false){
 	
@@ -516,6 +676,7 @@ int stage_select_player()
 	SDL_Rect dark_plate_2 = ax_pad_rectangle(p2_box, plate_ofs, false);
 	SDL_Rect dark_plate_3 = ax_pad_rectangle(p3_box, plate_ofs, false);
 	SDL_Color bg_plate = C_BLACK;
+	
 	bg_plate.a = 140;
 	dw_draw_filled_rectangle(dark_plate_1, bg_plate, bg_plate);
 	dw_draw_filled_rectangle(dark_plate_2, bg_plate, bg_plate);

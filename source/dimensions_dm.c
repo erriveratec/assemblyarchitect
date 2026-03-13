@@ -45,9 +45,6 @@
 #define STAGE_BUTTON_H 60
 #define STAGE_BUTTON_Y 820
 
-#define P_BUTTON_H 280
-#define P_BUTTON_W 280
-#define P_BUTTON_Y 405
 #define P_NAME_OFS 80
 #define P_NAME_H 50
 #define P_LORE_H 35
@@ -102,10 +99,6 @@
 #define TITLE_H	140
 #define TITLE_Y	140
 
-#define TITLE_IMG_H 480
-#define TITLE_IMG_W 480
-#define TITLE_IMG_Y 325
-
 #define SEL_PLAYER_Y 155
 
 #define PRESS_H 60
@@ -138,7 +131,6 @@
 #define BUF_H 75
 #define BUF_W 1000
 
-#define HOVER_SCALE 0.06f
 
 
 
@@ -148,21 +140,6 @@ int g_screen_height;
 
 static int dm_get_ofs_val_box_x();
 
-
-/* Function: dm_get_ofs_hover
- * -----------------------------------------------------------------------------
- * Returns the increment of the elements during hover
- * 
- * Arguments:
- *	Void.
- *
- * Return:
- *	The hover incremente ofs
- */
-float dm_get_hover_scale()
-{
-	return HOVER_SCALE;
-}
 
 /* Function: dm_get_w_miss_op
  * -----------------------------------------------------------------------------
@@ -1756,65 +1733,6 @@ SDL_Rect dm_get_rst_b2_box()
 	return b;
 }
 
-/* Function: dm_get_p1_button_box
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object.
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_p1_button_box()
-{
-	SDL_Rect b;
-	b.w = dm_scale_to_resolution(P_BUTTON_W);
-	b.h = dm_scale_to_resolution(P_BUTTON_H);
-	b.x = (g_screen_width - 3*b.w)/4;
-	b.y = dm_scale_to_resolution(P_BUTTON_Y);
-	return b;
-}
-
-/* Function: dm_get_p2_button_box
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object.
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_p2_button_box()
-{
-	SDL_Rect b;
-	b.w = dm_scale_to_resolution(P_BUTTON_W);
-	b.h = dm_scale_to_resolution(P_BUTTON_H);
-	b.x = 2*(g_screen_width - 3*b.w)/4 + b.w;
-	b.y = dm_scale_to_resolution(P_BUTTON_Y);
-	return b;
-}
-
-/* Function: dm_get_p3_button_box
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object.
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_p3_button_box()
-{
-	SDL_Rect b;
-	b.w = dm_scale_to_resolution(P_BUTTON_W);
-	b.h = dm_scale_to_resolution(P_BUTTON_H);
-	b.x = 3*(g_screen_width - 3*b.w)/4 + 2*b.w;
-	b.y = dm_scale_to_resolution(P_BUTTON_Y);
-	return b;
-}
 
 /* Function: dm_get_ofs_player_name
  * -----------------------------------------------------------------------------
@@ -1931,25 +1849,7 @@ SDL_Rect dm_get_studio_name_msg_box()
 	return b;
 }
 
-/* Function: dm_get_game_title_img_box
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object.
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object.
- */
-SDL_Rect dm_get_game_title_img_box()
-{
-	SDL_Rect b;
-	b.w = dm_scale_to_resolution(TITLE_IMG_W);
-	b.h = dm_scale_to_resolution(TITLE_IMG_H);
-	b.x = (g_screen_width - b.w)/2;
-	b.y = dm_scale_to_resolution(TITLE_IMG_Y);
-	return b;
-}
+
 
 /* Function: dm_get_game_title_box
  * -----------------------------------------------------------------------------

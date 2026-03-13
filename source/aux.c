@@ -7,6 +7,7 @@
 #include "dbg.h"
 #include "draw_dw.h"
 #include "dimensions_dm.h"
+#include "mouse_ms.h"
 
 #define MOVE_DELTA 15
 #define FAST_MOVE_DELTA 60
@@ -24,6 +25,36 @@ char *ax_level_text = "Level";
 static int move_delta;
 static int arrow_mdelta;
 
+
+
+/* Function: ax_chk_mouse_hover_rect
+ *------------------------------------------------------------------------------
+ * This function verifies is the mouse hovered a rectangle area.
+ *
+ * Arguments:
+ * 	r: The rectangle to be verified
+ *	
+ * Return:
+ *	true if the mouse hovered the rectangle
+ *	false if otherwise
+ *
+*/
+bool ax_chk_mouse_hover_rect(SDL_Rect r)
+{
+	int mouse_x = ms_get_mouse_x();
+	int mouse_y = ms_get_mouse_y();
+
+	bool hover;
+	if (mouse_x > r.x 
+		&& mouse_x < (r.x + r.w) 
+		&& mouse_y > r.y 
+		&& mouse_y < (r.y + r.h)){
+		hover = true;
+	} else {
+		hover = false;
+	} 
+	return hover;
+}
 /* Function: ax_set_arrow_mdelta
  *------------------------------------------------------------------------------
  * Sets the fast and slow values for the arrow delta
@@ -139,10 +170,11 @@ SDL_Rect ax_pad_rectangle(SDL_Rect b, int offset, bool inside)
 	return r;
 }
 
-/* Function: ax_scale_rect
+/* Function: ax_scale_rect_proportion
  *------------------------------------------------------------------------------
  * This function scales a rectangle and keeps the center. It scales it according
  * to the width and height of the rectangle.
+ * Value of 1 is no change. 1.2 is 20% percent
  *
  * Arguments:
  *	r: The original rectable.
@@ -151,7 +183,7 @@ SDL_Rect ax_pad_rectangle(SDL_Rect b, int offset, bool inside)
  * Return:
  *	The new rectangle
  */
-SDL_Rect ax_scale_rect(SDL_Rect r, float scale)
+SDL_Rect ax_scale_rect_proportion(SDL_Rect r, float scale)
 {
 	SDL_Rect b;
 	b.w = (int)r.w * scale;
@@ -159,9 +191,33 @@ SDL_Rect ax_scale_rect(SDL_Rect r, float scale)
 
 	int x_center = r.x + r.w/2;
 	int y_center = r.y + r.h/2;
-	
+  
 	b.x = x_center - b.w/2;
 	b.y = y_center - b.h/2;
+
+	return b;
+}
+
+/* Function: ax_scale_rect_percentage
+ *------------------------------------------------------------------------------
+ * This function scales a rectangle and keeps the center. It scales it according
+ * to the width and height of the rectangle.
+ * Value of 1 is 100% increment, .20 is 20 percent/
+ *
+ * Arguments:
+ *	r: The original rectable.
+ *	scale: The value to which the rectangle will be scaled.
+ *
+ * Return:
+ *	The new rectangle
+ */
+SDL_Rect ax_scale_rect_percentage(SDL_Rect r, float scale)
+{
+	SDL_Rect b = r;
+	b.x -= (int)(scale * (float)b.w);
+	b.y -= (int)(scale * (float)b.h);
+	b.w += (int)(2*scale * (float)b.w);
+	b.h += (int)(2*scale * (float)b.h);
 
 	return b;
 }

@@ -1,5 +1,6 @@
 vim -c ":edit main.c |
 tabnew intro_screen_is.c | vsplit intro_screen_is.h | 
+tabnew players_pl.c | vsplit players_pl.h | 
 tabnew stages.c | vsplit stages.h | 
 tabnew electron_fx.c | vsplit electron_fx.h | 
 tabnew game_mechanics_mc.c | vsplit game_mechanics_mc.h | 

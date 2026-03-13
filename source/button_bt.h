@@ -39,4 +39,6 @@ void bt_draw_iface_btn_nopad(iface_btn_t *b);
 bool bt_chk_mouse_click_iface_btn(iface_btn_t *button);
 bool bt_chk_mouse_rel_iface_btn(iface_btn_t *button);
 void bt_destroy_iface_btn(iface_btn_t *b);
+float bt_get_hover_factor();
+int bt_get_btn_lift();
 #endif
