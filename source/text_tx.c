@@ -204,7 +204,7 @@ void tx_bottom_msg(int pos, int msg_id)
 	int text_h;
 	SDL_Color color;
 	texture_array_t *a = g_gbl_msgs[msg_id];
-	int offset = dm_get_ofs_iface_filled_border();
+	int offset = dw_get_ofs_iface_filled_border();
 	switch(pos){
 		case TX_INS_BOX:
 			text_h = dm_get_h_bottom_msg();

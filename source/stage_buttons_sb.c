@@ -25,8 +25,7 @@ static Uint32 STAGE_BUTTON_W = 60;
 static Uint32 STAGE_BUTTON_H = 60;
 static Uint32 STAGE_BUTTON_Y = 820;
 
-static Uint32 SCREEN_BORDERS_OFS = 2;
-
+static Uint32 SCREEN_BORDERS_OFS = 5;
 bool g_escape_menu = false;
 bool g_rst_menu = false;
 bool g_quit = false;
@@ -144,7 +143,7 @@ static SDL_Rect get_return_button_box()
 	SDL_Rect b;
 	b.w = dm_scale_to_resolution(RET_BUTTON_W);
 	b.h = dm_scale_to_resolution(RET_BUTTON_H);
-	b.x = SCREEN_BORDERS_OFS;
+	b.x = dm_scale_to_resolution(SCREEN_BORDERS_OFS);
 	b.y = screen_height - b.h - 2*bt_get_ofs_button_shadow();
 	return b;
 }

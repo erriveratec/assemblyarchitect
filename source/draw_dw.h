@@ -39,7 +39,7 @@ void dw_draw_thick_rect(SDL_Rect r, int w, SDL_Color c);
 void dw_draw_inner_shadow_lines(SDL_Rect r, 
 								SDL_Color top_left, 
 								SDL_Color bottom_right);
-
+int dw_get_ofs_iface_filled_border();
 
 extern SDL_Color C_WHITE;
 extern SDL_Color C_BLACK;

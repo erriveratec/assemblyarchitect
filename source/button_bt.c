@@ -10,8 +10,79 @@ static const Uint32 BUTTON_LIFT = 4;
 static const float HOVER_SCALE = 0.06f;
 static const Uint32 BUTTON_SHADOW_OFS = 5; // The shadow of iface buttons
 
+static const Uint32 IFACE_BUTTON_SPACE_W = 7; // Used for the button inner bord
+static const Uint32 IFACE_BUTTON_OUTER_W = 3; //Outer width of the iface button
+
 static bool chk_mouse_hover_iface_btn(iface_btn_t *btn);
 static void draw_btn_scaled_texture(SDL_Rect box, iface_btn_t *b);
+static int get_w_iface_space_border();
+static int get_w_iface_outer_border();
+static int get_w_button_padding();
+static int get_h_button_padding();
+
+/* Function: dm_get_w_button_padding
+ * -----------------------------------------------------------------------------
+ *	Returns the scale value for the horizontal padding
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset
+ */
+static int get_w_button_padding()
+{
+	return dm_get_w_border_padding() + 
+		   dm_scale_to_resolution(IFACE_BUTTON_SPACE_W);
+}
+
+/* Function: dm_get_h_but_padding
+ * -----------------------------------------------------------------------------
+ *	Returns the scale value for the vertical padding
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset
+ */
+static int get_h_button_padding()
+{
+	return dm_get_h_border_padding() + 
+		   dm_scale_to_resolution(IFACE_BUTTON_SPACE_W);
+}
+
+
+
+/* Function: dm_get_ofs_iface_border
+ * -----------------------------------------------------------------------------
+ *	Returns the interfacer border space that will be use for interface buttons
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	The offset that will be use of the rectangle padding of the interface
+ */
+static int get_w_iface_space_border()
+{
+	return dm_scale_to_resolution(IFACE_BUTTON_SPACE_W);
+}
+
+/* Function: dm_get_ofs_outer_border
+ * -----------------------------------------------------------------------------
+ *	Returns the interfacer border space that will be use for interface buttons
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	The offset that will be use of the rectangle padding of the interface
+ */
+static int get_w_iface_outer_border()
+{
+	return dm_scale_to_resolution(IFACE_BUTTON_OUTER_W);
+}
 
 /* Function: dm_get_ofs_button_shadow
  * -----------------------------------------------------------------------------
@@ -210,8 +281,8 @@ static void draw_btn_scaled_texture(SDL_Rect box, iface_btn_t *b)
 {
 	if (b->t == NULL) return;
 	
-	int w_pad = dm_get_w_button_padding();
-	int h_pad = dm_get_h_button_padding();
+	int w_pad = get_w_button_padding();
+	int h_pad = get_h_button_padding();
 	
 	float scale_w = (float)(b->r.w - 2*w_pad)/b->t->w;
 	float scale_h = (float)(b->r.h - 2*h_pad)/b->t->h;
@@ -245,7 +316,7 @@ void bt_draw_iface_btn(iface_btn_t *b)
 	SDL_Rect box = b->r;
  	bool hover = chk_mouse_hover_iface_btn(b);
 	bool clicked = bt_chk_mouse_click_iface_btn(b);
-	int offset = dm_get_w_iface_space_border();
+	int offset = get_w_iface_space_border();
 	int shadow_offset = bt_get_ofs_button_shadow();	
 	
 	if (hover == true && b->enabled == true){
@@ -278,7 +349,7 @@ void bt_draw_iface_btn(iface_btn_t *b)
 						   .h = box.h};
 		dw_draw_filled_rectangle(shadow, C_DIMGREY, C_DIMGREY);
 		
-		int outer_border = dm_get_w_iface_outer_border();
+		int outer_border = get_w_iface_outer_border();
 		dw_draw_thick_rect(box, outer_border, C_WHITE);
 
 		SDL_Rect in = ax_pad_rectangle(box, offset, true);
@@ -324,7 +395,7 @@ void bt_draw_iface_btn_nopad(iface_btn_t *b)
 	dw_draw_filled_rectangle(shadow, C_DARKGREY, C_DARKGREY);
 
 	bool clicked = bt_chk_mouse_click_iface_btn(b);
-	int offset = dm_get_w_iface_space_border();
+	int offset = get_w_iface_space_border();
 	
 	if (b->enabled == false){
 		dw_draw_filled_rectangle(b->r, C_BLACK, C_GREY);

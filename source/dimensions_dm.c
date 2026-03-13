@@ -4,6 +4,7 @@
 #include"registers_rg.h"
 #include"code_window_cw.h"
 #include"aux.h"
+#include"draw_dw.h"
 #include <SDL.h>
 
 #define ESC_MENU_BOX_W 600
@@ -79,9 +80,6 @@
 #define H_PADDING 10
 #define BUT_PADDING 25
 
-#define IFACE_BUTTON_SPACE_W 7 // Used for the buttons
-#define IFACE_BUTTON_OUTER_W 3 //Outer width of the iface button
-#define IFACE_FILLED_OFS 20 // Used for Interface Messages
 
 #define BORDERS_WIDTH 5 //Used for the interface boxes
 
@@ -222,50 +220,9 @@ int dm_get_w_borders()
 }
 
 
-/* Function: dm_get_ofs_iface_filled_border
- * -----------------------------------------------------------------------------
- *	Returns the interface filled border used for messages.
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	The offset that will be use of the rectangle padding of the interface
- */
-int dm_get_ofs_iface_filled_border()
-{
-	return dm_scale_to_resolution(IFACE_FILLED_OFS);
-}
 
-/* Function: dm_get_ofs_iface_border
- * -----------------------------------------------------------------------------
- *	Returns the interfacer border space that will be use for interface buttons
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	The offset that will be use of the rectangle padding of the interface
- */
-int dm_get_w_iface_space_border()
-{
-	return dm_scale_to_resolution(IFACE_BUTTON_SPACE_W);
-}
 
-/* Function: dm_get_ofs_outer_border
- * -----------------------------------------------------------------------------
- *	Returns the interfacer border space that will be use for interface buttons
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	The offset that will be use of the rectangle padding of the interface
- */
-int dm_get_w_iface_outer_border()
-{
-	return dm_scale_to_resolution(IFACE_BUTTON_OUTER_W);
-}
+
 
 /* Function: dm_get_screen_height
  * -----------------------------------------------------------------------------
@@ -423,38 +380,6 @@ int dm_get_w_padding()
 int dm_get_h_padding()
 {
 	return dm_scale_to_resolution(H_PADDING);
-}
-
-/* Function: dm_get_w_button_padding
- * -----------------------------------------------------------------------------
- *	Returns the scale value for the horizontal padding
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	int with the offset
- */
-int dm_get_w_button_padding()
-{
-	return dm_scale_to_resolution(W_PADDING) + 
-	       dm_scale_to_resolution(IFACE_BUTTON_SPACE_W);
-}
-
-/* Function: dm_get_h_but_padding
- * -----------------------------------------------------------------------------
- *	Returns the scale value for the vertical padding
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	int with the offset
- */
-int dm_get_h_button_padding()
-{
-	return dm_scale_to_resolution(H_PADDING) + 
-		   dm_scale_to_resolution(IFACE_BUTTON_SPACE_W);
 }
 
 
@@ -789,10 +714,10 @@ SDL_Rect dm_get_text_box_result_text()
 {
 	SDL_Rect rb = dm_get_text_box_result();
 	SDL_Rect b;
-	b.w = rb.w - 2*dm_scale_to_resolution(IFACE_FILLED_OFS);
+	b.w = rb.w - 2*dw_get_ofs_iface_filled_border();
 	b.h = dm_scale_to_resolution(TEXT_H_TOTAL_MSG);
 	b.x = rb.x + (rb.w - b.w)/2;
-	b.y = rb.y + dm_scale_to_resolution(IFACE_FILLED_OFS);
+	b.y = rb.y + dw_get_ofs_iface_filled_border();
 	return b;
 }
 
@@ -814,7 +739,7 @@ SDL_Rect dm_get_text_box_result()
 	b.h = dm_scale_to_resolution(RES_BOX_H);
 	b.x = dm_get_screen_width()/2 - b.w/2;
 	b.y = dm_get_screen_height() - b.h -
-		  dm_scale_to_resolution(IFACE_FILLED_OFS);
+		  dw_get_ofs_iface_filled_border();
 	return b;
 }
 
@@ -881,7 +806,7 @@ SDL_Rect dm_get_text_box_lower()
 	b.h = mb.h;
 	b.x = dm_get_screen_width()/2 - mb.w/2;
 	b.y = dm_get_screen_height() - mb.h - 
-		  dm_scale_to_resolution(IFACE_FILLED_OFS);
+		  dw_get_ofs_iface_filled_border();
 	return b;
 }
 
@@ -1013,7 +938,7 @@ SDL_Rect dm_get_text_box_upper()
 	b.w = mb.w;
 	b.h = mb.h;
 	b.x = g_screen_width/2 - mb.w/2;
-	b.y = dm_scale_to_resolution(IFACE_FILLED_OFS);
+	b.y = dw_get_ofs_iface_filled_border();
 	return b;
 }
 
@@ -1034,7 +959,7 @@ SDL_Rect dm_get_text_box_upper_right()
 	b.w = mb.w;
 	b.h = mb.h;
 	b.x = dm_get_stage_imm_up().x + 12*dm_get_value_box_wh().w;
-	b.y = dm_scale_to_resolution(IFACE_FILLED_OFS);
+	b.y = dw_get_ofs_iface_filled_border();
 	return b;
 }
 
@@ -1283,7 +1208,7 @@ int dm_get_h_error_msg()
  */
 int dm_get_w_msg(SDL_Rect r)
 {
-	int w = r.w - 2*dm_scale_to_resolution(IFACE_FILLED_OFS);
+	int w = r.w - 2*dw_get_ofs_iface_filled_border();
 	return w;
 	
 }
@@ -1492,10 +1417,10 @@ SDL_Rect dm_get_center_screen_box_text()
 {
 	SDL_Rect rb = dm_get_center_screen_box();
 	SDL_Rect b;
-	b.w = rb.w - 2*dm_scale_to_resolution(IFACE_FILLED_OFS);
+	b.w = rb.w - 2*dw_get_ofs_iface_filled_border();
 	b.h = dm_scale_to_resolution(TEXT_H_TOTAL_MSG);
 	b.x = rb.x + (rb.w - b.w)/2;
-	b.y = rb.y + dm_scale_to_resolution(IFACE_FILLED_OFS);
+	b.y = rb.y + dw_get_ofs_iface_filled_border();
 	return b;
 }
 

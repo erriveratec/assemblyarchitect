@@ -1288,7 +1288,7 @@ void cw_set_scroll_box(SDL_Rect r)
 	int h = dm_get_h_msg();
 
 	int text_h = dm_get_h_big_text();
-	int border_ofs = dm_get_w_button_padding();
+	int border_ofs = dm_get_w_border_padding();
 	int text_box_height = g_challenge_text->size * h;
 	set_text_box(r.x + border_ofs, 
 				 r.y + border_ofs + text_h + border_ofs, 

@@ -21,7 +21,9 @@ SDL_Color C_GREEN = {0, 255, 0, 255};
 SDL_Color C_SILVERGREY = {192, 192, 192, 255};
 SDL_Color C_LIGHTGREY = {234, 234, 234, 255};
 SDL_Color C_GREY = {127, 127, 127, 255};
+SDL_Color C_CHARCOALGREY = {74, 74, 74, 255};
 SDL_Color C_DIMGREY = {64, 64, 64, 255};
+SDL_Color C_DARKGRAPHITE = {40, 40, 40, 255};
 SDL_Color C_DARKGREY = {31, 31, 31, 255};
 SDL_Color C_SOFTBLACK = {20, 20, 20, 255};
 SDL_Color C_NEARBLACK = {16, 16, 16, 255};
@@ -29,8 +31,27 @@ SDL_Color C_AMBER = {0xFF, 0xBF, 0x00, 255};
 
 texture_t *g_arrow = NULL;
 
+const Uint32 IFACE_FILLED_OFS = 10; // Used for Interface Messages
+
 static void draw_text(int x, int y, float s, SDL_Color c, char *t);
 static int draw_scaled_texture(int x, int y, float s, texture_t *t);
+
+/* Function: dm_get_ofs_iface_filled_border
+ * -----------------------------------------------------------------------------
+ *	Returns the interface filled border used for messages.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	The offset that will be use of the rectangle padding of the interface
+ */
+int dw_get_ofs_iface_filled_border()
+{
+	return dm_scale_to_resolution(IFACE_FILLED_OFS);
+}
+
+
 
 /* Function: dw_draw_inner_shadow_lines
  * -----------------------------------------------------------------------------
@@ -105,10 +126,10 @@ void dw_draw_thick_rect(SDL_Rect b, int w, SDL_Color c)
  */
 void dw_draw_iface_box(SDL_Rect b)
 {
-	dw_draw_filled_rectangle(b, C_GREY, C_SILVERGREY);
-	int offset = dm_get_ofs_iface_filled_border();
+	dw_draw_filled_rectangle(b,C_DIMGREY, C_DARKGRAPHITE);
+	int offset = dw_get_ofs_iface_filled_border();
 	SDL_Rect in = ax_pad_rectangle(b, offset, true);
-	dw_draw_filled_rectangle(in, C_LIGHTGREY, C_DARKGREY);
+	dw_draw_filled_rectangle(in, C_CHARCOALGREY, C_DARKGREY);
 }
 
 /* Function: dw_draw_rotated_texture_fits_height
