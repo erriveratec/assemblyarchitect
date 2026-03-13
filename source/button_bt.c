@@ -284,15 +284,15 @@ static void draw_btn_scaled_texture(SDL_Rect box, iface_btn_t *b)
 	int w_pad = get_w_button_padding();
 	int h_pad = get_h_button_padding();
 	
-	float scale_w = (float)(b->r.w - 2*w_pad)/b->t->w;
-	float scale_h = (float)(b->r.h - 2*h_pad)/b->t->h;
+	float scale_w = (float)(box.w - 2*w_pad)/b->t->w;
+	float scale_h = (float)(box.h - 2*h_pad)/b->t->h;
 
 	if (scale_w < scale_h){
 		int y = box.y + (box.h - b->t->h*scale_w)/2;
 		SDL_Rect r = {.x = box.x + w_pad, .y = y, .w = box.w - 2*w_pad};
 		dw_draw_texture_fits_width(r, b->t);
 	} else {
-		int x = box.x + (box.w - b->t->w*scale_h)/2;
+		int x = box.x + (int)(box.w - b->t->w*scale_h)/2;
 		SDL_Rect r = {.x = x, .y = box.y + w_pad, .h = box.h - 2*h_pad};
 		dw_draw_texture_fit_h(r, b->t);
 	}
@@ -323,7 +323,6 @@ void bt_draw_iface_btn(iface_btn_t *b)
 		float h_ofs = bt_get_hover_factor();
 		box = ax_scale_rect_percentage(box, h_ofs);
 		box.y += bt_get_btn_lift();
-
 		shadow_offset += 2*h_ofs;
 	}
 
