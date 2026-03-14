@@ -201,7 +201,10 @@ static void draw_sign(SDL_Renderer* r,int ox,int oy,int cs,
         int inner_px_h = 7*cs; int scan_y = (int)fmodf(t*60.0f, (float)inner_px_h);
         int slx = ox + (bx+1)*cs + 1; int sly = oy + (by+1)*cs + scan_y; int slw = 7*cs - 2;
         if(sly >= oy + (by+1)*cs + 1 && sly < oy + (by+1)*cs + 7*cs - 1){
-            SDL_SetRenderDrawColor(r, 255,255,255, 64); SDL_Rect sl = { slx, sly, slw, 1 }; SDL_RenderFillRect(r, &sl);
+            SDL_SetRenderDrawColor(r, 255,255,255, 64); 
+			SDL_Rect sl = { slx, sly, slw, 1 }; 
+			SDL_RenderFillRect(r, &sl);
+            SDL_SetRenderDrawColor(r, 0,0,0, 64); 
         }
     }
 
