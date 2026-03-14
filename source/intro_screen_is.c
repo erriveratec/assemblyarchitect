@@ -229,10 +229,10 @@ int stage_select_level()
 	dw_draw_wrapped_texture_by_h(r, r.h, select_level);
 	sb_draw_return_button();
 	for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
-			bt_draw_iface_btn(level_buttons[i]);
+			bt_draw_iface_btn(level_buttons[i], sb_get_escape_state());
 	}
 	
-	bool escape = sb_get_escape_menu_state();
+	bool escape = sb_get_escape_state();
 	if (escape == true){
 		sb_display_escape_menu(escape);
 	} else {
@@ -417,7 +417,7 @@ int stage_title(const Uint8 *keystate)
 		ret_val = LV_TITLE_SCREEN;
 	}
 
-	sb_display_escape_menu(sb_get_escape_menu_state());
+	sb_display_escape_menu(sb_get_escape_state());
 	return ret_val;
 }
 
@@ -556,17 +556,17 @@ static void draw_player_figures(float t)
 
 	float s = bt_get_hover_factor();
 	
-	if (hover_p1 == true){
+	if (hover_p1 == true && sb_get_escape_state() == false){
 		p1_bs += (int)ceil(((float)p1_bs * s));		
 		p1_state = AA_OPT_INVERT;
  		p1_box.y += bt_get_btn_lift();
 	}
-	if (hover_p2 == true){
+	if (hover_p2 == true && sb_get_escape_state() == false){
 		p2_bs += (int)ceil(((float)p2_bs * s));		
 		p2_state = AA_OPT_INVERT;
  		p2_box.y += bt_get_btn_lift();
 	}
-	if (hover_p3 == true){
+	if (hover_p3 == true && sb_get_escape_state() == false){
 		p3_bs += (int)ceil(((float)p3_bs * s));		
 		p3_state = AA_OPT_INVERT;
  		p3_box.y += bt_get_btn_lift();
@@ -682,16 +682,16 @@ int stage_select_player()
 	dw_draw_filled_rectangle(dark_plate_2, bg_plate, bg_plate);
 	dw_draw_filled_rectangle(dark_plate_3, bg_plate, bg_plate);
 	
-	bt_draw_iface_btn(player_btns[0]);
-	bt_draw_iface_btn(player_btns[1]);
-	bt_draw_iface_btn(player_btns[2]);
+	bt_draw_iface_btn(player_btns[0], sb_get_escape_state());
+	bt_draw_iface_btn(player_btns[1], sb_get_escape_state());
+	bt_draw_iface_btn(player_btns[2], sb_get_escape_state());
 
 	draw_player_texts(player_text, player_lore);
 	draw_player_figures(t);
 
-	bool escape_menu = sb_get_escape_menu_state();
+	bool escape_menu = sb_get_escape_state();
 	if (escape_menu == true){
-		sb_display_escape_menu(sb_get_escape_menu_state());
+		sb_display_escape_menu(sb_get_escape_state());
 	} else {
 		if (bt_chk_mouse_rel_iface_btn(player_btns[0]) == true){
 			player_chosen = true;

@@ -309,11 +309,12 @@ static void draw_btn_scaled_texture(SDL_Rect box, iface_btn_t *b)
  * 	
  * Arguments:
  *	b: The button object that is going to be drawn
+ *	blk = If true, the buttons just draws without interaction 
  *
  * Return:
  *	Void.
  */
-void bt_draw_iface_btn(iface_btn_t *b)
+void bt_draw_iface_btn(iface_btn_t *b, bool blk)
 {
 	assert(b != NULL && "The button pointer is NULL");
 	int status = SUCCESS;	
@@ -324,7 +325,7 @@ void bt_draw_iface_btn(iface_btn_t *b)
 	int offset = get_w_iface_space_border();
 	int shadow_offset = bt_get_ofs_button_shadow();	
 	
-	if (hover == true && b->enabled == true){
+	if (hover == true && b->enabled == true && blk == false){
 		float h_ofs = bt_get_hover_factor();
 		box = ax_scale_rect_percentage(box, h_ofs);
 		box.y += bt_get_btn_lift();
@@ -336,7 +337,7 @@ void bt_draw_iface_btn(iface_btn_t *b)
 		SDL_Rect in = ax_pad_rectangle(b->r, offset, true);
 		dw_draw_rectangle(in, C_GREY);
 		draw_btn_scaled_texture(box, b);
-	} else if (clicked == true){
+	} else if (clicked == true && blk == false){
 		SDL_Rect shadow = {.x = box.x + shadow_offset, 
 						   .y = box.y + shadow_offset,
 					   	   .w = box.w, 
@@ -367,7 +368,7 @@ void bt_draw_iface_btn(iface_btn_t *b)
 		dw_draw_inner_shadow_lines(in, C_GREY, C_SILVERGREY);
 		in = ax_pad_rectangle(in, 1, true);
 		dw_draw_inner_shadow_lines(in, C_GREY, C_SILVERGREY);
-		if (hover == true){
+		if (hover == true && blk == false){
 			in = ax_pad_rectangle(in, 1, true);
 			dw_draw_inner_shadow_lines(in, C_GREY, C_SILVERGREY);
 		}

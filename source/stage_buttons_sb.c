@@ -185,8 +185,8 @@ void sb_display_rst_menu(bool show_menu)
 		int text_h = dm_get_h_error_msg();		
 		dw_draw_wrapped_texture_by_h(text_box, text_h, g_rst_menu_text);
 
-		bt_draw_iface_btn(g_rst_b1);
-		bt_draw_iface_btn(g_rst_b2);
+		bt_draw_iface_btn(g_rst_b1, sb_get_escape_state());
+		bt_draw_iface_btn(g_rst_b2, sb_get_escape_state());
 	}
 	return;
 }
@@ -335,9 +335,9 @@ void sb_display_escape_menu(bool show_menu)
 		SDL_Rect r = dm_get_center_screen_box();
 		dw_draw_iface_box(r);
 
-		bt_draw_iface_btn(g_escape_b1);
-		bt_draw_iface_btn(g_escape_b2);
-		bt_draw_iface_btn(g_escape_b3);
+		bt_draw_iface_btn(g_escape_b1, false);
+		bt_draw_iface_btn(g_escape_b2, false);
+		bt_draw_iface_btn(g_escape_b3, false);
 
 		if (bt_chk_mouse_rel_iface_btn(g_escape_b1) == true){
 			toggle_escape_menu();
@@ -367,7 +367,7 @@ void toggle_escape_menu()
 	g_escape_menu = !g_escape_menu;
 }
 
-/* Function: sb_get_escape_menu_state
+/* Function: sb_get_escape_state
  * ----------------------------------------------------------------------------
  * This function return the boolean state of the state.
  *
@@ -377,7 +377,7 @@ void toggle_escape_menu()
  * Return:
  *	Boolean with the state fo the escape_menu variable
  */
-bool sb_get_escape_menu_state()
+bool sb_get_escape_state()
 {
 	return g_escape_menu;
 }
@@ -523,11 +523,11 @@ void adjust_stage_buttons_position(int code_size)
 void sb_draw_stage_buttons(int code_size)
 {
 	adjust_stage_buttons_position(code_size);
-	bt_draw_iface_btn(stop);
-	bt_draw_iface_btn(play);
+	bt_draw_iface_btn(stop, sb_get_escape_state());
+	bt_draw_iface_btn(play, sb_get_escape_state());
 	if (g_step_btns_avail == true){
-		bt_draw_iface_btn(fast);
-		bt_draw_iface_btn(step);
+		bt_draw_iface_btn(fast, sb_get_escape_state());
+		bt_draw_iface_btn(step, sb_get_escape_state());
 	}
 }
 
@@ -544,7 +544,7 @@ void sb_draw_stage_buttons(int code_size)
  */
 void sb_draw_rst_btn()
 {
-	bt_draw_iface_btn(rst_btn);
+	bt_draw_iface_btn(rst_btn, sb_get_escape_state());
 }
 
 /* Function: sb_init_rst_btn
@@ -599,7 +599,7 @@ bool sb_chk_click_rst_btn()
  */
 void sb_draw_return_button()
 {
-	bt_draw_iface_btn(ret_btn);
+	bt_draw_iface_btn(ret_btn, sb_get_escape_state());
 }
 
 /* Function: sb_init_return_buttons

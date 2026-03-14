@@ -590,7 +590,7 @@ int stage_level(int level_id)
 	}
 
 	sb_display_rst_menu(sb_chk_rst_menu_state());
-	sb_display_escape_menu(sb_get_escape_menu_state());
+	sb_display_escape_menu(sb_get_escape_state());
 	return ret_val;
 }
 
@@ -637,8 +637,8 @@ static int display_run_result(bool win_check)
 		back = bt_create_iface_btn(b, back_texture, true);
 		check_mem(back);
 	} 
-	bt_draw_iface_btn(back);
-	bt_draw_iface_btn(con);
+	bt_draw_iface_btn(back, sb_get_escape_state());
+	bt_draw_iface_btn(con, sb_get_escape_state());
 
 	if (bt_chk_mouse_rel_iface_btn(con) == true){
 		button_pressed = true;
