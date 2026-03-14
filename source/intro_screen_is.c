@@ -689,10 +689,9 @@ int stage_select_player()
 	draw_player_texts(player_text, player_lore);
 	draw_player_figures(t);
 
-
 	bool escape_menu = sb_get_escape_menu_state();
 	if (escape_menu == true){
-		sb_display_escape_menu(escape_menu);
+		sb_display_escape_menu(sb_get_escape_menu_state());
 	} else {
 		if (bt_chk_mouse_rel_iface_btn(player_btns[0]) == true){
 			player_chosen = true;

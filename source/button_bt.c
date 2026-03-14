@@ -13,12 +13,17 @@ static const Uint32 BUTTON_SHADOW_OFS = 5; // The shadow of iface buttons
 static const Uint32 IFACE_BUTTON_SPACE_W = 7; // Used for the button inner bord
 static const Uint32 IFACE_BUTTON_OUTER_W = 3; //Outer width of the iface button
 
+static bool g_btns_blocked = false;
+
 static bool chk_mouse_hover_iface_btn(iface_btn_t *btn);
 static void draw_btn_scaled_texture(SDL_Rect box, iface_btn_t *b);
 static int get_w_iface_space_border();
 static int get_w_iface_outer_border();
 static int get_w_button_padding();
 static int get_h_button_padding();
+
+
+
 
 /* Function: dm_get_w_button_padding
  * -----------------------------------------------------------------------------

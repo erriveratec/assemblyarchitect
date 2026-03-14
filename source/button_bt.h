@@ -43,4 +43,5 @@ float bt_get_hover_factor();
 int bt_get_btn_lift();
 
 int bt_get_ofs_button_shadow();
+
 #endif
