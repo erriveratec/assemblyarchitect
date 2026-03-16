@@ -32,6 +32,8 @@ TTF_Font *g_font = NULL;
 Mix_Chunk *g_studio_sfx = NULL;
 Mix_Chunk *g_sfx_type = NULL;
 Mix_Chunk *g_sfx_ready = NULL;
+Mix_Chunk *g_sfx_highlight = NULL;
+Mix_Chunk *g_sfx_select = NULL;
 
 
 static bool init_audio();
@@ -277,6 +279,17 @@ int load_media()
 
 	g_sfx_ready = Mix_LoadWAV("sound/ready.wav");
 	if (g_sfx_ready == NULL){
+		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
+		return FAIL;
+	}
+	g_sfx_highlight = Mix_LoadWAV("sound/click_ping.wav");
+	if (g_sfx_highlight == NULL){
+		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
+		return FAIL;
+	}
+
+	g_sfx_select = Mix_LoadWAV("sound/ping_confirm.wav");
+	if (g_sfx_select == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}

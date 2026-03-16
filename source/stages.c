@@ -608,7 +608,7 @@ static int display_run_result(bool win_check)
 
 	bf_set_win_condition();
 	SDL_Rect r = dm_get_text_box_result();	
-	dw_draw_iface_box(r);
+	dw_draw_iface_box(r, NULL);
 
 	SDL_Rect s = dm_get_text_box_result_text();
 	int text_h = dm_get_h_error_msg();		

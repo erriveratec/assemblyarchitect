@@ -32,14 +32,15 @@ SDL_Color C_AMBER = {0xFF, 0xBF, 0x00, 255};
 texture_t *g_arrow = NULL;
 
 const Uint32 IFACE_FILLED_OFS = 10; // Used for Interface Messages
-const Uint32 IFACE_INNER_BORDER = 3; // Used for Interface Messages
-static const Uint32 IFACE_TITLE_H = 70;
+const Uint32 IFACE_INNER_BORDER = 4; // Used for Interface Messages
+static const Uint32 IFACE_HEADER_BOX_H = 50;
+static const Uint32 IFACE_HEADER_TEXT_H = 30;
 
 static void draw_text(int x, int y, float s, SDL_Color c, char *t);
 static int draw_scaled_texture(int x, int y, float s, texture_t *t);
 static int get_ofs_iface_inner_border();
-static int get_h_iface_title();
-
+static int get_h_iface_header();
+static int get_h_iface_header_txt();
 
 /* Function: dm_get_ofs_iface_filled_border
  * -----------------------------------------------------------------------------
@@ -56,7 +57,22 @@ int dw_get_ofs_iface_filled_border()
 	return dm_scale_to_resolution(IFACE_FILLED_OFS);
 }
 
-/* Function: dm_get_ofs_iface_filled_border
+/* Function: get_ofs_h_iface_header_txt
+ * -----------------------------------------------------------------------------
+ *	Returns the height of the iface header_text
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	The height of the iface header text
+ */
+static int get_h_iface_header_txt()
+{
+	return dm_scale_to_resolution(IFACE_HEADER_TEXT_H);
+}
+
+/* Function: get_ofs_iface_filled_border
  * -----------------------------------------------------------------------------
  *	Returns the interface filled border used for messages.
  *
@@ -81,10 +97,11 @@ static int get_ofs_iface_inner_border()
  * Return:
  *	The height of the title
  */
-static int get_h_iface_title()
+static int get_h_iface_header()
 {
-	return dm_scale_to_resolution(IFACE_TITLE_H);
+	return dm_scale_to_resolution(IFACE_HEADER_BOX_H);
 }
+
 /* Function: dw_draw_inner_shadow_lines
  * -----------------------------------------------------------------------------
  * Draws a rectangle of inner shadow lines and two colors
@@ -156,7 +173,7 @@ void dw_draw_thick_rect(SDL_Rect b, int w, SDL_Color c)
  * Return:
  *	Void.
  */
-void dw_draw_iface_box(SDL_Rect b)
+void dw_draw_iface_box(SDL_Rect b, texture_t *header)
 {
 	dw_draw_filled_rectangle(b, C_GREY, C_DARKGREY);
 	
@@ -171,21 +188,33 @@ void dw_draw_iface_box(SDL_Rect b)
 	in = ax_pad_rectangle(in, inner_border, true);
 	dw_draw_thick_rect(in, inner_border, C_SOFTBLACK);
 
-	SDL_Rect title = in; 
-	title.h = get_h_iface_title();
+	SDL_Rect header_box = in; 
+	header_box.h = get_h_iface_header();
 	
 	in = ax_pad_rectangle(in, inner_border, true);
 	dw_draw_filled_rectangle(in, C_DARKGRAPHITE, C_DARKGRAPHITE);
 	
-	dw_draw_filled_rectangle(title, C_SOFTBLACK, C_SOFTBLACK);
+	dw_draw_filled_rectangle(header_box, C_SOFTBLACK, C_SOFTBLACK);
 	
-	SDL_Rect title_bar = title;
-	title_bar.y += title.h;
-	title_bar.h = inner_border;
-	dw_draw_filled_rectangle(title_bar, C_CHARCOALGREY, C_CHARCOALGREY);
-	title_bar.y += inner_border;
-	dw_draw_filled_rectangle(title_bar, C_SOFTBLACK, C_SOFTBLACK);
+	// upper title-header section
+	SDL_Rect header_bar = header_box;
+	header_bar.y += header_box.h;
+	header_bar.h = inner_border;
+	// lower bars
+	dw_draw_filled_rectangle(header_bar, C_CHARCOALGREY, C_CHARCOALGREY);
+	header_bar.y += inner_border;
+	dw_draw_filled_rectangle(header_bar, C_SOFTBLACK, C_SOFTBLACK);
+
+	if (header != NULL){
+ 		int text_h = get_h_iface_header_txt();
+		int text_w = ax_get_texture_w_fit_h(text_h, header);
 	
+		SDL_Rect header_text = {.x = header_box.x + (header_box.w - text_w)/2,
+								.y = header_box.y + (header_box.h - text_h)/2,	
+								.w = text_w,
+								.h = text_h};
+		dw_draw_texture_fit_h(header_text, header);
+	}
 
 }
 

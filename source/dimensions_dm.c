@@ -53,7 +53,7 @@
 #define COMMA_OFS 15
 
 static Uint32 CENTER_BOX_W = 420;
-static Uint32 CENTER_BOX_H = 350;
+static Uint32 CENTER_BOX_H = 330;
 
 
 #define RST_MENU_BUTTON_W 350

@@ -316,7 +316,7 @@ void tx_text_box(int pos, int msg_id)
 			text_h = dm_get_h_msg();
 			break;
 	}
-	dw_draw_iface_box(b);
+	dw_draw_iface_box(b, NULL);
 	dw_draw_wrapped_texture_by_h(b, text_h, a);
 }
 

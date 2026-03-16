@@ -21,6 +21,8 @@ extern TTF_Font *g_font;
 extern Mix_Chunk *g_studio_sfx;
 extern Mix_Chunk *g_sfx_type;
 extern Mix_Chunk *g_sfx_ready;
+extern Mix_Chunk *g_sfx_highlight;
+extern Mix_Chunk *g_sfx_select;
 
 int load_media();
 void close_sdl();

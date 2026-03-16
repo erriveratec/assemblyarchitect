@@ -6,10 +6,13 @@
 #include "code_window_cw.h"
 #include "assert.h"
 #include "dbg.h"
+#include "sdl_config.h"
 
 #define ESC_MENU_TEXT1 "Return to Game"
 #define ESC_MENU_TEXT2 "Toggle Full Screen"
 #define ESC_MENU_TEXT3 "Exit Game"
+static char *ESC_MENU_HEADER = "ESC MENU";
+
 
 #define RST_MENU_TEXT0 "Do you want to reset the current level?"
 #define RST_MENU_TEXT1 "NO"
@@ -54,6 +57,7 @@ iface_btn_t *rst_btn;
 texture_t *g_escape_b1_texture = NULL;
 texture_t *g_escape_b2_texture = NULL;
 texture_t *g_escape_b3_texture = NULL;
+texture_t *g_escape_header_texture = NULL;
 
 iface_btn_t *g_escape_b1;
 iface_btn_t *g_escape_b2;
@@ -254,7 +258,7 @@ void sb_display_rst_menu(bool show_menu)
 {
 	if (show_menu == true){
 		SDL_Rect r = dm_get_center_screen_box();
-		dw_draw_iface_box(r);
+		dw_draw_iface_box(r, NULL);
 
 		SDL_Rect text_box = dm_get_center_screen_box_text();
 
@@ -378,6 +382,9 @@ void sb_init_escape_menu()
 	g_escape_b3_texture = dw_create_text_texture(ESC_MENU_TEXT3, C_WHITE);
 	check_mem(g_escape_b3_texture);
 	
+	g_escape_header_texture = dw_create_text_texture(ESC_MENU_HEADER, C_GREY);
+	check_mem(g_escape_header_texture);
+
 	SDL_Rect r = get_escape_b1_box();
 	g_escape_b1 = bt_create_iface_btn(r, g_escape_b1_texture, true);
 	check_mem(g_escape_b1);
@@ -409,17 +416,20 @@ void sb_display_escape_menu(bool show_menu)
 	if (show_menu == true){
 		
 		SDL_Rect r = dm_get_center_screen_box();
-		dw_draw_iface_box(r);
+		dw_draw_iface_box(r, g_escape_header_texture);
 
 		bt_draw_iface_btn(g_escape_b1, false);
 		bt_draw_iface_btn(g_escape_b2, false);
 		bt_draw_iface_btn(g_escape_b3, false);
 
 		if (bt_chk_mouse_rel_iface_btn(g_escape_b1) == true){
+			if (g_sfx_select) Mix_PlayChannel(-1, g_sfx_select, 0);
 			toggle_escape_menu();
 		} else if (bt_chk_mouse_rel_iface_btn(g_escape_b2) == true){
+			if (g_sfx_select) Mix_PlayChannel(-1, g_sfx_select, 0);
 			puts("Full screen must be implemented");	
 		} else if (bt_chk_mouse_rel_iface_btn(g_escape_b3) == true){
+			if (g_sfx_select) Mix_PlayChannel(-1, g_sfx_select, 0);
 			set_quit_game();
 		}
 	}	

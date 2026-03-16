@@ -231,7 +231,7 @@ void mc_display_invalid_operation_handler(int id)
 	
 	if (id != NO_INVALID_OPERATION){
 		SDL_Rect r = dm_get_text_box_result();
-		dw_draw_iface_box(r);
+		dw_draw_iface_box(r, NULL);
 		texture_array_t *message;
 		
 		switch(id){

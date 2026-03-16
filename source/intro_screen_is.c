@@ -545,7 +545,9 @@ static void draw_player_figures(float t)
 	bool hover_p1 = ax_chk_mouse_hover_rect(p1_box);
 	bool hover_p2 = ax_chk_mouse_hover_rect(p2_box);
 	bool hover_p3 = ax_chk_mouse_hover_rect(p3_box);
-
+	
+	static bool chime_played = false;
+	
 	int p1_bs = get_player_block_size();
 	int p2_bs = get_player_block_size();
 	int p3_bs = get_player_block_size();
@@ -556,6 +558,7 @@ static void draw_player_figures(float t)
 
 	float s = bt_get_hover_factor();
 	
+
 	if (hover_p1 == true && sb_get_escape_state() == false){
 		p1_bs += (int)ceil(((float)p1_bs * s));		
 		p1_state = AA_OPT_INVERT;
@@ -570,6 +573,14 @@ static void draw_player_figures(float t)
 		p3_bs += (int)ceil(((float)p3_bs * s));		
 		p3_state = AA_OPT_INVERT;
  		p3_box.y += bt_get_btn_lift();
+	}
+	if (hover_p1 == true || hover_p2 == true || hover_p3 == true){
+		if (chime_played == false && sb_get_escape_state() == false){
+			if (g_sfx_highlight) Mix_PlayChannel(-1, g_sfx_highlight, 0);
+			chime_played = true;
+		}
+	} else {
+			chime_played = false;
 	}
 
 	p1_box.y += pl_get_sign_y_ofs() * p1_bs;
@@ -664,7 +675,7 @@ int stage_select_player()
 															 C_SILVERGREY);
 		if (write_complete == true){
 			title_done = true;
-			if (g_sfx_ready) Mix_PlayChannel(-1, g_sfx_ready, 0);
+		//	if (g_sfx_ready) Mix_PlayChannel(-1, g_sfx_ready, 0);
         }
 	}
 	if (select_player != NULL){
