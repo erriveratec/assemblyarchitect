@@ -59,8 +59,6 @@ static Uint32 CENTER_BOX_H = 330;
 #define RST_MENU_BUTTON_W 350
 #define RST_MENU_BUTTON_H 60
 
-#define SEL_LEVEL_BUTTON_W 130
-#define SEL_LEVEL_BUTTON_H 60
 
 #define RET_RES_OFS 5
 
@@ -1259,43 +1257,7 @@ int dm_get_h_big_text()
 	int h = dm_scale_to_resolution(TEXT_H_BIG);
 	return h;
 }
-/* Function: dm_get_sel_level_offset_y
- * -----------------------------------------------------------------------------
- * Returns the offset for the sel level buttons
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	int with the offset for the sel level buttons
- */
-int get_sel_level_offset_y()
-{
-	int y_offset =  dm_scale_to_resolution(SEL_LEVEL_BUTTON_H + 
-										0.5*SEL_LEVEL_BUTTON_H);
-	return y_offset;
-	
-}
 
-/* Function: dm_get_level_button_box
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object.
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_level_button_box()
-{
-	SDL_Rect b;
-	b.w = dm_scale_to_resolution(SEL_LEVEL_BUTTON_W);
-	b.h = dm_scale_to_resolution(SEL_LEVEL_BUTTON_H);
-	b.x = (g_screen_width - (5*b.w))/6;
-	b.y = g_screen_height/6;
-	return b;
-}
 
 
 /* Function: dm_get_upper_title_box

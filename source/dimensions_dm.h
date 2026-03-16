@@ -12,7 +12,6 @@ enum resolutions{
 
 void dm_set_screen_resolution(int resolution_id);
 
-int get_sel_level_offset_y();
 int dm_get_h_between_code();
 int dm_get_h_big_text();
 int dm_get_h_bottom_msg();
@@ -52,7 +51,6 @@ SDL_Rect dm_get_value_box_val_wh();
 SDL_Rect dm_get_avatar_wh();
 SDL_Rect dm_get_box_msg_wh();
 
-SDL_Rect dm_get_level_button_box();
 
 SDL_Rect dm_get_stage_reg_box();
 SDL_Rect dm_get_stage_ibox();

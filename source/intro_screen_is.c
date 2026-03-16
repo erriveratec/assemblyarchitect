@@ -18,7 +18,7 @@ const char *STUDIO = "One Man Studio";
 char *GAME_TITLE = "ASSEMBLY ARCHITECT";
 char *PRESS_SPACE = "PRESS SPACE";
 char *SELECT_PLAYER_TEXT = "CHOOSE YOUR ARCHITECT";
-char *SELECT_LEVEL_TEXT = "Select Level";
+char *SELECT_LEVEL_TEXT = "SELECT LEVEL";
 char *PLAYER_1_TEXT = "EXECUTOR X";
 char *PLAYER_2_TEXT = "OPERATIVE Y";
 char *PLAYER_3_TEXT = "HANDLER Z";
@@ -41,6 +41,9 @@ static const Uint32 TITLE_IMG_H = 480;
 static const Uint32 TITLE_IMG_W = 480;
 static const Uint32 TITLE_IMG_Y = 325;
 
+static const Uint32 SEL_LEVEL_BUTTON_W = 150;
+static const Uint32 SEL_LEVEL_BUTTON_H = 60;
+
 texture_t *g_press_space = NULL;
 texture_t *g_chip = NULL;
 texture_t *g_logo = NULL;
@@ -49,12 +52,55 @@ static void create_select_level_buttons(iface_btn_t **buttons, bool *levels);
 static void create_player_btns(iface_btn_t **player_btns);
 static void draw_player_texts(texture_t **player_text, texture_t **lore);
 
+static int get_player_block_size();
 static SDL_Rect get_p1_button_box();
 static SDL_Rect get_p2_button_box();
 static SDL_Rect get_p3_button_box();
 static SDL_Rect get_game_title_img_box();
+static SDL_Rect get_level_button_box();
+static int get_sel_level_offset_y();
 
-static int get_player_block_size();
+/* Function: dm_get_sel_level_offset_y
+ * -----------------------------------------------------------------------------
+ * Returns the offset for the sel level buttons
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset for the sel level buttons
+ */
+static int get_sel_level_offset_y()
+{
+	int y_offset =  dm_scale_to_resolution(SEL_LEVEL_BUTTON_H + 
+										0.5*SEL_LEVEL_BUTTON_H);
+	return y_offset;
+	
+}
+
+/* Function: get_level_button_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+static SDL_Rect get_level_button_box()
+{
+	int screen_width = dm_get_screen_width();
+	int screen_height = dm_get_screen_height();
+
+	SDL_Rect r = dm_get_upper_title_box(SELECT_LEVEL_TEXT);
+	SDL_Rect b;
+	b.w = dm_scale_to_resolution(SEL_LEVEL_BUTTON_W);
+	b.h = dm_scale_to_resolution(SEL_LEVEL_BUTTON_H);
+	b.x = (screen_width - (5*b.w))/6;
+	b.y = r.y + r.h + b.h;// + get_sel_level_offset_y(); 
+	return b;
+}
 
 /* Function: get_block_size
  * -----------------------------------------------------------------------------
@@ -174,7 +220,7 @@ static void create_select_level_buttons(iface_btn_t **buttons, bool *levels)
 	assert(buttons != NULL && "The buttons pointer is NULL");
 	assert(levels != NULL && "The levels pointer is NULL");
 	
-	SDL_Rect r = dm_get_level_button_box();
+	SDL_Rect r = get_level_button_box();
 	SDL_Rect b = r;
 	int y_offset = get_sel_level_offset_y();
 	for (int i = 1; i <= LV_LEVEL_QUANTITY; i++){
@@ -211,7 +257,16 @@ static void create_select_level_buttons(iface_btn_t **buttons, bool *levels)
  */
 int stage_select_level()
 {
-	static texture_array_t *select_level = NULL;
+	int W = dm_get_screen_width();
+	int H = dm_get_screen_height();   
+  	static fx_electron_t* fx;
+	static Uint64 last_type_ms;
+	static Uint64 anim_prev_ms;
+	static size_t type_index = 0;
+	static bool title_done = false;
+	Uint64 cur_time = SDL_GetTicks64();
+
+	static texture_t *select_level = NULL;
 
 	static bool level_initialized = false;
 	static iface_btn_t *level_buttons[40];
@@ -223,10 +278,32 @@ int stage_select_level()
 		fl_load_player_levels(g_player, player_levels);
 		level_initialized = true;
 		create_select_level_buttons(level_buttons, player_levels);
-		select_level = dw_new_text_texture_by_h(r.w, r.h, C_SILVERGREY, 
-															 SELECT_LEVEL_TEXT);
+		last_type_ms = cur_time;
+		fx = fx_electron_create(g_renderer, W, H, NULL);
 	}
-	dw_draw_wrapped_texture_by_h(r, r.h, select_level);
+
+	float dt=(cur_time - anim_prev_ms)/1000.0f;
+	anim_prev_ms = cur_time;
+	SDL_Rect b = dm_get_upper_title_box(SELECT_LEVEL_TEXT);
+	fx_electron_update(fx, dt);
+    fx_electron_render(fx, g_renderer);
+	
+	if (title_done == false && (cur_time - last_type_ms) >= TYPE_DELAY_MS){
+		last_type_ms = cur_time;
+		
+		bool write_complete = tx_draw_create_typewriter_text(&select_level, 
+															 b, 
+															 SELECT_LEVEL_TEXT, 
+															 &type_index,
+															 C_SILVERGREY);
+		if (write_complete == true){
+			title_done = true;
+        }
+	}
+	if (select_level != NULL){
+		dw_draw_texture_fit_h(r, select_level);
+	}
+	
 	sb_draw_return_button();
 	for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
 			bt_draw_iface_btn(level_buttons[i], sb_get_escape_state());
@@ -240,6 +317,7 @@ int stage_select_level()
 			if (bt_chk_mouse_rel_iface_btn(level_buttons[i]) == true){
 				ret_val = LV_LEVEL_1 + i;
 				level_initialized = false;
+  				aa_electron_fx_destroy(fx);
 				for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
 					bt_destroy_iface_btn(level_buttons[i]);
 				}
@@ -248,6 +326,7 @@ int stage_select_level()
 		if (sb_check_clicked_ret_button() == true){
 			ret_val = LV_SELECT_PLAYER_SCREEN;	
 			level_initialized = false;
+  			aa_electron_fx_destroy(fx);
 			for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
 				bt_destroy_iface_btn(level_buttons[i]);
 			}
@@ -648,7 +727,6 @@ int stage_select_player()
 	SDL_Rect p3_box = get_p3_button_box();
 
 	if (init == false){
-	
 		init = true;
 		create_player_btns(player_btns);
 		create_player_texts(player_text, player_lore);
@@ -675,7 +753,6 @@ int stage_select_player()
 															 C_SILVERGREY);
 		if (write_complete == true){
 			title_done = true;
-		//	if (g_sfx_ready) Mix_PlayChannel(-1, g_sfx_ready, 0);
         }
 	}
 	if (select_player != NULL){
@@ -716,9 +793,21 @@ int stage_select_player()
 		}
 		if (player_chosen == true){
 			ret_val = LV_LEVEL_SELECTION;		
+			if (g_sfx_select) Mix_PlayChannel(-1, g_sfx_select, 0);
 			bt_destroy_iface_btn(player_btns[0]);
 			bt_destroy_iface_btn(player_btns[1]);
 			bt_destroy_iface_btn(player_btns[2]);
+		//	dw_free_texture(select_player);
+	//		select_player = NULL;
+//			type_index = 0;
+//			title_done = false;
+			dw_free_texture(player_text[0]);
+			dw_free_texture(player_text[1]);
+			dw_free_texture(player_text[2]);
+			dw_free_texture(player_lore[0]);
+			dw_free_texture(player_lore[1]);
+			dw_free_texture(player_lore[2]);
+  			aa_electron_fx_destroy(fx);
 			init = false;
 		}
 	}
