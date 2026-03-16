@@ -97,7 +97,7 @@ static SDL_Rect get_level_button_box()
 	SDL_Rect b;
 	b.w = dm_scale_to_resolution(SEL_LEVEL_BUTTON_W);
 	b.h = dm_scale_to_resolution(SEL_LEVEL_BUTTON_H);
-	b.x = (screen_width - (5*b.w))/6;
+	b.x = (screen_width - (5*b.w + 4*b.w/2))/2;
 	b.y = r.y + r.h + b.h;// + get_sel_level_offset_y(); 
 	return b;
 }
@@ -223,6 +223,7 @@ static void create_select_level_buttons(iface_btn_t **buttons, bool *levels)
 	SDL_Rect r = get_level_button_box();
 	SDL_Rect b = r;
 	int y_offset = get_sel_level_offset_y();
+	
 	for (int i = 1; i <= LV_LEVEL_QUANTITY; i++){
 		char *btn_text = create_string_append_number(ax_level_text, i);
 		texture_t *btn_texture = NULL;
@@ -237,7 +238,8 @@ static void create_select_level_buttons(iface_btn_t **buttons, bool *levels)
 		}
 		b.y += y_offset;	
 		if (i != 0 && i%8 == 0){
-			b.x += r.x + r.w;
+	//		b.x += r.x + r.w;
+			b.x += r.w + r.w/2;
 			b.y = r.y;
 		}
 	}
