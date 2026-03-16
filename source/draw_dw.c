@@ -33,10 +33,12 @@ texture_t *g_arrow = NULL;
 
 const Uint32 IFACE_FILLED_OFS = 10; // Used for Interface Messages
 const Uint32 IFACE_INNER_BORDER = 3; // Used for Interface Messages
+static const Uint32 IFACE_TITLE_H = 70;
 
 static void draw_text(int x, int y, float s, SDL_Color c, char *t);
 static int draw_scaled_texture(int x, int y, float s, texture_t *t);
 static int get_ofs_iface_inner_border();
+static int get_h_iface_title();
 
 
 /* Function: dm_get_ofs_iface_filled_border
@@ -69,6 +71,20 @@ static int get_ofs_iface_inner_border()
 	return dm_scale_to_resolution(IFACE_INNER_BORDER);
 }
 
+/* Function: get_h_iface_title
+ * -----------------------------------------------------------------------------
+ *	Returns the height for the iface title
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	The height of the title
+ */
+static int get_h_iface_title()
+{
+	return dm_scale_to_resolution(IFACE_TITLE_H);
+}
 /* Function: dw_draw_inner_shadow_lines
  * -----------------------------------------------------------------------------
  * Draws a rectangle of inner shadow lines and two colors
@@ -143,16 +159,34 @@ void dw_draw_thick_rect(SDL_Rect b, int w, SDL_Color c)
 void dw_draw_iface_box(SDL_Rect b)
 {
 	dw_draw_filled_rectangle(b, C_GREY, C_DARKGREY);
+	
 	int offset = dw_get_ofs_iface_filled_border();
 	SDL_Rect in = ax_pad_rectangle(b, offset, true);
 	int inner_border = get_ofs_iface_inner_border();
 	dw_draw_thick_rect(in, inner_border, C_SOFTBLACK);
+	
 	in = ax_pad_rectangle(in, inner_border, true);
 	dw_draw_thick_rect(in, inner_border, C_CHARCOALGREY);
+	
 	in = ax_pad_rectangle(in, inner_border, true);
 	dw_draw_thick_rect(in, inner_border, C_SOFTBLACK);
+
+	SDL_Rect title = in; 
+	title.h = get_h_iface_title();
+	
 	in = ax_pad_rectangle(in, inner_border, true);
-	dw_draw_filled_rectangle(in, C_DARKGRAPHITE, C_SOFTBLACK);
+	dw_draw_filled_rectangle(in, C_DARKGRAPHITE, C_DARKGRAPHITE);
+	
+	dw_draw_filled_rectangle(title, C_SOFTBLACK, C_SOFTBLACK);
+	
+	SDL_Rect title_bar = title;
+	title_bar.y += title.h;
+	title_bar.h = inner_border;
+	dw_draw_filled_rectangle(title_bar, C_CHARCOALGREY, C_CHARCOALGREY);
+	title_bar.y += inner_border;
+	dw_draw_filled_rectangle(title_bar, C_SOFTBLACK, C_SOFTBLACK);
+	
+
 }
 
 /* Function: dw_draw_rotated_texture_fits_height

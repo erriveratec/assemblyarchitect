@@ -91,7 +91,7 @@ static SDL_Rect get_escape_b1_box()
 	b.w = dm_scale_to_resolution(ESC_MENU_BUTTON_W);
 	b.h = dm_scale_to_resolution(ESC_MENU_BUTTON_H);
 	b.x = mb.x + mb.w/2 - b.w/2;
-	b.y = mb.y + mb.h - 3*b.h - 4*dm_scale_to_resolution(ESC_MENU_BUTTON_SPACE);
+	b.y = mb.y + mb.h - 3*b.h - 5*dm_scale_to_resolution(ESC_MENU_BUTTON_SPACE);
 	return b;
 }
 
