@@ -32,9 +32,12 @@ SDL_Color C_AMBER = {0xFF, 0xBF, 0x00, 255};
 texture_t *g_arrow = NULL;
 
 const Uint32 IFACE_FILLED_OFS = 10; // Used for Interface Messages
+const Uint32 IFACE_INNER_BORDER = 3; // Used for Interface Messages
 
 static void draw_text(int x, int y, float s, SDL_Color c, char *t);
 static int draw_scaled_texture(int x, int y, float s, texture_t *t);
+static int get_ofs_iface_inner_border();
+
 
 /* Function: dm_get_ofs_iface_filled_border
  * -----------------------------------------------------------------------------
@@ -51,7 +54,20 @@ int dw_get_ofs_iface_filled_border()
 	return dm_scale_to_resolution(IFACE_FILLED_OFS);
 }
 
-
+/* Function: dm_get_ofs_iface_filled_border
+ * -----------------------------------------------------------------------------
+ *	Returns the interface filled border used for messages.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	The offset that will be use of the rectangle padding of the interface
+ */
+static int get_ofs_iface_inner_border()
+{
+	return dm_scale_to_resolution(IFACE_INNER_BORDER);
+}
 
 /* Function: dw_draw_inner_shadow_lines
  * -----------------------------------------------------------------------------
@@ -126,10 +142,17 @@ void dw_draw_thick_rect(SDL_Rect b, int w, SDL_Color c)
  */
 void dw_draw_iface_box(SDL_Rect b)
 {
-	dw_draw_filled_rectangle(b,C_DIMGREY, C_DARKGRAPHITE);
+	dw_draw_filled_rectangle(b, C_GREY, C_DARKGREY);
 	int offset = dw_get_ofs_iface_filled_border();
 	SDL_Rect in = ax_pad_rectangle(b, offset, true);
-	dw_draw_filled_rectangle(in, C_CHARCOALGREY, C_DARKGREY);
+	int inner_border = get_ofs_iface_inner_border();
+	dw_draw_thick_rect(in, inner_border, C_SOFTBLACK);
+	in = ax_pad_rectangle(in, inner_border, true);
+	dw_draw_thick_rect(in, inner_border, C_CHARCOALGREY);
+	in = ax_pad_rectangle(in, inner_border, true);
+	dw_draw_thick_rect(in, inner_border, C_SOFTBLACK);
+	in = ax_pad_rectangle(in, inner_border, true);
+	dw_draw_filled_rectangle(in, C_DARKGRAPHITE, C_SOFTBLACK);
 }
 
 /* Function: dw_draw_rotated_texture_fits_height

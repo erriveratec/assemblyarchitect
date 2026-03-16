@@ -26,6 +26,11 @@ static Uint32 STAGE_BUTTON_H = 60;
 static Uint32 STAGE_BUTTON_Y = 820;
 
 static Uint32 SCREEN_BORDERS_OFS = 5;
+
+static Uint32 ESC_MENU_BUTTON_W = 340;
+static Uint32 ESC_MENU_BUTTON_H = 60;
+static Uint32 ESC_MENU_BUTTON_SPACE = 12;
+
 bool g_escape_menu = false;
 bool g_rst_menu = false;
 bool g_quit = false;
@@ -64,6 +69,77 @@ iface_btn_t *g_rst_b2;
 static SDL_Rect get_return_button_box();
 static SDL_Rect get_rst_btn_box();
 static int get_ofs_space_stage_buttons();
+static SDL_Rect get_escape_b1_box();
+static SDL_Rect get_escape_b2_box();
+static SDL_Rect get_escape_b3_box();
+
+/* Function: get_escape_b1_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+static SDL_Rect get_escape_b1_box()
+{
+	SDL_Rect mb = dm_get_center_screen_box();
+
+	SDL_Rect b;
+	b.w = dm_scale_to_resolution(ESC_MENU_BUTTON_W);
+	b.h = dm_scale_to_resolution(ESC_MENU_BUTTON_H);
+	b.x = mb.x + mb.w/2 - b.w/2;
+	b.y = mb.y + mb.h - 3*b.h - 4*dm_scale_to_resolution(ESC_MENU_BUTTON_SPACE);
+	return b;
+}
+
+/* Function: get_escape_b2_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+static SDL_Rect get_escape_b2_box()
+{
+	SDL_Rect mb = dm_get_center_screen_box();
+	SDL_Rect b1 = get_escape_b1_box();
+	
+	SDL_Rect b;
+	b.w = dm_scale_to_resolution(ESC_MENU_BUTTON_W);
+	b.h = dm_scale_to_resolution(ESC_MENU_BUTTON_H);
+	b.x = b1.x;
+	b.y = b1.y + b.h + dm_scale_to_resolution(ESC_MENU_BUTTON_SPACE);
+	return b;
+}
+
+/* Function: get_escape_b3_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+static SDL_Rect get_escape_b3_box()
+{
+	SDL_Rect mb = dm_get_center_screen_box();
+	SDL_Rect b2 = get_escape_b2_box();
+	
+	SDL_Rect b;
+	b.w = dm_scale_to_resolution(ESC_MENU_BUTTON_W);
+	b.h = dm_scale_to_resolution(ESC_MENU_BUTTON_H);
+	b.x = b2.x;
+	b.y = b2.y + b.h + dm_scale_to_resolution(ESC_MENU_BUTTON_SPACE);
+	return b;
+}
 
 /* Function: dm_get_ofs_space_stage_buttons
  * -----------------------------------------------------------------------------
@@ -302,15 +378,15 @@ void sb_init_escape_menu()
 	g_escape_b3_texture = dw_create_text_texture(ESC_MENU_TEXT3, C_WHITE);
 	check_mem(g_escape_b3_texture);
 	
-	SDL_Rect r = dm_get_escape_b1_box();
+	SDL_Rect r = get_escape_b1_box();
 	g_escape_b1 = bt_create_iface_btn(r, g_escape_b1_texture, true);
 	check_mem(g_escape_b1);
 
-	r = dm_get_escape_b2_box();
+	r = get_escape_b2_box();
 	g_escape_b2 = bt_create_iface_btn(r, g_escape_b2_texture, true);
 	check_mem(g_escape_b2);
 	
-	r = dm_get_escape_b3_box();
+	r = get_escape_b3_box();
 	g_escape_b3 = bt_create_iface_btn(r, g_escape_b3_texture, true);
 	check_mem(g_escape_b3);
 	error:

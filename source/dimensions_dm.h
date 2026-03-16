@@ -42,9 +42,6 @@ SDL_Rect dm_get_upper_title_box(char *msg);
 
 SDL_Rect dm_get_center_screen_box();
 SDL_Rect dm_get_center_screen_box_text();
-SDL_Rect dm_get_escape_b1_box();
-SDL_Rect dm_get_escape_b2_box();
-SDL_Rect dm_get_escape_b3_box();
 SDL_Rect dm_get_rst_b1_box();
 SDL_Rect dm_get_rst_b2_box();
 

@@ -328,7 +328,7 @@ void bt_draw_iface_btn(iface_btn_t *b, bool blk)
 	if (hover == true && b->enabled == true && blk == false){
 		float h_ofs = bt_get_hover_factor();
 		box = ax_scale_rect_percentage(box, h_ofs);
-		box.y += bt_get_btn_lift();
+		//box.y -= bt_get_btn_lift();
 		shadow_offset += 2*h_ofs;
 	}
 
