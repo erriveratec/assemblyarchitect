@@ -140,10 +140,10 @@ int main(int argc, char *args[])
 			case LV_SELECT_PLAYER_SCREEN:
 				state = stage_select_player();
 				break;
-			case LV_LEVEL_SELECTION:
-				stage = stage_select_level();
+			case LV_SELECT_SECTOR:
+				stage = stage_select_sector();
 				if (stage != LV_SELECT_PLAYER_SCREEN &&
-					stage != LV_LEVEL_SELECTION){
+					stage != LV_SELECT_SECTOR){
 					state = LV_INITIALIZE_LEVEL;
 					level = stage;
 				} else {

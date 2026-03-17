@@ -20,6 +20,7 @@ int dm_get_w_msg(SDL_Rect r);
 int dm_get_h_error_msg();
 int dm_get_h_stage_elements_titles();
 int dm_get_h_stage_titles();
+int dm_get_h_stage_subtitle();
 int dm_get_h_code_text();
 int dm_get_w_code_box_text();
 int dm_get_w_border_padding();
@@ -37,7 +38,6 @@ SDL_Rect dm_get_studio_name_msg_box();
 SDL_Rect dm_get_game_title_box(char *title);
 SDL_Rect dm_get_press_space_box(char *msg);
 SDL_Rect dm_get_upper_title_box(char *msg);
-
 
 SDL_Rect dm_get_center_screen_box();
 SDL_Rect dm_get_center_screen_box_text();

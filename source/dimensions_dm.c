@@ -40,7 +40,8 @@
 #define TEXT_H_STAGE_ELEMENTS_TITLES 25
 #define TEXT_H_CODE 40
 
-#define TEXT_H_STAGE_TITLES 110
+#define TEXT_H_STAGE_TITLE 110
+#define TEXT_H_STAGE_SUBTITLE 55
 
 #define P_NAME_OFS 80
 #define P_NAME_H 50
@@ -393,10 +394,25 @@ int dm_get_h_padding()
  */
 int dm_get_h_stage_titles()
 {
-	int h = dm_scale_to_resolution(TEXT_H_STAGE_TITLES);
+	int h = dm_scale_to_resolution(TEXT_H_STAGE_TITLE);
 	return h;
 }
 
+/* Function: dm_get_h_stage_subtitle
+ * -----------------------------------------------------------------------------
+ *	Return the offset value of the contents of the buffer. 
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset
+ */
+int dm_get_h_stage_subtitle()
+{
+	int h = dm_scale_to_resolution(TEXT_H_STAGE_SUBTITLE);
+	return h;
+}
 /* Function: dm_get_h_stage_titles
  * -----------------------------------------------------------------------------
  *	Return the offset value of the contents of the buffer. 
@@ -1273,7 +1289,7 @@ int dm_get_h_big_text()
 SDL_Rect dm_get_upper_title_box(char *msg)
 {
 	SDL_Rect b;
-	b.h = dm_scale_to_resolution(TEXT_H_STAGE_TITLES);
+	b.h = dm_scale_to_resolution(TEXT_H_STAGE_TITLE);
 	b.w = get_text_width_fits_height(b.h, msg);
 	b.x = g_screen_width/2 - b.w/2;
 	b.y = dm_scale_to_resolution(SEL_PLAYER_Y);

@@ -16,6 +16,7 @@ typedef struct btn_t{
 	bool anim_dir;
 	int anim_state;
 	bool rect;
+	bool enabled;
 } btn_t;
 
 typedef struct iface_btn_t{

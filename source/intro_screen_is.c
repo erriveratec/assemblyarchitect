@@ -25,6 +25,7 @@ char *PLAYER_3_TEXT = "HANDLER Z";
 char *P1_LORETEXT = "Cross-Branch Executor";
 char *P2_LORETEXT = "Yield-Loop Operative";
 char *P3_LORETEXT = "Zero-Flag Handler";
+char *SELECT_SECTOR = "SELECT SECTOR";
 
 static const Uint32 STUDIO_SCREEN_DELAY_MS = 2500; 
 static const Uint32 FADE_MS = 1250;
@@ -44,6 +45,8 @@ static const Uint32 TITLE_IMG_Y = 325;
 static const Uint32 SEL_LEVEL_BUTTON_W = 150;
 static const Uint32 SEL_LEVEL_BUTTON_H = 60;
 
+static const Uint32 BIG_SEPARATOR_H = 4;
+
 texture_t *g_press_space = NULL;
 texture_t *g_chip = NULL;
 texture_t *g_logo = NULL;
@@ -59,6 +62,55 @@ static SDL_Rect get_p3_button_box();
 static SDL_Rect get_game_title_img_box();
 static SDL_Rect get_level_button_box();
 static int get_sel_level_offset_y();
+static SDL_Rect get_upper_separator();
+
+/* Function: get_sector_btn_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the upper separator o select sector
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the objecto
+ */
+static SDL_Rect get_sector_btn_box()
+{
+	int screen_width = dm_get_screen_width();
+	int screen_height = dm_get_screen_height();
+
+	SDL_Rect r = dm_get_upper_title_box(SELECT_LEVEL_TEXT);
+	SDL_Rect b;
+	b.w = screen_width*2/3;
+	b.h = dm_get_h_stage_subtitle();
+	b.x = screen_width/6;
+	b.y = get_upper_separator().y; 
+	return b;
+}
+
+/* Function: get_upper_separator
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the upper separator o select sector
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the objecto
+ */
+static SDL_Rect get_upper_separator()
+{
+	int screen_width = dm_get_screen_width();
+	int screen_height = dm_get_screen_height();
+
+	SDL_Rect r = dm_get_upper_title_box(SELECT_LEVEL_TEXT);
+	SDL_Rect b;
+	b.w = screen_width*2/3;
+	b.h = dm_scale_to_resolution(BIG_SEPARATOR_H);
+	b.x = screen_width/6;
+	b.y = r.y + r.h; 
+	return b;
+}
 
 /* Function: dm_get_sel_level_offset_y
  * -----------------------------------------------------------------------------
@@ -245,6 +297,116 @@ static void create_select_level_buttons(iface_btn_t **buttons, bool *levels)
 	}
 }
 
+/* Function: create_sector_btns
+ * -----------------------------------------------------------------------------
+ * Creates the corresponding sector buttons
+ * 	
+ * Arguments:
+ * 	Pointer of pointer of the buttons
+ *
+ * Return:
+ *	Void.
+ */
+static void create_sector_btns(btn_t **btns){
+
+	assert(btns != NULL && "The buttons pointer is NULL");
+	
+	SDL_Rect p1_box = get_p1_button_box();
+	SDL_Rect p2_box = get_p2_button_box();
+	SDL_Rect p3_box = get_p3_button_box();
+	
+	player_btns[0] = bt_create_iface_btn(p1_box, 
+								   dw_create_text_texture(" ", C_BLACK), 
+								   true);
+	
+	player_btns[1] = bt_create_iface_btn(p2_box, 
+								   dw_create_text_texture(" ", C_BLACK), 
+								   true);
+
+	player_btns[2] = bt_create_iface_btn(p3_box, 
+								   dw_create_text_texture(" ", C_BLACK),
+								   true);
+}
+
+/* Function: stage_select_section
+ * -----------------------------------------------------------------------------
+ * Displays the sections available for the player to choose
+ * 	
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	The number of the level selected, if not valid press was performed
+ *	the number of the select label stage will be returned.
+ */
+int stage_select_sector()
+{
+	int W = dm_get_screen_width();
+	int H = dm_get_screen_height();   
+  	static fx_electron_t* fx;
+	static Uint64 last_type_ms;
+	static Uint64 anim_prev_ms;
+	static size_t type_index = 0;
+	static bool title_done = false;
+	Uint64 cur_time = SDL_GetTicks64();
+
+	static texture_t *select_sector = NULL;
+
+	static bool level_initialized = false;
+	static bool player_levels[LV_LEVEL_QUANTITY];
+	static btn_t *sectors[5];	
+
+	int ret_val = LV_SELECT_SECTOR;
+	SDL_Rect r = dm_get_upper_title_box(SELECT_SECTOR);
+
+	if (level_initialized == false){
+		fl_load_player_levels(g_player, player_levels);
+		level_initialized = true;
+		last_type_ms = cur_time;
+		fx = fx_electron_create(g_renderer, W, H, NULL);
+	}
+
+	float dt=(cur_time - anim_prev_ms)/1000.0f;
+	anim_prev_ms = cur_time;
+	SDL_Rect b = dm_get_upper_title_box(SELECT_SECTOR);
+	fx_electron_update(fx, dt);
+    fx_electron_render(fx, g_renderer);
+	
+	if (title_done == false && (cur_time - last_type_ms) >= TYPE_DELAY_MS){
+		last_type_ms = cur_time;
+		
+		bool write_complete = tx_draw_create_typewriter_text(&select_sector, 
+															 b, 
+															 SELECT_SECTOR, 
+															 &type_index,
+															 C_SILVERGREY);
+		if (write_complete == true){
+			title_done = true;
+        }
+	}
+	if (select_sector != NULL){
+		dw_draw_texture_fit_h(r, select_sector);
+	}
+	
+	dw_draw_filled_rectangle(get_upper_separator(), C_GREY, C_GREY);
+	
+	sb_draw_return_button();
+	
+	bool escape = sb_get_escape_state();
+	if (escape == true){
+		sb_display_escape_menu(escape);
+	} else {
+				//ret_val = LV_LEVEL_1 + i;
+		//		level_initialized = false;
+  		//		aa_electron_fx_destroy(fx);
+		if (sb_check_clicked_ret_button() == true){
+			ret_val = LV_SELECT_PLAYER_SCREEN;	
+			level_initialized = false;
+  			aa_electron_fx_destroy(fx);
+		}
+	}
+	return ret_val;
+}
 
 /* Function: stage_select_level
  * -----------------------------------------------------------------------------
@@ -336,7 +498,6 @@ int stage_select_level()
 	}
 	return ret_val;
 }
-
 /* Function: stage_studio
  * ----------------------------------------------------------------------------
  * This function displays the stage where the name of the studio is shown.
@@ -794,7 +955,7 @@ int stage_select_player()
 			g_player = FL_PLAYER_3;
 		}
 		if (player_chosen == true){
-			ret_val = LV_LEVEL_SELECTION;		
+			ret_val = LV_SELECT_SECTOR;		
 			if (g_sfx_select) Mix_PlayChannel(-1, g_sfx_select, 0);
 			bt_destroy_iface_btn(player_btns[0]);
 			bt_destroy_iface_btn(player_btns[1]);
