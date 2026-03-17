@@ -22,9 +22,6 @@ static int get_w_iface_outer_border();
 static int get_w_button_padding();
 static int get_h_button_padding();
 
-
-
-
 /* Function: dm_get_w_button_padding
  * -----------------------------------------------------------------------------
  *	Returns the scale value for the horizontal padding
@@ -473,7 +470,7 @@ btn_t *bt_create_btn(SDL_Rect r, texture_t *t)
  * Return:
  *	Void
  */
-void bt_draw_btn(btn_t *b)
+void bt_draw_btn(btn_t *b, bool blk)
 {
 	assert(b != NULL && "The button pointer is NULL");
 	
@@ -482,6 +479,14 @@ void bt_draw_btn(btn_t *b)
 		dw_draw_rectangle(b->r, C_WHITE);
 	}
 	
+	bool hover = ax_chk_mouse_hover_rect(b->r);
+	SDL_Rect box = b->r;	
+	if (hover == true && b->enabled == true && blk == false){
+		float h_ofs = bt_get_hover_factor();
+		box = ax_scale_rect_percentage(box, h_ofs);
+		box.y -= bt_get_btn_lift();
+	}
+
 	float scale_w = (float)b->r.w/b->t->w;
 	float scale_h = (float)b->r.h/b->t->h;
 

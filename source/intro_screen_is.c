@@ -386,7 +386,7 @@ int stage_select_sector()
 	dw_draw_filled_rectangle(get_upper_separator(), C_GREY, C_GREY);
 	
 	sb_draw_return_button();
-	bt_draw_btn(sectors[0]);
+	bt_draw_btn(sectors[0], sb_get_escape_state());
 	
 	bool escape = sb_get_escape_state();
 	if (escape == true){

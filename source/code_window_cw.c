@@ -1558,13 +1558,13 @@ static void display_player_code()
 	int number_ofs = dm_get_w_border_padding();
 	LIST_FOREACH(code, first, next, cur){
 		code_line_t *line = cur->value;	
-		bt_draw_btn(line->ins->b);
+		bt_draw_btn(line->ins->b, sb_get_escape_state());
 		
 		if (line->op1 != NULL){
-			bt_draw_btn(line->op1->b);
+			bt_draw_btn(line->op1->b, sb_get_escape_state());
 		}
 		if (line->op2 != NULL){
-			bt_draw_btn(line->op2->b);
+			bt_draw_btn(line->op2->b, sb_get_escape_state());
 		}
 	
 		int comma = cl_get_instruction_operand_quantity(line->ins->id);
@@ -2108,14 +2108,14 @@ void cw_player_holding_instruction(code_line_t *line, bool arng, bool del)
 	if (line->op1 != NULL){
 		line->op1->b->r.x = line->ins->b->r.x + op1_ofs;
 		line->op1->b->r.y = line->ins->b->r.y;
-		bt_draw_btn(line->op1->b);
+		bt_draw_btn(line->op1->b, sb_get_escape_state());
 	}
 	if (line->op2 != NULL){
 		line->op2->b->r.x = line->ins->b->r.x + op2_ofs;
 		line->op2->b->r.y = line->ins->b->r.y;
-		bt_draw_btn(line->op2->b);
+		bt_draw_btn(line->op2->b, sb_get_escape_state());
 	}
-	bt_draw_btn(line->ins->b);
+	bt_draw_btn(line->ins->b, sb_get_escape_state());
 }
 
 /* Function: cw_check_code_pending_op1

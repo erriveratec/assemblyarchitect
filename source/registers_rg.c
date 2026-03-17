@@ -10,6 +10,7 @@
 #include "code_line_cl.h"
 #include "arrow_ar.h"
 #include "dimensions_dm.h"
+#include "stage_buttons_sb.h"
 
 #define DEFAULT_OPERAND RAX
 
@@ -682,7 +683,7 @@ void rg_draw_registers()
 	LIST_FOREACH(registers, first, next, cur){
 		reg_t *reg = cur->value;
 		btn_t *button = reg->b;
-		bt_draw_btn(button); //Register name
+		bt_draw_btn(button, sb_get_escape_state()); //Register name
 		ax_draw_value_box(&reg->value, C_WHITE); //The value box of the value
 	}
 }
