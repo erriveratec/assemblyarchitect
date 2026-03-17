@@ -26,6 +26,11 @@ char *P1_LORETEXT = "Cross-Branch Executor";
 char *P2_LORETEXT = "Yield-Loop Operative";
 char *P3_LORETEXT = "Zero-Flag Handler";
 char *SELECT_SECTOR = "SELECT SECTOR";
+char *SECTOR_0 = "Sector 0: Architecture Primer";
+char *SECTOR_1 = "Sector 1:";
+char *SECTOR_2 = "Sector 2:";
+char *SECTOR_3 = "Sector 3:";
+char *SECTOR_4 = "Sector 4:";
 
 static const Uint32 STUDIO_SCREEN_DELAY_MS = 2500; 
 static const Uint32 FADE_MS = 1250;
@@ -63,6 +68,7 @@ static SDL_Rect get_game_title_img_box();
 static SDL_Rect get_level_button_box();
 static int get_sel_level_offset_y();
 static SDL_Rect get_upper_separator();
+static void create_sector_btns(btn_t **btns);
 
 /* Function: get_sector_btn_box
  * -----------------------------------------------------------------------------
@@ -84,7 +90,7 @@ static SDL_Rect get_sector_btn_box()
 	b.w = screen_width*2/3;
 	b.h = dm_get_h_stage_subtitle();
 	b.x = screen_width/6;
-	b.y = get_upper_separator().y; 
+	b.y = get_upper_separator().y + b.h; 
 	return b;
 }
 
@@ -307,25 +313,13 @@ static void create_select_level_buttons(iface_btn_t **buttons, bool *levels)
  * Return:
  *	Void.
  */
-static void create_sector_btns(btn_t **btns){
-
+static void create_sector_btns(btn_t **btns)
+{
 	assert(btns != NULL && "The buttons pointer is NULL");
 	
-	SDL_Rect p1_box = get_p1_button_box();
-	SDL_Rect p2_box = get_p2_button_box();
-	SDL_Rect p3_box = get_p3_button_box();
-	
-	player_btns[0] = bt_create_iface_btn(p1_box, 
-								   dw_create_text_texture(" ", C_BLACK), 
-								   true);
-	
-	player_btns[1] = bt_create_iface_btn(p2_box, 
-								   dw_create_text_texture(" ", C_BLACK), 
-								   true);
-
-	player_btns[2] = bt_create_iface_btn(p3_box, 
-								   dw_create_text_texture(" ", C_BLACK),
-								   true);
+	btns[0] = bt_create_btn(get_sector_btn_box(), 
+			  				dw_create_text_texture(SECTOR_0, C_WHITE));
+	btns[0]->r.w = ax_get_texture_w_fit_h(btns[0]->r.h, btns[0]->t);
 }
 
 /* Function: stage_select_section
@@ -364,6 +358,7 @@ int stage_select_sector()
 		level_initialized = true;
 		last_type_ms = cur_time;
 		fx = fx_electron_create(g_renderer, W, H, NULL);
+		create_sector_btns(sectors);
 	}
 
 	float dt=(cur_time - anim_prev_ms)/1000.0f;
@@ -391,6 +386,7 @@ int stage_select_sector()
 	dw_draw_filled_rectangle(get_upper_separator(), C_GREY, C_GREY);
 	
 	sb_draw_return_button();
+	bt_draw_btn(sectors[0]);
 	
 	bool escape = sb_get_escape_state();
 	if (escape == true){

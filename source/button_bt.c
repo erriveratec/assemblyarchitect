@@ -328,7 +328,7 @@ void bt_draw_iface_btn(iface_btn_t *b, bool blk)
 	if (hover == true && b->enabled == true && blk == false){
 		float h_ofs = bt_get_hover_factor();
 		box = ax_scale_rect_percentage(box, h_ofs);
-		//box.y -= bt_get_btn_lift();
+		box.y -= bt_get_btn_lift();
 		shadow_offset += 2*h_ofs;
 	}
 
@@ -457,6 +457,7 @@ btn_t *bt_create_btn(SDL_Rect r, texture_t *t)
 	new_button->anim_dir = false;
 	new_button->anim_state = 0;
 	new_button->rect = false;
+	new_button->enabled = true;
 
 	return new_button;
 }
