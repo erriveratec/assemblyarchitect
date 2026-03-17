@@ -492,12 +492,12 @@ void bt_draw_btn(btn_t *b, bool blk)
 
 	if (b->animated == false){
 		if (scale_w < scale_h){
-			int y = b->r.y + (b->r.h - b->t->h*scale_w)/2;
-			SDL_Rect r = {.x = b->r.x, .y = y, .w = b->r.w};
+			int y = box.y + (box.h - b->t->h*scale_w)/2;
+			SDL_Rect r = {.x = box.x, .y = y, .w = box.w};
 			dw_draw_texture_fits_width(r, b->t);
 		} else {
-			int x = b->r.x + (b->r.w - b->t->w*scale_h)/2;
-			SDL_Rect r = {.x = x, .y = b->r.y, .h = b->r.h};
+			int x = box.x + (box.w - b->t->w*scale_h)/2;
+			SDL_Rect r = {.x = x, .y = box.y, .h = box.h};
 			dw_draw_texture_fit_h(r, b->t);
 		}
 	} else if (b->animated == true){

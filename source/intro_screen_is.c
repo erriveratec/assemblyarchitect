@@ -26,11 +26,11 @@ char *P1_LORETEXT = "Cross-Branch Executor";
 char *P2_LORETEXT = "Yield-Loop Operative";
 char *P3_LORETEXT = "Zero-Flag Handler";
 char *SELECT_SECTOR = "SELECT SECTOR";
-char *SECTOR_0 = "Sector 0: Architecture Primer";
-char *SECTOR_1 = "Sector 1:";
-char *SECTOR_2 = "Sector 2:";
-char *SECTOR_3 = "Sector 3:";
-char *SECTOR_4 = "Sector 4:";
+char *SECTOR_0 = "[00] Architecture Primer";
+char *SECTOR_1 = "[01] Computation Core";
+char *SECTOR_2 = "[02] Jump Flow Unit";
+char *SECTOR_3 = "[03] Branching Engine";
+char *SECTOR_4 = "[04] Advanced Module";
 
 static const Uint32 STUDIO_SCREEN_DELAY_MS = 2500; 
 static const Uint32 FADE_MS = 1250;
@@ -50,7 +50,11 @@ static const Uint32 TITLE_IMG_Y = 325;
 static const Uint32 SEL_LEVEL_BUTTON_W = 150;
 static const Uint32 SEL_LEVEL_BUTTON_H = 60;
 
-static const Uint32 BIG_SEPARATOR_H = 4;
+static const Uint32 BIG_SEPARATOR_H = 8;
+static const Uint32 SMALL_SEPARATOR_H = 2;
+static const Uint32 SECTOR_TITLE_SEPARATOR = 25;
+
+static const Uint32 SECTOR_BTN_SPACING = 80;
 
 texture_t *g_press_space = NULL;
 texture_t *g_chip = NULL;
@@ -69,6 +73,26 @@ static SDL_Rect get_level_button_box();
 static int get_sel_level_offset_y();
 static SDL_Rect get_upper_separator();
 static void create_sector_btns(btn_t **btns);
+static int get_sector_btn_spacing();
+static SDL_Rect get_sector_separator();
+
+
+
+
+/* Function: get_sector_btn_spacing
+ * -----------------------------------------------------------------------------
+ * Returns the spacing define for each of the buttons of the sector selection
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the ammount of spacing
+ */
+static int get_sector_btn_spacing()
+{
+	return dm_scale_to_resolution(SECTOR_BTN_SPACING);
+}
 
 /* Function: get_sector_btn_box
  * -----------------------------------------------------------------------------
@@ -85,12 +109,36 @@ static SDL_Rect get_sector_btn_box()
 	int screen_width = dm_get_screen_width();
 	int screen_height = dm_get_screen_height();
 
-	SDL_Rect r = dm_get_upper_title_box(SELECT_LEVEL_TEXT);
 	SDL_Rect b;
 	b.w = screen_width*2/3;
 	b.h = dm_get_h_stage_subtitle();
-	b.x = screen_width/6;
-	b.y = get_upper_separator().y + b.h; 
+	b.x = dm_get_upper_title_box(SELECT_SECTOR).x;	
+	b.y = get_upper_separator().y + get_sector_btn_spacing(); 
+	return b;
+}
+
+/* Function: get_upper_separator
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the sector separator
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the objecto
+ */
+static SDL_Rect get_sector_separator()
+{
+	int screen_width = dm_get_screen_width();
+	int screen_height = dm_get_screen_height();
+
+	SDL_Rect r = get_sector_btn_box();	
+	SDL_Rect b;
+	b.w = dm_get_upper_title_box(SELECT_SECTOR).w;
+	b.h = dm_scale_to_resolution(SMALL_SEPARATOR_H);
+	b.x = dm_get_upper_title_box(SELECT_SECTOR).x;	
+	b.y = r.y + r.h + get_sector_btn_spacing()/2;
+	
 	return b;
 }
 
@@ -111,10 +159,10 @@ static SDL_Rect get_upper_separator()
 
 	SDL_Rect r = dm_get_upper_title_box(SELECT_LEVEL_TEXT);
 	SDL_Rect b;
-	b.w = screen_width*2/3;
+	b.w = screen_width*3/4;
 	b.h = dm_scale_to_resolution(BIG_SEPARATOR_H);
-	b.x = screen_width/6;
-	b.y = r.y + r.h; 
+	b.x = screen_width/8;
+	b.y = r.y + r.h + dm_scale_to_resolution(SECTOR_TITLE_SEPARATOR); 
 	return b;
 }
 
@@ -316,10 +364,39 @@ static void create_select_level_buttons(iface_btn_t **buttons, bool *levels)
 static void create_sector_btns(btn_t **btns)
 {
 	assert(btns != NULL && "The buttons pointer is NULL");
-	
+
+	int y_space = get_sector_btn_spacing();
+
 	btns[0] = bt_create_btn(get_sector_btn_box(), 
 			  				dw_create_text_texture(SECTOR_0, C_WHITE));
 	btns[0]->r.w = ax_get_texture_w_fit_h(btns[0]->r.h, btns[0]->t);
+	int x_ofs = (dm_get_upper_title_box(SELECT_SECTOR).w - btns[0]->r.w)/2;
+	btns[0]->r.x += x_ofs;
+	
+	btns[1] = bt_create_btn(get_sector_btn_box(), 
+			  				dw_create_text_texture(SECTOR_1, C_WHITE));
+	btns[1]->r.w = ax_get_texture_w_fit_h(btns[1]->r.h, btns[1]->t);
+	btns[1]->r.y = btns[0]->r.y + get_sector_btn_box().h + y_space;
+	btns[1]->r.x += x_ofs;
+	
+	btns[2] = bt_create_btn(get_sector_btn_box(), 
+			  				dw_create_text_texture(SECTOR_2, C_WHITE));
+	btns[2]->r.w = ax_get_texture_w_fit_h(btns[2]->r.h, btns[2]->t);
+	btns[2]->r.y = btns[1]->r.y + get_sector_btn_box().h + y_space;
+	btns[2]->r.x += x_ofs;
+
+	btns[3] = bt_create_btn(get_sector_btn_box(), 
+			  				dw_create_text_texture(SECTOR_3, C_WHITE));
+	btns[3]->r.w = ax_get_texture_w_fit_h(btns[3]->r.h, btns[3]->t);
+	btns[3]->r.y = btns[2]->r.y + get_sector_btn_box().h + y_space;
+	btns[3]->r.x += x_ofs;
+
+	btns[4] = bt_create_btn(get_sector_btn_box(), 
+			  				dw_create_text_texture(SECTOR_4, C_WHITE));
+	btns[4]->r.w = ax_get_texture_w_fit_h(btns[4]->r.h, btns[4]->t);
+	btns[4]->r.y = btns[3]->r.y + get_sector_btn_box().h + y_space;
+	btns[4]->r.x += x_ofs;
+
 }
 
 /* Function: stage_select_section
@@ -384,9 +461,15 @@ int stage_select_sector()
 	}
 	
 	dw_draw_filled_rectangle(get_upper_separator(), C_GREY, C_GREY);
-	
+
 	sb_draw_return_button();
-	bt_draw_btn(sectors[0], sb_get_escape_state());
+	
+	SDL_Rect sep = get_sector_separator();
+	for (int i = 0; i < 5; i++){
+		bt_draw_btn(sectors[i], sb_get_escape_state());
+		dw_draw_filled_rectangle(sep, C_GREY, C_GREY);
+		sep.y += get_sector_btn_box().h + get_sector_btn_spacing();
+	}
 	
 	bool escape = sb_get_escape_state();
 	if (escape == true){
