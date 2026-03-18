@@ -34,6 +34,8 @@ Mix_Chunk *g_sfx_type = NULL;
 Mix_Chunk *g_sfx_ready = NULL;
 Mix_Chunk *g_sfx_highlight = NULL;
 Mix_Chunk *g_sfx_select = NULL;
+Mix_Chunk *g_sfx_cancel = NULL;
+Mix_Chunk *g_sfx_hover = NULL;
 
 
 static bool init_audio();
@@ -282,17 +284,29 @@ int load_media()
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}
-	g_sfx_highlight = Mix_LoadWAV("sound/click_ping.wav");
+	g_sfx_highlight = Mix_LoadWAV("sound/highlight.wav");
 	if (g_sfx_highlight == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}
 
-	g_sfx_select = Mix_LoadWAV("sound/ping_confirm.wav");
+	g_sfx_select = Mix_LoadWAV("sound/select.wav");
 	if (g_sfx_select == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}
+	g_sfx_cancel = Mix_LoadWAV("sound/cancel.wav");
+	if (g_sfx_cancel == NULL){
+		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
+		return FAIL;
+	}
+
+	g_sfx_hover = Mix_LoadWAV("sound/hover.wav");
+	if (g_sfx_hover == NULL){
+		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
+		return FAIL;
+	}
+
 	return SUCCESS;
 }
 

@@ -451,6 +451,9 @@ void sb_display_escape_menu(bool show_menu)
 void toggle_escape_menu()
 {
 	g_escape_menu = !g_escape_menu;
+	if (g_escape_menu == false){			
+		if (g_sfx_highlight) Mix_PlayChannel(-1, g_sfx_cancel, 0);
+	}
 }
 
 /* Function: sb_get_escape_state

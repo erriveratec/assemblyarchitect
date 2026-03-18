@@ -460,14 +460,14 @@ int stage_select_sector()
 		dw_draw_texture_fit_h(r, select_sector);
 	}
 	
-	dw_draw_filled_rectangle(get_upper_separator(), C_GREY, C_GREY);
+	dw_draw_filled_rectangle(get_upper_separator(), C_SHADOWGREY, C_SHADOWGREY);
 
 	sb_draw_return_button();
 	
 	SDL_Rect sep = get_sector_separator();
 	for (int i = 0; i < 5; i++){
 		bt_draw_btn(sectors[i], sb_get_escape_state());
-		dw_draw_filled_rectangle(sep, C_GREY, C_GREY);
+		dw_draw_filled_rectangle(sep, C_SHADOWGREY, C_SHADOWGREY);
 		sep.y += get_sector_btn_box().h + get_sector_btn_spacing();
 	}
 	
@@ -475,10 +475,13 @@ int stage_select_sector()
 	if (escape == true){
 		sb_display_escape_menu(escape);
 	} else {
-				//ret_val = LV_LEVEL_1 + i;
-		//		level_initialized = false;
-  		//		aa_electron_fx_destroy(fx);
 		if (sb_check_clicked_ret_button() == true){
+			if (g_sfx_highlight) Mix_PlayChannel(-1, g_sfx_cancel, 0);
+			bt_destroy_button(sectors[0]);
+			bt_destroy_button(sectors[1]);
+			bt_destroy_button(sectors[2]);
+			bt_destroy_button(sectors[3]);
+			bt_destroy_button(sectors[4]);
 			ret_val = LV_SELECT_PLAYER_SCREEN;	
 			level_initialized = false;
   			aa_electron_fx_destroy(fx);
@@ -879,21 +882,27 @@ static void draw_player_figures(float t)
 
 	float s = bt_get_hover_factor();
 	
+	SDL_Color p1_color = C_LIGHTGREY;
+	SDL_Color p2_color = C_LIGHTGREY;
+	SDL_Color p3_color = C_LIGHTGREY;
 
 	if (hover_p1 == true && sb_get_escape_state() == false){
 		p1_bs += (int)ceil(((float)p1_bs * s));		
 		p1_state = AA_OPT_INVERT;
  		p1_box.y += bt_get_btn_lift();
+		p1_color = C_WHITE;
 	}
 	if (hover_p2 == true && sb_get_escape_state() == false){
 		p2_bs += (int)ceil(((float)p2_bs * s));		
 		p2_state = AA_OPT_INVERT;
  		p2_box.y += bt_get_btn_lift();
+		p2_color = C_WHITE;
 	}
 	if (hover_p3 == true && sb_get_escape_state() == false){
 		p3_bs += (int)ceil(((float)p3_bs * s));		
 		p3_state = AA_OPT_INVERT;
  		p3_box.y += bt_get_btn_lift();
+		p3_color = C_WHITE;
 	}
 	if (hover_p1 == true || hover_p2 == true || hover_p3 == true){
 		if (chime_played == false && sb_get_escape_state() == false){
@@ -924,11 +933,11 @@ static void draw_player_figures(float t)
         {AA_FIG_MED,  p2_box.x, p2_box.y,'Y'},
         {AA_FIG_SLIM, p3_box.x, p3_box.y,'Z'}
     };
-	aa_draw_human(g_renderer, A[0].type, A[0].x, A[0].y, p1_bs, C_WHITE, 
+	aa_draw_human(g_renderer, A[0].type, A[0].x, A[0].y, p1_bs, p1_color, 
 							  C_NEARBLACK, A[0].L, t, p1_state);
-	aa_draw_human(g_renderer, A[1].type, A[1].x, A[1].y, p2_bs, C_WHITE, 
+	aa_draw_human(g_renderer, A[1].type, A[1].x, A[1].y, p2_bs, p2_color, 
 							  C_NEARBLACK, A[1].L, t, p2_state);
-	aa_draw_human(g_renderer, A[2].type, A[2].x, A[2].y, p3_bs, C_WHITE, 
+	aa_draw_human(g_renderer, A[2].type, A[2].x, A[2].y, p3_bs, p3_color, 
 							  C_NEARBLACK, A[2].L, t, p3_state);
 
 }

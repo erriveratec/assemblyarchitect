@@ -9,7 +9,6 @@
 #include "aux.h"
 #include "dbg.h"
 
-SDL_Color C_WHITE = {255,255,255,255};
 SDL_Color C_BLACK = {0, 0, 0, 255};
 SDL_Color C_RED = {255, 0, 0, 255};
 SDL_Color C_BLUE = {0, 0, 255, 255};
@@ -18,9 +17,12 @@ SDL_Color C_CYAN = {0, 255, 255, 255};
 SDL_Color C_YELLOW = {255, 255, 0, 255};
 SDL_Color C_MAGENTA = {255, 0, 255, 255};
 SDL_Color C_GREEN = {0, 255, 0, 255};
+SDL_Color C_WHITE = {255,255,255,255};
+SDL_Color C_VERYLIGHTGREY = {234, 234, 234, 255};
+SDL_Color C_LIGHTGREY = {224, 224, 224, 255};
 SDL_Color C_SILVERGREY = {192, 192, 192, 255};
-SDL_Color C_LIGHTGREY = {234, 234, 234, 255};
 SDL_Color C_GREY = {127, 127, 127, 255};
+SDL_Color C_SHADOWGREY = {92, 92, 92, 255};
 SDL_Color C_CHARCOALGREY = {74, 74, 74, 255};
 SDL_Color C_DIMGREY = {64, 64, 64, 255};
 SDL_Color C_DARKGRAPHITE = {40, 40, 40, 255};
@@ -100,6 +102,23 @@ static int get_ofs_iface_inner_border()
 static int get_h_iface_header()
 {
 	return dm_scale_to_resolution(IFACE_HEADER_BOX_H);
+}
+
+
+/* Function: dw_set_texture_color_mod
+ * -----------------------------------------------------------------------------
+ *	Set the texture color according to a color
+ *
+ * Arguments:
+ *	t: texture;
+ *  c: color 
+ *
+ * Return:
+ *	Void.
+ */
+void dw_set_texture_color_mod(texture_t *t, SDL_Color c)
+{
+	SDL_SetTextureColorMod(t->texture, c.r, c.g, c.b);
 }
 
 /* Function: dw_draw_inner_shadow_lines

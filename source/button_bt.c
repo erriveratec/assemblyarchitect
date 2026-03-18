@@ -313,6 +313,7 @@ static void draw_btn_scaled_texture(SDL_Rect box, iface_btn_t *b)
  */
 void bt_draw_iface_btn(iface_btn_t *b, bool blk)
 {
+	//agregar sonido de hover queda como pendiente
 	assert(b != NULL && "The button pointer is NULL");
 	int status = SUCCESS;	
 	
@@ -321,12 +322,17 @@ void bt_draw_iface_btn(iface_btn_t *b, bool blk)
 	bool clicked = bt_chk_mouse_click_iface_btn(b);
 	int offset = get_w_iface_space_border();
 	int shadow_offset = bt_get_ofs_button_shadow();	
-	
+
+	SDL_Color border_color = C_LIGHTGREY;
+	dw_set_texture_color_mod(b->t, border_color);
+
 	if (hover == true && b->enabled == true && blk == false){
 		float h_ofs = bt_get_hover_factor();
 		box = ax_scale_rect_percentage(box, h_ofs);
 		box.y -= bt_get_btn_lift();
 		shadow_offset += 2*h_ofs;
+		border_color = C_WHITE;
+		dw_set_texture_color_mod(b->t, C_WHITE);
 	}
 
 	if (b->enabled == false){
@@ -352,13 +358,13 @@ void bt_draw_iface_btn(iface_btn_t *b, bool blk)
 		dw_draw_filled_rectangle(shadow, C_DIMGREY, C_DIMGREY);
 		
 		int outer_border = get_w_iface_outer_border();
-		dw_draw_thick_rect(box, outer_border, C_WHITE);
+		dw_draw_thick_rect(box, outer_border, border_color);
 
 		SDL_Rect in = ax_pad_rectangle(box, offset, true);
 		if (hover == true){
-			dw_draw_filled_rectangle(in, C_SOFTBLACK, C_LIGHTGREY);
+			dw_draw_filled_rectangle(in, C_SOFTBLACK, C_WHITE);
 		} else {
-			dw_draw_filled_rectangle(in, C_NEARBLACK, C_LIGHTGREY);
+			dw_draw_filled_rectangle(in, C_NEARBLACK, C_SILVERGREY);
 		}
 		
 		in = ax_pad_rectangle(in, 1, true);
@@ -372,6 +378,7 @@ void bt_draw_iface_btn(iface_btn_t *b, bool blk)
 		draw_btn_scaled_texture(box, b);
 	}
 	
+	dw_set_texture_color_mod(b->t, C_WHITE);
 	assert(status != FAIL && "The texture could not be drawn");
 }
 
@@ -481,10 +488,13 @@ void bt_draw_btn(btn_t *b, bool blk)
 	
 	bool hover = ax_chk_mouse_hover_rect(b->r);
 	SDL_Rect box = b->r;	
+	dw_set_texture_color_mod(b->t, C_LIGHTGREY);
+
 	if (hover == true && b->enabled == true && blk == false){
 		float h_ofs = bt_get_hover_factor();
 		box = ax_scale_rect_percentage(box, h_ofs);
 		box.y -= bt_get_btn_lift();
+		dw_set_texture_color_mod(b->t, C_WHITE);
 	}
 
 	float scale_w = (float)b->r.w/b->t->w;
@@ -528,8 +538,7 @@ void bt_draw_btn(btn_t *b, bool blk)
 			b->anim_state -= anim_delta;
 		}
 	}
-
-
+	dw_set_texture_color_mod(b->t, C_WHITE);
 }
 
 /* Function: assign_button_parameters
