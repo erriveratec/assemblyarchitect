@@ -133,7 +133,7 @@ operand_t *im_create_sel_imm_op()
 	operand_t *o = NULL;
 	int imm_id = IMMUP0;
 	for (int i = 0; i < TOTAL_IMM; i++){
-		if (bt_ms_rel_btn(g_up_imm[i].b) == true){
+		if (bt_chk_rel_btn(g_up_imm[i].b, NULL) == true){
 	   		char *num = ax_number_to_string(g_up_imm[i].val.value);
 			texture_t *t = dw_create_text_texture(num, C_WHITE);
 			free(num);
@@ -229,7 +229,7 @@ bool im_ms_rel_in_upimm()
 
 	for (int i = 0; i < TOTAL_IMM; i++){
 
-		if (bt_ms_rel_btn(g_up_imm[i].b) == true){
+		if (bt_chk_rel_btn(g_up_imm[i].b, NULL) == true){
 		   	rel = true;
 		   	break;
 	   	} 

@@ -189,11 +189,11 @@ bool bf_ms_rel_in_buf()
 {
    	bool selected = false;
 
-	if (bt_ms_rel_btn(&input_buffer_button) == true){
+	if (bt_chk_rel_btn(&input_buffer_button, NULL) == true){
 		selected = true;
 	} 
    	
-	if (bt_ms_rel_btn(&output_buffer_button) == true){
+	if (bt_chk_rel_btn(&output_buffer_button, NULL) == true){
 		selected = true;
 	}
 	return selected;
@@ -245,7 +245,7 @@ operand_t *bf_create_sel_buf_op()
 {
    	operand_t *b = NULL;
 
-	if (bt_ms_rel_btn(&input_buffer_button) == true){
+	if (bt_chk_rel_btn(&input_buffer_button, NULL) == true){
 		b = malloc(sizeof(operand_t));
 		texture_t *t = cl_create_operand_texture(IB);
 
@@ -254,7 +254,7 @@ operand_t *bf_create_sel_buf_op()
 		b->id = input_buffer->id;
 	} 
    	
-	if (bt_ms_rel_btn(&output_buffer_button) == true){
+	if (bt_chk_rel_btn(&output_buffer_button, NULL) == true){
 		b = malloc(sizeof(operand_t));
 		texture_t *t = cl_create_operand_texture(OB);
 		b->b = bt_create_btn(output_buffer->b->r, t);

@@ -8,6 +8,7 @@
 #include "aux.h"
 #include "list.h"
 #include "mouse_ms.h"
+#include <SDL_mixer.h>
 
 typedef struct btn_t{
 	SDL_Rect r;
@@ -17,12 +18,14 @@ typedef struct btn_t{
 	int anim_state;
 	bool rect;
 	bool enabled;
+	bool hovered;
 } btn_t;
 
 typedef struct iface_btn_t{
 	SDL_Rect r;
 	texture_t *t;
 	bool enabled;
+	bool hovered;
 } iface_btn_t;
 
 btn_t *bt_create_btn(SDL_Rect b, texture_t *t);
@@ -30,16 +33,16 @@ void bt_draw_btn(btn_t *button, bool blk);
 bool bt_btn_clicked(btn_t *button);
 bool bt_btn_rclicked(btn_t *button);
 
-bool bt_ms_rel_btn(btn_t *button);
+bool bt_chk_rel_btn(btn_t *button, Mix_Chunk *rel_sound);
 void assign_button_parameters(SDL_Rect r, btn_t *b);
 btn_t *bt_copy_button(btn_t *b);
 void bt_destroy_button(btn_t *b);
 iface_btn_t *bt_create_iface_btn(SDL_Rect r, texture_t *t, bool enabled);
 
-void bt_draw_iface_btn(iface_btn_t *b, bool blk);
+void bt_draw_iface_btn(iface_btn_t *b, bool blk, Mix_Chunk *hover_sound);
 void bt_draw_iface_btn_nopad(iface_btn_t *b);
 bool bt_chk_mouse_click_iface_btn(iface_btn_t *button);
-bool bt_chk_mouse_rel_iface_btn(iface_btn_t *button);
+bool bt_chk_rel_iface_btn(iface_btn_t *button, Mix_Chunk *rel_sound);
 void bt_destroy_iface_btn(iface_btn_t *b);
 float bt_get_hover_factor();
 int bt_get_btn_lift();

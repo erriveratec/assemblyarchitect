@@ -470,13 +470,18 @@ int stage_select_sector()
 		dw_draw_filled_rectangle(sep, C_SHADOWGREY, C_SHADOWGREY);
 		sep.y += get_sector_btn_box().h + get_sector_btn_spacing();
 	}
+
+	
 	
 	bool escape = sb_get_escape_state();
 	if (escape == true){
 		sb_display_escape_menu(escape);
-	} else {
-		if (sb_check_clicked_ret_button() == true){
-			if (g_sfx_highlight) Mix_PlayChannel(-1, g_sfx_cancel, 0);
+	} else if (bt_chk_rel_btn(sectors[0], g_sfx_select)){
+	} else if (bt_chk_rel_btn(sectors[1], g_sfx_select)){
+	} else if (bt_chk_rel_btn(sectors[2], g_sfx_select)){
+	} else if (bt_chk_rel_btn(sectors[3], g_sfx_select)){
+	} else if (bt_chk_rel_btn(sectors[4], g_sfx_select)){
+	} else if (sb_check_clicked_ret_button() == true){
 			bt_destroy_button(sectors[0]);
 			bt_destroy_button(sectors[1]);
 			bt_destroy_button(sectors[2]);
@@ -485,8 +490,8 @@ int stage_select_sector()
 			ret_val = LV_SELECT_PLAYER_SCREEN;	
 			level_initialized = false;
   			aa_electron_fx_destroy(fx);
-		}
 	}
+	
 	return ret_val;
 }
 
@@ -552,7 +557,7 @@ int stage_select_level()
 	
 	sb_draw_return_button();
 	for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
-			bt_draw_iface_btn(level_buttons[i], sb_get_escape_state());
+			bt_draw_iface_btn(level_buttons[i], sb_get_escape_state(), NULL);
 	}
 	
 	bool escape = sb_get_escape_state();
@@ -560,7 +565,7 @@ int stage_select_level()
 		sb_display_escape_menu(escape);
 	} else {
 		for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
-			if (bt_chk_mouse_rel_iface_btn(level_buttons[i]) == true){
+			if (bt_chk_rel_iface_btn(level_buttons[i], NULL) == true){
 				ret_val = LV_LEVEL_1 + i;
 				level_initialized = false;
   				aa_electron_fx_destroy(fx);
@@ -904,14 +909,6 @@ static void draw_player_figures(float t)
  		p3_box.y += bt_get_btn_lift();
 		p3_color = C_WHITE;
 	}
-	if (hover_p1 == true || hover_p2 == true || hover_p3 == true){
-		if (chime_played == false && sb_get_escape_state() == false){
-			if (g_sfx_highlight) Mix_PlayChannel(-1, g_sfx_highlight, 0);
-			chime_played = true;
-		}
-	} else {
-			chime_played = false;
-	}
 
 	p1_box.y += pl_get_sign_y_ofs() * p1_bs;
 	p2_box.y += pl_get_sign_y_ofs() * p2_bs;
@@ -1021,9 +1018,9 @@ int stage_select_player()
 	dw_draw_filled_rectangle(dark_plate_2, bg_plate, bg_plate);
 	dw_draw_filled_rectangle(dark_plate_3, bg_plate, bg_plate);
 	
-	bt_draw_iface_btn(player_btns[0], sb_get_escape_state());
-	bt_draw_iface_btn(player_btns[1], sb_get_escape_state());
-	bt_draw_iface_btn(player_btns[2], sb_get_escape_state());
+	bt_draw_iface_btn(player_btns[0], sb_get_escape_state(), g_sfx_highlight);
+	bt_draw_iface_btn(player_btns[1], sb_get_escape_state(), g_sfx_highlight);
+	bt_draw_iface_btn(player_btns[2], sb_get_escape_state(), g_sfx_highlight);
 
 	draw_player_texts(player_text, player_lore);
 	draw_player_figures(t);
@@ -1032,19 +1029,18 @@ int stage_select_player()
 	if (escape_menu == true){
 		sb_display_escape_menu(sb_get_escape_state());
 	} else {
-		if (bt_chk_mouse_rel_iface_btn(player_btns[0]) == true){
+		if (bt_chk_rel_iface_btn(player_btns[0], g_sfx_select) == true){
 			player_chosen = true;
 			g_player = FL_PLAYER_1;
-		} else if (bt_chk_mouse_rel_iface_btn(player_btns[1]) == true){
+		} else if (bt_chk_rel_iface_btn(player_btns[1], g_sfx_select) == true){
 			player_chosen = true;
 			g_player = FL_PLAYER_2;
-		} else if (bt_chk_mouse_rel_iface_btn(player_btns[2]) == true){
+		} else if (bt_chk_rel_iface_btn(player_btns[2], g_sfx_select) == true){
 			player_chosen = true;
 			g_player = FL_PLAYER_3;
 		}
 		if (player_chosen == true){
 			ret_val = LV_SELECT_SECTOR;		
-			if (g_sfx_select) Mix_PlayChannel(-1, g_sfx_select, 0);
 			bt_destroy_iface_btn(player_btns[0]);
 			bt_destroy_iface_btn(player_btns[1]);
 			bt_destroy_iface_btn(player_btns[2]);

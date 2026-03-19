@@ -637,14 +637,14 @@ static int display_run_result(bool win_check)
 		back = bt_create_iface_btn(b, back_texture, true);
 		check_mem(back);
 	} 
-	bt_draw_iface_btn(back, sb_get_escape_state());
-	bt_draw_iface_btn(con, sb_get_escape_state());
+	bt_draw_iface_btn(back, sb_get_escape_state(), NULL);
+	bt_draw_iface_btn(con, sb_get_escape_state(), NULL);
 
-	if (bt_chk_mouse_rel_iface_btn(con) == true){
+	if (bt_chk_rel_iface_btn(con, NULL) == true){
 		button_pressed = true;
 		action_selected = CONT_BUTTON_PRESSED;
 	} 
-	if (bt_chk_mouse_rel_iface_btn(back) == true){
+	if (bt_chk_rel_iface_btn(back, NULL) == true){
 		button_pressed = true;
 		action_selected = BACK_BUTTON_PRESSED;
 	} 	

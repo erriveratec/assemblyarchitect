@@ -360,8 +360,8 @@ static code_line_t *get_clicked_label_code_line()
 	LIST_FOREACH(code, first, next, cur){ 
 		c = cur->value;
 		if (c->ins->id == LABEL){
-			if (bt_ms_rel_btn(c->ins->b) == true ||
-				bt_ms_rel_btn(c->op1->b) == true){
+			if (bt_chk_rel_btn(c->ins->b, NULL) == true ||
+				bt_chk_rel_btn(c->op1->b, NULL) == true){
 				clicked_label = c;
 				break;
 			}
@@ -395,8 +395,8 @@ bool cw_ms_rel_in_label()
 	LIST_FOREACH(code, first, next, cur){ 
 		c = cur->value;
 		if (c->ins->id == LABEL){
-			if (bt_ms_rel_btn(c->ins->b) == true ||
-				bt_ms_rel_btn(c->op1->b) == true){
+			if (bt_chk_rel_btn(c->ins->b, NULL) == true ||
+				bt_chk_rel_btn(c->op1->b, NULL) == true){
 				selected = true;
 				break;
 			}
@@ -2365,7 +2365,7 @@ bool cw_chk_click_code_op2(int code_line_pos)
 	LIST_FOREACH(code, first, next, cur){ 
 		code_line_t *c = cur->value;
 		if (c->op2 != NULL && code_line_pos == i){
-			if (true == bt_ms_rel_btn(c->op2->b)){
+			if (true == bt_chk_rel_btn(c->op2->b, NULL)){
 				clicked = true;
 				break;
 			}
@@ -2398,13 +2398,13 @@ bool cw_code_operand_clicked()
 		
 		code_line_t *c = cur->value;
 		if (NULL != c->op1){
-			if (true == bt_ms_rel_btn(c->op1->b)){
+			if (true == bt_chk_rel_btn(c->op1->b, NULL)){
 				clicked = true;
 				break;
 			}
 		} 
 		if (NULL != c->op2){
-			if (true == bt_ms_rel_btn(c->op2->b)){
+			if (true == bt_chk_rel_btn(c->op2->b, NULL)){
 				clicked = true;
 				break;
 			}
@@ -2434,7 +2434,7 @@ void cw_change_clicked_code_line_state()
 		code_line_t *c = cur->value;
 		if (c->ins->id != LABEL && cl_is_ins_jmp_type(c->ins->id) == false){
 			if (c->op1 != NULL){
-				if (bt_ms_rel_btn(c->op1->b) == true){
+				if (bt_chk_rel_btn(c->op1->b, NULL) == true){
 					c->state = CHANGING_OP1;
 					c->op1->b->animated = true;
 					c->op1->b->anim_dir = false;
@@ -2442,7 +2442,7 @@ void cw_change_clicked_code_line_state()
 				}
 			} 
 			if (c->op2 != NULL){
-				if (bt_ms_rel_btn(c->op2->b) == true){
+				if (bt_chk_rel_btn(c->op2->b, NULL) == true){
 					c->state = CHANGING_OP2;
 					c->op2->b->animated = true;
 					c->op2->b->anim_dir = false;
@@ -2452,7 +2452,7 @@ void cw_change_clicked_code_line_state()
 		} 
 		else if (cl_is_ins_jmp_type(c->ins->id) == true){
 			if (c->op1 != NULL){
-				if (bt_ms_rel_btn(c->op1->b) == true){
+				if (bt_chk_rel_btn(c->op1->b, NULL) == true){
 					c->state = CHANGING_OP1;
 					c->op1->b->animated = true;
 					c->op1->b->anim_dir = false;

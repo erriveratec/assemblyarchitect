@@ -804,7 +804,8 @@ bool rg_ms_rel_in_reg()
 					  .h = c->value.box.h};
 	  	
 		btn_t b = {.r = r};
-	   	if (bt_ms_rel_btn(c->b) == true || bt_ms_rel_btn(&b) == true){
+	   	if (bt_chk_rel_btn(c->b, NULL) == true 
+			|| bt_chk_rel_btn(&b, NULL) == true){
 		   	selected = true;
 		   	break;
 	   	} 
@@ -835,7 +836,8 @@ operand_t *rg_create_sel_reg_op()
 					  .h = c->value.box.h};
 
 		btn_t b = {.r = r};
-	   	if (bt_ms_rel_btn(c->b) == true|| bt_ms_rel_btn(&b) == true){
+	   	if (bt_chk_rel_btn(c->b, NULL) == true
+			|| bt_chk_rel_btn(&b, NULL) == true){
 			
 			texture_t *t = cl_create_operand_texture(c->id);
 			SDL_Rect r = {.x = c->b->r.x, 

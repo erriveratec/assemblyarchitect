@@ -1,4 +1,3 @@
-
 #include "electron_fx.h"
 
 #include <SDL_image.h>

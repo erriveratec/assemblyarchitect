@@ -265,8 +265,8 @@ void sb_display_rst_menu(bool show_menu)
 		int text_h = dm_get_h_error_msg();		
 		dw_draw_wrapped_texture_by_h(text_box, text_h, g_rst_menu_text);
 
-		bt_draw_iface_btn(g_rst_b1, sb_get_escape_state());
-		bt_draw_iface_btn(g_rst_b2, sb_get_escape_state());
+		bt_draw_iface_btn(g_rst_b1, sb_get_escape_state(), NULL);
+		bt_draw_iface_btn(g_rst_b2, sb_get_escape_state(), NULL);
 	}
 	return;
 }
@@ -286,10 +286,10 @@ bool sb_chk_rst_menu_btns(bool show_menu)
 	bool reset = false;
 	if (show_menu == true){
 
-		if (bt_chk_mouse_rel_iface_btn(g_rst_b1) == true){
+		if (bt_chk_rel_iface_btn(g_rst_b1, NULL) == true){
 			reset = false;
 			sb_set_rst_menu(false);
-		} else if (bt_chk_mouse_rel_iface_btn(g_rst_b2) == true){
+		} else if (bt_chk_rel_iface_btn(g_rst_b2, NULL) == true){
 			reset = true;
 			sb_set_rst_menu(false);
 		} 	
@@ -418,18 +418,15 @@ void sb_display_escape_menu(bool show_menu)
 		SDL_Rect r = dm_get_center_screen_box();
 		dw_draw_iface_box(r, g_escape_header_texture);
 
-		bt_draw_iface_btn(g_escape_b1, false);
-		bt_draw_iface_btn(g_escape_b2, false);
-		bt_draw_iface_btn(g_escape_b3, false);
+		bt_draw_iface_btn(g_escape_b1, false, g_sfx_hover);
+		bt_draw_iface_btn(g_escape_b2, false, g_sfx_hover);
+		bt_draw_iface_btn(g_escape_b3, false, g_sfx_hover);
 
-		if (bt_chk_mouse_rel_iface_btn(g_escape_b1) == true){
-			if (g_sfx_select) Mix_PlayChannel(-1, g_sfx_select, 0);
+		if (bt_chk_rel_iface_btn(g_escape_b1, NULL) == true){
 			toggle_escape_menu();
-		} else if (bt_chk_mouse_rel_iface_btn(g_escape_b2) == true){
-			if (g_sfx_select) Mix_PlayChannel(-1, g_sfx_select, 0);
+		} else if (bt_chk_rel_iface_btn(g_escape_b2, g_sfx_select) == true){
 			puts("Full screen must be implemented");	
-		} else if (bt_chk_mouse_rel_iface_btn(g_escape_b3) == true){
-			if (g_sfx_select) Mix_PlayChannel(-1, g_sfx_select, 0);
+		} else if (bt_chk_rel_iface_btn(g_escape_b3, g_sfx_select) == true){
 			set_quit_game();
 		}
 	}	
@@ -451,9 +448,12 @@ void sb_display_escape_menu(bool show_menu)
 void toggle_escape_menu()
 {
 	g_escape_menu = !g_escape_menu;
-	if (g_escape_menu == false){			
-		if (g_sfx_highlight) Mix_PlayChannel(-1, g_sfx_cancel, 0);
-	}
+
+	if (g_escape_menu == true){			
+		if (g_sfx_escape) Mix_PlayChannel(-1, g_sfx_escape, 0);
+	} else if (g_escape_menu == false){			
+		if (g_sfx_cancel) Mix_PlayChannel(-1, g_sfx_cancel, 0);
+	} 
 }
 
 /* Function: sb_get_escape_state
@@ -612,11 +612,11 @@ void adjust_stage_buttons_position(int code_size)
 void sb_draw_stage_buttons(int code_size)
 {
 	adjust_stage_buttons_position(code_size);
-	bt_draw_iface_btn(stop, sb_get_escape_state());
-	bt_draw_iface_btn(play, sb_get_escape_state());
+	bt_draw_iface_btn(stop, sb_get_escape_state(), NULL);
+	bt_draw_iface_btn(play, sb_get_escape_state(), NULL);
 	if (g_step_btns_avail == true){
-		bt_draw_iface_btn(fast, sb_get_escape_state());
-		bt_draw_iface_btn(step, sb_get_escape_state());
+		bt_draw_iface_btn(fast, sb_get_escape_state(), NULL);
+		bt_draw_iface_btn(step, sb_get_escape_state(), NULL);
 	}
 }
 
@@ -633,7 +633,7 @@ void sb_draw_stage_buttons(int code_size)
  */
 void sb_draw_rst_btn()
 {
-	bt_draw_iface_btn(rst_btn, sb_get_escape_state());
+	bt_draw_iface_btn(rst_btn, sb_get_escape_state(), NULL);
 }
 
 /* Function: sb_init_rst_btn
@@ -670,7 +670,7 @@ bool sb_chk_click_rst_btn()
 {
 	int rst = false;
 
-	if (bt_chk_mouse_rel_iface_btn(rst_btn) == true) {
+	if (bt_chk_rel_iface_btn(rst_btn, NULL) == true) {
 		rst = true;
 	}
 	return rst;
@@ -688,7 +688,7 @@ bool sb_chk_click_rst_btn()
  */
 void sb_draw_return_button()
 {
-	bt_draw_iface_btn(ret_btn, sb_get_escape_state());
+	bt_draw_iface_btn(ret_btn, sb_get_escape_state(), g_sfx_hover);
 }
 
 /* Function: sb_init_return_buttons
@@ -771,7 +771,7 @@ bool sb_check_clicked_ret_button()
 {
 	int ret = false;
 
-	if (bt_chk_mouse_rel_iface_btn(ret_btn) == true) {
+	if (bt_chk_rel_iface_btn(ret_btn, g_sfx_cancel) == true) {
 		ret = true;
 	}
 	return ret;

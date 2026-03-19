@@ -277,9 +277,9 @@ void mc_display_invalid_operation_handler(int id)
 			ret = bt_create_iface_btn(r, ret_texture, true);
 			check_mem(ret);
 		} 
-		bt_draw_iface_btn(ret, sb_get_escape_state());
+		bt_draw_iface_btn(ret, sb_get_escape_state(), NULL);
 
-			if (bt_chk_mouse_rel_iface_btn(ret) == true){
+			if (bt_chk_rel_iface_btn(ret, NULL) == true){
 				mc_set_rst_lvl(true);
 				button_pressed = true;
 			} 

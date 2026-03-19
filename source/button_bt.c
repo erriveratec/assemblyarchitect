@@ -5,6 +5,7 @@
 #include "sdl_config.h"
 #include "list.h"
 #include "mouse_ms.h"
+#include <SDL_mixer.h>
 
 static const Uint32 BUTTON_LIFT = 4;
 static const float HOVER_SCALE = 0.06f;
@@ -150,7 +151,7 @@ void bt_destroy_iface_btn(iface_btn_t *b)
 	free(b);
 }
 
-/* Function: bt_chk_mouse_rel_iface_btn
+/* Function: bt_chk_rel_iface_btn
  *------------------------------------------------------------------------------
  * Arguments:
  * 	button: the button to be verified
@@ -159,7 +160,7 @@ void bt_destroy_iface_btn(iface_btn_t *b)
  *	true if the mouse clicked inside the button
  *	false if otherwise
 */
-bool bt_chk_mouse_rel_iface_btn(iface_btn_t *btn)
+bool bt_chk_rel_iface_btn(iface_btn_t *btn, Mix_Chunk *rel_sound)
 {
 	assert(btn != NULL && "The button pointer cannot be NULL");
 
@@ -173,6 +174,7 @@ bool bt_chk_mouse_rel_iface_btn(iface_btn_t *btn)
 
 	if (mouse_x > btn->r.x && mouse_x < (btn->r.x + btn->r.w) &&
 		mouse_y > btn->r.y && mouse_y < (btn->r.y + btn->r.h)){
+		if (rel_sound) Mix_PlayChannel(-1, rel_sound, 0);
 		return true;
 	} else {
 		return false;
@@ -264,6 +266,7 @@ iface_btn_t *bt_create_iface_btn(SDL_Rect r, texture_t *t, bool enabled)
 	float scale_h = (float)r.h/t->h;
 	new_button->t = t;
 	new_button->enabled = enabled;
+	new_button->hovered = false;
 	return new_button;
 }
 
@@ -311,9 +314,8 @@ static void draw_btn_scaled_texture(SDL_Rect box, iface_btn_t *b)
  * Return:
  *	Void.
  */
-void bt_draw_iface_btn(iface_btn_t *b, bool blk)
+void bt_draw_iface_btn(iface_btn_t *b, bool blk, Mix_Chunk *hover_sound)
 {
-	//agregar sonido de hover queda como pendiente
 	assert(b != NULL && "The button pointer is NULL");
 	int status = SUCCESS;	
 	
@@ -327,12 +329,18 @@ void bt_draw_iface_btn(iface_btn_t *b, bool blk)
 	dw_set_texture_color_mod(b->t, border_color);
 
 	if (hover == true && b->enabled == true && blk == false){
+		if (b->hovered == false && hover_sound != NULL){
+			if (hover_sound) Mix_PlayChannel(-1, hover_sound, 0);
+			b->hovered = true;
+		}
 		float h_ofs = bt_get_hover_factor();
 		box = ax_scale_rect_percentage(box, h_ofs);
 		box.y -= bt_get_btn_lift();
 		shadow_offset += 2*h_ofs;
 		border_color = C_WHITE;
 		dw_set_texture_color_mod(b->t, C_WHITE);
+	} else {
+		b->hovered = false;
 	}
 
 	if (b->enabled == false){
@@ -361,7 +369,7 @@ void bt_draw_iface_btn(iface_btn_t *b, bool blk)
 		dw_draw_thick_rect(box, outer_border, border_color);
 
 		SDL_Rect in = ax_pad_rectangle(box, offset, true);
-		if (hover == true){
+		if (hover == true && blk == false){
 			dw_draw_filled_rectangle(in, C_SOFTBLACK, C_WHITE);
 		} else {
 			dw_draw_filled_rectangle(in, C_NEARBLACK, C_SILVERGREY);
@@ -462,6 +470,7 @@ btn_t *bt_create_btn(SDL_Rect r, texture_t *t)
 	new_button->anim_state = 0;
 	new_button->rect = false;
 	new_button->enabled = true;
+	new_button->hovered = false;
 
 	return new_button;
 }
@@ -637,7 +646,7 @@ bool bt_btn_rclicked(btn_t *button)
  *	true if the mouse clicked inside the button
  *	false if otherwise
 */
-bool bt_ms_rel_btn(btn_t *button)
+bool bt_chk_rel_btn(btn_t *button, Mix_Chunk *rel_sound)
 {
 	assert(button != NULL && "The button pointer cannot be NULL");
 
@@ -648,9 +657,9 @@ bool bt_ms_rel_btn(btn_t *button)
 	if (mouse_left_released == false){
 		return false;
 	}
-
 	if (mouse_x > button->r.x && mouse_x < (button->r.x + button->r.w) &&
 		mouse_y > button->r.y && mouse_y < (button->r.y + button->r.h)){
+		if (rel_sound) Mix_PlayChannel(-1, rel_sound, 0);
 		return true;
 	} else {
 		return false;
