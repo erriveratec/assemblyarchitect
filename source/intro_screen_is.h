@@ -17,6 +17,7 @@ int stage_title(const Uint8 *keystate);
 int stage_select_level();
 int stage_select_player();
 int stage_select_sector();
+int stage_sector_0();
 
 #endif 
 

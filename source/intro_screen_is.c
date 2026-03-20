@@ -31,6 +31,7 @@ char *SECTOR_1 = "[01] Computation Core";
 char *SECTOR_2 = "[02] Jump Flow Unit";
 char *SECTOR_3 = "[03] Branching Engine";
 char *SECTOR_4 = "[04] Advanced Module";
+char *SECTOR_0_TITLE = "SECTOR 0";
 
 static const Uint32 STUDIO_SCREEN_DELAY_MS = 2500; 
 static const Uint32 FADE_MS = 1250;
@@ -50,13 +51,13 @@ static const Uint32 TITLE_IMG_Y = 325;
 static const Uint32 SEL_LEVEL_BUTTON_W = 150;
 static const Uint32 SEL_LEVEL_BUTTON_H = 60;
 
-static const Uint32 BIG_SEPARATOR_H = 8;
+static const Uint32 BIG_SEPARATOR_H = 6;
 static const Uint32 SMALL_SEPARATOR_H = 2;
-static const Uint32 SECTOR_TITLE_SEPARATOR = 25;
+static const Uint32 SECTOR_TITLE_SEPARATOR = 24;
 
-static const Uint32 SECTOR_BTN_SPACING = 80;
+static const Uint32 SECTOR_BTN_SPACING = 60;
+static const Uint32 FIRST_BTN_OFS = 10;
 
-texture_t *g_press_space = NULL;
 texture_t *g_chip = NULL;
 texture_t *g_logo = NULL;
 
@@ -113,7 +114,8 @@ static SDL_Rect get_sector_btn_box()
 	b.w = screen_width*2/3;
 	b.h = dm_get_h_stage_subtitle();
 	b.x = dm_get_upper_title_box(SELECT_SECTOR).x;	
-	b.y = get_upper_separator().y + get_sector_btn_spacing(); 
+	b.y = get_upper_separator().y + get_sector_btn_spacing() 
+		  + dm_scale_to_resolution(FIRST_BTN_OFS); 
 	return b;
 }
 
@@ -399,7 +401,99 @@ static void create_sector_btns(btn_t **btns)
 
 }
 
-/* Function: stage_select_section
+
+/* Function: stage_sector_0
+ * -----------------------------------------------------------------------------
+ * Displays the sections available for the player to choose
+ * 	
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	The number of the level selected, if not valid press was performed
+ *	the number of the select label stage will be returned.
+ */
+int stage_sector_0()
+{
+	int W = dm_get_screen_width();
+	int H = dm_get_screen_height();   
+  	static fx_electron_t* fx;
+	static Uint64 last_type_ms;
+	static Uint64 anim_prev_ms;
+	static size_t type_index = 0;
+	static bool title_done = false;
+	Uint64 cur_time = SDL_GetTicks64();
+
+	static texture_t *sector_0 = NULL;
+
+	static bool level_initialized = false;
+	static bool player_levels[LV_LEVEL_QUANTITY];
+	static btn_t *sectors[5];	
+
+	int ret_val = LV_SECTOR_0;
+	SDL_Rect r = dm_get_upper_title_box(SECTOR_0_TITLE);
+
+	if (level_initialized == false){
+		//fl_load_player_levels(g_player, player_levels);
+		level_initialized = true;
+		last_type_ms = cur_time;
+		fx = fx_electron_create(g_renderer, W, H, NULL);
+		create_sector_btns(sectors);
+	}
+//	int dm_get_h_stage_subtitle()
+	float dt=(cur_time - anim_prev_ms)/1000.0f;
+	anim_prev_ms = cur_time;
+	SDL_Rect b = dm_get_upper_title_box(SECTOR_0_TITLE);
+	fx_electron_update(fx, dt);
+    fx_electron_render(fx, g_renderer);
+	
+	if (title_done == false && (cur_time - last_type_ms) >= TYPE_DELAY_MS){
+		last_type_ms = cur_time;
+		
+		bool write_complete = tx_draw_create_typewriter_text(&sector_0, 
+															 b, 
+															 SECTOR_0_TITLE, 
+															 &type_index,
+															 C_SILVERGREY);
+		if (write_complete == true){
+			title_done = true;
+        }
+	}
+	if (sector_0 != NULL){
+		dw_draw_texture_fit_h(r, sector_0);
+	}
+	
+	//dw_draw_filled_rectangle(get_upper_separator(), C_SHADOWGREY, C_SHADOWGREY);
+	sb_draw_return_button();
+	
+	SDL_Rect sep = get_sector_separator();
+	for (int i = 0; i < 5; i++){
+//		bt_draw_btn(sectors[i], sb_get_escape_state());
+//		dw_draw_filled_rectangle(sep, C_SHADOWGREY, C_SHADOWGREY);
+//		sep.y += get_sector_btn_box().h + get_sector_btn_spacing();
+	}
+	
+	bool escape = sb_get_escape_state();
+	if (escape == true){
+		sb_display_escape_menu(escape);
+	} else if (bt_chk_rel_btn(sectors[0], g_sfx_select)){
+	} else if (bt_chk_rel_btn(sectors[1], g_sfx_select)){
+	} else if (bt_chk_rel_btn(sectors[2], g_sfx_select)){
+	} else if (bt_chk_rel_btn(sectors[3], g_sfx_select)){
+	} else if (bt_chk_rel_btn(sectors[4], g_sfx_select)){
+	} else if (sb_check_clicked_ret_button() == true){
+			bt_destroy_button(sectors[0]);
+			bt_destroy_button(sectors[1]);
+			bt_destroy_button(sectors[2]);
+			bt_destroy_button(sectors[3]);
+			bt_destroy_button(sectors[4]);
+			ret_val = LV_SELECT_SECTOR;	
+			level_initialized = false;
+  			aa_electron_fx_destroy(fx);
+	}
+	return ret_val;
+}
+/* Function: stage_select_sector
  * -----------------------------------------------------------------------------
  * Displays the sections available for the player to choose
  * 	
@@ -461,7 +555,6 @@ int stage_select_sector()
 	}
 	
 	dw_draw_filled_rectangle(get_upper_separator(), C_SHADOWGREY, C_SHADOWGREY);
-
 	sb_draw_return_button();
 	
 	SDL_Rect sep = get_sector_separator();
@@ -470,13 +563,12 @@ int stage_select_sector()
 		dw_draw_filled_rectangle(sep, C_SHADOWGREY, C_SHADOWGREY);
 		sep.y += get_sector_btn_box().h + get_sector_btn_spacing();
 	}
-
-	
 	
 	bool escape = sb_get_escape_state();
 	if (escape == true){
 		sb_display_escape_menu(escape);
 	} else if (bt_chk_rel_btn(sectors[0], g_sfx_select)){
+		ret_val = LV_SECTOR_0;
 	} else if (bt_chk_rel_btn(sectors[1], g_sfx_select)){
 	} else if (bt_chk_rel_btn(sectors[2], g_sfx_select)){
 	} else if (bt_chk_rel_btn(sectors[3], g_sfx_select)){
@@ -491,7 +583,6 @@ int stage_select_sector()
 			level_initialized = false;
   			aa_electron_fx_destroy(fx);
 	}
-	
 	return ret_val;
 }
 
@@ -658,6 +749,7 @@ int stage_title(const Uint8 *keystate)
 	static Uint64 anim_prev_ms;
 	static size_t type_index = 0;
 	static bool title_done = false;
+	static texture_t *press_space = NULL;
     
 	Uint8 chip_alpha = 0;              
 	
@@ -666,7 +758,7 @@ int stage_title(const Uint8 *keystate)
 
 	if (init == false){
 		init = true;
-		g_press_space = dw_create_text_texture(PRESS_SPACE, C_SILVERGREY);
+		press_space = dw_create_text_texture(PRESS_SPACE, C_SILVERGREY);
 		last_type_ms = cur_time;
 		anim_prev_ms = cur_time;
 		start_time = cur_time;
@@ -726,18 +818,18 @@ int stage_title(const Uint8 *keystate)
     float blink_alpha_f = (blink_phase < 0.5f) ? (blink_phase * 2.0f)  
 						: ((1.0f - blink_phase) * 2.0f);
     Uint8 press_alpha = (Uint8)(blink_alpha_f * 255.0f);
-	SDL_SetTextureAlphaMod(g_press_space->texture, press_alpha);
+	SDL_SetTextureAlphaMod(press_space->texture, press_alpha);
 
 	SDL_Rect img =  get_game_title_img_box();
 	img = ax_scale_rect_proportion(img, chip_scale);
 	dw_draw_texture_fit_h(img, g_chip);
 
 	SDL_Rect s = dm_get_press_space_box(PRESS_SPACE);
-	dw_draw_texture_fit_h(s, g_press_space);
+	dw_draw_texture_fit_h(s, press_space);
 
 	if (keystate[SDL_SCANCODE_SPACE]){
 		dw_free_texture(g_chip);
-		dw_free_texture(g_press_space);
+		dw_free_texture(press_space);
 		dw_free_texture(game_title);
   		aa_electron_fx_destroy(fx);
 		init = false;
