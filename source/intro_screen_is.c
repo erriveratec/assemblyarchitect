@@ -31,12 +31,13 @@ char *SECTOR_1 = "[01] Computation Core";
 char *SECTOR_2 = "[02] Jump Flow Unit";
 char *SECTOR_3 = "[03] Branching Engine";
 char *SECTOR_4 = "[04] Advanced Module";
-char *SECTOR_0_TITLE = "SECTOR 0";
+char *SECTOR_0_TITLE = "SECTOR [00]";
 
 static const Uint32 STUDIO_SCREEN_DELAY_MS = 2500; 
 static const Uint32 FADE_MS = 1250;
 static const Uint32 TYPE_DELAY_MS = 90;  
 static const Uint32 CHIP_FADE_MS = 1000;   // ~1s fade
+static const Uint32 SUBTITLE_FADE_MS = 1000;   // ~1s fade
 
 static const Uint32 PLAYER_BLOCK_W = 8;
 
@@ -58,6 +59,13 @@ static const Uint32 SECTOR_TITLE_SEPARATOR = 24;
 static const Uint32 SECTOR_BTN_SPACING = 60;
 static const Uint32 FIRST_BTN_OFS = 10;
 
+static const Uint32 SECTOR_1_START = 8;
+static const Uint32 SECTOR_2_START = 16;
+static const Uint32 SECTOR_3_START = 24;
+static const Uint32 SECTOR_4_START = 32;
+
+static const Uint32 SECTOR_0_LV_QTY = SECTOR_1_START;
+
 texture_t *g_chip = NULL;
 texture_t *g_logo = NULL;
 
@@ -73,11 +81,12 @@ static SDL_Rect get_game_title_img_box();
 static SDL_Rect get_level_button_box();
 static int get_sel_level_offset_y();
 static SDL_Rect get_upper_separator();
-static void create_sector_btns(btn_t **btns);
+static void create_sector_btns(btn_t **btns, bool *levels);
 static int get_sector_btn_spacing();
 static SDL_Rect get_sector_separator();
-
-
+static SDL_Rect get_sector_subtitle_box(char *msg);
+static SDL_Rect get_subtitle_separator();
+static void create_levels_btns(btn_t **btns, bool *levels, int lv_qty);
 
 
 /* Function: get_sector_btn_spacing
@@ -93,6 +102,65 @@ static SDL_Rect get_sector_separator();
 static int get_sector_btn_spacing()
 {
 	return dm_scale_to_resolution(SECTOR_BTN_SPACING);
+}
+
+/*SDL_Rect dm_get_upper_title_box(char *msg)
+{
+	SDL_Rect b;
+	b.h = dm_scale_to_resolution(TEXT_H_STAGE_TITLE);
+	b.w = get_text_width_fits_height(b.h, msg);
+	b.x = g_screen_width/2 - b.w/2;
+	b.y = dm_scale_to_resolution(SEL_PLAYER_Y);
+
+	return b;
+}*/
+
+/* Function: get_subtitle_upper_separator
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the upper separator o select sector
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the objecto
+ */
+static SDL_Rect get_subtitle_separator()
+{
+	int screen_width = dm_get_screen_width();
+	int screen_height = dm_get_screen_height();
+
+	SDL_Rect r = get_sector_subtitle_box("PLACEHOLDER");
+	SDL_Rect b;
+	b.w = screen_width*3/4;
+	b.h = dm_scale_to_resolution(BIG_SEPARATOR_H);
+	b.x = screen_width/8;
+	b.y = r.y + r.h + dm_scale_to_resolution(SECTOR_TITLE_SEPARATOR); 
+	return b;
+}
+
+/* Function: get_sector_subtitle_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the upper separator o select sector
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the objecto
+ */
+static SDL_Rect get_sector_subtitle_box(char *msg)
+{
+	int screen_width = dm_get_screen_width();
+	int screen_height = dm_get_screen_height();
+
+	SDL_Rect r = dm_get_upper_title_box(SELECT_LEVEL_TEXT);
+	SDL_Rect b;
+	b.h = dm_get_h_stage_subtitle();
+	b.w = get_text_width_fits_height(b.h, msg);
+	b.x = dm_get_screen_width()/2 - b.w/2;
+	b.y = r.y + r.h;
+	return b;
 }
 
 /* Function: get_sector_btn_box
@@ -119,7 +187,7 @@ static SDL_Rect get_sector_btn_box()
 	return b;
 }
 
-/* Function: get_upper_separator
+/* Function: get_sector_separator
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the sector separator
  *
@@ -363,7 +431,7 @@ static void create_select_level_buttons(iface_btn_t **buttons, bool *levels)
  * Return:
  *	Void.
  */
-static void create_sector_btns(btn_t **btns)
+static void create_sector_btns(btn_t **btns, bool *levels)
 {
 	assert(btns != NULL && "The buttons pointer is NULL");
 
@@ -380,26 +448,57 @@ static void create_sector_btns(btn_t **btns)
 	btns[1]->r.w = ax_get_texture_w_fit_h(btns[1]->r.h, btns[1]->t);
 	btns[1]->r.y = btns[0]->r.y + get_sector_btn_box().h + y_space;
 	btns[1]->r.x += x_ofs;
+	if (levels[SECTOR_1_START] == false){
+		btns[1]->enabled = false;
+	}
 	
 	btns[2] = bt_create_btn(get_sector_btn_box(), 
 			  				dw_create_text_texture(SECTOR_2, C_WHITE));
 	btns[2]->r.w = ax_get_texture_w_fit_h(btns[2]->r.h, btns[2]->t);
 	btns[2]->r.y = btns[1]->r.y + get_sector_btn_box().h + y_space;
 	btns[2]->r.x += x_ofs;
+	if (levels[SECTOR_2_START] == false){
+		btns[2]->enabled = false;
+	}
 
 	btns[3] = bt_create_btn(get_sector_btn_box(), 
 			  				dw_create_text_texture(SECTOR_3, C_WHITE));
 	btns[3]->r.w = ax_get_texture_w_fit_h(btns[3]->r.h, btns[3]->t);
 	btns[3]->r.y = btns[2]->r.y + get_sector_btn_box().h + y_space;
 	btns[3]->r.x += x_ofs;
+	if (levels[SECTOR_3_START] == false){
+		btns[3]->enabled = false;
+	}
 
 	btns[4] = bt_create_btn(get_sector_btn_box(), 
 			  				dw_create_text_texture(SECTOR_4, C_WHITE));
 	btns[4]->r.w = ax_get_texture_w_fit_h(btns[4]->r.h, btns[4]->t);
 	btns[4]->r.y = btns[3]->r.y + get_sector_btn_box().h + y_space;
 	btns[4]->r.x += x_ofs;
+	if (levels[SECTOR_4_START] == false){
+		btns[4]->enabled = false;
+	}
+}
+
+/* Function: create_level_btns
+ * -----------------------------------------------------------------------------
+ * Creates the corresponding sector buttons
+ * 	
+ * Arguments:
+ * 	Pointer of pointer of the buttons
+ *	Pointer with an array of available levels
+ *	The quantity of levels that will be initialized
+ *
+ * Return:
+ *	Void.
+ */
+static void create_levels_btns(btn_t **btns, bool *levels, int lv_qty)
+{
+	assert(btns != NULL && "The buttons pointer is NULL");
+
 
 }
+
 
 
 /* Function: stage_sector_0
@@ -420,50 +519,72 @@ int stage_sector_0()
   	static fx_electron_t* fx;
 	static Uint64 last_type_ms;
 	static Uint64 anim_prev_ms;
+	static Uint64 sub_start_ms;
 	static size_t type_index = 0;
 	static bool title_done = false;
 	Uint64 cur_time = SDL_GetTicks64();
 
 	static texture_t *sector_0 = NULL;
+	static texture_t *subtitle = NULL;
+	char *sub_text = SECTOR_0 + 5;
+	Uint8 sub_alpha = 0;              
 
 	static bool level_initialized = false;
 	static bool player_levels[LV_LEVEL_QUANTITY];
-	static btn_t *sectors[5];	
+	static iface_btn_t **sectors = NULL;
 
 	int ret_val = LV_SECTOR_0;
 	SDL_Rect r = dm_get_upper_title_box(SECTOR_0_TITLE);
 
 	if (level_initialized == false){
-		//fl_load_player_levels(g_player, player_levels);
+		fl_load_player_levels(g_player, player_levels);
 		level_initialized = true;
 		last_type_ms = cur_time;
 		fx = fx_electron_create(g_renderer, W, H, NULL);
-		create_sector_btns(sectors);
+		sectors = malloc(sizeof(iface_btn_t *) * SECTOR_0_LV_QTY);
+//		create_sector_btns(sectors, player_levels);
+		subtitle = dw_create_text_texture(sub_text, C_SILVERGREY);
+        SDL_SetTextureAlphaMod(subtitle->texture, sub_alpha);
 	}
-//	int dm_get_h_stage_subtitle()
+
 	float dt=(cur_time - anim_prev_ms)/1000.0f;
 	anim_prev_ms = cur_time;
-	SDL_Rect b = dm_get_upper_title_box(SECTOR_0_TITLE);
 	fx_electron_update(fx, dt);
     fx_electron_render(fx, g_renderer);
 	
 	if (title_done == false && (cur_time - last_type_ms) >= TYPE_DELAY_MS){
 		last_type_ms = cur_time;
-		
 		bool write_complete = tx_draw_create_typewriter_text(&sector_0, 
-															 b, 
+															 r, 
 															 SECTOR_0_TITLE, 
 															 &type_index,
 															 C_SILVERGREY);
 		if (write_complete == true){
 			title_done = true;
+			sub_start_ms = cur_time;
         }
 	}
 	if (sector_0 != NULL){
 		dw_draw_texture_fit_h(r, sector_0);
 	}
 	
-	//dw_draw_filled_rectangle(get_upper_separator(), C_SHADOWGREY, C_SHADOWGREY);
+	if (title_done == true) {
+    	Uint64 elapsed = cur_time - sub_start_ms;
+        if (elapsed < SUBTITLE_FADE_MS) {
+            float t = (float)elapsed / (float)SUBTITLE_FADE_MS;
+            if (t < 0.0f) t = 0.0f; if (t > 1.0f) t = 1.0f;
+            sub_alpha = (Uint8)(t * 255.0f);
+        } else {
+            sub_alpha = 255;
+        }
+        	SDL_SetTextureAlphaMod(subtitle->texture, sub_alpha);
+    }
+
+	SDL_Rect sub_box = get_sector_subtitle_box(sub_text);
+	dw_draw_texture_fit_h(sub_box, subtitle);
+	
+	dw_draw_filled_rectangle(get_subtitle_separator(), 
+							 C_SHADOWGREY, C_SHADOWGREY);
 	sb_draw_return_button();
 	
 	SDL_Rect sep = get_sector_separator();
@@ -476,17 +597,17 @@ int stage_sector_0()
 	bool escape = sb_get_escape_state();
 	if (escape == true){
 		sb_display_escape_menu(escape);
-	} else if (bt_chk_rel_btn(sectors[0], g_sfx_select)){
-	} else if (bt_chk_rel_btn(sectors[1], g_sfx_select)){
-	} else if (bt_chk_rel_btn(sectors[2], g_sfx_select)){
-	} else if (bt_chk_rel_btn(sectors[3], g_sfx_select)){
-	} else if (bt_chk_rel_btn(sectors[4], g_sfx_select)){
+//	} else if (bt_chk_rel_btn(sectors[0], g_sfx_select)){
+//	} else if (bt_chk_rel_btn(sectors[1], g_sfx_select)){
+//	} else if (bt_chk_rel_btn(sectors[2], g_sfx_select)){
+//	} else if (bt_chk_rel_btn(sectors[3], g_sfx_select)){
+//	} else if (bt_chk_rel_btn(sectors[4], g_sfx_select)){
 	} else if (sb_check_clicked_ret_button() == true){
-			bt_destroy_button(sectors[0]);
-			bt_destroy_button(sectors[1]);
-			bt_destroy_button(sectors[2]);
-			bt_destroy_button(sectors[3]);
-			bt_destroy_button(sectors[4]);
+//			bt_destroy_button(sectors[0]);
+//			bt_destroy_button(sectors[1]);
+//			bt_destroy_button(sectors[2]);
+//			bt_destroy_button(sectors[3]);
+//			bt_destroy_button(sectors[4]);
 			ret_val = LV_SELECT_SECTOR;	
 			level_initialized = false;
   			aa_electron_fx_destroy(fx);
@@ -529,7 +650,7 @@ int stage_select_sector()
 		level_initialized = true;
 		last_type_ms = cur_time;
 		fx = fx_electron_create(g_renderer, W, H, NULL);
-		create_sector_btns(sectors);
+		create_sector_btns(sectors, player_levels);
 	}
 
 	float dt=(cur_time - anim_prev_ms)/1000.0f;

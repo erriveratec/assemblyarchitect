@@ -1293,7 +1293,7 @@ SDL_Rect dm_get_upper_title_box(char *msg)
 	b.w = get_text_width_fits_height(b.h, msg);
 	b.x = g_screen_width/2 - b.w/2;
 	b.y = dm_scale_to_resolution(SEL_PLAYER_Y);
-;
+
 	return b;
 }
 

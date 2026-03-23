@@ -504,12 +504,14 @@ void bt_draw_btn(btn_t *b, bool blk)
 		box = ax_scale_rect_percentage(box, h_ofs);
 		box.y -= bt_get_btn_lift();
 		dw_set_texture_color_mod(b->t, C_WHITE);
+	} else if (b->enabled == false){
+		dw_set_texture_color_mod(b->t, C_GREY);
 	}
 
 	float scale_w = (float)b->r.w/b->t->w;
 	float scale_h = (float)b->r.h/b->t->h;
-
-	if (b->animated == false){
+	
+	if (b->animated == false || b->enabled == false){
 		if (scale_w < scale_h){
 			int y = box.y + (box.h - b->t->h*scale_w)/2;
 			SDL_Rect r = {.x = box.x, .y = y, .w = box.w};
@@ -654,7 +656,7 @@ bool bt_chk_rel_btn(btn_t *button, Mix_Chunk *rel_sound)
 	int mouse_y = ms_get_mouse_y();
 	int mouse_left_released = ms_left_released();
 	
-	if (mouse_left_released == false){
+	if (mouse_left_released == false || button->enabled == false){
 		return false;
 	}
 	if (mouse_x > button->r.x && mouse_x < (button->r.x + button->r.w) &&
