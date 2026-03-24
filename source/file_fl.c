@@ -22,6 +22,7 @@
 #define SAVE_FILE_PATH "data/save.dat"
 #define SAVE_FILE_PATH_TEMP "data/save.dattemp"
 #define MSGS_FILE_PATH "data/level_msgs.dat"
+#define HOVER_MSGS_FILE_PATH "data/hover_lvl_msgs.dat"
 
 // Text for the save file creation
 #define STR_LEVEL_STARTS "+++LEVEL STARTS"
@@ -60,6 +61,9 @@
 #define STR_MSG_QTY "QUANTITY"
 #define STR_MSG "MSG"
 #define STR_MSG_END "MSG_END"
+
+char *HOVER_MSGS_STARTS = "+++MESSAGES STARTS";
+char *HOVER_MSGS_ENDS = "+++MESSAGES ENDS";
 
 static char *get_level_id_string(int level_id);
 static char *get_player_id_string(int player_id);
@@ -540,6 +544,49 @@ static void parse_message(FILE *fp, int msg_pos)
 		strcat(msg, text);
 		i++;
 	}
+	return;
+}
+
+/* Function: fl_load_level_msgs
+ *------------------------------------------------------------------------------
+ * Reads the level messages from the file
+ *
+ * Arguments:
+ *	file: string containing the name of the save file
+ *
+ * Return:
+ *	void.
+ *
+ */
+void fl_load_hover_level_msgs()
+{
+	char *line = NULL;	
+	size_t len = 0;
+	ssize_t read;
+
+	FILE *fp = fopen(HOVER_MSGS_FILE_PATH, "r");
+	check_mem(fp);
+	char *saveptr1;
+	char *text;
+	bool found = false;
+
+	while (READ_ERROR != (read = getline(&line, &len, fp))){
+		if (strstr(line, HOVER_MSGS_STARTS) != NULL){
+			found = true;
+		} else if (strstr(line, STR_MSG_QTY) != NULL && found == true){
+			char *qty = strchr(line, CHAR_SPACE);
+			int size = atoi(qty);
+			tx_set_and_allocate_msgs_array(size);
+		} else if (strstr(line, STR_MSG) != NULL && found == true){
+			char *pos = strchr(line, CHAR_SPACE);
+			parse_message(fp, atoi(pos));
+		} else if (strstr(line, HOVER_MSGS_ENDS) != NULL && found == true){
+			found= false;
+			break;
+		}
+	}
+error:
+	fclose(fp);	
 	return;
 }
 

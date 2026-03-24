@@ -25,6 +25,22 @@ texture_array_t **g_gbl_msgs = NULL;
 
 static int get_box_member(SDL_Rect *box, int member);
 
+
+/* Function: tx_get_message_texture
+ * -----------------------------------------------------------------------------
+ * Retunr a given message texture loaded from a file
+ * 
+ * Arguments:
+ *	pos: position of the texture that wants to be retrieved
+ *	
+ * Return:
+ * 	texture_array_t pointer of the requested texture
+ */
+texture_array_t *tx_get_message_texture(int pos)
+{
+	return g_msgs[pos];
+}
+
 /* Function: tx_draw_create_typewriter_text
  * -----------------------------------------------------------------------------
  * This function is used to create the typewriter effect wheen neeeded
@@ -98,14 +114,15 @@ void tx_set_and_allocate_msgs_array(int size)
  */
 void tx_set_message_in_array(int pos, char *msg)
 {
-	assert(pos > 0 && "Invalid position");
+	assert(pos >= 0 && "Invalid position");
 	assert(msg != NULL && "NULL message");	
 
-	pos--; // array starts at zero
+	//pos--; // THIS WILL EXPLODE LATER
 
-	int h = (pos == 0) ? dm_get_h_big_text() : dm_get_h_msg();
+	//int h = (pos == 0) ? dm_get_h_big_text() : dm_get_h_msg();
+	int h = dm_get_h_msg();
 	int w = dm_get_w_msg(dm_get_box_msg_wh());
-	g_msgs[pos] = dw_new_text_texture_by_h(w, h, C_BLACK, msg);
+	g_msgs[pos] = dw_new_text_texture_by_h(w, h, C_WHITE, msg);
 }
 
 /* Function: tx_init_global_msgs

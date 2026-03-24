@@ -40,6 +40,7 @@ void dw_draw_inner_shadow_lines(SDL_Rect r,
 								SDL_Color bottom_right);
 int dw_get_ofs_iface_filled_border();
 void dw_set_texture_color_mod(texture_t *t, SDL_Color c);
+void dw_set_array_texture_color_mod(texture_array_t *t, SDL_Color c);
 
 extern SDL_Color C_WHITE;
 extern SDL_Color C_BLACK;

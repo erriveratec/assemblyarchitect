@@ -16,6 +16,7 @@ bool tx_draw_create_typewriter_text(texture_t **t,
 									char *text, 
 									size_t *index, 
 									SDL_Color color);
+texture_array_t *tx_get_message_texture(int pos);
 
 enum text_box_positions{
 	TX_BOX_MIN,
@@ -37,6 +38,7 @@ enum gbl_msgs{
 	TX_MSG_PRESSBACK
 };
 enum msgs{
+	MSG0,	
 	MSG1,
 	MSG2,
 	MSG3,

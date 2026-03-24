@@ -593,6 +593,7 @@ int stage_sector_0()
 	static size_t type_index = 0;
 	static bool title_done = false;
 	Uint64 cur_time = SDL_GetTicks64();
+	bool change_stage = false;
 
 	static texture_t *sector_0 = NULL;
 	static texture_t *subtitle = NULL;
@@ -607,6 +608,7 @@ int stage_sector_0()
 	SDL_Rect r = dm_get_upper_title_box(SECTOR_0_TITLE);
 
 	if (level_initialized == false){
+		fl_load_hover_level_msgs();
 		fl_load_player_levels(g_player, player_levels);
 		level_initialized = true;
 		last_type_ms = cur_time;
@@ -661,13 +663,18 @@ int stage_sector_0()
 		bt_draw_iface_btn(levels[i], sb_get_escape_state(), NULL);
 	}
 	SDL_Rect sep = get_sector_0_lower_separator();
-//	dw_draw_filled_rectangle(sep, C_SHADOWGREY, C_SHADOWGREY);
+	dw_draw_filled_rectangle(sep, C_SHADOWGREY, C_SHADOWGREY);
 
-		
+	texture_array_t *hover = tx_get_message_texture(0);
+	dw_set_array_texture_color_mod(hover, C_GREY);
+	dw_draw_wrapped_texture_by_h(sep, dm_get_h_stage_subsubtitle(), hover);
+	
 	bool escape = sb_get_escape_state();
 	if (escape == true){
 		sb_display_escape_menu(escape);
-//	} else if (bt_chk_rel_btn(sectors[0], g_sfx_select)){
+	} else if (bt_chk_rel_iface_btn(levels[0], g_sfx_select)){
+		ret_val = LV_LEVEL_1;
+		change_stage = true;
 //	} else if (bt_chk_rel_btn(sectors[1], g_sfx_select)){
 //	} else if (bt_chk_rel_btn(sectors[2], g_sfx_select)){
 //	} else if (bt_chk_rel_btn(sectors[3], g_sfx_select)){
@@ -679,9 +686,14 @@ int stage_sector_0()
 //			bt_destroy_button(sectors[3]);
 //			bt_destroy_button(sectors[4]);
 			ret_val = LV_SELECT_SECTOR;	
-			level_initialized = false;
-  			aa_electron_fx_destroy(fx);
+		change_stage = true;
 	}
+	if (change_stage == true){
+		level_initialized = false;
+  		aa_electron_fx_destroy(fx);
+		tx_free_level_text_textures();
+	}
+
 	return ret_val;
 }
 /* Function: stage_select_sector

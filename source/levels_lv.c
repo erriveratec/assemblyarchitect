@@ -1183,7 +1183,9 @@ static void level_1()
 	bool win = lv_check_if_win();
 
 	if (g_lv_msg[MSG1] == true && size == 0){
+		puts("llega aca");
 		tx_text_box(TX_BIG_BOX, MSG1); //Welcome message
+		puts("NO aca");
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
 		chk_ms_pressed_clear_msg(MSG1, true);
 	} else if (g_lv_msg[MSG2] == true && size == 0){

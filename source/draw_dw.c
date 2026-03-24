@@ -104,6 +104,23 @@ static int get_h_iface_header()
 	return dm_scale_to_res(IFACE_HEADER_BOX_H);
 }
 
+/* Function: dw_set_array_texture_color_mod
+ * -----------------------------------------------------------------------------
+ *	Set the texture color according to a color
+ *
+ * Arguments:
+ *	t: texture;
+ *  c: color 
+ *
+ * Return:
+ *	Void.
+ */
+void dw_set_array_texture_color_mod(texture_array_t *t, SDL_Color c)
+{
+	for (int i = 0; i < t->size; i++){
+		SDL_SetTextureColorMod(t->t[i]->texture, c.r, c.g, c.b);
+	}
+}
 
 /* Function: dw_set_texture_color_mod
  * -----------------------------------------------------------------------------
@@ -117,7 +134,7 @@ static int get_h_iface_header()
  *	Void.
  */
 void dw_set_texture_color_mod(texture_t *t, SDL_Color c)
-{
+{	
 	SDL_SetTextureColorMod(t->texture, c.r, c.g, c.b);
 }
 
