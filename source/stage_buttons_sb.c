@@ -8,9 +8,9 @@
 #include "dbg.h"
 #include "sdl_config.h"
 
-#define ESC_MENU_TEXT1 "Return to Game"
-#define ESC_MENU_TEXT2 "Toggle Full Screen"
-#define ESC_MENU_TEXT3 "Exit Game"
+#define ESC_MENU_TEXT1 "RETURN TO GAME"
+#define ESC_MENU_TEXT2 "TOGGLE FULL SCREEN"
+#define ESC_MENU_TEXT3 "EXIT GAME"
 static char *ESC_MENU_HEADER = "ESC MENU";
 
 

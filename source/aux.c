@@ -536,6 +536,26 @@ int ax_get_movement_delta(int v1, int v2, int max_delta)
 	return delta;
 }
 
+/* Function: ax_number_to_hex_string_two_digits
+ * ----------------------------------------------------------------------------
+ * Receives a number as a parameter and returns a string of the hex value
+ * of the number
+ *
+ * Arguments:
+ *	int number
+ *
+ * Return:
+ *	string with the converted number with two digits of the hex value
+ */
+char *ax_number_to_hex_string_two_digits(int number)
+{
+	assert(number >= 0 && number < 100 && "Invalid number value");	
+	char *number_hex = malloc(sizeof(char) * 3);
+	snprintf(number_hex, 3, "%02X", number & 0xFF);
+	return number_hex;
+
+}
+
 /* Function: ax_number_to_string_two_digits
  * ----------------------------------------------------------------------------
  * Receives a number as a parameter and returns a string of two digits of the

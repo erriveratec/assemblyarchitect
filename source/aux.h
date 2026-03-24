@@ -58,6 +58,7 @@ typedef struct value_box_t{
 char *ax_number_to_string(int number);
 bool check_text_fits_width_by_height(char *t, int h, int w);
 char *ax_number_to_string_prepend_zero(int number);
+char *ax_number_to_hex_string_two_digits(int number);
 int ax_get_movement_delta(int v1, int v2, int max_delta);
 int ax_get_wrapped_text_height(int w, int h, char *t);
 float get_scale_fit_height(int h, texture_t *texture);
