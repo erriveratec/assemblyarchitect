@@ -584,7 +584,7 @@ int stage_level(int level_id)
 	}
 
 	if (back_to_level_selection == true){
-		ret_val = LV_LEVEL_SELECTION;	
+		ret_val = LV_SECTOR_0;	
 		reset_level(level_id, &flags);		
 		destroy_level(&flags);
 	}
