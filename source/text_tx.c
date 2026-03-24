@@ -108,11 +108,13 @@ void tx_set_and_allocate_msgs_array(int size)
  * Arguments:
  *	pos: position in the message array
  *  msg: message that will be set
+ *	h: the height of each line of the message
+ *	w: the width of the container of the message
  *	
  * Return:
  * 	Void.	
  */
-void tx_set_message_in_array(int pos, char *msg)
+void tx_set_message_in_array(int pos, char *msg, int w, int h)
 {
 	assert(pos >= 0 && "Invalid position");
 	assert(msg != NULL && "NULL message");	
@@ -120,8 +122,8 @@ void tx_set_message_in_array(int pos, char *msg)
 	//pos--; // THIS WILL EXPLODE LATER
 
 	//int h = (pos == 0) ? dm_get_h_big_text() : dm_get_h_msg();
-	int h = dm_get_h_msg();
-	int w = dm_get_w_msg(dm_get_box_msg_wh());
+	//int h = dm_get_h_msg();
+//	int w = dm_get_w_msg(dm_get_box_msg_wh());
 	g_msgs[pos] = dw_new_text_texture_by_h(w, h, C_WHITE, msg);
 }
 

@@ -60,7 +60,7 @@ static const Uint32 SEP_LEGTH = 1200;
 
 
 static const Uint32 SECTOR_BTN_SPACING = 60;
-static const Uint32 FIRST_BTN_OFS = 10;
+static const Uint32 FIRST_BTN_OFS = 3;
 
 static const Uint32 SECTOR_1_START = 8;
 static const Uint32 SECTOR_2_START = 16;
@@ -123,16 +123,7 @@ static int get_fst_btn_ofs()
 	return dm_scale_to_res(FIRST_BTN_OFS);
 }
 
-/*SDL_Rect dm_get_upper_title_box(char *msg)
-{
-	SDL_Rect b;
-	b.h = dm_scale_to_res(TEXT_H_STAGE_TITLE);
-	b.w = get_text_width_fits_height(b.h, msg);
-	b.x = g_screen_width/2 - b.w/2;
-	b.y = dm_scale_to_res(SEL_PLAYER_Y);
 
-	return b;
-}*/
 
 /* Function: get_subtitle_upper_separator
  * -----------------------------------------------------------------------------
@@ -663,8 +654,9 @@ int stage_sector_0()
 		bt_draw_iface_btn(levels[i], sb_get_escape_state(), NULL);
 	}
 	SDL_Rect sep = get_sector_0_lower_separator();
-	dw_draw_filled_rectangle(sep, C_SHADOWGREY, C_SHADOWGREY);
+	//dw_draw_filled_rectangle(sep, C_SHADOWGREY, C_SHADOWGREY);
 
+	sep.y += sep.h + dm_scale_to_res(SECTOR_TITLE_SEPARATOR);
 	texture_array_t *hover = tx_get_message_texture(0);
 	dw_set_array_texture_color_mod(hover, C_GREY);
 	dw_draw_wrapped_texture_by_h(sep, dm_get_h_stage_subsubtitle(), hover);

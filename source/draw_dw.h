@@ -54,6 +54,7 @@ extern SDL_Color C_MAGENTA;
 extern SDL_Color C_GREEN;
 extern SDL_Color C_GREY;
 extern SDL_Color C_SHADOWGREY;
+extern SDL_Color C_CHARCOALGREY;
 extern SDL_Color C_SILVERGREY;
 extern SDL_Color C_LIGHTGREY;
 extern SDL_Color C_VERYLIGHTGREY;

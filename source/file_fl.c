@@ -83,7 +83,7 @@ static void parse_saved_code(FILE *fp);
 static char *create_string_with_number(char *s,  int n);
 bool check_if_level_is_active(FILE *fp);
 static void parse_win_condition(FILE *fp);
-static void parse_message(FILE *fp, int msg_pos);
+static void parse_message(FILE *fp, int msg_pos, int w, int h);
 
 /* Function: create_string_with_number
  *------------------------------------------------------------------------------
@@ -516,12 +516,15 @@ error:
  *
  * Arguments:
  *	fp: the file pointer of the level data
+ *	msg_pos: the position where the message will be located
+ *	w: The width of the container of the message
+ * 	h: height of the text message
  *
  * Return:
  *	void.
  *
  */
-static void parse_message(FILE *fp, int msg_pos)
+static void parse_message(FILE *fp, int msg_pos, int w, int h)
 {
 	char *line = NULL;	
 	size_t len = 0;
@@ -536,7 +539,7 @@ static void parse_message(FILE *fp, int msg_pos)
 		text =  strtok_r(line, ax_char_newline, &saveptr1);
 		
 		if (strstr(STR_MSG_END, line) != NULL){
-			tx_set_message_in_array(msg_pos, msg);
+			tx_set_message_in_array(msg_pos, msg, w, h);
 			break;
 		} else if (i != 0){
 			strcat(msg, ax_char_newline);
@@ -570,6 +573,9 @@ void fl_load_hover_level_msgs()
 	char *text;
 	bool found = false;
 
+	int w = dm_get_screen_width();
+	int h = dm_get_h_big_text();
+
 	while (READ_ERROR != (read = getline(&line, &len, fp))){
 		if (strstr(line, HOVER_MSGS_STARTS) != NULL){
 			found = true;
@@ -579,7 +585,7 @@ void fl_load_hover_level_msgs()
 			tx_set_and_allocate_msgs_array(size);
 		} else if (strstr(line, STR_MSG) != NULL && found == true){
 			char *pos = strchr(line, CHAR_SPACE);
-			parse_message(fp, atoi(pos));
+			parse_message(fp, atoi(pos), w, h);
 		} else if (strstr(line, HOVER_MSGS_ENDS) != NULL && found == true){
 			found= false;
 			break;
@@ -618,6 +624,9 @@ void fl_load_level_msgs(int level_id)
 	char *level = get_level_id_string(level_id);
 	bool level_found = false;
 
+	int h = dm_get_h_msg();
+	int w = dm_get_w_msg(dm_get_box_msg_wh());
+
 	while (READ_ERROR != (read = getline(&line, &len, fp))){
 		if (strstr(line, level) != NULL){
 			level_found = true;
@@ -627,7 +636,7 @@ void fl_load_level_msgs(int level_id)
 			tx_set_and_allocate_msgs_array(size);
 		} else if (strstr(line, STR_MSG) != NULL && level_found == true){
 			char *pos = strchr(line, CHAR_SPACE);
-			parse_message(fp, atoi(pos));
+			parse_message(fp, atoi(pos), w, h);
 		} else if (strstr(line, STR_LEVEL_ENDS) != NULL && level_found == true){
 			level_found= false;
 			break;

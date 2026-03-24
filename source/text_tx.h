@@ -10,7 +10,7 @@ void tx_text_box(int pos, int msg_id);
 void tx_bottom_msg(int pos, int msg_id);
 void tx_free_level_text_textures();
 void tx_set_and_allocate_msgs_array(int size);
-void tx_set_message_in_array(int pos, char *msg);
+void tx_set_message_in_array(int pos, char *msg, int w, int h);
 bool tx_draw_create_typewriter_text(texture_t **t, 
 									SDL_Rect r, 
 									char *text, 
