@@ -51,10 +51,13 @@ static const Uint32 TITLE_IMG_Y = 325;
 
 static const Uint32 SEL_LEVEL_BUTTON_W = 200;
 static const Uint32 SEL_LEVEL_BUTTON_H = 140;
+static const Uint32 SEL_LEVEL_Y_OFS = 70;
 
 static const Uint32 BIG_SEPARATOR_H = 6;
 static const Uint32 SMALL_SEPARATOR_H = 2;
 static const Uint32 SECTOR_TITLE_SEPARATOR = 24;
+static const Uint32 SEP_LEGTH = 1200;
+
 
 static const Uint32 SECTOR_BTN_SPACING = 60;
 static const Uint32 FIRST_BTN_OFS = 10;
@@ -87,6 +90,7 @@ static SDL_Rect get_sector_separator();
 static SDL_Rect get_sector_subtitle_box(char *msg);
 static SDL_Rect get_subtitle_separator();
 static void create_sec_0_lvl_btns(iface_btn_t **btns, bool *levels, int lv_qty);
+static SDL_Rect get_sector_0_lower_separator();
 
 
 /* Function: get_sector_btn_spacing
@@ -101,7 +105,7 @@ static void create_sec_0_lvl_btns(iface_btn_t **btns, bool *levels, int lv_qty);
  */
 static int get_sector_btn_spacing()
 {
-	return dm_scale_to_resolution(SECTOR_BTN_SPACING);
+	return dm_scale_to_res(SECTOR_BTN_SPACING);
 }
 
 /* Function: get_fst_btn_ofs
@@ -116,16 +120,16 @@ static int get_sector_btn_spacing()
  */
 static int get_fst_btn_ofs()
 {
-	return dm_scale_to_resolution(FIRST_BTN_OFS);
+	return dm_scale_to_res(FIRST_BTN_OFS);
 }
 
 /*SDL_Rect dm_get_upper_title_box(char *msg)
 {
 	SDL_Rect b;
-	b.h = dm_scale_to_resolution(TEXT_H_STAGE_TITLE);
+	b.h = dm_scale_to_res(TEXT_H_STAGE_TITLE);
 	b.w = get_text_width_fits_height(b.h, msg);
 	b.x = g_screen_width/2 - b.w/2;
-	b.y = dm_scale_to_resolution(SEL_PLAYER_Y);
+	b.y = dm_scale_to_res(SEL_PLAYER_Y);
 
 	return b;
 }*/
@@ -147,10 +151,10 @@ static SDL_Rect get_subtitle_separator()
 
 	SDL_Rect r = get_sector_subtitle_box("PLACEHOLDER");
 	SDL_Rect b;
-	b.w = screen_width*3/4;
-	b.h = dm_scale_to_resolution(BIG_SEPARATOR_H);
-	b.x = screen_width/8;
-	b.y = r.y + r.h + dm_scale_to_resolution(SECTOR_TITLE_SEPARATOR); 
+	b.w = dm_scale_to_res(SEP_LEGTH);
+	b.h = dm_scale_to_res(BIG_SEPARATOR_H);
+	b.x = (screen_width - b.w)/2;
+	b.y = r.y + r.h + dm_scale_to_res(SECTOR_TITLE_SEPARATOR); 
 	return b;
 }
 
@@ -202,6 +206,32 @@ static SDL_Rect get_sector_btn_box()
 	return b;
 }
 
+/* Function: get_sector_0_lower_separator
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the sector separator
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the objecto
+ */
+static SDL_Rect get_sector_0_lower_separator()
+{
+	int screen_width = dm_get_screen_width();
+	int screen_height = dm_get_screen_height();
+
+	SDL_Rect r = get_level_button_box();	
+	int y_offset = get_sel_level_offset_y();
+	SDL_Rect b;
+	b.w = dm_scale_to_res(SEP_LEGTH);
+	b.h = dm_scale_to_res(BIG_SEPARATOR_H);
+	b.x = (screen_width - b.w)/2;	
+	b.y = r.y + 2*y_offset;
+	
+	return b;
+}
+
 /* Function: get_sector_separator
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the sector separator
@@ -220,7 +250,7 @@ static SDL_Rect get_sector_separator()
 	SDL_Rect r = get_sector_btn_box();	
 	SDL_Rect b;
 	b.w = dm_get_upper_title_box(SELECT_SECTOR).w;
-	b.h = dm_scale_to_resolution(SMALL_SEPARATOR_H);
+	b.h = dm_scale_to_res(SMALL_SEPARATOR_H);
 	b.x = dm_get_upper_title_box(SELECT_SECTOR).x;	
 	b.y = r.y + r.h + get_sector_btn_spacing()/2;
 	
@@ -245,9 +275,9 @@ static SDL_Rect get_upper_separator()
 	SDL_Rect r = dm_get_upper_title_box(SELECT_LEVEL_TEXT);
 	SDL_Rect b;
 	b.w = screen_width*3/4;
-	b.h = dm_scale_to_resolution(BIG_SEPARATOR_H);
+	b.h = dm_scale_to_res(BIG_SEPARATOR_H);
 	b.x = screen_width/8;
-	b.y = r.y + r.h + dm_scale_to_resolution(SECTOR_TITLE_SEPARATOR); 
+	b.y = r.y + r.h + dm_scale_to_res(SECTOR_TITLE_SEPARATOR); 
 	return b;
 }
 
@@ -263,8 +293,8 @@ static SDL_Rect get_upper_separator()
  */
 static int get_sel_level_offset_y()
 {
-	int y_offset =  dm_scale_to_resolution(SEL_LEVEL_BUTTON_H + 
-										0.5*SEL_LEVEL_BUTTON_H);
+	int y_offset =  dm_scale_to_res(SEL_LEVEL_BUTTON_H + 
+										SEL_LEVEL_Y_OFS);
 	return y_offset;
 	
 }
@@ -286,8 +316,8 @@ static SDL_Rect get_level_button_box()
 
 	SDL_Rect r = get_subtitle_separator();
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(SEL_LEVEL_BUTTON_W);
-	b.h = dm_scale_to_resolution(SEL_LEVEL_BUTTON_H);
+	b.w = dm_scale_to_res(SEL_LEVEL_BUTTON_W);
+	b.h = dm_scale_to_res(SEL_LEVEL_BUTTON_H);
 	b.x = (screen_width - (4*b.w + 3*b.w/2))/2;
 	b.y = r.y + r.h + get_sector_btn_spacing() 
 	      + get_fst_btn_ofs(); 
@@ -307,7 +337,7 @@ static SDL_Rect get_level_button_box()
  */
 static int get_player_block_size()
 {
-	return dm_scale_to_resolution(PLAYER_BLOCK_W);
+	return dm_scale_to_res(PLAYER_BLOCK_W);
 }
 
 /* Function: get_game_title_img_box
@@ -324,10 +354,10 @@ static SDL_Rect get_game_title_img_box()
 {
 	int screen_width = dm_get_screen_width();
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(TITLE_IMG_W);
-	b.h = dm_scale_to_resolution(TITLE_IMG_H);
+	b.w = dm_scale_to_res(TITLE_IMG_W);
+	b.h = dm_scale_to_res(TITLE_IMG_H);
 	b.x = (screen_width - b.w)/2;
-	b.y = dm_scale_to_resolution(TITLE_IMG_Y);
+	b.y = dm_scale_to_res(TITLE_IMG_Y);
 	return b;
 }
 
@@ -346,10 +376,10 @@ static SDL_Rect get_p1_button_box()
 	int screen_width = dm_get_screen_width();
 
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(P_BUTTON_W);
-	b.h = dm_scale_to_resolution(P_BUTTON_H);
+	b.w = dm_scale_to_res(P_BUTTON_W);
+	b.h = dm_scale_to_res(P_BUTTON_H);
 	b.x = (screen_width - 3*b.w)/4;
-	b.y = dm_scale_to_resolution(P_BUTTON_Y);
+	b.y = dm_scale_to_res(P_BUTTON_Y);
 	return b;
 }
 
@@ -367,10 +397,10 @@ static SDL_Rect get_p2_button_box()
 {
 	int screen_width = dm_get_screen_width();
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(P_BUTTON_W);
-	b.h = dm_scale_to_resolution(P_BUTTON_H);
+	b.w = dm_scale_to_res(P_BUTTON_W);
+	b.h = dm_scale_to_res(P_BUTTON_H);
 	b.x = 2*(screen_width - 3*b.w)/4 + b.w;
-	b.y = dm_scale_to_resolution(P_BUTTON_Y);
+	b.y = dm_scale_to_res(P_BUTTON_Y);
 	return b;
 }
 
@@ -388,10 +418,10 @@ SDL_Rect get_p3_button_box()
 {
 	int screen_width = dm_get_screen_width();
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(P_BUTTON_W);
-	b.h = dm_scale_to_resolution(P_BUTTON_H);
+	b.w = dm_scale_to_res(P_BUTTON_W);
+	b.h = dm_scale_to_res(P_BUTTON_H);
 	b.x = 3*(screen_width - 3*b.w)/4 + 2*b.w;
-	b.y = dm_scale_to_resolution(P_BUTTON_Y);
+	b.y = dm_scale_to_res(P_BUTTON_Y);
 	return b;
 }
 
@@ -519,20 +549,20 @@ static void create_sec_0_lvl_btns(iface_btn_t **btns, bool *levels, int lv_qty)
 	SDL_Rect b = r;
 	int y_offset = get_sel_level_offset_y();
 	
-	for (int i = 1; i <= lv_qty; i++){
+	for (int i = 0; i < lv_qty; i++){
 		char *btn_text = ax_number_to_hex_string_two_digits(i);
 		texture_t *btn_texture = NULL;
-		if (levels[i-1] == true){
+		if (levels[i] == true){
 			btn_texture = dw_create_text_texture(btn_text, 
 							 C_WHITE);
-			btns[i-1] = bt_create_iface_btn(b, btn_texture, true);
+			btns[i] = bt_create_iface_btn(b, btn_texture, true);
 		} else {
 			btn_texture = dw_create_text_texture(btn_text, 
 							 C_GREY);
-			btns[i-1] = bt_create_iface_btn(b, btn_texture, false);
+			btns[i] = bt_create_iface_btn(b, btn_texture, false);
 		}
 		b.x += r.w + r.w/2;
-		if (i != 0 && i%(lv_qty/2) == 0){
+		if (i == 3){
 			b.x = r.x;
 			b.y += y_offset;	
 		}
@@ -630,10 +660,10 @@ int stage_sector_0()
 	for (int i = 0; i < SECTOR_0_LV_QTY; i++){
 		bt_draw_iface_btn(levels[i], sb_get_escape_state(), NULL);
 	}
-	
-//	SDL_Rect sep = get_sector_separator();
-//	sep.y += get_sector_btn_box().h + get_sector_btn_spacing();
-	
+	SDL_Rect sep = get_sector_0_lower_separator();
+//	dw_draw_filled_rectangle(sep, C_SHADOWGREY, C_SHADOWGREY);
+
+		
 	bool escape = sb_get_escape_state();
 	if (escape == true){
 		sb_display_escape_menu(escape);
@@ -1094,7 +1124,7 @@ static void draw_player_texts(texture_t **player_text, texture_t **lore)
 	dw_draw_texture_center_fit_h(p3_box, player_text[2]);
 	
 	int lore_ofs = dm_get_ofs_player_lore();
-	int lore_h = dm_get_h_player_lore();
+	int lore_h = dm_get_h_stage_subsubtitle();
 	p1_box.y += (p1_box.h + lore_ofs);
 	p1_box.h = lore_h;
 	p2_box.y += (p2_box.h + lore_ofs);

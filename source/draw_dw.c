@@ -56,7 +56,7 @@ static int get_h_iface_header_txt();
  */
 int dw_get_ofs_iface_filled_border()
 {
-	return dm_scale_to_resolution(IFACE_FILLED_OFS);
+	return dm_scale_to_res(IFACE_FILLED_OFS);
 }
 
 /* Function: get_ofs_h_iface_header_txt
@@ -71,7 +71,7 @@ int dw_get_ofs_iface_filled_border()
  */
 static int get_h_iface_header_txt()
 {
-	return dm_scale_to_resolution(IFACE_HEADER_TEXT_H);
+	return dm_scale_to_res(IFACE_HEADER_TEXT_H);
 }
 
 /* Function: get_ofs_iface_filled_border
@@ -86,7 +86,7 @@ static int get_h_iface_header_txt()
  */
 static int get_ofs_iface_inner_border()
 {
-	return dm_scale_to_resolution(IFACE_INNER_BORDER);
+	return dm_scale_to_res(IFACE_INNER_BORDER);
 }
 
 /* Function: get_h_iface_title
@@ -101,7 +101,7 @@ static int get_ofs_iface_inner_border()
  */
 static int get_h_iface_header()
 {
-	return dm_scale_to_resolution(IFACE_HEADER_BOX_H);
+	return dm_scale_to_res(IFACE_HEADER_BOX_H);
 }
 
 

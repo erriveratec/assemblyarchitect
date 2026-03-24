@@ -42,10 +42,10 @@
 
 #define TEXT_H_STAGE_TITLE 110
 #define TEXT_H_STAGE_SUBTITLE 55
+#define TEXT_H_STAGE_SUBSUBTITLE_H 35
 
 #define P_NAME_OFS 80
 #define P_NAME_H 50
-#define P_LORE_H 35
 #define P_LORE_OFS 22
 #define P_DARK_PLATE_OFS 6
 
@@ -138,7 +138,7 @@ static int dm_get_ofs_val_box_x();
  */
 int dm_get_w_miss_op()
 {
-	return dm_scale_to_resolution(MISS_OP_W);
+	return dm_scale_to_res(MISS_OP_W);
 }
 
 /* Function: dm_get_btn_anim_max
@@ -153,7 +153,7 @@ int dm_get_w_miss_op()
  */
 int dm_get_btn_anim_max()
 {
-	return dm_scale_to_resolution(BTN_ANIM_MAX);
+	return dm_scale_to_res(BTN_ANIM_MAX);
 }
 
 /* Function: dm_get_btn_anim_delta
@@ -168,7 +168,7 @@ int dm_get_btn_anim_max()
  */
 int dm_get_btn_anim_delta()
 {
-	return dm_scale_to_resolution(BTN_ANIM_DELTA);
+	return dm_scale_to_res(BTN_ANIM_DELTA);
 }
 
 /* Function: dm_get_btn_anim_speed
@@ -214,7 +214,7 @@ int dm_get_h_between_code()
  */
 int dm_get_w_borders()
 {
-	return dm_scale_to_resolution(BORDERS_WIDTH);
+	return dm_scale_to_res(BORDERS_WIDTH);
 }
 
 
@@ -333,7 +333,7 @@ int dm_get_w_code_box_text()
  */
 int dm_get_w_border_padding()
 {
-	return dm_scale_to_resolution(W_PADDING) + dm_get_w_borders();
+	return dm_scale_to_res(W_PADDING) + dm_get_w_borders();
 }
 
 /* Function: dm_get_h_border_padding
@@ -348,7 +348,7 @@ int dm_get_w_border_padding()
  */
 int dm_get_h_border_padding()
 {
-	return dm_scale_to_resolution(H_PADDING) + dm_get_w_borders();
+	return dm_scale_to_res(H_PADDING) + dm_get_w_borders();
 }
 
 /* Function: dm_get_w_padding
@@ -363,7 +363,7 @@ int dm_get_h_border_padding()
  */
 int dm_get_w_padding()
 {
-	return dm_scale_to_resolution(W_PADDING);
+	return dm_scale_to_res(W_PADDING);
 }
 
 /* Function: dm_get_h_padding
@@ -378,7 +378,7 @@ int dm_get_w_padding()
  */
 int dm_get_h_padding()
 {
-	return dm_scale_to_resolution(H_PADDING);
+	return dm_scale_to_res(H_PADDING);
 }
 
 
@@ -394,7 +394,7 @@ int dm_get_h_padding()
  */
 int dm_get_h_stage_titles()
 {
-	int h = dm_scale_to_resolution(TEXT_H_STAGE_TITLE);
+	int h = dm_scale_to_res(TEXT_H_STAGE_TITLE);
 	return h;
 }
 
@@ -410,7 +410,7 @@ int dm_get_h_stage_titles()
  */
 int dm_get_h_stage_subtitle()
 {
-	int h = dm_scale_to_resolution(TEXT_H_STAGE_SUBTITLE);
+	int h = dm_scale_to_res(TEXT_H_STAGE_SUBTITLE);
 	return h;
 }
 /* Function: dm_get_h_stage_titles
@@ -425,7 +425,7 @@ int dm_get_h_stage_subtitle()
  */
 int dm_get_h_stage_elements_titles()
 {
-	int h = dm_scale_to_resolution(TEXT_H_STAGE_ELEMENTS_TITLES);
+	int h = dm_scale_to_res(TEXT_H_STAGE_ELEMENTS_TITLES);
 	return h;
 	
 }
@@ -442,7 +442,7 @@ int dm_get_h_stage_elements_titles()
  */
 int dm_get_ofs_code_comma()
 {
-	int ofs = dm_get_ofs_code_op2() - dm_scale_to_resolution(COMMA_OFS);
+	int ofs = dm_get_ofs_code_op2() - dm_scale_to_res(COMMA_OFS);
 	return ofs;
 }
 
@@ -492,7 +492,7 @@ int dm_get_ofs_code_op2()
  */
 int dm_get_ofs_bet_regs()
 {
-	int offset = dm_scale_to_resolution(BET_REG_OFS);
+	int offset = dm_scale_to_res(BET_REG_OFS);
 	return offset;
 	
 }
@@ -509,7 +509,7 @@ int dm_get_ofs_bet_regs()
  */
 static int dm_get_ofs_val_box_x()
 {
-	int offset = dm_scale_to_resolution(VAL_BOX_XOFS);
+	int offset = dm_scale_to_res(VAL_BOX_XOFS);
 	return offset;
 	
 }
@@ -526,7 +526,7 @@ static int dm_get_ofs_val_box_x()
  */
 int dm_get_ofs_stage_reg_box()
 {
-	int offset = dm_scale_to_resolution(REG_BOX_OFS);
+	int offset = dm_scale_to_res(REG_BOX_OFS);
 	return offset;
 	
 }
@@ -559,7 +559,7 @@ int dm_get_y_hidden_stage_buttons()
  */
 int dm_get_w_stage_rail()
 {
-	int w = dm_scale_to_resolution(RAIL_W);
+	int w = dm_scale_to_res(RAIL_W);
 	return w;
 	
 }
@@ -576,7 +576,7 @@ int dm_get_w_stage_rail()
  */
 int dm_get_w_stage_rail_end()
 {
-	int w = dm_scale_to_resolution(RAIL_END_W);
+	int w = dm_scale_to_res(RAIL_END_W);
 	return w;
 	
 }
@@ -613,8 +613,8 @@ SDL_Rect dm_get_value_box_val_wh()
 SDL_Rect dm_get_value_box_wh()
 {
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(VALUE_BOX_W);
-	b.h = dm_scale_to_resolution(VALUE_BOX_H);
+	b.w = dm_scale_to_res(VALUE_BOX_W);
+	b.h = dm_scale_to_res(VALUE_BOX_H);
 	b.x = 0;
 	b.y = 0;
 	return b;
@@ -633,8 +633,8 @@ SDL_Rect dm_get_value_box_wh()
 SDL_Rect dm_get_arrow_wh()
 {
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(ARROW_W);
-	b.h = dm_scale_to_resolution(ARROW_H);
+	b.w = dm_scale_to_res(ARROW_W);
+	b.h = dm_scale_to_res(ARROW_H);
 	b.x = 0;
 	b.y = 0;
 	return b;
@@ -653,12 +653,12 @@ SDL_Rect dm_get_arrow_wh()
  */
 SDL_Rect dm_get_text_box_result_but3()
 {
-	int cont_w = dm_scale_to_resolution(RES_CONT_BUTTON_W);
-	int offset = dm_scale_to_resolution(RES_BOX_OFFSET);
+	int cont_w = dm_scale_to_res(RES_CONT_BUTTON_W);
+	int offset = dm_scale_to_res(RES_BOX_OFFSET);
 	SDL_Rect rb = dm_get_text_box_result();
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(RES_BACK_BUTTON_W);
-	b.h = dm_scale_to_resolution(RES_BUTTON_H);
+	b.w = dm_scale_to_res(RES_BACK_BUTTON_W);
+	b.h = dm_scale_to_res(RES_BUTTON_H);
 	b.x = rb.x + (rb.w - b.w)/2;
 	b.y = rb.y + rb.h - b.h - offset;
 	return b;
@@ -677,13 +677,13 @@ SDL_Rect dm_get_text_box_result_but3()
  */
 SDL_Rect dm_get_text_box_result_but2()
 {
-	int back_w = dm_scale_to_resolution(RES_BACK_BUTTON_W);
-	int cont_w = dm_scale_to_resolution(RES_CONT_BUTTON_W);
-	int offset = dm_scale_to_resolution(RES_BOX_OFFSET);
+	int back_w = dm_scale_to_res(RES_BACK_BUTTON_W);
+	int cont_w = dm_scale_to_res(RES_CONT_BUTTON_W);
+	int offset = dm_scale_to_res(RES_BOX_OFFSET);
 	SDL_Rect rb = dm_get_text_box_result();
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(RES_CONT_BUTTON_W);
-	b.h = dm_scale_to_resolution(RES_BUTTON_H);
+	b.w = dm_scale_to_res(RES_CONT_BUTTON_W);
+	b.h = dm_scale_to_res(RES_BUTTON_H);
 	b.x = rb.x + back_w + 2*(rb.w - (back_w + cont_w))/3 ;
 	b.y = rb.y + rb.h - b.h - offset;
 	return b;
@@ -702,12 +702,12 @@ SDL_Rect dm_get_text_box_result_but2()
  */
 SDL_Rect dm_get_text_box_result_but1()
 {
-	int cont_w = dm_scale_to_resolution(RES_CONT_BUTTON_W);
-	int offset = dm_scale_to_resolution(RES_BOX_OFFSET);
+	int cont_w = dm_scale_to_res(RES_CONT_BUTTON_W);
+	int offset = dm_scale_to_res(RES_BOX_OFFSET);
 	SDL_Rect rb = dm_get_text_box_result();
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(RES_BACK_BUTTON_W);
-	b.h = dm_scale_to_resolution(RES_BUTTON_H);
+	b.w = dm_scale_to_res(RES_BACK_BUTTON_W);
+	b.h = dm_scale_to_res(RES_BUTTON_H);
 	b.x = rb.x + (rb.w - (b.w + cont_w))/3;
 	b.y = rb.y + rb.h - b.h - offset;
 	return b;
@@ -729,7 +729,7 @@ SDL_Rect dm_get_text_box_result_text()
 	SDL_Rect rb = dm_get_text_box_result();
 	SDL_Rect b;
 	b.w = rb.w - 2*dw_get_ofs_iface_filled_border();
-	b.h = dm_scale_to_resolution(TEXT_H_TOTAL_MSG);
+	b.h = dm_scale_to_res(TEXT_H_TOTAL_MSG);
 	b.x = rb.x + (rb.w - b.w)/2;
 	b.y = rb.y + dw_get_ofs_iface_filled_border();
 	return b;
@@ -749,8 +749,8 @@ SDL_Rect dm_get_text_box_result_text()
 SDL_Rect dm_get_text_box_result()
 {
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(RES_BOX_W);
-	b.h = dm_scale_to_resolution(RES_BOX_H);
+	b.w = dm_scale_to_res(RES_BOX_W);
+	b.h = dm_scale_to_res(RES_BOX_H);
 	b.x = dm_get_screen_width()/2 - b.w/2;
 	b.y = dm_get_screen_height() - b.h -
 		  dw_get_ofs_iface_filled_border();
@@ -771,8 +771,8 @@ SDL_Rect dm_get_text_box_result()
 SDL_Rect dm_get_box_msg_wh()
 {
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(MSG_BOX_W);
-	b.h = dm_scale_to_resolution(MSG_BOX_H);
+	b.w = dm_scale_to_res(MSG_BOX_W);
+	b.h = dm_scale_to_res(MSG_BOX_H);
 	b.x = 0;
 	b.y = 0;
 	return b;
@@ -1032,9 +1032,9 @@ SDL_Rect dm_get_stage_ob_text_box()
 SDL_Rect dm_get_stage_input_buffer_box()
 {
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(BUF_W);
-	b.h = dm_scale_to_resolution(BUF_H);
-	b.x = dm_scale_to_resolution(BUF_X);
+	b.w = dm_scale_to_res(BUF_W);
+	b.h = dm_scale_to_res(BUF_H);
+	b.x = dm_scale_to_res(BUF_X);
 	b.y = dm_get_h_code_text();
 
 	return b;
@@ -1054,9 +1054,9 @@ SDL_Rect dm_get_stage_output_buffer_box()
 {
 	SDL_Rect ib = dm_get_stage_ib_text_box();
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(BUF_W);
-	b.h = dm_scale_to_resolution(BUF_H);
-	b.x = dm_scale_to_resolution(BUF_X);
+	b.w = dm_scale_to_res(BUF_W);
+	b.h = dm_scale_to_res(BUF_H);
+	b.x = dm_scale_to_res(BUF_X);
 	b.y = g_screen_height - ib.h - b.h;
 	return b;
 }
@@ -1075,10 +1075,10 @@ SDL_Rect dm_get_stage_output_buffer_box()
 SDL_Rect dm_get_stage_instruction_box()
 {
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(INS_BOX_W);
-	b.h = dm_scale_to_resolution(INS_BOX_H);
-	b.x = dm_scale_to_resolution(INS_BOX_X);
-	b.y = dm_scale_to_resolution(INS_BOX_Y);
+	b.w = dm_scale_to_res(INS_BOX_W);
+	b.h = dm_scale_to_res(INS_BOX_H);
+	b.x = dm_scale_to_res(INS_BOX_X);
+	b.y = dm_scale_to_res(INS_BOX_Y);
 	return b;
 }
 
@@ -1166,10 +1166,10 @@ SDL_Rect dm_get_stage_reg_box()
 {
 	SDL_Rect cb = cw_get_stage_code_box();
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(REG_BOX_W);
-	b.h = dm_scale_to_resolution(REG_BOX_H);
+	b.w = dm_scale_to_res(REG_BOX_W);
+	b.h = dm_scale_to_res(REG_BOX_H);
 	b.x = cb.x + cb.w;
-	b.y = dm_scale_to_resolution(REG_BOX_Y);
+	b.y = dm_scale_to_res(REG_BOX_Y);
 	return b;
 }
 
@@ -1188,7 +1188,7 @@ SDL_Rect dm_get_stage_reg_box()
  */
 int dm_get_h_bottom_msg()
 {
-	int h = dm_scale_to_resolution(TEXT_H_BOTTOM_MSG);
+	int h = dm_scale_to_res(TEXT_H_BOTTOM_MSG);
 	return h;
 	
 }
@@ -1205,7 +1205,7 @@ int dm_get_h_bottom_msg()
  */
 int dm_get_h_error_msg()
 {
-	int h = dm_scale_to_resolution(TEXT_H_ERROR_MSG);
+	int h = dm_scale_to_res(TEXT_H_ERROR_MSG);
 	return h;
 	
 }
@@ -1239,7 +1239,7 @@ int dm_get_w_msg(SDL_Rect r)
  */
 int dm_get_h_msg()
 {
-	int h = dm_scale_to_resolution(TEXT_H_MSG);
+	int h = dm_scale_to_res(TEXT_H_MSG);
 	return h;
 	
 }
@@ -1255,7 +1255,7 @@ int dm_get_h_msg()
  */
 int dm_get_h_code_text()
 {
-	int h = dm_scale_to_resolution(TEXT_H_CODE);
+	int h = dm_scale_to_res(TEXT_H_CODE);
 	return h;
 }
 /* Function: dm_get_big_msg_h
@@ -1270,7 +1270,7 @@ int dm_get_h_code_text()
  */
 int dm_get_h_big_text()
 {
-	int h = dm_scale_to_resolution(TEXT_H_BIG);
+	int h = dm_scale_to_res(TEXT_H_BIG);
 	return h;
 }
 
@@ -1289,10 +1289,10 @@ int dm_get_h_big_text()
 SDL_Rect dm_get_upper_title_box(char *msg)
 {
 	SDL_Rect b;
-	b.h = dm_scale_to_resolution(TEXT_H_STAGE_TITLE);
+	b.h = dm_scale_to_res(TEXT_H_STAGE_TITLE);
 	b.w = get_text_width_fits_height(b.h, msg);
 	b.x = g_screen_width/2 - b.w/2;
-	b.y = dm_scale_to_resolution(SEL_PLAYER_Y);
+	b.y = dm_scale_to_res(SEL_PLAYER_Y);
 
 	return b;
 }
@@ -1310,8 +1310,8 @@ SDL_Rect dm_get_upper_title_box(char *msg)
 SDL_Rect dm_get_avatar_wh()
 {
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(AVATAR_W);
-	b.h = dm_scale_to_resolution(AVATAR_H);
+	b.w = dm_scale_to_res(AVATAR_W);
+	b.h = dm_scale_to_res(AVATAR_H);
 	b.x = 0;
 	b.y = 0;
 	return b;
@@ -1337,7 +1337,7 @@ SDL_Rect dm_get_stage_imm_up()
 	b.w = 0;
 	b.h = dm_get_h_stage_elements_titles();
 	b.x = dm_get_stage_ibox().x;
-	b.y = dm_scale_to_resolution(IMM_TXT_UP_Y);
+	b.y = dm_scale_to_res(IMM_TXT_UP_Y);
 	return b;
 }
 
@@ -1354,8 +1354,8 @@ SDL_Rect dm_get_stage_imm_up()
 SDL_Rect dm_get_code_button_wh()
 {
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(CODE_BUTTON_W);
-	b.h = dm_scale_to_resolution(CODE_BUTTON_H);
+	b.w = dm_scale_to_res(CODE_BUTTON_W);
+	b.h = dm_scale_to_res(CODE_BUTTON_H);
 	b.x = 0;
 	b.y = 0;
 	return b;
@@ -1374,8 +1374,8 @@ SDL_Rect dm_get_code_button_wh()
 SDL_Rect dm_get_center_screen_box()
 {
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(CENTER_BOX_W);
-	b.h = dm_scale_to_resolution(CENTER_BOX_H);
+	b.w = dm_scale_to_res(CENTER_BOX_W);
+	b.h = dm_scale_to_res(CENTER_BOX_H);
 	b.x = (g_screen_width - b.w)/2;
 	b.y = (g_screen_height - b.h)/2;
 	return b;
@@ -1396,7 +1396,7 @@ SDL_Rect dm_get_center_screen_box_text()
 	SDL_Rect rb = dm_get_center_screen_box();
 	SDL_Rect b;
 	b.w = rb.w - 2*dw_get_ofs_iface_filled_border();
-	b.h = dm_scale_to_resolution(TEXT_H_TOTAL_MSG);
+	b.h = dm_scale_to_res(TEXT_H_TOTAL_MSG);
 	b.x = rb.x + (rb.w - b.w)/2;
 	b.y = rb.y + dw_get_ofs_iface_filled_border();
 	return b;
@@ -1419,8 +1419,8 @@ SDL_Rect dm_get_rst_b1_box()
 	SDL_Rect cs = dm_get_center_screen_box();
 
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(RST_MENU_BTNS_W);
-	b.h = dm_scale_to_resolution(RST_MENU_BTNS_H);
+	b.w = dm_scale_to_res(RST_MENU_BTNS_W);
+	b.h = dm_scale_to_res(RST_MENU_BTNS_H);
 	b.x = cs.x + cs.w/2 - 2*b.w;
 	b.y = cs.y + cs.h/2 + b.h;
 	return b;
@@ -1441,8 +1441,8 @@ SDL_Rect dm_get_rst_b2_box()
 	SDL_Rect cs = dm_get_center_screen_box();
 	
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(RST_MENU_BTNS_W);
-	b.h = dm_scale_to_resolution(RST_MENU_BTNS_H);
+	b.w = dm_scale_to_res(RST_MENU_BTNS_W);
+	b.h = dm_scale_to_res(RST_MENU_BTNS_H);
 	b.x = cs.x + cs.w/2 + b.w;
 	b.y = cs.y + cs.h/2 + b.h;
 	return b;
@@ -1461,7 +1461,7 @@ SDL_Rect dm_get_rst_b2_box()
  */
 int dm_get_ofs_player_name()
 {
-	return dm_scale_to_resolution(P_NAME_OFS);
+	return dm_scale_to_res(P_NAME_OFS);
 }
 
 /* Function: dm_get_ofs_player_lore
@@ -1476,7 +1476,7 @@ int dm_get_ofs_player_name()
  */
 int dm_get_ofs_player_lore()
 {
-	return dm_scale_to_resolution(P_LORE_OFS);
+	return dm_scale_to_res(P_LORE_OFS);
 }
 
 /* Function: dm_get_ofs_player_dark_plate
@@ -1491,7 +1491,7 @@ int dm_get_ofs_player_lore()
  */
 int dm_get_ofs_player_dark_plate()
 {
-	return dm_scale_to_resolution(P_DARK_PLATE_OFS);
+	return dm_scale_to_res(P_DARK_PLATE_OFS);
 }
 
 
@@ -1507,10 +1507,10 @@ int dm_get_ofs_player_dark_plate()
  */
 int dm_get_h_player_name()
 {
-	return dm_scale_to_resolution(P_NAME_H);
+	return dm_scale_to_res(P_NAME_H);
 }
 
-/* Function: dm_get_h_player_lore
+/* Function: dm_get_h_stage_subsubtitle
  * -----------------------------------------------------------------------------
  * Returns the text height of the player name.
  *
@@ -1520,9 +1520,9 @@ int dm_get_h_player_name()
  * Return:
  *	int with the height of the player name.
  */
-int dm_get_h_player_lore()
+int dm_get_h_stage_subsubtitle()
 {
-	return dm_scale_to_resolution(P_LORE_H);
+	return dm_scale_to_res(TEXT_H_STAGE_SUBSUBTITLE_H);
 }
 /* Function: dm_get_press_space_box
  * -----------------------------------------------------------------------------
@@ -1537,10 +1537,10 @@ int dm_get_h_player_lore()
 SDL_Rect dm_get_press_space_box(char *msg)
 {
 	SDL_Rect b;
-	b.h = dm_scale_to_resolution(PRESS_H);
+	b.h = dm_scale_to_res(PRESS_H);
 	b.w = get_text_width_fits_height(b.h, msg);
 	b.x = g_screen_width/2 - b.w/2;
-	b.y = dm_scale_to_resolution(PRESS_Y);
+	b.y = dm_scale_to_res(PRESS_Y);
 	return b;
 }
 
@@ -1557,8 +1557,8 @@ SDL_Rect dm_get_press_space_box(char *msg)
 SDL_Rect dm_get_studio_name_msg_box()
 {
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(STUDIO_W);
-	b.h = dm_scale_to_resolution(STUDIO_H);
+	b.w = dm_scale_to_res(STUDIO_W);
+	b.h = dm_scale_to_res(STUDIO_H);
 	b.x = 0;
 	b.y = (g_screen_height - b.h)/2;
 	return b;
@@ -1579,10 +1579,10 @@ SDL_Rect dm_get_studio_name_msg_box()
 SDL_Rect dm_get_game_title_box(char *title)
 {
 	SDL_Rect b;
-	b.h = dm_scale_to_resolution(TITLE_H);
+	b.h = dm_scale_to_res(TITLE_H);
 	b.w =get_text_width_fits_height(b.h, title);
 	b.x = (g_screen_width - b.w)/2;
-	b.y = dm_scale_to_resolution(TITLE_Y);
+	b.y = dm_scale_to_res(TITLE_Y);
 
 	return b;
 }
@@ -1629,7 +1629,7 @@ void dm_set_screen_resolution(int resolution_id)
  * Return:
  *	Scale variable.
  */
-int dm_scale_to_resolution(int dim)
+int dm_scale_to_res(int dim)
 {
 	int scaled_dim;
 

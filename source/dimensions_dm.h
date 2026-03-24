@@ -32,7 +32,7 @@ int dm_get_w_stage_rail_end();
 int dm_get_w_borders();
 int dm_get_w_miss_op();
 int dm_get_h_player_name();
-int dm_get_h_player_lore();
+int dm_get_h_stage_subsubtitle();
 
 SDL_Rect dm_get_studio_name_msg_box();
 SDL_Rect dm_get_game_title_box(char *title);
@@ -98,5 +98,5 @@ int dm_get_btn_anim_max();
 int dm_get_btn_anim_delta();
 int dm_get_btn_anim_speed();
 
-int dm_scale_to_resolution(int dim);
+int dm_scale_to_res(int dim);
 #endif

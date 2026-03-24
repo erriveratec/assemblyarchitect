@@ -92,10 +92,10 @@ static SDL_Rect get_escape_b1_box()
 	SDL_Rect mb = dm_get_center_screen_box();
 
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(ESC_MENU_BUTTON_W);
-	b.h = dm_scale_to_resolution(ESC_MENU_BUTTON_H);
+	b.w = dm_scale_to_res(ESC_MENU_BUTTON_W);
+	b.h = dm_scale_to_res(ESC_MENU_BUTTON_H);
 	b.x = mb.x + mb.w/2 - b.w/2;
-	b.y = mb.y + mb.h - 3*b.h - 5*dm_scale_to_resolution(ESC_MENU_BUTTON_SPACE);
+	b.y = mb.y + mb.h - 3*b.h - 5*dm_scale_to_res(ESC_MENU_BUTTON_SPACE);
 	return b;
 }
 
@@ -115,10 +115,10 @@ static SDL_Rect get_escape_b2_box()
 	SDL_Rect b1 = get_escape_b1_box();
 	
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(ESC_MENU_BUTTON_W);
-	b.h = dm_scale_to_resolution(ESC_MENU_BUTTON_H);
+	b.w = dm_scale_to_res(ESC_MENU_BUTTON_W);
+	b.h = dm_scale_to_res(ESC_MENU_BUTTON_H);
 	b.x = b1.x;
-	b.y = b1.y + b.h + dm_scale_to_resolution(ESC_MENU_BUTTON_SPACE);
+	b.y = b1.y + b.h + dm_scale_to_res(ESC_MENU_BUTTON_SPACE);
 	return b;
 }
 
@@ -138,10 +138,10 @@ static SDL_Rect get_escape_b3_box()
 	SDL_Rect b2 = get_escape_b2_box();
 	
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(ESC_MENU_BUTTON_W);
-	b.h = dm_scale_to_resolution(ESC_MENU_BUTTON_H);
+	b.w = dm_scale_to_res(ESC_MENU_BUTTON_W);
+	b.h = dm_scale_to_res(ESC_MENU_BUTTON_H);
 	b.x = b2.x;
-	b.y = b2.y + b.h + dm_scale_to_resolution(ESC_MENU_BUTTON_SPACE);
+	b.y = b2.y + b.h + dm_scale_to_res(ESC_MENU_BUTTON_SPACE);
 	return b;
 }
 
@@ -177,8 +177,8 @@ SDL_Rect sb_get_stage_btns()
 	SDL_Rect ib = dm_get_stage_instruction_box();
 	int sh = dm_get_screen_height();
 	int shadow = bt_get_ofs_button_shadow();
-	b.w = dm_scale_to_resolution(STAGE_BUTTON_W);
-	b.h = dm_scale_to_resolution(STAGE_BUTTON_H);
+	b.w = dm_scale_to_res(STAGE_BUTTON_W);
+	b.h = dm_scale_to_res(STAGE_BUTTON_H);
 	b.x = ib.x + ib.w;
 	b.y = sh - b.h - 2*shadow;
 	return b;
@@ -198,8 +198,8 @@ static SDL_Rect get_rst_btn_box()
 {
 	SDL_Rect ret_box = get_return_button_box();
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(RST_BTN_W);
-	b.h = dm_scale_to_resolution(RST_BTN_H);
+	b.w = dm_scale_to_res(RST_BTN_W);
+	b.h = dm_scale_to_res(RST_BTN_H);
 	b.x = ret_box.x;
 	b.y = ret_box.y - b.h - 2*bt_get_ofs_button_shadow();	
 	return b;
@@ -221,9 +221,9 @@ static SDL_Rect get_return_button_box()
 {
 	int screen_height = dm_get_screen_height();
 	SDL_Rect b;
-	b.w = dm_scale_to_resolution(RET_BUTTON_W);
-	b.h = dm_scale_to_resolution(RET_BUTTON_H);
-	b.x = dm_scale_to_resolution(SCREEN_BORDERS_OFS);
+	b.w = dm_scale_to_res(RET_BUTTON_W);
+	b.h = dm_scale_to_res(RET_BUTTON_H);
+	b.x = dm_scale_to_res(SCREEN_BORDERS_OFS);
 	b.y = screen_height - b.h - 2*bt_get_ofs_button_shadow();
 	return b;
 }

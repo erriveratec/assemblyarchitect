@@ -71,8 +71,8 @@ SDL_Rect cw_get_stage_code_box()
 	SDL_Rect b;
 	
 	b.x = ib.x + ib.w;
-	b.y = dm_scale_to_resolution(CODE_BOX_Y);
-	b.w = dm_scale_to_resolution(CODE_BOX_W);
+	b.y = dm_scale_to_res(CODE_BOX_Y);
+	b.w = dm_scale_to_res(CODE_BOX_W);
 	b.h = sb.y - 2*b.y;
 	return b;
 }

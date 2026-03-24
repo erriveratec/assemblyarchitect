@@ -36,7 +36,7 @@ static int get_h_button_padding();
 static int get_w_button_padding()
 {
 	return dm_get_w_padding() + 
-		   dm_scale_to_resolution(IFACE_BUTTON_SPACE_W);
+		   dm_scale_to_res(IFACE_BUTTON_SPACE_W);
 }
 
 /* Function: dm_get_h_but_padding
@@ -52,7 +52,7 @@ static int get_w_button_padding()
 static int get_h_button_padding()
 {
 	return dm_get_h_padding() + 
-		   dm_scale_to_resolution(IFACE_BUTTON_SPACE_W);
+		   dm_scale_to_res(IFACE_BUTTON_SPACE_W);
 }
 
 
@@ -69,7 +69,7 @@ static int get_h_button_padding()
  */
 static int get_w_iface_space_border()
 {
-	return dm_scale_to_resolution(IFACE_BUTTON_SPACE_W);
+	return dm_scale_to_res(IFACE_BUTTON_SPACE_W);
 }
 
 /* Function: dm_get_ofs_outer_border
@@ -84,7 +84,7 @@ static int get_w_iface_space_border()
  */
 static int get_w_iface_outer_border()
 {
-	return dm_scale_to_resolution(IFACE_BUTTON_OUTER_W);
+	return dm_scale_to_res(IFACE_BUTTON_OUTER_W);
 }
 
 /* Function: dm_get_ofs_button_shadow
@@ -99,7 +99,7 @@ static int get_w_iface_outer_border()
  */
 int bt_get_ofs_button_shadow()
 {
-	return dm_scale_to_resolution(BUTTON_SHADOW_OFS);
+	return dm_scale_to_res(BUTTON_SHADOW_OFS);
 }
 
 /* Function: get_hover_factor
@@ -114,7 +114,7 @@ int bt_get_ofs_button_shadow()
  */
 int bt_get_btn_lift()
 {
-	return dm_scale_to_resolution(BUTTON_LIFT);
+	return dm_scale_to_res(BUTTON_LIFT);
 }
 
 /* Function: get_hover_factor
