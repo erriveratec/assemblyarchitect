@@ -314,10 +314,10 @@ static void draw_btn_scaled_texture(SDL_Rect box, iface_btn_t *b)
  * Return:
  *	Void.
  */
-void bt_draw_iface_btn(iface_btn_t *b, bool blk, Mix_Chunk *hover_sound)
+int bt_draw_iface_btn(iface_btn_t *b, bool blk, Mix_Chunk *hover_sound)
 {
 	assert(b != NULL && "The button pointer is NULL");
-	int status = SUCCESS;	
+	int status = BTN_NONE;	
 	
 	SDL_Rect box = b->r;
  	bool hover = chk_mouse_hover_iface_btn(b);
@@ -339,6 +339,7 @@ void bt_draw_iface_btn(iface_btn_t *b, bool blk, Mix_Chunk *hover_sound)
 		shadow_offset += 2*h_ofs;
 		border_color = C_WHITE;
 		dw_set_texture_color_mod(b->t, C_WHITE);
+		status = BTN_HOVER;
 	} else {
 		b->hovered = false;
 	}
@@ -358,6 +359,7 @@ void bt_draw_iface_btn(iface_btn_t *b, bool blk, Mix_Chunk *hover_sound)
 		SDL_Rect in = ax_pad_rectangle(box, offset, true);
 		dw_draw_filled_rectangle(in, C_NEARBLACK, C_WHITE);
 		draw_btn_scaled_texture(box, b);
+		status = BTN_CLICKPRESS;
 	} else {
 		SDL_Rect shadow = {.x = box.x + shadow_offset, 
 						   .y = box.y + shadow_offset,
@@ -387,7 +389,8 @@ void bt_draw_iface_btn(iface_btn_t *b, bool blk, Mix_Chunk *hover_sound)
 	}
 	
 	dw_set_texture_color_mod(b->t, C_WHITE);
-	assert(status != FAIL && "The texture could not be drawn");
+
+	return status;
 }
 
 /* Function: bt_draw_iface_btn_nopad

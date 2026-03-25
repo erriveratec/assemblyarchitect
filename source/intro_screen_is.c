@@ -37,7 +37,8 @@ static const Uint32 STUDIO_SCREEN_DELAY_MS = 2500;
 static const Uint32 FADE_MS = 1250;
 static const Uint32 TYPE_DELAY_MS = 90;  
 static const Uint32 CHIP_FADE_MS = 1000;   // ~1s fade
-static const Uint32 SUBTITLE_FADE_MS = 1000;   // ~1s fade
+static const Uint32 SUBTITLE_FADE_MS = 350;   
+static const Uint32 DESCRIPTION_FADE_MS = 150;   
 
 static const Uint32 PLAYER_BLOCK_W = 8;
 
@@ -649,18 +650,47 @@ int stage_sector_0()
 	dw_draw_filled_rectangle(get_subtitle_separator(), 
 							 C_SHADOWGREY, C_SHADOWGREY);
 	sb_draw_return_button();
+
+	static texture_array_t *hover = NULL;
+	static Uint64 level_sub_start_ms;
+	Uint8 level_alpha = 0;
+	static bool prev_hov = false;
+	bool button_hovered = false;
 	
 	for (int i = 0; i < SECTOR_0_LV_QTY; i++){
-		bt_draw_iface_btn(levels[i], sb_get_escape_state(), NULL);
+		int hov = bt_draw_iface_btn(levels[i], sb_get_escape_state(), NULL);
+		if ((hov == BTN_HOVER || hov == BTN_CLICKPRESS) && prev_hov == false){
+			hover = tx_get_message_texture(i);
+			level_sub_start_ms = cur_time;
+			prev_hov = true;
+		} 	
+		if (hov == BTN_HOVER || hov == BTN_CLICKPRESS){
+			button_hovered = true;
+		}
 	}
-	SDL_Rect sep = get_sector_0_lower_separator();
-	//dw_draw_filled_rectangle(sep, C_SHADOWGREY, C_SHADOWGREY);
+	if (button_hovered == false){
+		prev_hov = false;
+		hover = NULL;
+	}
 
-	sep.y += sep.h + dm_scale_to_res(SECTOR_TITLE_SEPARATOR);
-	texture_array_t *hover = tx_get_message_texture(0);
-	dw_set_array_texture_color_mod(hover, C_GREY);
-	dw_draw_wrapped_texture_by_h(sep, dm_get_h_stage_subsubtitle(), hover);
 	
+	SDL_Rect sep = get_sector_0_lower_separator();
+	sep.y += sep.h + dm_scale_to_res(SECTOR_TITLE_SEPARATOR);
+	
+	if (hover != NULL) {
+		dw_set_array_texture_color_mod(hover, C_GREY);
+    	Uint64 elapsed = cur_time - level_sub_start_ms;
+        if (elapsed < DESCRIPTION_FADE_MS) {
+            float t = (float)elapsed / (float)DESCRIPTION_FADE_MS;
+            if (t < 0.0f) t = 0.0f; if (t > 1.0f) t = 1.0f;
+            level_alpha = (Uint8)(t * 255.0f);
+        } else {
+            level_alpha = 255;
+        }
+        	SDL_SetTextureAlphaMod(hover->t[0]->texture, level_alpha);
+		dw_draw_wrapped_texture_by_h(sep, dm_get_h_stage_subsubtitle(), hover);
+    }
+
 	bool escape = sb_get_escape_state();
 	if (escape == true){
 		sb_display_escape_menu(escape);
