@@ -34,6 +34,7 @@ void dw_draw_wrapped_texture_by_h(SDL_Rect r, int h, texture_array_t *a);
 void dw_draw_rotated_texture_fits_h(int x, int y, int h, double angle, 
 															      texture_t *t);
 void dw_draw_iface_box(SDL_Rect r, texture_t *header);
+SDL_Rect dw_get_iface_content_box(SDL_Rect b);
 
 void dw_draw_inner_shadow_lines(SDL_Rect r, 
 								SDL_Color top_left, 

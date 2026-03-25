@@ -199,6 +199,38 @@ void dw_draw_thick_rect(SDL_Rect b, int w, SDL_Color c)
 	dw_draw_filled_rectangle(b, C_BLACK, C_BLACK);
 }
 
+/* Function: dw_get_iface_content_box
+ * -----------------------------------------------------------------------------
+ * Returns the content box available for use of an iface_box
+ * 
+ * Arguments:
+ *	b: The whole box of the iface box
+ *	 
+ * Return:
+ *	Void.
+ */
+SDL_Rect dw_get_iface_content_box(SDL_Rect b)
+{
+	
+	int offset = dw_get_ofs_iface_filled_border();
+	SDL_Rect in = ax_pad_rectangle(b, offset, true);
+	int inner_border = get_ofs_iface_inner_border();
+	
+	in = ax_pad_rectangle(in, inner_border, true);
+	
+	in = ax_pad_rectangle(in, inner_border, true);
+
+	int header_box_h = get_h_iface_header();
+	
+	in = ax_pad_rectangle(in, inner_border, true);
+
+	in.y += (header_box_h + inner_border);
+	in.h -= (header_box_h + inner_border);
+
+	return in;
+}
+
+
 /* Function: dw_draw_iface_box
  * -----------------------------------------------------------------------------
  * Drawns an interface box with the assigned colors
@@ -228,14 +260,18 @@ void dw_draw_iface_box(SDL_Rect b, texture_t *header)
 	header_box.h = get_h_iface_header();
 	
 	in = ax_pad_rectangle(in, inner_border, true);
-	dw_draw_filled_rectangle(in, C_DARKGRAPHITE, C_DARKGRAPHITE);
 	
+//	dw_draw_filled_rectangle(in, C_DARKGRAPHITE, C_DARKGRAPHITE);// INNER_REC
+	dw_draw_filled_rectangle(dw_get_iface_content_box(b), 
+							 C_DARKGRAPHITE, 
+							 C_DARKGRAPHITE);
 	dw_draw_filled_rectangle(header_box, C_SOFTBLACK, C_SOFTBLACK);
 	
 	// upper title-header section
 	SDL_Rect header_bar = header_box;
 	header_bar.y += header_box.h;
 	header_bar.h = inner_border;
+
 	// lower bars
 	dw_draw_filled_rectangle(header_bar, C_CHARCOALGREY, C_CHARCOALGREY);
 	header_bar.y += inner_border;
