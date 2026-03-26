@@ -83,7 +83,7 @@ operand_t *im_create_imm_op_by_id(int op_id)
 			} else if (op_id > IMMUP10){
 	   			num = ax_number_to_string(-(i - IMMUP10));
 			}	
-			texture_t *t = dw_create_text_texture(num, C_WHITE);
+			texture_t *t = dw_create_text_tex(num, C_WHITE);
 			free(num);
 			SDL_Rect cb = dm_get_code_button_wh();
 			SDL_Rect r = {.x = 0, .y = 0, .w = cb.w, .h = cb.h};
@@ -135,7 +135,7 @@ operand_t *im_create_sel_imm_op()
 	for (int i = 0; i < TOTAL_IMM; i++){
 		if (bt_chk_rel_btn(g_up_imm[i].b, NULL) == true){
 	   		char *num = ax_number_to_string(g_up_imm[i].val.value);
-			texture_t *t = dw_create_text_texture(num, C_WHITE);
+			texture_t *t = dw_create_text_tex(num, C_WHITE);
 			free(num);
 			SDL_Rect cb = dm_get_code_button_wh();
 			SDL_Rect r = {.x = 0, .y = 0, .w = cb.w, .h = cb.h};
@@ -194,7 +194,7 @@ void im_init_imm_assets()
 		
 		g_up_imm[i].val.value = val;
 		char *num =  ax_number_to_string(val);
-		g_up_imm[i].val.t = dw_create_text_texture(num, C_WHITE);
+		g_up_imm[i].val.t = dw_create_text_tex(num, C_WHITE);
 		free(num);
 		g_up_imm[i].b = malloc(sizeof(btn_t));
 		g_up_imm[i].b->r = g_up_imm[i].val.box;
@@ -249,7 +249,7 @@ bool im_ms_rel_in_upimm()
  */
 static void init_imm_texture()
 {
-	g_imm_txt = dw_create_text_texture(IMM_TXT, C_AMBER);
+	g_imm_txt = dw_create_text_tex(IMM_TXT, C_AMBER);
 }
 
 

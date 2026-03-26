@@ -443,11 +443,11 @@ static void create_select_level_buttons(iface_btn_t **buttons, bool *levels)
 		char *btn_text = create_string_append_number(ax_level_text, i);
 		texture_t *btn_texture = NULL;
 		if (levels[i-1] == true){
-			btn_texture = dw_create_text_texture(btn_text, 
+			btn_texture = dw_create_text_tex(btn_text, 
 							 C_WHITE);
 			buttons[i-1] = bt_create_iface_btn(b, btn_texture, true);
 		} else {
-			btn_texture = dw_create_text_texture(btn_text, 
+			btn_texture = dw_create_text_tex(btn_text, 
 							 C_GREY);
 			buttons[i-1] = bt_create_iface_btn(b, btn_texture, false);
 		}
@@ -477,13 +477,13 @@ static void create_sector_btns(btn_t **btns, bool *levels)
 	int y_space = get_sector_btn_spacing();
 
 	btns[0] = bt_create_btn(get_sector_btn_box(), 
-			  				dw_create_text_texture(SECTOR_0, C_WHITE));
+			  				dw_create_text_tex(SECTOR_0, C_WHITE));
 	btns[0]->r.w = ax_get_texture_w_fit_h(btns[0]->r.h, btns[0]->t);
 	int x_ofs = (dm_get_upper_title_box(SELECT_SECTOR).w - btns[0]->r.w)/2;
 	btns[0]->r.x += x_ofs;
 	
 	btns[1] = bt_create_btn(get_sector_btn_box(), 
-			  				dw_create_text_texture(SECTOR_1, C_WHITE));
+			  				dw_create_text_tex(SECTOR_1, C_WHITE));
 	btns[1]->r.w = ax_get_texture_w_fit_h(btns[1]->r.h, btns[1]->t);
 	btns[1]->r.y = btns[0]->r.y + get_sector_btn_box().h + y_space;
 	btns[1]->r.x += x_ofs;
@@ -492,7 +492,7 @@ static void create_sector_btns(btn_t **btns, bool *levels)
 	}
 	
 	btns[2] = bt_create_btn(get_sector_btn_box(), 
-			  				dw_create_text_texture(SECTOR_2, C_WHITE));
+			  				dw_create_text_tex(SECTOR_2, C_WHITE));
 	btns[2]->r.w = ax_get_texture_w_fit_h(btns[2]->r.h, btns[2]->t);
 	btns[2]->r.y = btns[1]->r.y + get_sector_btn_box().h + y_space;
 	btns[2]->r.x += x_ofs;
@@ -501,7 +501,7 @@ static void create_sector_btns(btn_t **btns, bool *levels)
 	}
 
 	btns[3] = bt_create_btn(get_sector_btn_box(), 
-			  				dw_create_text_texture(SECTOR_3, C_WHITE));
+			  				dw_create_text_tex(SECTOR_3, C_WHITE));
 	btns[3]->r.w = ax_get_texture_w_fit_h(btns[3]->r.h, btns[3]->t);
 	btns[3]->r.y = btns[2]->r.y + get_sector_btn_box().h + y_space;
 	btns[3]->r.x += x_ofs;
@@ -510,7 +510,7 @@ static void create_sector_btns(btn_t **btns, bool *levels)
 	}
 
 	btns[4] = bt_create_btn(get_sector_btn_box(), 
-			  				dw_create_text_texture(SECTOR_4, C_WHITE));
+			  				dw_create_text_tex(SECTOR_4, C_WHITE));
 	btns[4]->r.w = ax_get_texture_w_fit_h(btns[4]->r.h, btns[4]->t);
 	btns[4]->r.y = btns[3]->r.y + get_sector_btn_box().h + y_space;
 	btns[4]->r.x += x_ofs;
@@ -545,11 +545,11 @@ static void create_sec_0_lvl_btns(iface_btn_t **btns, bool *levels, int lv_qty)
 		char *btn_text = ax_number_to_hex_string_two_digits(i);
 		texture_t *btn_texture = NULL;
 		if (levels[i] == true){
-			btn_texture = dw_create_text_texture(btn_text, 
+			btn_texture = dw_create_text_tex(btn_text, 
 							 C_WHITE);
 			btns[i] = bt_create_iface_btn(b, btn_texture, true);
 		} else {
-			btn_texture = dw_create_text_texture(btn_text, 
+			btn_texture = dw_create_text_tex(btn_text, 
 							 C_GREY);
 			btns[i] = bt_create_iface_btn(b, btn_texture, false);
 		}
@@ -607,7 +607,7 @@ int stage_sector_0()
 		fx = fx_electron_create(g_renderer, W, H, NULL);
 		levels = malloc(sizeof(iface_btn_t *) * SECTOR_0_LV_QTY);
 		create_sec_0_lvl_btns(levels, player_levels, SECTOR_0_LV_QTY);
-		subtitle = dw_create_text_texture(sub_text, C_SILVERGREY);
+		subtitle = dw_create_text_tex(sub_text, C_SILVERGREY);
         SDL_SetTextureAlphaMod(subtitle->texture, sub_alpha);
 	}
 
@@ -695,7 +695,7 @@ int stage_sector_0()
 	if (escape == true){
 		sb_display_escape_menu(escape);
 	} else if (bt_chk_rel_iface_btn(levels[0], g_sfx_select)){
-		ret_val = LV_LEVEL_1;
+		ret_val = LV_LEVEL_0;
 		change_stage = true;
 //	} else if (bt_chk_rel_btn(sectors[1], g_sfx_select)){
 //	} else if (bt_chk_rel_btn(sectors[2], g_sfx_select)){
@@ -983,7 +983,7 @@ int stage_title(const Uint8 *keystate)
 
 	if (init == false){
 		init = true;
-		press_space = dw_create_text_texture(PRESS_SPACE, C_SILVERGREY);
+		press_space = dw_create_text_tex(PRESS_SPACE, C_SILVERGREY);
 		last_type_ms = cur_time;
 		anim_prev_ms = cur_time;
 		start_time = cur_time;
@@ -1087,15 +1087,15 @@ static void create_player_btns(iface_btn_t **player_btns)
 	SDL_Rect p3_box = get_p3_button_box();
 	
 	player_btns[0] = bt_create_iface_btn(p1_box, 
-								   dw_create_text_texture(" ", C_BLACK), 
+								   dw_create_text_tex(" ", C_BLACK), 
 								   true);
 	
 	player_btns[1] = bt_create_iface_btn(p2_box, 
-								   dw_create_text_texture(" ", C_BLACK), 
+								   dw_create_text_tex(" ", C_BLACK), 
 								   true);
 
 	player_btns[2] = bt_create_iface_btn(p3_box, 
-								   dw_create_text_texture(" ", C_BLACK),
+								   dw_create_text_tex(" ", C_BLACK),
 								   true);
 }
 
@@ -1115,13 +1115,13 @@ static void create_player_texts(texture_t **player_text, texture_t **lore)
 	assert(player_text != NULL && "The texture is NULL");
 	assert(lore != NULL && "The texture is NULL");
 	
-	player_text[0] = dw_create_text_texture(PLAYER_1_TEXT, C_SILVERGREY);
-	player_text[1] = dw_create_text_texture(PLAYER_2_TEXT, C_SILVERGREY);
-	player_text[2] = dw_create_text_texture(PLAYER_3_TEXT, C_SILVERGREY);
+	player_text[0] = dw_create_text_tex(PLAYER_1_TEXT, C_SILVERGREY);
+	player_text[1] = dw_create_text_tex(PLAYER_2_TEXT, C_SILVERGREY);
+	player_text[2] = dw_create_text_tex(PLAYER_3_TEXT, C_SILVERGREY);
 
-	lore[0] = dw_create_text_texture(P1_LORETEXT, C_GREY);
-	lore[1] = dw_create_text_texture(P2_LORETEXT, C_GREY);
-	lore[2] = dw_create_text_texture(P3_LORETEXT, C_GREY);
+	lore[0] = dw_create_text_tex(P1_LORETEXT, C_GREY);
+	lore[1] = dw_create_text_tex(P2_LORETEXT, C_GREY);
+	lore[2] = dw_create_text_tex(P3_LORETEXT, C_GREY);
 }
 
 /* Function: draw_player_texts

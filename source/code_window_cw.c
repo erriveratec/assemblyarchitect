@@ -89,11 +89,11 @@ SDL_Rect cw_get_stage_code_box()
  */
 void cw_init_code_window_texture()
 {
-	g_comma_tex = dw_create_text_texture(",", C_WHITE);
+	g_comma_tex = dw_create_text_tex(",", C_WHITE);
 	g_numbers = malloc(sizeof(texture_t*)*MAX_CODE_LINES);
 	for (int i = 0; i <= MAX_CODE_LINES; i++){
 		char *number = ax_number_to_string_two_digits(i);
-		g_numbers[i] = dw_create_text_texture(number, C_GREY);
+		g_numbers[i] = dw_create_text_tex(number, C_GREY);
 		free(number);
 	}
 }
@@ -201,7 +201,7 @@ static operand_t *create_saved_jump_operand(int op1_id)
 	char *line_text = ax_number_to_string_two_digits(op1_id);
 	char *op_text = malloc(sizeof(char)*(strlen(line_text)+1));
 	strcpy(op_text, line_text);
-	texture_t *t = dw_create_text_texture(op_text, C_WHITE);
+	texture_t *t = dw_create_text_tex(op_text, C_WHITE);
 
 	SDL_Rect r = {.x = 0, .y = 0, .w = 2*cb.w, .h = cb.h};
 	b->b = bt_create_btn(r, t);
@@ -240,7 +240,7 @@ static operand_t *create_updated_jump_operand(code_line_t *jmp_addr)
 	strcpy(op_text, label_text);
 	strcat(op_text, ax_char_space);
 	strcat(op_text, line_text);
-	texture_t *t = dw_create_text_texture(op_text, C_WHITE);
+	texture_t *t = dw_create_text_tex(op_text, C_WHITE);
 
 	SDL_Rect cb = dm_get_code_button_wh();
 	SDL_Rect r = {.x = 0, .y = 0, .w = 2*cb.w, .h = cb.h};
@@ -323,7 +323,7 @@ operand_t *cw_create_jmp_op(code_line_t *addr)
 	strcpy(op_text, label_text);
 	strcat(op_text, ax_char_space);
 	strcat(op_text, line_text);
-	texture_t *t = dw_create_text_texture(op_text, C_WHITE);
+	texture_t *t = dw_create_text_tex(op_text, C_WHITE);
 
 	SDL_Rect cb = dm_get_code_button_wh();
 	SDL_Rect r = {.x = 0, .y = 0, .w = 2*cb.w, .h = cb.h};
@@ -461,7 +461,7 @@ static operand_t *create_saved_label_operand(int op1_id)
 	char *op_text = malloc(sizeof(char)*(strlen(line_text)+1));
 	strcpy(op_text, line_text);
 	strcat(op_text, ax_char_colon);
-	texture_t *t = dw_create_text_texture(op_text, C_WHITE);
+	texture_t *t = dw_create_text_tex(op_text, C_WHITE);
 
 	SDL_Rect r = dm_get_code_button_wh();
 	b->b = bt_create_btn(r, t);
@@ -498,7 +498,7 @@ static operand_t *create_label_operand(code_line_t *line)
 	char *op_text = malloc(sizeof(char)*(strlen(line_text)+1));
 	strcpy(op_text, line_text);
 	strcat(op_text, ":");
-	texture_t *t = dw_create_text_texture(op_text, C_WHITE);
+	texture_t *t = dw_create_text_tex(op_text, C_WHITE);
 
 	SDL_Rect r = dm_get_code_button_wh();
 	b->b = bt_create_btn(r, t);
@@ -723,7 +723,7 @@ void cw_add_saved_line(char *line)
 	
 	int list_size = cw_get_code_list_size();
 	ins_text = cl_get_instruction_text(ins_id);
-	texture_t *instruction_tex = dw_create_text_texture(
+	texture_t *instruction_tex = dw_create_text_tex(
 						  		  ins_text, C_WHITE);
 	
 	int x = cw_get_code_line_x(ins_id);
@@ -1065,7 +1065,7 @@ void cw_set_stage_name(char *text)
 {
 	assert(NULL != text && "The text pointer is NULL");
 
-	g_stage_name = dw_create_text_texture(text, C_AMBER);
+	g_stage_name = dw_create_text_tex(text, C_AMBER);
 	check_mem(g_stage_name);
 error:
 	return;
@@ -1239,7 +1239,7 @@ void cw_set_challenge_text(char *text)
 	int w = dm_get_w_code_box_text();
 	int h = dm_get_h_msg();
 	assert(NULL != text && "The text pointer is NULL");
-	g_challenge_text = dw_new_text_texture_by_h(w, h, C_SILVERGREY, text);
+	g_challenge_text = dw_create_text_tex_array_by_h(w, h, C_SILVERGREY, text);
 }
 
 /* Function: cw_set_scroll_box
@@ -2575,7 +2575,7 @@ void cw_reset_code_execution()
 code_line_t *cw_create_label_code_line()
 {
 	char *text = cl_get_instruction_text(LABEL);
-	texture_t *t = dw_create_text_texture(text, C_WHITE);
+	texture_t *t = dw_create_text_tex(text, C_WHITE);
 	SDL_Rect r = dm_get_code_button_wh();
 	r.x = ms_get_mouse_x() - r.w/2;
 	r.y = ms_get_mouse_y() - r.h/2;

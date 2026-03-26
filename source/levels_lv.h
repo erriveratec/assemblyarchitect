@@ -12,7 +12,7 @@
 
 
 enum LevelStates{
-	LV_LEVEL_MIN,
+	LV_LEVEL_0,
 	LV_LEVEL_1,
 	LV_LEVEL_2,
 	LV_LEVEL_3,

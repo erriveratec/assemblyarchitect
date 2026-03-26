@@ -150,31 +150,31 @@ void mc_init_errors_texture()
 	int text_h = dm_get_h_error_msg();		
 	SDL_Rect rb = dm_get_text_box_result_text();
 
-	ib_empty = dw_new_text_texture_by_h(rb.w, 
+	ib_empty = dw_create_text_tex_array_by_h(rb.w, 
 										text_h, 
 										C_BLACK, 
 										INPUT_BUFFER_EMPTY_TEXT);
-	reg_val_bad = dw_new_text_texture_by_h(rb.w, 
+	reg_val_bad = dw_create_text_tex_array_by_h(rb.w, 
 										   text_h, 
 										   C_BLACK, 
 											REG_VALUE_INVALID_TEXT);
-	flag_val_bad = dw_new_text_texture_by_h(rb.w, 
+	flag_val_bad = dw_create_text_tex_array_by_h(rb.w, 
 										    text_h, 
 										    C_BLACK, 
 											FLAG_VALUE_INVALID_TEXT);
-	ob_val_bad = dw_new_text_texture_by_h(rb.w, 
+	ob_val_bad = dw_create_text_tex_array_by_h(rb.w, 
 										  text_h, 
 										  C_BLACK, 
 										  INVALID_OUTPUT_VALUE_TEXT);
-	ib_unproc_vals = dw_new_text_texture_by_h(rb.w, 
+	ib_unproc_vals = dw_create_text_tex_array_by_h(rb.w, 
 											  text_h,
 											  C_BLACK, 
 											  UNPROCESSED_IB_VALUES_TEXT);
-	exc_code_size = dw_new_text_texture_by_h(rb.w, 
+	exc_code_size = dw_create_text_tex_array_by_h(rb.w, 
 											 text_h, 
 											 C_BLACK, 
 											 EXCEEDS_CODE_LIMIT_TEXT);
-	ob_incomplete = dw_new_text_texture_by_h(rb.w, 
+	ob_incomplete = dw_create_text_tex_array_by_h(rb.w, 
 											 text_h, 
 											 C_BLACK, 
 										     OUTPUT_BUFFER_INCOMPLETE_TEXT);
@@ -270,7 +270,7 @@ void mc_display_invalid_operation_handler(int id)
 
 		if (button_created == false){
 			button_created = true;
-			texture_t *ret_texture = dw_create_text_texture(STR_BACK, C_WHITE);
+			texture_t *ret_texture = dw_create_text_tex(STR_BACK, C_WHITE);
 			check_mem(ret_texture);
 			
 			SDL_Rect r = dm_get_text_box_result_but3();		
@@ -370,8 +370,8 @@ void mc_init_avatar()
 	g_iavatar.secval.box.w = vb.w;
 	g_iavatar.secval.box.h = vb.h;
 
-	g_iavatar.mainval.t = dw_create_text_texture(ax_char_dash, C_WHITE);
-	g_iavatar.secval.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_iavatar.mainval.t = dw_create_text_tex(ax_char_dash, C_WHITE);
+	g_iavatar.secval.t = dw_create_text_tex(ax_char_dash, C_WHITE);
 	g_iavatar.color = C_MAGENTA;
 
 	SDL_Rect ob = dm_get_stage_output_buffer_box();
@@ -396,12 +396,12 @@ void mc_init_avatar()
 	g_oavatar.mainval.box.y = g_oavatar.box.y - avatar.h;
 	g_oavatar.mainval.box.w = vb.w;
 	g_oavatar.mainval.box.h = vb.h;
-	g_oavatar.mainval.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_oavatar.mainval.t = dw_create_text_tex(ax_char_dash, C_WHITE);
 	g_oavatar.secval.box.x = ob.x;
 	g_oavatar.secval.box.y = g_oavatar.box.y - avatar.h;
 	g_oavatar.secval.box.w = vb.w;
 	g_oavatar.secval.box.h = vb.h;
-	g_oavatar.secval.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_oavatar.secval.t = dw_create_text_tex(ax_char_dash, C_WHITE);
 	g_oavatar.color = C_CYAN;
 
 	int ofs = dm_get_ofs_stage_reg_box();
@@ -427,13 +427,13 @@ void mc_init_avatar()
 	g_ravatar.mainval.box.y = g_ravatar.box.y - avatar.h;
 	g_ravatar.mainval.box.w = vb.w;
 	g_ravatar.mainval.box.h = vb.h;
-	g_ravatar.mainval.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_ravatar.mainval.t = dw_create_text_tex(ax_char_dash, C_WHITE);
 	g_ravatar.secval.value = NO_VALUE;
 	g_ravatar.secval.box.x = g_ravatar.box.x;
 	g_ravatar.secval.box.y = g_ravatar.box.y - avatar.h;
 	g_ravatar.secval.box.w = vb.w;
 	g_ravatar.secval.box.h = vb.h;
-	g_ravatar.secval.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_ravatar.secval.t = dw_create_text_tex(ax_char_dash, C_WHITE);
 
 	g_ravatar.color = C_YELLOW;
 }
@@ -490,14 +490,14 @@ void reset_avatar_no_pos()
 	g_iavatar.mainval.box.y = g_iavatar.box.y - avatar.h;
 	dw_free_texture(g_iavatar.mainval.t);
 	g_iavatar.mainval.t = NULL;
-	g_iavatar.mainval.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_iavatar.mainval.t = dw_create_text_tex(ax_char_dash, C_WHITE);
 	
 	g_iavatar.secval.value = NO_VALUE;
 	g_iavatar.secval.box.x = g_iavatar.box.x;
 	g_iavatar.secval.box.y = g_iavatar.box.y - avatar.h;
 	dw_free_texture(g_iavatar.secval.t);
 	g_iavatar.secval.t = NULL;
-	g_iavatar.secval.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_iavatar.secval.t = dw_create_text_tex(ax_char_dash, C_WHITE);
 
 
 	g_oavatar.mainval.visible_box = false;
@@ -514,14 +514,14 @@ void reset_avatar_no_pos()
 	g_oavatar.mainval.box.y = g_oavatar.box.y - avatar.h;
 	dw_free_texture(g_oavatar.mainval.t);
 	g_oavatar.mainval.t = NULL;
-	g_oavatar.mainval.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_oavatar.mainval.t = dw_create_text_tex(ax_char_dash, C_WHITE);
 
 	g_oavatar.secval.value = NO_VALUE;
 	g_oavatar.secval.box.x = g_oavatar.box.x;
 	g_oavatar.secval.box.y = g_oavatar.box.y - avatar.h;
 	dw_free_texture(g_oavatar.secval.t);
 	g_oavatar.secval.t = NULL;
-	g_oavatar.secval.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_oavatar.secval.t = dw_create_text_tex(ax_char_dash, C_WHITE);
 
 	g_ravatar.mainval.visible_box = false;
 	g_ravatar.secval.visible_box = false;
@@ -537,14 +537,14 @@ void reset_avatar_no_pos()
 	g_ravatar.mainval.box.y = g_ravatar.box.y - avatar.h;
 	dw_free_texture(g_ravatar.mainval.t);
 	g_ravatar.mainval.t = NULL;
-	g_ravatar.mainval.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_ravatar.mainval.t = dw_create_text_tex(ax_char_dash, C_WHITE);
 
 	g_ravatar.secval.value = NO_VALUE;
 	g_ravatar.secval.box.x = g_ravatar.box.x;
 	g_ravatar.secval.box.y = g_ravatar.box.y - avatar.h;
 	dw_free_texture(g_ravatar.secval.t);
 	g_ravatar.secval.t = NULL;
-	g_ravatar.secval.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_ravatar.secval.t = dw_create_text_tex(ax_char_dash, C_WHITE);
 
 }
 /* Function: draw_iavatar

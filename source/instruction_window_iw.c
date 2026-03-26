@@ -31,7 +31,7 @@ static void draw_instruction_text();
  */
 void iw_init_ins_box()
 {
-	instructions_text = dw_create_text_texture(INSTRUCTIONS_TEXT, C_AMBER);
+	instructions_text = dw_create_text_tex(INSTRUCTIONS_TEXT, C_AMBER);
 	g_instruction_box = dm_get_stage_instruction_box();
 }
 
@@ -267,7 +267,7 @@ void iw_add_instruction_to_list(int id)
 	assert(NULL != instructions && "Instruction pointer is NULL");
 	
 	char *text = cl_get_instruction_text(id);
-	texture_t *instruction_text = dw_create_text_texture(text, 
+	texture_t *instruction_text = dw_create_text_tex(text, 
 								  C_WHITE);
 	
 	SDL_Rect cb = dm_get_code_button_wh();

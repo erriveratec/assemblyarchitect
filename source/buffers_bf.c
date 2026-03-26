@@ -75,8 +75,8 @@ static void bf_create_natural_increase_input_list();
  */
 void bf_init_buffer_assets()
 {
-	input_text = dw_create_text_texture(INPUT_BUFFER_TEXT, C_WHITE);
-	output_text = dw_create_text_texture(OUTPUT_BUFFER_TEXT, C_WHITE);
+	input_text = dw_create_text_tex(INPUT_BUFFER_TEXT, C_WHITE);
+	output_text = dw_create_text_tex(OUTPUT_BUFFER_TEXT, C_WHITE);
 	SDL_Rect ib = dm_get_stage_input_buffer_box();
 	int ofs = dm_get_ofs_buffer_value_box();
 	g_output_list_x_pos = ib.x + ofs;
@@ -275,7 +275,7 @@ operand_t *bf_create_sel_buf_op()
 void bf_initialize_buffer_operands()
 {
 	SDL_Rect r = dm_get_code_button_wh();
-	texture_t *ib = dw_create_text_texture(ib_text, C_WHITE);
+	texture_t *ib = dw_create_text_tex(ib_text, C_WHITE);
 	check_mem(ib);
 	btn_t *a = bt_create_btn(r, ib);
 	check_mem(a);
@@ -284,7 +284,7 @@ void bf_initialize_buffer_operands()
 	check_mem(input_buffer);
 
 	
-	texture_t *ob = dw_create_text_texture(ob_text, C_WHITE);
+	texture_t *ob = dw_create_text_tex(ob_text, C_WHITE);
 	check_mem(ob);
 	btn_t *b = bt_create_btn(r, ob);
 	check_mem(b);
@@ -381,7 +381,7 @@ void bf_add_output_to_list()
 	new_output->box.y = output_box.y + y_offset;
 	new_output->box.w = vb.w;
 	new_output->box.h = vb.h;
-    new_output->t = dw_create_text_texture(ax_char_dash, C_WHITE);
+    new_output->t = dw_create_text_tex(ax_char_dash, C_WHITE);
 	new_output->visible_box = false;
 
 	List_push(outputs, new_output);
@@ -418,7 +418,7 @@ void add_input_to_list(int value, int type)
 	new_input->box.w = vb.w;
 	new_input->box.h = vb.h;
 	char *number = ax_number_to_string(value);
-	new_input->t = dw_create_text_texture(number, C_WHITE);
+	new_input->t = dw_create_text_tex(number, C_WHITE);
 	free(number);
 
 	List_push(inputs, new_input);
@@ -817,7 +817,7 @@ void bf_set_output_buffer_value_box(value_box_t val)
    last->visible_box = true;
    dw_free_texture(last->t);
    char *number = ax_number_to_string(val.value);	
-   last->t = dw_create_text_texture(number, C_WHITE);
+   last->t = dw_create_text_tex(number, C_WHITE);
    free(number);
 }
 

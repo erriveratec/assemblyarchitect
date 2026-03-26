@@ -201,7 +201,7 @@ static SDL_Rect get_rst_btn_box()
 	b.w = dm_scale_to_res(RST_BTN_W);
 	b.h = dm_scale_to_res(RST_BTN_H);
 	b.x = ret_box.x;
-	b.y = ret_box.y - b.h - 2*bt_get_ofs_button_shadow();	
+	b.y = ret_box.y - b.h - 3*bt_get_ofs_button_shadow();	
 	return b;
 }
 
@@ -309,10 +309,10 @@ bool sb_chk_rst_menu_btns(bool show_menu)
  */
 void sb_init_rst_menu()
 {
-	g_rst_b1_texture = dw_create_text_texture(RST_MENU_TEXT1, C_WHITE);
+	g_rst_b1_texture = dw_create_text_tex(RST_MENU_TEXT1, C_WHITE);
 	check_mem(g_rst_b1_texture);
 
-	g_rst_b2_texture = dw_create_text_texture(RST_MENU_TEXT2, C_WHITE);
+	g_rst_b2_texture = dw_create_text_tex(RST_MENU_TEXT2, C_WHITE);
 	check_mem(g_rst_b2_texture);
 	
 	SDL_Rect r = dm_get_rst_b1_box();
@@ -325,7 +325,7 @@ void sb_init_rst_menu()
 
 	int h = dm_get_h_big_text();
 	int w = dm_get_w_msg(dm_get_center_screen_box());
-	g_rst_menu_text = dw_new_text_texture_by_h(w, h, C_BLACK, RST_MENU_TEXT0);
+	g_rst_menu_text = dw_create_text_tex_array_by_h(w, h, C_BLACK, RST_MENU_TEXT0);
 	
 	error:
 	return;
@@ -373,16 +373,16 @@ bool sb_chk_rst_menu_state()
  */
 void sb_init_escape_menu()
 {
-	g_escape_b1_texture = dw_create_text_texture(ESC_MENU_TEXT1, C_WHITE);
+	g_escape_b1_texture = dw_create_text_tex(ESC_MENU_TEXT1, C_WHITE);
 	check_mem(g_escape_b1_texture);
 
-	g_escape_b2_texture = dw_create_text_texture(ESC_MENU_TEXT2, C_WHITE);
+	g_escape_b2_texture = dw_create_text_tex(ESC_MENU_TEXT2, C_WHITE);
 	check_mem(g_escape_b2_texture);
 
-	g_escape_b3_texture = dw_create_text_texture(ESC_MENU_TEXT3, C_WHITE);
+	g_escape_b3_texture = dw_create_text_tex(ESC_MENU_TEXT3, C_WHITE);
 	check_mem(g_escape_b3_texture);
 	
-	g_escape_header_texture = dw_create_text_texture(ESC_MENU_HEADER, C_GREY);
+	g_escape_header_texture = dw_create_text_tex(ESC_MENU_HEADER, C_GREY);
 	check_mem(g_escape_header_texture);
 
 	SDL_Rect r = get_escape_b1_box();

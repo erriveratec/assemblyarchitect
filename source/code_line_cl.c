@@ -182,25 +182,25 @@ texture_t *cl_create_instruction_texture(int id)
 	
 	switch(id){
 		case MOV:
-			texture = dw_create_text_texture(mov_text, C_WHITE);
+			texture = dw_create_text_tex(mov_text, C_WHITE);
 			break;
 		case ADD:
-			texture = dw_create_text_texture(add_text, C_WHITE);
+			texture = dw_create_text_tex(add_text, C_WHITE);
 			break;
 		case LABEL:
-			texture = dw_create_text_texture(label_text, C_WHITE);
+			texture = dw_create_text_tex(label_text, C_WHITE);
 			break;
 		case JMP:
-			texture = dw_create_text_texture(jmp_text, C_WHITE);
+			texture = dw_create_text_tex(jmp_text, C_WHITE);
 			break;
 		case CMP:
-			texture = dw_create_text_texture(cmp_text, C_WHITE);
+			texture = dw_create_text_tex(cmp_text, C_WHITE);
 			break;
 		case JE:
-			texture = dw_create_text_texture(je_text, C_WHITE);
+			texture = dw_create_text_tex(je_text, C_WHITE);
 			break;
 		case JNE:
-			texture = dw_create_text_texture(jne_text, C_WHITE);
+			texture = dw_create_text_tex(jne_text, C_WHITE);
 			break;
 		default:
 			printf("Error: the id of the register is invalid");
@@ -226,25 +226,25 @@ texture_t *cl_create_operand_texture(int id)
 	
 	switch(id){
 		case RAX:
-			texture = dw_create_text_texture(rax_text, C_WHITE);
+			texture = dw_create_text_tex(rax_text, C_WHITE);
 			break;
 		case RBX:
-			texture = dw_create_text_texture(rbx_text, C_WHITE);
+			texture = dw_create_text_tex(rbx_text, C_WHITE);
 			break;
 		case RCX:
-			texture = dw_create_text_texture(rcx_text, C_WHITE);
+			texture = dw_create_text_tex(rcx_text, C_WHITE);
 			break;
 		case RDX:
-			texture = dw_create_text_texture(rdx_text, C_WHITE);
+			texture = dw_create_text_tex(rdx_text, C_WHITE);
 			break;
 		case RDI:
-			texture = dw_create_text_texture(rdi_text, C_WHITE);
+			texture = dw_create_text_tex(rdi_text, C_WHITE);
 			break;
 		case IB:
-			texture = dw_create_text_texture(ib_text, C_WHITE);
+			texture = dw_create_text_tex(ib_text, C_WHITE);
 			break;
 		case OB:
-			texture = dw_create_text_texture(ob_text, C_WHITE);
+			texture = dw_create_text_tex(ob_text, C_WHITE);
 			break;
 		default:
 			printf("Error: the id of the register is invalid");

@@ -50,7 +50,7 @@ texture_t *g_zf_text = NULL;
  */
 void rg_init_reg_texture()
 {
-	g_reg_text = dw_create_text_texture(AX_REG_TEXT, C_AMBER);
+	g_reg_text = dw_create_text_tex(AX_REG_TEXT, C_AMBER);
 }
 
 /* Function: rg_reset_ibox
@@ -69,7 +69,7 @@ void rg_reset_ibox()
 	g_ibox.value = NO_VALUE;
 	dw_free_texture(g_ibox.t);
 	g_ibox.t = NULL;
-	g_ibox.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_ibox.t = dw_create_text_tex(ax_char_dash, C_WHITE);
 }
 
 /* Function: rg_reset_ibox
@@ -88,7 +88,7 @@ void rg_reset_obox()
 	g_obox.value = NO_VALUE;
 	dw_free_texture(g_obox.t);
 	g_obox.t = NULL;
-	g_obox.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_obox.t = dw_create_text_tex(ax_char_dash, C_WHITE);
 }
 
 /* Function: rg_set_ibox_value_box
@@ -109,7 +109,7 @@ void rg_set_ibox_value_box(value_box_t value)
 	dw_free_texture(g_ibox.t);
 	g_ibox.t = NULL;
 	char *number = ax_number_to_string(g_ibox.value);
-	g_ibox.t = dw_create_text_texture(number, C_WHITE);
+	g_ibox.t = dw_create_text_tex(number, C_WHITE);
 	free(number);
 	return;
 }
@@ -132,7 +132,7 @@ void rg_set_obox_value_box(value_box_t value)
 	dw_free_texture(g_obox.t);
 	g_obox.t = NULL;
 	char *number = ax_number_to_string(g_obox.value);
-	g_obox.t = dw_create_text_texture(number, C_WHITE);
+	g_obox.t = dw_create_text_tex(number, C_WHITE);
 	free(number);
 	return;
 }
@@ -234,18 +234,18 @@ void rg_init_flag_and_vboxes()
 	g_ibox.box = dm_get_stage_ibox();	
 	g_ibox.value = NO_VALUE;
 	g_ibox.visible_box = true;
-	g_ibox.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_ibox.t = dw_create_text_tex(ax_char_dash, C_WHITE);
 	
 	g_obox.box = dm_get_stage_obox();
 	g_obox.value = NO_VALUE;
 	g_obox.visible_box = true;
-	g_obox.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_obox.t = dw_create_text_tex(ax_char_dash, C_WHITE);
 
 	g_zf.box = dm_get_stage_zfbox();
 	g_zf.value = NO_VALUE;
 	g_zf.visible_box = true;
-	g_zf.t = dw_create_text_texture(ax_char_dash, C_GREY);
-	g_zf_text = dw_create_text_texture(ZF_TEXT, C_GREY);
+	g_zf.t = dw_create_text_tex(ax_char_dash, C_GREY);
+	g_zf_text = dw_create_text_tex(ZF_TEXT, C_GREY);
 
 	return;
 }
@@ -429,7 +429,7 @@ void rg_reset_register_values()
 		reg_t *reg = cur->value;
 		reg->value.value = NO_VALUE;
 		dw_free_texture(reg->value.t);
-   		reg->value.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+   		reg->value.t = dw_create_text_tex(ax_char_dash, C_WHITE);
 	}
 
 }
@@ -564,7 +564,7 @@ reg_t *create_register(int id, btn_t *b)
 	op->value.box.w = vb.w;
 	op->value.box.h = vb.h;
 	op->value.value = NO_VALUE;
-	op->value.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	op->value.t = dw_create_text_tex(ax_char_dash, C_WHITE);
 
 error:
 	return op;
@@ -958,7 +958,7 @@ void rg_reset_rflags()
 	g_zf.value = NO_VALUE;
 	dw_free_texture(g_zf.t);
 	g_zf.t = NULL;
-	g_zf.t = dw_create_text_texture(ax_char_dash, C_WHITE);
+	g_zf.t = dw_create_text_tex(ax_char_dash, C_WHITE);
 }
 
 /* Function: rg_set_flag_value_box
@@ -1016,7 +1016,7 @@ void rg_set_register_value_box(int id, value_box_t val)
 	c->value.type = val.type;
 	dw_free_texture(c->value.t);
 	char *number = ax_number_to_string(val.value);	
-   	c->value.t = dw_create_text_texture(number, C_WHITE);
+   	c->value.t = dw_create_text_tex(number, C_WHITE);
 	free(number);
 
 }

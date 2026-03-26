@@ -42,7 +42,6 @@ static void draw_text(int x, int y, float s, SDL_Color c, char *t);
 static int draw_scaled_texture(int x, int y, float s, texture_t *t);
 static int get_ofs_iface_inner_border();
 static int get_h_iface_header();
-static int get_h_iface_header_txt();
 
 /* Function: dm_get_ofs_iface_filled_border
  * -----------------------------------------------------------------------------
@@ -59,7 +58,7 @@ int dw_get_ofs_iface_filled_border()
 	return dm_scale_to_res(IFACE_FILLED_OFS);
 }
 
-/* Function: get_ofs_h_iface_header_txt
+/* Function: get_get_h_iface_header_txt
  * -----------------------------------------------------------------------------
  *	Returns the height of the iface header_text
  *
@@ -69,7 +68,7 @@ int dw_get_ofs_iface_filled_border()
  * Return:
  *	The height of the iface header text
  */
-static int get_h_iface_header_txt()
+int dw_get_h_iface_header_txt()
 {
 	return dm_scale_to_res(IFACE_HEADER_TEXT_H);
 }
@@ -278,7 +277,7 @@ void dw_draw_iface_box(SDL_Rect b, texture_t *header)
 	dw_draw_filled_rectangle(header_bar, C_SOFTBLACK, C_SOFTBLACK);
 
 	if (header != NULL){
- 		int text_h = get_h_iface_header_txt();
+ 		int text_h = dw_get_h_iface_header_txt();
 		int text_w = ax_get_texture_w_fit_h(text_h, header);
 	
 		SDL_Rect header_text = {.x = header_box.x + (header_box.w - text_w)/2,
@@ -521,7 +520,7 @@ texture_t *load_texture_from_file(char *path)
 	return new_texture;
 }
 
-/* Function: dw_create_text_texture
+/* Function: dw_create_text_tex
  * ----------------------------------------
  * This function receives as an argument the path of the texture
  * to be loaded and returns the pointer to the loaded texture.
@@ -533,7 +532,7 @@ texture_t *load_texture_from_file(char *path)
  * Return:
  * 	Pointer to the texture object.
  */
-texture_t *dw_create_text_texture(char *texture_text, 
+texture_t *dw_create_text_tex(char *texture_text, 
 									   	   SDL_Color text_color)
 {
 	assert(NULL != texture_text && "The texture text is NULL");
@@ -622,7 +621,7 @@ void dw_free_texture(texture_t *texture)
 	}
 }
 
-/* Function: dw_new_text_texture_by_h
+/* Function: dw_create_text_tex_array_by_h
  *-----------------------------------------------------------------------------
  * Cretes an array texture for showing wrapped text. The dimension of a given
  * line of the texture is fit by height in a give width dimension.
@@ -636,7 +635,7 @@ void dw_free_texture(texture_t *texture)
  * Return:
  *	Void
  */
-texture_array_t *dw_new_text_texture_by_h(int w, int h, SDL_Color c, char *t)
+texture_array_t *dw_create_text_tex_array_by_h(int w, int h, SDL_Color c, char *t)
 {
 	assert(w > 0 && "The width of the text is negative");
 	assert(h > 0 && "The height of the text is negative");
@@ -677,7 +676,7 @@ texture_array_t *dw_new_text_texture_by_h(int w, int h, SDL_Color c, char *t)
 					strncpy(text, t + already_drawn+1, last_fit - already_drawn - 1);	
 				}	
 
-				texture_t *text_texture = dw_create_text_texture(text, c);
+				texture_t *text_texture = dw_create_text_tex(text, c);
 				array->t[pos] = text_texture;
 				pos++;
 				already_drawn = last_fit;
@@ -744,7 +743,7 @@ static void draw_text(int x, int y, float s, SDL_Color c, char *t)
 
 	texture_t *text_texture = NULL;
 
-	text_texture = dw_create_text_texture(t, c);
+	text_texture = dw_create_text_tex(t, c);
 	assert(text_texture != NULL && "Failed to load texture from rendered text");
 
 	int status = SUCCESS;	

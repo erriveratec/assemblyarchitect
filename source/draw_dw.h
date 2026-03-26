@@ -17,8 +17,8 @@ typedef struct texture_array_t{
 } texture_array_t;
 
 texture_t *load_texture_from_file(char *path);
-texture_t *dw_create_text_texture(char *texture_text, SDL_Color text_color);
-texture_array_t *dw_new_text_texture_by_h(int w, int h, SDL_Color c, char *t);
+texture_t *dw_create_text_tex(char *texture_text, SDL_Color text_color);
+texture_array_t *dw_create_text_tex_array_by_h(int w, int h, SDL_Color c, char *t);
 
 void dw_free_texture(texture_t *texture);
 void dw_free_texture_array(texture_array_t *t);
@@ -42,6 +42,10 @@ void dw_draw_inner_shadow_lines(SDL_Rect r,
 int dw_get_ofs_iface_filled_border();
 void dw_set_texture_color_mod(texture_t *t, SDL_Color c);
 void dw_set_array_texture_color_mod(texture_array_t *t, SDL_Color c);
+
+int dw_get_h_iface_header_txt();
+
+
 
 extern SDL_Color C_WHITE;
 extern SDL_Color C_BLACK;

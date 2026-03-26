@@ -124,8 +124,7 @@ static void init_stage_assets()
  */
 void init_level(int level_id)
 {
-	assert(level_id > LV_LEVEL_MIN && level_id < LV_LEVEL_MAX && 	
-		   "Invalid stage id");
+	assert(level_id >= 0 && level_id < LV_LEVEL_MAX &&  "Invalid stage id");
 	
 	
 	init_stage_assets();
@@ -427,7 +426,7 @@ static code_line_t *pending_operand_handler()
  */
 static code_line_t *edit_code(int level_id)
 {
-	assert(level_id > 0 && level_id <= LV_LEVEL_QUANTITY && 
+	assert(level_id >= 0 && level_id <= LV_LEVEL_QUANTITY && 
 		   											"Incorrect level_id value");
 		
 	static code_line_t *line = NULL;
@@ -622,14 +621,14 @@ static int display_run_result(bool win_check)
 
 	if (buttons_created == false){
 		buttons_created = true;
-		texture_t *con_texture = dw_create_text_texture(
+		texture_t *con_texture = dw_create_text_tex(
 								 STR_CONT, C_WHITE);
 		check_mem(con_texture);
 		SDL_Rect r = dm_get_text_box_result_but2();
 		con = bt_create_iface_btn(r, con_texture, true);
 		check_mem(con);
 					
-		texture_t *back_texture = dw_create_text_texture(
+		texture_t *back_texture = dw_create_text_tex(
 								 STR_BACK, C_WHITE);
 		check_mem(back_texture);
 		SDL_Rect b = dm_get_text_box_result_but1();

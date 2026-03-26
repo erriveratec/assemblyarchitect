@@ -1,4 +1,4 @@
-+++LEVEL STARTS 01
++++LEVEL STARTS 00
 
 ChallengeTextBegin
 "Move the value from the Input Buffer [ib] to the Output Buffer [ob]"
@@ -24,7 +24,7 @@ WinConditionEnd
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 02
++++LEVEL STARTS 01
 
 ChallengeTextBegin
 "Move the values from the Input Buffer [ib] to the Output Buffer [ob], using maximun 2 instructions"
@@ -50,7 +50,7 @@ WinConditionEnd
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 03
++++LEVEL STARTS 02
 
 ChallengeTextBegin
 "Move the value from the Input Buffer [ib] and copy it to the Output Buffer [ob] three times"
@@ -76,7 +76,7 @@ WinConditionEnd
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 04
++++LEVEL STARTS 03
 
 ChallengeTextBegin
 "Move the values from the Input Buffer [ib] to the Output Buffer [ob]"
@@ -102,7 +102,7 @@ InstructionLimit 99
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 05
++++LEVEL STARTS 04
 
 ChallengeTextBegin
 "Move the value from the Input Buffer [ib] to the Output Buffer [ob] in reverse order"
@@ -130,7 +130,7 @@ WinConditionEnd
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 06
++++LEVEL STARTS 05
 
 ChallengeTextBegin
 "Add the values received from the Input Buffer [ib] in pairs and put the result in the Output Buffer [ob]"
@@ -157,7 +157,7 @@ WinConditionEnd
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 07
++++LEVEL STARTS 06
 
 ChallengeTextBegin
 "Take the value received from the Input Buffer [ib], multiply it by 2 and put it in the Output Buffer [ob]"
@@ -185,7 +185,7 @@ WinConditionEnd
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 08
++++LEVEL STARTS 07
 
 ChallengeTextBegin
 "Take the value received from the Input Buffer [ib], multiply it by 4 and put it in the Output Buffer [ob]"
@@ -212,7 +212,7 @@ WinConditionEnd
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 09
++++LEVEL STARTS 08
 
 ChallengeTextBegin
 "Move the values from the Input Buffer [ib] to the Output Buffer [ob], using maximum 3 instructions"
@@ -240,7 +240,7 @@ WinConditionEnd
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 10
++++LEVEL STARTS 09
 
 ChallengeTextBegin
 "Add the values received from the Input Buffer [ib] in groups of 3 and put the result in the Output Buffer [ob], using maximun 5 instructions"
@@ -270,7 +270,7 @@ WinConditionEnd
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 11
++++LEVEL STARTS 10
 
 ChallengeTextBegin
 "Add 5 to all the values received from the Input Buffer [ib] and put the result in the Output Buffer [ob]. Use 4 instructions maximum"
@@ -301,7 +301,7 @@ WinConditionEnd
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 12
++++LEVEL STARTS 11
 
 ChallengeTextBegin
 "Add the values from [IB] in pairs and put them in to [OB] with a ZERO between each added value"
@@ -332,7 +332,7 @@ WinConditionEnd
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 13
++++LEVEL STARTS 12
 
 ChallengeTextBegin
 "For each value in the Input Buffer [ib], add a decreasing offset (starting a 10 for the first value, 9 for the second, 8 for the third...) and send each result to the Output Buffer [ob]"
@@ -361,7 +361,7 @@ WinConditionEnd
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 14
++++LEVEL STARTS 13
 
 ChallengeTextBegin
 "Move the values from the Input Buffer [ib] to Output Buffer [ob] until you encounter the fist 0 in [ob]"
@@ -393,7 +393,7 @@ WinConditionEnd
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 15
++++LEVEL STARTS 14
 
 ChallengeTextBegin
 "Move the values equal to 7 from the Input Buffer [ib] to the Output Buffer [ob]. Stop processing when the value 0 appears"
@@ -426,7 +426,7 @@ WinConditionEnd
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 16
++++LEVEL STARTS 15
 
 ChallengeTextBegin
 "Store in the Output Buffer [ob] the number of times 3 appears in Input Buffer [ib]. The input sequence ends at the first 0"
@@ -460,7 +460,7 @@ WinConditionEnd
 
 +++LEVEL ENDS
 
-+++LEVEL STARTS 17
++++LEVEL STARTS 16
 
 ChallengeTextBegin
 "PLACEHOLDER"

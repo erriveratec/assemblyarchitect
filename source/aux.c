@@ -311,7 +311,7 @@ void ax_copy_vbox(value_box_t *dst, value_box_t src, bool pos)
 	}
 	dw_free_texture(dst->t);
 	char *number = ax_number_to_string(src.value);
-	dst->t = dw_create_text_texture(number, C_WHITE);
+	dst->t = dw_create_text_tex(number, C_WHITE);
 	free(number);
 }
 
@@ -361,7 +361,7 @@ int get_text_height_fits_width(int w, char *text)
 {
 	texture_t *text_texture = NULL;
 
-	text_texture = dw_create_text_texture(text, C_WHITE);
+	text_texture = dw_create_text_tex(text, C_WHITE);
 	assert(NULL != text_texture && 
 		   "Failed to load texture from rendered text");
 	
@@ -390,7 +390,7 @@ int get_text_width_fits_height(int h, char *text)
 {
 	texture_t *text_texture = NULL;
 
-	text_texture = dw_create_text_texture(text, C_WHITE);
+	text_texture = dw_create_text_tex(text, C_WHITE);
 	assert(NULL != text_texture && 
 		   "Failed to load texture from rendered text");
 	
@@ -670,7 +670,7 @@ bool check_text_fits_width_by_height(char *t, int h, int w)
 	bool check = false;
 	texture_t *text_texture = NULL;
 
-	text_texture = dw_create_text_texture(t, C_WHITE);
+	text_texture = dw_create_text_tex(t, C_WHITE);
 	assert(NULL != text_texture && 
 		   "Failed to load texture from rendered text");
 
@@ -702,7 +702,7 @@ int get_text_width(char *text, float scale)
 {
 	texture_t *text_texture = NULL;
 
-	text_texture = dw_create_text_texture(text, C_WHITE);
+	text_texture = dw_create_text_tex(text, C_WHITE);
 	assert(NULL != text_texture && 
 		   "Failed to load texture from rendered text");
 

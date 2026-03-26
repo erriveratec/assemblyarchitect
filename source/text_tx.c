@@ -14,6 +14,10 @@
 #define MSG_PRESSBACK "Press the back button"
 #define MSG_PRESSCONT "Press the continue button"
 
+char *SYSTEM_MESSAGE = "SYSTEM_MESSAGE";
+
+texture_t *g_system_message = NULL;
+
 int g_lvl_msgs_size;
 texture_array_t **g_lvl_msgs = NULL;
 
@@ -70,7 +74,7 @@ bool tx_draw_create_typewriter_text(texture_t **t,
 
 		dw_free_texture(*t);
 		
-		*t = dw_create_text_texture(buf, color);
+		*t = dw_create_text_tex(buf, color);
 		dw_draw_texture_fit_h(r, *t);
 
 		if (g_sfx_type && buf[n-1] != ' ') {
@@ -124,7 +128,7 @@ void tx_set_message_in_array(int pos, char *msg, int w, int h)
 	//int h = (pos == 0) ? dm_get_h_big_text() : dm_get_h_msg();
 	//int h = dm_get_h_msg();
 //	int w = dm_get_w_msg(dm_get_box_msg_wh());
-	g_msgs[pos] = dw_new_text_texture_by_h(w, h, C_WHITE, msg);
+	g_msgs[pos] = dw_create_text_tex_array_by_h(w, h, C_WHITE, msg);
 }
 
 /* Function: tx_init_global_msgs
@@ -146,12 +150,21 @@ void tx_init_global_msgs()
 	int text_h = dm_get_h_bottom_msg();
 	
 	int w = dm_get_w_msg(dm_get_box_msg_wh());
-	g_gbl_msgs[TX_MSG_CLICKANY] = dw_new_text_texture_by_h(w, text_h, C_BLACK, 
-															MSG_CLICKANY);
-	g_gbl_msgs[TX_MSG_PRESSPLAY] = dw_new_text_texture_by_h(w, text_h, 
-														C_BLACK, MSG_PRESSPLAY);
-	g_gbl_msgs[TX_MSG_PRESSBACK] = dw_new_text_texture_by_h(w, text_h, 
-														C_BLACK, MSG_PRESSBACK);
+	g_gbl_msgs[TX_MSG_CLICKANY] = dw_create_text_tex_array_by_h(w, 
+														   text_h, 
+														   C_BLACK, 
+														   MSG_CLICKANY);
+	g_gbl_msgs[TX_MSG_PRESSPLAY] = dw_create_text_tex_array_by_h(w, 
+															text_h, 
+															C_BLACK, 
+															MSG_PRESSPLAY);
+	g_gbl_msgs[TX_MSG_PRESSBACK] = dw_create_text_tex_array_by_h(w, 
+															text_h, 
+															C_BLACK, 
+															MSG_PRESSBACK);
+
+ 	text_h = dw_get_h_iface_header_txt();
+	g_system_message = dw_create_text_tex(SYSTEM_MESSAGE, C_GREY);
 }
 
 /* Function: tx_free_level_text_texture

@@ -32,7 +32,7 @@
 #define STR_LEVEL_ACTIVE_TRUE "LEVEL ACTIVE TRUE\n"
 #define STR_LEVEL_ACTIVE_FALSE "LEVEL ACTIVE FALSE\n"
 #define STR_LEVEL_ACTIVE "LEVEL ACTIVE"
-#define STR_LEVEL "Level"
+#define STR_LEVEL "ADRESS"
 #define STR_PLAYER "PLAYER"
 #define STR_PLAYER_ENDS "PLAYER ENDS"
 
@@ -223,8 +223,7 @@ error:
  */
 static char *get_delimeter_level_string(char *text, int level_id)
 {
-	char *number = ax_number_to_string_two_digits(level_id - 
-								                     LV_LEVEL_MIN);
+	char *number = ax_number_to_string_two_digits(level_id);
 	check_mem(number);
 	char *string = malloc(sizeof(char)*(strlen(text) + 2*CHAR_SIZE + 
 						  strlen(number)+1));
@@ -609,7 +608,7 @@ error:
  */
 void fl_load_level_msgs(int level_id)
 {
-	assert(level_id > LV_LEVEL_MIN && level_id < LV_LEVEL_MAX &&
+	assert(level_id >= 0 && level_id < LV_LEVEL_MAX &&
 		   "Invalid level id");
 
 	char *line = NULL;	
@@ -664,8 +663,7 @@ void fl_load_save_file(int player_id, int level_id)
 {
 	assert(player_id >= FL_PLAYER_1 && player_id <= FL_PLAYER_3 &&
 		   "Invalid player id");
-	assert(level_id > LV_LEVEL_MIN && level_id < LV_LEVEL_MAX &&
-		   "Invalid level id");
+	assert(level_id >= 0 && level_id < LV_LEVEL_MAX && "Invalid level id");
 
 	char *line = NULL;	
 	size_t len = 0;
@@ -897,8 +895,7 @@ void write_player_code_to_file(FILE *fp)
  */
 void fl_save_level(int player_id, int level_id)
 {
-	assert(level_id > LV_LEVEL_MIN && level_id < LV_LEVEL_MAX && 
-		   "Invalid level");
+	assert(level_id >= 0 && level_id < LV_LEVEL_MAX && "Invalid level");
 	assert(player_id >= FL_PLAYER_1 && player_id <= FL_PLAYER_3 && 
 		   "player");
 	
@@ -964,7 +961,7 @@ void fl_save_level(int player_id, int level_id)
  */
 void fl_enable_next_level(int player_id, int level_id)
 {
-	assert(level_id > LV_LEVEL_MIN && level_id < LV_LEVEL_MAX && 
+	assert(level_id >= 0 && level_id < LV_LEVEL_MAX && 
 		   "Invalid level");
 	assert(player_id >= FL_PLAYER_1 && player_id <= FL_PLAYER_3 && 
 		   "player");
