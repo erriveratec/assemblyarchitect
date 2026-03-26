@@ -7,69 +7,69 @@ ADDRESS 00
 MSG_END
 
 MSG 01
-First, read the challenge description
+FIRST, READ THE CHALLENGE DESCRIPTION
 MSG_END
 
 MSG 02
-Objective: move items from the Input Buffer [ib]
+OBJECTIVE: MOVE ITEMS FROM THE INPUT BUFFER [IB]
 MSG_END
 
 MSG 03
-To the Output Buffer [ob]
+TO THE OUTPUT BUFFER [OB]
 MSG_END
 
 MSG 04
-Values loaded from [ib] must go to a register
+VALUES LOADED FROM [IB] MUST GO TO A REGISTER
 MSG_END
 
 MSG 05
-Drag the MOV instruction from the instruction box
+DRAG THE MOV INSTRUCTION FROM THE INSTRUCTION BOX
 MSG_END
 
 MSG 06
-Drop the instruction in the code box
+DROP THE INSTRUCTION IN THE CODE BOX
 MSG_END
 
 MSG 07
-Select rax as the destination operand
+SELECT RAX AS THE DESTINATION OPERAND
 MSG_END
 
 MSG 08
-Select the Input Buffer [ib] as the source operand
+SELECT THE INPUT BUFFER [IB] AS THE SOURCE OPERAND
 MSG_END
 
 MSG 09
-Press the PLAY button to see what the instruction does
+PRESS THE PLAY BUTTON TO SEE WHAT THE INSTRUCTION DOES
 MSG_END
 
 MSG 10
-The value was moved to rax but not to the Output Buffer [ob]
+THE VALUE WAS MOVED TO RAX BUT NOT TO THE OUTPUT BUFFER [OB]
 MSG_END
 
 MSG 11
-Select and drag another MOV instruction from the instruction box
+SELECT AND DRAG ANOTHER MOV INSTRUCTION FROM THE INSTRUCTION BOX
 MSG_END
 
 MSG 12
-Drop the instruction in the code box below the previous instruction
+DROP THE INSTRUCTION IN THE CODE BOX BELOW THE PREVIOUS INSTRUCTION
 MSG_END
 
 MSG 13
-Select the Output Buffer [ob] as the destination operand
+SELECT THE OUTPUT BUFFER [OB] AS THE DESTINATION OPERAND
 MSG_END
 
 MSG 14
-Select rax as the source operand
+SELECT RAX AS THE SOURCE OPERAND
 MSG_END
 
 MSG 15
-Press the play button
+PRESS THE PLAY BUTTON
 MSG_END
 
 MSG 16
-Congratulations!
+CONGRATULATIONS!
          
-You have beaten the first level
+YOU HAVE BEATEN THE FIRST LEVEL
 MSG_END
 
 +++LEVEL ENDS 00
@@ -79,35 +79,35 @@ MSG_END
 QUANTITY 8
 
 MSG 00
-Level 02
+LEVEL 02
 MSG_END
 
 MSG 01
-We will rearrange, delete and change operands of the instruction
+WE WILL REARRANGE, DELETE AND CHANGE OPERANDS OF THE INSTRUCTION
 MSG_END
 
 MSG 02
-Select and drag the last instruction by clicking the instruction name
+SELECT AND DRAG THE LAST INSTRUCTION BY CLICKING THE INSTRUCTION NAME
 MSG_END
 
 MSG 03
-Drag the instruction out of the code box to delete it
+DRAG THE INSTRUCTION OUT OF THE CODE BOX TO DELETE IT
 MSG_END
 
 MSG 04
-Click the source operand of the instruction to change it
+CLICK THE SOURCE OPERAND OF THE INSTRUCTION TO CHANGE IT
 MSG_END
 
 MSG 05
-Select the Input Buffer [ib] as the source operand
+SELECT THE INPUT BUFFER [IB] AS THE SOURCE OPERAND
 MSG_END
 
 MSG 06
-Select and drag the second instruction and move in to the first position
+SELECT AND DRAG THE SECOND INSTRUCTION AND MOVE IN TO THE FIRST POSITION
 MSG_END
 
 MSG 07
-Press the play button
+PRESS THE PLAY BUTTON
 MSG_END
 
 +++LEVEL ENDS 01
@@ -117,53 +117,53 @@ MSG_END
 QUANTITY 12
 
 MSG 00
-Level 03
+LEVEL 03
 MSG_END
 
 MSG 01
-A value retrieved from the Input Buffer [ib] can only be read once
+A VALUE RETRIEVED FROM THE INPUT BUFFER [IB] CAN ONLY BE READ ONCE
 MSG_END
 
 MSG 02
-A value stored on a register can be read multiple times
+A VALUE STORED ON A REGISTER CAN BE READ MULTIPLE TIMES
 MSG_END
 
 MSG 03
-Select and drag the MOV instruction from the instruction box
+SELECT AND DRAG THE MOV INSTRUCTION FROM THE INSTRUCTION BOX
 MSG_END
 
 MSG 04
-Drop the instruction in the code box
+DROP THE INSTRUCTION IN THE CODE BOX
 MSG_END
 
 MSG 05
-All available operands for selection will be pointed with an arrow
+ALL AVAILABLE OPERANDS FOR SELECTION WILL BE POINTED WITH AN ARROW
 MSG_END
 
 MSG 06
-Select rax
+SELECT RAX
 MSG_END
 
 MSG 07
-Only valid operands combinations will be available for selection
+ONLY VALID OPERANDS COMBINATIONS WILL BE AVAILABLE FOR SELECTION
 MSG_END
 
 MSG 08
-Select Input Buffer [ib]
+SELECT INPUT BUFFER [IB]
 MSG_END
 
 MSG 09
-Use more mov instructions to solve the challenge
+USE MORE MOV INSTRUCTIONS TO SOLVE THE CHALLENGE
 MSG_END
 
 MSG 10
-Use
-"MOV [ob], rax"
-several times to solve the challenge
+USE
+"MOV [OB], RAX"
+SEVERAL TIMES TO SOLVE THE CHALLENGE
 MSG_END
 
 MSG 11
-Right click a complete instruction to copy it
+RIGHT CLICK A COMPLETE INSTRUCTION TO COPY IT
 MSG_END
 
 +++LEVEL ENDS 02
@@ -173,11 +173,11 @@ MSG_END
 QUANTITY 2
 
 MSG 00
-Level 04
+LEVEL 04
 MSG_END
 
 MSG 01
-Solve the challenge by yourself applying what has been learned
+SOLVE THE CHALLENGE BY YOURSELF APPLYING WHAT HAS BEEN LEARNED
 MSG_END
 
 +++LEVEL ENDS 03
@@ -187,15 +187,15 @@ MSG_END
 QUANTITY 3
 
 MSG 00
-Level 05
+LEVEL 05
 MSG_END
 
 MSG 01
-There are more registers available. Use them to solve the challenge
+THERE ARE MORE REGISTERS AVAILABLE. USE THEM TO SOLVE THE CHALLENGE
 MSG_END
 
 MSG 02
-Notice the STEP-BY-STEP and FAST execution buttons
+NOTICE THE STEP-BY-STEP AND FAST EXECUTION BUTTONS
 MSG_END
 
 +++LEVEL ENDS 04
@@ -205,21 +205,21 @@ MSG_END
 QUANTITY 4
 
 MSG 00
-Level 06
+LEVEL 06
 MSG_END
 
 MSG 01
-Notice that there is a new instruction available: ADD
+NOTICE THAT THERE IS A NEW INSTRUCTION AVAILABLE: ADD
 MSG_END
 
 MSG 02
-Usage:
+USAGE:
 ADD OP1, OP2
-does OP1 + OP2 and stores the result in OP1
+DOES OP1 + OP2 AND STORES THE RESULT IN OP1
 MSG_END
 
 MSG 03
-Solve the challenge using the MOV and ADD instructions
+SOLVE THE CHALLENGE USING THE MOV AND ADD INSTRUCTIONS
 MSG_END
 
 +++LEVEL ENDS 05
@@ -229,17 +229,17 @@ MSG_END
 QUANTITY 3
 
 MSG 00
-Level 07
+LEVEL 07
 MSG_END
 
 MSG 01
-Did you know that MOV and ADD can be used with both operands being registers?
+DID YOU KNOW THAT MOV AND ADD CAN BE USED WITH BOTH OPERANDS BEING REGISTERS?
 MSG_END
 
 MSG 02
-Example:
-MOV rbx, rax
-moves the value from rax to rbx
+EXAMPLE:
+MOV RBX, RAX
+MOVES THE VALUE FROM RAX TO RBX
 MSG_END
 
 +++LEVEL ENDS 06
@@ -249,17 +249,17 @@ MSG_END
 QUANTITY 3
 
 MSG 00
-Level 08
+LEVEL 08
 MSG_END
 
 MSG 01
-Both operands of instructions MOV and ADD can be the same register
+BOTH OPERANDS OF INSTRUCTIONS MOV AND ADD CAN BE THE SAME REGISTER
 MSG_END
 
 MSG 02
-Example:
-ADD rax, rax
-does rax + rax and stores the result in rax
+EXAMPLE:
+ADD RAX, RAX
+DOES RAX + RAX AND STORES THE RESULT IN RAX
 MSG_END
 
 +++LEVEL ENDS 07
@@ -269,27 +269,27 @@ MSG_END
 QUANTITY 6
 
 MSG 00
-Level 09
+LEVEL 09
 MSG_END
 
 MSG 01
-Notice that you can only use 3 instructions to solve the challenge
+NOTICE THAT YOU CAN ONLY USE 3 INSTRUCTIONS TO SOLVE THE CHALLENGE
 MSG_END
 
 MSG 02
-The JMP instruction jumps to another line of code
+THE JMP INSTRUCTION JUMPS TO ANOTHER LINE OF CODE
 MSG_END
 
 MSG 03
-Select and drag a JMP instruction
+SELECT AND DRAG A JMP INSTRUCTION
 MSG_END
 
 MSG 04
-Place the JMP instruction in the code box at the last position
+PLACE THE JMP INSTRUCTION IN THE CODE BOX AT THE LAST POSITION
 MSG_END
 
 MSG 05
-Place the JMP destination "line" above the first line of code
+PLACE THE JMP DESTINATION "LINE" ABOVE THE FIRST LINE OF CODE
 MSG_END
 
 +++LEVEL ENDS 08
@@ -299,7 +299,7 @@ MSG_END
 QUANTITY 1
 
 MSG 00
-Level 10
+LEVEL 10
 MSG_END
 
 +++LEVEL ENDS 09
@@ -309,25 +309,25 @@ MSG_END
 QUANTITY 5
 
 MSG 00
-Level 11
+LEVEL 11
 MSG_END
 
 MSG 01
-Notice there is a new section available on the screen
+NOTICE THERE IS A NEW SECTION AVAILABLE ON THE SCREEN
 MSG_END
 
 MSG 02
-You can select immediate values from this section
+YOU CAN SELECT IMMEDIATE VALUES FROM THIS SECTION
 MSG_END
 
 MSG 03
-Immediate values can only be read (used as a source operand)
+IMMEDIATE VALUES CAN ONLY BE READ (USED AS A SOURCE OPERAND)
 MSG_END
 
 MSG 04
-Examples:
-MOV rax, 5
-ADD rbx, 10
+EXAMPLES:
+MOV RAX, 5
+ADD RBX, 10
 MSG_END
 
 +++LEVEL ENDS 10
@@ -337,7 +337,7 @@ MSG_END
 QUANTITY 1
 
 MSG 00
-Level 12
+LEVEL 12
 MSG_END
 
 +++LEVEL ENDS 11
@@ -347,7 +347,7 @@ MSG_END
 QUANTITY 1
 
 MSG 00
-Level 13
+LEVEL 13
 MSG_END
 
 +++LEVEL ENDS 12
@@ -357,37 +357,37 @@ MSG_END
 QUANTITY 7
 
 MSG 00
-Level 14
+LEVEL 14
 MSG_END
 
 MSG 01
-Notice there are two new instructions: CMP and JE
+NOTICE THERE ARE TWO NEW INSTRUCTIONS: CMP AND JE
 MSG_END
 
 MSG 02
-CMP compares two operands
+CMP COMPARES TWO OPERANDS
  
-Examples:
-CMP rax, rbx
-CMP rax, 4
+EXAMPLES:
+CMP RAX, RBX
+CMP RAX, 4
 MSG_END
 
 MSG 03
-CMP sets ZF to 1 when the operands are equal
+CMP SETS ZF TO 1 WHEN THE OPERANDS ARE EQUAL
 MSG_END
 
 MSG 04
-CMP sets ZF to 0 when the operands are different
+CMP SETS ZF TO 0 WHEN THE OPERANDS ARE DIFFERENT
 MSG_END
 
 MSG 05
-JE jumps if 
+JE JUMPS IF 
 ZF = 1
-Otherwise it continues to the next instruction
+OTHERWISE IT CONTINUES TO THE NEXT INSTRUCTION
 MSG_END
 
 MSG 06
-You will need CMP and JE to solve the challenge
+YOU WILL NEED CMP AND JE TO SOLVE THE CHALLENGE
 MSG_END
 
 +++LEVEL ENDS 13
@@ -397,25 +397,25 @@ MSG_END
 QUANTITY 5
 
 MSG 00
-Level 15
+LEVEL 15
 MSG_END
 
 MSG 01
-Notice there is a new instruction: JNE (Jump if Not Equal)
+NOTICE THERE IS A NEW INSTRUCTION: JNE (JUMP IF NOT EQUAL)
 MSG_END
 
 MSG 02
-JNE jumps if 
+JNE JUMPS IF 
 ZF = 0
-Otherwise it continues to the next instruction
+OTHERWISE IT CONTINUES TO THE NEXT INSTRUCTION
 MSG_END
 
 MSG 03
-CMP sets ZF to 0 when the operands are different
+CMP SETS ZF TO 0 WHEN THE OPERANDS ARE DIFFERENT
 MSG_END
 
 MSG 04
-CMP sets ZF to 1 when the operands are equal
+CMP SETS ZF TO 1 WHEN THE OPERANDS ARE EQUAL
 MSG_END
 
 +++LEVEL ENDS 14
@@ -425,7 +425,7 @@ MSG_END
 QUANTITY 1
 
 MSG 00
-Level 16
+LEVEL 16
 MSG_END
 
 +++LEVEL ENDS 15
@@ -435,7 +435,7 @@ MSG_END
 QUANTITY 1
 
 MSG 00
-Level 17
+LEVEL 17
 MSG_END
 
 +++LEVEL ENDS 16

@@ -9,12 +9,12 @@
 #include"dimensions_dm.h"
 #include "sdl_config.h"
 
-#define MSG_CLICKANY "Click anywhere"
-#define MSG_PRESSPLAY "Press the play button"
-#define MSG_PRESSBACK "Press the back button"
-#define MSG_PRESSCONT "Press the continue button"
+#define MSG_CLICKANY "Click Anywhere"
+#define MSG_PRESSPLAY "Press the Play Button"
+#define MSG_PRESSBACK "Press the Back Button"
+#define MSG_PRESSCONT "Press the Continue Button"
 
-char *SYSTEM_MESSAGE = "SYSTEM_MESSAGE";
+char *SYSTEM_MESSAGE = "SYSTEM MESSAGE";
 
 texture_t *g_system_message = NULL;
 
@@ -152,15 +152,15 @@ void tx_init_global_msgs()
 	int w = dm_get_w_msg(dm_get_box_msg_wh());
 	g_gbl_msgs[TX_MSG_CLICKANY] = dw_create_text_tex_array_by_h(w, 
 														   text_h, 
-														   C_BLACK, 
+														   C_SHADOWGREY, 
 														   MSG_CLICKANY);
 	g_gbl_msgs[TX_MSG_PRESSPLAY] = dw_create_text_tex_array_by_h(w, 
 															text_h, 
-															C_BLACK, 
+															C_SHADOWGREY, 
 															MSG_PRESSPLAY);
 	g_gbl_msgs[TX_MSG_PRESSBACK] = dw_create_text_tex_array_by_h(w, 
 															text_h, 
-															C_BLACK, 
+															C_SHADOWGREY, 
 															MSG_PRESSBACK);
 
  	text_h = dw_get_h_iface_header_txt();
@@ -276,7 +276,7 @@ void tx_bottom_msg(int pos, int msg_id)
 			text_h = dm_get_h_msg();
 			int h = a->size*text_h;
 			b = dm_get_text_box_big();
-			b.y = dm_get_text_box_big().y + dm_get_text_box_big().h/2 - 2*h;
+			b.y = dm_get_text_box_big().y + dm_get_text_box_big().h/2 - h*3/2;
 			break;
 		case TX_ERROR_BOX:
 			b = dm_get_text_box_error(); 
@@ -298,57 +298,76 @@ void tx_bottom_msg(int pos, int msg_id)
  * Arguments:
  *	pos: The position id of where is gonna be displayed.
  *	msg_id: The id of the message that will be shown
- *  bootom_msg_id: id of the bottom message of the box if any
+ *  header: The header that will accompany the text box
  *	
  * Return:
  *	Void.
  */
-void tx_text_box(int pos, int msg_id)
+void tx_text_box(int pos, int msg_id, int header)
 {
 	assert(msg_id >= 0 && msg_id < g_msgs_size && "Invalid msg_id");
 	SDL_Rect b;
+	SDL_Rect content;
 	int text_h;
 	SDL_Color color;
 	texture_array_t *a = g_msgs[msg_id];
 	switch(pos){
 		case TX_INS_BOX:
 			b = dm_get_text_box_ins(); 
+			content = dw_get_iface_content_box(b);
 			text_h = dm_get_h_msg();
 			break;
 		case TX_UPPER_BOX:
 			b = dm_get_text_box_upper(); 
+			content = dw_get_iface_content_box(b);
 			text_h = dm_get_h_msg();
 			break;
 		case TX_UPPER_RIGHT_BOX:
 			b = dm_get_text_box_upper_right(); 
+			content = dw_get_iface_content_box(b);
 			text_h = dm_get_h_msg();
 			break;
 		case TX_CENTER_BOX:
 			b = dm_get_text_box_center(); 
+			content = dw_get_iface_content_box(b);
 			text_h = dm_get_h_msg();
 			break;
 		case TX_LOWER_BOX:
 			b = dm_get_text_box_lower(); 
+			content = dw_get_iface_content_box(b);
 			text_h = dm_get_h_msg();
 			break;
 		case TX_CODE_BOX:
 			b = dm_get_text_box_code(); 
+			content = dw_get_iface_content_box(b);
 			text_h = dm_get_h_msg();
 			break;
 		case TX_STAGEBUTTON_BOX:
 			b = dm_get_text_box_stagebutton(); 
+			content = dw_get_iface_content_box(b);
 			text_h = dm_get_h_msg();
 			break;
 		case TX_BIG_BOX:
 			b = dm_get_text_box_big();
+			content = dw_get_iface_content_box(b);
 			text_h = dm_get_h_big_text();
 			break;
 		case TX_ERROR_BOX:
 			b = dm_get_text_box_error(); 
+			content = dw_get_iface_content_box(b);
 			text_h = dm_get_h_msg();
 			break;
 	}
-	dw_draw_iface_box(b, NULL);
-	dw_draw_wrapped_texture_by_h(b, text_h, a);
+	texture_t *header_tex = NULL;
+	switch(header){
+		case TX_NONE:
+			header_tex = NULL;
+			break;
+		case TX_SYSMES:
+			header_tex = g_system_message;
+			break;
+	}
+	dw_draw_iface_box(b, header_tex);
+	dw_draw_wrapped_texture_by_h(content, text_h, a);
 }
 

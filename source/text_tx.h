@@ -6,7 +6,7 @@
 #include"draw_dw.h"
 
 void tx_init_global_msgs();
-void tx_text_box(int pos, int msg_id);
+void tx_text_box(int pos, int msg_id, int header);
 void tx_bottom_msg(int pos, int msg_id);
 void tx_free_level_text_textures();
 void tx_set_and_allocate_msgs_array(int size);
@@ -37,6 +37,12 @@ enum gbl_msgs{
 	TX_MSG_PRESSPLAY,
 	TX_MSG_PRESSBACK
 };
+
+enum header{
+	TX_NONE,
+	TX_SYSMES
+};
+
 enum msgs{
 	MSG0,	
 	MSG1,
