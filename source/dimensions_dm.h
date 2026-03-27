@@ -14,7 +14,6 @@ void dm_set_screen_resolution(int resolution_id);
 
 int dm_get_h_between_code();
 int dm_get_h_big_text();
-int dm_get_h_bottom_msg();
 int dm_get_h_msg();
 int dm_get_w_msg(SDL_Rect r);
 int dm_get_h_error_msg();

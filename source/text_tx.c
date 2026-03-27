@@ -14,6 +14,8 @@
 #define MSG_PRESSBACK "Press the Back Button"
 #define MSG_PRESSCONT "Press the Continue Button"
 
+static const Uint32 TEXT_H_BOTTOM_MSG = 17;
+
 char *SYSTEM_MESSAGE = "SYSTEM MESSAGE";
 
 texture_t *g_system_message = NULL;
@@ -28,7 +30,25 @@ int g_gbl_msgs_size;
 texture_array_t **g_gbl_msgs = NULL;
 
 static int get_box_member(SDL_Rect *box, int member);
+static int get_h_bottom_msg();
 
+
+/* Function: get_h_bottom_msg
+ * -----------------------------------------------------------------------------
+ * Returns the h value for the click anywhere message
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	int with the offset for the sel level buttons
+ */
+static int get_h_bottom_msg()
+{
+	int h = dm_scale_to_res(TEXT_H_BOTTOM_MSG);
+	return h;
+	
+}
 
 /* Function: tx_get_message_texture
  * -----------------------------------------------------------------------------
@@ -147,7 +167,7 @@ void tx_init_global_msgs()
 	g_gbl_msgs_size = 3;
 	g_gbl_msgs = malloc(sizeof(texture_array_t*)*g_gbl_msgs_size);
 
-	int text_h = dm_get_h_bottom_msg();
+	int text_h = get_h_bottom_msg();
 	
 	int w = dm_get_w_msg(dm_get_box_msg_wh());
 	g_gbl_msgs[TX_MSG_CLICKANY] = dw_create_text_tex_array_by_h(w, 
@@ -239,32 +259,33 @@ void tx_bottom_msg(int pos, int msg_id)
 	int offset = dw_get_ofs_iface_filled_border();
 	switch(pos){
 		case TX_INS_BOX:
-			text_h = dm_get_h_bottom_msg();
+			text_h = get_h_bottom_msg();
 			b = dm_get_text_box_ins(); 
 			b.y  += (dm_get_text_box_ins().h/2 - text_h - offset);
 			break;
 		case TX_UPPER_BOX:
-			text_h = dm_get_h_bottom_msg();
+			text_h = get_h_bottom_msg();
 			b = dm_get_text_box_upper(); 
-			b.y += (dm_get_text_box_upper().h/2 - text_h - offset);
+			b.y += b.h/2 - 2*text_h; //Writes at the center of the box
+			//b.y += (dm_get_text_box_upper().h/2 - text_h - offset);
 			break;
 		case TX_UPPER_RIGHT_BOX:
-			text_h = dm_get_h_bottom_msg();
+			text_h = get_h_bottom_msg();
 			b = dm_get_text_box_upper_right(); 
 			b.y += (dm_get_text_box_upper_right().h/2 - text_h - offset);
 			break;
 		case TX_CENTER_BOX:
-			text_h = dm_get_h_bottom_msg();
+			text_h = get_h_bottom_msg();
 			b = dm_get_text_box_center(); 
 			b.y += (dm_get_text_box_center().h/2 - text_h - offset);
 			break;
 		case TX_LOWER_BOX:
-			text_h = dm_get_h_bottom_msg();
+			text_h = get_h_bottom_msg();
 			b = dm_get_text_box_lower(); 
 			b.y += (dm_get_text_box_lower().h/2 - text_h - offset);
 			break;
 		case TX_CODE_BOX:
-			text_h = dm_get_h_bottom_msg();
+			text_h = get_h_bottom_msg();
 			b = dm_get_text_box_code(); 
 			b.y += (dm_get_text_box_code().h/2 - text_h - offset);
 			break;
@@ -273,16 +294,15 @@ void tx_bottom_msg(int pos, int msg_id)
 			text_h = dm_get_h_msg();
 			break;
 		case TX_BIG_BOX:
-			text_h = dm_get_h_msg();
-			int h = a->size*text_h;
+			text_h = get_h_bottom_msg();
 			b = dm_get_text_box_big();
-			b.y = dm_get_text_box_big().y + dm_get_text_box_big().h/2 - h*3/2;
+			b.y += b.h/2 - 2*text_h; //Writes at the center of the box
 			break;
 		case TX_ERROR_BOX:
 			b = dm_get_text_box_error(); 
 			b.y = dm_get_text_box_error().y + dm_get_text_box_error().h*4/6;
 			b.h = dm_get_text_box_error().h/6;
-			text_h = dm_get_h_bottom_msg();
+			text_h = get_h_bottom_msg();
 			break;
 	}
 	dw_draw_wrapped_texture_by_h(b, text_h, a);
@@ -315,7 +335,8 @@ void tx_text_box(int pos, int msg_id, int header)
 		case TX_INS_BOX:
 			b = dm_get_text_box_ins(); 
 			content = dw_get_iface_content_box(b);
-			text_h = dm_get_h_msg();
+			text_h = dm_get_h_big_text();
+	//		text_h = dm_get_h_msg();
 			break;
 		case TX_UPPER_BOX:
 			b = dm_get_text_box_upper(); 
@@ -325,27 +346,27 @@ void tx_text_box(int pos, int msg_id, int header)
 		case TX_UPPER_RIGHT_BOX:
 			b = dm_get_text_box_upper_right(); 
 			content = dw_get_iface_content_box(b);
-			text_h = dm_get_h_msg();
+			text_h = dm_get_h_big_text();
 			break;
 		case TX_CENTER_BOX:
 			b = dm_get_text_box_center(); 
 			content = dw_get_iface_content_box(b);
-			text_h = dm_get_h_msg();
+			text_h = dm_get_h_big_text();
 			break;
 		case TX_LOWER_BOX:
 			b = dm_get_text_box_lower(); 
 			content = dw_get_iface_content_box(b);
-			text_h = dm_get_h_msg();
+			text_h = dm_get_h_big_text();
 			break;
 		case TX_CODE_BOX:
 			b = dm_get_text_box_code(); 
 			content = dw_get_iface_content_box(b);
-			text_h = dm_get_h_msg();
+			text_h = dm_get_h_big_text();
 			break;
 		case TX_STAGEBUTTON_BOX:
 			b = dm_get_text_box_stagebutton(); 
 			content = dw_get_iface_content_box(b);
-			text_h = dm_get_h_msg();
+			text_h = dm_get_h_big_text();
 			break;
 		case TX_BIG_BOX:
 			b = dm_get_text_box_big();
@@ -355,7 +376,7 @@ void tx_text_box(int pos, int msg_id, int header)
 		case TX_ERROR_BOX:
 			b = dm_get_text_box_error(); 
 			content = dw_get_iface_content_box(b);
-			text_h = dm_get_h_msg();
+			text_h = dm_get_h_big_text();
 			break;
 	}
 	texture_t *header_tex = NULL;

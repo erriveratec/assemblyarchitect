@@ -33,8 +33,8 @@
 #define AVATAR_H 50
 
 #define TEXT_H_BIG 50
-#define TEXT_H_BOTTOM_MSG 17
-#define TEXT_H_MSG 25
+#define TEXT_H_MSG 35
+
 #define TEXT_H_ERROR_MSG 35
 #define TEXT_H_TOTAL_MSG 160
 #define TEXT_H_STAGE_ELEMENTS_TITLES 25
@@ -949,8 +949,10 @@ SDL_Rect dm_get_text_box_upper()
 {
 	SDL_Rect mb = dm_get_box_msg_wh();	
 	SDL_Rect b;
-	b.w = mb.w;
-	b.h = mb.h;
+	b.w = g_screen_width/5;
+	b.h = g_screen_height/3;
+//	b.w = mb.w;
+//	b.h = mb.h;
 	b.x = g_screen_width/2 - mb.w/2;
 	b.y = dw_get_ofs_iface_filled_border();
 	return b;
@@ -1173,25 +1175,6 @@ SDL_Rect dm_get_stage_reg_box()
 	return b;
 }
 
-
-
-
-/* Function: dm_get_h_bottom_msg
- * -----------------------------------------------------------------------------
- * Returns the h value for the click anywhere message
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	int with the offset for the sel level buttons
- */
-int dm_get_h_bottom_msg()
-{
-	int h = dm_scale_to_res(TEXT_H_BOTTOM_MSG);
-	return h;
-	
-}
 
 /* Function: dm_get_h_error_msg
  * -----------------------------------------------------------------------------

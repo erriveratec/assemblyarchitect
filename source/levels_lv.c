@@ -1202,7 +1202,7 @@ static void level_0()
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
 		chk_ms_pressed_clear_msg(MSG0, true);
 	} else if (g_lv_msg[MSG1] == true && size == 0){
-		tx_text_box(TX_UPPER_BOX, MSG1, TX_NONE); //Read challenge
+		tx_text_box(TX_UPPER_BOX, MSG1, TX_SYSMES); //Read challenge
 		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_CHALLENGE);
 		chk_ms_pressed_clear_msg(MSG1, true);
