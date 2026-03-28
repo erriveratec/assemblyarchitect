@@ -11,11 +11,11 @@ First, read the challenge description
 MSG_END
 
 MSG 02
-OBJECTIVE: MOVE ITEMS FROM THE INPUT BUFFER [IB]
+Objective: Move items from the Input Buffer [ib]
 MSG_END
 
 MSG 03
-TO THE OUTPUT BUFFER [OB]
+To the Output Buffer [ob]
 MSG_END
 
 MSG 04

@@ -1207,12 +1207,12 @@ static void level_0()
 		ar_display_arrow(AR_CHALLENGE);
 		chk_ms_pressed_clear_msg(MSG1, true);
 	} else if (g_lv_msg[MSG2] == true && size == 0){
-		tx_text_box(TX_UPPER_BOX, MSG3, TX_NONE); //Move from the Input Buffer
+		tx_text_box(TX_UPPER_BOX, MSG2, TX_SYSMES); //Move from the Input Buffer
 		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_IB);
 		chk_ms_pressed_clear_msg(MSG2, true);
 	} else if (g_lv_msg[MSG3] == true && size == 0){
-		tx_text_box(TX_LOWER_BOX, MSG3, TX_NONE); //To the Output Buffer
+		tx_text_box(TX_LOWER_BOX, MSG3, TX_SYSMES); //To the Output Buffer
 		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_OB);
 		chk_ms_pressed_clear_msg(MSG3, true);

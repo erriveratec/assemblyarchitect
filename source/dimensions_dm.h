@@ -15,7 +15,6 @@ void dm_set_screen_resolution(int resolution_id);
 int dm_get_h_between_code();
 int dm_get_h_big_text();
 int dm_get_h_msg();
-int dm_get_w_msg(SDL_Rect r);
 int dm_get_h_error_msg();
 int dm_get_h_stage_elements_titles();
 int dm_get_h_stage_titles();
@@ -48,7 +47,6 @@ SDL_Rect dm_get_arrow_wh();
 SDL_Rect dm_get_value_box_wh();
 SDL_Rect dm_get_value_box_val_wh();
 SDL_Rect dm_get_avatar_wh();
-SDL_Rect dm_get_box_msg_wh();
 
 
 SDL_Rect dm_get_stage_reg_box();
@@ -77,9 +75,10 @@ int dm_get_ofs_player_name();
 int dm_get_ofs_player_lore();
 int dm_get_ofs_player_dark_plate();
 
-SDL_Rect dm_get_text_box_big();
+
+//CHECK THE USAGE
 SDL_Rect dm_get_text_box_error();
-SDL_Rect dm_get_text_box_upper();
+//SDL_Rect dm_get_text_box_upper();
 SDL_Rect dm_get_text_box_upper_right();
 SDL_Rect dm_get_text_box_center();
 SDL_Rect dm_get_text_box_lower();

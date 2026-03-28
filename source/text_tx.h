@@ -17,6 +17,7 @@ bool tx_draw_create_typewriter_text(texture_t **t,
 									size_t *index, 
 									SDL_Color color);
 texture_array_t *tx_get_message_texture(int pos);
+SDL_Rect tx_get_text_box_wh();
 
 enum text_box_positions{
 	TX_BOX_MIN,

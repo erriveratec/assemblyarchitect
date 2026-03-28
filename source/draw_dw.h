@@ -39,7 +39,9 @@ SDL_Rect dw_get_iface_content_box(SDL_Rect b);
 void dw_draw_inner_shadow_lines(SDL_Rect r, 
 								SDL_Color top_left, 
 								SDL_Color bottom_right);
+//revie usage
 int dw_get_ofs_iface_filled_border();
+
 void dw_set_texture_color_mod(texture_t *t, SDL_Color c);
 void dw_set_array_texture_color_mod(texture_array_t *t, SDL_Color c);
 

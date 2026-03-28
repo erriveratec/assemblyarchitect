@@ -324,9 +324,11 @@ void sb_init_rst_menu()
 	check_mem(g_rst_b2);
 
 	int h = dm_get_h_big_text();
-	int w = dm_get_w_msg(dm_get_center_screen_box());
-	g_rst_menu_text = dw_create_text_tex_array_by_h(w, h, C_BLACK, RST_MENU_TEXT0);
-	
+	int w = dw_get_iface_content_box(dm_get_center_screen_box()).w;
+	g_rst_menu_text = dw_create_text_tex_array_by_h(w, 
+													h, 
+													C_BLACK, 
+													RST_MENU_TEXT0);
 	error:
 	return;
 }

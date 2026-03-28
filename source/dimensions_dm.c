@@ -123,7 +123,7 @@ int g_screen_width;
 int g_screen_height;
 
 static int dm_get_ofs_val_box_x();
-
+// dm_get_box_msg_wh TODO remove  dw_get_ofs_iface_filled_border(
 
 /* Function: dm_get_w_miss_op
  * -----------------------------------------------------------------------------
@@ -761,7 +761,7 @@ SDL_Rect dm_get_text_box_result()
 /* Function: dm_get_box_msg_wh
  * -----------------------------------------------------------------------------
  * Returns the box dimensions of the box message
- *
+ * SI TODO SALE BIEN ESTO TIENE QUE DEJAR DE EXISTIR
  * Arguments:
  *	Void.
  *
@@ -776,7 +776,7 @@ SDL_Rect dm_get_box_msg_wh()
 	b.x = 0;
 	b.y = 0;
 	return b;
-}
+}//MUST BE REMOVED
 
 /* Function: dm_get_text_box_error
  * -----------------------------------------------------------------------------
@@ -824,25 +824,7 @@ SDL_Rect dm_get_text_box_lower()
 	return b;
 }
 
-/* Function: dm_get_text_box_big
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_text_box_big()
-{
-	SDL_Rect b;
-	b.w = g_screen_width/5;
-	b.h = g_screen_height/3;
-	b.x = g_screen_width/2 - b.w/2;
-	b.y = g_screen_height/4;
-	return b;
-}
+
 
 /* Function: dm_get_text_box_stagebutton
  * -----------------------------------------------------------------------------
@@ -935,28 +917,7 @@ SDL_Rect dm_get_text_box_center()
 	return b;
 }
 
-/* Function: dm_get_text_box_upper
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_text_box_upper()
-{
-	SDL_Rect mb = dm_get_box_msg_wh();	
-	SDL_Rect b;
-	b.w = g_screen_width/5;
-	b.h = g_screen_height/3;
-//	b.w = mb.w;
-//	b.h = mb.h;
-	b.x = g_screen_width/2 - mb.w/2;
-	b.y = dw_get_ofs_iface_filled_border();
-	return b;
-}
+
 
 /* Function: dm_get_text_box_upper_right
  * -----------------------------------------------------------------------------
@@ -1190,23 +1151,6 @@ int dm_get_h_error_msg()
 {
 	int h = dm_scale_to_res(TEXT_H_ERROR_MSG);
 	return h;
-	
-}
-/* Function: dm_get_w_msg
- * -----------------------------------------------------------------------------
- * Returns the width of the messages according to the border fill offset
- * A rectangle is provided to calculate the width using the correct value
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	The width of the message
- */
-int dm_get_w_msg(SDL_Rect r)
-{
-	int w = r.w - 2*dw_get_ofs_iface_filled_border();
-	return w;
 	
 }
 

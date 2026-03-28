@@ -624,8 +624,7 @@ void fl_load_level_msgs(int level_id)
 	bool level_found = false;
 
 	int h = dm_get_h_msg();
-	int w = dw_get_iface_content_box(dm_get_text_box_upper()).w;
-	//int w = dm_get_w_msg(dm_get_box_msg_wh());
+	int w = dw_get_iface_content_box(tx_get_text_box_wh()).w;
 
 	while (READ_ERROR != (read = getline(&line, &len, fp))){
 		if (strstr(line, level) != NULL){

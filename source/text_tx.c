@@ -15,6 +15,10 @@
 #define MSG_PRESSCONT "Press the Continue Button"
 
 static const Uint32 TEXT_H_BOTTOM_MSG = 17;
+static const Uint32 TEXT_BOX_H = 360; //1920/5
+static const Uint32 TEXT_BOX_W = 384 ;
+
+static const Uint32 BORDER_OFS = 10 ;
 
 char *SYSTEM_MESSAGE = "SYSTEM MESSAGE";
 
@@ -31,7 +35,89 @@ texture_array_t **g_gbl_msgs = NULL;
 
 static int get_box_member(SDL_Rect *box, int member);
 static int get_h_bottom_msg();
+static SDL_Rect get_text_box_center_up();
+static int get_border_ofs();
+static SDL_Rect get_text_box_upper();
 
+/* Function: get_border_ofs
+ * -----------------------------------------------------------------------------
+ * Returns a border space of messages
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	The offset value 
+ */
+static int get_border_ofs()
+{
+	return dm_scale_to_res(BORDER_OFS);
+}
+
+/* Function: tx_get_text_box_wh
+ * -----------------------------------------------------------------------------
+ * Return the width and heigth value of the text box
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the dimension of the object
+ */
+SDL_Rect tx_get_text_box_wh()
+{
+	SDL_Rect b;
+	b.w = dm_scale_to_res(TEXT_BOX_W);
+	b.h = dm_scale_to_res(TEXT_BOX_H);
+	b.x = 0;
+	b.y = 0;
+	return b;
+}
+
+/* Function: get_text_box_upper
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+static SDL_Rect get_text_box_upper()
+{
+	int w = dm_get_screen_width();	
+	SDL_Rect d = tx_get_text_box_wh();
+	SDL_Rect b;
+	b.w = d.w;
+	b.h = d.h;
+	b.x = w/2 - b.w/2;
+	b.y = get_border_ofs();
+	return b;
+}
+
+/* Function: get_text_box_center_up
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+static SDL_Rect get_text_box_center_up()
+{
+	int w = dm_get_screen_width();	
+	int h = dm_get_screen_height();	
+	SDL_Rect d = tx_get_text_box_wh();
+	SDL_Rect b;
+	b.w = d.w;
+	b.h = d.h;
+	b.x = w/2 - b.w/2;
+	b.y = h/4;
+	return b;
+}
 
 /* Function: get_h_bottom_msg
  * -----------------------------------------------------------------------------
@@ -169,7 +255,7 @@ void tx_init_global_msgs()
 
 	int text_h = get_h_bottom_msg();
 	
-	int w = dm_get_w_msg(dm_get_box_msg_wh());
+	int w = dw_get_iface_content_box(tx_get_text_box_wh()).w;
 	g_gbl_msgs[TX_MSG_CLICKANY] = dw_create_text_tex_array_by_h(w, 
 														   text_h, 
 														   C_SHADOWGREY, 
@@ -265,9 +351,8 @@ void tx_bottom_msg(int pos, int msg_id)
 			break;
 		case TX_UPPER_BOX:
 			text_h = get_h_bottom_msg();
-			b = dm_get_text_box_upper(); 
+			b = get_text_box_upper(); 
 			b.y += b.h/2 - 2*text_h; //Writes at the center of the box
-			//b.y += (dm_get_text_box_upper().h/2 - text_h - offset);
 			break;
 		case TX_UPPER_RIGHT_BOX:
 			text_h = get_h_bottom_msg();
@@ -295,7 +380,7 @@ void tx_bottom_msg(int pos, int msg_id)
 			break;
 		case TX_BIG_BOX:
 			text_h = get_h_bottom_msg();
-			b = dm_get_text_box_big();
+			b = get_text_box_center_up();
 			b.y += b.h/2 - 2*text_h; //Writes at the center of the box
 			break;
 		case TX_ERROR_BOX:
@@ -339,7 +424,7 @@ void tx_text_box(int pos, int msg_id, int header)
 	//		text_h = dm_get_h_msg();
 			break;
 		case TX_UPPER_BOX:
-			b = dm_get_text_box_upper(); 
+			b = get_text_box_upper(); 
 			content = dw_get_iface_content_box(b);
 			text_h = dm_get_h_msg();
 			break;
@@ -369,7 +454,7 @@ void tx_text_box(int pos, int msg_id, int header)
 			text_h = dm_get_h_big_text();
 			break;
 		case TX_BIG_BOX:
-			b = dm_get_text_box_big();
+			b = get_text_box_center_up();
 			content = dw_get_iface_content_box(b);
 			text_h = dm_get_h_big_text();
 			break;
