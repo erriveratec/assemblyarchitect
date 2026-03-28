@@ -78,12 +78,7 @@ int dm_get_ofs_player_dark_plate();
 
 //CHECK THE USAGE
 SDL_Rect dm_get_text_box_error();
-//SDL_Rect dm_get_text_box_upper();
 SDL_Rect dm_get_text_box_upper_right();
-SDL_Rect dm_get_text_box_center();
-SDL_Rect dm_get_text_box_lower();
-SDL_Rect dm_get_text_box_ins();
-SDL_Rect dm_get_text_box_code();
 SDL_Rect dm_get_text_box_stagebutton();
 
 SDL_Rect dm_get_text_box_result();

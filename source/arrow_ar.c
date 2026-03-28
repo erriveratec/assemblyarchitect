@@ -348,12 +348,12 @@ static void initialize_ins_minus_arrow()
  */
 static void initialize_drop_arrow()
 {
+	int h = dm_get_screen_height();	
 	SDL_Rect a = dm_get_arrow_wh();
-	SDL_Rect bi = dm_get_text_box_ins();
 	SDL_Rect cb = cw_get_stage_code_box();
 	
 	g_arrow_drop.box.x = (cb.x - 2*a.w);
-	g_arrow_drop.box.y = bi.y - a.h*3/2;
+	g_arrow_drop.box.y = h/2 - a.h*3/2;
 	g_arrow_drop.box.w = a.w;
 	g_arrow_drop.box.h = a.h;
 	g_arrow_drop.in_place = false;

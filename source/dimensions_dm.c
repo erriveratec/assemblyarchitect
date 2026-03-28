@@ -802,27 +802,7 @@ SDL_Rect dm_get_text_box_error()
 	return b;
 }
 
-/* Function: dm_get_text_box_lower
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the text box lower
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_text_box_lower()
-{
-	SDL_Rect mb = dm_get_box_msg_wh();	
-	SDL_Rect b;
-	b.w = mb.w;
-	b.h = mb.h;
-	b.x = dm_get_screen_width()/2 - mb.w/2;
-	b.y = dm_get_screen_height() - mb.h - 
-		  dw_get_ofs_iface_filled_border();
-	return b;
-}
+
 
 
 
@@ -848,74 +828,6 @@ SDL_Rect dm_get_text_box_stagebutton()
 	return b;
 }
 
-/* Function: dm_get_text_box_code
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_text_box_code()
-{
-	SDL_Rect cb = cw_get_stage_code_box();	
-	SDL_Rect mb = dm_get_box_msg_wh();	
-	SDL_Rect b;
-	b.w = mb.w;
-	b.h = mb.h;
-	b.x = cb.x + (cb.w - mb.w)/2;
-	b.y = cb.y + cb.h - mb.h - 2*dm_get_w_borders();
-	return b;
-}
-/* Function: dm_get_text_box_ins
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_text_box_ins()
-{
-
-	SDL_Rect ib = dm_get_stage_instruction_box();	
-	SDL_Rect mb = dm_get_box_msg_wh();	
-	SDL_Rect b;
-	b.w = mb.w;
-	b.h = mb.h;
-	b.x = ib.x;
-	b.y = ib.y + ib.h + dm_get_w_borders();
-	return b;
-}
-
-
-
-/* Function: dm_get_text_box_center
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_text_box_center()
-{
-	SDL_Rect mb = dm_get_box_msg_wh();	
-	SDL_Rect ib = dm_get_stage_input_buffer_box();	
-	int width = dm_get_screen_width();
-	SDL_Rect b;
-	b.w = mb.w;
-	b.h = mb.h;
-	b.x = width/2 - mb.w/2;
-	b.y = g_screen_height/2 - mb.h/2;
-	return b;
-}
 
 
 

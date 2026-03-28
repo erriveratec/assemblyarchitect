@@ -19,23 +19,23 @@ To the Output Buffer [ob]
 MSG_END
 
 MSG 04
-VALUES LOADED FROM [IB] MUST GO TO A REGISTER
+Values loaded from [ib] must go to a register
 MSG_END
 
 MSG 05
-DRAG THE MOV INSTRUCTION FROM THE INSTRUCTION BOX
+Drag the mov instruction from the instruction box
 MSG_END
 
 MSG 06
-DROP THE INSTRUCTION IN THE CODE BOX
+Drop the instruction in the code box
 MSG_END
 
 MSG 07
-SELECT RAX AS THE DESTINATION OPERAND
+Select rax as the destination operand
 MSG_END
 
 MSG 08
-SELECT THE INPUT BUFFER [IB] AS THE SOURCE OPERAND
+Select the Input Buffer [ib] as the source operand
 MSG_END
 
 MSG 09

@@ -1217,21 +1217,21 @@ static void level_0()
 		ar_display_arrow(AR_OB);
 		chk_ms_pressed_clear_msg(MSG3, true);
 	} else if (g_lv_msg[MSG4] == true && size == 0){
-		tx_text_box(TX_CENTER_BOX, MSG4, TX_NONE);//To register first
+		tx_text_box(TX_CENTER_BOX, MSG4, TX_SYSMES);//To register first
 		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
 		draw_regs_arrow(true);
 		chk_ms_pressed_clear_msg(MSG4, true);
 	} else if (size == 0 && hold == false){
-		tx_text_box(TX_INS_BOX, MSG5, TX_NONE);//Select and drag instruction
+		tx_text_box(TX_INS_BOX, MSG5, TX_SYSMES);//Select and drag instruction
 		ar_display_arrow(AR_INS);
 	} else if (size == 0 && hold == true){
-		tx_text_box(TX_CODE_BOX, MSG6, TX_NONE); // Drop ins in code box
+		tx_text_box(TX_CODE_BOX, MSG6, TX_SYSMES); // Drop ins in code box
 		ar_display_arrow(AR_DROP);
 	} else if (size == 1 && hold == true && miss_op == true){
-		tx_text_box(TX_CODE_BOX, MSG6, TX_NONE); // Drop ins in code box
+		tx_text_box(TX_CODE_BOX, MSG6, TX_SYSMES); // Drop ins in code box
 		ar_display_arrow(AR_DROP);
 	} else if (size == 1 && sorted == true && miss_op1 == true){
-		tx_text_box(TX_CENTER_BOX, MSG7, TX_NONE);//Select rax
+		tx_text_box(TX_CENTER_BOX, MSG7, TX_SYSMES);//Select rax
 		set_code_editable(false, NO_EXCEPTION);
 		set_buf_selectable(false);
 		set_reg_selectable(true);
