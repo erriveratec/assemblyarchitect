@@ -804,6 +804,7 @@ bool rg_ms_rel_in_reg()
 					  .h = c->value.box.h};
 	  	
 		btn_t b = {.r = r};
+		b.enabled = true;
 	   	if (bt_chk_rel_btn(c->b, NULL) == true 
 			|| bt_chk_rel_btn(&b, NULL) == true){
 		   	selected = true;
@@ -836,6 +837,7 @@ operand_t *rg_create_sel_reg_op()
 					  .h = c->value.box.h};
 
 		btn_t b = {.r = r};
+		b.enabled = true;
 	   	if (bt_chk_rel_btn(c->b, NULL) == true
 			|| bt_chk_rel_btn(&b, NULL) == true){
 			

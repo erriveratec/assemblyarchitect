@@ -263,7 +263,7 @@ operand_t *bf_create_sel_buf_op()
 	return b;
 }
 
-/* Function: bf_initialize_buffer_operands
+/* Function: bf_init_buf_ops
  * -----------------------------------------------------------------------------
  * Arguments:
  * 	None.
@@ -272,9 +272,10 @@ operand_t *bf_create_sel_buf_op()
  *	Void.
  *
  */
-void bf_initialize_buffer_operands()
+void bf_init_buf_ops()
 {
 	SDL_Rect r = dm_get_code_button_wh();
+	
 	texture_t *ib = dw_create_text_tex(ib_text, C_WHITE);
 	check_mem(ib);
 	btn_t *a = bt_create_btn(r, ib);
@@ -309,6 +310,7 @@ error:
 void bf_set_input_buffer_button(SDL_Rect r)
 {
 	input_buffer_button.r = r;
+	input_buffer_button.enabled = true;
 }
 
 /* Function: bf_set_output_buffer_button
@@ -325,6 +327,8 @@ void bf_set_input_buffer_button(SDL_Rect r)
 void bf_set_output_buffer_button(SDL_Rect r)
 {
 	output_buffer_button.r = r;
+	output_buffer_button.enabled = true;
+
 }
 
 /* Function: get_input_list

@@ -40,7 +40,7 @@ void bf_set_output_buffer_button(SDL_Rect r);
 void bf_create_input_list();
 void bf_create_output_list();
 void bf_destroy_buffer_lists();
-void bf_initialize_buffer_operands();
+void bf_init_buf_ops();
 void bf_draw_buffers();
 int bf_get_buffer_value_box_x_coord_by_id(int op_id);
 int bf_get_buffer_value_box_y_coord_by_id(int op_id);

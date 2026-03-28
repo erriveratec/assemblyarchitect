@@ -111,7 +111,7 @@ static void init_stage_assets()
 	SDL_Rect r3 = {.x = r1.x, .y = r1.y, .w = r1.w, .h = ob.h + r1.h};
 	bf_set_output_buffer_button(r3);
 
-	bf_initialize_buffer_operands();
+	bf_init_buf_ops();
 }
 
 /* Function: init_level
