@@ -485,6 +485,8 @@ btn_t *bt_create_btn(SDL_Rect r, texture_t *t)
  * 	
  * Arguments:
  *	button: The button that is going to be displayed
+ *	blk: Blocks the interactiver, hover state of the button.
+ *
  *
  * Return:
  *	Void
@@ -492,7 +494,6 @@ btn_t *bt_create_btn(SDL_Rect r, texture_t *t)
 void bt_draw_btn(btn_t *b, bool blk)
 {
 	assert(b != NULL && "The button pointer is NULL");
-	
 	
 	if (b->rect == true){
 		dw_draw_rectangle(b->r, C_WHITE);

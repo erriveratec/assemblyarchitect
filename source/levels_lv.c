@@ -1237,47 +1237,47 @@ static void level_0()
 		set_reg_selectable(true);
 		draw_regs_arrow(true);
 	} else if(size == 1 && sorted == true && miss_op2 == true){
-		tx_text_box(TX_UPPER_BOX, MSG8, TX_NONE);//Select input buffer
+		tx_text_box(TX_UPPER_BOX, MSG8, TX_SYSMES);//Select input buffer
 		set_buf_selectable(true);
 		set_reg_selectable(false);
 		draw_regs_arrow(false);
 		ar_display_arrow(AR_IB);
 	} else if(size == 1 && miss_op == false && g_lv_msg[MSG9] == true){
 		set_code_editable(false, INS_EXCEPTION);
-		tx_text_box(TX_CODE_BOX, MSG9, TX_NONE);// Press play button
+		tx_text_box(TX_CODE_BOX, MSG9, TX_SYSMES);// Press play button
 		ar_display_arrow(AR_PLAY);
 		set_arrange_enabled(false);
 		if (play == true){
 			g_lv_msg[MSG9] = false;
 		}
 	} else if (flag != 0){
-		tx_text_box(TX_CENTER_BOX, MSG10, TX_NONE); //ERROR
+		tx_text_box(TX_CENTER_BOX, MSG10, TX_SYSMES); //ERROR
 		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_PRESSBACK);
 		ar_display_arrow(AR_ERROR);
 	} else if(size == 1 && hold == false && play == false 
 												   && g_lv_msg[MSG11] == false){
-		tx_text_box(TX_INS_BOX, MSG11, TX_NONE);	 //Select another mov instruction
+		tx_text_box(TX_INS_BOX, MSG11, TX_SYSMES);	 //Select another mov ins
 		ar_display_arrow(AR_INS);
 	} else if(size == 1 && hold == true && miss_op == false){
-		tx_text_box(TX_CODE_BOX, MSG12, TX_NONE); // Drop below instruction
+		tx_text_box(TX_CODE_BOX, MSG12, TX_SYSMES); // Drop below instruction
 		ar_display_arrow(AR_DROP);
 	} else if(size == 2 && hold == true){
-		tx_text_box(TX_CODE_BOX, MSG12, TX_NONE); // Drop below instruction
+		tx_text_box(TX_CODE_BOX, MSG12, TX_SYSMES); // Drop below instruction
 		ar_display_arrow(AR_DROP);
 	} else if (size == 2 && sorted == true && miss_op1 == true){
-		tx_text_box(TX_CODE_BOX, MSG13, TX_NONE);//Select OB	
+		tx_text_box(TX_CODE_BOX, MSG13, TX_SYSMES);//Select OB	
 		set_code_editable(false, NO_EXCEPTION);
 		ar_display_arrow(AR_OB);
 	} else if(size == 2 && sorted == true && miss_op == true){
 		set_reg_selectable(true);
-		tx_text_box(TX_CODE_BOX, MSG14, TX_NONE); //Select rax
+		tx_text_box(TX_CODE_BOX, MSG14, TX_SYSMES); //Select rax
 		draw_regs_arrow(true);
 	} else if(size == 2 && miss_op == false && play == false && win == false){
 		set_code_editable(false, NO_EXCEPTION);
-		tx_text_box(TX_CODE_BOX, MSG15, TX_NONE);	//Press play
+		tx_text_box(TX_CODE_BOX, MSG15, TX_SYSMES);	//Press play
 		ar_display_arrow(AR_PLAY);
 	} else if (lv_check_if_win() == true){
-		tx_text_box(TX_CENTER_BOX, MSG16, TX_NONE);//Congrats 
+		tx_text_box(TX_CENTER_BOX, MSG16, TX_SYSMES);//Congrats 
 	}
 }
 
