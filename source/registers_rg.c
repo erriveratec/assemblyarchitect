@@ -683,7 +683,10 @@ void rg_draw_registers()
 	LIST_FOREACH(registers, first, next, cur){
 		reg_t *reg = cur->value;
 		btn_t *button = reg->b;
-		bt_draw_btn(button, sb_get_escape_state()); //Register name
+		SDL_Rect hover_rect = reg->value.box;
+		hover_rect.h += button->r.h;
+		bool hover = ax_chk_mouse_hover_rect(hover_rect);
+		bt_draw_btn(button, sb_get_escape_state(), hover); //Register name
 		ax_draw_value_box(&reg->value, C_WHITE); //The value box of the value
 	}
 }

@@ -12,6 +12,7 @@
 #include "dimensions_dm.h"
 #include "button_bt.h"
 #include "code_line_cl.h"
+#include "stage_buttons_sb.h"
 
 // The posible types of input values
 #define WHOLE 0
@@ -676,8 +677,13 @@ void draw_output_buffer()
 		}
 	}
 	dw_draw_rectangle(output_box, C_WHITE);
-	SDL_Rect ob = dm_get_stage_ob_text_box();
-	dw_draw_texture_fit_h(ob, output_text);
+	btn_t ibtn = {.r = dm_get_stage_ob_text_box(), 
+				  .t = output_text, 
+				  .enabled = true};
+	ibtn.r.w = ax_get_texture_w_fit_h(ibtn.r.h, output_text);
+	bool hover = ax_chk_mouse_hover_rect(output_buffer_button.r);
+	bt_draw_btn(&ibtn, sb_get_escape_state(), hover);
+
 error:
 	return;
 }
@@ -745,14 +751,19 @@ void draw_input_buffer()
 			draw_x += val.w + ofsval;
 		}
 		if (g_input_list_x_pos > x){
-			g_input_list_x_pos -= ax_get_movement_delta(x, g_input_list_x_pos, 
-								  BUFFER_MOVEMENT_DELTA);
+			g_input_list_x_pos -= ax_get_movement_delta(x, 
+														g_input_list_x_pos, 
+								  						BUFFER_MOVEMENT_DELTA);
 		}
 	}
 
 	dw_draw_rectangle(input_box, C_WHITE);
-	SDL_Rect ib = dm_get_stage_ib_text_box();
-	dw_draw_texture_fit_h(ib, input_text);
+	btn_t ibtn = {.r = dm_get_stage_ib_text_box(), 
+				  .t = input_text, 
+				  .enabled = true};
+	ibtn.r.w = ax_get_texture_w_fit_h(ibtn.r.h, input_text);
+	bool hover = ax_chk_mouse_hover_rect(input_buffer_button.r);
+	bt_draw_btn(&ibtn, sb_get_escape_state(), hover);
 }
 
 /* Function: bf_get_buffer_value_box_x_coord_by_id

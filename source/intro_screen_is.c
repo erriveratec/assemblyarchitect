@@ -784,7 +784,7 @@ int stage_select_sector()
 	
 	SDL_Rect sep = get_sector_separator();
 	for (int i = 0; i < 5; i++){
-		bt_draw_btn(sectors[i], sb_get_escape_state());
+		bt_draw_btn(sectors[i], sb_get_escape_state(), false);
 		dw_draw_filled_rectangle(sep, C_SHADOWGREY, C_SHADOWGREY);
 		sep.y += get_sector_btn_box().h + get_sector_btn_spacing();
 	}

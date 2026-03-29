@@ -342,7 +342,7 @@ void iw_draw_instruction_box()
 
 	LIST_FOREACH(instructions, first, next, cur){
 		instruction_t *c = cur->value;
-		bt_draw_btn(c->b, sb_get_escape_state());
+		bt_draw_btn(c->b, sb_get_escape_state(), false);
 	}
 }
 

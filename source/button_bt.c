@@ -486,12 +486,12 @@ btn_t *bt_create_btn(SDL_Rect r, texture_t *t)
  * Arguments:
  *	button: The button that is going to be displayed
  *	blk: Blocks the interactiver, hover state of the button.
- *
+ * 	hv: forces the hover state in case another state is needed
  *
  * Return:
  *	Void
  */
-void bt_draw_btn(btn_t *b, bool blk)
+void bt_draw_btn(btn_t *b, bool blk, bool hv)
 {
 	assert(b != NULL && "The button pointer is NULL");
 	
@@ -503,7 +503,7 @@ void bt_draw_btn(btn_t *b, bool blk)
 	SDL_Rect box = b->r;	
 	dw_set_texture_color_mod(b->t, C_LIGHTGREY);
 
-	if (hover == true && b->enabled == true && blk == false){
+	if ((hover == true && b->enabled == true && blk == false) || hv == true){
 		float h_ofs = bt_get_hover_factor();
 		box = ax_scale_rect_percentage(box, h_ofs);
 		box.y -= bt_get_btn_lift();
