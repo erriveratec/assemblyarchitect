@@ -665,8 +665,6 @@ void fl_load_save_file(int player_id, int level_id)
 		   "Invalid player id");
 	assert(level_id >= 0 && level_id < LV_LEVEL_MAX && "Invalid level id");
 
-	printf("Value of level_id %d\n", level_id);
-
 	char *line = NULL;	
 	size_t len = 0;
 	ssize_t read;
