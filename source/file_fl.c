@@ -665,6 +665,8 @@ void fl_load_save_file(int player_id, int level_id)
 		   "Invalid player id");
 	assert(level_id >= 0 && level_id < LV_LEVEL_MAX && "Invalid level id");
 
+	printf("Value of level_id %d\n", level_id);
+
 	char *line = NULL;	
 	size_t len = 0;
 	ssize_t read;
@@ -764,7 +766,7 @@ void fl_load_player_levels(int player_id, bool *levels_array)
 	bool level_found = false;
 	
 	char *level = NULL;
-	int level_num = 1;
+	int level_num = 0;
 	while (READ_ERROR != (read = getline(&line, &len, fp))){
 		level = get_level_id_string(level_num);
 		if (strstr(line, player) != NULL){
@@ -775,7 +777,7 @@ void fl_load_player_levels(int player_id, bool *levels_array)
 		}
 		else if (strstr(line, level) != NULL && player_found == true){
 			bool is_level_active = check_if_level_is_active(fp);
-			levels_array[level_num - 1] = is_level_active;
+			levels_array[level_num] = is_level_active;
 			level_num++;
 		} 
 	}
@@ -1060,7 +1062,7 @@ void fl_save_file_init()
 			write_to_file(fp, level);
 			strcpy(level, ax_char_newline);
 			write_to_file(fp, level);
-			for (int i = 1; i <= LV_LEVEL_QUANTITY; i++){
+			for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
 				char *number = NULL;
 				if (i<10){
 					number = ax_number_to_string_prepend_zero(i);
@@ -1078,7 +1080,7 @@ void fl_save_file_init()
 				strcpy(level, ax_char_newline);
 				write_to_file(fp, level);
 
-				if (i == 1){
+				if (i == 0){
 					strcpy(level, STR_LEVEL_ACTIVE_TRUE);
 				}else {
 					strcpy(level, STR_LEVEL_ACTIVE_FALSE);
@@ -1092,7 +1094,7 @@ void fl_save_file_init()
 				strcpy(level, STR_CODE_STARTS);
 				write_to_file(fp, level);
 				
-				if (i == 2){
+				if (i == 1){
 					strcpy(level, FL_L2_CODE_1);
 					write_to_file(fp, level);
 					strcpy(level, FL_L2_CODE_2);
@@ -1100,7 +1102,7 @@ void fl_save_file_init()
 					strcpy(level, FL_L2_CODE_3);
 					write_to_file(fp, level);
 
-				} else if (i == 9){
+				} else if (i == 8){
 					strcpy(level, FL_L9_CODE_1);
 					write_to_file(fp, level);
 					strcpy(level, FL_L9_CODE_2);

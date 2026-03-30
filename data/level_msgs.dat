@@ -39,15 +39,15 @@ Select the Input Buffer [ib] as the source operand
 MSG_END
 
 MSG 09
-Press the play button to see what the instruction does
+Press the Play Button to see what the instruction does
 MSG_END
 
 MSG 10
-The value was moved to rax but not to the output buffer [ob]
+The value was moved to rax but not to the Output Buffer [ob]
 MSG_END
 
 MSG 11
-Select and drag another mov instruction from the instruction box
+Select and drag another MOV instruction from the instruction box
 MSG_END
 
 MSG 12
@@ -55,7 +55,7 @@ Drop the instruction in the code box below the previous instruction
 MSG_END
 
 MSG 13
-Select the output buffer [ob] as the destination operand
+Select the Output Buffer [ob] as the destination operand
 MSG_END
 
 MSG 14
@@ -63,7 +63,7 @@ Select rax as the source operand
 MSG_END
 
 MSG 15
-Press the play button
+Press the Play Button
 MSG_END
 
 MSG 16
