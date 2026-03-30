@@ -1007,23 +1007,6 @@ SDL_Rect dm_get_stage_reg_box()
 }
 
 
-/* Function: dm_get_h_error_msg
- * -----------------------------------------------------------------------------
- * Returns the h value for the click anywhere message
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	int with the offset for the sel level buttons
- */
-int dm_get_h_error_msg()
-{
-	int h = dm_scale_to_res(TEXT_H_ERROR_MSG);
-	return h;
-	
-}
-
 /* Function: dm_get_h_msg
  * -----------------------------------------------------------------------------
  * Returns the h value for the click anywhere message

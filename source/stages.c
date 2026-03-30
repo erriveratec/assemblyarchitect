@@ -610,7 +610,8 @@ static int display_run_result(bool win_check)
 	dw_draw_iface_box(r, NULL);
 
 	SDL_Rect s = dw_get_iface_content_box(dw_get_iface_big_lower_box());
-	int text_h = dm_get_h_error_msg();		
+	s.y -= dm_get_text_box_result_but1().h;
+	int text_h = dm_get_h_msg();		
 	dw_draw_wrapped_texture_by_h(s, text_h, g_win_text);
 	
 	static bool buttons_created = false;
@@ -629,7 +630,7 @@ static int display_run_result(bool win_check)
 		check_mem(con);
 					
 		texture_t *back_texture = dw_create_text_tex(
-								 STR_BACK, C_WHITE);
+								 AX_STR_BACK, C_WHITE);
 		check_mem(back_texture);
 		SDL_Rect b = dm_get_text_box_result_but1();
 

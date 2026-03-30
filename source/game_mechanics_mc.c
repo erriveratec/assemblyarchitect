@@ -26,7 +26,7 @@
 " that specific set of values"
 #define EXCEEDS_CODE_LIMIT_TEXT "Correct output but exceeds code size"\
 " limit"
-#define OUTPUT_BUFFER_INCOMPLETE_TEXT "Not enough"\
+#define OUTPUT_BUFFER_INCOMPLETE_TEXT "Not enough "\
 "items in the Output Buffer [ob] after run"
 
 static char *SYSTEM_ERROR_TEXT = "SYSTEM ERROR";
@@ -150,7 +150,7 @@ bool mc_get_rst_lvl()
  */
 void mc_init_errors_texture()
 {
-	int text_h = dm_get_h_error_msg();		
+	int text_h = dm_get_h_msg();		
 	SDL_Rect rb = dw_get_iface_content_box(dw_get_iface_big_lower_box());
 
 	ib_empty = dw_create_text_tex_array_by_h(rb.w, 
@@ -231,7 +231,6 @@ void mc_display_invalid_operation_handler(int id)
 {
 	assert(id >= NO_INVALID_OPERATION && id < INVALID_OPERATION_MAX &&
 		   "Incorrect id for the invalid operation handler");
-
 	
 	if (id != NO_INVALID_OPERATION){
 		SDL_Rect r = dw_get_iface_big_lower_box();
@@ -265,7 +264,8 @@ void mc_display_invalid_operation_handler(int id)
 		}
 		
 		SDL_Rect b = dw_get_iface_content_box(dw_get_iface_big_lower_box());
-		int text_h = dm_get_h_error_msg();		
+		b.h -= dm_get_text_box_result_but3().h;
+		int text_h = dm_get_h_msg();		
 		dw_draw_wrapped_texture_by_h(b, text_h, message);
 		
 		static bool button_created = false;
@@ -274,7 +274,7 @@ void mc_display_invalid_operation_handler(int id)
 
 		if (button_created == false){
 			button_created = true;
-			texture_t *ret_texture = dw_create_text_tex(STR_BACK, C_WHITE);
+			texture_t *ret_texture = dw_create_text_tex(AX_STR_BACK, C_WHITE);
 			check_mem(ret_texture);
 			
 			SDL_Rect r = dm_get_text_box_result_but3();		

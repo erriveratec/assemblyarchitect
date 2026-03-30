@@ -262,7 +262,7 @@ void sb_display_rst_menu(bool show_menu)
 
 		//SDL_Rect text_box = dm_get_center_screen_box_text();
 
-		int text_h = dm_get_h_error_msg();		
+		int text_h = dm_get_h_msg();		
 //		dw_draw_wrapped_texture_by_h(text_box, text_h, g_rst_menu_text);
 
 		bt_draw_iface_btn(g_rst_b1, sb_get_escape_state(), NULL);

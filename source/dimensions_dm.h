@@ -15,7 +15,6 @@ void dm_set_screen_resolution(int resolution_id);
 int dm_get_h_between_code();
 int dm_get_h_big_text();
 int dm_get_h_msg();
-int dm_get_h_error_msg();
 int dm_get_h_stage_elements_titles();
 int dm_get_h_stage_titles();
 int dm_get_h_stage_subtitle();
