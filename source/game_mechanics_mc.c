@@ -14,21 +14,22 @@
 #include "immediates_im.h"
 #include "stage_buttons_sb.h"
 
-#define INPUT_BUFFER_EMPTY_TEXT "ERROR: A value cannot be recovered if the "\
+#define INPUT_BUFFER_EMPTY_TEXT "A value cannot be recovered if the "\
 "Input Buffer [IB] is empty"
-#define REG_VALUE_INVALID_TEXT "ERROR: Register cannot be read if a value "\
+#define REG_VALUE_INVALID_TEXT "Register cannot be read if a value "\
 "hasn't been stored first"
-#define FLAG_VALUE_INVALID_TEXT "ERROR: FLAG cannot be read if a value "\
+#define FLAG_VALUE_INVALID_TEXT "FLAG cannot be read if a value "\
 "hasn't been stored first"
 
-#define INVALID_OUTPUT_VALUE_TEXT "ERROR: Incorrect value in the output buffer"
-#define UNPROCESSED_IB_VALUES_TEXT "ERROR: Output is correct but only works by"\
+#define INVALID_OUTPUT_VALUE_TEXT "Incorrect value in the output buffer"
+#define UNPROCESSED_IB_VALUES_TEXT "Output is correct but only works by"\
 " that specific set of values"
-#define EXCEEDS_CODE_LIMIT_TEXT "ERROR: Correct output but exceeds code size"\
+#define EXCEEDS_CODE_LIMIT_TEXT "Correct output but exceeds code size"\
 " limit"
-#define OUTPUT_BUFFER_INCOMPLETE_TEXT "ERROR: "\
-"Not enough items in the Output Buffer [ob] after run"
+#define OUTPUT_BUFFER_INCOMPLETE_TEXT "Not enough"\
+"items in the Output Buffer [ob] after run"
 
+static char *SYSTEM_ERROR_TEXT = "SYSTEM ERROR";
 
 texture_array_t *ib_empty;
 texture_array_t *reg_val_bad;
@@ -37,6 +38,8 @@ texture_array_t *ob_val_bad;
 texture_array_t *ib_unproc_vals;
 texture_array_t *exc_code_size;
 texture_array_t *ob_incomplete;
+
+texture_t *g_system_error;
 
 static bool run_ended;
 static bool step_ended;
@@ -148,36 +151,37 @@ bool mc_get_rst_lvl()
 void mc_init_errors_texture()
 {
 	int text_h = dm_get_h_error_msg();		
-	SDL_Rect rb = dm_get_text_box_result_text();
+	SDL_Rect rb = dw_get_iface_content_box(dw_get_iface_big_lower_box());
 
 	ib_empty = dw_create_text_tex_array_by_h(rb.w, 
 										text_h, 
-										C_BLACK, 
+										C_WHITE, 
 										INPUT_BUFFER_EMPTY_TEXT);
 	reg_val_bad = dw_create_text_tex_array_by_h(rb.w, 
 										   text_h, 
-										   C_BLACK, 
-											REG_VALUE_INVALID_TEXT);
+										   C_WHITE, 
+										   REG_VALUE_INVALID_TEXT);
 	flag_val_bad = dw_create_text_tex_array_by_h(rb.w, 
 										    text_h, 
-										    C_BLACK, 
+										    C_WHITE, 
 											FLAG_VALUE_INVALID_TEXT);
 	ob_val_bad = dw_create_text_tex_array_by_h(rb.w, 
 										  text_h, 
-										  C_BLACK, 
+										  C_WHITE, 
 										  INVALID_OUTPUT_VALUE_TEXT);
 	ib_unproc_vals = dw_create_text_tex_array_by_h(rb.w, 
 											  text_h,
-											  C_BLACK, 
+											  C_WHITE, 
 											  UNPROCESSED_IB_VALUES_TEXT);
 	exc_code_size = dw_create_text_tex_array_by_h(rb.w, 
 											 text_h, 
-											 C_BLACK, 
+											 C_WHITE, 
 											 EXCEEDS_CODE_LIMIT_TEXT);
 	ob_incomplete = dw_create_text_tex_array_by_h(rb.w, 
 											 text_h, 
-											 C_BLACK, 
+											 C_WHITE, 
 										     OUTPUT_BUFFER_INCOMPLETE_TEXT);
+	g_system_error = dw_create_text_tex(SYSTEM_ERROR_TEXT, C_GREY);
 }
 
 /* Function: mc_reset_invalid_operation_flag
@@ -230,8 +234,8 @@ void mc_display_invalid_operation_handler(int id)
 
 	
 	if (id != NO_INVALID_OPERATION){
-		SDL_Rect r = dm_get_text_box_result();
-		dw_draw_iface_box(r, NULL);
+		SDL_Rect r = dw_get_iface_big_lower_box();
+		dw_draw_iface_box(r, g_system_error);
 		texture_array_t *message;
 		
 		switch(id){
@@ -260,7 +264,7 @@ void mc_display_invalid_operation_handler(int id)
 				puts("ERROR: Invalid operation incorrec id");
 		}
 		
-		SDL_Rect b = dm_get_text_box_result_text();
+		SDL_Rect b = dw_get_iface_content_box(dw_get_iface_big_lower_box());
 		int text_h = dm_get_h_error_msg();		
 		dw_draw_wrapped_texture_by_h(b, text_h, message);
 		

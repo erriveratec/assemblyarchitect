@@ -606,10 +606,10 @@ static int display_run_result(bool win_check)
 {
 
 	bf_set_win_condition();
-	SDL_Rect r = dm_get_text_box_result();	
+	SDL_Rect r = dw_get_iface_big_lower_box();	
 	dw_draw_iface_box(r, NULL);
 
-	SDL_Rect s = dm_get_text_box_result_text();
+	SDL_Rect s = dw_get_iface_content_box(dw_get_iface_big_lower_box());
 	int text_h = dm_get_h_error_msg();		
 	dw_draw_wrapped_texture_by_h(s, text_h, g_win_text);
 	

@@ -89,7 +89,7 @@ static SDL_Rect get_escape_b3_box();
  */
 static SDL_Rect get_escape_b1_box()
 {
-	SDL_Rect mb = dm_get_center_screen_box();
+	SDL_Rect mb = dw_get_iface_big_center_box();
 
 	SDL_Rect b;
 	b.w = dm_scale_to_res(ESC_MENU_BUTTON_W);
@@ -111,7 +111,7 @@ static SDL_Rect get_escape_b1_box()
  */
 static SDL_Rect get_escape_b2_box()
 {
-	SDL_Rect mb = dm_get_center_screen_box();
+	SDL_Rect mb = dw_get_iface_big_center_box();
 	SDL_Rect b1 = get_escape_b1_box();
 	
 	SDL_Rect b;
@@ -134,7 +134,7 @@ static SDL_Rect get_escape_b2_box()
  */
 static SDL_Rect get_escape_b3_box()
 {
-	SDL_Rect mb = dm_get_center_screen_box();
+	SDL_Rect mb = dw_get_iface_big_center_box();
 	SDL_Rect b2 = get_escape_b2_box();
 	
 	SDL_Rect b;
@@ -257,13 +257,13 @@ void sb_set_step_btns_avail(bool state)
 void sb_display_rst_menu(bool show_menu)
 {
 	if (show_menu == true){
-		SDL_Rect r = dm_get_center_screen_box();
+		SDL_Rect r = dw_get_iface_big_center_box();
 		dw_draw_iface_box(r, NULL);
 
-		SDL_Rect text_box = dm_get_center_screen_box_text();
+		//SDL_Rect text_box = dm_get_center_screen_box_text();
 
 		int text_h = dm_get_h_error_msg();		
-		dw_draw_wrapped_texture_by_h(text_box, text_h, g_rst_menu_text);
+//		dw_draw_wrapped_texture_by_h(text_box, text_h, g_rst_menu_text);
 
 		bt_draw_iface_btn(g_rst_b1, sb_get_escape_state(), NULL);
 		bt_draw_iface_btn(g_rst_b2, sb_get_escape_state(), NULL);
@@ -324,7 +324,7 @@ void sb_init_rst_menu()
 	check_mem(g_rst_b2);
 
 	int h = dm_get_h_big_text();
-	int w = dw_get_iface_content_box(dm_get_center_screen_box()).w;
+	int w = dw_get_iface_content_box(dw_get_iface_big_center_box()).w;
 	g_rst_menu_text = dw_create_text_tex_array_by_h(w, 
 													h, 
 													C_BLACK, 
@@ -417,7 +417,7 @@ void sb_display_escape_menu(bool show_menu)
 {
 	if (show_menu == true){
 		
-		SDL_Rect r = dm_get_center_screen_box();
+		SDL_Rect r = dw_get_iface_big_center_box();
 		dw_draw_iface_box(r, g_escape_header_texture);
 
 		bt_draw_iface_btn(g_escape_b1, false, g_sfx_hover);

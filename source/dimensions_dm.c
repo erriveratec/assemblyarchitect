@@ -53,9 +53,6 @@
 #define CODE_BUTTON_H 40
 #define COMMA_OFS 15
 
-static Uint32 CENTER_BOX_W = 420;
-static Uint32 CENTER_BOX_H = 330;
-
 
 #define RST_MENU_BUTTON_W 350
 #define RST_MENU_BUTTON_H 60
@@ -655,7 +652,7 @@ SDL_Rect dm_get_text_box_result_but3()
 {
 	int cont_w = dm_scale_to_res(RES_CONT_BUTTON_W);
 	int offset = dm_scale_to_res(RES_BOX_OFFSET);
-	SDL_Rect rb = dm_get_text_box_result();
+	SDL_Rect rb = dw_get_iface_big_lower_box();
 	SDL_Rect b;
 	b.w = dm_scale_to_res(RES_BACK_BUTTON_W);
 	b.h = dm_scale_to_res(RES_BUTTON_H);
@@ -680,7 +677,7 @@ SDL_Rect dm_get_text_box_result_but2()
 	int back_w = dm_scale_to_res(RES_BACK_BUTTON_W);
 	int cont_w = dm_scale_to_res(RES_CONT_BUTTON_W);
 	int offset = dm_scale_to_res(RES_BOX_OFFSET);
-	SDL_Rect rb = dm_get_text_box_result();
+	SDL_Rect rb = dw_get_iface_big_lower_box();
 	SDL_Rect b;
 	b.w = dm_scale_to_res(RES_CONT_BUTTON_W);
 	b.h = dm_scale_to_res(RES_BUTTON_H);
@@ -704,7 +701,7 @@ SDL_Rect dm_get_text_box_result_but1()
 {
 	int cont_w = dm_scale_to_res(RES_CONT_BUTTON_W);
 	int offset = dm_scale_to_res(RES_BOX_OFFSET);
-	SDL_Rect rb = dm_get_text_box_result();
+	SDL_Rect rb = dw_get_iface_big_lower_box();
 	SDL_Rect b;
 	b.w = dm_scale_to_res(RES_BACK_BUTTON_W);
 	b.h = dm_scale_to_res(RES_BUTTON_H);
@@ -713,49 +710,10 @@ SDL_Rect dm_get_text_box_result_but1()
 	return b;
 }
 
-/* Function: dm_get_text_box_result_text
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object. This is for the text of the
- * result box .
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_text_box_result_text()
-{
-	SDL_Rect rb = dm_get_text_box_result();
-	SDL_Rect b;
-	b.w = rb.w - 2*dw_get_ofs_iface_filled_border();
-	b.h = dm_scale_to_res(TEXT_H_TOTAL_MSG);
-	b.x = rb.x + (rb.w - b.w)/2;
-	b.y = rb.y + dw_get_ofs_iface_filled_border();
-	return b;
-}
 
 
-/* Function: dm_get_text_box_result
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_text_box_result()
-{
-	SDL_Rect b;
-	b.w = dm_scale_to_res(RES_BOX_W);
-	b.h = dm_scale_to_res(RES_BOX_H);
-	b.x = dm_get_screen_width()/2 - b.w/2;
-	b.y = dm_get_screen_height() - b.h -
-		  dw_get_ofs_iface_filled_border();
-	return b;
-}
+
+
 
 
 /* Function: dm_get_box_msg_wh
@@ -790,7 +748,7 @@ SDL_Rect dm_get_box_msg_wh()
  */
 SDL_Rect dm_get_text_box_error()
 {
-	SDL_Rect rb = dm_get_text_box_result();
+	SDL_Rect rb = dw_get_iface_big_lower_box();
 	SDL_Rect mb = dm_get_box_msg_wh();
 	SDL_Rect ab = dm_get_arrow_wh();
 	
@@ -1200,48 +1158,6 @@ SDL_Rect dm_get_code_button_wh()
 	return b;
 }
 
-/* Function: dm_get_center_screen_box
- * -----------------------------------------------------------------------------
- * Returns the box of the center screen for menus
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_center_screen_box()
-{
-	SDL_Rect b;
-	b.w = dm_scale_to_res(CENTER_BOX_W);
-	b.h = dm_scale_to_res(CENTER_BOX_H);
-	b.x = (g_screen_width - b.w)/2;
-	b.y = (g_screen_height - b.h)/2;
-	return b;
-}
-
-/* Function: dm_get_center_screen_box_text
- * -----------------------------------------------------------------------------
- * Box used for the text of the center box
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_center_screen_box_text()
-{
-	SDL_Rect rb = dm_get_center_screen_box();
-	SDL_Rect b;
-	b.w = rb.w - 2*dw_get_ofs_iface_filled_border();
-	b.h = dm_scale_to_res(TEXT_H_TOTAL_MSG);
-	b.x = rb.x + (rb.w - b.w)/2;
-	b.y = rb.y + dw_get_ofs_iface_filled_border();
-	return b;
-}
-
-
 
 /* Function: dm_get_rst_b1_box
  * -----------------------------------------------------------------------------
@@ -1255,7 +1171,7 @@ SDL_Rect dm_get_center_screen_box_text()
  */
 SDL_Rect dm_get_rst_b1_box()
 {
-	SDL_Rect cs = dm_get_center_screen_box();
+	SDL_Rect cs = dw_get_iface_big_center_box();
 
 	SDL_Rect b;
 	b.w = dm_scale_to_res(RST_MENU_BTNS_W);
@@ -1277,7 +1193,7 @@ SDL_Rect dm_get_rst_b1_box()
  */
 SDL_Rect dm_get_rst_b2_box()
 {
-	SDL_Rect cs = dm_get_center_screen_box();
+	SDL_Rect cs = dw_get_iface_big_center_box();
 	
 	SDL_Rect b;
 	b.w = dm_scale_to_res(RST_MENU_BTNS_W);

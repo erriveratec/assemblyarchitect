@@ -37,8 +37,6 @@ SDL_Rect dm_get_game_title_box(char *title);
 SDL_Rect dm_get_press_space_box(char *msg);
 SDL_Rect dm_get_upper_title_box(char *msg);
 
-SDL_Rect dm_get_center_screen_box();
-SDL_Rect dm_get_center_screen_box_text();
 SDL_Rect dm_get_rst_b1_box();
 SDL_Rect dm_get_rst_b2_box();
 
@@ -81,8 +79,6 @@ SDL_Rect dm_get_text_box_error();
 SDL_Rect dm_get_text_box_upper_right();
 SDL_Rect dm_get_text_box_stagebutton();
 
-SDL_Rect dm_get_text_box_result();
-SDL_Rect dm_get_text_box_result_text();
 SDL_Rect dm_get_text_box_result_but1();//Back in win condition
 SDL_Rect dm_get_text_box_result_but2();//Continue in win condition
 SDL_Rect dm_get_text_box_result_but3();//Back in error condition

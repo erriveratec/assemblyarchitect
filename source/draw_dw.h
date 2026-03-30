@@ -46,6 +46,8 @@ void dw_set_texture_color_mod(texture_t *t, SDL_Color c);
 void dw_set_array_texture_color_mod(texture_array_t *t, SDL_Color c);
 
 int dw_get_h_iface_header_txt();
+SDL_Rect dw_get_iface_big_center_box();
+SDL_Rect dw_get_iface_big_lower_box();
 
 
 

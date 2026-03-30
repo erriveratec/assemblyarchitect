@@ -36,7 +36,7 @@ static void initialize_game_assets();
 static void initialize_game_assets()
 {
 	
-	SDL_Rect rb = dm_get_text_box_result_text();
+	SDL_Rect rb = dw_get_iface_content_box(dw_get_iface_big_lower_box());
 	int text_h = dm_get_h_error_msg();		
 	g_win_text = dw_create_text_tex_array_by_h(rb.w, text_h, C_BLACK, WIN_TEXT);
 

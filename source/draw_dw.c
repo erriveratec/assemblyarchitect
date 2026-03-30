@@ -33,6 +33,9 @@ SDL_Color C_AMBER = {0xFF, 0xBF, 0x00, 255};
 
 texture_t *g_arrow = NULL;
 
+static Uint32 IFACE_BOX_BIG_W = 420;
+static Uint32 IFACE_BOX_BIG_H = 330;
+
 const Uint32 IFACE_FILLED_OFS = 10; // Used for Interface Messages
 const Uint32 IFACE_INNER_BORDER = 4; // Used for Interface Messages
 static const Uint32 IFACE_HEADER_BOX_H = 50;
@@ -42,6 +45,71 @@ static void draw_text(int x, int y, float s, SDL_Color c, char *t);
 static int draw_scaled_texture(int x, int y, float s, texture_t *t);
 static int get_ofs_iface_inner_border();
 static int get_h_iface_header();
+static SDL_Rect get_iface_box_big_wh();
+
+/* Function: tx_get_iface_box_big_wh
+ * -----------------------------------------------------------------------------
+ * Return the width and heigth value of the text box
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the dimension of the object
+ */
+static SDL_Rect get_iface_box_big_wh()
+{
+	SDL_Rect b;
+	b.w = dm_scale_to_res(IFACE_BOX_BIG_W);
+	b.h = dm_scale_to_res(IFACE_BOX_BIG_H);
+	b.x = 0;
+	b.y = 0;
+	return b;
+}
+/* Function: dw_get_iface_big_lower_box
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dw_get_iface_big_lower_box()
+{
+	SDL_Rect wh = get_iface_box_big_wh();
+	SDL_Rect b;
+	b.w = wh.w;
+	b.h = wh.h;
+	b.x = dm_get_screen_width()/2 - b.w/2;
+	b.y = dm_get_screen_height() - b.h -
+		  dw_get_ofs_iface_filled_border();
+	return b;
+}
+
+/* Function: dw_get_iface_big_center_box
+ * -----------------------------------------------------------------------------
+ * Returns the box of the center screen for menus
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect dw_get_iface_big_center_box()
+{
+	int w = dm_get_screen_width();
+	int h = dm_get_screen_height();
+	SDL_Rect wh = get_iface_box_big_wh();
+	SDL_Rect b;
+	b.w = wh.w;
+	b.h = wh.h;
+	b.x = (w - b.w)/2;
+	b.y = (h - b.h)/2;
+	return b;
+}
 
 /* Function: dm_get_ofs_iface_filled_border
  * -----------------------------------------------------------------------------
