@@ -29,17 +29,22 @@
 #define OUTPUT_BUFFER_INCOMPLETE_TEXT "Not enough "\
 "items in the Output Buffer [ob] after run"
 
-static char *SYSTEM_ERROR_TEXT = "SYSTEM ERROR";
+#define WIN_TEXT "The challenge is correct"
 
-texture_array_t *ib_empty;
-texture_array_t *reg_val_bad;
-texture_array_t *flag_val_bad;
-texture_array_t *ob_val_bad;
-texture_array_t *ib_unproc_vals;
-texture_array_t *exc_code_size;
-texture_array_t *ob_incomplete;
+static char *SYSTEM_ERROR_TEXT = "SYSTEM ERROR";
+static char *RUN_RESULT_TEXT = "RUN RESULT";
+
+texture_array_t *ib_empty = NULL;
+texture_array_t *reg_val_bad = NULL;
+texture_array_t *flag_val_bad = NULL;
+texture_array_t *ob_val_bad = NULL;
+texture_array_t *ib_unproc_vals = NULL;
+texture_array_t *exc_code_size = NULL;
+texture_array_t *ob_incomplete = NULL;
+texture_array_t *g_win_text = NULL;
 
 texture_t *g_system_error;
+texture_t *g_run_result;
 
 static bool run_ended;
 static bool step_ended;
@@ -52,7 +57,7 @@ enum avatar_id{
 	RAVATAR
 };
 
-static int g_invalid_operation_flag = NO_INVALID_OPERATION;
+static int g_invalid_operation_flag = NO_OPERATION;
 
 typedef struct avatar_t{
 	SDL_Rect box;
@@ -93,7 +98,6 @@ static void handle_destiny_operand(code_line_t *line, int avatar_id);
 static bool retrieve_operand(avatar_t *avatar);
 static bool deliver_operand(avatar_t *avatar, int op_id);
 static bool is_operand_retrievable(int id);
-static void set_invalid_operation_flag(int flag_id);
 static bool check_operand_has_value(int op_id);
 static bool check_finishes_at_OB_correct_size();
 static bool check_correct_code_size();
@@ -181,7 +185,15 @@ void mc_init_errors_texture()
 											 text_h, 
 											 C_WHITE, 
 										     OUTPUT_BUFFER_INCOMPLETE_TEXT);
+	
+	g_win_text = dw_create_text_tex_array_by_h(rb.w, 
+											   text_h, 
+											   C_WHITE, 
+											   WIN_TEXT);
+	
 	g_system_error = dw_create_text_tex(SYSTEM_ERROR_TEXT, C_GREY);
+
+	g_run_result = dw_create_text_tex(RUN_RESULT_TEXT, C_GREY);
 }
 
 /* Function: mc_reset_invalid_operation_flag
@@ -196,14 +208,13 @@ void mc_init_errors_texture()
  */
 void mc_reset_invalid_operation_flag()
 {
-
-	set_invalid_operation_flag(NO_INVALID_OPERATION);
+	mc_set_operation_flag(NO_OPERATION);
 }
 
 /* Function: mc_get_operation_flag
  * -----------------------------------------------------------------------------
  * Returns the flag with the id of the invalid operation that was performed.
- * NO_INVALID_OPERATION is used if everything is ok.
+ * NO_OPERATION is used if everything is ok.
  * 
  * Arguments:
  * 	void.
@@ -227,68 +238,95 @@ int mc_get_operation_flag()
  * Return:
  *	void.
  */
-void mc_display_invalid_operation_handler(int id)
+void mc_display_operation_handler(int id)
 {
-	assert(id >= NO_INVALID_OPERATION && id < INVALID_OPERATION_MAX &&
+	assert(id >= NO_OPERATION && id < OPERATION_MAX &&
 		   "Incorrect id for the invalid operation handler");
 	
-	if (id != NO_INVALID_OPERATION){
+	if (id != NO_OPERATION){
 		SDL_Rect r = dw_get_iface_big_lower_box();
-		dw_draw_iface_box(r, g_system_error);
-		texture_array_t *message;
+		texture_array_t *message = NULL;
+		texture_t *header = NULL;
+		bool two_buttons = false;
 		
 		switch(id){
 			case INPUT_BUFFER_EMPTY:
 				message = ib_empty;
+				header = g_system_error;
 				break;
 			case REG_VALUE_INVALID:
 				message = reg_val_bad;
+				header = g_system_error;
 				break;
 			case FLAG_VALUE_INVALID:
 				message = flag_val_bad;
+				header = g_system_error;
 				break;
 			case INVALID_OUTPUT_VALUE:
 				message = ob_val_bad;
+				header = g_system_error;
 				break;
 			case UNPROCESSED_IB_VALUES:
 				message = ib_unproc_vals;
+				header = g_system_error;
 				break;
 			case EXCEEDS_CODE_LIMIT:
 				message = exc_code_size;
+				header = g_system_error;
 				break;
 			case OUTPUT_BUFFER_INCOMPLETE:
 				message = ob_incomplete;
+				header = g_system_error;
+				break;
+			case MC_WIN:
+				message = g_win_text;
+				header = g_run_result;
+				two_buttons = true;
 				break;
 			default: 
 				puts("ERROR: Invalid operation incorrec id");
 		}
 		
+		dw_draw_iface_box(r, g_run_result);
 		SDL_Rect b = dw_get_iface_content_box(dw_get_iface_big_lower_box());
 		b.h -= dm_get_text_box_result_but3().h;
 		int text_h = dm_get_h_msg();		
 		dw_draw_wrapped_texture_by_h(b, text_h, message);
 		
 		static bool button_created = false;
-		static iface_btn_t *ret;
+		static iface_btn_t *back;
+		static iface_btn_t *cont;
 		bool button_pressed = false;
 
 		if (button_created == false){
 			button_created = true;
-			texture_t *ret_texture = dw_create_text_tex(AX_STR_BACK, C_WHITE);
-			check_mem(ret_texture);
+			texture_t *back_texture = dw_create_text_tex(AX_STR_BACK, C_WHITE);
+			texture_t *cont_texture = dw_create_text_tex(AX_STR_CONT, C_WHITE);
+			check_mem(back_texture);
+			if (two_buttons == false){
+				SDL_Rect r = dm_get_text_box_result_but3();		
+				back = bt_create_iface_btn(r, back_texture, true);
+				cont = bt_create_iface_btn(r, cont_texture, true);//NOT USED
+			}else if (two_buttons == true){
+				SDL_Rect r1 = dm_get_text_box_result_but1();		
+				back = bt_create_iface_btn(r1, back_texture, true);
+				SDL_Rect r2 = dm_get_text_box_result_but2();		
+				cont = bt_create_iface_btn(r2, cont_texture, true);
+			}
 			
-			SDL_Rect r = dm_get_text_box_result_but3();		
-			ret = bt_create_iface_btn(r, ret_texture, true);
-			check_mem(ret);
 		} 
-		bt_draw_iface_btn(ret, sb_get_escape_state(), NULL);
+		bt_draw_iface_btn(back, sb_get_escape_state(), NULL);
+		if (two_buttons == true){
+			bt_draw_iface_btn(cont, sb_get_escape_state(), NULL);
+		}
 
-			if (bt_chk_rel_iface_btn(ret, NULL) == true){
+			if (bt_chk_rel_iface_btn(back, NULL) == true){
 				mc_set_rst_lvl(true);
 				button_pressed = true;
 			} 
 			if (button_pressed == true){
-				bt_destroy_iface_btn(ret);
+				bt_destroy_iface_btn(back);
+				bt_destroy_iface_btn(cont);
 				button_created = false;
 			}
 
@@ -310,7 +348,7 @@ void mc_display_invalid_operation_handler(int id)
  * Return:
  *	void.
  */
-static void set_invalid_operation_flag(int flag_id)
+void mc_set_operation_flag(int flag_id)
 {
 	g_invalid_operation_flag = flag_id;
 }
@@ -1173,24 +1211,24 @@ void operate_instruction(code_line_t *line, value_box_t value)
 		case MOV:
 			op_status = set_operand_value_box(line->op1->id, value);
 			if (op_status == false){
-				set_invalid_operation_flag(REG_VALUE_INVALID);
+				mc_set_operation_flag(REG_VALUE_INVALID);
 			}
 			break;
 		case ADD:
 			op_status = add_operand_value_box(line->op1->id, value);
 			if (op_status == false){
-				set_invalid_operation_flag(REG_VALUE_INVALID);
+				mc_set_operation_flag(REG_VALUE_INVALID);
 			}
 			break;
 		case CMP:
 			op_status = cmp_substract(line->op1->id, value);
 			if (op_status == false){
-				set_invalid_operation_flag(REG_VALUE_INVALID);
+				mc_set_operation_flag(REG_VALUE_INVALID);
 			}
 			break;
 	}
 	if (lv_evaluate_output_correctness() == false){
-		set_invalid_operation_flag(INVALID_OUTPUT_VALUE);
+		mc_set_operation_flag(INVALID_OUTPUT_VALUE);
 	}
 }
 
@@ -1331,7 +1369,7 @@ static bool handle_iavatar_source_operand(int op_id)
 			g_iavatar.secval.visible_box = true;
 		}
 		else if (op_id == IB && is_operand_retrievable(op_id) == false){
-			set_invalid_operation_flag(INPUT_BUFFER_EMPTY);
+			mc_set_operation_flag(INPUT_BUFFER_EMPTY);
 		}
 	}
 	return mov_pending;
@@ -1367,9 +1405,9 @@ static bool handle_ravatar_source_operand(int op_id)
 			rg_reset_ibox();
 		}
 		else if (cl_is_op_reg(op_id)){
-			set_invalid_operation_flag(REG_VALUE_INVALID);
+			mc_set_operation_flag(REG_VALUE_INVALID);
 		} else {
-			set_invalid_operation_flag(FLAG_VALUE_INVALID);
+			mc_set_operation_flag(FLAG_VALUE_INVALID);
 		}
 	}
 	return mov_pending;
@@ -1402,7 +1440,7 @@ static bool handle_ravatar_cmp_source(int op_id)
 			g_ravatar.secval.visible_box = true;
 		}
 		else {
-			set_invalid_operation_flag(REG_VALUE_INVALID);
+			mc_set_operation_flag(REG_VALUE_INVALID);
 		}
 	}
 	return mov_pending;
@@ -1440,7 +1478,7 @@ static bool handle_oavatar_source_operand(int op_id)
 			rg_reset_obox();
 		}
 		else {
-			set_invalid_operation_flag(REG_VALUE_INVALID);
+			mc_set_operation_flag(REG_VALUE_INVALID);
 		}
 	}
 	return mov_pending;
@@ -1751,9 +1789,9 @@ static bool check_finishes_at_OB_correct_size()
 	bool correct_code_size = check_correct_code_size();
 
 	if (win == true && input_buffer_size !=0) {
-	//	set_invalid_operation_flag(UNPROCESSED_IB_VALUES);
+	//	mc_set_operation_flag(UNPROCESSED_IB_VALUES);
 	} else if (win == true && correct_code_size == false) {
-		set_invalid_operation_flag(EXCEEDS_CODE_LIMIT);
+		mc_set_operation_flag(EXCEEDS_CODE_LIMIT);
 	} else if (win == true && input_buffer_size == 0){
 		finished = true;
 	} 
@@ -1940,7 +1978,7 @@ void mc_run_code()
 	int output_buffer_size = get_output_buffer_list_size();
 	int win_list_size = lv_get_win_list_size();
 	if (output_buffer_size < win_list_size){
-		set_invalid_operation_flag(OUTPUT_BUFFER_INCOMPLETE);
+		mc_set_operation_flag(OUTPUT_BUFFER_INCOMPLETE);
 	}
 	return;
 	

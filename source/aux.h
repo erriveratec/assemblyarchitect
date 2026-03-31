@@ -24,7 +24,7 @@
 #define CHAR_SIZE 1
 
 #define AX_STR_BACK "BACK"
-#define STR_CONT "CONTINUE"
+#define AX_STR_CONT "CONTINUE"
 #define AX_REG_TEXT "Registers"
 #define IMM_TXT "Immediates"
 

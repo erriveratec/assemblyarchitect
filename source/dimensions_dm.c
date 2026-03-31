@@ -64,8 +64,7 @@
 #define RST_MENU_BTNS_H 60
 
 #define RES_BUTTON_H 60
-#define RES_BACK_BUTTON_W 100
-#define RES_CONT_BUTTON_W 200
+#define RES_BUTTON_W 155
 
 #define RAIL_W 4
 #define RAIL_END_W 16
@@ -650,11 +649,11 @@ SDL_Rect dm_get_arrow_wh()
  */
 SDL_Rect dm_get_text_box_result_but3()
 {
-	int cont_w = dm_scale_to_res(RES_CONT_BUTTON_W);
+	int cont_w = dm_scale_to_res(RES_BUTTON_W);
 	int offset = dm_scale_to_res(RES_BOX_OFFSET);
 	SDL_Rect rb = dw_get_iface_big_lower_box();
 	SDL_Rect b;
-	b.w = dm_scale_to_res(RES_BACK_BUTTON_W);
+	b.w = dm_scale_to_res(RES_BUTTON_W);
 	b.h = dm_scale_to_res(RES_BUTTON_H);
 	b.x = rb.x + (rb.w - b.w)/2;
 	b.y = rb.y + rb.h - b.h - offset;
@@ -674,14 +673,15 @@ SDL_Rect dm_get_text_box_result_but3()
  */
 SDL_Rect dm_get_text_box_result_but2()
 {
-	int back_w = dm_scale_to_res(RES_BACK_BUTTON_W);
-	int cont_w = dm_scale_to_res(RES_CONT_BUTTON_W);
+	int back_w = dm_scale_to_res(RES_BUTTON_W);
+	int cont_w = dm_scale_to_res(RES_BUTTON_W);
 	int offset = dm_scale_to_res(RES_BOX_OFFSET);
 	SDL_Rect rb = dw_get_iface_big_lower_box();
+	SDL_Rect cb = dw_get_iface_content_box(dw_get_iface_big_lower_box());
 	SDL_Rect b;
-	b.w = dm_scale_to_res(RES_CONT_BUTTON_W);
+	b.w = dm_scale_to_res(RES_BUTTON_W);
 	b.h = dm_scale_to_res(RES_BUTTON_H);
-	b.x = rb.x + back_w + 2*(rb.w - (back_w + cont_w))/3 ;
+	b.x = cb.x + back_w + 2*(cb.w - (back_w + cont_w))/3 ;
 	b.y = rb.y + rb.h - b.h - offset;
 	return b;
 }
@@ -699,20 +699,17 @@ SDL_Rect dm_get_text_box_result_but2()
  */
 SDL_Rect dm_get_text_box_result_but1()
 {
-	int cont_w = dm_scale_to_res(RES_CONT_BUTTON_W);
+	int cont_w = dm_scale_to_res(RES_BUTTON_W);
 	int offset = dm_scale_to_res(RES_BOX_OFFSET);
 	SDL_Rect rb = dw_get_iface_big_lower_box();
+	SDL_Rect cb = dw_get_iface_content_box(dw_get_iface_big_lower_box());
 	SDL_Rect b;
-	b.w = dm_scale_to_res(RES_BACK_BUTTON_W);
+	b.w = dm_scale_to_res(RES_BUTTON_W);
 	b.h = dm_scale_to_res(RES_BUTTON_H);
-	b.x = rb.x + (rb.w - (b.w + cont_w))/3;
+	b.x = cb.x + (cb.w - (b.w + cont_w))/3;
 	b.y = rb.y + rb.h - b.h - offset;
 	return b;
 }
-
-
-
-
 
 
 

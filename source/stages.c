@@ -41,25 +41,19 @@ typedef struct level_flags_t{
 
 static SDL_Rect result_box;
 
-texture_array_t *g_win_text = NULL;
-
 int g_player = FL_NO_PLAYER;
-
 
 void stage_drawings(int level);
 static code_line_t *pending_operand_handler();
 static void flag_handler(level_flags_t *flags, int clicked_button);
 static code_line_t *edit_code(int level_id);
 static void reset_level(int level_id, level_flags_t *flags);
-static int display_run_result(bool win_check);
 static void destroy_level(level_flags_t *flags);
 static void init_stage_assets();
 static void code_updated_actions(int level_id);
 static void set_code_editable();
 static void reset_code_editable();
 static void rst_btn_hdl(int level_id, level_flags_t *f);
-
-
 
 /* Function: reset_level_flags
  * -------------------------------------
@@ -206,7 +200,7 @@ void stage_drawings(int level)
 	bf_draw_buffers();
 	rg_draw_registers();
 	mc_draw_avatar();
-	mc_display_invalid_operation_handler(mc_get_operation_flag());
+	mc_display_operation_handler(mc_get_operation_flag());
 	lv_level_drawings(level);
 	sb_draw_return_button();
 	sb_draw_rst_btn();
@@ -565,13 +559,15 @@ int stage_level(int level_id)
 		flags.step = !mc_get_step_ended();
 	} 
 	
-	if (mc_get_operation_flag() != NO_INVALID_OPERATION){
+	if (mc_get_operation_flag() != NO_OPERATION){
 		reset = mc_get_rst_lvl();
 		flags.play = false;
 	} else if (mc_get_run_ended() == true 
 			   && flags.step_fst == true 
 			   && lv_check_if_win() == true){
-		int action_selected = display_run_result(lv_check_if_win());
+		//int action_selected = display_run_result(lv_check_if_win());
+		mc_set_operation_flag(MC_WIN);
+		int action_selected;
 		flags.play = false;
 		if (action_selected == BACK_BUTTON_PRESSED){
 			reset_level(level_id, &flags);		
@@ -601,7 +597,7 @@ int stage_level(int level_id)
  *
  * Return:
  *	The id of the button pressed by the player.
- */
+ *
 static int display_run_result(bool win_check)
 {
 
@@ -658,7 +654,7 @@ static int display_run_result(bool win_check)
 	error:
 
 	return action_selected;
-}
+} */
 
 
 
