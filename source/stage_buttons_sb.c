@@ -265,8 +265,8 @@ void sb_display_rst_menu(bool show_menu)
 		int text_h = dm_get_h_msg();		
 //		dw_draw_wrapped_texture_by_h(text_box, text_h, g_rst_menu_text);
 
-		bt_draw_iface_btn(g_rst_b1, sb_get_escape_state(), NULL);
-		bt_draw_iface_btn(g_rst_b2, sb_get_escape_state(), NULL);
+		bt_draw_iface_btn(g_rst_b1, sb_get_escape_state(), g_sfx_hover);
+		bt_draw_iface_btn(g_rst_b2, sb_get_escape_state(), g_sfx_hover);
 	}
 	return;
 }
@@ -286,10 +286,10 @@ bool sb_chk_rst_menu_btns(bool show_menu)
 	bool reset = false;
 	if (show_menu == true){
 
-		if (bt_chk_rel_iface_btn(g_rst_b1, NULL) == true){
+		if (bt_chk_rel_iface_btn(g_rst_b1, g_sfx_cancel) == true){
 			reset = false;
 			sb_set_rst_menu(false);
-		} else if (bt_chk_rel_iface_btn(g_rst_b2, NULL) == true){
+		} else if (bt_chk_rel_iface_btn(g_rst_b2, g_sfx_cancel) == true){
 			reset = true;
 			sb_set_rst_menu(false);
 		} 	
@@ -310,18 +310,14 @@ bool sb_chk_rst_menu_btns(bool show_menu)
 void sb_init_rst_menu()
 {
 	g_rst_b1_texture = dw_create_text_tex(RST_MENU_TEXT1, C_WHITE);
-	check_mem(g_rst_b1_texture);
 
 	g_rst_b2_texture = dw_create_text_tex(RST_MENU_TEXT2, C_WHITE);
-	check_mem(g_rst_b2_texture);
 	
 	SDL_Rect r = dm_get_rst_b1_box();
 	g_rst_b1 = bt_create_iface_btn(r, g_rst_b1_texture, true);
-	check_mem(g_rst_b1);
 
 	r = dm_get_rst_b2_box();
 	g_rst_b2 = bt_create_iface_btn(r, g_rst_b2_texture, true);
-	check_mem(g_rst_b2);
 
 	int h = dm_get_h_big_text();
 	int w = dw_get_iface_content_box(dw_get_iface_big_center_box()).w;
@@ -329,7 +325,6 @@ void sb_init_rst_menu()
 													h, 
 													C_BLACK, 
 													RST_MENU_TEXT0);
-	error:
 	return;
 }
 
@@ -452,7 +447,7 @@ void toggle_escape_menu()
 	g_escape_menu = !g_escape_menu;
 
 	if (g_escape_menu == true){			
-		if (g_sfx_escape) Mix_PlayChannel(-1, g_sfx_escape, 0);
+		if (g_sfx_menu) Mix_PlayChannel(-1, g_sfx_menu, 0);
 	} else if (g_escape_menu == false){			
 		if (g_sfx_cancel) Mix_PlayChannel(-1, g_sfx_cancel, 0);
 	} 
@@ -603,7 +598,7 @@ void adjust_stage_buttons_position(int code_size)
 
 }
 
-/* Function: sb_draw_stage_buttons
+/* Function: sb_draw_stage_btns
  * -------------------------------------
  * Arguments:
  * 	None.
@@ -611,7 +606,7 @@ void adjust_stage_buttons_position(int code_size)
  * Return:
  *	Void.
  */
-void sb_draw_stage_buttons(int code_size)
+void sb_draw_stage_btns(int code_size)
 {
 	adjust_stage_buttons_position(code_size);
 	bt_draw_iface_btn(stop, sb_get_escape_state(), NULL);
@@ -635,7 +630,7 @@ void sb_draw_stage_buttons(int code_size)
  */
 void sb_draw_rst_btn()
 {
-	bt_draw_iface_btn(rst_btn, sb_get_escape_state(), NULL);
+	bt_draw_iface_btn(rst_btn, sb_get_escape_state(), g_sfx_hover);
 }
 
 /* Function: sb_init_rst_btn
@@ -672,7 +667,7 @@ bool sb_chk_click_rst_btn()
 {
 	int rst = false;
 
-	if (bt_chk_rel_iface_btn(rst_btn, NULL) == true) {
+	if (bt_chk_rel_iface_btn(rst_btn, g_sfx_menu) == true) {
 		rst = true;
 	}
 	return rst;
@@ -759,7 +754,7 @@ void sb_init_stage_btns()
 	return;
 }
 
-/* Function: sb_check_clicked_ret_button
+/* Function: sb_chk_click_ret_btn
  * -----------------------------------------------------------------------------
  * This function verifies if the player has clicked on the return button
  *
@@ -769,7 +764,7 @@ void sb_init_stage_btns()
  * Return:
  *	true if button clicked, false if otherwise.
  */
-bool sb_check_clicked_ret_button()
+bool sb_chk_click_ret_btn()
 {
 	int ret = false;
 

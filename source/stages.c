@@ -186,7 +186,7 @@ void stage_drawings(int level)
 {
 	iw_draw_instruction_box();
 	cw_draw_code_window();	
-	sb_draw_stage_buttons(cw_get_code_list_size());
+	sb_draw_stage_btns(cw_get_code_list_size());
 	im_draw_imm();
 	ar_display_arrow(AR_EXEC);
 	bf_draw_buffers();
@@ -524,7 +524,7 @@ int stage_level(int level_id)
 	static bool reset = false;
 	static code_line_t *hold_line = NULL;
 	static level_flags_t flags;
-	bool back_to_level_selection = sb_check_clicked_ret_button(); 
+	bool back_to_level_selection = sb_chk_click_ret_btn(); 
 	
 	stage_drawings(level_id);
 	rst_btn_hdl(level_id, &flags);

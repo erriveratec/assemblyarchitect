@@ -25,10 +25,10 @@ void sb_draw_ret_btn();
 void sb_init_ret_btn();
 
 void sb_init_stage_btns();
-void sb_draw_stage_buttons(int code_size);
+void sb_draw_stage_btns(int code_size);
 bool sb_stage_btn_clicked();
 int identify_clicked_stage_button();
-bool sb_check_clicked_ret_button();
+bool sb_chk_click_ret_btn();
 
 int sb_get_play_button_member(int member);
 SDL_Rect sb_get_sb_rect(int member);
