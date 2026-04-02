@@ -1255,7 +1255,7 @@ static void level_0()
 		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_PRESSBACK);
 		ar_display_arrow(AR_ERROR);
 	} else if(size == 1 && hold == false && play == false 
-												   && g_lv_msg[MSG11] == true){
+			  && g_lv_msg[MSG11] == true && miss_op == false){
 		tx_text_box(TX_INS_BOX, MSG11, TX_SYSMES);	 //Select another mov ins
 		ar_display_arrow(AR_INS);
 	} else if(size == 1 && hold == true && miss_op == false){

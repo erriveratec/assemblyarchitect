@@ -561,6 +561,9 @@ int stage_level(int level_id)
 	
 	if (mc_get_operation_flag() != NO_OPERATION){
 		reset = mc_get_rst_lvl();
+		if (reset == true){
+			reset_level(level_id, &flags);	
+		}
 		flags.play = false;
 	} else if (mc_get_run_ended() == true 
 			   && flags.step_fst == true 
