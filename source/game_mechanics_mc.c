@@ -57,6 +57,7 @@ enum avatar_id{
 	RAVATAR
 };
 
+int g_op_menu_btn = NO_BTN_PRESSED;
 static int g_invalid_operation_flag = NO_OPERATION;
 
 typedef struct avatar_t{
@@ -111,6 +112,37 @@ static void draw_ravatar();
 bool cmp_substract(int op_id, value_box_t val);
 static bool handle_ravatar_cmp(int op_id);
 static void rflag_generator(avatar_t *avatar, int id);
+void mc_set_op_menu_btn_state(int state);
+
+/* Function: mc_set_op_menu_btn_state
+ *------------------------------------------------------------------------------
+ * Sets the variable the state of the button selected in op mendu
+ *
+ * Arguments:
+ *	state: The state to which the menu will be set
+ *
+ * Return:
+ *	Void.
+ */
+void mc_set_op_menu_btn_state(int state)
+{
+	g_op_menu_btn = state;
+}
+
+/* Function: mc_get_op_menu_btn_state
+ *------------------------------------------------------------------------------
+ * Sets the variable the state of the button selected in op mendu
+ *
+ * Arguments:
+ *	state: The state to which the menu will be set
+ *
+ * Return:
+ *	Void.
+ */
+int mc_get_op_menu_btn_state()
+{
+	return g_op_menu_btn;
+}
 
 /* Function: mc_set_rst_lvl
  *------------------------------------------------------------------------------
@@ -319,17 +351,21 @@ void mc_display_operation_handler(int id)
 		if (two_buttons == true){
 			bt_draw_iface_btn(cont, sb_get_escape_state(), NULL);
 		}
-
 			if (bt_chk_rel_iface_btn(back, NULL) == true){
+				mc_set_op_menu_btn_state(BACK_BTN_PRESSED);
 				mc_set_rst_lvl(true);
 				button_pressed = true;
-			} 
+			} else if (bt_chk_rel_iface_btn(cont, NULL)){
+				mc_set_op_menu_btn_state(CONT_BTN_PRESSED);
+			} else {
+				mc_set_op_menu_btn_state(NO_BTN_PRESSED);
+			}
+
 			if (button_pressed == true){
 				bt_destroy_iface_btn(back);
 				bt_destroy_iface_btn(cont);
 				button_created = false;
 			}
-
 	} else {
 		mc_set_rst_lvl(false);
 	}

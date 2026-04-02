@@ -19,6 +19,14 @@ enum operations{
 	OPERATION_MAX 
 };
 
+// Escape option menu variables
+
+enum WinMenuStates{
+	NO_BTN_PRESSED,
+	BACK_BTN_PRESSED,
+	CONT_BTN_PRESSED
+};
+
 void mc_init_avatar();
 void mc_draw_avatar();
 void mc_reset_avatar();
@@ -35,4 +43,6 @@ bool mc_get_step_ended();
 void mc_set_rst_lvl(bool state);
 bool mc_get_rst_lvl();
 void mc_set_operation_flag(int flag_id);
+int mc_get_op_menu_btn_state();
+void mc_set_op_menu_btn_state(int state);
 #endif

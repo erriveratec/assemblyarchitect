@@ -49,7 +49,6 @@ static bool g_lv_msg[LV_MSGS_QTY];
 
 static code_line_t *g_hold_line;
 static bool g_play;
-static bool g_op_flag;
 
 List *get_win_list();
 void add_to_win_list(int value, int type);
@@ -93,37 +92,8 @@ static void chk_ms_released_clear_msg(int message_id, bool reset_mouse);
 static bool check_player_is_holding_line();
 static code_line_t *get_hold_line();
 static bool get_play_state();
-static bool get_op_flag();
 
-/* Function: get_play_state
- * ----------------------------------------------------------------------------
- * Return the boolean that indicates if there is an operation flag
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	Void.
- */
-static bool get_op_flag()
-{
-	return g_op_flag;
-}
 
-/* Function: lv_set_op_flag_state
- * ----------------------------------------------------------------------------
- * Sets the boolen if there is an operation flag active in the state
- *
- * Arguments:
- *	state: State to which the op_flag variable will be set
- *
- * Return:
- *	Void.
- */
-void lv_set_op_flag_state(bool state)
-{
-	g_op_flag = state;
-}
 
 /* Function: get_play_state
  * ----------------------------------------------------------------------------

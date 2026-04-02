@@ -97,6 +97,5 @@ bool lv_is_del_enabled();
 int lv_get_win_list_size();
 void lv_set_hold_line(code_line_t *line);
 void lv_set_play_state(bool state);
-void lv_set_op_flag_state(bool state);
 void lv_init_stage_code(int level_id);
 #endif

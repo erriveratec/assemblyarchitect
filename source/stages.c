@@ -21,14 +21,6 @@
 #include "immediates_im.h"
 
 
-
-// Escape option menu variables
-enum WinMenuStates{
-	NO_BUTTON_PRESSED,
-	BACK_BUTTON_PRESSED,
-	CONT_BUTTON_PRESSED
-};
-
 typedef struct level_flags_t{
 	bool play;
 	bool stop;
@@ -523,6 +515,7 @@ static void reset_level(int level_id, level_flags_t *flags)
 	rg_reset_ibox();
 	rg_reset_obox();
 	rg_reset_rflags();
+	mc_set_op_menu_btn_state(NO_BTN_PRESSED);
 }
 
 int stage_level(int level_id)
@@ -541,7 +534,6 @@ int stage_level(int level_id)
 		flag_handler(&flags, identify_clicked_stage_button());
 	}
 	
-	lv_set_op_flag_state(mc_get_operation_flag());
 	lv_set_play_state(flags.play);
 	lv_set_hold_line(hold_line);
 	
@@ -558,8 +550,8 @@ int stage_level(int level_id)
 		mc_run_code();
 		flags.step = !mc_get_step_ended();
 	} 
-	
-	if (mc_get_operation_flag() != NO_OPERATION){
+	int op_flag = mc_get_operation_flag();
+	if (op_flag != NO_OPERATION && op_flag != MC_WIN){
 		reset = mc_get_rst_lvl();
 		if (reset == true){
 			reset_level(level_id, &flags);	
@@ -568,16 +560,15 @@ int stage_level(int level_id)
 	} else if (mc_get_run_ended() == true 
 			   && flags.step_fst == true 
 			   && lv_check_if_win() == true){
-		//int action_selected = display_run_result(lv_check_if_win());
 		mc_set_operation_flag(MC_WIN);
-		int action_selected;
+		int action_selected = mc_get_op_menu_btn_state();
 		flags.play = false;
-		if (action_selected == BACK_BUTTON_PRESSED){
+		fl_enable_next_level(g_player, level_id + 1);
+		if (action_selected == BACK_BTN_PRESSED){
 			reset_level(level_id, &flags);		
-			fl_enable_next_level(g_player, level_id + 1);
-		} else if (action_selected == CONT_BUTTON_PRESSED){
-			fl_enable_next_level(g_player, level_id + 1);
+		} else if (action_selected == CONT_BTN_PRESSED){
 			back_to_level_selection = true;
+
 		} 
 	}
 
@@ -591,73 +582,6 @@ int stage_level(int level_id)
 	sb_display_escape_menu(sb_get_escape_state());
 	return ret_val;
 }
-
-
-/* Function: display_run_result
- * 	
- * Arguments:
- *	win_check: the condition checking if the run was successful
- *
- * Return:
- *	The id of the button pressed by the player.
- *
-static int display_run_result(bool win_check)
-{
-
-	bf_set_win_condition();
-	SDL_Rect r = dw_get_iface_big_lower_box();	
-	dw_draw_iface_box(r, NULL);
-
-	SDL_Rect s = dw_get_iface_content_box(dw_get_iface_big_lower_box());
-	s.y -= dm_get_text_box_result_but1().h;
-	int text_h = dm_get_h_msg();		
-	dw_draw_wrapped_texture_by_h(s, text_h, g_win_text);
-	
-	static bool buttons_created = false;
-	static iface_btn_t *back;
-	static iface_btn_t *con;
-	bool button_pressed = false;
-	int action_selected = NO_BUTTON_PRESSED;
-
-	if (buttons_created == false){
-		buttons_created = true;
-		texture_t *con_texture = dw_create_text_tex(
-								 STR_CONT, C_WHITE);
-		check_mem(con_texture);
-		SDL_Rect r = dm_get_text_box_result_but2();
-		con = bt_create_iface_btn(r, con_texture, true);
-		check_mem(con);
-					
-		texture_t *back_texture = dw_create_text_tex(
-								 AX_STR_BACK, C_WHITE);
-		check_mem(back_texture);
-		SDL_Rect b = dm_get_text_box_result_but1();
-
-		back = bt_create_iface_btn(b, back_texture, true);
-		check_mem(back);
-	} 
-	bt_draw_iface_btn(back, sb_get_escape_state(), NULL);
-	bt_draw_iface_btn(con, sb_get_escape_state(), NULL);
-
-	if (bt_chk_rel_iface_btn(con, NULL) == true){
-		button_pressed = true;
-		action_selected = CONT_BUTTON_PRESSED;
-	} 
-	if (bt_chk_rel_iface_btn(back, NULL) == true){
-		button_pressed = true;
-		action_selected = BACK_BUTTON_PRESSED;
-	} 	
-	if (button_pressed == true){
-		bt_destroy_iface_btn(back);
-		if (win_check == true){
-			bt_destroy_iface_btn(con);
-		}
-		buttons_created = false;
-	}
-	error:
-
-	return action_selected;
-} */
 
 
 
