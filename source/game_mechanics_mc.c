@@ -287,7 +287,7 @@ void mc_display_operation_handler(int id)
 				puts("ERROR: Invalid operation incorrec id");
 		}
 		
-		dw_draw_iface_box(r, g_run_result);
+		dw_draw_iface_box(r, header);
 		SDL_Rect b = dw_get_iface_content_box(dw_get_iface_big_lower_box());
 		b.h -= dm_get_text_box_result_but3().h;
 		int text_h = dm_get_h_msg();		
