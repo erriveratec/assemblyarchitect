@@ -649,7 +649,7 @@ int stage_sector_0()
 	
 	dw_draw_filled_rectangle(get_subtitle_separator(), 
 							 C_SHADOWGREY, C_SHADOWGREY);
-	sb_draw_return_button();
+	sb_draw_ret_btn();
 
 	static texture_array_t *hover = NULL;
 	static Uint64 level_sub_start_ms;
@@ -780,7 +780,7 @@ int stage_select_sector()
 	}
 	
 	dw_draw_filled_rectangle(get_upper_separator(), C_SHADOWGREY, C_SHADOWGREY);
-	sb_draw_return_button();
+	sb_draw_ret_btn();
 	
 	SDL_Rect sep = get_sector_separator();
 	for (int i = 0; i < 5; i++){
@@ -871,7 +871,7 @@ int stage_select_level()
 		dw_draw_texture_fit_h(r, select_level);
 	}
 	
-	sb_draw_return_button();
+	sb_draw_ret_btn();
 	for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
 			bt_draw_iface_btn(level_buttons[i], sb_get_escape_state(), NULL);
 	}

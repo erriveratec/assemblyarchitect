@@ -194,7 +194,7 @@ void stage_drawings(int level)
 	mc_draw_avatar();
 	mc_display_operation_handler(mc_get_operation_flag());
 	lv_level_drawings(level);
-	sb_draw_return_button();
+	sb_draw_ret_btn();
 	sb_draw_rst_btn();
 	return;
 }

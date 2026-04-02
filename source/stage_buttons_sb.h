@@ -21,8 +21,8 @@ extern texture_t *return_button;
 extern texture_t *reset_button;
 
 
-void sb_draw_return_button();
-void sb_init_return_button();
+void sb_draw_ret_btn();
+void sb_init_ret_btn();
 
 void sb_init_stage_btns();
 void sb_draw_stage_buttons(int code_size);

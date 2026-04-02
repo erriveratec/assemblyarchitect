@@ -678,7 +678,7 @@ bool sb_chk_click_rst_btn()
 	return rst;
 }
 
-/* Function: sb_draw_return_button
+/* Function: sb_draw_ret_btn
  * ----------------------------------------------------------------------------
  * This function draws the return button that will be shown on several displays
  *
@@ -688,12 +688,12 @@ bool sb_chk_click_rst_btn()
  * Return:
  *	Void.
  */
-void sb_draw_return_button()
+void sb_draw_ret_btn()
 {
 	bt_draw_iface_btn(ret_btn, sb_get_escape_state(), g_sfx_hover);
 }
 
-/* Function: sb_init_return_buttons
+/* Function: sb_init_ret_btns
  * -----------------------------------------------------------------------------
  * This function initialises the return button that is used and present in 
  * several stages.
@@ -704,7 +704,7 @@ void sb_draw_return_button()
  * Return:
  *	Void.
  */
-void sb_init_return_button()
+void sb_init_ret_btn()
 {
 	if (ret_btn == NULL){
 		SDL_Rect r = get_return_button_box();
