@@ -15,6 +15,7 @@
 #include "arrow_ar.h"
 #include "immediates_im.h"
 #include "file_fl.h"
+#include "game_mechanics_mc.h"
 
 //Strings for the win condition
 #define STR_WIN1 "WIN1"
@@ -1187,7 +1188,8 @@ static void level_0()
 	sb_set_step_btns_avail(false);
 	im_set_imm_up_avail(false);
 	draw_regs_arrow(false);
-	bool flag = get_op_flag();
+	int flag = mc_get_operation_flag();
+
 	bool play = get_play_state();
 	bool hold = check_player_is_holding_line();
 	int size = cw_get_code_list_size();
@@ -1250,7 +1252,7 @@ static void level_0()
 		if (play == true){
 			g_lv_msg[MSG9] = false;
 		}
-	} else if (flag != 0){
+	} else if (flag != MC_WIN && flag != NO_OPERATION ){
 		tx_text_box(TX_CENTER_BOX, MSG10, TX_SYSMES); //ERROR
 		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_PRESSBACK);
 		ar_display_arrow(AR_ERROR);
