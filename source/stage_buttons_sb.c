@@ -84,6 +84,21 @@ static SDL_Rect get_escape_b3_box();
 static SDL_Rect get_rst_b1_box();
 static SDL_Rect get_rst_b2_box();
 
+/* Function: sb_get_escape_state
+ * ----------------------------------------------------------------------------
+ * This function return the boolean state of the state.
+ *
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	Boolean with the state fo the escape_menu variable
+ */
+bool sb_chk_rst_esc_menu_active()
+{
+	bool active = (sb_chk_rst_menu_state() | sb_get_escape_state());
+	return active;
+}
 
 /* Function: dm_get_rst_b1_box
  * -----------------------------------------------------------------------------
