@@ -228,10 +228,6 @@ int dm_get_w_borders()
 }
 
 
-
-
-
-
 /* Function: dm_get_screen_height
  * -----------------------------------------------------------------------------
  *	Returns the screen width

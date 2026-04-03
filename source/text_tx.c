@@ -96,7 +96,7 @@ static SDL_Rect get_text_box_code()
 	b.w = d.w;
 	b.h = d.h;
 	b.x = cb.x + (cb.w - b.w)/2;
-	b.y = cb.y + cb.h - b.h - 2*dm_get_w_borders();
+	b.y = cb.y + cb.h - b.h;
 	return b;
 }
 /* Function: get_text_box_ins

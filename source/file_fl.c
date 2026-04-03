@@ -1093,17 +1093,17 @@ void fl_save_file_init()
 				write_to_file(fp, level);
 				
 				if (i == 1){
-					strcpy(level, FL_L2_CODE_1);
+					strcpy(level, FL_L1_CODE_1);
 					write_to_file(fp, level);
-					strcpy(level, FL_L2_CODE_2);
+					strcpy(level, FL_L1_CODE_2);
 					write_to_file(fp, level);
-					strcpy(level, FL_L2_CODE_3);
+					strcpy(level, FL_L1_CODE_3);
 					write_to_file(fp, level);
 
 				} else if (i == 8){
-					strcpy(level, FL_L9_CODE_1);
+					strcpy(level, FL_L8_CODE_1);
 					write_to_file(fp, level);
-					strcpy(level, FL_L9_CODE_2);
+					strcpy(level, FL_L8_CODE_2);
 					write_to_file(fp, level);
 
 				} else {

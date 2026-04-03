@@ -343,16 +343,17 @@ void lv_init_stage_code(int level_id)
 {
 	assert(level_id < LV_LEVEL_MAX && level_id >= 0 && "Invalid level value");
 
-	if (level_id == LV_LEVEL_2){
-			char i1[] = FL_L2_CODE_1;
-			char i2[] = FL_L2_CODE_2;
-			char i3[] = FL_L2_CODE_3;
+	if (level_id == LV_LEVEL_1){
+			char i1[] = FL_L1_CODE_1;
+			char i2[] = FL_L1_CODE_2;
+			char i3[] = FL_L1_CODE_3;
 			cw_add_saved_line(i1);
 			cw_add_saved_line(i2);
 			cw_add_saved_line(i3);
-	} else if (level_id == LV_LEVEL_9){
-			char i1[] = FL_L9_CODE_1;
-			char i2[] = FL_L9_CODE_2;
+			ar_init_arrow(AR_CODE);
+	} else if (level_id == LV_LEVEL_8){
+			char i1[] = FL_L8_CODE_1;
+			char i2[] = FL_L8_CODE_2;
 			cw_add_saved_line(i1);
 			cw_add_saved_line(i2);
 	}
@@ -1088,6 +1089,7 @@ static void level_1()
 	bool win = lv_check_if_win();
 	code_line_t *i1= NULL;
 	code_line_t *i2 = NULL;
+	bool miss_op = cw_is_operand_pending();
 
 	if (size >= two_instructions && hold == false){
 		i1 = cw_get_code_line_at_pos(pos_one);
@@ -1134,6 +1136,8 @@ static void level_1()
 		} else if (i2->state == CHANGING_OP2){
 			tx_text_box(TX_UPPER_BOX, MSG5, TX_SYSMES); // Select IB
 			ar_display_arrow(AR_IB);
+			ar_init_arrow(AR_CODE);
+	} else if (size == 2 && miss_op == false){
 		}
 	} else if (mov_instruction == true){
 		set_code_editable(false, size);

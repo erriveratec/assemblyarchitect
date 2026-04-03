@@ -465,7 +465,7 @@ static void initialize_code_line_arrow()
 	if (pos >= 0){
 		SDL_Rect cl = cw_get_code_line_coord_at_pos(CW_INS, pos);
 		g_arrow_code_line.box.x = cl.x + a.w/2;
-		g_arrow_code_line.box.y = cl.y + cl.h;
+		g_arrow_code_line.box.y = cl.y + cl.h/2;
 	} else {
 		g_arrow_code_line.box.x = 0;
 		g_arrow_code_line.box.y = 0;
@@ -528,7 +528,7 @@ static void initialize_op2_arrow()
 	if (pos <= (size-1)){
 		SDL_Rect cl = cw_get_code_line_coord_at_pos(CW_OP2, pos);
 		g_arrow_op2.box.x = cl.x + a.w/2;
-		g_arrow_op2.box.y = cl.y + cl.h;
+		g_arrow_op2.box.y = cl.y + cl.h/2;
 	} else{
 		g_arrow_op2.box.x = 0;
 		g_arrow_op2.box.y = 0;

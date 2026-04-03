@@ -103,7 +103,7 @@ Select the Input Buffer [ib] as the source operand
 MSG_END
 
 MSG 06
-Select and drag the second instruction and move in to the first position
+Drag the second instruction to the first position
 MSG_END
 
 MSG 07
