@@ -19,6 +19,7 @@
 #include "dbg.h"
 #include "arrow_ar.h"
 #include "immediates_im.h"
+#include "electron_fx.h"
 
 
 typedef struct level_flags_t{
@@ -520,6 +521,28 @@ static void reset_level(int level_id, level_flags_t *flags)
 
 int stage_level(int level_id)
 {
+	//Electron animation
+	int W = dm_get_screen_width();
+	int H = dm_get_screen_height();   
+  	static fx_electron_t* fx;
+	static Uint64 last_type_ms;
+	static Uint64 anim_prev_ms;
+	Uint64 cur_time = SDL_GetTicks64();
+	static bool electron_init = false;
+
+	if (electron_init == false){
+		electron_init = true;
+		last_type_ms = cur_time;
+		fx = fx_electron_create(g_renderer, W, H, NULL);
+	}
+
+	float dt=(cur_time - anim_prev_ms)/1000.0f;
+	anim_prev_ms = cur_time;
+	fx_electron_update(fx, dt);
+    fx_electron_render(fx, g_renderer);
+
+	//Electron animation
+
 	int ret_val = LV_PLAY_LEVEL;
 	static bool reset = false;
 	static code_line_t *hold_line = NULL;
@@ -576,6 +599,8 @@ int stage_level(int level_id)
 		ret_val = LV_SECTOR_0;	
 		reset_level(level_id, &flags);		
 		destroy_level(&flags);
+		electron_init = false;
+  		aa_electron_fx_destroy(fx);
 	}
 
 	sb_display_rst_menu(sb_chk_rst_menu_state());
