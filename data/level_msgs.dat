@@ -117,53 +117,53 @@ MSG_END
 QUANTITY 12
 
 MSG 00
-LEVEL 03
+ADDRESS 02
 MSG_END
 
 MSG 01
-A VALUE RETRIEVED FROM THE INPUT BUFFER [IB] CAN ONLY BE READ ONCE
+A value retrieved from the Input Buffer [ib] can only be read once
 MSG_END
 
 MSG 02
-A VALUE STORED ON A REGISTER CAN BE READ MULTIPLE TIMES
+A value stored on a register can be read multiple times
 MSG_END
 
 MSG 03
-SELECT AND DRAG THE MOV INSTRUCTION FROM THE INSTRUCTION BOX
+Select and drag the MOV instruction from the instruction box
 MSG_END
 
 MSG 04
-DROP THE INSTRUCTION IN THE CODE BOX
+Drop the instruction in the code box
 MSG_END
 
 MSG 05
-ALL AVAILABLE OPERANDS FOR SELECTION WILL BE POINTED WITH AN ARROW
+All available operands for selection will be pointed with an arrow
 MSG_END
 
 MSG 06
-SELECT RAX
+Select rax
 MSG_END
 
 MSG 07
-ONLY VALID OPERANDS COMBINATIONS WILL BE AVAILABLE FOR SELECTION
+Only valid operands combinations will be available for selection
 MSG_END
 
 MSG 08
-SELECT INPUT BUFFER [IB]
+Select Input Buffer [ib]
 MSG_END
 
 MSG 09
-USE MORE MOV INSTRUCTIONS TO SOLVE THE CHALLENGE
+Use more MOV instructions to solve the challenge
 MSG_END
 
 MSG 10
-USE
-"MOV [OB], RAX"
-SEVERAL TIMES TO SOLVE THE CHALLENGE
+Use
+"MOV [ob], rax"
+Several times to solve the challenge
 MSG_END
 
 MSG 11
-RIGHT CLICK A COMPLETE INSTRUCTION TO COPY IT
+Right click a complete instruction to copy it
 MSG_END
 
 +++LEVEL ENDS 02
@@ -173,11 +173,11 @@ MSG_END
 QUANTITY 2
 
 MSG 00
-LEVEL 04
+ADDRESS 03
 MSG_END
 
 MSG 01
-SOLVE THE CHALLENGE BY YOURSELF APPLYING WHAT HAS BEEN LEARNED
+Use available instruction behavior to complete the execution
 MSG_END
 
 +++LEVEL ENDS 03
@@ -187,15 +187,15 @@ MSG_END
 QUANTITY 3
 
 MSG 00
-LEVEL 05
+ADDRESS 04
 MSG_END
 
 MSG 01
-THERE ARE MORE REGISTERS AVAILABLE. USE THEM TO SOLVE THE CHALLENGE
+There are more registers available for use
 MSG_END
 
 MSG 02
-NOTICE THE STEP-BY-STEP AND FAST EXECUTION BUTTONS
+Notice the Step-by-Step and Fast execution buttons
 MSG_END
 
 +++LEVEL ENDS 04

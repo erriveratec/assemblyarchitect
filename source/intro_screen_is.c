@@ -695,10 +695,16 @@ int stage_sector_0()
 	} else if (bt_chk_rel_iface_btn(levels[1], g_sfx_select)){
 		ret_val = LV_LEVEL_1;
 		change_stage = true;
-
-//	} else if (bt_chk_rel_btn(sectors[2], g_sfx_select)){
-//	} else if (bt_chk_rel_btn(sectors[3], g_sfx_select)){
-//	} else if (bt_chk_rel_btn(sectors[4], g_sfx_select)){
+	} else if (bt_chk_rel_iface_btn(levels[2], g_sfx_select)){
+		ret_val = LV_LEVEL_2;
+		change_stage = true;
+	} else if (bt_chk_rel_iface_btn(levels[3], g_sfx_select)){
+		ret_val = LV_LEVEL_3;
+		change_stage = true;
+	} else if (bt_chk_rel_iface_btn(levels[4], g_sfx_select)){
+		ret_val = LV_LEVEL_4;
+		change_stage = true;
+	 
 	} else if (sb_chck_rel_ret_btn() == true){
 //			bt_destroy_button(sectors[0]);
 //			bt_destroy_button(sectors[1]);

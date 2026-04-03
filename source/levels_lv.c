@@ -473,7 +473,9 @@ static void chk_ms_pressed_clear_msg(int message_id, bool reset_mouse)
  */
 static void level_16()
 {
- 
+ if (sb_chk_rst_esc_menu_active() == true){
+		return;
+	}
 }
 
 /* Function: level_15
@@ -488,6 +490,9 @@ static void level_16()
  */
 static void level_15()
 {
+	if (sb_chk_rst_esc_menu_active() == true){
+		return;
+	}
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(true);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -515,6 +520,9 @@ static void level_15()
  */
 static void level_14()
 {
+	if (sb_chk_rst_esc_menu_active() == true){
+		return;
+	}
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(true);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -564,6 +572,9 @@ static void level_14()
  */
 static void level_13()
 {
+	if (sb_chk_rst_esc_menu_active() == true){
+		return;
+	}
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(true);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -623,6 +634,9 @@ static void level_13()
  */
 static void level_12()
 {
+	if (sb_chk_rst_esc_menu_active() == true){
+		return;
+	}
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(true);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -651,6 +665,9 @@ static void level_12()
  */
 static void level_11()
 {
+	if (sb_chk_rst_esc_menu_active() == true){
+		return;
+	}
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(true);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -678,6 +695,9 @@ static void level_11()
  */
 static void level_10()
 {
+	if (sb_chk_rst_esc_menu_active() == true){
+		return;
+	}
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(true);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -725,6 +745,9 @@ static void level_10()
  */
 static void level_9()
 {
+	if (sb_chk_rst_esc_menu_active() == true){
+		return;
+	}
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -752,6 +775,9 @@ static void level_9()
  */
 static void level_8()
 {
+	if (sb_chk_rst_esc_menu_active() == true){
+		return;
+	}
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -804,6 +830,9 @@ static void level_8()
  */
 static void level_7()
 {
+	if (sb_chk_rst_esc_menu_active() == true){
+		return;
+	}
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -839,6 +868,9 @@ static void level_7()
  */
 static void level_6()
 {
+	if (sb_chk_rst_esc_menu_active() == true){
+		return;
+	}
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -874,6 +906,9 @@ static void level_6()
  */
 static void level_5()
 {
+	if (sb_chk_rst_esc_menu_active() == true){
+		return;
+	}
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -914,6 +949,9 @@ static void level_5()
  */
 static void level_4()
 {
+	if (sb_chk_rst_esc_menu_active() == true){
+		return;
+	}
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -922,19 +960,21 @@ static void level_4()
 
 	int size = cw_get_code_list_size();
 
-	if (g_lv_msg[MSG1] && size == 0){
-		tx_text_box(TX_BIG_BOX, MSG1, TX_NONE); //Welcome
+	if (g_lv_msg[MSG0] && size == 0){
+		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG1, true);
-	} else if (g_lv_msg[MSG2] == true && size == 0){
-		tx_text_box(TX_UPPER_BOX, MSG2, TX_NONE); //More registers available
+		chk_ms_pressed_clear_msg(MSG0, true);
+	} else if (g_lv_msg[MSG1] == true && size == 0){
+		tx_text_box(TX_UPPER_BOX, MSG1, TX_SYSMES); //More registers available
 		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_REG);
-		chk_ms_pressed_clear_msg(MSG2, true);
-	} else if (size == 1 && miss_op == false){
-		tx_text_box(TX_CENTER_BOX, MSG3, TX_NONE); // All operands are shown
+		chk_ms_pressed_clear_msg(MSG1, true);
+	} else if (size == 1 && miss_op == false && g_lv_msg[MSG2] == true ){
+		tx_text_box(TX_CENTER_BOX, MSG2, TX_SYSMES); // step-step
+		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_STEP);
 		ar_display_arrow(AR_FAST);
+		chk_ms_pressed_clear_msg(MSG2, true);
 	} 
 }
 
@@ -950,6 +990,9 @@ static void level_4()
  */
 static void level_3()
 {
+	if (sb_chk_rst_esc_menu_active() == true){
+		return;
+	}
 	sb_set_step_btns_avail(false);
 	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -957,14 +1000,14 @@ static void level_3()
 
 	int code_size = cw_get_code_list_size();
 
-	if (g_lv_msg[MSG1] == true && code_size == 0){
-		tx_text_box(TX_BIG_BOX, MSG1, TX_NONE); //Welcome
+	if (g_lv_msg[MSG0] == true && code_size == 0){
+		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG1, true);
-	} else if (g_lv_msg[MSG2] == true && code_size == 0){
-		tx_text_box(TX_UPPER_BOX, MSG2, TX_NONE);//Solve the challenge by yourself
+		chk_ms_pressed_clear_msg(MSG0, true);
+	} else if (g_lv_msg[MSG1] == true && code_size == 0){
+		tx_text_box(TX_UPPER_BOX, MSG1, TX_SYSMES);//Solve the challenge 
 		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG2, true);
+		chk_ms_pressed_clear_msg(MSG1, true);
 	}
 }
 
@@ -980,6 +1023,9 @@ static void level_3()
  */
 static void level_2()
 {
+	if (sb_chk_rst_esc_menu_active() == true){
+		return;
+	}
 	sb_set_step_btns_avail(false);
 	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -992,71 +1038,71 @@ static void level_2()
 	bool miss_op = cw_is_operand_pending();
 	bool sorted = cw_check_code_sorted();
 
-	if (g_lv_msg[MSG1] == true && size == 0){
-		tx_text_box(TX_BIG_BOX, MSG1, TX_NONE); //Welcome
+	if (g_lv_msg[MSG0] == true && size == 0){
+		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
 		set_code_editable(false, NO_EXCEPTION);
-		chk_ms_pressed_clear_msg(MSG1, true);
-	} else if (g_lv_msg[MSG2] == true && size == 0){
-		tx_text_box(TX_UPPER_BOX, MSG2, TX_NONE);// IB can be read only once
+		chk_ms_pressed_clear_msg(MSG0, true);
+	} else if (g_lv_msg[MSG1] == true && size == 0){
+		tx_text_box(TX_UPPER_BOX, MSG1, TX_SYSMES);// IB can be read only once
 		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_IB);
-		chk_ms_pressed_clear_msg(MSG2, true);
-	} else if (g_lv_msg[MSG3] == true && size == 0){
-		tx_text_box(TX_LOWER_BOX, MSG3, TX_NONE); //Reg can be read multiple times
+		chk_ms_pressed_clear_msg(MSG1, true);
+	} else if (g_lv_msg[MSG2] == true && size == 0){
+		tx_text_box(TX_LOWER_BOX, MSG2, TX_SYSMES); //Reg can be read multiples
 		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
 		draw_regs_arrow(true);
-		chk_ms_pressed_clear_msg(MSG3, true);
+		chk_ms_pressed_clear_msg(MSG2, true);
 	} else if (size == 0 && hold == false){
-		tx_text_box(TX_INS_BOX, MSG4, TX_NONE);// Select and drag mov
+		tx_text_box(TX_INS_BOX, MSG3, TX_SYSMES);// Select and drag mov
 		ar_display_arrow(AR_INS);
 		set_code_editable(true, NO_EXCEPTION);
 	} else if (size == 0 && hold == true){
-		tx_text_box(TX_CODE_BOX, MSG5, TX_NONE); // Drop in code box
+		tx_text_box(TX_CODE_BOX, MSG4, TX_SYSMES); // Drop in code box
 		ar_display_arrow(AR_DROP);
 	} else if (size == 1 && hold == true && miss_op == true){
-		tx_text_box(TX_CODE_BOX, MSG5, TX_NONE); // Drop in code box
+		tx_text_box(TX_CODE_BOX, MSG4, TX_SYSMES); // Drop in code box
 		ar_display_arrow(AR_DROP);
 	} else if (size == 1 
 			   && sorted == true 
 			   && hold == false 
-			   && g_lv_msg[MSG6] == true){
-		tx_text_box(TX_LOWER_BOX, MSG6, TX_NONE); // All operands are shown
+			   && g_lv_msg[MSG5] == true){
+		tx_text_box(TX_LOWER_BOX, MSG5, TX_SYSMES); // All operands are shown
 		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
-		chk_ms_rel_clear_msg(MSG6, true);
+		chk_ms_rel_clear_msg(MSG5, true);
 	} else if (size == 1 && miss_op1 == true && sorted == true){
-		tx_text_box(TX_CODE_BOX, MSG7, TX_NONE); //Sel rax
+		tx_text_box(TX_CODE_BOX, MSG6, TX_SYSMES); //Sel rax
 		set_buf_selectable(false);
 	} else if (size == 1 
 			   && miss_op2 == true 
 			   && sorted == true
-			   && g_lv_msg[MSG8] == true){
-		tx_text_box(TX_CENTER_BOX, MSG8, TX_NONE); //Valid op combinations
+			   && g_lv_msg[MSG7] == true){
+		tx_text_box(TX_CENTER_BOX, MSG7, TX_SYSMES); //Valid op combinations
 		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
-		chk_ms_rel_clear_msg(MSG8, true);
+		chk_ms_rel_clear_msg(MSG7, true);
 	} else if (size == 1 && miss_op2 == true && sorted == true){
-		tx_text_box(TX_UPPER_BOX, MSG9, TX_NONE); //Select IB
+		tx_text_box(TX_UPPER_BOX, MSG8, TX_SYSMES); //Select IB
 		set_buf_selectable(true);
 		set_reg_selectable(false);
 	} else if (size == 1 && miss_op == false && hold == false){
-		tx_text_box(TX_INS_BOX, MSG10, TX_NONE); //Select second instruction
+		tx_text_box(TX_INS_BOX, MSG9, TX_SYSMES); //Select second instruction
 		ar_display_arrow(AR_INS);
 		set_reg_selectable(true);
 	} else if (size == 1 && miss_op == false & hold == true){
-		tx_text_box(TX_CODE_BOX, MSG5, TX_NONE);//Drop in code box
+		tx_text_box(TX_CODE_BOX, MSG4, TX_SYSMES);//Drop in code box
 		ar_display_arrow(AR_DROP);
 	} else if (size == 2 && miss_op1 == true){
-		tx_text_box(TX_CODE_BOX, MSG11, TX_NONE);//Use mov [ob], rax several times
+		tx_text_box(TX_CODE_BOX, MSG10, TX_SYSMES);//Use mov [ob], rax several 
 		set_reg_selectable(false);
 		set_buf_selectable(true);
 		ar_init_arrow(AR_CODE);
 	} else if (size == 2 && miss_op1 == false && miss_op2 == true){
-		tx_text_box(TX_CODE_BOX, MSG11, TX_NONE);//Use mov [ob], rax several times
+		tx_text_box(TX_CODE_BOX, MSG10, TX_SYSMES);//Use mov [ob], rax several 
 		set_buf_selectable(false);
 		set_reg_selectable(true);
 		ar_init_arrow(AR_CODE);
 	} else if (size == 2 && miss_op == false){
-		tx_text_box(TX_CODE_BOX, MSG12, TX_NONE); //Right click a complete instruction
+		tx_text_box(TX_CODE_BOX, MSG11, TX_SYSMES); //Right click a complete 
 		set_reg_selectable(true);
 		ar_display_arrow(AR_CODE);
 	}
@@ -1074,6 +1120,9 @@ static void level_2()
  */
 static void level_1()
 {
+	if (sb_chk_rst_esc_menu_active() == true){
+		return;
+	}
 	sb_set_step_btns_avail(false);
 	im_set_imm_up_avail(false);
 	int size = cw_get_code_list_size();
