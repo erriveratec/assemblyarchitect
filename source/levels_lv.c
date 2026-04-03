@@ -1108,42 +1108,42 @@ static void level_1()
 			press_play = true;
 		}
 	}
-	if (g_lv_msg[MSG1] == true && size == 3){
+	if (g_lv_msg[MSG0] == true && size == 3){
 		set_code_editable(false, NO_EXCEPTION);
 		set_arrange_enabled(false);
-		tx_text_box(TX_BIG_BOX, MSG1, TX_NONE); //Welcome
+		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG1, true);
-	} else if (g_lv_msg[MSG2] == true && size == 3){
+		chk_ms_pressed_clear_msg(MSG0, true);
+	} else if (g_lv_msg[MSG1] == true && size == 3){
 		set_code_editable(false, NO_EXCEPTION);
-		tx_text_box(TX_UPPER_BOX, MSG2, TX_NONE); //Rearrange
+		tx_text_box(TX_UPPER_BOX, MSG1, TX_SYSMES); //Rearrange
 		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG2, true);
+		chk_ms_pressed_clear_msg(MSG1, true);
 	} else if (size > limit && hold == false){
 		set_code_editable(false, size);
-		tx_text_box(TX_CODE_BOX, MSG3, TX_NONE); //Select last instruction
+		tx_text_box(TX_CODE_BOX, MSG2, TX_SYSMES); //Select last instruction
 		ar_display_arrow(AR_CODE);
 	} else if (size > limit && hold == true){
-		tx_text_box(TX_CODE_BOX, MSG4, TX_NONE); //Delete the instruction
+		tx_text_box(TX_CODE_BOX, MSG3, TX_SYSMES); //Delete the instruction
 		ar_display_arrow(AR_DEL);
 	} else if (change_op == true && hold == false){
 		set_code_editable(false, OP2_LAST);
 		if (i2->state != CHANGING_OP2){
-			tx_text_box(TX_CODE_BOX, MSG5, TX_NONE); // Select operand
+			tx_text_box(TX_CODE_BOX, MSG4, TX_SYSMES); // Select operand
 			ar_display_arrow(AR_OP2);
 		} else if (i2->state == CHANGING_OP2){
-			tx_text_box(TX_UPPER_BOX, MSG6, TX_NONE); // Select IB
+			tx_text_box(TX_UPPER_BOX, MSG5, TX_SYSMES); // Select IB
 			ar_display_arrow(AR_IB);
 		}
 	} else if (mov_instruction == true){
 		set_code_editable(false, size);
 		set_del_enabled(false);
 		set_arrange_enabled(true);
-		tx_text_box(TX_CODE_BOX, MSG7, TX_NONE); //Mov ins to first pos
+		tx_text_box(TX_CODE_BOX, MSG6, TX_SYSMES); //Mov ins to first pos
 		ar_display_arrow(AR_CODE);
 	} else if (press_play == true && play == false && win == false){
 		set_code_editable(false, NO_EXCEPTION);
-		tx_text_box(TX_CODE_BOX, MSG8, TX_NONE); //Press play
+		tx_text_box(TX_CODE_BOX, MSG7, TX_SYSMES); //Press play
 		ar_display_arrow(AR_PLAY);
 	}
 }

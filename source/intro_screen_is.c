@@ -692,7 +692,10 @@ int stage_sector_0()
 	} else if (bt_chk_rel_iface_btn(levels[0], g_sfx_select)){
 		ret_val = LV_LEVEL_0;
 		change_stage = true;
-//	} else if (bt_chk_rel_btn(sectors[1], g_sfx_select)){
+	} else if (bt_chk_rel_iface_btn(levels[1], g_sfx_select)){
+		ret_val = LV_LEVEL_1;
+		change_stage = true;
+
 //	} else if (bt_chk_rel_btn(sectors[2], g_sfx_select)){
 //	} else if (bt_chk_rel_btn(sectors[3], g_sfx_select)){
 //	} else if (bt_chk_rel_btn(sectors[4], g_sfx_select)){

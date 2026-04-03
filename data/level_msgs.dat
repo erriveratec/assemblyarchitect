@@ -79,35 +79,35 @@ MSG_END
 QUANTITY 8
 
 MSG 00
-LEVEL 02
+ADDRESS 00
 MSG_END
 
 MSG 01
-WE WILL REARRANGE, DELETE AND CHANGE OPERANDS OF THE INSTRUCTION
+Instructions order and operands can be modified
 MSG_END
 
 MSG 02
-SELECT AND DRAG THE LAST INSTRUCTION BY CLICKING THE INSTRUCTION NAME
+Select and drag the last instruction by clicking the instruction name
 MSG_END
 
 MSG 03
-DRAG THE INSTRUCTION OUT OF THE CODE BOX TO DELETE IT
+Drag the instruction out of the code box to delete it
 MSG_END
 
 MSG 04
-CLICK THE SOURCE OPERAND OF THE INSTRUCTION TO CHANGE IT
+Click the source operand of the instruction to change it
 MSG_END
 
 MSG 05
-SELECT THE INPUT BUFFER [IB] AS THE SOURCE OPERAND
+Select the Input Buffer [ib] as the source operand
 MSG_END
 
 MSG 06
-SELECT AND DRAG THE SECOND INSTRUCTION AND MOVE IN TO THE FIRST POSITION
+Select and drag the second instruction and move in to the first position
 MSG_END
 
 MSG 07
-PRESS THE PLAY BUTTON
+Press the Play Button
 MSG_END
 
 +++LEVEL ENDS 01
