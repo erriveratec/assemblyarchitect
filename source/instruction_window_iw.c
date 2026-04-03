@@ -187,7 +187,7 @@ static List *get_instruction_list()
 
 
 
-/* Function: iw_check_clicked_instruction
+/* Function: iw_chk_click_ins
 *------------------------------------------------------------------------------
 * This functions verifies if the user clicked one of the instructions available
 * in the screen
@@ -200,21 +200,23 @@ static List *get_instruction_list()
 *
 */
 
-bool iw_check_clicked_instruction()
+bool iw_chk_click_ins()
 {
 	List *instructions = get_instruction_list();
    	int x = List_count(instructions);
    	bool clicked = false;
 
-   	LIST_FOREACH(instructions, first, next, cur){ 
-	   
-	   instruction_t *c = cur->value;
-	   
-	   if (bt_btn_clicked(c->b) == true){
-		   clicked = true;
-		   break;
-	   } 
-   }
+	if (sb_chk_rst_esc_menu_active() == false){
+		LIST_FOREACH(instructions, first, next, cur){ 
+		   
+		   instruction_t *c = cur->value;
+		   
+		   if (bt_btn_clicked(c->b) == true){
+			   clicked = true;
+			   break;
+		   } 
+   		}	
+	}
    
    return clicked;
 }
@@ -320,7 +322,7 @@ void iw_update_ins_box_size()
 	}
 }
 
-/* Function: iw_draw_instruction_box
+/* Function: iw_draw_ins_box
  * -----------------------------------------------------------------------------
  * This function displays the instructions available for a level.
  *
@@ -331,7 +333,7 @@ void iw_update_ins_box_size()
  *	void
  *
  */
-void iw_draw_instruction_box()
+void iw_draw_ins_box()
 {
 	List *instructions = get_instruction_list();
 	assert(instructions != NULL && "Invalid pointer");
@@ -342,7 +344,7 @@ void iw_draw_instruction_box()
 
 	LIST_FOREACH(instructions, first, next, cur){
 		instruction_t *c = cur->value;
-		bt_draw_btn(c->b, sb_get_escape_state(), false);
+		bt_draw_btn(c->b, sb_chk_rst_esc_menu_active(), false);
 	}
 }
 

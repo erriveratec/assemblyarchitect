@@ -184,7 +184,7 @@ static void destroy_level(level_flags_t *flags)
  */
 void stage_drawings(int level)
 {
-	iw_draw_instruction_box();
+	iw_draw_ins_box();
 	cw_draw_code_window();	
 	sb_draw_stage_btns(cw_get_code_list_size());
 	im_draw_imm();
@@ -435,7 +435,7 @@ static code_line_t *edit_code(int level_id)
 			   && line == NULL 
 			   && lv_is_code_editable() == true){
 		cw_change_clicked_code_line_state();	
-	} else if (iw_check_clicked_instruction() == true 
+	} else if (iw_chk_click_ins() == true 
 			   && line == NULL
 			   && lv_is_code_editable() == true){
 		line = cl_new_code_line(iw_get_clicked_instruction());

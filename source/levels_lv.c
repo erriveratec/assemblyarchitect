@@ -372,7 +372,7 @@ bool lv_is_code_editable()
 	
 	if (exception == NO_EXCEPTION){
 		editable = g_code_editable;
-	} else if (iw_check_clicked_instruction() == true && 
+	} else if (iw_chk_click_ins() == true && 
 													exception == INS_EXCEPTION){
 		editable = true;	
 	} else if (cw_is_code_clicked() == true) {
