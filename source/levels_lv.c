@@ -33,7 +33,11 @@
 #define OP1_LAST -3
 #define OP2_LAST -4
 
-
+const Uint32 LV_SECTOR_1_START = 8;
+const Uint32 LV_SECTOR_2_START = 16;
+const Uint32 LV_SECTOR_3_START = 24;
+const Uint32 LV_SECTOR_4_START = 32;
+const Uint32 LV_SECTOR_0_LV_QTY = LV_SECTOR_1_START;
 
 static bool g_code_editable;
 static int g_code_editable_exception;

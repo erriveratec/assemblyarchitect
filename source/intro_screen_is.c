@@ -63,12 +63,7 @@ static const Uint32 SEP_LEGTH = 1200;
 static const Uint32 SECTOR_BTN_SPACING = 60;
 static const Uint32 FIRST_BTN_OFS = 3;
 
-static const Uint32 SECTOR_1_START = 8;
-static const Uint32 SECTOR_2_START = 16;
-static const Uint32 SECTOR_3_START = 24;
-static const Uint32 SECTOR_4_START = 32;
 
-static const Uint32 SECTOR_0_LV_QTY = SECTOR_1_START;
 
 texture_t *g_chip = NULL;
 texture_t *g_logo = NULL;
@@ -487,7 +482,7 @@ static void create_sector_btns(btn_t **btns, bool *levels)
 	btns[1]->r.w = ax_get_texture_w_fit_h(btns[1]->r.h, btns[1]->t);
 	btns[1]->r.y = btns[0]->r.y + get_sector_btn_box().h + y_space;
 	btns[1]->r.x += x_ofs;
-	if (levels[SECTOR_1_START] == false){
+	if (levels[LV_SECTOR_1_START] == false){
 		btns[1]->enabled = false;
 	}
 	
@@ -496,7 +491,7 @@ static void create_sector_btns(btn_t **btns, bool *levels)
 	btns[2]->r.w = ax_get_texture_w_fit_h(btns[2]->r.h, btns[2]->t);
 	btns[2]->r.y = btns[1]->r.y + get_sector_btn_box().h + y_space;
 	btns[2]->r.x += x_ofs;
-	if (levels[SECTOR_2_START] == false){
+	if (levels[LV_SECTOR_2_START] == false){
 		btns[2]->enabled = false;
 	}
 
@@ -505,7 +500,7 @@ static void create_sector_btns(btn_t **btns, bool *levels)
 	btns[3]->r.w = ax_get_texture_w_fit_h(btns[3]->r.h, btns[3]->t);
 	btns[3]->r.y = btns[2]->r.y + get_sector_btn_box().h + y_space;
 	btns[3]->r.x += x_ofs;
-	if (levels[SECTOR_3_START] == false){
+	if (levels[LV_SECTOR_3_START] == false){
 		btns[3]->enabled = false;
 	}
 
@@ -514,7 +509,7 @@ static void create_sector_btns(btn_t **btns, bool *levels)
 	btns[4]->r.w = ax_get_texture_w_fit_h(btns[4]->r.h, btns[4]->t);
 	btns[4]->r.y = btns[3]->r.y + get_sector_btn_box().h + y_space;
 	btns[4]->r.x += x_ofs;
-	if (levels[SECTOR_4_START] == false){
+	if (levels[LV_SECTOR_4_START] == false){
 		btns[4]->enabled = false;
 	}
 }
@@ -605,8 +600,8 @@ int stage_sector_0()
 		level_initialized = true;
 		last_type_ms = cur_time;
 		fx = fx_electron_create(g_renderer, W, H, NULL);
-		levels = malloc(sizeof(iface_btn_t *) * SECTOR_0_LV_QTY);
-		create_sec_0_lvl_btns(levels, player_levels, SECTOR_0_LV_QTY);
+		levels = malloc(sizeof(iface_btn_t *) * LV_SECTOR_0_LV_QTY);
+		create_sec_0_lvl_btns(levels, player_levels, LV_SECTOR_0_LV_QTY);
 		subtitle = dw_create_text_tex(sub_text, C_SILVERGREY);
         SDL_SetTextureAlphaMod(subtitle->texture, sub_alpha);
 	}
@@ -657,7 +652,7 @@ int stage_sector_0()
 	static bool prev_hov = false;
 	bool button_hovered = false;
 	
-	for (int i = 0; i < SECTOR_0_LV_QTY; i++){
+	for (int i = 0; i < LV_SECTOR_0_LV_QTY; i++){
 		int hov = bt_draw_iface_btn(levels[i], sb_get_escape_state(), NULL);
 		if ((hov == BTN_HOVER || hov == BTN_CLICKPRESS) && prev_hov == false){
 			hover = tx_get_message_texture(i);

@@ -687,7 +687,6 @@ void sb_draw_stage_btns(int code_size)
 	}
 }
 
-
 /* Function: sb_draw_rst_btn
  * ----------------------------------------------------------------------------
  * This function draws the reset button that will be shown to clean the code

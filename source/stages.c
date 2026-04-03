@@ -47,6 +47,7 @@ static void code_updated_actions(int level_id);
 static void set_code_editable();
 static void reset_code_editable();
 static void rst_btn_hdl(int level_id, level_flags_t *f);
+static int get_sector_id(int level_id);
 
 /* Function: reset_level_flags
  * -------------------------------------
@@ -519,6 +520,35 @@ static void reset_level(int level_id, level_flags_t *flags)
 	mc_set_op_menu_btn_state(NO_BTN_PRESSED);
 }
 
+/* Function: get_sector_id
+ * ----------------------------------------------------------------------------
+ * Returns the sector select id based on which level the player is in
+ *
+ * Arguments:
+ * 	level_id: the level that the player is playing
+ *
+ * Return:
+ *	void.
+ */
+static int get_sector_id(int level_id)
+{
+	int ret_screen = LV_SELECT_SECTOR;
+	if (level_id < LV_SECTOR_1_START){
+		ret_screen = LV_SECTOR_0;	
+	} else if (level_id < LV_SECTOR_2_START && level_id >= LV_SECTOR_1_START){
+		ret_screen = LV_SECTOR_1;	
+	} else if (level_id < LV_SECTOR_2_START && level_id >= LV_SECTOR_1_START){
+		ret_screen = LV_SECTOR_1;	
+	} else if (level_id < LV_SECTOR_4_START && level_id >= LV_SECTOR_3_START){
+		ret_screen = LV_SECTOR_3;	
+	} else if (level_id >= LV_SECTOR_4_START){
+		ret_screen = LV_SECTOR_4;	
+	} 	
+	return ret_screen;
+}
+
+
+
 int stage_level(int level_id)
 {
 	//Electron animation
@@ -596,7 +626,7 @@ int stage_level(int level_id)
 	}
 
 	if (back_to_level_selection == true){
-		ret_val = LV_SECTOR_0;	
+		ret_val = get_sector_id(level_id);
 		reset_level(level_id, &flags);		
 		destroy_level(&flags);
 		electron_init = false;
