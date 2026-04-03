@@ -679,11 +679,11 @@ void adjust_stage_buttons_position(int code_size)
 void sb_draw_stage_btns(int code_size)
 {
 	adjust_stage_buttons_position(code_size);
-	bt_draw_iface_btn(stop, sb_get_escape_state(), g_sfx_hover);
-	bt_draw_iface_btn(play, sb_get_escape_state(), g_sfx_hover);
+	bt_draw_iface_btn(stop, sb_chk_rst_esc_menu_active(), g_sfx_hover);
+	bt_draw_iface_btn(play, sb_chk_rst_esc_menu_active(), g_sfx_hover);
 	if (g_step_btns_avail == true){
-		bt_draw_iface_btn(fast, sb_get_escape_state(), g_sfx_hover);
-		bt_draw_iface_btn(step, sb_get_escape_state(), g_sfx_hover);
+		bt_draw_iface_btn(fast, sb_chk_rst_esc_menu_active(), g_sfx_hover);
+		bt_draw_iface_btn(step, sb_chk_rst_esc_menu_active(), g_sfx_hover);
 	}
 }
 
@@ -870,7 +870,7 @@ bool sb_chck_rel_ret_btn()
 	return ret;
 }
 
-/* Function: sb_stage_btn_clicked
+/* Function: sb_chk_click_stage_btn
  * ----------------------------------------------------------------------------
  * Verifies if a stage button was clicked
  *
@@ -880,18 +880,19 @@ bool sb_chck_rel_ret_btn()
  * Return:
  *	true if button clicked, false if otherwise.
  */
-bool sb_stage_btn_clicked()
+bool sb_chk_click_stage_btn()
 {
 	int ret = false;
-
-	if (bt_chk_mouse_click_iface_btn(stop) == true ||
-		bt_chk_mouse_click_iface_btn(play) == true){
-		ret = true;
-	}
-	else if (g_step_btns_avail == true && 
-			 (bt_chk_mouse_click_iface_btn(fast) == true ||
-			  bt_chk_mouse_click_iface_btn(step) == true)){
-		ret = true;	
+	if (sb_chk_rst_esc_menu_active() == false){
+		if (bt_chk_mouse_click_iface_btn(stop) == true ||
+			bt_chk_mouse_click_iface_btn(play) == true){
+			ret = true;
+		}
+		else if (g_step_btns_avail == true && 
+				 (bt_chk_mouse_click_iface_btn(fast) == true ||
+				  bt_chk_mouse_click_iface_btn(step) == true)){
+			ret = true;	
+		}
 	}
 	return ret;
 }

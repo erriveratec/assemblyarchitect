@@ -13,6 +13,7 @@
 #include "arrow_ar.h"
 #include "immediates_im.h"
 #include "stage_buttons_sb.h"
+#include "sdl_config.h"
 
 #define INPUT_BUFFER_EMPTY_TEXT "A value cannot be recovered if the "\
 "Input Buffer [IB] is empty"
@@ -347,15 +348,15 @@ void mc_display_operation_handler(int id)
 			}
 			
 		} 
-		bt_draw_iface_btn(back, sb_get_escape_state(), NULL);
+		bt_draw_iface_btn(back, sb_get_escape_state(), g_sfx_hover);
 		if (two_buttons == true){
-			bt_draw_iface_btn(cont, sb_get_escape_state(), NULL);
+			bt_draw_iface_btn(cont, sb_get_escape_state(), g_sfx_hover);
 		}
-			if (bt_chk_rel_iface_btn(back, NULL) == true){
+			if (bt_chk_rel_iface_btn(back, g_sfx_cancel) == true){
 				mc_set_op_menu_btn_state(BACK_BTN_PRESSED);
 				mc_set_rst_lvl(true);
 				button_pressed = true;
-			} else if (bt_chk_rel_iface_btn(cont, NULL)){
+			} else if (bt_chk_rel_iface_btn(cont, g_sfx_select)){
 				mc_set_op_menu_btn_state(CONT_BTN_PRESSED);
 			} else {
 				mc_set_op_menu_btn_state(NO_BTN_PRESSED);

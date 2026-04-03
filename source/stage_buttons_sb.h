@@ -26,7 +26,7 @@ void sb_init_ret_btn();
 
 void sb_init_stage_btns();
 void sb_draw_stage_btns(int code_size);
-bool sb_stage_btn_clicked();
+bool sb_chk_click_stage_btn();
 int identify_clicked_stage_button();
 bool sb_chck_rel_ret_btn();
 SDL_Rect sb_get_stage_btns();

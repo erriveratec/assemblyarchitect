@@ -530,7 +530,7 @@ int stage_level(int level_id)
 	rst_btn_hdl(level_id, &flags);
 	cw_sort_code();
 
-	if (sb_stage_btn_clicked() == true && cw_is_operand_pending() == false){
+	if (sb_chk_click_stage_btn() == true && cw_is_operand_pending() == false){
 		flag_handler(&flags, identify_clicked_stage_button());
 	}
 	
