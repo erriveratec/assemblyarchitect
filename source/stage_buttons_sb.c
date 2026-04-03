@@ -15,7 +15,7 @@ static char *ESC_MENU_HEADER = "ESC MENU";
 static char *SYSTEM_ALERT = "SYSTEM ALERT";
 
 
-#define RST_MENU_TEXT0 "Do you want to reset the current level?"
+#define RST_MENU_TEXT0 "Do you want to reset the current address?"
 #define RST_MENU_TEXT1 "NO"
 #define RST_MENU_TEXT2 "YES"
 
@@ -679,11 +679,11 @@ void adjust_stage_buttons_position(int code_size)
 void sb_draw_stage_btns(int code_size)
 {
 	adjust_stage_buttons_position(code_size);
-	bt_draw_iface_btn(stop, sb_get_escape_state(), NULL);
-	bt_draw_iface_btn(play, sb_get_escape_state(), NULL);
+	bt_draw_iface_btn(stop, sb_get_escape_state(), g_sfx_hover);
+	bt_draw_iface_btn(play, sb_get_escape_state(), g_sfx_hover);
 	if (g_step_btns_avail == true){
-		bt_draw_iface_btn(fast, sb_get_escape_state(), NULL);
-		bt_draw_iface_btn(step, sb_get_escape_state(), NULL);
+		bt_draw_iface_btn(fast, sb_get_escape_state(), g_sfx_hover);
+		bt_draw_iface_btn(step, sb_get_escape_state(), g_sfx_hover);
 	}
 }
 
@@ -723,7 +723,29 @@ void sb_init_rst_btn()
 	return;
 }
 
-/* Function: sb_chk_click_rst_btn
+/* Function: sb_chk_hov_rst_ret_btns
+ * -----------------------------------------------------------------------------
+ * Verifies if the player is above the rst or ret bths
+ *
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	true if inside that area
+ */
+bool sb_chk_hov_rst_ret_btns()
+{
+	int hov = false;
+
+	if (bt_chk_hover_iface_btn(ret_btn) == true) {
+		hov = true;
+	} else if (bt_chk_hover_iface_btn(rst_btn) == true) {
+		hov = true;
+	}
+	return hov;
+}
+
+/* Function: sb_chk_rel_rst_btn
  * -----------------------------------------------------------------------------
  * Verifies if the reset button has been clicked
  *
@@ -733,7 +755,7 @@ void sb_init_rst_btn()
  * Return:
  *	true if button clicked, false if otherwise.
  */
-bool sb_chk_click_rst_btn()
+bool sb_chk_rel_rst_btn()
 {
 	int rst = false;
 
@@ -824,7 +846,7 @@ void sb_init_stage_btns()
 	return;
 }
 
-/* Function: sb_chk_click_ret_btn
+/* Function: sb_chck_rel_ret_btn
  * -----------------------------------------------------------------------------
  * This function verifies if the player has clicked on the return button
  *
@@ -834,7 +856,7 @@ void sb_init_stage_btns()
  * Return:
  *	true if button clicked, false if otherwise.
  */
-bool sb_chk_click_ret_btn()
+bool sb_chck_rel_ret_btn()
 {
 	int ret = false;
 

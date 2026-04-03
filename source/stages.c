@@ -476,7 +476,7 @@ static code_line_t *edit_code(int level_id)
  */
 static void rst_btn_hdl(int level_id, level_flags_t *f)
 {
-	if (sb_chk_click_rst_btn() == true){
+	if (sb_chk_rel_rst_btn() == true){
 		sb_set_rst_menu(true);
 	}
 	if (sb_chk_rst_menu_btns(sb_chk_rst_menu_state()) == true){
@@ -524,7 +524,7 @@ int stage_level(int level_id)
 	static bool reset = false;
 	static code_line_t *hold_line = NULL;
 	static level_flags_t flags;
-	bool back_to_level_selection = sb_chk_click_ret_btn(); 
+	bool back_to_level_selection = sb_chck_rel_ret_btn(); 
 	
 	stage_drawings(level_id);
 	rst_btn_hdl(level_id, &flags);

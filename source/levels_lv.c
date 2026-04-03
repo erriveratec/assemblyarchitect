@@ -88,7 +88,7 @@ static void set_reg_selectable(bool state);
 static void set_arrange_enabled(bool state);
 static void init_lv_msgs();
 static void chk_ms_pressed_clear_msg(int message_id, bool reset_mouse);
-static void chk_ms_released_clear_msg(int message_id, bool reset_mouse);
+static void chk_ms_rel_clear_msg(int message_id, bool reset_mouse);
 static bool check_player_is_holding_line();
 static code_line_t *get_hold_line();
 static bool get_play_state();
@@ -410,7 +410,7 @@ static void set_code_editable(bool state, int exception)
 	g_code_editable = state;
 }
 
-/* Function: chk_ms_released_clear_msg
+/* Function: chk_ms_rel_clear_msg
  * -----------------------------------------------------------------------------
  * Verifies if the mouse was released and sets the message variable to false.
  * It has an option for clearing the mouse state
@@ -422,7 +422,7 @@ static void set_code_editable(bool state, int exception)
  * Return:
  *	Void.
  */
-static void chk_ms_released_clear_msg(int message_id, bool reset_mouse)
+static void chk_ms_rel_clear_msg(int message_id, bool reset_mouse)
 {
 	if (ms_left_released() == true){
 		g_lv_msg[message_id] = false;
@@ -446,10 +446,12 @@ static void chk_ms_released_clear_msg(int message_id, bool reset_mouse)
  */
 static void chk_ms_pressed_clear_msg(int message_id, bool reset_mouse)
 {
-	if (ms_left_pressed() == true){
-		g_lv_msg[message_id] = false;
-		if (reset_mouse == true){
-			ms_reset_mouse_values();
+	if (sb_chk_hov_rst_ret_btns() == false){
+		if (ms_left_pressed() == true){
+			g_lv_msg[message_id] = false;
+			if (reset_mouse == true){
+				ms_reset_mouse_values();
+			}
 		}
 	}
 }
@@ -1016,7 +1018,7 @@ static void level_2()
 			   && g_lv_msg[MSG6] == true){
 		tx_text_box(TX_LOWER_BOX, MSG6, TX_NONE); // All operands are shown
 		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
-		chk_ms_released_clear_msg(MSG6, true);
+		chk_ms_rel_clear_msg(MSG6, true);
 	} else if (size == 1 && miss_op1 == true && sorted == true){
 		tx_text_box(TX_CODE_BOX, MSG7, TX_NONE); //Sel rax
 		set_buf_selectable(false);
@@ -1026,7 +1028,7 @@ static void level_2()
 			   && g_lv_msg[MSG8] == true){
 		tx_text_box(TX_CENTER_BOX, MSG8, TX_NONE); //Valid op combinations
 		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
-		chk_ms_released_clear_msg(MSG8, true);
+		chk_ms_rel_clear_msg(MSG8, true);
 	} else if (size == 1 && miss_op2 == true && sorted == true){
 		tx_text_box(TX_UPPER_BOX, MSG9, TX_NONE); //Select IB
 		set_buf_selectable(true);
@@ -1155,6 +1157,9 @@ static void level_1()
  */
 static void level_0()
 {
+	if (sb_chk_rst_esc_menu_active() == true){
+		return;
+	}
 	sb_set_step_btns_avail(false);
 	im_set_imm_up_avail(false);
 	draw_regs_arrow(false);

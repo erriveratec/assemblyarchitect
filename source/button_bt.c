@@ -16,7 +16,7 @@ static const Uint32 IFACE_BUTTON_OUTER_W = 3; //Outer width of the iface button
 
 static bool g_btns_blocked = false;
 
-static bool chk_mouse_hover_iface_btn(iface_btn_t *btn);
+bool bt_chk_hover_iface_btn(iface_btn_t *btn);
 static void draw_btn_scaled_texture(SDL_Rect box, iface_btn_t *b);
 static int get_w_iface_space_border();
 static int get_w_iface_outer_border();
@@ -228,7 +228,7 @@ bool bt_chk_mouse_click_iface_btn(iface_btn_t *btn)
  *	false if otherwise
  *
 */
-static bool chk_mouse_hover_iface_btn(iface_btn_t *btn)
+bool bt_chk_hover_iface_btn(iface_btn_t *btn)
 {
 	assert(NULL != btn && "The button pointer cannot be NULL");
 
@@ -320,7 +320,7 @@ int bt_draw_iface_btn(iface_btn_t *b, bool blk, Mix_Chunk *hover_sound)
 	int status = BTN_NONE;	
 	
 	SDL_Rect box = b->r;
- 	bool hover = chk_mouse_hover_iface_btn(b);
+ 	bool hover = bt_chk_hover_iface_btn(b);
 	bool clicked = bt_chk_mouse_click_iface_btn(b);
 	int offset = get_w_iface_space_border();
 	int shadow_offset = bt_get_ofs_button_shadow();	

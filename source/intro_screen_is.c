@@ -701,7 +701,7 @@ int stage_sector_0()
 //	} else if (bt_chk_rel_btn(sectors[2], g_sfx_select)){
 //	} else if (bt_chk_rel_btn(sectors[3], g_sfx_select)){
 //	} else if (bt_chk_rel_btn(sectors[4], g_sfx_select)){
-	} else if (sb_chk_click_ret_btn() == true){
+	} else if (sb_chck_rel_ret_btn() == true){
 //			bt_destroy_button(sectors[0]);
 //			bt_destroy_button(sectors[1]);
 //			bt_destroy_button(sectors[2]);
@@ -798,7 +798,7 @@ int stage_select_sector()
 	} else if (bt_chk_rel_btn(sectors[2], g_sfx_select)){
 	} else if (bt_chk_rel_btn(sectors[3], g_sfx_select)){
 	} else if (bt_chk_rel_btn(sectors[4], g_sfx_select)){
-	} else if (sb_chk_click_ret_btn() == true){
+	} else if (sb_chck_rel_ret_btn() == true){
 			bt_destroy_button(sectors[0]);
 			bt_destroy_button(sectors[1]);
 			bt_destroy_button(sectors[2]);
@@ -890,7 +890,7 @@ int stage_select_level()
 				}
 			}
 		}
-		if (sb_chk_click_ret_btn() == true){
+		if (sb_chck_rel_ret_btn() == true){
 			ret_val = LV_SELECT_PLAYER_SCREEN;	
 			level_initialized = false;
   			aa_electron_fx_destroy(fx);

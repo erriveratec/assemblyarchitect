@@ -28,7 +28,7 @@ void sb_init_stage_btns();
 void sb_draw_stage_btns(int code_size);
 bool sb_stage_btn_clicked();
 int identify_clicked_stage_button();
-bool sb_chk_click_ret_btn();
+bool sb_chck_rel_ret_btn();
 SDL_Rect sb_get_stage_btns();
 
 int sb_get_play_button_member(int member);
@@ -45,7 +45,7 @@ void sb_set_step_btns_avail(bool state);
 
 void sb_draw_rst_btn();
 void sb_init_rst_btn();
-bool sb_chk_click_rst_btn();
+bool sb_chk_rel_rst_btn();
 void sb_init_rst_menu();
 void sb_set_rst_menu(bool state);
 bool sb_chk_rst_menu_state();
@@ -53,5 +53,6 @@ void sb_display_rst_menu(bool show_menu);
 bool sb_chk_rst_menu_btns(bool show_menu);
 
 bool sb_chk_rst_esc_menu_active();
+bool sb_chk_hov_rst_ret_btns();
 
 #endif
