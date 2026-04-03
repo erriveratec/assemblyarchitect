@@ -53,15 +53,11 @@
 #define CODE_BUTTON_H 40
 #define COMMA_OFS 15
 
-
 #define RST_MENU_BUTTON_W 350
 #define RST_MENU_BUTTON_H 60
 
-
 #define RET_RES_OFS 5
 
-#define RST_MENU_BTNS_W 100
-#define RST_MENU_BTNS_H 60
 
 #define RES_BUTTON_H 60
 #define RES_BUTTON_W 155
@@ -120,6 +116,24 @@ int g_screen_height;
 
 static int dm_get_ofs_val_box_x();
 // dm_get_box_msg_wh TODO remove  dw_get_ofs_iface_filled_border(
+
+/* Function: dm_res_box_offset
+ * -----------------------------------------------------------------------------
+ * Returns the width that is going to be used for the missing op animation
+ * square.
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	The max level of the animation
+ */
+int dm_get_ofs_res_box()
+{
+	return dm_scale_to_res(RES_BOX_OFFSET);
+}
+
+
 
 /* Function: dm_get_w_miss_op
  * -----------------------------------------------------------------------------
@@ -1139,49 +1153,6 @@ SDL_Rect dm_get_code_button_wh()
 }
 
 
-/* Function: dm_get_rst_b1_box
- * -----------------------------------------------------------------------------
- * Box position of the button 1 of the reset menu
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_rst_b1_box()
-{
-	SDL_Rect cs = dw_get_iface_big_center_box();
-
-	SDL_Rect b;
-	b.w = dm_scale_to_res(RST_MENU_BTNS_W);
-	b.h = dm_scale_to_res(RST_MENU_BTNS_H);
-	b.x = cs.x + cs.w/2 - 2*b.w;
-	b.y = cs.y + cs.h/2 + b.h;
-	return b;
-}
-
-/* Function: dm_get_rst_b2_box
- * -----------------------------------------------------------------------------
- * Box position of the button 2 of the reset menu
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_rst_b2_box()
-{
-	SDL_Rect cs = dw_get_iface_big_center_box();
-	
-	SDL_Rect b;
-	b.w = dm_scale_to_res(RST_MENU_BTNS_W);
-	b.h = dm_scale_to_res(RST_MENU_BTNS_H);
-	b.x = cs.x + cs.w/2 + b.w;
-	b.y = cs.y + cs.h/2 + b.h;
-	return b;
-}
 
 
 /* Function: dm_get_ofs_player_name

@@ -36,8 +36,6 @@ SDL_Rect dm_get_game_title_box(char *title);
 SDL_Rect dm_get_press_space_box(char *msg);
 SDL_Rect dm_get_upper_title_box(char *msg);
 
-SDL_Rect dm_get_rst_b1_box();
-SDL_Rect dm_get_rst_b2_box();
 
 SDL_Rect dm_get_code_button_wh();
 SDL_Rect dm_get_arrow_wh();
@@ -71,6 +69,7 @@ int dm_get_ofs_bet_regs();
 int dm_get_ofs_player_name();
 int dm_get_ofs_player_lore();
 int dm_get_ofs_player_dark_plate();
+int dm_get_ofs_res_box();
 
 
 //CHECK THE USAGE
