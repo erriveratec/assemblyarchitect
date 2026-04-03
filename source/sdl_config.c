@@ -37,6 +37,8 @@ Mix_Chunk *g_sfx_select = NULL;
 Mix_Chunk *g_sfx_cancel = NULL;
 Mix_Chunk *g_sfx_hover = NULL;
 Mix_Chunk *g_sfx_menu = NULL;
+Mix_Chunk *g_sfx_error = NULL;
+Mix_Chunk *g_sfx_win = NULL;
 
 static bool init_audio();
 
@@ -306,6 +308,16 @@ int load_media()
 	}
 	g_sfx_menu = Mix_LoadWAV("sound/escape.wav");
 	if (g_sfx_menu == NULL){
+		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
+		return FAIL;
+	}
+	g_sfx_error = Mix_LoadWAV("sound/error.wav");
+	if (g_sfx_error == NULL){
+		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
+		return FAIL;
+	}
+	g_sfx_win = Mix_LoadWAV("sound/win.wav");
+	if (g_sfx_win == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}

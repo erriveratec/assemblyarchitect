@@ -26,6 +26,8 @@ extern Mix_Chunk *g_sfx_select;
 extern Mix_Chunk *g_sfx_cancel;
 extern Mix_Chunk *g_sfx_hover;
 extern Mix_Chunk *g_sfx_menu;
+extern Mix_Chunk *g_sfx_error;
+extern Mix_Chunk *g_sfx_win;
 
 int load_media();
 void close_sdl();

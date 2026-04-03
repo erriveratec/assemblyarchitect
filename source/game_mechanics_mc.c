@@ -276,50 +276,64 @@ void mc_display_operation_handler(int id)
 	assert(id >= NO_OPERATION && id < OPERATION_MAX &&
 		   "Incorrect id for the invalid operation handler");
 	
+	static bool sound_played = false;
 	if (id != NO_OPERATION){
 		SDL_Rect r = dw_get_iface_big_lower_box();
 		texture_array_t *message = NULL;
 		texture_t *header = NULL;
 		bool two_buttons = false;
+		Mix_Chunk *play_sound = NULL;
+		
 		
 		switch(id){
 			case INPUT_BUFFER_EMPTY:
 				message = ib_empty;
 				header = g_system_error;
+				play_sound = g_sfx_error;
 				break;
 			case REG_VALUE_INVALID:
 				message = reg_val_bad;
 				header = g_system_error;
+				play_sound = g_sfx_error;
 				break;
 			case FLAG_VALUE_INVALID:
 				message = flag_val_bad;
 				header = g_system_error;
+				play_sound = g_sfx_error;
 				break;
 			case INVALID_OUTPUT_VALUE:
 				message = ob_val_bad;
 				header = g_system_error;
+				play_sound = g_sfx_error;
 				break;
 			case UNPROCESSED_IB_VALUES:
 				message = ib_unproc_vals;
 				header = g_system_error;
+				play_sound = g_sfx_error;
 				break;
 			case EXCEEDS_CODE_LIMIT:
 				message = exc_code_size;
 				header = g_system_error;
+				play_sound = g_sfx_error;
 				break;
 			case OUTPUT_BUFFER_INCOMPLETE:
 				message = ob_incomplete;
 				header = g_system_error;
+				play_sound = g_sfx_error;
 				break;
 			case MC_WIN:
 				message = g_win_text;
 				header = g_run_result;
 				two_buttons = true;
+				play_sound = g_sfx_win;
 				break;
 			default: 
 				puts("ERROR: Invalid operation incorrec id");
 		}
-		
+		if (sound_played == false){	
+			Mix_PlayChannel(-1, play_sound, 0);
+			sound_played = true;
+		}
 		dw_draw_iface_box(r, header);
 		SDL_Rect b = dw_get_iface_content_box(dw_get_iface_big_lower_box());
 		b.h -= dm_get_text_box_result_but3().h;
@@ -368,6 +382,7 @@ void mc_display_operation_handler(int id)
 				button_created = false;
 			}
 	} else {
+		sound_played = false;
 		mc_set_rst_lvl(false);
 	}
 	error:
