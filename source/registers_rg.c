@@ -686,7 +686,7 @@ void rg_draw_registers()
 		SDL_Rect hover_rect = reg->value.box;
 		hover_rect.h += button->r.h;
 		bool hover = ax_chk_mouse_hover_rect(hover_rect);
-		bt_draw_btn(button, sb_get_escape_state(), hover); //Register name
+		bt_draw_btn(button, sb_chk_rst_esc_menu_active(), hover); //Register name
 		ax_draw_value_box(&reg->value, C_WHITE); //The value box of the value
 	}
 }
@@ -778,7 +778,7 @@ static void draw_register_text()
 	dw_draw_texture_fit_h(r, g_reg_text);
 }
 
-/* Function: rg_ms_rel_in_reg
+/* Function: rg_chk_rel_in_reg
 *------------------------------------------------------------------------------
 * This functions verifies if the user clicked one of the registers available
 * in the screen
@@ -791,29 +791,31 @@ static void draw_register_text()
 *
 */
 
-bool rg_ms_rel_in_reg()
+bool rg_chk_rel_in_reg()
 {
 	List *registers = rg_get_register_list();
 	assert(registers != NULL && "The registers pointer cannot be NULL");
    	int x = List_count(registers);
    	bool selected = false;
 
-   	LIST_FOREACH(registers, first, next, cur){ 
-	   
-	   	reg_t *c = cur->value;
-		SDL_Rect r = {.x = c->value.box.x, 
-					  .y = c->value.box.y, 
-					  .w = c->value.box.w, 
-					  .h = c->value.box.h};
-	  	
-		btn_t b = {.r = r};
-		b.enabled = true;
-	   	if (bt_chk_rel_btn(c->b, NULL) == true 
-			|| bt_chk_rel_btn(&b, NULL) == true){
-		   	selected = true;
-		   	break;
-	   	} 
-   	}
+	if (sb_chk_rst_esc_menu_active() == false){
+		LIST_FOREACH(registers, first, next, cur){ 
+		   
+			reg_t *c = cur->value;
+			SDL_Rect r = {.x = c->value.box.x, 
+						  .y = c->value.box.y, 
+						  .w = c->value.box.w, 
+						  .h = c->value.box.h};
+			
+			btn_t b = {.r = r};
+			b.enabled = true;
+			if (bt_chk_rel_btn(c->b, NULL) == true 
+				|| bt_chk_rel_btn(&b, NULL) == true){
+				selected = true;
+				break;
+			} 
+		}
+	}
    	return selected;
 }
 

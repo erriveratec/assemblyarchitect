@@ -2395,7 +2395,6 @@ bool cw_chk_click_code_op()
 	
 	if (sb_chk_rst_esc_menu_active() == false){
 		LIST_FOREACH(code, first, next, cur){ 
-			
 			code_line_t *c = cur->value;
 			if (NULL != c->op1){
 				if (true == bt_chk_rel_btn(c->op1->b, NULL)){

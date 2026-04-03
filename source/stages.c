@@ -342,7 +342,7 @@ static void code_updated_actions(int level_id)
  */
 static code_line_t *pending_operand_handler()
 {
-	bool reg_sel = rg_ms_rel_in_reg();
+	bool reg_sel = rg_chk_rel_in_reg();
 	bool buf_sel = bf_ms_rel_in_buf();
 	bool label_sel = cw_ms_rel_in_label();
 	bool imm_sel = im_ms_rel_in_upimm();

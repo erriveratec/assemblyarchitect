@@ -682,7 +682,7 @@ void draw_output_buffer()
 				  .enabled = true};
 	ibtn.r.w = ax_get_texture_w_fit_h(ibtn.r.h, output_text);
 	bool hover = ax_chk_mouse_hover_rect(output_buffer_button.r);
-	bt_draw_btn(&ibtn, sb_get_escape_state(), hover);
+	bt_draw_btn(&ibtn, sb_chk_rst_esc_menu_active(), hover);
 
 error:
 	return;
@@ -763,7 +763,7 @@ void draw_input_buffer()
 				  .enabled = true};
 	ibtn.r.w = ax_get_texture_w_fit_h(ibtn.r.h, input_text);
 	bool hover = ax_chk_mouse_hover_rect(input_buffer_button.r);
-	bt_draw_btn(&ibtn, sb_get_escape_state(), hover);
+	bt_draw_btn(&ibtn, sb_chk_rst_esc_menu_active(), hover);
 }
 
 /* Function: bf_get_buffer_value_box_x_coord_by_id

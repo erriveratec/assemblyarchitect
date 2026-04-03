@@ -503,7 +503,8 @@ void bt_draw_btn(btn_t *b, bool blk, bool hv)
 	SDL_Rect box = b->r;	
 	dw_set_texture_color_mod(b->t, C_LIGHTGREY);
 
-	if ((hover == true && b->enabled == true && blk == false) || hv == true){
+	if ((hover == true && b->enabled == true && blk == false) 
+		|| (hv == true && blk == false)){
 		float h_ofs = bt_get_hover_factor();
 		box = ax_scale_rect_percentage(box, h_ofs);
 		box.y -= bt_get_btn_lift();

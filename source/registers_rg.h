@@ -21,7 +21,7 @@ int rg_get_registers_text_width(int h);
 void rg_add_register_to_list(int id);
 void rg_draw_registers();
 void rg_draw_flag_boxes();
-bool rg_ms_rel_in_reg();
+bool rg_chk_rel_in_reg();
 operand_t *rg_get_default_operand_register();
 operand_t *rg_create_sel_reg_op();
 operand_t *rg_create_register_operand_by_id(int id);
