@@ -375,7 +375,7 @@ bool lv_is_code_editable()
 	} else if (iw_chk_click_ins() == true && 
 													exception == INS_EXCEPTION){
 		editable = true;	
-	} else if (cw_is_code_clicked() == true) {
+	} else if (cw_chk_click_code() == true) {
 		code_line_t *line = cw_get_clicked_code();
 		int pos = cw_get_code_line_pos_by_ptr(line);
 		pos++;//instruction pos starts at zero;

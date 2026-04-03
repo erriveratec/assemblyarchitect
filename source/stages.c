@@ -423,7 +423,7 @@ static code_line_t *edit_code(int level_id)
 	if (cw_is_operand_pending() == true
 		&& line == NULL 
 		&& cw_check_code_sorted() == true 
-		&& cw_is_code_clicked() == false){
+		&& cw_chk_click_code() == false){
 		line = pending_operand_handler();	
 		if (cw_is_operand_pending() == false){
 			code_updated_actions(level_id);
@@ -431,7 +431,7 @@ static code_line_t *edit_code(int level_id)
 		if (line != NULL){
 			hold_line = true;
 		}
-	} else if (cw_code_operand_clicked() == true
+	} else if (cw_chk_click_code_op() == true
 			   && line == NULL 
 			   && lv_is_code_editable() == true){
 		cw_change_clicked_code_line_state();	
@@ -439,11 +439,11 @@ static code_line_t *edit_code(int level_id)
 			   && line == NULL
 			   && lv_is_code_editable() == true){
 		line = cl_new_code_line(iw_get_clicked_instruction());
-	} else if (cw_is_code_clicked() == true 
+	} else if (cw_chk_click_code() == true 
 			   && line == NULL 
 			   && lv_is_code_editable() == true){
 		line = cw_get_clicked_code();
-	} else if (cw_is_code_rclicked() == true && line == NULL){
+	} else if (cw_chk_rclick_code() == true && line == NULL){
 		line = cw_clone_rclicked_line(cw_get_rclicked_code());
 		hold_line = true;
 	} else if ((left_pressed == true || hold_line == true) && line != NULL){

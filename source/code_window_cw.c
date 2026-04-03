@@ -986,7 +986,7 @@ code_line_t *cw_get_rclicked_code()
 	return clicked;
 }
 
-/* Function: cw_is_code_rclicked
+/* Function: cw_chk_rclick_code
  *------------------------------------------------------------------------------
  * This functions verifies if the user right clicked one of the code lines
  *
@@ -997,29 +997,28 @@ code_line_t *cw_get_rclicked_code()
  *	true if the user clicked over an code instruction, false if otherwise
  *
  */
-bool cw_is_code_rclicked()
+bool cw_chk_rclick_code()
 {
 	List *code = get_code_list();
 	bool clicked = false;
 
-	LIST_FOREACH(code, first, next, cur){ 
-		
-		code_line_t *c = cur->value;
-		
-		if (bt_btn_rclicked(c->ins->b) == true){
-			if (c->ins->id == LABEL){
-				clicked = false;
-			} else {
-				clicked = true;
-			}
-
-			break;
-		} 
+	if (sb_chk_rst_esc_menu_active() == false){
+		LIST_FOREACH(code, first, next, cur){ 
+			code_line_t *c = cur->value;
+			if (bt_btn_rclicked(c->ins->b) == true){
+				if (c->ins->id == LABEL){
+					clicked = false;
+				} else {
+					clicked = true;
+				}
+				break;
+			} 
+		}
 	}
 	return clicked;
 }
 
-/* Function: cw_is_code_clicked
+/* Function: cw_chk_click_code
  *------------------------------------------------------------------------------
  * This functions verifies if the user clicked one of the code developed by
  * the player
@@ -1031,20 +1030,20 @@ bool cw_is_code_rclicked()
  *	true if the user clicked over an instructions, false if otherwise
  *
  */
-bool cw_is_code_clicked()
+bool cw_chk_click_code()
 {
 	List *code = get_code_list();
 	bool clicked = false;
-
-	if (ms_click_inside_rect(g_code_box) == true){
-		LIST_FOREACH(code, first, next, cur){ 
-			
-			code_line_t *c = cur->value;
-			
-			if (true == bt_btn_clicked(c->ins->b)){
-				clicked = true;
-				break;
-			} 
+	
+	if (sb_chk_rst_esc_menu_active() == false){
+		if (ms_click_inside_rect(g_code_box) == true){
+			LIST_FOREACH(code, first, next, cur){ 
+				code_line_t *c = cur->value;
+				if (true == bt_btn_clicked(c->ins->b)){
+					clicked = true;
+					break;
+				} 
+			}
 		}
 	}
 	return clicked;
@@ -1558,13 +1557,13 @@ static void display_player_code()
 	int number_ofs = dm_get_w_border_padding();
 	LIST_FOREACH(code, first, next, cur){
 		code_line_t *line = cur->value;	
-		bt_draw_btn(line->ins->b, sb_get_escape_state(), false);
+		bt_draw_btn(line->ins->b, sb_chk_rst_esc_menu_active(), false);
 		
 		if (line->op1 != NULL){
-			bt_draw_btn(line->op1->b, sb_get_escape_state(), false);
+			bt_draw_btn(line->op1->b, sb_chk_rst_esc_menu_active(), false);
 		}
 		if (line->op2 != NULL){
-			bt_draw_btn(line->op2->b, sb_get_escape_state(), false);
+			bt_draw_btn(line->op2->b, sb_chk_rst_esc_menu_active(), false);
 		}
 	
 		int comma = cl_get_instruction_operand_quantity(line->ins->id);
@@ -2375,7 +2374,7 @@ bool cw_chk_click_code_op2(int code_line_pos)
 	return clicked;
 }
 
-/* Function: cw_code_operand_clicked
+/* Function: cw_chk_click_code_op
  * -----------------------------------------------------------------------------
  * This function checks if the player clicked on an operando of the instructions
  * available in the code window.
@@ -2388,25 +2387,27 @@ bool cw_chk_click_code_op2(int code_line_pos)
  *	false if otherwise.
  *
  */
-bool cw_code_operand_clicked()
+bool cw_chk_click_code_op()
 {
 	List *code = get_code_list();
 	assert(NULL != code && "The code pointer cannot be NULL");
 	bool clicked = false;
 	
-	LIST_FOREACH(code, first, next, cur){ 
-		
-		code_line_t *c = cur->value;
-		if (NULL != c->op1){
-			if (true == bt_chk_rel_btn(c->op1->b, NULL)){
-				clicked = true;
-				break;
-			}
-		} 
-		if (NULL != c->op2){
-			if (true == bt_chk_rel_btn(c->op2->b, NULL)){
-				clicked = true;
-				break;
+	if (sb_chk_rst_esc_menu_active() == false){
+		LIST_FOREACH(code, first, next, cur){ 
+			
+			code_line_t *c = cur->value;
+			if (NULL != c->op1){
+				if (true == bt_chk_rel_btn(c->op1->b, NULL)){
+					clicked = true;
+					break;
+				}
+			} 
+			if (NULL != c->op2){
+				if (true == bt_chk_rel_btn(c->op2->b, NULL)){
+					clicked = true;
+					break;
+				}
 			}
 		}
 	}
