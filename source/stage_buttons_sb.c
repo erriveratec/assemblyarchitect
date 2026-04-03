@@ -700,7 +700,7 @@ void sb_draw_stage_btns(int code_size)
  */
 void sb_draw_rst_btn()
 {
-	bt_draw_iface_btn(rst_btn, sb_get_escape_state(), g_sfx_hover);
+	bt_draw_iface_btn(rst_btn, sb_chk_rst_esc_menu_active(), g_sfx_hover);
 }
 
 /* Function: sb_init_rst_btn
@@ -759,8 +759,10 @@ bool sb_chk_rel_rst_btn()
 {
 	int rst = false;
 
-	if (bt_chk_rel_iface_btn(rst_btn, g_sfx_menu) == true) {
-		rst = true;
+	if(sb_chk_rst_esc_menu_active() == false){
+		if (bt_chk_rel_iface_btn(rst_btn, g_sfx_menu) == true) {
+			rst = true;
+		}
 	}
 	return rst;
 }
@@ -777,7 +779,7 @@ bool sb_chk_rel_rst_btn()
  */
 void sb_draw_ret_btn()
 {
-	bt_draw_iface_btn(ret_btn, sb_get_escape_state(), g_sfx_hover);
+	bt_draw_iface_btn(ret_btn, sb_chk_rst_esc_menu_active(), g_sfx_hover);
 }
 
 /* Function: sb_init_ret_btns
@@ -859,9 +861,11 @@ void sb_init_stage_btns()
 bool sb_chck_rel_ret_btn()
 {
 	int ret = false;
-
-	if (bt_chk_rel_iface_btn(ret_btn, g_sfx_cancel) == true) {
-		ret = true;
+	
+	if(sb_chk_rst_esc_menu_active() == false){
+		if (bt_chk_rel_iface_btn(ret_btn, g_sfx_cancel) == true) {
+			ret = true;
+		}
 	}
 	return ret;
 }
