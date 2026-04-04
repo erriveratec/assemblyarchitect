@@ -614,6 +614,7 @@ int stage_level(int level_id)
 			   && flags.step_fst == true 
 			   && lv_check_if_win() == true){
 		mc_set_operation_flag(MC_WIN);
+		bf_set_win_condition();
 		int action_selected = mc_get_op_menu_btn_state();
 		flags.play = false;
 		fl_enable_next_level(g_player, level_id + 1);
