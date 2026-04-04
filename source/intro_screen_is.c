@@ -707,13 +707,22 @@ int stage_sector_0()
 	} else if (bt_chk_rel_iface_btn(levels[5], g_sfx_select)){
 		ret_val = LV_LEVEL_5;
 		change_stage = true;
+	} else if (bt_chk_rel_iface_btn(levels[6], g_sfx_select)){
+		ret_val = LV_LEVEL_6;
+		change_stage = true;
+	} else if (bt_chk_rel_iface_btn(levels[7], g_sfx_select)){
+		ret_val = LV_LEVEL_7;
+		change_stage = true;
 	} else if (sb_chck_rel_ret_btn() == true){
-//			bt_destroy_button(sectors[0]);
-//			bt_destroy_button(sectors[1]);
-//			bt_destroy_button(sectors[2]);
-//			bt_destroy_button(sectors[3]);
-//			bt_destroy_button(sectors[4]);
-			ret_val = LV_SELECT_SECTOR;	
+		bt_destroy_iface_btn(levels[0]);
+		bt_destroy_iface_btn(levels[1]);
+		bt_destroy_iface_btn(levels[2]);
+		bt_destroy_iface_btn(levels[3]);
+		bt_destroy_iface_btn(levels[4]);
+		bt_destroy_iface_btn(levels[5]);
+		bt_destroy_iface_btn(levels[6]);
+		bt_destroy_iface_btn(levels[7]);
+		ret_val = LV_SELECT_SECTOR;	
 		change_stage = true;
 	}
 	if (change_stage == true){

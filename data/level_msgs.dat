@@ -197,7 +197,7 @@ More registers are available for use
 MSG_END
 
 MSG 02
-Execution supports stepwise and full-speed operation
+Stepwise and fast execution modes are now available
 MSG_END
 
 +++LEVEL ENDS 04
@@ -219,9 +219,7 @@ MSG_END
 MSG 02
 ADD OP1, OP2
  
-Adds OP1 to OP2
- 
-Stores the result in OP1
+Adds OP1 to OP2, stores the result in OP1
 MSG_END
 
 MSG 03
@@ -235,17 +233,17 @@ MSG_END
 QUANTITY 3
 
 MSG 00
-LEVEL 07
+ADDRESS 06
 MSG_END
 
 MSG 01
-DID YOU KNOW THAT MOV AND ADD CAN BE USED WITH BOTH OPERANDS BEING REGISTERS?
+MOV and ADD allow both operands to be registers
 MSG_END
 
 MSG 02
-EXAMPLE:
-MOV RBX, RAX
-MOVES THE VALUE FROM RAX TO RBX
+MOV rbx, rax
+ 
+Copies the value from rax into rbx
 MSG_END
 
 +++LEVEL ENDS 06
@@ -255,17 +253,17 @@ MSG_END
 QUANTITY 3
 
 MSG 00
-LEVEL 08
+ADDRESS 07
 MSG_END
 
 MSG 01
-BOTH OPERANDS OF INSTRUCTIONS MOV AND ADD CAN BE THE SAME REGISTER
+MOV and ADD allow both operands to reference the same register
 MSG_END
 
 MSG 02
-EXAMPLE:
-ADD RAX, RAX
-DOES RAX + RAX AND STORES THE RESULT IN RAX
+ADD rax, rax
+ 
+Adds rax to itself and stores the result in rax
 MSG_END
 
 +++LEVEL ENDS 07

@@ -841,18 +841,18 @@ static void level_7()
 	int code_size = cw_get_code_list_size();
 	static bool msg_descrip2 = true;
 
-	if (g_lv_msg[MSG1] == true && code_size == 0){
-		tx_text_box(TX_BIG_BOX, MSG1, TX_NONE);//Welcome
+	if (g_lv_msg[MSG0] == true && code_size == 0){
+		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES);//Welcome
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
+		chk_ms_pressed_clear_msg(MSG0, true);
+	} else if (g_lv_msg[MSG1] == true && code_size == 0){
+		tx_text_box(TX_UPPER_BOX, MSG1, TX_SYSNOT);//Can use register as operands
+		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
 		chk_ms_pressed_clear_msg(MSG1, true);
 	} else if (g_lv_msg[MSG2] == true && code_size == 0){
-		tx_text_box(TX_UPPER_BOX, MSG2, TX_NONE);//Can use register as operands
-		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG2, true);
-	} else if (g_lv_msg[MSG3] == true && code_size == 0){
-		tx_text_box(TX_LOWER_BOX, MSG3, TX_NONE);//Usage example
+		tx_text_box(TX_LOWER_BOX, MSG2, TX_INS);//Usage example
 		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG3, true);
+		chk_ms_pressed_clear_msg(MSG2, true);
 	}
 }
 
@@ -878,18 +878,18 @@ static void level_6()
 
 	int code_size = cw_get_code_list_size();
 
-	if (g_lv_msg[MSG1] == true && code_size == 0){
-		tx_text_box(TX_BIG_BOX, MSG1, TX_NONE);//Welcome
+	if (g_lv_msg[MSG0] == true && code_size == 0){
+		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES);//Welcome
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
+		chk_ms_pressed_clear_msg(MSG0, true);
+	} else if (g_lv_msg[MSG1] == true && code_size == 0){
+		tx_text_box(TX_UPPER_BOX, MSG1, TX_SYSNOT);//operands be same register
+		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
 		chk_ms_pressed_clear_msg(MSG1, true);
 	} else if (g_lv_msg[MSG2] == true && code_size == 0){
-		tx_text_box(TX_UPPER_BOX, MSG2, TX_NONE);//Both operands can be same register
-		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG2, true);
-	} else if (g_lv_msg[MSG3] == true && code_size == 0){
-		tx_text_box(TX_LOWER_BOX, MSG3, TX_NONE);//Example of usage
+		tx_text_box(TX_LOWER_BOX, MSG2, TX_INS);//Example of usage
 		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG3, true);
+		chk_ms_pressed_clear_msg(MSG2, true);
 	} 
 
 }
@@ -932,7 +932,7 @@ static void level_5()
 		ar_display_arrow(AR_INS);
 		chk_ms_pressed_clear_msg(MSG2, true);
 	} else if (g_lv_msg[MSG3] == true && code_size == 0 && hold == false){
-		tx_text_box(TX_INS_BOX, MSG3, TX_SYSMES); //Solve using add and mov
+		tx_text_box(TX_INS_BOX, MSG3, TX_SYSNOT); //Solve using add and mov
 		tx_bottom_msg(TX_INS_BOX, TX_MSG_CLICKANY);
 		chk_ms_pressed_clear_msg(MSG3, true);
 		//ar_display_arrow(AR_INS);
