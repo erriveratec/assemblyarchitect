@@ -81,7 +81,7 @@ MSG_END
 QUANTITY 8
 
 MSG 00
-ADDRESS 00
+ADDRESS 01
 MSG_END
 
 MSG 01
@@ -89,27 +89,27 @@ Instructions order and operands can be modified
 MSG_END
 
 MSG 02
-Select and drag the last instruction by clicking the instruction name
+Remove the final instruction from the execution sequence
 MSG_END
 
 MSG 03
-Drag the instruction out of the code box to delete it
+Extract the instruction from the program sequence to remove it
 MSG_END
 
 MSG 04
-Click the source operand of the instruction to change it
+Change the instruction Source Operand to update its behavior
 MSG_END
 
 MSG 05
-Select the Input Buffer [ib] as the source operand
+Set the Source Operand to [ib]
 MSG_END
 
 MSG 06
-Drag the second instruction to the first position
+Adjust instruction order so the second instruction executes first
 MSG_END
 
 MSG 07
-Press the Play Button
+Initiate Program Execution
 MSG_END
 
 +++LEVEL ENDS 01
@@ -123,23 +123,23 @@ ADDRESS 02
 MSG_END
 
 MSG 01
-A value retrieved from the Input Buffer [ib] can only be read once
+Values retrieved from [ib] are consumed after a single read
 MSG_END
 
 MSG 02
-A value stored on a register can be read multiple times
+Register values are persistent across reads
 MSG_END
 
 MSG 03
-Select and drag the MOV instruction from the instruction box
+Insert the MOV instruction into the program sequence
 MSG_END
 
 MSG 04
-Drop the instruction in the code box
+Insert the instruction into the program sequence
 MSG_END
 
 MSG 05
-All available operands for selection will be pointed with an arrow
+Available operands are indicated during selection
 MSG_END
 
 MSG 06
@@ -147,20 +147,21 @@ Select rax
 MSG_END
 
 MSG 07
-Only valid operands combinations will be available for selection
+Only valid operand combinations are selectable
 MSG_END
 
 MSG 08
-Select Input Buffer [ib]
+Select [ib]
 MSG_END
 
 MSG 09
-Multiple MOV instructions are needed for correct execution
+Multiple 
+MOV [ob], rax 
+operations are required for correct execution
 MSG_END
 
 MSG 10
-"MOV [ob], rax"
-Is needed several times to complete execution
+Complete program sequence
 MSG_END
 
 MSG 11
