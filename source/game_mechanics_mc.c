@@ -30,7 +30,7 @@
 #define OUTPUT_BUFFER_INCOMPLETE_TEXT "Not enough "\
 "items in the Output Buffer [ob] after run"
 
-#define WIN_TEXT "The challenge is correct"
+#define WIN_TEXT "Execution produced the expected output"
 
 static char *SYSTEM_ERROR_TEXT = "SYSTEM ERROR";
 static char *RUN_RESULT_TEXT = "RUN RESULT";

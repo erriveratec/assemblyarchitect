@@ -7,11 +7,13 @@ ADDRESS 00
 MSG_END
 
 MSG 01
-First, read the challenge description
+Review the task specification before execution
 MSG_END
 
 MSG 02
-Objective: Move items from the Input Buffer [ib]
+Objective: 
+ 
+Move items from the Input Buffer [ib]
 MSG_END
 
 MSG 03
@@ -19,27 +21,27 @@ To the Output Buffer [ob]
 MSG_END
 
 MSG 04
-Values loaded from [ib] must go to a register
+Values loaded from [ib] must be stored in a Register
 MSG_END
 
 MSG 05
-Drag the mov instruction from the instruction box
+Select the MOV instruction
 MSG_END
 
 MSG 06
-Drop the instruction in the code box
+Insert the instruction into the program sequence
 MSG_END
 
 MSG 07
-Select rax as the destination operand
+Select rax as the Destination Operand
 MSG_END
 
 MSG 08
-Select the Input Buffer [ib] as the source operand
+Select Input Buffer [ib] as the Source Operand
 MSG_END
 
 MSG 09
-Press the Play Button to see what the instruction does
+Execute the instruction to inspect its behaviour
 MSG_END
 
 MSG 10
@@ -47,29 +49,29 @@ The value was moved to rax but not to the Output Buffer [ob]
 MSG_END
 
 MSG 11
-Select and drag another MOV instruction from the instruction box
+Insert another MOV instruction into the program sequence
 MSG_END
 
 MSG 12
-Drop the instruction in the code box below the previous instruction
+Append the instruction to the current sequence
 MSG_END
 
 MSG 13
-Select the Output Buffer [ob] as the destination operand
+Select Output Buffer [ob] as the Destination Operand
 MSG_END
 
 MSG 14
-Select rax as the source operand
+Select rax as the Source Operand
 MSG_END
 
 MSG 15
-Press the Play Button
+Initiate Program Execution
 MSG_END
 
 MSG 16
-Congratulations!
+Run completed
          
-You have beaten the first level
+Proceed to the next stage
 MSG_END
 
 +++LEVEL ENDS 00
@@ -153,13 +155,12 @@ Select Input Buffer [ib]
 MSG_END
 
 MSG 09
-Use more MOV instructions to solve the challenge
+Multiple MOV instructions are needed for correct execution
 MSG_END
 
 MSG 10
-Use
 "MOV [ob], rax"
-Several times to solve the challenge
+Is needed several times to complete execution
 MSG_END
 
 MSG 11
@@ -191,11 +192,11 @@ ADDRESS 04
 MSG_END
 
 MSG 01
-There are more registers available for use
+More registers are available for use
 MSG_END
 
 MSG 02
-Notice the Step-by-Step and Fast execution buttons
+Execution supports stepwise and full-speed operation
 MSG_END
 
 +++LEVEL ENDS 04
@@ -205,21 +206,25 @@ MSG_END
 QUANTITY 4
 
 MSG 00
-LEVEL 06
+ADDRESS 05
 MSG_END
 
 MSG 01
-NOTICE THAT THERE IS A NEW INSTRUCTION AVAILABLE: ADD
+New instruction available: 
+ 
+ADD
 MSG_END
 
 MSG 02
-USAGE:
 ADD OP1, OP2
-DOES OP1 + OP2 AND STORES THE RESULT IN OP1
+ 
+Adds OP1 to OP2
+ 
+Stores the result in OP1
 MSG_END
 
 MSG 03
-SOLVE THE CHALLENGE USING THE MOV AND ADD INSTRUCTIONS
+Execution now supports ADD and MOV instructions
 MSG_END
 
 +++LEVEL ENDS 05

@@ -917,23 +917,25 @@ static void level_5()
 	bool hold = check_player_is_holding_line();
 	int code_size = cw_get_code_list_size();
 
-	if (g_lv_msg[MSG1] == true && code_size == 0){
-		tx_text_box(TX_BIG_BOX, MSG1, TX_NONE);//Welcome 
+	if (g_lv_msg[MSG0] == true && code_size == 0){
+		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES);//Welcome 
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG1, true);
-	} else if (g_lv_msg[MSG2] == true && code_size == 0){
-		tx_text_box(TX_UPPER_BOX, MSG2, TX_NONE);//New instruction add
+		chk_ms_pressed_clear_msg(MSG0, true);
+	} else if (g_lv_msg[MSG1] == true && code_size == 0){
+		tx_text_box(TX_UPPER_BOX, MSG1, TX_SYSNOT);//New instruction add
 		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_INS);
-		chk_ms_pressed_clear_msg(MSG2, true);
-	} else if (g_lv_msg[MSG3] == true && code_size == 0){
-		tx_text_box(TX_LOWER_BOX, MSG3, TX_NONE); //Usage
+		chk_ms_pressed_clear_msg(MSG1, true);
+	} else if (g_lv_msg[MSG2] == true && code_size == 0){
+		tx_text_box(TX_LOWER_BOX, MSG2, TX_INS); //Usage
 		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_INS);
+		chk_ms_pressed_clear_msg(MSG2, true);
+	} else if (g_lv_msg[MSG3] == true && code_size == 0 && hold == false){
+		tx_text_box(TX_INS_BOX, MSG3, TX_SYSMES); //Solve using add and mov
+		tx_bottom_msg(TX_INS_BOX, TX_MSG_CLICKANY);
 		chk_ms_pressed_clear_msg(MSG3, true);
-	} else if (code_size == 0 && hold == false){
-		tx_text_box(TX_INS_BOX, MSG4, TX_NONE); //Solve using add and mov
-		ar_display_arrow(AR_INS);
+		//ar_display_arrow(AR_INS);
 	} 
 }
 
@@ -1251,7 +1253,7 @@ static void level_0()
 		ar_display_arrow(AR_OB);
 		chk_ms_pressed_clear_msg(MSG3, true);
 	} else if (g_lv_msg[MSG4] == true && size == 0){
-		tx_text_box(TX_CENTER_BOX, MSG4, TX_SYSMES);//To register first
+		tx_text_box(TX_CENTER_BOX, MSG4, TX_INS);//To register first
 		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
 		draw_regs_arrow(true);
 		chk_ms_pressed_clear_msg(MSG4, true);
@@ -1285,7 +1287,7 @@ static void level_0()
 			g_lv_msg[MSG9] = false;
 		}
 	} else if (flag != MC_WIN && flag != NO_OPERATION ){
-		tx_text_box(TX_CENTER_BOX, MSG10, TX_SYSMES); //ERROR
+		tx_text_box(TX_CENTER_BOX, MSG10, TX_SYSWAR); //ERROR
 		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_PRESSBACK);
 		ar_display_arrow(AR_ERROR);
 	} else if(size == 1 && hold == false && play == false 

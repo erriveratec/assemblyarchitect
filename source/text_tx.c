@@ -21,8 +21,14 @@ static const Uint32 TEXT_BOX_W = 384 ;
 static const Uint32 BORDER_OFS = 10 ;
 
 char *SYSTEM_MESSAGE = "SYSTEM MESSAGE";
+char *SYSTEM_NOTICE = "SYSTEM NOTICE";
+char *SYSTEM_WARNING = "SYSTEM WARNING";
+char *INSTRUCTION = "INSTRUCTION";
 
 texture_t *g_system_message = NULL;
+texture_t *g_system_notice = NULL;
+texture_t *g_system_warning = NULL;
+texture_t *g_instruction = NULL;
 
 int g_lvl_msgs_size;
 texture_array_t **g_lvl_msgs = NULL;
@@ -365,6 +371,9 @@ void tx_init_global_msgs()
 
  	text_h = dw_get_h_iface_header_txt();
 	g_system_message = dw_create_text_tex(SYSTEM_MESSAGE, C_GREY);
+	g_system_notice = dw_create_text_tex(SYSTEM_NOTICE, C_GREY);
+	g_system_warning = dw_create_text_tex(SYSTEM_WARNING, C_GREY);
+	g_instruction = dw_create_text_tex(INSTRUCTION, C_GREY);
 }
 
 /* Function: tx_free_level_text_texture
@@ -565,6 +574,15 @@ void tx_text_box(int pos, int msg_id, int header)
 			break;
 		case TX_SYSMES:
 			header_tex = g_system_message;
+			break;
+		case TX_SYSNOT:
+			header_tex = g_system_notice;
+			break;
+		case TX_SYSWAR:
+			header_tex = g_system_warning;
+			break;
+		case TX_INS:
+			header_tex = g_instruction;
 			break;
 	}
 	dw_draw_iface_box(b, header_tex);

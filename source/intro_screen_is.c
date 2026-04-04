@@ -704,7 +704,9 @@ int stage_sector_0()
 	} else if (bt_chk_rel_iface_btn(levels[4], g_sfx_select)){
 		ret_val = LV_LEVEL_4;
 		change_stage = true;
-	 
+	} else if (bt_chk_rel_iface_btn(levels[5], g_sfx_select)){
+		ret_val = LV_LEVEL_5;
+		change_stage = true;
 	} else if (sb_chck_rel_ret_btn() == true){
 //			bt_destroy_button(sectors[0]);
 //			bt_destroy_button(sectors[1]);

@@ -41,7 +41,10 @@ enum gbl_msgs{
 
 enum header{
 	TX_NONE,
-	TX_SYSMES
+	TX_SYSMES,
+	TX_SYSNOT,
+	TX_SYSWAR,
+	TX_INS
 };
 
 enum msgs{
