@@ -32,6 +32,7 @@ char *SECTOR_2 = "[01] COMPUTATION CORE";
 char *SECTOR_3 = "[03] BRANCHING ENGINE";
 char *SECTOR_4 = "[04] ADVANCED MODULE";
 char *SECTOR_0_TITLE = "SECTOR [00]";
+char *SECTOR_1_TITLE = "SECTOR [01]";
 
 static const Uint32 STUDIO_SCREEN_DELAY_MS = 2500; 
 static const Uint32 FADE_MS = 1250;
@@ -566,7 +567,7 @@ static void create_sector_lvl_btns(iface_btn_t **btns, bool *lvls, int sec_id)
 			btns[counter] = bt_create_iface_btn(b, btn_texture, false);
 		}
 		b.x += r.w + r.w/2;
-		if (i == 3){
+		if ((i % 4) == 3){
 			b.x = r.x;
 			b.y += y_offset;	
 		}
@@ -601,15 +602,15 @@ int stage_sector_1()
 
 	static texture_t *sector_0 = NULL;
 	static texture_t *subtitle = NULL;
-	char *sub_text = SECTOR_0 + 5;
+	char *sub_text = SECTOR_1 + 5;
 	Uint8 sub_alpha = 0;              
 
 	static bool level_initialized = false;
 	static bool player_levels[LV_LEVEL_QUANTITY];
 	static iface_btn_t **levels = NULL;
 
-	int ret_val = LV_SECTOR_0;
-	SDL_Rect r = dm_get_upper_title_box(SECTOR_0_TITLE);
+	int ret_val = LV_SECTOR_1;
+	SDL_Rect r = dm_get_upper_title_box(SECTOR_1_TITLE);
 
 	if (level_initialized == false){
 		fl_load_hover_level_msgs();
@@ -632,7 +633,7 @@ int stage_sector_1()
 		last_type_ms = cur_time;
 		bool write_complete = tx_draw_create_typewriter_text(&sector_0, 
 															 r, 
-															 SECTOR_0_TITLE, 
+															 SECTOR_1_TITLE, 
 															 &type_index,
 															 C_SILVERGREY);
 		if (write_complete == true){
@@ -671,7 +672,7 @@ int stage_sector_1()
 	for (int i = 0; i < LV_SECTOR_LV_QTY; i++){
 		int hov = bt_draw_iface_btn(levels[i], sb_get_escape_state(), NULL);
 		if ((hov == BTN_HOVER || hov == BTN_CLICKPRESS) && prev_hov == false){
-			hover = tx_get_message_texture(i);
+			hover = tx_get_message_texture(LV_SECTOR_1_START + i);
 			level_sub_start_ms = cur_time;
 			prev_hov = true;
 		} 	
