@@ -27,8 +27,8 @@ char *P2_LORETEXT = "Yield-Loop Operative";
 char *P3_LORETEXT = "Zero-Flag Handler";
 char *SELECT_SECTOR = "SELECT SECTOR";
 char *SECTOR_0 = "[00] ARCHITECTURE PRIMER";
-char *SECTOR_1 = "[01] COMPUTATION CORE";
-char *SECTOR_2 = "[02] JUMP FLOW UNIT";
+char *SECTOR_1 = "[02] JUMP FLOW UNIT";
+char *SECTOR_2 = "[01] COMPUTATION CORE";
 char *SECTOR_3 = "[03] BRANCHING ENGINE";
 char *SECTOR_4 = "[04] ADVANCED MODULE";
 char *SECTOR_0_TITLE = "SECTOR [00]";
@@ -85,7 +85,7 @@ static int get_sector_btn_spacing();
 static SDL_Rect get_sector_separator();
 static SDL_Rect get_sector_subtitle_box(char *msg);
 static SDL_Rect get_subtitle_separator();
-static void create_sec_0_lvl_btns(iface_btn_t **btns, bool *levels, int lv_qty);
+static void create_sector_lvl_btns(iface_btn_t **btns, bool *levels, int lv_qty);
 static SDL_Rect get_sector_0_lower_separator();
 
 
@@ -526,36 +526,228 @@ static void create_sector_btns(btn_t **btns, bool *levels)
  * Return:
  *	Void.
  */
-static void create_sec_0_lvl_btns(iface_btn_t **btns, bool *levels, int lv_qty)
+static void create_sector_lvl_btns(iface_btn_t **btns, bool *lvls, int sec_id)
 {
 	assert(btns != NULL && "The buttons pointer is NULL");
-	assert(levels != NULL && "The levels pointer is NULL");
-	assert(lv_qty > 0 && "The level qty must be greater than zero");
+	assert(lvls != NULL && "The levels pointer is NULL");
 
 	SDL_Rect r = get_level_button_box();
 	SDL_Rect b = r;
 	int y_offset = get_sel_level_offset_y();
-	
-	for (int i = 0; i < lv_qty; i++){
+
+	int start;
+	int finish;
+
+	if (sec_id == LV_SECTOR_0){
+		start = 0;
+		finish = LV_SECTOR_1_START;
+	} else if (sec_id == LV_SECTOR_1){
+		start = LV_SECTOR_1_START;
+		finish = LV_SECTOR_2_START;
+	} else if (sec_id == LV_SECTOR_2){
+		start = LV_SECTOR_2_START;
+		finish = LV_SECTOR_3_START;
+	} else if (sec_id == LV_SECTOR_3){
+		start = LV_SECTOR_3_START;
+		finish = LV_SECTOR_4_START;
+	} else if (sec_id == LV_SECTOR_4){
+		start = LV_SECTOR_4_START;
+		finish = LV_LEVEL_QUANTITY;
+	}
+	int counter = 0;	
+	for (int i = start; i < finish; i++){
 		char *btn_text = ax_number_to_hex_string_two_digits(i);
 		texture_t *btn_texture = NULL;
-		if (levels[i] == true){
-			btn_texture = dw_create_text_tex(btn_text, 
-							 C_WHITE);
-			btns[i] = bt_create_iface_btn(b, btn_texture, true);
+		if (lvls[i] == true){
+			btn_texture = dw_create_text_tex(btn_text, C_WHITE);
+			btns[counter] = bt_create_iface_btn(b, btn_texture, true);
 		} else {
-			btn_texture = dw_create_text_tex(btn_text, 
-							 C_GREY);
-			btns[i] = bt_create_iface_btn(b, btn_texture, false);
+			btn_texture = dw_create_text_tex(btn_text, C_GREY);
+			btns[counter] = bt_create_iface_btn(b, btn_texture, false);
 		}
 		b.x += r.w + r.w/2;
 		if (i == 3){
 			b.x = r.x;
 			b.y += y_offset;	
 		}
+		counter++;
 	}
 
 
+}
+/* Function: stage_sector_1
+ * -----------------------------------------------------------------------------
+ * Displays the sections available for the player to choose
+ * 	
+ * Arguments:
+ * 	None.
+ *
+ * Return:
+ *	The number of the level selected, if not valid press was performed
+ *	the number of the select label stage will be returned.
+ */
+int stage_sector_1()
+{
+	int W = dm_get_screen_width();
+	int H = dm_get_screen_height();   
+  	static fx_electron_t* fx;
+	static Uint64 last_type_ms;
+	static Uint64 anim_prev_ms;
+	static Uint64 sub_start_ms;
+	static size_t type_index = 0;
+	static bool title_done = false;
+	Uint64 cur_time = SDL_GetTicks64();
+	bool change_stage = false;
+
+	static texture_t *sector_0 = NULL;
+	static texture_t *subtitle = NULL;
+	char *sub_text = SECTOR_0 + 5;
+	Uint8 sub_alpha = 0;              
+
+	static bool level_initialized = false;
+	static bool player_levels[LV_LEVEL_QUANTITY];
+	static iface_btn_t **levels = NULL;
+
+	int ret_val = LV_SECTOR_0;
+	SDL_Rect r = dm_get_upper_title_box(SECTOR_0_TITLE);
+
+	if (level_initialized == false){
+		fl_load_hover_level_msgs();
+		fl_load_player_levels(g_player, player_levels);
+		level_initialized = true;
+		last_type_ms = cur_time;
+		fx = fx_electron_create(g_renderer, W, H, NULL);
+		levels = malloc(sizeof(iface_btn_t *) * LV_SECTOR_LV_QTY);
+		create_sector_lvl_btns(levels, player_levels, LV_SECTOR_1);
+		subtitle = dw_create_text_tex(sub_text, C_SILVERGREY);
+        SDL_SetTextureAlphaMod(subtitle->texture, sub_alpha);
+	}
+
+	float dt=(cur_time - anim_prev_ms)/1000.0f;
+	anim_prev_ms = cur_time;
+	fx_electron_update(fx, dt);
+    fx_electron_render(fx, g_renderer);
+	
+	if (title_done == false && (cur_time - last_type_ms) >= TYPE_DELAY_MS){
+		last_type_ms = cur_time;
+		bool write_complete = tx_draw_create_typewriter_text(&sector_0, 
+															 r, 
+															 SECTOR_0_TITLE, 
+															 &type_index,
+															 C_SILVERGREY);
+		if (write_complete == true){
+			title_done = true;
+			sub_start_ms = cur_time;
+        }
+	}
+	if (sector_0 != NULL){
+		dw_draw_texture_fit_h(r, sector_0);
+	}
+	if (title_done == true) {
+    	Uint64 elapsed = cur_time - sub_start_ms;
+        if (elapsed < SUBTITLE_FADE_MS) {
+            float t = (float)elapsed / (float)SUBTITLE_FADE_MS;
+            if (t < 0.0f) t = 0.0f; if (t > 1.0f) t = 1.0f;
+            sub_alpha = (Uint8)(t * 255.0f);
+        } else {
+            sub_alpha = 255;
+        }
+        	SDL_SetTextureAlphaMod(subtitle->texture, sub_alpha);
+    }
+
+	SDL_Rect sub_box = get_sector_subtitle_box(sub_text);
+	dw_draw_texture_fit_h(sub_box, subtitle);
+	
+	dw_draw_filled_rectangle(get_subtitle_separator(), 
+							 C_SHADOWGREY, C_SHADOWGREY);
+	sb_draw_ret_btn();
+
+	static texture_array_t *hover = NULL;
+	static Uint64 level_sub_start_ms;
+	Uint8 level_alpha = 0;
+	static bool prev_hov = false;
+	bool button_hovered = false;
+	
+	for (int i = 0; i < LV_SECTOR_LV_QTY; i++){
+		int hov = bt_draw_iface_btn(levels[i], sb_get_escape_state(), NULL);
+		if ((hov == BTN_HOVER || hov == BTN_CLICKPRESS) && prev_hov == false){
+			hover = tx_get_message_texture(i);
+			level_sub_start_ms = cur_time;
+			prev_hov = true;
+		} 	
+		if (hov == BTN_HOVER || hov == BTN_CLICKPRESS){
+			button_hovered = true;
+		}
+	}
+	if (button_hovered == false){
+		prev_hov = false;
+		hover = NULL;
+	}
+
+	
+	SDL_Rect sep = get_sector_0_lower_separator();
+	sep.y += sep.h + dm_scale_to_res(SECTOR_TITLE_SEPARATOR);
+	
+	if (hover != NULL) {
+		dw_set_array_texture_color_mod(hover, C_GREY);
+    	Uint64 elapsed = cur_time - level_sub_start_ms;
+        if (elapsed < DESCRIPTION_FADE_MS) {
+            float t = (float)elapsed / (float)DESCRIPTION_FADE_MS;
+            if (t < 0.0f) t = 0.0f; if (t > 1.0f) t = 1.0f;
+            level_alpha = (Uint8)(t * 255.0f);
+        } else {
+            level_alpha = 255;
+        }
+        	SDL_SetTextureAlphaMod(hover->t[0]->texture, level_alpha);
+		dw_draw_wrapped_texture_by_h(sep, dm_get_h_stage_subsubtitle(), hover);
+    }
+
+	bool escape = sb_get_escape_state();
+	if (escape == true){
+		sb_display_escape_menu(escape);
+	} else if (bt_chk_rel_iface_btn(levels[0], g_sfx_select)){
+		ret_val = LV_LEVEL_0;
+		change_stage = true;
+	} else if (bt_chk_rel_iface_btn(levels[1], g_sfx_select)){
+		ret_val = LV_LEVEL_1;
+		change_stage = true;
+	} else if (bt_chk_rel_iface_btn(levels[2], g_sfx_select)){
+		ret_val = LV_LEVEL_2;
+		change_stage = true;
+	} else if (bt_chk_rel_iface_btn(levels[3], g_sfx_select)){
+		ret_val = LV_LEVEL_3;
+		change_stage = true;
+	} else if (bt_chk_rel_iface_btn(levels[4], g_sfx_select)){
+		ret_val = LV_LEVEL_4;
+		change_stage = true;
+	} else if (bt_chk_rel_iface_btn(levels[5], g_sfx_select)){
+		ret_val = LV_LEVEL_5;
+		change_stage = true;
+	} else if (bt_chk_rel_iface_btn(levels[6], g_sfx_select)){
+		ret_val = LV_LEVEL_6;
+		change_stage = true;
+	} else if (bt_chk_rel_iface_btn(levels[7], g_sfx_select)){
+		ret_val = LV_LEVEL_7;
+		change_stage = true;
+	} else if (sb_chck_rel_ret_btn() == true){
+		bt_destroy_iface_btn(levels[0]);
+		bt_destroy_iface_btn(levels[1]);
+		bt_destroy_iface_btn(levels[2]);
+		bt_destroy_iface_btn(levels[3]);
+		bt_destroy_iface_btn(levels[4]);
+		bt_destroy_iface_btn(levels[5]);
+		bt_destroy_iface_btn(levels[6]);
+		bt_destroy_iface_btn(levels[7]);
+		ret_val = LV_SELECT_SECTOR;	
+		change_stage = true;
+	}
+	if (change_stage == true){
+		level_initialized = false;
+  		aa_electron_fx_destroy(fx);
+		tx_free_level_text_textures();
+	}
+
+	return ret_val;
 }
 
 /* Function: stage_sector_0
@@ -600,8 +792,8 @@ int stage_sector_0()
 		level_initialized = true;
 		last_type_ms = cur_time;
 		fx = fx_electron_create(g_renderer, W, H, NULL);
-		levels = malloc(sizeof(iface_btn_t *) * LV_SECTOR_0_LV_QTY);
-		create_sec_0_lvl_btns(levels, player_levels, LV_SECTOR_0_LV_QTY);
+		levels = malloc(sizeof(iface_btn_t *) * LV_SECTOR_LV_QTY);
+		create_sector_lvl_btns(levels, player_levels, LV_SECTOR_0);
 		subtitle = dw_create_text_tex(sub_text, C_SILVERGREY);
         SDL_SetTextureAlphaMod(subtitle->texture, sub_alpha);
 	}
@@ -652,7 +844,7 @@ int stage_sector_0()
 	static bool prev_hov = false;
 	bool button_hovered = false;
 	
-	for (int i = 0; i < LV_SECTOR_0_LV_QTY; i++){
+	for (int i = 0; i < LV_SECTOR_LV_QTY; i++){
 		int hov = bt_draw_iface_btn(levels[i], sb_get_escape_state(), NULL);
 		if ((hov == BTN_HOVER || hov == BTN_CLICKPRESS) && prev_hov == false){
 			hover = tx_get_message_texture(i);
@@ -812,6 +1004,8 @@ int stage_select_sector()
 		ret_val = LV_SECTOR_0;
 		clear_stage = true;
 	} else if (bt_chk_rel_btn(sectors[1], g_sfx_select)){
+		ret_val = LV_SECTOR_1;
+		clear_stage = true;
 	} else if (bt_chk_rel_btn(sectors[2], g_sfx_select)){
 	} else if (bt_chk_rel_btn(sectors[3], g_sfx_select)){
 	} else if (bt_chk_rel_btn(sectors[4], g_sfx_select)){

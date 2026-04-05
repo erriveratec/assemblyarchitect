@@ -152,6 +152,16 @@ int main(int argc, char *args[])
 					state = stage;
 				}
 				break;
+			case LV_SECTOR_1:
+				stage = stage_sector_1();
+				if (stage != LV_SELECT_SECTOR &&
+					stage != LV_SECTOR_1){
+					state = LV_INITIALIZE_LEVEL;
+					level = stage;
+				} else {
+					state = stage;
+				}
+				break;
 			case LV_INITIALIZE_LEVEL:
 				init_level(level);
 				state = LV_PLAY_LEVEL;

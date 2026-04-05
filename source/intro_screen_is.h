@@ -18,6 +18,7 @@ int stage_select_level();
 int stage_select_player();
 int stage_select_sector();
 int stage_sector_0();
+int stage_sector_1();
 
 #endif 
 

@@ -10,7 +10,7 @@
 
 #define LV_LEVEL_QUANTITY 40
 
-extern const Uint32 LV_SECTOR_0_LV_QTY;
+extern const Uint32 LV_SECTOR_LV_QTY;
 extern const Uint32 LV_SECTOR_1_START;
 extern const Uint32 LV_SECTOR_2_START;
 extern const Uint32 LV_SECTOR_3_START;
