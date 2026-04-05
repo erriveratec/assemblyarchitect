@@ -707,28 +707,28 @@ int stage_sector_1()
 	if (escape == true){
 		sb_display_escape_menu(escape);
 	} else if (bt_chk_rel_iface_btn(levels[0], g_sfx_select)){
-		ret_val = LV_LEVEL_0;
+		ret_val = LV_LEVEL_8;
 		change_stage = true;
 	} else if (bt_chk_rel_iface_btn(levels[1], g_sfx_select)){
-		ret_val = LV_LEVEL_1;
+		ret_val = LV_LEVEL_9;
 		change_stage = true;
 	} else if (bt_chk_rel_iface_btn(levels[2], g_sfx_select)){
-		ret_val = LV_LEVEL_2;
+		ret_val = LV_LEVEL_10;
 		change_stage = true;
 	} else if (bt_chk_rel_iface_btn(levels[3], g_sfx_select)){
-		ret_val = LV_LEVEL_3;
+		ret_val = LV_LEVEL_11;
 		change_stage = true;
 	} else if (bt_chk_rel_iface_btn(levels[4], g_sfx_select)){
-		ret_val = LV_LEVEL_4;
+		ret_val = LV_LEVEL_12;
 		change_stage = true;
 	} else if (bt_chk_rel_iface_btn(levels[5], g_sfx_select)){
-		ret_val = LV_LEVEL_5;
+		ret_val = LV_LEVEL_13;
 		change_stage = true;
 	} else if (bt_chk_rel_iface_btn(levels[6], g_sfx_select)){
-		ret_val = LV_LEVEL_6;
+		ret_val = LV_LEVEL_14;
 		change_stage = true;
 	} else if (bt_chk_rel_iface_btn(levels[7], g_sfx_select)){
-		ret_val = LV_LEVEL_7;
+		ret_val = LV_LEVEL_15;
 		change_stage = true;
 	} else if (sb_chck_rel_ret_btn() == true){
 		bt_destroy_iface_btn(levels[0]);

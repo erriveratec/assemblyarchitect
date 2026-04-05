@@ -273,27 +273,27 @@ MSG_END
 QUANTITY 6
 
 MSG 00
-LEVEL 09
+ADDRESS 08
 MSG_END
 
 MSG 01
-NOTICE THAT YOU CAN ONLY USE 3 INSTRUCTIONS TO SOLVE THE CHALLENGE
+Execution is limited to three instructions
 MSG_END
 
 MSG 02
-THE JMP INSTRUCTION JUMPS TO ANOTHER LINE OF CODE
+JMP alters the execution flow by transferring control to a different instruction
 MSG_END
 
 MSG 03
-SELECT AND DRAG A JMP INSTRUCTION
+Insert the JMP instruction into the program sequence
 MSG_END
 
 MSG 04
-PLACE THE JMP INSTRUCTION IN THE CODE BOX AT THE LAST POSITION
+Append the JMP instruction to the end of the execution sequence
 MSG_END
 
 MSG 05
-PLACE THE JMP DESTINATION "LINE" ABOVE THE FIRST LINE OF CODE
+Set the JMP destination to the beginning of the execution sequence
 MSG_END
 
 +++LEVEL ENDS 08
@@ -303,7 +303,7 @@ MSG_END
 QUANTITY 1
 
 MSG 00
-LEVEL 10
+ADDRESS 09
 MSG_END
 
 +++LEVEL ENDS 09
@@ -313,25 +313,26 @@ MSG_END
 QUANTITY 5
 
 MSG 00
-LEVEL 11
+ADDRESS 10
 MSG_END
 
 MSG 01
-NOTICE THERE IS A NEW SECTION AVAILABLE ON THE SCREEN
+An additional section has been enabled
 MSG_END
 
 MSG 02
-YOU CAN SELECT IMMEDIATE VALUES FROM THIS SECTION
+Immediate values are available for selection
 MSG_END
 
 MSG 03
-IMMEDIATE VALUES CAN ONLY BE READ (USED AS A SOURCE OPERAND)
+Immediate operands are read-only source operands
 MSG_END
 
 MSG 04
-EXAMPLES:
-MOV RAX, 5
-ADD RBX, 10
+Usage examples:
+ 
+MOV rax, 5
+ADD rbx, 10
 MSG_END
 
 +++LEVEL ENDS 10

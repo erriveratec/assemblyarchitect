@@ -706,30 +706,30 @@ static void level_10()
 
 	int size = cw_get_code_list_size();
 
-	if (g_lv_msg[MSG1] == true && size == 0){
-		tx_text_box(TX_BIG_BOX, MSG1, TX_NONE); //Welcome msg
+	if (g_lv_msg[MSG0] == true && size == 0){
+		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome msg
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
+		chk_ms_pressed_clear_msg(MSG0, true);
+	} else if (g_lv_msg[MSG1] == true && size == 0){
+		tx_text_box(TX_CENTER_BOX, MSG1, TX_SYSNOT); //New section on the screen
+		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
+		ar_display_arrow(AR_IMM_UP);
 		chk_ms_pressed_clear_msg(MSG1, true);
 	} else if (g_lv_msg[MSG2] == true && size == 0){
-		tx_text_box(TX_CENTER_BOX, MSG2, TX_NONE); //New section on the screen
-		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
+		tx_text_box(TX_UPPER_RIGHT_BOX, MSG2, TX_SYSNOT); //Can select immediat
+		tx_bottom_msg(TX_UPPER_RIGHT_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_IMM_UP);
 		chk_ms_pressed_clear_msg(MSG2, true);
 	} else if (g_lv_msg[MSG3] == true && size == 0){
-		tx_text_box(TX_UPPER_RIGHT_BOX, MSG3, TX_NONE); //Can select immediate values
-		tx_bottom_msg(TX_UPPER_RIGHT_BOX, TX_MSG_CLICKANY);
+		tx_text_box(TX_CENTER_BOX, MSG3, TX_INS); //Imm can only be read
+		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_IMM_UP);
 		chk_ms_pressed_clear_msg(MSG3, true);
 	} else if (g_lv_msg[MSG4] == true && size == 0){
-		tx_text_box(TX_CENTER_BOX, MSG4, TX_NONE); //Imm can only be read
-		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_IMM_UP);
-		chk_ms_pressed_clear_msg(MSG4, true);
-	} else if (g_lv_msg[MSG5] == true && size == 0){
-		tx_text_box(TX_UPPER_RIGHT_BOX, MSG5, TX_NONE); //Imm can only be read
+		tx_text_box(TX_UPPER_RIGHT_BOX, MSG4, TX_INS); //Imm can only be read
 		tx_bottom_msg(TX_UPPER_RIGHT_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_IMM_UP);
-		chk_ms_pressed_clear_msg(MSG5, true);
+		chk_ms_pressed_clear_msg(MSG4, true);
 	} 
 }
 
@@ -755,10 +755,10 @@ static void level_9()
 
 	int code_size = cw_get_code_list_size();
 
-	if (g_lv_msg[MSG1] == true && code_size == 0){
-		tx_text_box(TX_BIG_BOX, MSG1, TX_NONE); //Welcome msg
+	if (g_lv_msg[MSG0] == true && code_size == 0){
+		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome msg
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG1, true);
+		chk_ms_pressed_clear_msg(MSG0, true);
 	}
 }
 
@@ -793,28 +793,28 @@ static void level_8()
 		label_pick = (hld_line->ins->id == LABEL) ? true : false;
 	}
 
-	if (g_lv_msg[MSG1] == true && code_size == 2){
-		tx_text_box(TX_BIG_BOX, MSG1, TX_NONE); //Welcome msg
+	if (g_lv_msg[MSG0] == true && code_size == 2){
+		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome msg
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG1, true);
-	} else if (g_lv_msg[MSG2] == true && code_size == 2){
-		tx_text_box(TX_UPPER_BOX, MSG2, TX_NONE); //Read challenge description
+		chk_ms_pressed_clear_msg(MSG0, true);
+	} else if (g_lv_msg[MSG1] == true && code_size == 2){
+		tx_text_box(TX_UPPER_BOX, MSG1, TX_SYSWAR); //Read challenge description
 		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_CHALLENGE);
-		chk_ms_pressed_clear_msg(MSG2, true);
-	} else if (g_lv_msg[MSG3] == true && code_size == 2){
-		tx_text_box(TX_LOWER_BOX, MSG3, TX_NONE);// New instruction
+		chk_ms_pressed_clear_msg(MSG1, true);
+	} else if (g_lv_msg[MSG2] == true && code_size == 2){
+		tx_text_box(TX_LOWER_BOX, MSG2, TX_INS);// New instruction
 		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_INS);
-		chk_ms_pressed_clear_msg(MSG3, true);
+		chk_ms_pressed_clear_msg(MSG2, true);
 	} else if (code_size == 2 && jmp_pick == false){
-		tx_text_box(TX_INS_BOX, MSG4, TX_NONE);// Select and drag jmp
+		tx_text_box(TX_INS_BOX, MSG3, TX_INS);// Select and drag jmp
 		ar_display_arrow(AR_INS);
 	} else if (code_size == 2 && jmp_pick == true){
-		tx_text_box(TX_CODE_BOX, MSG5, TX_NONE); // Drop jmp in the code box
+		tx_text_box(TX_CODE_BOX, MSG4, TX_INS); // Drop jmp in the code box
 		ar_display_arrow(AR_DROP);
 	} else if (code_size == 4 && label_pick == true){
-		tx_text_box(TX_UPPER_BOX, MSG6, TX_NONE); // Place Label in the first pos
+		tx_text_box(TX_UPPER_BOX, MSG5, TX_INS); // Place Label in the first pos
 	} 
 }
 
