@@ -198,6 +198,7 @@ void im_init_imm_assets()
 		free(num);
 		g_up_imm[i].b = malloc(sizeof(btn_t));
 		g_up_imm[i].b->r = g_up_imm[i].val.box;
+		g_up_imm[i].b->enabled = true;
 
 		if (i <= 9){
 			val++;
