@@ -74,7 +74,6 @@ int dm_get_ofs_res_box();
 
 //CHECK THE USAGE
 SDL_Rect dm_get_text_box_error();
-SDL_Rect dm_get_text_box_upper_right();
 SDL_Rect dm_get_text_box_stagebutton();
 
 SDL_Rect dm_get_text_box_result_but1();//Back in win condition
