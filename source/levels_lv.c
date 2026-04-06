@@ -502,10 +502,10 @@ static void level_15()
 
 	int size = cw_get_code_list_size();
 	 
-	 if (g_lv_msg[MSG1] == true && size == 0){
-		tx_text_box(TX_BIG_BOX, MSG1, TX_NONE); //Welcome msg
+	 if (g_lv_msg[MSG0] == true && size == 0){
+		tx_text_box(TX_BIG_BOX, MSG0, TX_NONE); //Welcome msg
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG1, true);
+		chk_ms_pressed_clear_msg(MSG0, true);
 	} 
 }
 /* Function: level_14
@@ -532,30 +532,30 @@ static void level_14()
 
 	int size = cw_get_code_list_size();
 	 
-	 if (g_lv_msg[MSG1] == true && size == 0){
-		tx_text_box(TX_BIG_BOX, MSG1, TX_NONE); //Welcome msg
+	 if (g_lv_msg[MSG0] == true && size == 0){
+		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome msg
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG1, true);
-	} else if (g_lv_msg[MSG2] == true && size == 0){
-		tx_text_box(TX_CODE_BOX, MSG2, TX_NONE);//New instruction jNE
+		chk_ms_pressed_clear_msg(MSG0, true);
+	} else if (g_lv_msg[MSG1] == true && size == 0){
+		tx_text_box(TX_CODE_BOX, MSG1, TX_SYSNOT);//New instruction jNE
 		tx_bottom_msg(TX_CODE_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_INS);
+		chk_ms_pressed_clear_msg(MSG1, true);
+	} else if (g_lv_msg[MSG2] == true && size == 0){
+		tx_text_box(TX_CENTER_RIGHT_BOX, MSG2, TX_INS);//CMP modifies ZF
+		tx_bottom_msg(TX_CENTER_RIGHT_BOX, TX_MSG_CLICKANY);
+		ar_display_arrow(AR_ZF);
 		chk_ms_pressed_clear_msg(MSG2, true);
 	} else if (g_lv_msg[MSG3] == true && size == 0){
-		tx_text_box(TX_UPPER_BOX, MSG3, TX_NONE);//CMP modifies ZF
-		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
+		tx_text_box(TX_LOWER_BOX, MSG3, TX_INS);//Different operands 0 in ZF
+		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_ZF);
 		chk_ms_pressed_clear_msg(MSG3, true);
 	} else if (g_lv_msg[MSG4] == true && size == 0){
-		tx_text_box(TX_LOWER_BOX, MSG4, TX_NONE);//Different operands 0 in ZF
-		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
+		tx_text_box(TX_CENTER_RIGHT_BOX, MSG4, TX_INS);//Different equal 1 in ZF
+		tx_bottom_msg(TX_CENTER_RIGHT_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_ZF);
 		chk_ms_pressed_clear_msg(MSG4, true);
-	} else if (g_lv_msg[MSG5] == true && size == 0){
-		tx_text_box(TX_UPPER_BOX, MSG5, TX_NONE);//Different equal 1 in ZF
-		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_ZF);
-		chk_ms_pressed_clear_msg(MSG5, true);
 	} 
 
 }
@@ -584,41 +584,41 @@ static void level_13()
 
 	int size = cw_get_code_list_size();
 	 
-	 if (g_lv_msg[MSG1] == true && size == 0){
-		tx_text_box(TX_BIG_BOX, MSG1, TX_NONE); //Welcome msg
+	 if (g_lv_msg[MSG0] == true && size == 0){
+		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome msg
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG1, true);
-	} else if (g_lv_msg[MSG2] == true && size == 0){
-		tx_text_box(TX_UPPER_BOX, MSG2, TX_NONE);//New instruction je and cmp
+		chk_ms_pressed_clear_msg(MSG0, true);
+	} else if (g_lv_msg[MSG1] == true && size == 0){
+		tx_text_box(TX_UPPER_BOX, MSG1, TX_SYSNOT);//New instruction je and cmp
 		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_INS_MINUS);
 		ar_display_arrow(AR_INS);
-		chk_ms_pressed_clear_msg(MSG2, true);
-	} else if (g_lv_msg[MSG3] == true && size == 0){
-		tx_text_box(TX_CENTER_BOX, MSG3, TX_NONE);//Explains CMP
+		chk_ms_pressed_clear_msg(MSG1, true);
+	} else if (g_lv_msg[MSG2] == true && size == 0){
+		tx_text_box(TX_CENTER_BOX, MSG2, TX_INS);//Explains CMP
 		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_INS_MINUS);
+		chk_ms_pressed_clear_msg(MSG2, true);
+	} else if (g_lv_msg[MSG3] == true && size == 0){
+		tx_text_box(TX_CENTER_RIGHT_BOX, MSG3, TX_INS);//CMP modifies ZF
+		tx_bottom_msg(TX_CENTER_RIGHT_BOX, TX_MSG_CLICKANY);
+		ar_display_arrow(AR_ZF);
 		chk_ms_pressed_clear_msg(MSG3, true);
 	} else if (g_lv_msg[MSG4] == true && size == 0){
-		tx_text_box(TX_UPPER_BOX, MSG4, TX_NONE);//CMP modifies ZF
-		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
+		tx_text_box(TX_LOWER_BOX, MSG4, TX_INS);//Different operands 0 in ZF
+		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_ZF);
 		chk_ms_pressed_clear_msg(MSG4, true);
 	} else if (g_lv_msg[MSG5] == true && size == 0){
-		tx_text_box(TX_LOWER_BOX, MSG5, TX_NONE);//Different operands 0 in ZF
-		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_ZF);
-		chk_ms_pressed_clear_msg(MSG5, true);
-	} else if (g_lv_msg[MSG6] == true && size == 0){
-		tx_text_box(TX_INS_BOX, MSG6, TX_NONE);// How JE works
+		tx_text_box(TX_INS_BOX, MSG5, TX_INS);// How JE works
 		tx_bottom_msg(TX_INS_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_INS);
-		chk_ms_pressed_clear_msg(MSG6, true);
-	} else if (g_lv_msg[MSG7] == true && size == 0){
-		tx_text_box(TX_CENTER_BOX, MSG7, TX_NONE);// How JE works
+		chk_ms_pressed_clear_msg(MSG5, true);
+	} else if (g_lv_msg[MSG6] == true && size == 0){
+		tx_text_box(TX_CENTER_BOX, MSG6, TX_INS);// How JE works
 		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
 		ar_display_arrow(AR_CHALLENGE);
-		chk_ms_pressed_clear_msg(MSG7, true);
+		chk_ms_pressed_clear_msg(MSG6, true);
 	} 
 }
 
@@ -642,14 +642,14 @@ static void level_12()
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 	draw_im_up_arrow(chk_display_imm_up_arrow());
-	rg_draw_flag_boxes();
+	//rg_draw_flag_boxes();
 
 	int size = cw_get_code_list_size();
 	 
-	 if (g_lv_msg[MSG1] == true && size == 0){
-		tx_text_box(TX_BIG_BOX, MSG1, TX_NONE); //Welcome msg
+	 if (g_lv_msg[MSG0] == true && size == 0){
+		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome msg
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG1, true);
+		chk_ms_pressed_clear_msg(MSG0, true);
 	} 
 }
 
@@ -676,10 +676,10 @@ static void level_11()
 
 	int size = cw_get_code_list_size();
 
-	if (g_lv_msg[MSG1] == true && size == 0){
-		tx_text_box(TX_BIG_BOX, MSG1, TX_NONE); //Welcome msg
+	if (g_lv_msg[MSG0] == true && size == 0){
+		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome msg
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG1, true);
+		chk_ms_pressed_clear_msg(MSG0, true);
 	} 
 }
 

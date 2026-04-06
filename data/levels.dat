@@ -321,7 +321,6 @@ RegistersBegin
 rax
 rbx
 rcx
-rdx
 RegistersEnd
 
 InstructionLimit 99
@@ -335,7 +334,7 @@ WinConditionEnd
 +++LEVEL STARTS 12
 
 ChallengeTextBegin
-"For each value in the Input Buffer [ib], add a decreasing offset (starting a 10 for the first value, 9 for the second, 8 for the third...) and send each result to the Output Buffer [ob]"
+"For each input retrieved from [ib], add a decreasing value (10, 9, 8, ...) and write it to [ob]"
 ChallengeTextEnd
 
 InputSize 10
@@ -364,7 +363,7 @@ WinConditionEnd
 +++LEVEL STARTS 13
 
 ChallengeTextBegin
-"Move the values from the Input Buffer [ib] to Output Buffer [ob] until you encounter the fist 0 in [ob]"
+"Move the values from the Input Buffer [ib] to Output Buffer [ob] until the first 0 is found"
 ChallengeTextEnd
 
 InputSize 10
@@ -396,7 +395,7 @@ WinConditionEnd
 +++LEVEL STARTS 14
 
 ChallengeTextBegin
-"Move the values equal to 7 from the Input Buffer [ib] to the Output Buffer [ob]. Stop processing when the value 0 appears"
+"Move the values equal to 7 from [ib] to [ob]. Stop processing when 0 appears"
 ChallengeTextEnd
 
 InputSize 16
@@ -415,7 +414,6 @@ RegistersBegin
 rax
 rbx
 rcx
-rdx
 RegistersEnd
 
 InstructionLimit 99
@@ -429,7 +427,7 @@ WinConditionEnd
 +++LEVEL STARTS 15
 
 ChallengeTextBegin
-"Store in the Output Buffer [ob] the number of times 3 appears in Input Buffer [ib]. The input sequence ends at the first 0"
+"Store in [ob] the number of times the value 3 appears [ib]. Stop processing when 0 appears"
 ChallengeTextEnd
 
 InputSize 16
@@ -449,7 +447,6 @@ RegistersBegin
 rax
 rbx
 rcx
-rdx
 RegistersEnd
 
 InstructionLimit 99

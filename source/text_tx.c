@@ -49,6 +49,7 @@ static SDL_Rect get_text_box_center();
 static SDL_Rect get_text_box_ins();
 static SDL_Rect get_text_box_code();
 static SDL_Rect get_text_box_upper_right();
+static SDL_Rect get_text_box_center_right();
 
 /* Function: get_border_ofs
  * -----------------------------------------------------------------------------
@@ -148,6 +149,30 @@ static SDL_Rect get_text_box_ins()
 	b.h = d.h;
 	b.x = ib.x;
 	b.y = ib.y + ib.h + dm_get_w_borders();
+	return b;
+}
+
+/* Function: get_text_box_center_right
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+static SDL_Rect get_text_box_center_right()
+{
+	int w = dm_get_screen_width();	
+	int h = dm_get_screen_height();	
+	SDL_Rect d = tx_get_text_box_wh();
+	
+	SDL_Rect b;
+	b.w = d.w;
+	b.h = d.h;
+	b.x = w/2;
+	b.y = h/2 - b.h/2;
 	return b;
 }
 
@@ -490,6 +515,11 @@ void tx_bottom_msg(int pos, int msg_id)
 			b = get_text_box_center(); 
 			b.y += b.h/2 - 2*text_h; //Writes at the center of the box
 			break;
+		case TX_CENTER_RIGHT_BOX:
+			text_h = get_h_bottom_msg();
+			b = get_text_box_center_right(); 
+			b.y += b.h/2 - 2*text_h; //Writes at the center of the box
+			break;
 		case TX_LOWER_BOX:
 			text_h = get_h_bottom_msg();
 			b = get_text_box_lower(); 
@@ -561,6 +591,11 @@ void tx_text_box(int pos, int msg_id, int header)
 			break;
 		case TX_CENTER_BOX:
 			b = get_text_box_center(); 
+			content = dw_get_iface_content_box(b);
+			text_h = dm_get_h_msg();
+			break;
+		case TX_CENTER_RIGHT_BOX:
+			b = get_text_box_center_right(); 
 			content = dw_get_iface_content_box(b);
 			text_h = dm_get_h_msg();
 			break;
