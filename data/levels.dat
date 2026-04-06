@@ -215,7 +215,7 @@ WinConditionEnd
 +++LEVEL STARTS 08
 
 ChallengeTextBegin
-"Move the values from the Input Buffer [ib] to the Output Buffer [ob], using maximum 3 instructions"
+"Move the values from the [ib] to the [ob], using maximum 3 instructions"
 ChallengeTextEnd
 
 InputSize 6
@@ -243,7 +243,7 @@ WinConditionEnd
 +++LEVEL STARTS 09
 
 ChallengeTextBegin
-"Add the values received from the Input Buffer [ib] in groups of 3 and put the result in the Output Buffer [ob], using maximun 5 instructions"
+"Add the values received from the [ib] in groups of 3 and put the result in [ob], using maximun 5 instructions"
 ChallengeTextEnd
 
 InputSize 12
@@ -273,7 +273,7 @@ WinConditionEnd
 +++LEVEL STARTS 10
 
 ChallengeTextBegin
-"Add 5 to all the values received from the Input Buffer [ib] and put the result in the Output Buffer [ob]. Use 4 instructions maximum"
+"Add 5 to all the values received from [ib] and put the result in [ob]. Use 4 instructions maximum"
 ChallengeTextEnd
 
 InputSize 6
@@ -363,7 +363,7 @@ WinConditionEnd
 +++LEVEL STARTS 13
 
 ChallengeTextBegin
-"Move the values from the Input Buffer [ib] to Output Buffer [ob] until the first 0 is found"
+"Move the values from [ib] to [ob] until the first 0 is found"
 ChallengeTextEnd
 
 InputSize 10
