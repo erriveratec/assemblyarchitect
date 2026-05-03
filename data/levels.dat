@@ -1,4 +1,4 @@
-+++LEVEL STARTS 00
+++LEVEL STARTS 00
 
 ChallengeTextBegin
 "Move the value from the Input Buffer [ib] to the Output Buffer [ob]"
@@ -334,7 +334,7 @@ WinConditionEnd
 +++LEVEL STARTS 12
 
 ChallengeTextBegin
-"For each input retrieved from [ib], add a decreasing value (10, 9, 8, ...) and write it to [ob]"
+"For each input retrieved from [ib], add a decreasing value (starting at 10, then 9, 8, ...) and write it to [ob]"
 ChallengeTextEnd
 
 InputSize 10
