@@ -90,7 +90,7 @@ void lv_reset_win_list();
 void lv_print_win_list();
 bool lv_check_if_win();
 void lv_reset_win_condition();
-bool lv_evaluate_output_correctness();
+bool lv_chk_correct_output();
 void lv_set_level_instructions_limit(int limit);
 int lv_get_level_instructions_limit();
 void lv_level_drawings(int level);

@@ -34,11 +34,12 @@ Mix_Chunk *g_sfx_type = NULL;
 Mix_Chunk *g_sfx_ready = NULL;
 Mix_Chunk *g_sfx_highlight = NULL;
 Mix_Chunk *g_sfx_select = NULL;
-Mix_Chunk *g_sfx_cancel = NULL;
-Mix_Chunk *g_sfx_hover = NULL;
+Mix_Chunk *g_sfx_iface_back_cancel = NULL;
+Mix_Chunk *g_sfx_iface_hover = NULL;
 Mix_Chunk *g_sfx_menu = NULL;
-Mix_Chunk *g_sfx_error = NULL;
-Mix_Chunk *g_sfx_win = NULL;
+Mix_Chunk *g_sfx_run_error = NULL;
+Mix_Chunk *g_sfx_run_win = NULL;
+Mix_Chunk *g_sfx_run_correct_val = NULL;
 
 static bool init_audio();
 
@@ -267,7 +268,7 @@ int load_media()
 	} 
 	
 	//Audio downloaded
-	g_studio_sfx = Mix_LoadWAV("sound/studio.wav");
+	g_studio_sfx = Mix_LoadWAV("sound/intro_studio.wav");
 	if (g_studio_sfx == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
@@ -279,48 +280,54 @@ int load_media()
 		return FAIL;
 	}
 
-	g_sfx_ready = Mix_LoadWAV("sound/ready.wav");
+	g_sfx_ready = Mix_LoadWAV("sound/type_ready.wav");
 	if (g_sfx_ready == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}
-	g_sfx_highlight = Mix_LoadWAV("sound/highlight.wav");
+	g_sfx_highlight = Mix_LoadWAV("sound/player_highlight.wav");
 	if (g_sfx_highlight == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}
 
-	g_sfx_select = Mix_LoadWAV("sound/select.wav");
+	g_sfx_select = Mix_LoadWAV("sound/interface_select.wav");
 	if (g_sfx_select == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}
-	g_sfx_cancel = Mix_LoadWAV("sound/cancel.wav");
-	if (g_sfx_cancel == NULL){
+	g_sfx_iface_back_cancel = Mix_LoadWAV("sound/interface_back_cancel.wav");
+	if (g_sfx_iface_back_cancel == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}
 
-	g_sfx_hover = Mix_LoadWAV("sound/hover.wav");
-	if (g_sfx_hover == NULL){
+	g_sfx_iface_hover = Mix_LoadWAV("sound/interface_hover.wav");
+	if (g_sfx_iface_hover == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}
-	g_sfx_menu = Mix_LoadWAV("sound/escape.wav");
+	g_sfx_menu = Mix_LoadWAV("sound/menu_escape.wav");
 	if (g_sfx_menu == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}
-	g_sfx_error = Mix_LoadWAV("sound/error.wav");
-	if (g_sfx_error == NULL){
+	g_sfx_run_error = Mix_LoadWAV("sound/run_error.wav");
+	if (g_sfx_run_error == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}
-	g_sfx_win = Mix_LoadWAV("sound/win.wav");
-	if (g_sfx_win == NULL){
+	g_sfx_run_win = Mix_LoadWAV("sound/run_win.wav");
+	if (g_sfx_run_win == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}
+	g_sfx_run_correct_val = Mix_LoadWAV("sound/run_correct_value.wav");
+	if (g_sfx_run_correct_val == NULL){
+		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
+		return FAIL;
+	}
+	Mix_VolumeChunk(g_sfx_run_correct_val, 64);
 	return SUCCESS;
 }
 

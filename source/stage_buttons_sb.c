@@ -340,8 +340,8 @@ void sb_display_rst_menu(bool show_menu)
 		int text_h = dm_get_h_msg();		
 		dw_draw_wrapped_texture_by_h(text_box, text_h, g_rst_menu_text);
 
-		bt_draw_iface_btn(g_rst_b1, sb_get_escape_state(), g_sfx_hover);
-		bt_draw_iface_btn(g_rst_b2, sb_get_escape_state(), g_sfx_hover);
+		bt_draw_iface_btn(g_rst_b1, sb_get_escape_state(), g_sfx_iface_hover);
+		bt_draw_iface_btn(g_rst_b2, sb_get_escape_state(), g_sfx_iface_hover);
 	}
 	return;
 }
@@ -361,10 +361,10 @@ bool sb_chk_rst_menu_btns(bool show_menu)
 	bool reset = false;
 	if (show_menu == true){
 
-		if (bt_chk_rel_iface_btn(g_rst_b1, g_sfx_cancel) == true){
+		if (bt_chk_rel_iface_btn(g_rst_b1, g_sfx_iface_back_cancel) == true){
 			reset = false;
 			sb_set_rst_menu(false);
-		} else if (bt_chk_rel_iface_btn(g_rst_b2, g_sfx_cancel) == true){
+		} else if (bt_chk_rel_iface_btn(g_rst_b2, g_sfx_iface_back_cancel) == true){
 			reset = true;
 			sb_set_rst_menu(false);
 		} 	
@@ -485,9 +485,9 @@ void sb_display_escape_menu(bool show_menu)
 		SDL_Rect r = dw_get_iface_big_center_box();
 		dw_draw_iface_box(r, g_escape_header_texture);
 
-		bt_draw_iface_btn(g_escape_b1, false, g_sfx_hover);
-		bt_draw_iface_btn(g_escape_b2, false, g_sfx_hover);
-		bt_draw_iface_btn(g_escape_b3, false, g_sfx_hover);
+		bt_draw_iface_btn(g_escape_b1, false, g_sfx_iface_hover);
+		bt_draw_iface_btn(g_escape_b2, false, g_sfx_iface_hover);
+		bt_draw_iface_btn(g_escape_b3, false, g_sfx_iface_hover);
 
 		if (bt_chk_rel_iface_btn(g_escape_b1, NULL) == true){
 			toggle_escape_menu();
@@ -519,7 +519,7 @@ void toggle_escape_menu()
 	if (g_escape_menu == true){			
 		if (g_sfx_menu) Mix_PlayChannel(-1, g_sfx_menu, 0);
 	} else if (g_escape_menu == false){			
-		if (g_sfx_cancel) Mix_PlayChannel(-1, g_sfx_cancel, 0);
+		if (g_sfx_iface_back_cancel) Mix_PlayChannel(-1, g_sfx_iface_back_cancel, 0);
 	} 
 }
 
@@ -679,11 +679,11 @@ void adjust_stage_buttons_position(int code_size)
 void sb_draw_stage_btns(int code_size)
 {
 	adjust_stage_buttons_position(code_size);
-	bt_draw_iface_btn(stop, sb_chk_rst_esc_menu_active(), g_sfx_hover);
-	bt_draw_iface_btn(play, sb_chk_rst_esc_menu_active(), g_sfx_hover);
+	bt_draw_iface_btn(stop, sb_chk_rst_esc_menu_active(), g_sfx_iface_hover);
+	bt_draw_iface_btn(play, sb_chk_rst_esc_menu_active(), g_sfx_iface_hover);
 	if (g_step_btns_avail == true){
-		bt_draw_iface_btn(fast, sb_chk_rst_esc_menu_active(), g_sfx_hover);
-		bt_draw_iface_btn(step, sb_chk_rst_esc_menu_active(), g_sfx_hover);
+		bt_draw_iface_btn(fast, sb_chk_rst_esc_menu_active(), g_sfx_iface_hover);
+		bt_draw_iface_btn(step, sb_chk_rst_esc_menu_active(), g_sfx_iface_hover);
 	}
 }
 
@@ -699,7 +699,7 @@ void sb_draw_stage_btns(int code_size)
  */
 void sb_draw_rst_btn()
 {
-	bt_draw_iface_btn(rst_btn, sb_chk_rst_esc_menu_active(), g_sfx_hover);
+	bt_draw_iface_btn(rst_btn, sb_chk_rst_esc_menu_active(), g_sfx_iface_hover);
 }
 
 /* Function: sb_init_rst_btn
@@ -778,7 +778,7 @@ bool sb_chk_rel_rst_btn()
  */
 void sb_draw_ret_btn()
 {
-	bt_draw_iface_btn(ret_btn, sb_chk_rst_esc_menu_active(), g_sfx_hover);
+	bt_draw_iface_btn(ret_btn, sb_chk_rst_esc_menu_active(), g_sfx_iface_hover);
 }
 
 /* Function: sb_init_ret_btns
@@ -862,7 +862,7 @@ bool sb_chck_rel_ret_btn()
 	int ret = false;
 	
 	if(sb_chk_rst_esc_menu_active() == false){
-		if (bt_chk_rel_iface_btn(ret_btn, g_sfx_cancel) == true) {
+		if (bt_chk_rel_iface_btn(ret_btn, g_sfx_iface_back_cancel) == true) {
 			ret = true;
 		}
 	}

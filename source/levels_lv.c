@@ -1923,7 +1923,7 @@ static void win2_add_inputs_in_groups(int grp_size, bool between, int in_val)
 	}
 }
 
-/* Function: lv_evaluate_output_correctness
+/* Function: lv_chk_correct_output
  *------------------------------------------------------------------------------
  * Evaluates the correctness of the output as values are being added
  *
@@ -1933,7 +1933,7 @@ static void win2_add_inputs_in_groups(int grp_size, bool between, int in_val)
  * Return:
  *	boolean stating if the output buffer contents are correct
  */
-bool lv_evaluate_output_correctness()
+bool lv_chk_correct_output()
 {
 	List *output_list = get_output_list();
 	List *win_list = get_win_list();

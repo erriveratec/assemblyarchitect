@@ -289,43 +289,43 @@ void mc_display_operation_handler(int id)
 			case INPUT_BUFFER_EMPTY:
 				message = ib_empty;
 				header = g_system_error;
-				play_sound = g_sfx_error;
+				play_sound = g_sfx_run_error;
 				break;
 			case REG_VALUE_INVALID:
 				message = reg_val_bad;
 				header = g_system_error;
-				play_sound = g_sfx_error;
+				play_sound = g_sfx_run_error;
 				break;
 			case FLAG_VALUE_INVALID:
 				message = flag_val_bad;
 				header = g_system_error;
-				play_sound = g_sfx_error;
+				play_sound = g_sfx_run_error;
 				break;
 			case INVALID_OUTPUT_VALUE:
 				message = ob_val_bad;
 				header = g_system_error;
-				play_sound = g_sfx_error;
+				play_sound = g_sfx_run_error;
 				break;
 			case UNPROCESSED_IB_VALUES:
 				message = ib_unproc_vals;
 				header = g_system_error;
-				play_sound = g_sfx_error;
+				play_sound = g_sfx_run_error;
 				break;
 			case EXCEEDS_CODE_LIMIT:
 				message = exc_code_size;
 				header = g_system_error;
-				play_sound = g_sfx_error;
+				play_sound = g_sfx_run_error;
 				break;
 			case OUTPUT_BUFFER_INCOMPLETE:
 				message = ob_incomplete;
 				header = g_system_error;
-				play_sound = g_sfx_error;
+				play_sound = g_sfx_run_error;
 				break;
 			case MC_WIN:
 				message = g_win_text;
 				header = g_run_result;
 				two_buttons = true;
-				play_sound = g_sfx_win;
+				play_sound = g_sfx_run_win;
 				break;
 			default: 
 				puts("ERROR: Invalid operation incorrec id");
@@ -362,11 +362,11 @@ void mc_display_operation_handler(int id)
 			}
 			
 		} 
-		bt_draw_iface_btn(back, sb_get_escape_state(), g_sfx_hover);
+		bt_draw_iface_btn(back, sb_get_escape_state(), g_sfx_iface_hover);
 		if (two_buttons == true){
-			bt_draw_iface_btn(cont, sb_get_escape_state(), g_sfx_hover);
+			bt_draw_iface_btn(cont, sb_get_escape_state(), g_sfx_iface_hover);
 		}
-			if (bt_chk_rel_iface_btn(back, g_sfx_cancel) == true){
+			if (bt_chk_rel_iface_btn(back, g_sfx_iface_back_cancel) == true){
 				mc_set_op_menu_btn_state(BACK_BTN_PRESSED);
 				mc_set_rst_lvl(true);
 				button_pressed = true;
@@ -1279,8 +1279,10 @@ void operate_instruction(code_line_t *line, value_box_t value)
 			}
 			break;
 	}
-	if (lv_evaluate_output_correctness() == false){
+	if (lv_chk_correct_output() == false){
 		mc_set_operation_flag(INVALID_OUTPUT_VALUE);
+	} else if (lv_chk_correct_output() == true && line->op1->id == OB){
+		if (g_sfx_ready) Mix_PlayChannel(-1, g_sfx_run_correct_val, 0);
 	}
 }
 
