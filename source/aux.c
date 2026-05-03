@@ -327,6 +327,8 @@ void ax_draw_value_box(value_box_t *box, SDL_Color color)
 		text_w = ax_get_texture_w_fit_h(val.h, box->t);
 	}
 
+	dw_draw_filled_rectangle(box->box, C_BLACK ,color);
+
 	SDL_Rect vb = dm_get_value_box_val_wh();
 	int x_offset = (vb.w - text_w)/2;
 	int y_offset = ((vb.h - val.h)/2) + (val.h/5)/2;
@@ -337,7 +339,6 @@ void ax_draw_value_box(value_box_t *box, SDL_Color color)
 		dw_draw_texture_fit_h(r, box->t);
 	}	
 
-	dw_draw_rectangle(box->box, color);
 }
 
 /* Function: get_text_height_fits_width

@@ -433,12 +433,14 @@ void fl_file_initialize_level(int level_id)
 
 	input_properties_t ip;
 
+
 	while (READ_ERROR != (read = getline(&line, &len, fp))){
 		if (strstr(line, level) != NULL){
 			level_found = true;
 			char *name = ax_create_string_append_hex(STR_LEVEL, level_id);
 			cw_set_stage_name(name);
 			free(name);
+
 		} else if (strstr(line, STR_CHALLENGE_TEXT_BEGIN) != NULL &&
 														   level_found == true){
 			parse_challenge_text(fp);
@@ -447,7 +449,7 @@ void fl_file_initialize_level(int level_id)
 			ip.size = atoi(size);
 		} else if (strstr(line, STR_INPUT_MOD) != NULL && level_found == true){
 			if (strstr(line, STR_MOD_NONE)){
-				ip.mod = NONE;
+				ip.mod = NONE; 
 			} else if (strstr(line, STR_MOD_FORCE)){
 				ip.mod = FORCE; //funciona de wava
 				char *num = strchr(line, CHAR_SPACE);
