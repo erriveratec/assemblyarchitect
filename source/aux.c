@@ -250,7 +250,7 @@ int ax_get_texture_w_fit_h(int h, texture_t *t)
 	return (int)w;
 }
 
-/* Function: create_string_append_number
+/* Function: ax_create_string_append_hex
  *------------------------------------------------------------------------------
  * Creates a string with a number attached to the end, there is not prepend 
  * zero value added.
@@ -263,18 +263,13 @@ int ax_get_texture_w_fit_h(int h, texture_t *t)
  *	char * to the created string.
  *
  */
-char *create_string_append_number(char *s,  int n)
+char *ax_create_string_append_hex(char *s,  int n)
 {
 	assert(s != NULL && "The string pointer is NULL");
 	
 	char *number = NULL;
 
-	if (n<10){
-		number = ax_number_to_string_prepend_zero(n);
-	} else {
-		number = ax_number_to_string(n);
-	}
-
+	number = ax_number_to_hex_string_two_digits(n);
 	check_mem(number);
 	char *string = malloc(sizeof(char)*(strlen(s) + strlen(number)));
 	check_mem(string);
