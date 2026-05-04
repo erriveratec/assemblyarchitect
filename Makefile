@@ -9,6 +9,7 @@ S_DIR = source
 B_DIR = .
 
 DATA_DIRS = sound fonts data img
+APP_ICON = icon.icns
 
 S_FILES = $(S_DIR)/*.c
 
@@ -76,6 +77,9 @@ app: build
 	@echo "Creating app bundle..."
 	mkdir -p $(APP_MACOS) $(APP_FRAMEWORKS) $(APP_RESOURCES)
 	
+	@echo "Copying app icon..."
+	cp $(APP_ICON) $(APP_RESOURCES)/
+
 	@echo "Copying resource directories..."
 	for dir in $(DATA_DIRS); do \
 	if [ -d $$dir ]; then \
@@ -128,6 +132,8 @@ app: build
 	'  <string>edu.yourname.$(APP_NAME)</string>' \
 	'  <key>CFBundleName</key>' \
 	'  <string>$(APP_NAME)</string>' \
+	'  <key>CFBundleIconFile</key>' \
+	'  <string>icon</string>' \
 	'  <key>CFBundlePackageType</key>' \
 	'  <string>APPL</string>' \
 	'</dict>' \
