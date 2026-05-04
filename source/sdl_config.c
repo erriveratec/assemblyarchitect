@@ -43,6 +43,8 @@ Mix_Chunk *g_sfx_run_correct_val = NULL;
 
 static bool init_audio();
 
+
+
 /* Function: init_audio
  * -------------------------------------
  * Initializes the audio for the sdl game
@@ -161,98 +163,114 @@ int init_sdl(int width, int height, int argc, char *args[])
  */
 int load_media()
 {
+	char path[512];
 
-	stop_button = load_texture_from_file("img/stop.png");
+	ax_get_resource_path(path, sizeof(path), "img/stop.png");
+	stop_button = load_texture_from_file(path);
 	if (stop_button == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
 		return FAIL;
 	}
 
-	fast_button = load_texture_from_file("img/fast.png");
+	ax_get_resource_path(path, sizeof(path), "img/fast.png");
+	fast_button = load_texture_from_file(path);
 	if (fast_button == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
 		return FAIL;
 	}
 
-	play_button = load_texture_from_file("img/play.png");
+	ax_get_resource_path(path, sizeof(path), "img/play.png");
+	play_button = load_texture_from_file(path);
 	if (play_button == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
 		return FAIL;
 	}
 
-	step_forward_button = load_texture_from_file("img/step-forward.png");
+	ax_get_resource_path(path, sizeof(path), "img/step-forward.png");
+	step_forward_button = load_texture_from_file(path);
 	if (step_forward_button == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
 		return FAIL;
 	}
 
-	return_button = load_texture_from_file("img/return.png");
+	ax_get_resource_path(path, sizeof(path), "img/return.png");
+	return_button = load_texture_from_file(path);
 	if (return_button == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
 		return FAIL;
 	}
 
-	reset_button = load_texture_from_file("img/reset.png");
+	ax_get_resource_path(path, sizeof(path), "img/reset.png");
+	reset_button = load_texture_from_file(path);
 	if (reset_button == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
 		return FAIL;
 	}
 
-	g_reg_arrow = load_texture_from_file("img/rightarrow.png");
+	ax_get_resource_path(path, sizeof(path), "img/rightarrow.png");
+	g_reg_arrow = load_texture_from_file(path);
 	if (g_reg_arrow == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
 		return FAIL;
 	}
 	
-	g_imm_up_arrow = load_texture_from_file("img/rightarrow.png");
+	ax_get_resource_path(path, sizeof(path), "img/rightarrow.png");
+	g_imm_up_arrow = load_texture_from_file(path);
 	if (g_imm_up_arrow == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
 		return FAIL;
 	}
 
-	g_lv_arrow = load_texture_from_file("img/rightarrow.png");
+	ax_get_resource_path(path, sizeof(path), "img/rightarrow.png");
+	g_lv_arrow = load_texture_from_file(path);
 	if (g_lv_arrow == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
 		return FAIL;
 	}
 
-	g_ib_arrow = load_texture_from_file("img/rightarrow.png");
+	ax_get_resource_path(path, sizeof(path), "img/rightarrow.png");
+	g_ib_arrow = load_texture_from_file(path);
 	if (g_ib_arrow == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
 		return FAIL;
 	}
-	g_ob_arrow = load_texture_from_file("img/rightarrow.png");
+	
+	ax_get_resource_path(path, sizeof(path), "img/rightarrow.png");
+	g_ob_arrow = load_texture_from_file(path);
 	if (g_ob_arrow == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
 		return FAIL;
 	}
 
-	g_exec_arrow = load_texture_from_file("img/rightarrow.png");
+	ax_get_resource_path(path, sizeof(path), "img/rightarrow.png");
+	g_exec_arrow = load_texture_from_file(path);
 	if (g_exec_arrow == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
 		return FAIL;
 	}
 	
-	g_logo = load_texture_from_file("img/oms.png");
+	ax_get_resource_path(path, sizeof(path), "img/oms.png");
+	g_logo = load_texture_from_file(path);
 	if (g_logo == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
 		return FAIL;
 	}
 
-	g_chip = load_texture_from_file("img/chip.png");
+	ax_get_resource_path(path, sizeof(path), "img/chip.png");
+	g_chip = load_texture_from_file(path);
 	if (g_chip == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
@@ -260,7 +278,8 @@ int load_media()
 	}
 
 	//Open the font
-	g_font = TTF_OpenFont("DOSVGA437.ttf", 130); //96 old value point size
+	ax_get_resource_path(path, sizeof(path), "fonts/DOSVGA437.ttf");
+	g_font = TTF_OpenFont(path, 130); //96 old value point size
 	if (NULL == g_font){
 		printf("Failed to load font! SDL_ttf Error: %s\n", 
 				TTF_GetError());
@@ -268,61 +287,78 @@ int load_media()
 	} 
 	
 	//Audio downloaded
-	g_studio_sfx = Mix_LoadWAV("sound/intro_studio.wav");
+	ax_get_resource_path(path, sizeof(path), "sound/intro_studio.wav");
+	g_studio_sfx = Mix_LoadWAV(path);
 	if (g_studio_sfx == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}
 	
-	g_sfx_type = Mix_LoadWAV("sound/key_press.wav");
+	ax_get_resource_path(path, sizeof(path), "sound/key_press.wav");
+	g_sfx_type = Mix_LoadWAV(path);
 	if (g_sfx_type == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}
 
-	g_sfx_ready = Mix_LoadWAV("sound/type_ready.wav");
+	ax_get_resource_path(path, sizeof(path), "sound/type_ready.wav");
+	g_sfx_ready = Mix_LoadWAV(path);
 	if (g_sfx_ready == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}
-	g_sfx_highlight = Mix_LoadWAV("sound/player_highlight.wav");
+	
+	ax_get_resource_path(path, sizeof(path), "sound/player_highlight.wav");
+	g_sfx_highlight = Mix_LoadWAV(path);
 	if (g_sfx_highlight == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}
 
-	g_sfx_select = Mix_LoadWAV("sound/interface_select.wav");
+	ax_get_resource_path(path, sizeof(path), "sound/interface_select.wav");
+	g_sfx_select = Mix_LoadWAV(path);
 	if (g_sfx_select == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}
-	g_sfx_iface_back_cancel = Mix_LoadWAV("sound/interface_back_cancel.wav");
+	
+	ax_get_resource_path(path, sizeof(path), "sound/interface_back_cancel.wav");
+	g_sfx_iface_back_cancel = Mix_LoadWAV(path);
 	if (g_sfx_iface_back_cancel == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}
 
-	g_sfx_iface_hover = Mix_LoadWAV("sound/interface_hover.wav");
+	ax_get_resource_path(path, sizeof(path), "sound/interface_hover.wav");
+	g_sfx_iface_hover = Mix_LoadWAV(path);
 	if (g_sfx_iface_hover == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}
-	g_sfx_menu = Mix_LoadWAV("sound/menu_escape.wav");
+	
+	ax_get_resource_path(path, sizeof(path), "sound/menu_escape.wav");
+	g_sfx_menu = Mix_LoadWAV(path);
 	if (g_sfx_menu == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}
-	g_sfx_run_error = Mix_LoadWAV("sound/run_error.wav");
+
+	ax_get_resource_path(path, sizeof(path), "sound/run_error.wav");
+	g_sfx_run_error = Mix_LoadWAV(path);
 	if (g_sfx_run_error == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}
-	g_sfx_run_win = Mix_LoadWAV("sound/run_win.wav");
+
+	ax_get_resource_path(path, sizeof(path), "sound/run_win.wav");
+	g_sfx_run_win = Mix_LoadWAV(path);
 	if (g_sfx_run_win == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;
 	}
-	g_sfx_run_correct_val = Mix_LoadWAV("sound/run_correct_value.wav");
+
+	ax_get_resource_path(path, sizeof(path), "sound/run_correct_value.wav");
+	g_sfx_run_correct_val = Mix_LoadWAV(path);
 	if (g_sfx_run_correct_val == NULL){
 		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
 		return FAIL;

@@ -422,8 +422,10 @@ void fl_file_initialize_level(int level_id)
 	char *line = NULL;	
 	size_t len = 0;
 	ssize_t read;
+	char path[512];
 
-	FILE *fp = fopen(LEVELS_FILE_PATH, "r");
+	ax_get_resource_path(path, sizeof(path), LEVELS_FILE_PATH);
+	FILE *fp = fopen(path, "r");
 	check_mem(fp);
 	char *saveptr1;
 	char *text;
@@ -568,7 +570,9 @@ void fl_load_hover_level_msgs()
 	size_t len = 0;
 	ssize_t read;
 
-	FILE *fp = fopen(HOVER_MSGS_FILE_PATH, "r");
+	char path[512];
+	ax_get_resource_path(path, sizeof(path), HOVER_MSGS_FILE_PATH);
+	FILE *fp = fopen(path, "r");
 	check_mem(fp);
 	char *saveptr1;
 	char *text;
@@ -617,7 +621,9 @@ void fl_load_level_msgs(int level_id)
 	size_t len = 0;
 	ssize_t read;
 
-	FILE *fp = fopen(MSGS_FILE_PATH, "r");
+	char path[512];
+	ax_get_resource_path(path, sizeof(path), MSGS_FILE_PATH);
+	FILE *fp = fopen(path, "r");
 	check_mem(fp);
 	char *saveptr1;
 	char *text;
@@ -670,8 +676,10 @@ void fl_load_save_file(int player_id, int level_id)
 	char *line = NULL;	
 	size_t len = 0;
 	ssize_t read;
+	char path[512];
 
-	FILE *fp = fopen(SAVE_FILE_PATH, "r");
+	ax_get_resource_path(path, sizeof(path), SAVE_FILE_PATH);
+	FILE *fp = fopen(path, "r");
 	check_mem(fp);
 	char *saveptr1;
 	char *text;
@@ -754,8 +762,10 @@ void fl_load_player_levels(int player_id, bool *levels_array)
 	char *line = NULL;	
 	size_t len = 0;
 	ssize_t read;
+	char path[512];
 
-	FILE *fp = fopen(SAVE_FILE_PATH, "r");
+	ax_get_resource_path(path, sizeof(path), SAVE_FILE_PATH);
+	FILE *fp = fopen(path, "r");
 	check_mem(fp);
 	char *saveptr1;
 	char *text;
@@ -900,9 +910,14 @@ void fl_save_level(int player_id, int level_id)
 	assert(level_id >= 0 && level_id < LV_LEVEL_MAX && "Invalid level");
 	assert(player_id >= FL_PLAYER_1 && player_id <= FL_PLAYER_3 && 
 		   "player");
-	
-	FILE *fp = fopen(SAVE_FILE_PATH, "r");
-	FILE *fptemp = fopen(SAVE_FILE_PATH_TEMP, "w");
+
+	char pathsave[512];
+	char pathsavetmp[512];
+
+	ax_get_resource_path(pathsave, sizeof(pathsave), SAVE_FILE_PATH);
+	ax_get_resource_path(pathsavetmp, sizeof(pathsavetmp), SAVE_FILE_PATH_TEMP);
+	FILE *fp = fopen(pathsave, "r");
+	FILE *fptemp = fopen(pathsavetmp, "w");
 	check_mem(fp);
 	check_mem(fptemp);
 
@@ -942,8 +957,8 @@ void fl_save_level(int player_id, int level_id)
 	fclose(fp);
 	fclose(fptemp);
 
-	copy_file(SAVE_FILE_PATH,SAVE_FILE_PATH_TEMP);
-	delete_file(SAVE_FILE_PATH_TEMP);
+	copy_file(pathsave,pathsavetmp);
+	delete_file(pathsavetmp);
 	error:
 	return;
 }
@@ -968,8 +983,13 @@ void fl_enable_next_level(int player_id, int level_id)
 	assert(player_id >= FL_PLAYER_1 && player_id <= FL_PLAYER_3 && 
 		   "player");
 	
-	FILE *fp = fopen(SAVE_FILE_PATH, "r");
-	FILE *fptemp = fopen(SAVE_FILE_PATH_TEMP, "w");
+	char pathsave[512];
+	char pathsavetmp[512];
+
+	ax_get_resource_path(pathsave, sizeof(pathsave), SAVE_FILE_PATH);
+	ax_get_resource_path(pathsavetmp, sizeof(pathsavetmp), SAVE_FILE_PATH_TEMP);
+	FILE *fp = fopen(pathsave, "r");
+	FILE *fptemp = fopen(pathsavetmp, "w");
 	check_mem(fp);
 	check_mem(fptemp);
 
@@ -1004,8 +1024,8 @@ void fl_enable_next_level(int player_id, int level_id)
 	fclose(fp);
 	fclose(fptemp);
 
-	copy_file(SAVE_FILE_PATH,SAVE_FILE_PATH_TEMP);
-	delete_file(SAVE_FILE_PATH_TEMP);
+	copy_file(pathsave,pathsavetmp);
+	delete_file(pathsavetmp);
 	error:
 	return;
 }
@@ -1048,7 +1068,9 @@ void fl_save_file_init()
 	bool file_exists = check_if_save_file_exists();
 
 	if (file_exists == false){
-		FILE *fp = fopen(SAVE_FILE_PATH, "w");
+		char path[512];	
+		ax_get_resource_path(path, sizeof(path), SAVE_FILE_PATH);
+		FILE *fp = fopen(path, "w");
 		char *level = malloc(sizeof(char)*SAVE_FILE_LINE_LENGTH);
 		check_mem(level);
 
@@ -1158,6 +1180,8 @@ void fl_save_file_init()
  */
 bool check_if_save_file_exists()
 {
-	bool file_exists = (access(SAVE_FILE_PATH, F_OK) == 0);
+	char path[512];
+	ax_get_resource_path(path, sizeof(path), SAVE_FILE_PATH);
+	bool file_exists = (access(path, F_OK) == 0);
 	return file_exists;
 }

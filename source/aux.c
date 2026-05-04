@@ -24,7 +24,47 @@ char *ax_level_text = "Level";
 
 static int move_delta;
 static int arrow_mdelta;
+#include <sys/stat.h>
+#include <string.h>
 
+
+static int dir_exists(const char *path)
+{
+    struct stat st;
+    return (stat(path, &st) == 0 && S_ISDIR(st.st_mode));
+}
+
+/* Function: ax_get_resource_path
+ * -------------------------------------
+ * Helper function needed for the app bundle
+ *
+ * Arguments:
+ *	out: path
+ *	size: size of the path
+ *	relative: relative dir
+ *
+ * Return:
+ *	boolean with the state
+ */
+void ax_get_resource_path(char *out, size_t out_size, const char *relative)
+{
+    char *base = SDL_GetBasePath();
+
+    /* Case 1: running inside .app bundle */
+    char app_path[512];
+    snprintf(app_path, sizeof(app_path),
+             "%s../Resources", base);
+
+    if (dir_exists(app_path)) {
+        snprintf(out, out_size, "%s/%s", app_path, relative);
+        SDL_free(base);
+        return;
+    }
+
+    /* Case 2: running from project directory */
+    snprintf(out, out_size, "%s%s", base, relative);
+    SDL_free(base);
+}
 
 
 /* Function: ax_chk_mouse_hover_rect

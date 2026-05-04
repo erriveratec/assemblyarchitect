@@ -55,6 +55,7 @@ typedef struct value_box_t{
 	texture_t *t;
 } value_box_t;
 
+void ax_get_resource_path(char *out, size_t out_size, const char *relative);
 char *ax_number_to_string(int number);
 bool check_text_fits_width_by_height(char *t, int h, int w);
 char *ax_number_to_string_prepend_zero(int number);
