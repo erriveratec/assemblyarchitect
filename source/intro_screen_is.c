@@ -1136,9 +1136,9 @@ int stage_title(const Uint8 *keystate)
 	dw_draw_texture_fit_h(s, press_space);
 
 	if (keystate[SDL_SCANCODE_SPACE]){
-		dw_free_texture(g_chip);
-		dw_free_texture(press_space);
-		dw_free_texture(game_title);
+	//	dw_free_texture(g_chip);
+//		dw_free_texture(press_space);
+//		dw_free_texture(game_title);
   		aa_electron_fx_destroy(fx);
 		init = false;
 		ret_val = LV_SELECT_PLAYER_SCREEN;
@@ -1424,8 +1424,10 @@ int stage_select_player()
 
 	draw_player_texts(player_text, player_lore);
 	draw_player_figures(t);
+	sb_draw_ret_btn();
 
 	bool escape_menu = sb_get_escape_state();
+	bool clear_stage = false;
 	if (escape_menu == true){
 		sb_display_escape_menu(sb_get_escape_state());
 	} else {
@@ -1438,16 +1440,18 @@ int stage_select_player()
 		} else if (bt_chk_rel_iface_btn(player_btns[2], g_sfx_select) == true){
 			player_chosen = true;
 			g_player = FL_PLAYER_3;
+		} else if (sb_chck_rel_ret_btn() == true){
+			ret_val = LV_TITLE_SCREEN;	
+			clear_stage = true;
 		}
 		if (player_chosen == true){
 			ret_val = LV_SELECT_SECTOR;		
+			clear_stage = true;
+		}
+		if (clear_stage == true){
 			bt_destroy_iface_btn(player_btns[0]);
 			bt_destroy_iface_btn(player_btns[1]);
 			bt_destroy_iface_btn(player_btns[2]);
-		//	dw_free_texture(select_player);
-	//		select_player = NULL;
-//			type_index = 0;
-//			title_done = false;
 			dw_free_texture(player_text[0]);
 			dw_free_texture(player_text[1]);
 			dw_free_texture(player_text[2]);
@@ -1456,6 +1460,7 @@ int stage_select_player()
 			dw_free_texture(player_lore[2]);
   			aa_electron_fx_destroy(fx);
 			init = false;
+
 		}
 	}
 	error:
