@@ -41,7 +41,7 @@ Select Input Buffer [ib] as the Source Operand
 MSG_END
 
 MSG 09
-Execute the instruction to inspect its behaviour
+Execute the instruction to inspect its behavior
 MSG_END
 
 MSG 10

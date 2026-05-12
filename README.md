@@ -1,93 +1,134 @@
-# assemblygame
+# Assembly Architect
 
+**Assembly Architect** is an educational puzzle game designed to teach fundamental programming concepts through a visual and interactive interface inspired by x86 assembly language. The game challenges players to manipulate data using a real instruction set and register-based logic, fostering algorithmic thinking and a deeper understanding of computer architecture.
 
+---
 
-## Getting started
+## 🧠 Concept Overview
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+Assembly architect simulates a assembly-like environment where players must solve increasingly complex tasks by writing code that manipulates data between an **Input Buffer (IB)** and an **Output Buffer (OB)** using virtual registers and real x86 instructions.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+The game is inspired by pedagogical principles from programming education and cognitive load theory, aiming to:
+- Reinforce understanding of memory operations.
+- Develop procedural thinking.
+- Introduce core concepts of instruction cycles and control flow.
 
-## Add your files
+---
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+## 🎮 Gameplay Mechanics
 
+Players are presented with a visual programming interface consisting of:
+
+- **Instruction Set**: Currently limited to basic operations such as `mov`, `add`, and `jmp`.
+- **Registers**: Virtual registers (`rax`, `rbx`, `rcx`) used to store and manipulate data.
+- **Buffers**: 
+  - **Input Buffer [IB]**: Source of data values.
+  - **Output Buffer [OB]**: Destination for processed values.
+- **Code Box**: Where players drag and drop instructions to build their solution.
+- **Execution Controls**: Step-through or run the program to test logic.
+
+---
+
+## 🖼️ Screenshots
+
+### 🧩 Level Interface
+![Level Interface](interface.png)
+*Level 09: Move values from IB to OB using a maximum of 3 instructions.*
+
+## 🧭 Interface Elements
+
+Assembly Architect’s interface is composed of interactive components that simulate x86 assembly programming through spatial metaphors and animated agents. Each element is designed to reinforce architectural constraints and support intuitive learning.
+
+| **Label** | **Element Name**         | **Description** |
+|----------|---------------------------|-----------------|
+| 1        | **Instruction Roster**    | Allows players to select and drag instructions into the Code Box. The available instructions vary by level to support incremental learning. |
+| 2        | **Code Box**              | The workspace where players assemble their code. Instructions can be rearranged, edited, or removed. |
+| 3        | **Challenge Description** | Provides a textual overview of the level’s objective, guiding players toward the intended solution. |
+| 4        | **Register Box**          | Displays the available registers for use as operands. |
+| 5        | **Registers Agent**       | Facilitates data exchange between registers and the Input/Output Buffer Agents. Movement is constrained by a yellow rail. |
+| 6        | **Input Buffer Agent**    | Transfers values from the Input Buffer to the Registers Agent. Movement is constrained by a magenta rail. |
+| 7        | **Output Buffer Agent**   | Moves values from the Registers Agent to the Output Buffer. Movement is constrained by a cyan rail. |
+| 8        | **Input Buffer**          | Modeled as a memory address simulating a read-and-consume I/O buffer. Provides input values for processing. |
+| 9        | **Output Buffer**         | A memory-mapped location where the player’s output is deposited and evaluated against expected results to determine challenge success. |
+
+---
+
+### 🧠 Code Execution
+![Code Execution](execution.png)
+*Player writes a loop using `mov` and `jmp` to transfer values from IB to OB.*
+
+---
+
+### ✅ Challenge Completed
+![Challenge Completed](win.png)
+*Successful execution of the program with correct output values.*
+
+---
+
+## 🔍 Example Solution
+
+```asm
+@1 LINE_01:
+@2 mov rax,[ib]
+@3 mov [ob],rax
+@4 jmp LINE_01
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/ernestoriv7/assemblygame.git
-git branch -M main
-git push -uf origin main
+
+This loop continuously reads from the Input Buffer into register `rax`, writes the value to the Output Buffer, and jumps back to repeat the process.
+
+---
+
+## 📚 Educational Objectives
+
+Assembly architect is designed to support the following learning outcomes:
+
+- Understand the role of registers and memory in computation.
+- Practice control flow using jumps and loops.
+- Develop debugging and problem-solving skills.
+- Experience a simplified model of instruction execution.
+
+---
+
+## 🚧 Development Status
+
+Assembly architect is currently under active development. The existing version includes a foundational set of x86-inspired instructions and nine tutorial levels designed to introduce core concepts such as register manipulation, memory access, and control flow.
+
+Planned future enhancements include:
+- Support for additional x86 instructions (e.g., stack operations, arithmetic, and logic instructions).
+- New levels introducing advanced topics such as recursion and memory operands.
+- Step-by-step execution mode for debugging and learning.
+- In-game contextual help and instruction documentation.
+- Instruction duplication and improved code editing features.
+
+These features aim to expand the game’s fidelity to real-world x86 assembly language and enhance its pedagogical value.
+
+---
+
+
+## 🛠️ Installation
+
+To run the game locally:
+
+```bash
+git clone https://github.com/yourusername/assembly-architect.git
+cd assembly-architect
+make
+./assembly
 ```
 
-## Integrate with your tools
+> ⚠️ Currently the game only works in MacOS with the SDL2 Framework installed.
 
-- [ ] [Set up project integrations](https://gitlab.com/ernestoriv7/assemblygame/-/settings/integrations)
+---
 
-## Collaborate with your team
+## 🤝 Contributing
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+We welcome contributions! Please open an issue or submit a pull request with improvements, bug fixes, or new levels.
 
-## Test and Deploy
+---
 
-Use the built-in continuous integration in GitLab.
+## 📜 License
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-***
+---
 
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.

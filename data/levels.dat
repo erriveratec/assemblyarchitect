@@ -27,7 +27,7 @@ WinConditionEnd
 +++LEVEL STARTS 01
 
 ChallengeTextBegin
-"Move the values from the Input Buffer [ib] to the Output Buffer [ob], using maximun 2 instructions"
+"Move the values from the Input Buffer [ib] to the Output Buffer [ob], using maximum 2 instructions"
 ChallengeTextEnd
 
 InputSize 1
