@@ -154,6 +154,6 @@ app: build
 
 clean:
 	rm -rf $(EXEC) $(APP_BUNDLE)
-	rm -rf assemblygame*
+	rm -rf assemblyArchitect*
 	rm -f source/.*.swp
 	rm -f data/.*.swp
