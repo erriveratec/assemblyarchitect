@@ -258,8 +258,6 @@ InstructionsEnd
 
 RegistersBegin
 rax
-rbx
-rcx
 RegistersEnd
 
 InstructionLimit 6

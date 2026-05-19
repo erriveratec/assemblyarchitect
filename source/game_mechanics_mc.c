@@ -372,6 +372,7 @@ void mc_display_operation_handler(int id)
 				button_pressed = true;
 			} else if (bt_chk_rel_iface_btn(cont, g_sfx_select)){
 				mc_set_op_menu_btn_state(CONT_BTN_PRESSED);
+				button_pressed = true;
 			} else {
 				mc_set_op_menu_btn_state(NO_BTN_PRESSED);
 			}

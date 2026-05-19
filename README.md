@@ -132,3 +132,8 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ---
 
+## To sign the app execute
+
+codesign --deep --force --sign - AssemblyGame.app
+xattr -dr com.apple.quarantine AssemblyGame.app
+

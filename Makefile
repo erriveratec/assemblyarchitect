@@ -2,8 +2,8 @@
 # Project configuration
 ############################
 
-APP_NAME = AssemblyGame
-EXEC     = assemblygame
+APP_NAME = AssemblyArchitect
+EXEC     = assemblyArchitect
 
 S_DIR = source
 B_DIR = .
@@ -141,6 +141,12 @@ app: build
 	> $(APP_CONTENTS)/Info.plist
 	
 	@echo "App bundle created: $(APP_BUNDLE)"
+
+	@echo "Signing app bundle..."
+	codesign --deep --force --sign - $(APP_BUNDLE)
+
+	@echo "Removing quarantine attribute..."
+	xattr -dr com.apple.quarantine $(APP_BUNDLE)
 
 ############################
 # Clean
