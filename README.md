@@ -1,139 +1,182 @@
 # Assembly Architect
 
-**Assembly Architect** is an educational puzzle game designed to teach fundamental programming concepts through a visual and interactive interface inspired by x86 assembly language. The game challenges players to manipulate data using a real instruction set and register-based logic, fostering algorithmic thinking and a deeper understanding of computer architecture.
+**Assembly Architect** is an educational, puzzle-based video game designed to teach foundational concepts of computer architecture and x86 assembly language through a visual and interactive interface. Instead of treating assembly programming as a purely textual activity, the game externalizes instruction execution, data movement, and architectural constraints as animated, spatial mechanics that players learn through play.
+
+The project is developed in C using SDL2 and currently targets macOS.
 
 ---
 
 ## 🧠 Concept Overview
 
-Assembly architect simulates a assembly-like environment where players must solve increasingly complex tasks by writing code that manipulates data between an **Input Buffer (IB)** and an **Output Buffer (OB)** using virtual registers and real x86 instructions.
+**Assembly Architect** reframes real-world x86 assembly programming as a system of playable rules and constraints. Players solve puzzle-based challenges by constructing programs using authentic x86-inspired instructions and observing their execution through animated agents that move values between registers and memory-mapped input buffer, and output buffer.
 
-The game is inspired by pedagogical principles from programming education and cognitive load theory, aiming to:
-- Reinforce understanding of memory operations.
-- Develop procedural thinking.
-- Introduce core concepts of instruction cycles and control flow.
+Architectural rules that are typically enforced syntactically—such as operand restrictions and the prohibition of memory-to-memory transfers—are embodied as spatial constraints and movement limitations within the game world. This design allows players to experience low-level computation as an interactive and observable process rather than as static code and execution traces.
 
 ---
 
 ## 🎮 Gameplay Mechanics
 
-Players are presented with a visual programming interface consisting of:
+Players interact with a visual programming interface composed of:
 
-- **Instruction Set**: Currently limited to basic operations such as `mov`, `add`, and `jmp`.
-- **Registers**: Virtual registers (`rax`, `rbx`, `rcx`) used to store and manipulate data.
-- **Buffers**: 
-  - **Input Buffer [IB]**: Source of data values.
-  - **Output Buffer [OB]**: Destination for processed values.
-- **Code Box**: Where players drag and drop instructions to build their solution.
-- **Execution Controls**: Step-through or run the program to test logic.
+- **Instruction Roster**  
+  A constrained set of real x86-inspired instructions available per level to support incremental learning.
+
+- **Code Box**  
+  A workspace where players assemble, reorder, edit, or remove instruction sequences.
+
+- **Registers**  
+  Virtual registers (e.g., rax, rbx, rcx) used as intermediaries for data movement.
+
+- **Input Buffer (IB)**  
+  A memory-mapped input source that provides values to be processed.
+
+- **Output Buffer (OB)**  
+  A memory-mapped output destination where results are evaluated against expected outputs.
+
+- **Animated Agents**  
+  Visual entities that externalize instruction execution and data flow by physically moving values between architectural components.
+
+Players can execute programs step-by-step or run them continuously to observe how each instruction affects system state.
 
 ---
 
 ## 🖼️ Screenshots
 
 ### 🧩 Level Interface
+
 ![Level Interface](interface.png)
-*Level 09: Move values from IB to OB using a maximum of 3 instructions.*
+
+Level 09: Move values from the Input Buffer (IB) to the Output Buffer (OB) using a maximum of three instructions.
+
+### 🧠 Code Execution
+
+![Code Execution](execution.png)
+
+A loop using mov and jmp transfers values from IB to OB while visualizing execution.
+
+### ✅ Challenge Completed
+
+![Challenge Completed](win.png)
+
+Successful execution with correct output values.
+
+---
 
 ## 🧭 Interface Elements
 
-Assembly Architect’s interface is composed of interactive components that simulate x86 assembly programming through spatial metaphors and animated agents. Each element is designed to reinforce architectural constraints and support intuitive learning.
+The level interface is composed of interactive components that simulate x86 assembly programming through spatial metaphors and animated agents.
 
-| **Label** | **Element Name**         | **Description** |
-|----------|---------------------------|-----------------|
-| 1        | **Instruction Roster**    | Allows players to select and drag instructions into the Code Box. The available instructions vary by level to support incremental learning. |
-| 2        | **Code Box**              | The workspace where players assemble their code. Instructions can be rearranged, edited, or removed. |
-| 3        | **Challenge Description** | Provides a textual overview of the level’s objective, guiding players toward the intended solution. |
-| 4        | **Register Box**          | Displays the available registers for use as operands. |
-| 5        | **Registers Agent**       | Facilitates data exchange between registers and the Input/Output Buffer Agents. Movement is constrained by a yellow rail. |
-| 6        | **Input Buffer Agent**    | Transfers values from the Input Buffer to the Registers Agent. Movement is constrained by a magenta rail. |
-| 7        | **Output Buffer Agent**   | Moves values from the Registers Agent to the Output Buffer. Movement is constrained by a cyan rail. |
-| 8        | **Input Buffer**          | Modeled as a memory address simulating a read-and-consume I/O buffer. Provides input values for processing. |
-| 9        | **Output Buffer**         | A memory-mapped location where the player’s output is deposited and evaluated against expected results to determine challenge success. |
-
----
-
-### 🧠 Code Execution
-![Code Execution](execution.png)
-*Player writes a loop using `mov` and `jmp` to transfer values from IB to OB.*
-
----
-
-### ✅ Challenge Completed
-![Challenge Completed](win.png)
-*Successful execution of the program with correct output values.*
+| Label | Element Name | Description |
+|------:|--------------|-------------|
+| 1 | Instruction Roster | Allows players to select and drag instructions into the Code Box. |
+| 2 | Code Box | Workspace where players assemble and edit instruction sequences. |
+| 3 | Challenge Description | Textual overview of the level objective. |
+| 4 | Register Box | Displays registers available for use as operands. |
+| 5 | Registers Agent | Transfers values between registers and buffer agents. |
+| 6 | Input Buffer Agent | Moves values from the Input Buffer to registers. |
+| 7 | Output Buffer Agent | Moves values from registers to the Output Buffer. |
+| 8 | Input Buffer (IB) | Read-and-consume memory-mapped input buffer. |
+| 9 | Output Buffer (OB) | Memory-mapped output location for evaluation. |
 
 ---
 
 ## 🔍 Example Solution
 
-```asm
-@1 LINE_01:
-@2 mov rax,[ib]
-@3 mov [ob],rax
-@4 jmp LINE_01
-```
+    LINE_01:
+        mov rax, [ib]
+        mov [ob], rax
+        jmp LINE_01
 
-This loop continuously reads from the Input Buffer into register `rax`, writes the value to the Output Buffer, and jumps back to repeat the process.
+This loop repeatedly reads values from the Input Buffer into register rax, writes them to the Output Buffer, and jumps back to repeat the process. Direct memory-to-memory transfers are disallowed, reflecting real x86 constraints.
+
+---
+
+## 🧩 Level Structure and Progression
+
+**Assembly Architect** includes **16 levels (Levels 00–15)** organized into progressive phases:
+
+- **Levels 00–03 — Foundational Execution**  
+  Basic data movement and visible execution, emphasizing register mediation.
+
+- **Levels 04–07 — State and Composition**  
+  Multi-register manipulation and arithmetic composition with persistent state.
+
+- **Levels 08–12 — Iteration Under Limits**  
+  Repeated execution under fixed instruction budgets, introducing looping behavior.
+
+- **Levels 13–15 — Conditional Termination**  
+  Branching and early stopping based on runtime state.
 
 ---
 
 ## 📚 Educational Objectives
 
-Assembly architect is designed to support the following learning outcomes:
+The game is designed to help learners:
 
-- Understand the role of registers and memory in computation.
-- Practice control flow using jumps and loops.
-- Develop debugging and problem-solving skills.
-- Experience a simplified model of instruction execution.
+- Understand the role of registers and memory in computation  
+- Reason about instruction execution and data flow  
+- Experience architectural constraints through gameplay  
+- Develop debugging and problem-solving strategies  
+
+**Assembly Architect** is intended as a complementary learning experience alongside traditional lectures and assemblers.
 
 ---
+
+## 🛠️ Building and Running (macOS)
+
+### Requirements
+
+- macOS (Apple Silicon) 
+- clang (Xcode Command Line Tools)  
+- SDL2 frameworks:
+  - SDL2
+  - SDL2_image
+  - SDL2_ttf
+  - SDL2_mixer
+
+---
+
+### Clone the Repository
+
+    git clone https://github.com/ernestoriv7/AssemblyArchitect.git
+    cd AssemblyArchitect
+
+---
+
+### Build and Run (Development Binary)
+
+    make
+    ./assemblyArchitect
+
+---
+
+### Build macOS App Bundle
+
+    make app
+
+This produces:
+
+    AssemblyArchitect.app
+
+---
+
 
 ## 🚧 Development Status
 
-Assembly architect is currently under active development. The existing version includes a foundational set of x86-inspired instructions and nine tutorial levels designed to introduce core concepts such as register manipulation, memory access, and control flow.
+**Assembly Architect** is under active development. Planned future work includes:
 
-Planned future enhancements include:
-- Support for additional x86 instructions (e.g., stack operations, arithmetic, and logic instructions).
-- New levels introducing advanced topics such as recursion and memory operands.
-- Step-by-step execution mode for debugging and learning.
-- In-game contextual help and instruction documentation.
-- Instruction duplication and improved code editing features.
-
-These features aim to expand the game’s fidelity to real-world x86 assembly language and enhance its pedagogical value.
-
----
-
-
-## 🛠️ Installation
-
-To run the game locally:
-
-```bash
-git clone https://github.com/yourusername/assembly-architect.git
-cd assembly-architect
-make
-./assembly
-```
-
-> ⚠️ Currently the game only works in MacOS with the SDL2 Framework installed.
+- Expanded x86 instruction support  
+- Additional architecture features (stack, memory)  
+- Additional challenge levels  
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions! Please open an issue or submit a pull request with improvements, bug fixes, or new levels.
+Contributions are welcome. Please open an issue or submit a pull request for bug fixes, improvements, or new levels.
 
 ---
 
 ## 📜 License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
-
-## To sign the app execute
-
-codesign --deep --force --sign - AssemblyGame.app
-xattr -dr com.apple.quarantine AssemblyGame.app
-
+This project is licensed under the MIT License. See the LICENSE file for details.
