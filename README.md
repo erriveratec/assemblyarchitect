@@ -10,7 +10,7 @@ The project is developed in C using SDL2 and currently targets macOS.
 
 **Assembly Architect** reframes real-world x86 assembly programming as a system of playable rules and constraints. Players solve puzzle-based challenges by constructing programs using authentic x86-inspired instructions and observing their execution through animated agents that move values between registers and memory-mapped input buffer, and output buffer.
 
-Architectural rules that are typically enforced syntactically—such as operand restrictions and the prohibition of memory-to-memory transfers—are embodied as spatial constraints and movement limitations within the game world. This design allows players to experience low-level computation as an interactive and observable process rather than as static code and execution traces.
+Architectural rules that are typically enforced syntactically (such as operand restrictions and the prohibition of memory-to-memory transfers) are embodied as spatial constraints and movement limitations within the game world. This design allows players to experience low-level computation as an interactive and observable process rather than as static code and execution traces.
 
 ---
 
