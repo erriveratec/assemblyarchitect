@@ -5,9 +5,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "draw_dw.h"
-#include "aux.h"
-#include "list.h"
-#include "mouse_ms.h"
 #include <SDL_mixer.h>
 
 typedef struct btn_t{

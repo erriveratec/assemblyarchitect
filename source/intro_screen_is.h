@@ -3,6 +3,7 @@
 
 #include <SDL.h>
 #include <SDL_mixer.h>
+#include "draw_dw.h"
 
 extern char *GAME_TITLE;
 extern char *PRESS_SPACE;

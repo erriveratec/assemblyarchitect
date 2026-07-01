@@ -2,7 +2,6 @@
 #include <stdbool.h>
 #include "code_line_cl.h"
 #include "dbg.h"
-#include "dimensions_dm.h"
 #include "aux.h"
 
 #define INSTRUCTION_STRING_LENGTH 20

@@ -5,7 +5,6 @@
 #include "aux.h"
 #include "button_bt.h"
 #include "stages.h"
-#include "list.h" 
 #include "code_window_cw.h"
 #include "instruction_window_iw.h"
 #include "buffers_bf.h"
@@ -16,10 +15,10 @@
 #include "stage_buttons_sb.h"
 #include "levels_lv.h"
 #include "mouse_ms.h"
-#include "dbg.h"
 #include "arrow_ar.h"
 #include "immediates_im.h"
 #include "electron_fx.h"
+#include "text_tx.h"
 
 
 typedef struct level_flags_t{

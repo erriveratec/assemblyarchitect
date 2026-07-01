@@ -1,7 +1,6 @@
 #ifndef INSTRUCTION_WINDOW_IW_H
 #define INSTRUCTION_WINDOW_IW_H
 
-#include "list.h"
 #include "code_line_cl.h"
 
 void iw_create_instruction_list();

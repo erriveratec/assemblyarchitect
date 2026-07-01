@@ -5,8 +5,8 @@
 #include "dimensions_dm.h"
 #include "code_window_cw.h"
 #include "assert.h"
-#include "dbg.h"
 #include "sdl_config.h"
+#include "aux.h"
 
 #define ESC_MENU_TEXT1 "RETURN TO GAME"
 #define ESC_MENU_TEXT2 "TOGGLE FULL SCREEN"

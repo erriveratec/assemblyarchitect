@@ -2,7 +2,6 @@
 #define AUX_AX_H
 
 #include <stdbool.h>
-#include "list.h"
 #include "draw_dw.h"
 
 // For values not assigned
@@ -65,7 +64,7 @@ int ax_get_wrapped_text_height(int w, int h, char *t);
 float get_scale_fit_height(int h, texture_t *texture);
 float get_scale_fit_width(int w, texture_t *texture);
 int get_text_width_fits_height(int h, char *text);
-int get_text_height_fits_width(int w, char *text);
+int ax_get_text_h_fit_w(int w, char *text);
 void ax_draw_value_box(value_box_t *box, SDL_Color color);
 void ax_copy_vbox(value_box_t *dst, value_box_t src, bool pos);
 char *ax_create_string_append_hex(char *s,  int n);

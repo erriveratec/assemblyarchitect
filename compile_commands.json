@@ -1,0 +1,444 @@
+[
+  {
+    "file": "source/arrow_ar.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/arrow_ar.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/aux.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/aux.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/buffers_bf.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/buffers_bf.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/button_bt.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/button_bt.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/code_line_cl.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/code_line_cl.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/code_window_cw.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/code_window_cw.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/dimensions_dm.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/dimensions_dm.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/draw_dw.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/draw_dw.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/electron_fx.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/electron_fx.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/file_fl.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/file_fl.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/game_mechanics_mc.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/game_mechanics_mc.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/help_hp.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/help_hp.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/immediates_im.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/immediates_im.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/instruction_window_iw.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/instruction_window_iw.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/intro_screen_is.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/intro_screen_is.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/intro_screens_is.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/intro_screens_is.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/levels_lv.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/levels_lv.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/list.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/list.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/main.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/main.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/mouse_ms.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/mouse_ms.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/players_pl.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/players_pl.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/registers_rg.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/registers_rg.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/sdl_config.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/sdl_config.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/stage_buttons_sb.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/stage_buttons_sb.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/stages.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/stages.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  },
+  {
+    "file": "source/text_tx.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-g",
+      "source/text_tx.c",
+      "-o",
+      "assemblyArchitect",
+      "-I/Library/Frameworks/SDL2.framework/Headers",
+      "-I/Library/Frameworks/SDL2_image.framework/Headers",
+      "-I/Library/Frameworks/SDL2_ttf.framework/Headers",
+      "-I/Library/Frameworks/SDL2_mixer.framework/Headers",
+      "-F/Library/Frameworks"
+    ],
+    "directory": "/Users/ernesto/git-projects/assemblygame",
+    "output": "assemblyArchitect"
+  }
+]

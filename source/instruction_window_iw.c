@@ -8,6 +8,8 @@
 #include "dbg.h"
 #include "dimensions_dm.h"
 #include "stage_buttons_sb.h"
+#include "aux.h"
+
 
 #define INSTRUCTIONS_TEXT "Instructions"
 
@@ -107,7 +109,7 @@ static void draw_instruction_text()
 {
 	SDL_Rect ib = dm_get_stage_instruction_box();
 	int x = ib.x;
-	int h = get_text_height_fits_width(ib.w, INSTRUCTIONS_TEXT);
+	int h = ax_get_text_h_fit_w(ib.w, INSTRUCTIONS_TEXT);
 	int y = ib.y - h;
 	int text_h = dm_get_h_stage_elements_titles();
 	SDL_Rect r = {.x = x, .y = y, .w = ib.w, .h = text_h};

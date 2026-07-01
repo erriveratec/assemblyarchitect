@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "code_line_cl.h"
+#include "aux.h"
 
 void im_set_imm_up_avail(bool state);
 void im_draw_imm();

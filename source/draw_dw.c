@@ -7,7 +7,7 @@
 #include "draw_dw.h"
 #include "sdl_config.h"
 #include "aux.h"
-#include "dbg.h"
+#include "dimensions_dm.h"
 
 SDL_Color C_BLACK = {0, 0, 0, 255};
 SDL_Color C_RED = {255, 0, 0, 255};

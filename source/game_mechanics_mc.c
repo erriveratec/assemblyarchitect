@@ -4,7 +4,6 @@
 #include "aux.h"
 #include "draw_dw.h"
 #include "code_window_cw.h"
-#include "mouse_ms.h"
 #include "dimensions_dm.h"
 #include "registers_rg.h" 
 #include "buffers_bf.h"

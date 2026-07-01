@@ -10,12 +10,7 @@
 #include "aux.h"
 #include "draw_dw.h"
 #include "stage_buttons_sb.h"
-#include "registers_rg.h"
-#include "buffers_bf.h"
-#include "game_mechanics_mc.h"
-#include "levels_lv.h"
 #include "arrow_ar.h"
-#include "stages.h"
 
 #define ERROR -1
 
@@ -44,7 +39,6 @@ Mix_Chunk *g_sfx_run_correct_val = NULL;
 static bool init_audio();
 
 
-
 /* Function: init_audio
  * -------------------------------------
  * Initializes the audio for the sdl game
@@ -68,8 +62,6 @@ static bool init_audio()
 
 	return true;
 }
-
-
 
 /* Function: init_sdl
  * -------------------------------------

@@ -2,8 +2,6 @@
 #define LEVELS_LV_H
 
 #include <stdbool.h>
-#include "list.h"
-#include "draw_dw.h"
 #include "code_line_cl.h"
 
 // Multiple states of the game.

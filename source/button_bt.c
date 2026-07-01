@@ -1,10 +1,11 @@
+
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "button_bt.h"
-#include "sdl_config.h"
-#include "list.h"
 #include "mouse_ms.h"
+#include "dimensions_dm.h"
+#include "aux.h"
 #include <SDL_mixer.h>
 
 static const Uint32 BUTTON_LIFT = 4;

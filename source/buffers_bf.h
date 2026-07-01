@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "code_line_cl.h"
+#include "list.h"
+#include "aux.h"
 
 enum input_list_type{
 	NOT_ASSIGNED,

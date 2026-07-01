@@ -5,7 +5,6 @@
 #include "aux.h"
 #include "dbg.h"
 #include "buffers_bf.h"
-#include "dimensions_dm.h"
 #include "registers_rg.h"
 #include "instruction_window_iw.h"
 #include "code_window_cw.h"
@@ -16,6 +15,8 @@
 #include "immediates_im.h"
 #include "file_fl.h"
 #include "game_mechanics_mc.h"
+#include "mouse_ms.h"
+
 
 //Strings for the win condition
 #define STR_WIN1 "WIN1"

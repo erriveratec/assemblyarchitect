@@ -1,8 +1,6 @@
 #ifndef GAME_MECHANICS_MC_H
 #define GAME_MECHANICS_MC_H
 #include "draw_dw.h"
-#include "button_bt.h"
-#include "code_window_cw.h"
 
 extern texture_t *g_exec_arrow_texture;
 

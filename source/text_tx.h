@@ -2,7 +2,6 @@
 #define TEXT_TX_H
 #include<stdio.h>
 #include<stdlib.h>
-#include"dimensions_dm.h"
 #include"draw_dw.h"
 
 void tx_init_global_msgs();

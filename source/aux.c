@@ -381,7 +381,7 @@ void ax_draw_value_box(value_box_t *box, SDL_Color color)
 
 }
 
-/* Function: get_text_height_fits_width
+/* Function: ax_get_text_h_fit_w
  * -----------------------------------------------------------------------------
  * This function receives a text string and a width value for that string and
  * returns the height that the text will need
@@ -393,7 +393,7 @@ void ax_draw_value_box(value_box_t *box, SDL_Color color)
  * Return:
  *	height of the text.
  */
-int get_text_height_fits_width(int w, char *text)
+int ax_get_text_h_fit_w(int w, char *text)
 {
 	texture_t *text_texture = NULL;
 

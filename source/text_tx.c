@@ -4,10 +4,10 @@
 #include <SDL_mixer.h>
 #include"text_tx.h"
 #include"draw_dw.h"
-#include"instruction_window_iw.h"
 #include"code_window_cw.h"
 #include"dimensions_dm.h"
 #include "sdl_config.h"
+#include "aux.h"
 
 #define MSG_CLICKANY "Click Anywhere"
 #define MSG_PRESSPLAY "Press the Play Button"

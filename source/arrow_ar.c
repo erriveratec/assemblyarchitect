@@ -1,13 +1,15 @@
+
 #include<stdio.h>
 #include<stdlib.h>
 #include<assert.h>
 #include"arrow_ar.h"
-#include"text_tx.h"
 #include"draw_dw.h"
 #include"instruction_window_iw.h"
 #include"code_window_cw.h"
 #include"stage_buttons_sb.h"
 #include"registers_rg.h"
+#include "dimensions_dm.h"
+
 
 texture_t *g_lv_arrow;
 texture_t *g_ib_arrow;

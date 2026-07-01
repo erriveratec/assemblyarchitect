@@ -3,6 +3,7 @@
 
 #include <SDL.h>
 #include <SDL_mixer.h>
+#include <stdbool.h>
 
 extern bool g_quit;
 extern int g_player;

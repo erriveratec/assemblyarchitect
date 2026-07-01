@@ -3,9 +3,6 @@
 
 #include <SDL.h>
 #include "code_line_cl.h"
-#include "list.h"
-#include "button_bt.h"
-#include "mouse_ms.h"
 
 #define CW_EMPTY 0
 #define MAX_CODE_LINES 99
