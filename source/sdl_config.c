@@ -108,6 +108,18 @@ int init_sdl(int width, int height, int argc, char *args[])
 										&g_renderer);
 		}
 	}
+	
+	/* Destroy the renderer SDL_CreateWindowAndRenderer created and recreate 
+	with vsync */
+	SDL_DestroyRenderer(g_renderer);
+	g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_ACCELERATED 
+								    | SDL_RENDERER_PRESENTVSYNC);
+	if (!g_renderer) {
+   		SDL_Log("CreateRenderer failed: %s", SDL_GetError());
+		SDL_DestroyWindow(g_window);
+		return -1;
+	}
+
 	if (g_window == NULL){
 		printf("Window could not be created! SDL_Error: %s\n", 
 				SDL_GetError());
