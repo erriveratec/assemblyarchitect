@@ -7,7 +7,7 @@
 #include "dimensions_dm.h"
 #include "draw_dw.h"
 #include "aux.h"
-#include "button_bt.h"
+#include "ui/button_bt.h"
 
 #define TOTAL_IMM 20
 

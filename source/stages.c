@@ -3,7 +3,8 @@
 #include <SDL_mixer.h>
 #include "game_mechanics_mc.h"
 #include "aux.h"
-#include "button_bt.h"
+#include "ui/button_bt.h"
+#include "ui/escape_menu_em.h"
 #include "stages.h"
 #include "code_window_cw.h"
 #include "instruction_window_iw.h"
@@ -634,7 +635,7 @@ int stage_level(int level_id)
 	}
 
 	sb_display_rst_menu(sb_chk_rst_menu_state());
-	sb_display_escape_menu(sb_get_escape_state());
+	sb_display_escape_menu(em_get_escape_state());
 	return ret_val;
 }
 

@@ -16,6 +16,8 @@
 #include "game_mechanics_mc.h"
 #include "code_window_cw.h"
 #include "immediates_im.h"
+#include "ui/escape_menu_em.h"
+
 
 #define BG_COLOR_BLACK 0x000000FF
 #define BG_COLOR_RED 0xFF0000FF
@@ -112,7 +114,7 @@ int main(int argc, char *args[])
 					key_pressed = true;
 					if (event.key.repeat == 0 && event.key.keysym.sym ==
 					    SDLK_ESCAPE){
-						toggle_escape_menu();
+						em_toggle_escape_menu();
 					}
 					break;
 				default:

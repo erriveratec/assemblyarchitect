@@ -11,14 +11,15 @@ B_DIR = .
 DATA_DIRS = sound fonts data img
 APP_ICON = icon.icns
 
-S_FILES = $(S_DIR)/*.c
+S_FILES := $(shell find $(S_DIR) -type f -name '*.c')
 
+ 
 ############################
 # Compiler
 ############################
 
 CC = clang
-CFLAGS = -g
+CFLAGS = -g -I$(S_DIR)
 
 ############################
 # SDL Frameworks

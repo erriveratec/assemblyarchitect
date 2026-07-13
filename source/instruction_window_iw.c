@@ -3,7 +3,7 @@
 #include <SDL.h>
 #include "instruction_window_iw.h"
 #include "list.h"
-#include "button_bt.h"
+#include "ui/button_bt.h"
 #include "code_line_cl.h"
 #include "dbg.h"
 #include "dimensions_dm.h"

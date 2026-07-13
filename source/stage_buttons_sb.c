@@ -1,7 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "stage_buttons_sb.h"
-#include "button_bt.h"
+#include "ui/button_bt.h"
+#include "ui/escape_menu_em.h"
 #include "dimensions_dm.h"
 #include "code_window_cw.h"
 #include "assert.h"
@@ -38,7 +39,6 @@ static Uint32 ESC_MENU_BUTTON_SPACE = 12;
 static Uint32 RST_MENU_BTNS_W = 100;
 static Uint32 RST_MENU_BTNS_H = 60;
 
-bool g_escape_menu = false;
 bool g_rst_menu = false;
 bool g_quit = false;
 
@@ -96,7 +96,7 @@ static SDL_Rect get_rst_b2_box();
  */
 bool sb_chk_rst_esc_menu_active()
 {
-	bool active = (sb_chk_rst_menu_state() | sb_get_escape_state());
+	bool active = (sb_chk_rst_menu_state() | em_get_escape_state());
 	return active;
 }
 
@@ -340,8 +340,8 @@ void sb_display_rst_menu(bool show_menu)
 		int text_h = dm_get_h_msg();		
 		dw_draw_wrapped_texture_by_h(text_box, text_h, g_rst_menu_text);
 
-		bt_draw_iface_btn(g_rst_b1, sb_get_escape_state(), g_sfx_iface_hover);
-		bt_draw_iface_btn(g_rst_b2, sb_get_escape_state(), g_sfx_iface_hover);
+		bt_draw_iface_btn(g_rst_b1, em_get_escape_state(), g_sfx_iface_hover);
+		bt_draw_iface_btn(g_rst_b2, em_get_escape_state(), g_sfx_iface_hover);
 	}
 	return;
 }
@@ -490,7 +490,7 @@ void sb_display_escape_menu(bool show_menu)
 		bt_draw_iface_btn(g_escape_b3, false, g_sfx_iface_hover);
 
 		if (bt_chk_rel_iface_btn(g_escape_b1, NULL) == true){
-			toggle_escape_menu();
+			em_toggle_escape_menu();
 		} else if (bt_chk_rel_iface_btn(g_escape_b2, g_sfx_select) == true){
 			puts("Full screen must be implemented");	
 		} else if (bt_chk_rel_iface_btn(g_escape_b3, g_sfx_select) == true){
@@ -501,42 +501,9 @@ void sb_display_escape_menu(bool show_menu)
 }
 
 
-/* Function: player_pressed_escape_key
- * ----------------------------------------------------------------------------
- * This function inverts the state of the escape menu flag in case that the 
- * player has pressed the escape key.
- *
- * Arguments:
- * 	None.
- *
- * Return:
- *	void.	
- */
-void toggle_escape_menu()
-{
-	g_escape_menu = !g_escape_menu;
 
-	if (g_escape_menu == true){			
-		if (g_sfx_menu) Mix_PlayChannel(-1, g_sfx_menu, 0);
-	} else if (g_escape_menu == false){			
-		if (g_sfx_iface_back_cancel) Mix_PlayChannel(-1, g_sfx_iface_back_cancel, 0);
-	} 
-}
 
-/* Function: sb_get_escape_state
- * ----------------------------------------------------------------------------
- * This function return the boolean state of the state.
- *
- * Arguments:
- * 	None.
- *
- * Return:
- *	Boolean with the state fo the escape_menu variable
- */
-bool sb_get_escape_state()
-{
-	return g_escape_menu;
-}
+
 
 /* Function: set_quit_game_value
  * ----------------------------------------------------------------------------

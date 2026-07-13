@@ -10,8 +10,10 @@
 #include "stages.h"
 #include "electron_fx.h"
 #include "sdl_config.h"
-#include"text_tx.h"
-#include"players_pl.h"
+#include "text_tx.h"
+#include "players_pl.h"
+#include "ui/escape_menu_em.h"
+
 
 const char *STUDIO = "One Man Studio";
 char *GAME_TITLE = "ASSEMBLY ARCHITECT";
@@ -626,7 +628,7 @@ int stage_sector_1()
 	bool button_hovered = false;
 	
 	for (int i = 0; i < LV_SECTOR_LV_QTY; i++){
-		int hov = bt_draw_iface_btn(levels[i], sb_get_escape_state(), NULL);
+		int hov = bt_draw_iface_btn(levels[i], em_get_escape_state(), NULL);
 		if ((hov == BTN_HOVER || hov == BTN_CLICKPRESS) && prev_hov == false){
 			hover = tx_get_message_texture(LV_SECTOR_1_START + i);
 			level_sub_start_ms = cur_time;
@@ -659,7 +661,7 @@ int stage_sector_1()
 		dw_draw_wrapped_texture_by_h(sep, dm_get_h_stage_subsubtitle(), hover);
     }
 
-	bool escape = sb_get_escape_state();
+	bool escape = em_get_escape_state();
 	if (escape == true){
 		sb_display_escape_menu(escape);
 	} else if (bt_chk_rel_iface_btn(levels[0], g_sfx_select)){
@@ -802,7 +804,7 @@ int stage_sector_0()
 	bool button_hovered = false;
 	
 	for (int i = 0; i < LV_SECTOR_LV_QTY; i++){
-		int hov = bt_draw_iface_btn(levels[i], sb_get_escape_state(), NULL);
+		int hov = bt_draw_iface_btn(levels[i], em_get_escape_state(), NULL);
 		if ((hov == BTN_HOVER || hov == BTN_CLICKPRESS) && prev_hov == false){
 			hover = tx_get_message_texture(i);
 			level_sub_start_ms = cur_time;
@@ -835,7 +837,7 @@ int stage_sector_0()
 		dw_draw_wrapped_texture_by_h(sep, dm_get_h_stage_subsubtitle(), hover);
     }
 
-	bool escape = sb_get_escape_state();
+	bool escape = em_get_escape_state();
 	if (escape == true){
 		sb_display_escape_menu(escape);
 	} else if (bt_chk_rel_iface_btn(levels[0], g_sfx_select)){
@@ -948,12 +950,12 @@ int stage_select_sector()
 	
 	SDL_Rect sep = get_sector_separator();
 	for (int i = 0; i < 5; i++){
-		bt_draw_btn(sectors[i], sb_get_escape_state(), false);
+		bt_draw_btn(sectors[i], em_get_escape_state(), false);
 		dw_draw_filled_rectangle(sep, C_SHADOWGREY, C_SHADOWGREY);
 		sep.y += get_sector_btn_box().h + get_sector_btn_spacing();
 	}
 	
-	bool escape = sb_get_escape_state();
+	bool escape = em_get_escape_state();
 	bool clear_stage = false;
 	if (escape == true){
 		sb_display_escape_menu(escape);
@@ -1145,7 +1147,7 @@ int stage_title(const Uint8 *keystate)
 		ret_val = LV_TITLE_SCREEN;
 	}
 
-	sb_display_escape_menu(sb_get_escape_state());
+	sb_display_escape_menu(em_get_escape_state());
 	return ret_val;
 }
 
@@ -1290,19 +1292,19 @@ static void draw_player_figures(float t)
 	SDL_Color p2_color = C_LIGHTGREY;
 	SDL_Color p3_color = C_LIGHTGREY;
 
-	if (hover_p1 == true && sb_get_escape_state() == false){
+	if (hover_p1 == true && em_get_escape_state() == false){
 		p1_bs += (int)ceil(((float)p1_bs * s));		
 		p1_state = AA_OPT_INVERT;
  		p1_box.y += bt_get_btn_lift();
 		p1_color = C_WHITE;
 	}
-	if (hover_p2 == true && sb_get_escape_state() == false){
+	if (hover_p2 == true && em_get_escape_state() == false){
 		p2_bs += (int)ceil(((float)p2_bs * s));		
 		p2_state = AA_OPT_INVERT;
  		p2_box.y += bt_get_btn_lift();
 		p2_color = C_WHITE;
 	}
-	if (hover_p3 == true && sb_get_escape_state() == false){
+	if (hover_p3 == true && em_get_escape_state() == false){
 		p3_bs += (int)ceil(((float)p3_bs * s));		
 		p3_state = AA_OPT_INVERT;
  		p3_box.y += bt_get_btn_lift();
@@ -1417,18 +1419,18 @@ int stage_select_player()
 	dw_draw_filled_rectangle(dark_plate_2, bg_plate, bg_plate);
 	dw_draw_filled_rectangle(dark_plate_3, bg_plate, bg_plate);
 	
-	bt_draw_iface_btn(player_btns[0], sb_get_escape_state(), g_sfx_highlight);
-	bt_draw_iface_btn(player_btns[1], sb_get_escape_state(), g_sfx_highlight);
-	bt_draw_iface_btn(player_btns[2], sb_get_escape_state(), g_sfx_highlight);
+	bt_draw_iface_btn(player_btns[0], em_get_escape_state(), g_sfx_highlight);
+	bt_draw_iface_btn(player_btns[1], em_get_escape_state(), g_sfx_highlight);
+	bt_draw_iface_btn(player_btns[2], em_get_escape_state(), g_sfx_highlight);
 
 	draw_player_texts(player_text, player_lore);
 	draw_player_figures(t);
 	sb_draw_ret_btn();
 
-	bool escape_menu = sb_get_escape_state();
+	bool escape_menu = em_get_escape_state();
 	bool clear_stage = false;
 	if (escape_menu == true){
-		sb_display_escape_menu(sb_get_escape_state());
+		sb_display_escape_menu(em_get_escape_state());
 	} else {
 		if (bt_chk_rel_iface_btn(player_btns[0], g_sfx_select) == true){
 			player_chosen = true;

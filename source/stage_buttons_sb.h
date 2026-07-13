@@ -34,11 +34,9 @@ SDL_Rect sb_get_stage_btns();
 int sb_get_play_button_member(int member);
 SDL_Rect sb_get_sb_rect(int member);
 
-void toggle_escape_menu();
 void sb_display_escape_menu(bool menu_variable_state);
 void set_quit_game();
 bool get_quit_game_value();
-bool sb_get_escape_state();
 void sb_init_escape_menu();
 
 void sb_set_step_btns_avail(bool state);

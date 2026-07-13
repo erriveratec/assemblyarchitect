@@ -1,0 +1,7 @@
+-g
+-Isource
+-I/Library/Frameworks/SDL2.framework/Headers
+-I/Library/Frameworks/SDL2_image.framework/Headers
+-I/Library/Frameworks/SDL2_ttf.framework/Headers
+-I/Library/Frameworks/SDL2_mixer.framework/Headers
+-F/Library/Frameworks

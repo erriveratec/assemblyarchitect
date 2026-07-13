@@ -11,6 +11,8 @@
 #include "draw_dw.h"
 #include "immediates_im.h"
 #include "stage_buttons_sb.h"
+#include "ui/escape_menu_em.h"
+
 
 #define NOT_FOUND -1
 #define CODE_LINES_SIZE 5
@@ -2107,14 +2109,14 @@ void cw_player_holding_instruction(code_line_t *line, bool arng, bool del)
 	if (line->op1 != NULL){
 		line->op1->b->r.x = line->ins->b->r.x + op1_ofs;
 		line->op1->b->r.y = line->ins->b->r.y;
-		bt_draw_btn(line->op1->b, sb_get_escape_state(), false);
+		bt_draw_btn(line->op1->b, em_get_escape_state(), false);
 	}
 	if (line->op2 != NULL){
 		line->op2->b->r.x = line->ins->b->r.x + op2_ofs;
 		line->op2->b->r.y = line->ins->b->r.y;
-		bt_draw_btn(line->op2->b, sb_get_escape_state(), false);
+		bt_draw_btn(line->op2->b, em_get_escape_state(), false);
 	}
-	bt_draw_btn(line->ins->b, sb_get_escape_state(), false);
+	bt_draw_btn(line->ins->b, em_get_escape_state(), false);
 }
 
 /* Function: cw_check_code_pending_op1

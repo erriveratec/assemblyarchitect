@@ -11,7 +11,7 @@
 #include "levels_lv.h"
 #include "arrow_ar.h"
 #include "immediates_im.h"
-#include "stage_buttons_sb.h"
+#include "ui/escape_menu_em.h"
 #include "sdl_config.h"
 
 #define INPUT_BUFFER_EMPTY_TEXT "A value cannot be recovered if the "\
@@ -361,9 +361,9 @@ void mc_display_operation_handler(int id)
 			}
 			
 		} 
-		bt_draw_iface_btn(back, sb_get_escape_state(), g_sfx_iface_hover);
+		bt_draw_iface_btn(back, em_get_escape_state(), g_sfx_iface_hover);
 		if (two_buttons == true){
-			bt_draw_iface_btn(cont, sb_get_escape_state(), g_sfx_iface_hover);
+			bt_draw_iface_btn(cont, em_get_escape_state(), g_sfx_iface_hover);
 		}
 			if (bt_chk_rel_iface_btn(back, g_sfx_iface_back_cancel) == true){
 				mc_set_op_menu_btn_state(BACK_BTN_PRESSED);
