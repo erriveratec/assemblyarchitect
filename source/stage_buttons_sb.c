@@ -22,8 +22,6 @@ static Uint32 STAGE_BUTTON_Y = 820;
 
 static Uint32 SCREEN_BORDERS_OFS = 5;
 
-bool g_quit = false;
-
 bool g_step_btns_avail = true;
 
 texture_t *stop_button = NULL;
@@ -159,37 +157,6 @@ static SDL_Rect get_return_button_box()
 void sb_set_step_btns_avail(bool state)
 {
 	g_step_btns_avail = state;
-}
-
-
-/* Function: set_quit_game_value
- * ----------------------------------------------------------------------------
- * Sets the quit game val to tru
- *
- * Arguments:
- * 	None.
- *
- * Return:
- *	void.	
- */
-void set_quit_game()
-{
-	g_quit = true;
-}
-
-/* Function: get_quit_game_value
- * ----------------------------------------------------------------------------
- * Gets the quit game val to tru
- *
- * Arguments:
- * 	None.
- *
- * Return:
- *	Bool with the state of the quit game variable	
- */
-bool get_quit_game_value()
-{
-	return g_quit;
 }
 
 /* Function: sb_get_sb_rect

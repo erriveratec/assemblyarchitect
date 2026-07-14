@@ -18,7 +18,7 @@
 #include "immediates_im.h"
 #include "ui/escape_menu_em.h"
 #include "ui/reset_menu_rm.h"
-
+#include "ui/screens/title_screen_ts.h"
 
 #define BG_COLOR_BLACK 0x000000FF
 #define BG_COLOR_RED 0xFF0000FF
@@ -55,7 +55,6 @@ static void initialize_game_assets()
 	im_init_imm_assets();
 }
 
-
 int main(int argc, char *args[])
 {
 	dm_set_screen_resolution(R1920X1080);
@@ -80,10 +79,10 @@ int main(int argc, char *args[])
 	Uint64 next_game_tick = SDL_GetTicks64();
 	Uint64 studio_screen_time = SDL_GetTicks64();
 	ms_init_mouse();
-	
-	// Render loop
 
-	while (get_quit_game_value() == false){
+	bool quit_game = false;
+
+	while (quit_game == false){
 		
 		Uint64 next_game_tick = SDL_GetTicks64();
 		ms_clear_mouse_values();
@@ -109,7 +108,7 @@ int main(int argc, char *args[])
 					ms_mouse_wheel_handler(event);
 					break;
 				case SDL_QUIT:
-					set_quit_game();
+					quit_game = true;
 					break;
 				case SDL_KEYDOWN:
 					key_pressed = true;
@@ -129,10 +128,10 @@ int main(int argc, char *args[])
 		// before color define as 0x000000FF
 		Uint32 color = SDL_MapRGBA(format, 0, 0, 0, 0); // black
 		SDL_FillRect(g_screen, NULL, color);
-
+		
 		switch (state){
 			case LV_STUDIO_SCREEN:
-				state = stage_studio(studio_screen_time, 
+				state = ts_stage_studio(studio_screen_time, 
 									 SDL_GetTicks64(), 
 									 key_pressed);
 				break;
@@ -173,6 +172,10 @@ int main(int argc, char *args[])
 				state = stage_level(level);
 				break;
 		}
+		em_render_escape_menu(em_get_escape_state());
+		if (em_update_escape_menu(em_get_escape_state()) == ESC_MENU_EXIT){
+			quit_game = true;
+		}
 
 		SDL_UpdateTexture(g_screen_texture,
 						  NULL,
@@ -193,9 +196,6 @@ int main(int argc, char *args[])
 		if (sleep >= 0){
 			SDL_Delay(sleep);
 		}
-
 	}
-
-
 }
 

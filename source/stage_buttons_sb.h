@@ -34,8 +34,6 @@ SDL_Rect sb_get_stage_btns();
 int sb_get_play_button_member(int member);
 SDL_Rect sb_get_sb_rect(int member);
 
-void set_quit_game();
-bool get_quit_game_value();
 
 void sb_set_step_btns_avail(bool state);
 
