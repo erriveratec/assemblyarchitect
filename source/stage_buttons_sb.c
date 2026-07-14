@@ -3,22 +3,12 @@
 #include "stage_buttons_sb.h"
 #include "ui/button_bt.h"
 #include "ui/escape_menu_em.h"
+#include "ui/reset_menu_rm.h"
 #include "dimensions_dm.h"
 #include "code_window_cw.h"
 #include "assert.h"
 #include "sdl_config.h"
 #include "aux.h"
-
-#define ESC_MENU_TEXT1 "RETURN TO GAME"
-#define ESC_MENU_TEXT2 "TOGGLE FULL SCREEN"
-#define ESC_MENU_TEXT3 "EXIT GAME"
-static char *ESC_MENU_HEADER = "ESC MENU";
-static char *SYSTEM_ALERT = "SYSTEM ALERT";
-
-
-#define RST_MENU_TEXT0 "Do you want to reset the current address?"
-#define RST_MENU_TEXT1 "NO"
-#define RST_MENU_TEXT2 "YES"
 
 static Uint32 STAGE_BUTTONS_MOVEMENT_DELTA = 10;
 static Uint32 RET_BUTTON_W = 90;
@@ -32,14 +22,6 @@ static Uint32 STAGE_BUTTON_Y = 820;
 
 static Uint32 SCREEN_BORDERS_OFS = 5;
 
-static Uint32 ESC_MENU_BUTTON_W = 340;
-static Uint32 ESC_MENU_BUTTON_H = 60;
-static Uint32 ESC_MENU_BUTTON_SPACE = 12;
-
-static Uint32 RST_MENU_BTNS_W = 100;
-static Uint32 RST_MENU_BTNS_H = 60;
-
-bool g_rst_menu = false;
 bool g_quit = false;
 
 bool g_step_btns_avail = true;
@@ -58,29 +40,9 @@ iface_btn_t *step;
 iface_btn_t *ret_btn;
 iface_btn_t *rst_btn;
 
-texture_t *g_escape_b1_texture = NULL;
-texture_t *g_escape_b2_texture = NULL;
-texture_t *g_escape_b3_texture = NULL;
-texture_t *g_escape_header_texture = NULL;
-texture_t *g_system_alert_texture = NULL;
-
-iface_btn_t *g_escape_b1;
-iface_btn_t *g_escape_b2;
-iface_btn_t *g_escape_b3;
-
-texture_array_t *g_rst_menu_text = NULL;
-texture_t *g_rst_b1_texture = NULL;
-texture_t *g_rst_b2_texture = NULL;
-
-iface_btn_t *g_rst_b1;
-iface_btn_t *g_rst_b2;
-
 static SDL_Rect get_return_button_box();
 static SDL_Rect get_rst_btn_box();
 static int get_ofs_space_stage_buttons();
-static SDL_Rect get_escape_b1_box();
-static SDL_Rect get_escape_b2_box();
-static SDL_Rect get_escape_b3_box();
 static SDL_Rect get_rst_b1_box();
 static SDL_Rect get_rst_b2_box();
 
@@ -96,127 +58,8 @@ static SDL_Rect get_rst_b2_box();
  */
 bool sb_chk_rst_esc_menu_active()
 {
-	bool active = (sb_chk_rst_menu_state() | em_get_escape_state());
+	bool active = (rm_chk_rst_menu_state() | em_get_escape_state());
 	return active;
-}
-
-/* Function: dm_get_rst_b1_box
- * -----------------------------------------------------------------------------
- * Box position of the button 1 of the reset menu
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-static SDL_Rect get_rst_b1_box()
-{
-	int cont_w = dm_scale_to_res(RST_MENU_BTNS_W);
-	int offset = dm_get_ofs_res_box();
-	SDL_Rect rb = dw_get_iface_big_center_box();
-	SDL_Rect cb = dw_get_iface_content_box(rb);
-	SDL_Rect b;
-	b.w = dm_scale_to_res(RST_MENU_BTNS_W);
-	b.h = dm_scale_to_res(RST_MENU_BTNS_H);
-	b.x = cb.x + (cb.w - (b.w + cont_w))/3;
-	b.y = rb.y + rb.h - b.h - offset;
-	return b;
-
-}
-
-/* Function: dm_get_rst_b2_box
- * -----------------------------------------------------------------------------
- * Box position of the button 2 of the reset menu
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-static SDL_Rect get_rst_b2_box()
-{
-	int back_w = dm_scale_to_res(RST_MENU_BTNS_W);
-	int cont_w = dm_scale_to_res(RST_MENU_BTNS_W);
-	int offset = dm_get_ofs_res_box();
-	SDL_Rect rb = dw_get_iface_big_center_box();
-	SDL_Rect cb = dw_get_iface_content_box(rb);
-	SDL_Rect b;
-	b.w = dm_scale_to_res(RST_MENU_BTNS_W);
-	b.h = dm_scale_to_res(RST_MENU_BTNS_H);
-	b.x = cb.x + back_w + 2*(cb.w - (back_w + cont_w))/3 ;
-	b.y = rb.y + rb.h - b.h - offset;
-	return b;
-
-}
-
-/* Function: get_escape_b1_box
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object.
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-static SDL_Rect get_escape_b1_box()
-{
-	SDL_Rect mb = dw_get_iface_big_center_box();
-
-	SDL_Rect b;
-	b.w = dm_scale_to_res(ESC_MENU_BUTTON_W);
-	b.h = dm_scale_to_res(ESC_MENU_BUTTON_H);
-	b.x = mb.x + mb.w/2 - b.w/2;
-	b.y = mb.y + mb.h - 3*b.h - 5*dm_scale_to_res(ESC_MENU_BUTTON_SPACE);
-	return b;
-}
-
-/* Function: get_escape_b2_box
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object.
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-static SDL_Rect get_escape_b2_box()
-{
-	SDL_Rect mb = dw_get_iface_big_center_box();
-	SDL_Rect b1 = get_escape_b1_box();
-	
-	SDL_Rect b;
-	b.w = dm_scale_to_res(ESC_MENU_BUTTON_W);
-	b.h = dm_scale_to_res(ESC_MENU_BUTTON_H);
-	b.x = b1.x;
-	b.y = b1.y + b.h + dm_scale_to_res(ESC_MENU_BUTTON_SPACE);
-	return b;
-}
-
-/* Function: get_escape_b3_box
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object.
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-static SDL_Rect get_escape_b3_box()
-{
-	SDL_Rect mb = dw_get_iface_big_center_box();
-	SDL_Rect b2 = get_escape_b2_box();
-	
-	SDL_Rect b;
-	b.w = dm_scale_to_res(ESC_MENU_BUTTON_W);
-	b.h = dm_scale_to_res(ESC_MENU_BUTTON_H);
-	b.x = b2.x;
-	b.y = b2.y + b.h + dm_scale_to_res(ESC_MENU_BUTTON_SPACE);
-	return b;
 }
 
 /* Function: dm_get_ofs_space_stage_buttons
@@ -317,192 +160,6 @@ void sb_set_step_btns_avail(bool state)
 {
 	g_step_btns_avail = state;
 }
-
-/* Function: sb_display_rst_menu
- * -----------------------------------------------------------------------------
- * Displays the rst menu that is show when the reset button is pressed.
- * 
- * Arguments:
- *	show_menu: a variable that determines if the menu will be shown.
- *
- * Return:
- *	bool indicating if the menu will be result
- */
-void sb_display_rst_menu(bool show_menu)
-{
-	if (show_menu == true){
-		SDL_Rect r = dw_get_iface_big_center_box();
-		dw_draw_iface_box(r, g_system_alert_texture);
-
-		SDL_Rect text_box = dw_get_iface_content_box(r);
-		text_box.h -= get_rst_b1_box().h;
-
-		int text_h = dm_get_h_msg();		
-		dw_draw_wrapped_texture_by_h(text_box, text_h, g_rst_menu_text);
-
-		bt_draw_iface_btn(g_rst_b1, em_get_escape_state(), g_sfx_iface_hover);
-		bt_draw_iface_btn(g_rst_b2, em_get_escape_state(), g_sfx_iface_hover);
-	}
-	return;
-}
-
-/* Function: sb_chk_rst_menu_btns
- * -----------------------------------------------------------------------------
- * Returns a boolean indicating what buttons was pressed in the rst menu
- * 
- * Arguments:
- *	Void.
- *
- * Return:
- *	false if not level rst, true if level reset
- */
-bool sb_chk_rst_menu_btns(bool show_menu)
-{
-	bool reset = false;
-	if (show_menu == true){
-
-		if (bt_chk_rel_iface_btn(g_rst_b1, g_sfx_iface_back_cancel) == true){
-			reset = false;
-			sb_set_rst_menu(false);
-		} else if (bt_chk_rel_iface_btn(g_rst_b2, g_sfx_iface_back_cancel) == true){
-			reset = true;
-			sb_set_rst_menu(false);
-		} 	
-	}
-	return reset;
-}
-
-/* Function: sb_init_rst_menu
- * ----------------------------------------------------------------------------
- * Initializes the assets of the reset menu.
- *
- * Arguments:
- * 	Void.
- *
- * Return:
- *	Void.	
- */
-void sb_init_rst_menu()
-{
-	g_rst_b1_texture = dw_create_text_tex(RST_MENU_TEXT1, C_WHITE);
-
-	g_rst_b2_texture = dw_create_text_tex(RST_MENU_TEXT2, C_WHITE);
-	
-	SDL_Rect r = get_rst_b1_box();
-	g_rst_b1 = bt_create_iface_btn(r, g_rst_b1_texture, true);
-
-	r = get_rst_b2_box();
-	g_rst_b2 = bt_create_iface_btn(r, g_rst_b2_texture, true);
-
-	int h = dm_get_h_msg();
-	int w = dw_get_iface_content_box(dw_get_iface_big_center_box()).w;
-	g_rst_menu_text = dw_create_text_tex_array_by_h(w, 
-													h, 
-													C_WHITE, 
-													RST_MENU_TEXT0);
-	return;
-}
-
-/* Function: sb_set_rst_menu
- * ----------------------------------------------------------------------------
- * Sets the status of the rst menu to be shown to the player
- *
- * Arguments:
- * 	state: state ot it the g_rst_menu variable will be set.
- *
- * Return:
- *	Void.	
- */
-void sb_set_rst_menu(bool state)
-{
-	g_rst_menu = state;
-}
-
-/* Function: sb_get_rst_menu_state
- * ----------------------------------------------------------------------------
- * This function return the boolean state of the rst menu.
- *
- * Arguments:
- * 	None.
- *
- * Return:
- *	Boolean with the state of the rst menu variable
- */
-bool sb_chk_rst_menu_state()
-{
-	return g_rst_menu;
-}
-
-/* Function: sb_init_escape_menu
- * ----------------------------------------------------------------------------
- * Initializes all the assets of the escape menu.
- *
- * Arguments:
- * 	Void.
- *
- * Return:
- *	Void.	
- */
-void sb_init_escape_menu()
-{
-	g_escape_b1_texture = dw_create_text_tex(ESC_MENU_TEXT1, C_WHITE);
-
-	g_escape_b2_texture = dw_create_text_tex(ESC_MENU_TEXT2, C_WHITE);
-
-	g_escape_b3_texture = dw_create_text_tex(ESC_MENU_TEXT3, C_WHITE);
-	
-	g_escape_header_texture = dw_create_text_tex(ESC_MENU_HEADER, C_GREY);
-	
-	g_system_alert_texture = dw_create_text_tex(SYSTEM_ALERT, C_GREY);
-
-	SDL_Rect r = get_escape_b1_box();
-	g_escape_b1 = bt_create_iface_btn(r, g_escape_b1_texture, true);
-
-	r = get_escape_b2_box();
-	g_escape_b2 = bt_create_iface_btn(r, g_escape_b2_texture, true);
-	
-	r = get_escape_b3_box();
-	g_escape_b3 = bt_create_iface_btn(r, g_escape_b3_texture, true);
-	
-	return;
-}
-
-/* Function: sb_display_escape_menu
- * -----------------------------------------------------------------------------
- * This function is called in all the stages, it will show the escape menu 
- * according to the state of the g_escape_menu variable.
- * 
- * Arguments:
- *	menu_variable_state: The state of the show menu variable.
- *
- * Return:
- *	void
- */
-void sb_display_escape_menu(bool show_menu)
-{
-	if (show_menu == true){
-		
-		SDL_Rect r = dw_get_iface_big_center_box();
-		dw_draw_iface_box(r, g_escape_header_texture);
-
-		bt_draw_iface_btn(g_escape_b1, false, g_sfx_iface_hover);
-		bt_draw_iface_btn(g_escape_b2, false, g_sfx_iface_hover);
-		bt_draw_iface_btn(g_escape_b3, false, g_sfx_iface_hover);
-
-		if (bt_chk_rel_iface_btn(g_escape_b1, NULL) == true){
-			em_toggle_escape_menu();
-		} else if (bt_chk_rel_iface_btn(g_escape_b2, g_sfx_select) == true){
-			puts("Full screen must be implemented");	
-		} else if (bt_chk_rel_iface_btn(g_escape_b3, g_sfx_select) == true){
-			set_quit_game();
-		}
-	}	
-	return;
-}
-
-
-
-
 
 
 /* Function: set_quit_game_value

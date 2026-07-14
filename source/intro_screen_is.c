@@ -663,7 +663,7 @@ int stage_sector_1()
 
 	bool escape = em_get_escape_state();
 	if (escape == true){
-		sb_display_escape_menu(escape);
+		em_render_escape_menu(escape);
 	} else if (bt_chk_rel_iface_btn(levels[0], g_sfx_select)){
 		ret_val = LV_LEVEL_8;
 		change_stage = true;
@@ -839,7 +839,7 @@ int stage_sector_0()
 
 	bool escape = em_get_escape_state();
 	if (escape == true){
-		sb_display_escape_menu(escape);
+		em_render_escape_menu(escape);
 	} else if (bt_chk_rel_iface_btn(levels[0], g_sfx_select)){
 		ret_val = LV_LEVEL_0;
 		change_stage = true;
@@ -958,7 +958,7 @@ int stage_select_sector()
 	bool escape = em_get_escape_state();
 	bool clear_stage = false;
 	if (escape == true){
-		sb_display_escape_menu(escape);
+		em_render_escape_menu(escape);
 	} else if (bt_chk_rel_btn(sectors[0], g_sfx_select)){
 		ret_val = LV_SECTOR_0;
 		clear_stage = true;
@@ -1147,7 +1147,7 @@ int stage_title(const Uint8 *keystate)
 		ret_val = LV_TITLE_SCREEN;
 	}
 
-	sb_display_escape_menu(em_get_escape_state());
+	em_render_escape_menu(em_get_escape_state());
 	return ret_val;
 }
 
@@ -1430,7 +1430,7 @@ int stage_select_player()
 	bool escape_menu = em_get_escape_state();
 	bool clear_stage = false;
 	if (escape_menu == true){
-		sb_display_escape_menu(em_get_escape_state());
+		em_render_escape_menu(em_get_escape_state());
 	} else {
 		if (bt_chk_rel_iface_btn(player_btns[0], g_sfx_select) == true){
 			player_chosen = true;

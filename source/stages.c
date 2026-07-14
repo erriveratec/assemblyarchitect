@@ -4,6 +4,7 @@
 #include "game_mechanics_mc.h"
 #include "aux.h"
 #include "ui/button_bt.h"
+#include "ui/reset_menu_rm.h"
 #include "ui/escape_menu_em.h"
 #include "stages.h"
 #include "code_window_cw.h"
@@ -479,9 +480,9 @@ static code_line_t *edit_code(int level_id)
 static void rst_btn_hdl(int level_id, level_flags_t *f)
 {
 	if (sb_chk_rel_rst_btn() == true){
-		sb_set_rst_menu(true);
+		rm_set_rst_menu(true);
 	}
-	if (sb_chk_rst_menu_btns(sb_chk_rst_menu_state()) == true){
+	if (rm_chk_rst_menu_btns(rm_chk_rst_menu_state()) == true){
 		reset_level(level_id, f);
 		cw_clear_code_list();
 		lv_init_stage_code(level_id);
@@ -634,8 +635,11 @@ int stage_level(int level_id)
   		aa_electron_fx_destroy(fx);
 	}
 
-	sb_display_rst_menu(sb_chk_rst_menu_state());
-	sb_display_escape_menu(em_get_escape_state());
+	rm_render_rst_menu(rm_chk_rst_menu_state());
+	em_render_escape_menu(em_get_escape_state());
+	
+
+//sb_display_escape_menu(em_get_escape_state());
 	return ret_val;
 }
 

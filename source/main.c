@@ -17,6 +17,7 @@
 #include "code_window_cw.h"
 #include "immediates_im.h"
 #include "ui/escape_menu_em.h"
+#include "ui/reset_menu_rm.h"
 
 
 #define BG_COLOR_BLACK 0x000000FF
@@ -41,8 +42,8 @@ static void initialize_game_assets()
 	SDL_Rect rb = dw_get_iface_content_box(dw_get_iface_big_lower_box());
 	int text_h = dm_get_h_msg();		
 
-	sb_init_escape_menu();
-	sb_init_rst_menu();
+	em_init_escape_menu();
+	rm_init_rst_menu();
 	sb_init_ret_btn();
 	sb_init_rst_btn();
 	tx_init_global_msgs();

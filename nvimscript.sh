@@ -11,6 +11,7 @@ tabnew source/code_line_cl.c | vsplit source/code_line_cl.h |
 tabnew source/code_window_cw.c | vsplit source/code_window_cw.h | 
 tabnew source/ui/button_bt.c | vsplit source/ui/button_bt.h | 
 tabnew source/ui/escape_menu_em.c | vsplit source/ui/escape_menu_em.h | 
+tabnew source/ui/rest_menu_rm.c | vsplit source/ui/reset_menu_rm.h | 
 tabnew source/arrow_ar.c | vsplit source/arrow_ar.h | 
 tabnew source/text_tx.c | vsplit source/text_tx.j | 
 tabnew source/aux.c| vsplit source/aux.h | 
