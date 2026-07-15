@@ -4,7 +4,6 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
-#include "draw_dw.h"
 
 extern SDL_Window *g_window;
 extern SDL_Renderer *g_renderer;
@@ -17,17 +16,6 @@ extern int g_height;
 
 extern TTF_Font *g_font;
 
-extern Mix_Chunk *g_studio_sfx;
-extern Mix_Chunk *g_sfx_type;
-extern Mix_Chunk *g_sfx_ready;
-extern Mix_Chunk *g_sfx_highlight;
-extern Mix_Chunk *g_sfx_select;
-extern Mix_Chunk *g_sfx_iface_back_cancel;
-extern Mix_Chunk *g_sfx_iface_hover;
-extern Mix_Chunk *g_sfx_menu;
-extern Mix_Chunk *g_sfx_run_error;
-extern Mix_Chunk *g_sfx_run_win;
-extern Mix_Chunk *g_sfx_run_correct_val;
 
 int load_media();
 void close_sdl();

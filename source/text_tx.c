@@ -6,7 +6,7 @@
 #include"draw_dw.h"
 #include"code_window_cw.h"
 #include"dimensions_dm.h"
-#include "sdl_config.h"
+#include "media/audio_au.h"
 #include "aux.h"
 
 #define MSG_CLICKANY "Click Anywhere"

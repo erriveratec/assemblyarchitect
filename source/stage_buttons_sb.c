@@ -7,7 +7,7 @@
 #include "dimensions_dm.h"
 #include "code_window_cw.h"
 #include "assert.h"
-#include "sdl_config.h"
+#include "media/audio_au.h"
 #include "aux.h"
 
 static Uint32 STAGE_BUTTONS_MOVEMENT_DELTA = 10;

@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <SDL.h>
 #include <SDL_mixer.h>
-#include "sdl_config.h"
+#include "media/audio_au.h"
 #include "ui/escape_menu_em.h"
 #include "ui/button_bt.h"
 #include "draw_dw.h"

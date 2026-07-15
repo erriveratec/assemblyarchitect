@@ -13,6 +13,7 @@
 #include "text_tx.h"
 #include "players_pl.h"
 #include "ui/escape_menu_em.h"
+#include "media/audio_au.h"
 
 
 const char *STUDIO = "One Man Studio";

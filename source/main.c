@@ -19,6 +19,8 @@
 #include "ui/escape_menu_em.h"
 #include "ui/reset_menu_rm.h"
 #include "ui/screens/title_screen_ts.h"
+#include "media/audio_au.h"
+
 
 #define BG_COLOR_BLACK 0x000000FF
 #define BG_COLOR_RED 0xFF0000FF
@@ -68,7 +70,10 @@ int main(int argc, char *args[])
 	}
 	SDL_PixelFormat *format = g_screen->format;
 	SDL_GetWindowSize(g_window, &g_width, &g_height);
-	
+
+	au_init_audio();
+
+	au_load_audio_media();
 	load_media();
 	fl_save_file_init();
 	initialize_game_assets();

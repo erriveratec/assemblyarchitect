@@ -5,7 +5,7 @@
 #include "dimensions_dm.h"
 #include "aux.h"
 #include "draw_dw.h"
-#include "sdl_config.h"
+#include "media/audio_au.h"
 #include "levels_lv.h"
 #include "draw_dw.h"
 

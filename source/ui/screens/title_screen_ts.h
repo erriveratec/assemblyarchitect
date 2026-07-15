@@ -1,5 +1,5 @@
-#ifndef TITLE_SCREEN_H
-#define TITLE_SCREEN_H
+#ifndef TITLE_SCREEN_TS_H
+#define TITLE_SCREEN_TS_H
 
 #include <stdio.h>
 #include <stdlib.h>

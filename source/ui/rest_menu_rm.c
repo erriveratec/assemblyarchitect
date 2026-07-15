@@ -6,7 +6,7 @@
 #include "dimensions_dm.h"
 #include "ui/reset_menu_rm.h"
 #include "ui/escape_menu_em.h"
-#include "sdl_config.h"
+#include "media/audio_au.h"
 
 
 static char *SYSTEM_ALERT = "SYSTEM ALERT";

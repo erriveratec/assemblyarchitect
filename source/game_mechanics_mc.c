@@ -12,7 +12,7 @@
 #include "arrow_ar.h"
 #include "immediates_im.h"
 #include "ui/escape_menu_em.h"
-#include "sdl_config.h"
+#include "media/audio_au.h"
 
 #define INPUT_BUFFER_EMPTY_TEXT "A value cannot be recovered if the "\
 "Input Buffer [IB] is empty"
