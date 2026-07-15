@@ -56,6 +56,7 @@ static void initialize_game_assets()
 	cw_init_code_window_texture();
 	im_init_imm_assets();
 	ts_init_stage_studio();
+	ts_init_stage_title();
 }
 
 int main(int argc, char *args[])
@@ -142,7 +143,7 @@ int main(int argc, char *args[])
 									 key_pressed);
 				break;
 			case LV_TITLE_SCREEN:
-				state = stage_title(keystate);
+				state = ts_stage_title(keystate);
 				break;
 			case LV_SELECT_PLAYER_SCREEN:
 				state = stage_select_player();

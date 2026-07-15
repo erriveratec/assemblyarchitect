@@ -223,13 +223,7 @@ int load_media()
 		return FAIL;
 	}
 
-	ax_get_resource_path(path, sizeof(path), "img/chip.png");
-	g_chip = dw_load_texture(path);
-	if (g_chip == NULL){
-		printf("Could not load the level image SDL_Error: %s\n",
-				SDL_GetError());
-		return FAIL;
-	}
+
 
 	//Open the font
 	ax_get_resource_path(path, sizeof(path), "fonts/DOSVGA437.ttf");

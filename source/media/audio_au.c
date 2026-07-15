@@ -74,13 +74,7 @@ Mix_Chunk *au_load_audio_file(const char *path)
 void au_load_audio_media()
 {
 	char path[512];
-//Audio downloaded
-//	ax_get_resource_path(path, sizeof(path), "sound/intro_studio.wav");
-//	g_studio_sfx = Mix_LoadWAV(path);
-//	if (g_studio_sfx == NULL){
-//		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
-//	}
-	
+
 	ax_get_resource_path(path, sizeof(path), "sound/key_press.wav");
 	g_sfx_type = Mix_LoadWAV(path);
 	if (g_sfx_type == NULL){

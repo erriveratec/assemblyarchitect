@@ -12,7 +12,6 @@ extern texture_t *g_press_space;
 extern texture_t *g_chip;
 
 
-int stage_title(const Uint8 *keystate);
 int stage_select_player();
 int stage_select_sector();
 int stage_sector_0();
