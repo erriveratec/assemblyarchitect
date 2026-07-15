@@ -16,7 +16,7 @@ typedef struct texture_array_t{
 	texture_t **t;
 } texture_array_t;
 
-texture_t *load_texture_from_file(char *path);
+texture_t *dw_load_texture(const char *path);
 texture_t *dw_create_text_tex(char *texture_text, SDL_Color text_color);
 texture_array_t *dw_create_text_tex_array_by_h(int w, int h, SDL_Color c, char *t);
 

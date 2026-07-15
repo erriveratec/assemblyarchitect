@@ -4,8 +4,12 @@
 #include <SDL_mixer.h>
 #include "dimensions_dm.h"
 #include "aux.h"
+#include "draw_dw.h"
 #include "sdl_config.h"
 #include "levels_lv.h"
+#include "draw_dw.h"
+
+static const char *PATH_LOGO = "img/oms.png";
 
 
 texture_t *g_logo = NULL;
@@ -13,6 +17,23 @@ texture_t *g_logo = NULL;
 static const Uint32 FADE_MS = 1250;
 static const Uint32 STUDIO_SCREEN_DELAY_MS = 2500; 
 
+/* Function: ts_init_stage_studio
+ * ----------------------------------------------------------------------------
+ * This function initializes the stage where the name of the studio is shown.
+ * Loads the logo and the sound effect of the studio.
+ *
+ * Arguments:
+ *	None.
+ *
+ * Return:
+ *	Void.
+ */
+void ts_init_stage_studio()
+{
+	g_logo = dw_load_texture(PATH_LOGO);
+
+}
+ 
 
 /* Function: stage_studio
  * ----------------------------------------------------------------------------

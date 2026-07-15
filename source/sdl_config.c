@@ -156,7 +156,6 @@ int init_sdl(int width, int height, int argc, char *args[])
 
 
 
-
 /* Function: load_media
  * ----------------------------
  * Arguments: 
@@ -170,7 +169,7 @@ int load_media()
 	char path[512];
 
 	ax_get_resource_path(path, sizeof(path), "img/stop.png");
-	stop_button = load_texture_from_file(path);
+	stop_button = dw_load_texture(path);
 	if (stop_button == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
@@ -178,7 +177,7 @@ int load_media()
 	}
 
 	ax_get_resource_path(path, sizeof(path), "img/fast.png");
-	fast_button = load_texture_from_file(path);
+	fast_button = dw_load_texture(path);
 	if (fast_button == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
@@ -186,7 +185,7 @@ int load_media()
 	}
 
 	ax_get_resource_path(path, sizeof(path), "img/play.png");
-	play_button = load_texture_from_file(path);
+	play_button = dw_load_texture(path);
 	if (play_button == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
@@ -194,7 +193,7 @@ int load_media()
 	}
 
 	ax_get_resource_path(path, sizeof(path), "img/step-forward.png");
-	step_forward_button = load_texture_from_file(path);
+	step_forward_button = dw_load_texture(path);
 	if (step_forward_button == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
@@ -202,7 +201,7 @@ int load_media()
 	}
 
 	ax_get_resource_path(path, sizeof(path), "img/return.png");
-	return_button = load_texture_from_file(path);
+	return_button = dw_load_texture(path);
 	if (return_button == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
@@ -210,7 +209,7 @@ int load_media()
 	}
 
 	ax_get_resource_path(path, sizeof(path), "img/reset.png");
-	reset_button = load_texture_from_file(path);
+	reset_button = dw_load_texture(path);
 	if (reset_button == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
@@ -218,7 +217,7 @@ int load_media()
 	}
 
 	ax_get_resource_path(path, sizeof(path), "img/rightarrow.png");
-	g_reg_arrow = load_texture_from_file(path);
+	g_reg_arrow = dw_load_texture(path);
 	if (g_reg_arrow == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
@@ -226,7 +225,7 @@ int load_media()
 	}
 	
 	ax_get_resource_path(path, sizeof(path), "img/rightarrow.png");
-	g_imm_up_arrow = load_texture_from_file(path);
+	g_imm_up_arrow = dw_load_texture(path);
 	if (g_imm_up_arrow == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
@@ -234,7 +233,7 @@ int load_media()
 	}
 
 	ax_get_resource_path(path, sizeof(path), "img/rightarrow.png");
-	g_lv_arrow = load_texture_from_file(path);
+	g_lv_arrow = dw_load_texture(path);
 	if (g_lv_arrow == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
@@ -242,7 +241,7 @@ int load_media()
 	}
 
 	ax_get_resource_path(path, sizeof(path), "img/rightarrow.png");
-	g_ib_arrow = load_texture_from_file(path);
+	g_ib_arrow = dw_load_texture(path);
 	if (g_ib_arrow == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
@@ -250,7 +249,7 @@ int load_media()
 	}
 	
 	ax_get_resource_path(path, sizeof(path), "img/rightarrow.png");
-	g_ob_arrow = load_texture_from_file(path);
+	g_ob_arrow = dw_load_texture(path);
 	if (g_ob_arrow == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
@@ -258,23 +257,23 @@ int load_media()
 	}
 
 	ax_get_resource_path(path, sizeof(path), "img/rightarrow.png");
-	g_exec_arrow = load_texture_from_file(path);
+	g_exec_arrow = dw_load_texture(path);
 	if (g_exec_arrow == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
 		return FAIL;
 	}
 	
-	ax_get_resource_path(path, sizeof(path), "img/oms.png");
-	g_logo = load_texture_from_file(path);
+/*	ax_get_resource_path(path, sizeof(path), "img/oms.png");
+	g_logo = dw_load_texture(path);
 	if (g_logo == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());
 		return FAIL;
-	}
+	} */
 
 	ax_get_resource_path(path, sizeof(path), "img/chip.png");
-	g_chip = load_texture_from_file(path);
+	g_chip = dw_load_texture(path);
 	if (g_chip == NULL){
 		printf("Could not load the level image SDL_Error: %s\n",
 				SDL_GetError());

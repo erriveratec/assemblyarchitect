@@ -35,8 +35,6 @@ char *SECTOR_4 = "[04] ADVANCED MODULE";
 char *SECTOR_0_TITLE = "SECTOR [00]";
 char *SECTOR_1_TITLE = "SECTOR [01]";
 
-static const Uint32 STUDIO_SCREEN_DELAY_MS = 2500; 
-static const Uint32 FADE_MS = 1250;
 static const Uint32 TYPE_DELAY_MS = 90;  
 static const Uint32 CHIP_FADE_MS = 1000;   // ~1s fade
 static const Uint32 SUBTITLE_FADE_MS = 350;   

@@ -544,7 +544,7 @@ static int draw_scaled_texture(int x, int y, float s, texture_t *t)
 	return SUCCESS;
 }
 
-/* Function: load_texture_from_file
+/* Function: dw_load_texture
  * ----------------------------------------
  * This function receives as an argument the path of the texture
  * to be loaded and returns the pointer to the loaded texture.
@@ -555,9 +555,11 @@ static int draw_scaled_texture(int x, int y, float s, texture_t *t)
  * Return:
  * 	Pointer to the texture object.
  */
-texture_t *load_texture_from_file(char *path)
+texture_t *dw_load_texture(const char *path)
 {
+	char resource_path[512];
 	assert(path != NULL && "The path pointer can't be NULL");
+	ax_get_resource_path(resource_path, sizeof(resource_path), "img/stop.png");
 
 	int width, height, access;
 	unsigned int format;

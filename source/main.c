@@ -53,6 +53,7 @@ static void initialize_game_assets()
 	mc_init_errors_texture();
 	cw_init_code_window_texture();
 	im_init_imm_assets();
+	ts_init_stage_studio();
 }
 
 int main(int argc, char *args[])
