@@ -6,7 +6,6 @@
 #include <stdbool.h>
 #include <SDL_mixer.h>
 
-extern Mix_Chunk *g_studio_sfx;
 extern Mix_Chunk *g_sfx_type;
 extern Mix_Chunk *g_sfx_ready;
 extern Mix_Chunk *g_sfx_highlight;
@@ -20,6 +19,7 @@ extern Mix_Chunk *g_sfx_run_correct_val;
 
 bool au_init_audio();
 void au_load_audio_media();
+Mix_Chunk *au_load_audio_file(const char *path);
 
 
 #endif 

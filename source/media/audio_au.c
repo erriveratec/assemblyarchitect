@@ -3,7 +3,6 @@
 #include <SDL_mixer.h>
 #include "aux.h"
 
-Mix_Chunk *g_studio_sfx = NULL;
 Mix_Chunk *g_sfx_type = NULL;
 Mix_Chunk *g_sfx_ready = NULL;
 Mix_Chunk *g_sfx_highlight = NULL;
@@ -40,6 +39,27 @@ bool au_init_audio()
 	return true;
 }
 
+/* Function: au_load_audio_file
+ * ----------------------------------------------------------------------------
+ * Loads the audio file specified by the path
+ *
+ * Arguments:
+ *	path: the path to the audio file
+ *
+ * Return:
+ *	pointer to the Mix_Chunk structure containing the audio data, 
+ * 	or NULL if loading failed.
+ */
+Mix_Chunk *au_load_audio_file(const char *path)
+{
+	char rpath[512];
+	ax_get_resource_path(rpath, sizeof(rpath), path);
+	Mix_Chunk *chunk = Mix_LoadWAV(rpath);
+	if (chunk == NULL) {
+		SDL_Log("Mix_LoadWAV: %s", Mix_GetError());
+	}
+	return chunk;
+}
 
 /* Function: au_load_audio_media
  * ----------------------------------------------------------------------------
@@ -55,11 +75,11 @@ void au_load_audio_media()
 {
 	char path[512];
 //Audio downloaded
-	ax_get_resource_path(path, sizeof(path), "sound/intro_studio.wav");
-	g_studio_sfx = Mix_LoadWAV(path);
-	if (g_studio_sfx == NULL){
-		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
-	}
+//	ax_get_resource_path(path, sizeof(path), "sound/intro_studio.wav");
+//	g_studio_sfx = Mix_LoadWAV(path);
+//	if (g_studio_sfx == NULL){
+//		SDL_Log("Mix_LoadWAC: %s", Mix_GetError());
+//	}
 	
 	ax_get_resource_path(path, sizeof(path), "sound/key_press.wav");
 	g_sfx_type = Mix_LoadWAV(path);

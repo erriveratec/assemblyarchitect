@@ -257,7 +257,7 @@ int load_media()
 void close_sdl()
 {
 
-    if (g_studio_sfx)  Mix_FreeChunk(g_studio_sfx);
+//    if (g_studio_sfx)  Mix_FreeChunk(g_studio_sfx);
     if (g_sfx_type) Mix_FreeChunk(g_sfx_type);
     if (g_sfx_ready) Mix_FreeChunk(g_sfx_ready);
     TTF_CloseFont(g_font);

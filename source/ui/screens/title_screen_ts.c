@@ -10,8 +10,11 @@
 #include "draw_dw.h"
 
 static const char *PATH_LOGO = "img/oms.png";
+static const char *PATH_AUDIO = "sound/intro_studio.wav";
 
 
+
+Mix_Chunk *g_studio_sfx = NULL;
 texture_t *g_logo = NULL;
 
 static const Uint32 FADE_MS = 1250;
@@ -31,7 +34,7 @@ static const Uint32 STUDIO_SCREEN_DELAY_MS = 2500;
 void ts_init_stage_studio()
 {
 	g_logo = dw_load_texture(PATH_LOGO);
-
+	g_studio_sfx = au_load_audio_file(PATH_AUDIO);
 }
  
 
