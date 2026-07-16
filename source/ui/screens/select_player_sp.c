@@ -3,9 +3,7 @@
 #include "ui/button_bt.h"
 #include "levels_lv.h"
 #include "dimensions_dm.h"
-#include "electron_fx.h"
 #include "sdl_config.h"
-#include "text_tx.h"
 #include "aux.h"
 #include "ui/escape_menu_em.h"
 #include "media/audio_au.h"
@@ -13,6 +11,7 @@
 #include "stage_buttons_sb.h"
 #include "stages.h"
 #include "file_fl.h"
+#include "ui/screens/screen_common_sc.h"
 
 
 static const Uint32 P_BUTTON_H = 280;
@@ -38,7 +37,6 @@ static void create_player_btns(iface_btn_t **player_btns);
 static void create_player_texts(texture_t **player_text, texture_t **lore);
 static void draw_player_texts(texture_t **player_text, texture_t **lore);
 static int get_player_block_size();
-
 
 /* Function: get_block_size
  * -----------------------------------------------------------------------------
@@ -320,61 +318,50 @@ SDL_Rect get_p3_button_box()
 */
 int sp_stage_select_player()
 {
-   static texture_t *select_player = NULL;
-   
-   static bool init = false;
-   static iface_btn_t *player_btns[3];
-   static texture_t *player_text[3];
-   static texture_t *player_lore[3];
+    static bool init = false;
+    static iface_btn_t *player_btns[3];
+    static texture_t *player_text[3];
+    static texture_t *player_lore[3];
 
-   int ret_val = LV_SELECT_PLAYER_SCREEN;
-   bool player_chosen = false;
-   int W = dm_get_screen_width();
-   int H = dm_get_screen_height();   
-   static fx_electron_t* fx;
-   static Uint64 last_type_ms;
-   static Uint64 anim_prev_ms;
-   static size_t type_index = 0;
-   static bool title_done = false;
-   Uint64 cur_time = SDL_GetTicks64();
+    int ret_val = LV_SELECT_PLAYER_SCREEN;
+    bool player_chosen = false;
+	
+	static sc_fx_t fx_state = {0};
+    static Uint64 anim_prev_ms;
+    Uint64 cur_time = SDL_GetTicks64();
 
-   SDL_Rect p1_box = get_p1_button_box();
-   SDL_Rect p2_box = get_p2_button_box();
-   SDL_Rect p3_box = get_p3_button_box();
+    SDL_Rect p1_box = get_p1_button_box();
+    SDL_Rect p2_box = get_p2_button_box();
+    SDL_Rect p3_box = get_p3_button_box();
 
-   if (init == false){
+	static sc_typewriter_t title = {0};
+    if (init == false){
 	   init = true;
-	   create_player_btns(player_btns);
-	   create_player_texts(player_text, player_lore);
-	   last_type_ms = cur_time;
-	   anim_prev_ms = cur_time;
-	   fx = fx_electron_create(g_renderer, W, H, NULL);
+		sc_typewriter_reset(&title);
+		sc_fx_init(&fx_state, cur_time);
+	    create_player_btns(player_btns);
+	    create_player_texts(player_text, player_lore);
+	    anim_prev_ms = cur_time;
    }
 
-   static float t = 0.0f;
-   float dt=(cur_time - anim_prev_ms)/1000.0f;
-   anim_prev_ms = cur_time;
-   t += dt;
-   SDL_Rect b = dm_get_upper_title_box(SELECT_PLAYER_TEXT);
-   fx_electron_update(fx, dt);
-   fx_electron_render(fx, g_renderer);
-   
-   if (title_done == false && (cur_time - last_type_ms) >= TYPE_DELAY_MS){
-	   last_type_ms = cur_time;
-	   
-	   bool write_complete = tx_draw_create_typewriter_text(&select_player, 
-															b, 
-															SELECT_PLAYER_TEXT, 
-															&type_index,
-															C_SILVERGREY);
-	   if (write_complete == true){
-		   title_done = true;
-	   }
-   }
-   if (select_player != NULL){
-	   dw_draw_texture_fit_h(b, select_player);
-   }
-   
+	sc_fx_update_render(&fx_state, cur_time);
+    
+	static float t = 0.0f;
+    float dt=(cur_time - anim_prev_ms)/1000.0f;
+    anim_prev_ms = cur_time;
+    t += dt;
+ 
+	SDL_Rect b = dm_get_upper_title_box(SELECT_PLAYER_TEXT);
+	bool title_done = sc_typewriter_update(&title, 
+										 cur_time, 
+										 TYPE_DELAY_MS, 
+										 b, 
+										 SELECT_PLAYER_TEXT, 
+										 C_SILVERGREY);  
+	if (title.texture != NULL){
+		dw_draw_texture_fit_h(b, title.texture);
+	}
+  
    int plate_ofs = dm_get_ofs_player_dark_plate();
    SDL_Rect dark_plate_1 = ax_pad_rectangle(p1_box, plate_ofs, false);
    SDL_Rect dark_plate_2 = ax_pad_rectangle(p2_box, plate_ofs, false);
@@ -423,7 +410,7 @@ int sp_stage_select_player()
 		   dw_free_texture(player_lore[0]);
 		   dw_free_texture(player_lore[1]);
 		   dw_free_texture(player_lore[2]);
-		   aa_electron_fx_destroy(fx);
+			sc_fx_destroy(&fx_state);
 		   init = false;
 
 	   }

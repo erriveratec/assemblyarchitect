@@ -22,8 +22,6 @@
 #include "ui/screens/select_player_sp.h"
 #include "media/audio_au.h"
 
-
-
 #define BG_COLOR_BLACK 0x000000FF
 #define BG_COLOR_RED 0xFF0000FF
 #define BG_COLOR_GREEN 0x00FF00FF
