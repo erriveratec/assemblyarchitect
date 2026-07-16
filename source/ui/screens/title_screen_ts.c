@@ -8,9 +8,6 @@
 #include "media/audio_au.h"
 #include "levels_lv.h"
 #include "draw_dw.h"
-#include "electron_fx.h"
-#include "sdl_config.h"
-#include "text_tx.h"
 #include "ui/screens/screen_common_sc.h"
 
 static const char *PATH_LOGO = "img/oms.png";
@@ -23,11 +20,6 @@ char *PRESS_SPACE = "PRESS SPACE";
 static const Uint32 TYPE_DELAY_MS = 90; //repetida con la anterior
 static const Uint32 CHIP_FADE_MS = 1000;   // ~1s fade
 
-Mix_Chunk *g_studio_sfx = NULL;
-texture_t *g_logo = NULL;
-
-texture_t *g_chip = NULL;
-
 static const Uint32 TITLE_IMG_H = 480;
 static const Uint32 TITLE_IMG_W = 480;
 static const Uint32 TITLE_IMG_Y = 325;
@@ -35,10 +27,7 @@ static const Uint32 TITLE_IMG_Y = 325;
 static const Uint32 FADE_MS = 1250;
 static const Uint32 STUDIO_SCREEN_DELAY_MS = 2500; 
 
-
 static SDL_Rect get_game_title_img_box();
-
-
 
 /* Function: get_game_title_img_box
  * -----------------------------------------------------------------------------
@@ -80,6 +69,7 @@ int ts_stage_title(const Uint8 *keystate)
 	static Uint64 start_time;
 	static Uint64 chip_start_ms;
 	static texture_t *press_space = NULL;
+	static texture_t *chip = NULL;
     
 	Uint8 chip_alpha = 0;              
 	static sc_fx_t fx_state = {0};
@@ -90,11 +80,12 @@ int ts_stage_title(const Uint8 *keystate)
 	if (init == false){
 		init = true;
 		press_space = dw_create_text_tex(PRESS_SPACE, C_SILVERGREY);
+		chip = dw_load_texture(PATH_CHIP);
 		start_time = cur_time;
 		sc_typewriter_reset(&title);
 		sc_fx_init(&fx_state, cur_time);
-		SDL_SetTextureColorMod(g_chip->texture, 192, 192, 192);
-		SDL_SetTextureAlphaMod(g_chip->texture, chip_alpha);
+		SDL_SetTextureColorMod(chip->texture, 192, 192, 192);
+		SDL_SetTextureAlphaMod(chip->texture, chip_alpha);
 	}
 	
 	sc_fx_update_render(&fx_state, cur_time);
@@ -125,7 +116,7 @@ int ts_stage_title(const Uint8 *keystate)
             float pulse = sinf((cur_time - chip_start_ms) * 
 						  (2.0f * (float)M_PI / 2000.0f));
             chip_scale = 1.0f + 0.02f * pulse;
-			SDL_SetTextureAlphaMod(g_chip->texture, chip_alpha);
+			SDL_SetTextureAlphaMod(chip->texture, chip_alpha);
         }
 
 	if (title.texture != NULL){
@@ -141,7 +132,7 @@ int ts_stage_title(const Uint8 *keystate)
 
 	SDL_Rect img =  get_game_title_img_box();
 	img = ax_scale_rect_proportion(img, chip_scale);
-	dw_draw_texture_fit_h(img, g_chip);
+	dw_draw_texture_fit_h(img, chip);
 
 	SDL_Rect s = dm_get_press_space_box(PRESS_SPACE);
 	dw_draw_texture_fit_h(s, press_space);
@@ -151,6 +142,8 @@ int ts_stage_title(const Uint8 *keystate)
 		init = false;
 		sc_typewriter_free(&title);
 		chip_start_ms = 0;
+		dw_free_texture(press_space);
+		dw_free_texture(chip);
 		ret_val = LV_SELECT_PLAYER_SCREEN;
 	} else {
 		ret_val = LV_TITLE_SCREEN;
@@ -158,39 +151,6 @@ int ts_stage_title(const Uint8 *keystate)
 	return ret_val;
 }
 
-/* Function: ts_init_stage_title
- * ----------------------------------------------------------------------------
- * This function initializes the stage where the title of the game is shown.
- * Loads the chip image.
- *
- * Arguments:
- *	None.
- *
- * Return:
- *	Void.
- */
-void ts_init_stage_title()
-{
-	g_chip = dw_load_texture(PATH_CHIP);
-}
-
-/* Function: ts_init_stage_studio
- * ----------------------------------------------------------------------------
- * This function initializes the stage where the name of the studio is shown.
- * Loads the logo and the sound effect of the studio.
- *
- * Arguments:
- *	None.
- *
- * Return:
- *	Void.
- */
-void ts_init_stage_studio()
-{
-	g_logo = dw_load_texture(PATH_LOGO);
-	g_studio_sfx = au_load_audio_file(PATH_AUDIO);
-}
- 
 
 /* Function: stage_studio
  * ----------------------------------------------------------------------------
@@ -207,6 +167,19 @@ void ts_init_stage_studio()
 int ts_stage_studio(Uint64 start_time, Uint64 cur_time, bool key_pressed)
 {
 	int delay = cur_time - start_time;	
+	static bool init = false;
+	static Mix_Chunk *g_studio_sfx = NULL;
+	static texture_t *g_logo = NULL;
+
+	if (init == false){
+		init = true;
+		g_logo = dw_load_texture(PATH_LOGO);
+		g_studio_sfx = au_load_audio_file(PATH_AUDIO);
+		if (g_studio_sfx != NULL){
+			Mix_PlayChannel(-1, g_studio_sfx, 0);
+		}
+	}
+	
 	SDL_Rect b = dm_get_studio_name_msg_box();
 	int w = ax_get_texture_w_fit_h(b.h, g_logo);
 	b.x = (dm_get_screen_width() - w)/2;
@@ -214,11 +187,6 @@ int ts_stage_studio(Uint64 start_time, Uint64 cur_time, bool key_pressed)
 	Uint8 alpha = 255;
 	static bool sfx_played = false;
 
-	if (sfx_played == false) {
-		Mix_PlayChannel(-1, g_studio_sfx, 0);
-		sfx_played = true;
-	}
-	
 	if (delay <= FADE_MS){
 		float k = (float)delay / (float)FADE_MS;
 		alpha = (Uint8)(k * 255.0f);
@@ -234,6 +202,9 @@ int ts_stage_studio(Uint64 start_time, Uint64 cur_time, bool key_pressed)
 	
 	if (delay > STUDIO_SCREEN_DELAY_MS || key_pressed == true){
 		dw_free_texture(g_logo);
+		g_logo = NULL;
+		Mix_FreeChunk(g_studio_sfx);
+    	g_studio_sfx = NULL;
 		return LV_TITLE_SCREEN;
 	} else {
 		return LV_STUDIO_SCREEN;

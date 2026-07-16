@@ -8,8 +8,6 @@
 
 
 int ts_stage_studio(Uint64 start_time, Uint64 cur_time, bool key_pressed);
-void ts_init_stage_studio();
 int ts_stage_title(const Uint8 *keystate);
-void ts_init_stage_title();
 
 #endif 
