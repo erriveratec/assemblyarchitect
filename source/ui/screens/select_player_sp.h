@@ -3,6 +3,7 @@
 
 
 
+int sp_stage_select_player();
 
 
 #endif

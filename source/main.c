@@ -19,7 +19,9 @@
 #include "ui/escape_menu_em.h"
 #include "ui/reset_menu_rm.h"
 #include "ui/screens/title_screen_ts.h"
+#include "ui/screens/select_player_sp.h"
 #include "media/audio_au.h"
+
 
 
 #define BG_COLOR_BLACK 0x000000FF
@@ -55,8 +57,6 @@ static void initialize_game_assets()
 	mc_init_errors_texture();
 	cw_init_code_window_texture();
 	im_init_imm_assets();
-	ts_init_stage_studio();
-	ts_init_stage_title();
 }
 
 int main(int argc, char *args[])
@@ -146,7 +146,7 @@ int main(int argc, char *args[])
 				state = ts_stage_title(keystate);
 				break;
 			case LV_SELECT_PLAYER_SCREEN:
-				state = stage_select_player();
+				state = sp_stage_select_player();
 				break;
 			case LV_SELECT_SECTOR:
 				state = stage_select_sector();
