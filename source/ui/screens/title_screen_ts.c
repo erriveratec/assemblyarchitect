@@ -11,6 +11,7 @@
 #include "electron_fx.h"
 #include "sdl_config.h"
 #include "text_tx.h"
+#include "ui/screens/screen_common_sc.h"
 
 static const char *PATH_LOGO = "img/oms.png";
 static const char *PATH_AUDIO = "sound/intro_studio.wav";
@@ -73,60 +74,42 @@ static SDL_Rect get_game_title_img_box()
  */
 int ts_stage_title(const Uint8 *keystate)
 {
-	int W = dm_get_screen_width();
-	int H = dm_get_screen_height();
- 	
 	int ret_val;
 	const float blink_period_ms = 1500.0f;
 	static bool init = false;
 	static Uint64 start_time;
-	static Uint64 last_type_ms;
 	static Uint64 chip_start_ms;
-	static Uint64 anim_prev_ms;
-	static size_t type_index = 0;
-	static bool title_done = false;
 	static texture_t *press_space = NULL;
     
 	Uint8 chip_alpha = 0;              
-	
-  	static fx_electron_t* fx;
+	static sc_fx_t fx_state = {0};
 	Uint64 cur_time = SDL_GetTicks64();
+
+	static sc_typewriter_t title = {0};
 
 	if (init == false){
 		init = true;
 		press_space = dw_create_text_tex(PRESS_SPACE, C_SILVERGREY);
-		last_type_ms = cur_time;
-		anim_prev_ms = cur_time;
 		start_time = cur_time;
-  		fx = fx_electron_create(g_renderer, W, H, NULL);
+		sc_typewriter_reset(&title);
+		sc_fx_init(&fx_state, cur_time);
 		SDL_SetTextureColorMod(g_chip->texture, 192, 192, 192);
 		SDL_SetTextureAlphaMod(g_chip->texture, chip_alpha);
 	}
 	
-	float dt=(cur_time - anim_prev_ms)/1000.0f;
-	anim_prev_ms = cur_time;
-    fx_electron_update(fx, dt);
-    fx_electron_render(fx, g_renderer);
-
-	static texture_t *game_title = NULL;
-	SDL_Rect t = dm_get_game_title_box(GAME_TITLE);
-	size_t full_length = strlen(GAME_TITLE);
-
-	if (title_done == false && (cur_time - last_type_ms) >= TYPE_DELAY_MS){
-		last_type_ms = cur_time;
-		
-		bool write_complete = tx_draw_create_typewriter_text(&game_title, 
-															 t, 
-															 GAME_TITLE, 
-															 &type_index, 
-															 C_SILVERGREY);
-		if (write_complete == true){
-			title_done = true;
-			chip_start_ms = cur_time;
-			if (g_sfx_ready) Mix_PlayChannel(-1, g_sfx_ready, 0);
-        }
-	}
+	sc_fx_update_render(&fx_state, cur_time);
 	
+	bool title_done = sc_typewriter_update(&title, 
+										 cur_time, 
+										 TYPE_DELAY_MS, 
+										 dm_get_game_title_box(GAME_TITLE), 
+										 GAME_TITLE, 
+										 C_SILVERGREY);
+	if (title_done == true && chip_start_ms == 0) {
+		chip_start_ms = cur_time;
+		if (g_sfx_ready) Mix_PlayChannel(-1, g_sfx_ready, 0);
+	}
+
 	float chip_scale = 1.0f;
         if (title_done == true) {
             Uint64 elapsed = cur_time - chip_start_ms;
@@ -144,11 +127,11 @@ int ts_stage_title(const Uint8 *keystate)
             chip_scale = 1.0f + 0.02f * pulse;
 			SDL_SetTextureAlphaMod(g_chip->texture, chip_alpha);
         }
-	
-	if (game_title != NULL){
-		dw_draw_texture_fit_h(t, game_title);
+
+	if (title.texture != NULL){
+		dw_draw_texture_fit_h(dm_get_game_title_box(GAME_TITLE), title.texture);
 	}
-	
+
 	float blink_phase = fmodf((float)(cur_time - start_time), blink_period_ms) 
 					   / blink_period_ms; // 0..1
     float blink_alpha_f = (blink_phase < 0.5f) ? (blink_phase * 2.0f)  
@@ -164,11 +147,10 @@ int ts_stage_title(const Uint8 *keystate)
 	dw_draw_texture_fit_h(s, press_space);
 
 	if (keystate[SDL_SCANCODE_SPACE]){
-	//	dw_free_texture(g_chip);
-//		dw_free_texture(press_space);
-//		dw_free_texture(game_title);
-  		aa_electron_fx_destroy(fx);
+		sc_fx_destroy(&fx_state);
 		init = false;
+		sc_typewriter_free(&title);
+		chip_start_ms = 0;
 		ret_val = LV_SELECT_PLAYER_SCREEN;
 	} else {
 		ret_val = LV_TITLE_SCREEN;
@@ -257,5 +239,7 @@ int ts_stage_studio(Uint64 start_time, Uint64 cur_time, bool key_pressed)
 		return LV_STUDIO_SCREEN;
 	}
 }
+
+
 
 

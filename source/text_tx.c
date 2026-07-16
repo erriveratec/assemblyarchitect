@@ -312,7 +312,7 @@ texture_array_t *tx_get_message_texture(int pos)
  */
 bool tx_draw_create_typewriter_text(texture_t **t, 
 									SDL_Rect r, 
-									char *text, 
+									const char *text, 
 									size_t *index,
 									SDL_Color color)
 {

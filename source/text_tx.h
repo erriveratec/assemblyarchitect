@@ -12,7 +12,7 @@ void tx_set_and_allocate_msgs_array(int size);
 void tx_set_message_in_array(int pos, char *msg, int w, int h);
 bool tx_draw_create_typewriter_text(texture_t **t, 
 									SDL_Rect r, 
-									char *text, 
+									const char *text, 
 									size_t *index, 
 									SDL_Color color);
 texture_array_t *tx_get_message_texture(int pos);
