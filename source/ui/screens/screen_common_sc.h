@@ -4,8 +4,9 @@
 #include <stdbool.h>
 #include <SDL.h>
 #include "electron_fx.h"
-
 #include "draw_dw.h"
+
+
 typedef struct sc_fx_t {
     fx_electron_t *electron;
     Uint64 anim_prev_ms;

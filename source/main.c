@@ -4,7 +4,6 @@
 #include "sdl_config.h"
 #include "aux.h"
 #include "stages.h"
-#include "intro_screen_is.h"
 #include "levels_lv.h"
 #include "file_fl.h"
 #include "stage_buttons_sb.h"
@@ -20,6 +19,8 @@
 #include "ui/reset_menu_rm.h"
 #include "ui/screens/title_screen_ts.h"
 #include "ui/screens/select_player_sp.h"
+#include "ui/screens/select_sector_ss.h"
+#include "ui/screens/select_level_sl.h"
 #include "media/audio_au.h"
 
 #define BG_COLOR_BLACK 0x000000FF
@@ -147,10 +148,10 @@ int main(int argc, char *args[])
 				state = sp_stage_select_player();
 				break;
 			case LV_SELECT_SECTOR:
-				state = stage_select_sector();
+				state = stage_select_sector_ss();
 				break;
 			case LV_SECTOR_0:
-				stage = stage_sector_0();
+				stage = sl_select_level_sector_0();
 				if (stage != LV_SELECT_SECTOR &&
 					stage != LV_SECTOR_0){
 					state = LV_INITIALIZE_LEVEL;
@@ -160,7 +161,7 @@ int main(int argc, char *args[])
 				}
 				break;
 			case LV_SECTOR_1:
-				stage = stage_sector_1();
+				stage = sl_select_level_sector_1();
 				if (stage != LV_SELECT_SECTOR &&
 					stage != LV_SECTOR_1){
 					state = LV_INITIALIZE_LEVEL;

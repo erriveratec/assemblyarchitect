@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "sdl_config.h"
-#include "intro_screen_is.h"
 #include "aux.h"
 #include "draw_dw.h"
 #include "stage_buttons_sb.h"

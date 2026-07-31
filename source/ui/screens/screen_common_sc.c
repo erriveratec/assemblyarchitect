@@ -3,6 +3,8 @@
 #include "dimensions_dm.h"
 #include "text_tx.h"
 
+
+
 void sc_fx_init(sc_fx_t *fx, Uint64 cur_time)
 {
 	int W = dm_get_screen_width();
