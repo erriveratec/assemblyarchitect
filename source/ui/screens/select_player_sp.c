@@ -411,6 +411,7 @@ int sp_stage_select_player()
 		   dw_free_texture(player_lore[1]);
 		   dw_free_texture(player_lore[2]);
 			sc_fx_destroy(&fx_state);
+			sc_typewriter_free(&title);
 		   init = false;
 
 	   }

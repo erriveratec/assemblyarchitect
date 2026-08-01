@@ -1,18 +1,16 @@
 
 #include <stdbool.h>
 #include <assert.h>
-#include "electron_fx.h"
 #include "dimensions_dm.h"
 #include "draw_dw.h"
 #include "levels_lv.h"
 #include "file_fl.h"
 #include "stages.h"
-#include "sdl_config.h"
 #include "aux.h"
-#include "text_tx.h"
 #include "stage_buttons_sb.h"
 #include "ui/escape_menu_em.h"
 #include "media/audio_au.h"
+#include "ui/screens/screen_common_sc.h"
 
 static const Uint32 SECTOR_BTN_SPACING = 60;
 static const Uint32 FIRST_BTN_OFS = 3;
@@ -215,16 +213,6 @@ static void create_sector_btns(btn_t **btns, bool *levels)
  */
 int stage_select_sector_ss()
 {
-	int W = dm_get_screen_width();
-	int H = dm_get_screen_height();   
-  	static fx_electron_t* fx;
-	static Uint64 last_type_ms;
-	static Uint64 anim_prev_ms;
-	static size_t type_index = 0;
-	static bool title_done = false;
-	Uint64 cur_time = SDL_GetTicks64();
-
-	static texture_t *select_sector = NULL;
 
 	static bool level_initialized = false;
 	static bool player_levels[LV_LEVEL_QUANTITY];
@@ -232,35 +220,36 @@ int stage_select_sector_ss()
 
 	int ret_val = LV_SELECT_SECTOR;
 	SDL_Rect r = dm_get_upper_title_box(SELECT_SECTOR);
+	static sc_fx_t fx_state = {0};
+    static Uint64 anim_prev_ms;
+    Uint64 cur_time = SDL_GetTicks64();
+	static sc_typewriter_t title = {0};
 
 	if (level_initialized == false){
 		fl_load_player_levels(g_player, player_levels);
 		level_initialized = true;
-		last_type_ms = cur_time;
-		fx = fx_electron_create(g_renderer, W, H, NULL);
+		sc_typewriter_reset(&title);
+		sc_fx_init(&fx_state, cur_time);
 		create_sector_btns(sectors, player_levels);
+	    anim_prev_ms = cur_time;
 	}
 
-	float dt=(cur_time - anim_prev_ms)/1000.0f;
-	anim_prev_ms = cur_time;
-	SDL_Rect b = dm_get_upper_title_box(SELECT_SECTOR);
-	fx_electron_update(fx, dt);
-    fx_electron_render(fx, g_renderer);
+	sc_fx_update_render(&fx_state, cur_time);
+
+	static float t = 0.0f;
+    float dt=(cur_time - anim_prev_ms)/1000.0f;
+    anim_prev_ms = cur_time;
+    t += dt;
 	
-	if (title_done == false && (cur_time - last_type_ms) >= TYPE_DELAY_MS){
-		last_type_ms = cur_time;
-		
-		bool write_complete = tx_draw_create_typewriter_text(&select_sector, 
-															 b, 
-															 SELECT_SECTOR, 
-															 &type_index,
-															 C_SILVERGREY);
-		if (write_complete == true){
-			title_done = true;
-        }
-	}
-	if (select_sector != NULL){
-		dw_draw_texture_fit_h(r, select_sector);
+	SDL_Rect b = dm_get_upper_title_box(SELECT_SECTOR);
+	bool title_done = sc_typewriter_update(&title, 
+										 cur_time, 
+										 TYPE_DELAY_MS, 
+										 b, 
+										 SELECT_SECTOR, 
+										 C_SILVERGREY);  
+	if (title.texture != NULL){
+		dw_draw_texture_fit_h(b, title.texture);
 	}
 	
 	dw_draw_filled_rectangle(get_upper_separator(), C_SHADOWGREY, C_SHADOWGREY);
@@ -296,7 +285,8 @@ int stage_select_sector_ss()
 		bt_destroy_button(sectors[3]);
 		bt_destroy_button(sectors[4]);
 		level_initialized = false;
-  		aa_electron_fx_destroy(fx);
+		sc_fx_destroy(&fx_state);
+		sc_typewriter_free(&title);
 	}
 
 	return ret_val;
