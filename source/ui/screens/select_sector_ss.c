@@ -217,13 +217,12 @@ int stage_select_sector_ss()
 	static bool level_initialized = false;
 	static bool player_levels[LV_LEVEL_QUANTITY];
 	static btn_t *sectors[5];	
-
 	int ret_val = LV_SELECT_SECTOR;
-	SDL_Rect r = dm_get_upper_title_box(SELECT_SECTOR);
+
 	static sc_fx_t fx_state = {0};
-    static Uint64 anim_prev_ms;
-    Uint64 cur_time = SDL_GetTicks64();
 	static sc_typewriter_t title = {0};
+    
+    Uint64 cur_time = SDL_GetTicks64();
 
 	if (level_initialized == false){
 		fl_load_player_levels(g_player, player_levels);
@@ -231,16 +230,10 @@ int stage_select_sector_ss()
 		sc_typewriter_reset(&title);
 		sc_fx_init(&fx_state, cur_time);
 		create_sector_btns(sectors, player_levels);
-	    anim_prev_ms = cur_time;
 	}
 
 	sc_fx_update_render(&fx_state, cur_time);
 
-	static float t = 0.0f;
-    float dt=(cur_time - anim_prev_ms)/1000.0f;
-    anim_prev_ms = cur_time;
-    t += dt;
-	
 	SDL_Rect b = dm_get_upper_title_box(SELECT_SECTOR);
 	bool title_done = sc_typewriter_update(&title, 
 										 cur_time, 

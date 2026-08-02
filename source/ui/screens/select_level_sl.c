@@ -8,11 +8,10 @@
 #include "stage_buttons_sb.h"
 #include "file_fl.h"
 #include "stages.h"
-#include "electron_fx.h"
-#include "sdl_config.h"
 #include "text_tx.h"
 #include "ui/escape_menu_em.h"
 #include "media/audio_au.h"
+#include "ui/screens/screen_common_sc.h"
 
 static const Uint32 TYPE_DELAY_MS = 90;  
  
@@ -266,11 +265,10 @@ static void create_sector_lvl_btns(iface_btn_t **btns, bool *lvls, int sec_id)
 
 }
 
-
 /* Function: sl_select_level_sector_1
  * -----------------------------------------------------------------------------
  * Displays the sections available for the player to choose
- * 	
+ *
  * Arguments:
  * 	None.
  *
@@ -280,62 +278,53 @@ static void create_sector_lvl_btns(iface_btn_t **btns, bool *lvls, int sec_id)
  */
 int sl_select_level_sector_1()
 {
-	int W = dm_get_screen_width();
-	int H = dm_get_screen_height();   
-  	static fx_electron_t* fx;
-	static Uint64 last_type_ms;
-	static Uint64 anim_prev_ms;
-	static Uint64 sub_start_ms;
-	static size_t type_index = 0;
-	static bool title_done = false;
-	Uint64 cur_time = SDL_GetTicks64();
-	bool change_stage = false;
-
-	static texture_t *sector_0 = NULL;
-	static texture_t *subtitle = NULL;
-	char *sub_text = SECTOR_1 + 5;
-	Uint8 sub_alpha = 0;              
-
 	static bool level_initialized = false;
 	static bool player_levels[LV_LEVEL_QUANTITY];
 	static iface_btn_t **levels = NULL;
-
 	int ret_val = LV_SECTOR_1;
-	SDL_Rect r = dm_get_upper_title_box(SECTOR_1_TITLE);
+
+	static sc_fx_t fx_state = {0};
+	static sc_typewriter_t title = {0};
+
+	static Uint64 anim_prev_ms;
+	static Uint64 sub_start_ms;
+	Uint64 cur_time = SDL_GetTicks64();
+	bool change_stage = false;
+
+	static texture_t *subtitle = NULL;
+	char *sub_text = SECTOR_1 + 5;
+	Uint8 sub_alpha = 0;
 
 	if (level_initialized == false){
 		fl_load_hover_level_msgs();
 		fl_load_player_levels(g_player, player_levels);
 		level_initialized = true;
-		last_type_ms = cur_time;
-		fx = fx_electron_create(g_renderer, W, H, NULL);
 		levels = malloc(sizeof(iface_btn_t *) * LV_SECTOR_LV_QTY);
 		create_sector_lvl_btns(levels, player_levels, LV_SECTOR_1);
 		subtitle = dw_create_text_tex(sub_text, C_SILVERGREY);
         SDL_SetTextureAlphaMod(subtitle->texture, sub_alpha);
+		sc_typewriter_reset(&title);
+		sc_fx_init(&fx_state, cur_time);
+	    anim_prev_ms = cur_time;
 	}
 
-	float dt=(cur_time - anim_prev_ms)/1000.0f;
-	anim_prev_ms = cur_time;
-	fx_electron_update(fx, dt);
-    fx_electron_render(fx, g_renderer);
-	
-	if (title_done == false && (cur_time - last_type_ms) >= TYPE_DELAY_MS){
-		last_type_ms = cur_time;
-		bool write_complete = tx_draw_create_typewriter_text(&sector_0, 
-															 r, 
-															 SECTOR_1_TITLE, 
-															 &type_index,
-															 C_SILVERGREY);
-		if (write_complete == true){
-			title_done = true;
-			sub_start_ms = cur_time;
-        }
+	sc_fx_update_render(&fx_state, cur_time);
+	SDL_Rect b = dm_get_upper_title_box(SECTOR_1_TITLE);
+	bool title_done = sc_typewriter_update(&title,
+										  cur_time,
+										  b,
+										  SECTOR_1_TITLE,
+										  C_SILVERGREY);
+	if (title.texture != NULL){
+		dw_draw_texture_fit_h(b, title.texture);
 	}
-	if (sector_0 != NULL){
-		dw_draw_texture_fit_h(r, sector_0);
-	}
+
 	if (title_done == true) {
+		static bool sub_fade_started = false;
+		if (sub_fade_started == false) {
+			sub_start_ms = cur_time;
+			sub_fade_started = true;
+		}
     	Uint64 elapsed = cur_time - sub_start_ms;
         if (elapsed < SUBTITLE_FADE_MS) {
             float t = (float)elapsed / (float)SUBTITLE_FADE_MS;
@@ -344,13 +333,13 @@ int sl_select_level_sector_1()
         } else {
             sub_alpha = 255;
         }
-        	SDL_SetTextureAlphaMod(subtitle->texture, sub_alpha);
+        SDL_SetTextureAlphaMod(subtitle->texture, sub_alpha);
     }
 
 	SDL_Rect sub_box = get_sector_subtitle_box(sub_text);
 	dw_draw_texture_fit_h(sub_box, subtitle);
-	
-	dw_draw_filled_rectangle(get_subtitle_separator(), 
+
+	dw_draw_filled_rectangle(get_subtitle_separator(),
 							 C_SHADOWGREY, C_SHADOWGREY);
 	sb_draw_ret_btn();
 
@@ -359,14 +348,14 @@ int sl_select_level_sector_1()
 	Uint8 level_alpha = 0;
 	static bool prev_hov = false;
 	bool button_hovered = false;
-	
+
 	for (int i = 0; i < LV_SECTOR_LV_QTY; i++){
 		int hov = bt_draw_iface_btn(levels[i], em_get_escape_state(), NULL);
 		if ((hov == BTN_HOVER || hov == BTN_CLICKPRESS) && prev_hov == false){
 			hover = tx_get_message_texture(LV_SECTOR_1_START + i);
 			level_sub_start_ms = cur_time;
 			prev_hov = true;
-		} 	
+		}
 		if (hov == BTN_HOVER || hov == BTN_CLICKPRESS){
 			button_hovered = true;
 		}
@@ -376,10 +365,9 @@ int sl_select_level_sector_1()
 		hover = NULL;
 	}
 
-	
 	SDL_Rect sep = get_sector_0_lower_separator();
 	sep.y += sep.h + dm_scale_to_res(SECTOR_TITLE_SEPARATOR);
-	
+
 	if (hover != NULL) {
 		dw_set_array_texture_color_mod(hover, C_GREY);
     	Uint64 elapsed = cur_time - level_sub_start_ms;
@@ -390,11 +378,10 @@ int sl_select_level_sector_1()
         } else {
             level_alpha = 255;
         }
-        	SDL_SetTextureAlphaMod(hover->t[0]->texture, level_alpha);
+        SDL_SetTextureAlphaMod(hover->t[0]->texture, level_alpha);
 		dw_draw_wrapped_texture_by_h(sep, dm_get_h_stage_subsubtitle(), hover);
     }
 
-	bool escape = em_get_escape_state();
 	if (bt_chk_rel_iface_btn(levels[0], g_sfx_select)){
 		ret_val = LV_LEVEL_8;
 		change_stage = true;
@@ -420,20 +407,16 @@ int sl_select_level_sector_1()
 		ret_val = LV_LEVEL_15;
 		change_stage = true;
 	} else if (sb_chck_rel_ret_btn() == true){
-		bt_destroy_iface_btn(levels[0]);
-		bt_destroy_iface_btn(levels[1]);
-		bt_destroy_iface_btn(levels[2]);
-		bt_destroy_iface_btn(levels[3]);
-		bt_destroy_iface_btn(levels[4]);
-		bt_destroy_iface_btn(levels[5]);
-		bt_destroy_iface_btn(levels[6]);
-		bt_destroy_iface_btn(levels[7]);
-		ret_val = LV_SELECT_SECTOR;	
+		for (int i = 0; i < LV_SECTOR_LV_QTY; i++){
+			bt_destroy_iface_btn(levels[i]);
+		}
+		ret_val = LV_SELECT_SECTOR;
 		change_stage = true;
 	}
 	if (change_stage == true){
 		level_initialized = false;
-  		aa_electron_fx_destroy(fx);
+ 		sc_fx_destroy(&fx_state);
+		sc_typewriter_free(&title);
 		tx_free_level_text_textures();
 	}
 
@@ -454,63 +437,54 @@ int sl_select_level_sector_1()
  */
 int sl_select_level_sector_0()
 {
-	//int W = dm_get_screen_width();
-//	int H = dm_get_screen_height();   
-//  	static fx_electron_t* fx;
-//	static Uint64 last_type_ms;
-	static Uint64 anim_prev_ms;
-	static Uint64 sub_start_ms;
-//	static size_t type_index = 0;
-//	static bool title_done = false;
-	Uint64 cur_time = SDL_GetTicks64();
-	bool change_stage = false;
-
-	static texture_t *sector_0 = NULL;
-	static texture_t *subtitle = NULL;
-	char *sub_text = SECTOR_0 + 5;
-	Uint8 sub_alpha = 0;              
-
 	static bool level_initialized = false;
 	static bool player_levels[LV_LEVEL_QUANTITY];
 	static iface_btn_t **levels = NULL;
-
 	int ret_val = LV_SECTOR_0;
-	SDL_Rect r = dm_get_upper_title_box(SECTOR_0_TITLE);
+
+	static sc_fx_t fx_state = {0};
+	static sc_typewriter_t title = {0};
+	
+	static Uint64 anim_prev_ms;
+	static Uint64 sub_start_ms;
+	Uint64 cur_time = SDL_GetTicks64();
+	bool change_stage = false;
+
+	static texture_t *subtitle = NULL;
+	char *sub_text = SECTOR_0 + 5;
+	Uint8 sub_alpha = 0;              
 
 	if (level_initialized == false){
 		fl_load_hover_level_msgs();
 		fl_load_player_levels(g_player, player_levels);
 		level_initialized = true;
-//		last_type_ms = cur_time;
-//		fx = fx_electron_create(g_renderer, W, H, NULL);
 		levels = malloc(sizeof(iface_btn_t *) * LV_SECTOR_LV_QTY);
 		create_sector_lvl_btns(levels, player_levels, LV_SECTOR_0);
 		subtitle = dw_create_text_tex(sub_text, C_SILVERGREY);
         SDL_SetTextureAlphaMod(subtitle->texture, sub_alpha);
+		sc_typewriter_reset(&title);
+		sc_fx_init(&fx_state, cur_time);
+	    anim_prev_ms = cur_time;
 	}
 
-//	float dt=(cur_time - anim_prev_ms)/1000.0f;
-//	anim_prev_ms = cur_time;
-//	fx_electron_update(fx, dt);
-//    fx_electron_render(fx, g_renderer);
-	
-//	if (title_done == false && (cur_time - last_type_ms) >= TYPE_DELAY_MS){
-//		last_type_ms = cur_time;
-//		bool write_complete = tx_draw_create_typewriter_text(&sector_0, 
-//															 r, 
-//															 SECTOR_0_TITLE, 
-//															 &type_index,
-//															 C_SILVERGREY);
-//		if (write_complete == true){
-//			title_done = true;
-//			sub_start_ms = cur_time;
-//        }
-//	}
-//	if (sector_0 != NULL){
-//		dw_draw_texture_fit_h(r, sector_0);
-//	}
-	
-//	if (title_done == true) {
+	sc_fx_update_render(&fx_state, cur_time);
+	SDL_Rect b = dm_get_upper_title_box(SECTOR_0_TITLE);
+	bool title_done = sc_typewriter_update(&title, 
+										 cur_time, 
+										 b, 
+										 SECTOR_0_TITLE, 
+										 C_SILVERGREY);  
+	if (title.texture != NULL){
+		dw_draw_texture_fit_h(b, title.texture);
+	}
+
+	if (title_done == true) {
+		static bool sub_fade_started = false;
+		if (sub_fade_started == false) {
+			sub_start_ms = cur_time;
+			sub_fade_started = true;
+		
+		}
     	Uint64 elapsed = cur_time - sub_start_ms;
         if (elapsed < SUBTITLE_FADE_MS) {
             float t = (float)elapsed / (float)SUBTITLE_FADE_MS;
@@ -520,7 +494,7 @@ int sl_select_level_sector_0()
             sub_alpha = 255;
         }
         	SDL_SetTextureAlphaMod(subtitle->texture, sub_alpha);
-//    }
+    }
 
 	SDL_Rect sub_box = get_sector_subtitle_box(sub_text);
 	dw_draw_texture_fit_h(sub_box, subtitle);
@@ -602,12 +576,14 @@ int sl_select_level_sector_0()
 		bt_destroy_iface_btn(levels[5]);
 		bt_destroy_iface_btn(levels[6]);
 		bt_destroy_iface_btn(levels[7]);
-		ret_val = LV_SELECT_SECTOR;	
+				ret_val = LV_SELECT_SECTOR;	
 		change_stage = true;
 	}
 	if (change_stage == true){
 		level_initialized = false;
- // 		aa_electron_fx_destroy(fx);
+ 		sc_fx_destroy(&fx_state);
+		sc_typewriter_free(&title);
+
 		tx_free_level_text_textures();
 	}
 
