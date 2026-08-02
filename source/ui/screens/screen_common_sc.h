@@ -28,7 +28,6 @@ void sc_typewriter_reset(sc_typewriter_t *tw);
 
 bool sc_typewriter_update(sc_typewriter_t *tw,
                           Uint64 cur_time,
-                          Uint32 delay_ms,
                           SDL_Rect box,
                           const char *text,
                           SDL_Color color);

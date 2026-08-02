@@ -4,6 +4,7 @@
 #include "text_tx.h"
 
 
+static const Uint32 TYPE_DELAY_MS = 90; 
 
 void sc_fx_init(sc_fx_t *fx, Uint64 cur_time)
 {
@@ -60,7 +61,6 @@ void sc_typewriter_reset(sc_typewriter_t *tw)
 
 bool sc_typewriter_update(sc_typewriter_t *tw,
                           Uint64 cur_time,
-                          Uint32 delay_ms,
                           SDL_Rect box,
                           const char *text,
                           SDL_Color color)
@@ -73,7 +73,7 @@ bool sc_typewriter_update(sc_typewriter_t *tw,
         return true;
     }
 
-    if ((cur_time - tw->last_type_ms) >= delay_ms) {
+    if ((cur_time - tw->last_type_ms) >= TYPE_DELAY_MS) {
         tw->last_type_ms = cur_time;
         bool complete = tx_draw_create_typewriter_text(&tw->texture,
                                                        box,

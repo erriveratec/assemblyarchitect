@@ -17,7 +17,6 @@ static const char *PATH_CHIP = "img/chip.png";
 char *GAME_TITLE = "ASSEMBLY ARCHITECT";
 char *PRESS_SPACE = "PRESS SPACE";
 
-static const Uint32 TYPE_DELAY_MS = 90; //repetida con la anterior
 static const Uint32 CHIP_FADE_MS = 1000;   // ~1s fade
 
 static const Uint32 TITLE_IMG_H = 480;
@@ -92,7 +91,6 @@ int ts_stage_title(const Uint8 *keystate)
 	
 	bool title_done = sc_typewriter_update(&title, 
 										 cur_time, 
-										 TYPE_DELAY_MS, 
 										 dm_get_game_title_box(GAME_TITLE), 
 										 GAME_TITLE, 
 										 C_SILVERGREY);

@@ -244,7 +244,6 @@ int stage_select_sector_ss()
 	SDL_Rect b = dm_get_upper_title_box(SELECT_SECTOR);
 	bool title_done = sc_typewriter_update(&title, 
 										 cur_time, 
-										 TYPE_DELAY_MS, 
 										 b, 
 										 SELECT_SECTOR, 
 										 C_SILVERGREY);  

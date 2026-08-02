@@ -26,7 +26,6 @@ char *P1_LORETEXT = "Cross-Branch Executor";
 char *P2_LORETEXT = "Yield-Loop Operative";
 char *P3_LORETEXT = "Zero-Flag Handler";
 
-static const Uint32 TYPE_DELAY_MS = 90;  
 
 static const Uint32 PLAYER_BLOCK_W = 8;
 
@@ -354,7 +353,6 @@ int sp_stage_select_player()
 	SDL_Rect b = dm_get_upper_title_box(SELECT_PLAYER_TEXT);
 	bool title_done = sc_typewriter_update(&title, 
 										 cur_time, 
-										 TYPE_DELAY_MS, 
 										 b, 
 										 SELECT_PLAYER_TEXT, 
 										 C_SILVERGREY);  

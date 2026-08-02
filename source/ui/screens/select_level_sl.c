@@ -454,14 +454,14 @@ int sl_select_level_sector_1()
  */
 int sl_select_level_sector_0()
 {
-	int W = dm_get_screen_width();
-	int H = dm_get_screen_height();   
-  	static fx_electron_t* fx;
-	static Uint64 last_type_ms;
+	//int W = dm_get_screen_width();
+//	int H = dm_get_screen_height();   
+//  	static fx_electron_t* fx;
+//	static Uint64 last_type_ms;
 	static Uint64 anim_prev_ms;
 	static Uint64 sub_start_ms;
-	static size_t type_index = 0;
-	static bool title_done = false;
+//	static size_t type_index = 0;
+//	static bool title_done = false;
 	Uint64 cur_time = SDL_GetTicks64();
 	bool change_stage = false;
 
@@ -481,36 +481,36 @@ int sl_select_level_sector_0()
 		fl_load_hover_level_msgs();
 		fl_load_player_levels(g_player, player_levels);
 		level_initialized = true;
-		last_type_ms = cur_time;
-		fx = fx_electron_create(g_renderer, W, H, NULL);
+//		last_type_ms = cur_time;
+//		fx = fx_electron_create(g_renderer, W, H, NULL);
 		levels = malloc(sizeof(iface_btn_t *) * LV_SECTOR_LV_QTY);
 		create_sector_lvl_btns(levels, player_levels, LV_SECTOR_0);
 		subtitle = dw_create_text_tex(sub_text, C_SILVERGREY);
         SDL_SetTextureAlphaMod(subtitle->texture, sub_alpha);
 	}
 
-	float dt=(cur_time - anim_prev_ms)/1000.0f;
-	anim_prev_ms = cur_time;
-	fx_electron_update(fx, dt);
-    fx_electron_render(fx, g_renderer);
+//	float dt=(cur_time - anim_prev_ms)/1000.0f;
+//	anim_prev_ms = cur_time;
+//	fx_electron_update(fx, dt);
+//    fx_electron_render(fx, g_renderer);
 	
-	if (title_done == false && (cur_time - last_type_ms) >= TYPE_DELAY_MS){
-		last_type_ms = cur_time;
-		bool write_complete = tx_draw_create_typewriter_text(&sector_0, 
-															 r, 
-															 SECTOR_0_TITLE, 
-															 &type_index,
-															 C_SILVERGREY);
-		if (write_complete == true){
-			title_done = true;
-			sub_start_ms = cur_time;
-        }
-	}
-	if (sector_0 != NULL){
-		dw_draw_texture_fit_h(r, sector_0);
-	}
+//	if (title_done == false && (cur_time - last_type_ms) >= TYPE_DELAY_MS){
+//		last_type_ms = cur_time;
+//		bool write_complete = tx_draw_create_typewriter_text(&sector_0, 
+//															 r, 
+//															 SECTOR_0_TITLE, 
+//															 &type_index,
+//															 C_SILVERGREY);
+//		if (write_complete == true){
+//			title_done = true;
+//			sub_start_ms = cur_time;
+//        }
+//	}
+//	if (sector_0 != NULL){
+//		dw_draw_texture_fit_h(r, sector_0);
+//	}
 	
-	if (title_done == true) {
+//	if (title_done == true) {
     	Uint64 elapsed = cur_time - sub_start_ms;
         if (elapsed < SUBTITLE_FADE_MS) {
             float t = (float)elapsed / (float)SUBTITLE_FADE_MS;
@@ -520,7 +520,7 @@ int sl_select_level_sector_0()
             sub_alpha = 255;
         }
         	SDL_SetTextureAlphaMod(subtitle->texture, sub_alpha);
-    }
+//    }
 
 	SDL_Rect sub_box = get_sector_subtitle_box(sub_text);
 	dw_draw_texture_fit_h(sub_box, subtitle);
@@ -607,7 +607,7 @@ int sl_select_level_sector_0()
 	}
 	if (change_stage == true){
 		level_initialized = false;
-  		aa_electron_fx_destroy(fx);
+ // 		aa_electron_fx_destroy(fx);
 		tx_free_level_text_textures();
 	}
 
