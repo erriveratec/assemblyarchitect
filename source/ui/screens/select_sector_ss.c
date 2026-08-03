@@ -8,6 +8,7 @@
 #include "stages.h"
 #include "aux.h"
 #include "stage_buttons_sb.h"
+#include "storage/save_sv.h"
 #include "ui/escape_menu_em.h"
 #include "media/audio_au.h"
 #include "ui/screens/screen_common_sc.h"
@@ -225,7 +226,7 @@ int stage_select_sector_ss()
     Uint64 cur_time = SDL_GetTicks64();
 
 	if (level_initialized == false){
-		fl_load_player_levels(g_player, player_levels);
+		sv_load_architect(g_player, player_levels);
 		level_initialized = true;
 		sc_typewriter_reset(&title);
 		sc_fx_init(&fx_state, cur_time);

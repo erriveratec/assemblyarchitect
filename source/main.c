@@ -5,9 +5,9 @@
 #include "aux.h"
 #include "stages.h"
 #include "levels_lv.h"
-#include "file_fl.h"
 #include "stage_buttons_sb.h"
 #include "dimensions_dm.h"
+#include "storage/save_sv.h"
 #include "text_tx.h"
 #include "instruction_window_iw.h"
 #include "registers_rg.h"
@@ -75,7 +75,7 @@ int main(int argc, char *args[])
 
 	au_load_audio_media();
 	load_media();
-	fl_save_file_init();
+	sv_save_init_default();
 	initialize_game_assets();
 
 	int sleep = 0;

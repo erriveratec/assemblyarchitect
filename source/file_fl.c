@@ -14,10 +14,9 @@
 #include "levels_lv.h"
 #include "text_tx.h"
 
-#define SAVE_FILE_LINE_LENGTH 15
+#define READ_ERROR -1
 #define MSG_LENGTH 256
 
-#define READ_ERROR -1
 #define LEVELS_FILE_PATH "data/levels.dat"
 #define SAVE_FILE_PATH "data/save.dat"
 #define SAVE_FILE_PATH_TEMP "data/save.dattemp"
@@ -25,16 +24,8 @@
 #define HOVER_MSGS_FILE_PATH "data/hover_lvl_msgs.dat"
 
 // Text for the save file creation
-#define STR_LEVEL_STARTS "+++LEVEL STARTS"
-#define STR_LEVEL_ENDS "+++LEVEL ENDS"
-#define STR_CODE_STARTS "CODE STARTS\n"
-#define STR_CODE_ENDS "CODE ENDS\n"
-#define STR_LEVEL_ACTIVE_TRUE "LEVEL ACTIVE TRUE\n"
-#define STR_LEVEL_ACTIVE_FALSE "LEVEL ACTIVE FALSE\n"
 #define STR_LEVEL_ACTIVE "LEVEL ACTIVE"
 #define STR_LEVEL "ADDRESS"
-#define STR_PLAYER "PLAYER"
-#define STR_PLAYER_ENDS "PLAYER ENDS"
 
 //Load level strings
 #define STR_CHALLENGE_TEXT_BEGIN "ChallengeTextBegin"
@@ -65,25 +56,89 @@
 char *HOVER_MSGS_STARTS = "+++MESSAGES STARTS";
 char *HOVER_MSGS_ENDS = "+++MESSAGES ENDS";
 
-static char *get_level_id_string(int level_id);
-static char *get_player_id_string(int player_id);
 static char *get_player_end_string(int player_id);
 static void parse_challenge_text(FILE *fp);
 static int get_level_id_number(int level_id);
-bool check_if_save_file_exists();
 static char *get_delimiter_level_string(char *text, int level_id);
 static void parse_instructions(FILE *fp);
 static void parse_registers(FILE *fp);
 bool check_if_save_file_exists();
-void write_to_file(FILE *fp, char *string);
 void copy_file(char *src, char *dst);
 void delete_file(char *path);
 void write_player_code_to_file(FILE *fp);
 static void parse_saved_code(FILE *fp);
 static char *create_string_with_number(char *s,  int n);
-bool check_if_level_is_active(FILE *fp);
 static void parse_win_condition(FILE *fp);
 static void parse_message(FILE *fp, int msg_pos, int w, int h);
+
+void fl_write_to_file(FILE *fp, char *string);
+static char *get_delimeter_level_string(const char *text, int level_id);
+
+
+/* Function: fl_get_player_id_string
+ *------------------------------------------------------------------------------
+ * This function is called to generate a string that will be looked on to the 
+ * file to search a level.
+ *
+ * Arguments:
+ *	player: The player id number.
+ *
+ * Return:
+ *	char * to the created string.
+ *
+ */
+char *fl_get_player_id_string(int player_id)
+{
+	char *number = ax_number_to_string_prepend_zero(player_id);
+	check_mem(number);
+	char *id = malloc(sizeof(char)*(strlen(STR_PLAYER) + 
+				strlen(ax_char_space) + strlen(number)));
+	check_mem(id);
+
+	strcpy(id, STR_PLAYER);
+	strcat(id, ax_char_space);
+	strcat(id, number);
+	free(number);
+
+error:
+	return id;
+}
+
+/* Function: fl_get_level_id_string
+ *------------------------------------------------------------------------------
+ * This function is called to generate a string that will be looked on to the 
+ * file to search a level
+ *
+ * Arguments:
+ *	level: The level number that will be search in the file
+ *
+ * Return:
+ *	char * to the created string.
+ *
+ */
+char *fl_get_level_id_string(int level_id)
+{
+	char *number = NULL;
+
+	if (level_id < 10){
+		number = ax_number_to_string_prepend_zero(level_id);
+	} else {
+		number = ax_number_to_string(level_id);
+	}
+	
+	check_mem(number);
+	char *id = malloc(sizeof(char)*(strlen(STR_LEVEL_STARTS) + 
+					  strlen(ax_char_space) + strlen(number)));
+	check_mem(id);
+
+	strcpy(id, STR_LEVEL_STARTS);
+	strcat(id, ax_char_space);
+	strcat(id, number);
+	free(number);
+
+error:
+	return id;
+}
 
 /* Function: create_string_with_number
  *------------------------------------------------------------------------------
@@ -116,99 +171,8 @@ error:
 	return string;
 }
 
-/* Function: get_level_id_string
- *------------------------------------------------------------------------------
- * This function is called to generate a string that will be looked on to the 
- * file to search a level
- *
- * Arguments:
- *	level: The level number that will be search in the file
- *
- * Return:
- *	char * to the created string.
- *
- */
-static char *get_level_id_string(int level_id)
-{
-	char *number = NULL;
 
-	if (level_id < 10){
-		number = ax_number_to_string_prepend_zero(level_id);
-	} else {
-		number = ax_number_to_string(level_id);
-	}
-	
-	check_mem(number);
-	char *id = malloc(sizeof(char)*(strlen(STR_LEVEL_STARTS) + 
-					  strlen(ax_char_space) + strlen(number)));
-	check_mem(id);
 
-	strcpy(id, STR_LEVEL_STARTS);
-	strcat(id, ax_char_space);
-	strcat(id, number);
-	free(number);
-
-error:
-	return id;
-}
-
-/* Function: get_player_end_string
- *------------------------------------------------------------------------------
- * This function is called to generate a string that will be looked on to the 
- * file to know when a a player info is finished
- *
- * Arguments:
- *	player: The player id number.
- *
- * Return:
- *	char * to the created string.
- *
- */
-static char *get_player_end_string(int player_id)
-{
-	char *number = ax_number_to_string_prepend_zero(player_id);
-	check_mem(number);
-	char *id = malloc(sizeof(char)*(strlen(STR_PLAYER_ENDS) + 
-					  strlen(ax_char_space) + strlen(number)));
-	check_mem(id);
-
-	strcpy(id, STR_PLAYER_ENDS);
-	strcat(id, ax_char_space);
-	strcat(id, number);
-	free(number);
-
-error:
-	return id;
-}
-
-/* Function: get_player_id_string
- *------------------------------------------------------------------------------
- * This function is called to generate a string that will be looked on to the 
- * file to search a level.
- *
- * Arguments:
- *	player: The player id number.
- *
- * Return:
- *	char * to the created string.
- *
- */
-static char *get_player_id_string(int player_id)
-{
-	char *number = ax_number_to_string_prepend_zero(player_id);
-	check_mem(number);
-	char *id = malloc(sizeof(char)*(strlen(STR_PLAYER) + strlen(ax_char_space) + 
-					  strlen(number)));
-	check_mem(id);
-
-	strcpy(id, STR_PLAYER);
-	strcat(id, ax_char_space);
-	strcat(id, number);
-	free(number);
-
-error:
-	return id;
-}
 /* Function: get_delimeter_level_string
  *------------------------------------------------------------------------------
  * This function is called to generate a string that will be looked on to the 
@@ -221,7 +185,7 @@ error:
  *	char * to the created string.
  *
  */
-static char *get_delimeter_level_string(char *text, int level_id)
+static char *get_delimeter_level_string(const char *text, int level_id)
 {
 	char *number = ax_number_to_string_two_digits(level_id);
 	check_mem(number);
@@ -430,7 +394,7 @@ void fl_file_initialize_level(int level_id)
 	char *saveptr1;
 	char *text;
 
-	char *level = get_level_id_string(level_id);
+	char *level = fl_get_level_id_string(level_id);
 	bool level_found = false;
 
 	input_properties_t ip;
@@ -628,7 +592,7 @@ void fl_load_level_msgs(int level_id)
 	char *saveptr1;
 	char *text;
 
-	char *level = get_level_id_string(level_id);
+	char *level = fl_get_level_id_string(level_id);
 	bool level_found = false;
 
 	int h = dm_get_h_msg();
@@ -684,8 +648,8 @@ void fl_load_save_file(int player_id, int level_id)
 	char *saveptr1;
 	char *text;
 
-	char *player = get_player_id_string(player_id);
-	char *level = get_level_id_string(level_id);
+	char *player = fl_get_player_id_string(player_id);
+	char *level = fl_get_level_id_string(level_id);
 	bool player_found = false;
 	bool level_found = false;
 
@@ -709,96 +673,6 @@ error:
 }
 
 
-/* Function: check_if_level_is_active
- *------------------------------------------------------------------------------
- * Determines if the active flag for a given level is true or false
- *
- * Arguments:
- *	fp: the file pointer of the level data
- *
- * Return:
- *	boolean: true if the level was active, false if otherwise.
- *
- */
-bool check_if_level_is_active(FILE *fp)
-{
-	char *line = NULL;	
-	size_t len = 0;
-	ssize_t read;
-
-	char *saveptr1;
-	char *text;
-	bool level_is_active = false;
-
-	while ((read = getline(&line, &len, fp)) != READ_ERROR){
-		if (strstr(line, STR_LEVEL_ACTIVE_TRUE) != NULL){
-			level_is_active = true;
-			break;
-		} else if (strstr(line, STR_LEVEL_ACTIVE_FALSE) != NULL){
-			level_is_active = false;
-			break;
-		} 
-	}
-	return level_is_active;
-}
-/* Function: fl_load_player_levels
- *------------------------------------------------------------------------------
- * Fills an array passed as argument with the list of levels available for the
- * player
- *
- * Arguments:
- *	levels_array: an boolean array with the state of the available levels
- *
- * Return:
- *	void.
- *
- */
-void fl_load_player_levels(int player_id, bool *levels_array)
-{
-	assert(player_id >= FL_PLAYER_1 && player_id <= FL_PLAYER_3 &&
-		   "Invalid player id");
-	assert(levels_array != NULL && "levels array pointer is NULL");
-
-	char *line = NULL;	
-	size_t len = 0;
-	ssize_t read;
-	char path[512];
-
-	ax_get_resource_path(path, sizeof(path), SAVE_FILE_PATH);
-	FILE *fp = fopen(path, "r");
-	check_mem(fp);
-	char *saveptr1;
-	char *text;
-
-	char *player = get_player_id_string(player_id);
-	char *player_end = get_player_end_string(player_id);
-	bool player_found = false;
-	bool level_found = false;
-	
-	char *level = NULL;
-	int level_num = 0;
-	while (READ_ERROR != (read = getline(&line, &len, fp))){
-		level = get_level_id_string(level_num);
-		if (strstr(line, player) != NULL){
-			player_found = true;
-		} else if (strstr(line, player_end) != NULL){
-			player_found = false;
-			break;
-		}
-		else if (strstr(line, level) != NULL && player_found == true){
-			bool is_level_active = check_if_level_is_active(fp);
-			levels_array[level_num] = is_level_active;
-			level_num++;
-		} 
-	}
-
-error:
-	free(level);	
-	free(player);	
-	fclose(fp);	
-	return;
-
-}
 
 
 /* Function: copy_file
@@ -827,7 +701,7 @@ void copy_file(char *dst, char *src)
 	ssize_t read;
 
 	while (READ_ERROR != (read = getline(&line, &len, src_fp))){
-		write_to_file(dst_fp, line);
+		fl_write_to_file(dst_fp, line);
 	}
 	fclose(src_fp);
 	fclose(dst_fp);
@@ -888,7 +762,7 @@ void write_player_code_to_file(FILE *fp)
 		}
 
 		char *line = cl_create_code_line_text(instruction, op1, op2);
-		write_to_file(fp, line);
+		fl_write_to_file(fp, line);
 		free(line);
 	}
 }
@@ -925,27 +799,27 @@ void fl_save_level(int player_id, int level_id)
 	size_t len = 0;
 	ssize_t read;
 
-	char *player = get_player_id_string(player_id);
+	char *player = fl_get_player_id_string(player_id);
 	char *level_start = get_delimeter_level_string(STR_LEVEL_STARTS, level_id);
 	char *level_end = get_delimeter_level_string(STR_LEVEL_ENDS, level_id);
 	bool level_found = false;
 	bool player_found = false;
 
 	while (READ_ERROR != (read = getline(&line, &len, fp))){
-		write_to_file(fptemp, line);
+		fl_write_to_file(fptemp, line);
 	
 		if (strcmp(line, level_start) == STRING_EQUAL){
 			level_found = true;
-			write_to_file(fptemp, ax_char_newline);
-			write_to_file(fptemp, STR_LEVEL_ACTIVE_TRUE);
-			write_to_file(fptemp, ax_char_newline);
+			fl_write_to_file(fptemp, ax_char_newline);
+			fl_write_to_file(fptemp, STR_LEVEL_ACTIVE_TRUE);
+			fl_write_to_file(fptemp, ax_char_newline);
 			while (READ_ERROR != (read = getline(&line, &len, fp))){
 				if (strcmp(line, STR_CODE_STARTS) == STRING_EQUAL){
-					write_to_file(fptemp, STR_CODE_STARTS);
+					fl_write_to_file(fptemp, STR_CODE_STARTS);
 					write_player_code_to_file(fptemp);
 				}
 				if (strcmp(line, STR_CODE_ENDS) == STRING_EQUAL){
-					write_to_file(fptemp, STR_CODE_ENDS);
+					fl_write_to_file(fptemp, STR_CODE_ENDS);
 					break;
 					
 				}
@@ -997,23 +871,23 @@ void fl_enable_next_level(int player_id, int level_id)
 	size_t len = 0;
 	ssize_t read;
 
-	char *player = get_player_id_string(player_id);
+	char *player = fl_get_player_id_string(player_id);
 	char *level_start = get_delimeter_level_string(STR_LEVEL_STARTS, level_id);
 	char *level_end = get_delimeter_level_string(STR_LEVEL_ENDS, level_id);
 	bool level_found = false;
 	bool player_found = false;
 
 	while (READ_ERROR != (read = getline(&line, &len, fp))){
-		write_to_file(fptemp, line);
+		fl_write_to_file(fptemp, line);
 	
 		if (strcmp(line, level_start) == STRING_EQUAL){
 			level_found = true;
-			write_to_file(fptemp, ax_char_newline);
-			write_to_file(fptemp, STR_LEVEL_ACTIVE_TRUE);
-			write_to_file(fptemp, ax_char_newline);
+			fl_write_to_file(fptemp, ax_char_newline);
+			fl_write_to_file(fptemp, STR_LEVEL_ACTIVE_TRUE);
+			fl_write_to_file(fptemp, ax_char_newline);
 			while (READ_ERROR != (read = getline(&line, &len, fp))){
 				if (strcmp(line, STR_CODE_STARTS) == STRING_EQUAL){
-					write_to_file(fptemp, STR_CODE_STARTS);
+					fl_write_to_file(fptemp, STR_CODE_STARTS);
 					break;
 				}
 			}
@@ -1030,7 +904,7 @@ void fl_enable_next_level(int player_id, int level_id)
 	return;
 }
 
-/* Function: write_to_file
+/* Function: fl_write_to_file
  *------------------------------------------------------------------------------
  * This functions compreses the write to file in order to present it on a
  * more readable way
@@ -1043,7 +917,7 @@ void fl_enable_next_level(int player_id, int level_id)
  *	void.
  *
  */
-void write_to_file(FILE *fp, char *string)
+void fl_write_to_file(FILE *fp, char *string)
 {
 	if (fputs(string, fp) == EOF){
 		perror("Error writin to the file");
@@ -1051,137 +925,5 @@ void write_to_file(FILE *fp, char *string)
 	}
 }
 
-/* Function: fl_save_file_init
- *------------------------------------------------------------------------------
- * This function verifies if the save file for the game exists, if it doesn't 
- * exists it creates it and initializes it
- *
- * Arguments:
- *  None.
- *
- * Return:
- *	void.
- *
- */
-void fl_save_file_init()
-{
-	bool file_exists = check_if_save_file_exists();
 
-	if (file_exists == false){
-		char path[512];	
-		ax_get_resource_path(path, sizeof(path), SAVE_FILE_PATH);
-		FILE *fp = fopen(path, "w");
-		char *level = malloc(sizeof(char)*SAVE_FILE_LINE_LENGTH);
-		check_mem(level);
 
-		for (int j = 1; j <= PLAYER_QUANTITY; j++){
-			char *player_number = ax_number_to_string_prepend_zero(j);
-
-			strcpy(level, STR_PLAYER); 
-			strcat(level, " ");
-			strcat(level, player_number);
-			strcat(level, ax_char_newline);
-			write_to_file(fp, level);
-			strcpy(level, ax_char_newline);
-			write_to_file(fp, level);
-			for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
-				char *number = NULL;
-				if (i<10){
-					number = ax_number_to_string_prepend_zero(i);
-				} else {
-					number = ax_number_to_string(i);
-				}
-
-				check_mem(number);
-				
-				strcpy(level, STR_LEVEL_STARTS); 
-				strcat(level, " ");
-				strcat(level, number);
-				strcat(level, ax_char_newline);
-				write_to_file(fp, level);
-				strcpy(level, ax_char_newline);
-				write_to_file(fp, level);
-
-				if (i == 0){
-					strcpy(level, STR_LEVEL_ACTIVE_TRUE);
-				}else {
-					strcpy(level, STR_LEVEL_ACTIVE_FALSE);
-				}
-
-				write_to_file(fp, level);
-				
-				strcpy(level, ax_char_newline);
-				write_to_file(fp, level);
-				
-				strcpy(level, STR_CODE_STARTS);
-				write_to_file(fp, level);
-				
-				if (i == 1){
-					strcpy(level, FL_L1_CODE_1);
-					write_to_file(fp, level);
-					strcpy(level, FL_L1_CODE_2);
-					write_to_file(fp, level);
-					strcpy(level, FL_L1_CODE_3);
-					write_to_file(fp, level);
-
-				} else if (i == 8){
-					strcpy(level, FL_L8_CODE_1);
-					write_to_file(fp, level);
-					strcpy(level, FL_L8_CODE_2);
-					write_to_file(fp, level);
-
-				} else {
-					strcpy(level, ax_char_newline);
-					write_to_file(fp, level);
-				}
-				
-				strcpy(level, STR_CODE_ENDS);
-				write_to_file(fp, level);
-				
-				strcpy(level, ax_char_newline);
-				write_to_file(fp, level);
-
-				strcpy(level, STR_LEVEL_ENDS);
-				strcat(level, " ");
-				strcat(level, number);
-				strcat(level, ax_char_newline);
-				write_to_file(fp, level);
-				strcpy(level, ax_char_newline);
-				write_to_file(fp, level);
-				free(number);
-			}
-			strcpy(level, STR_PLAYER_ENDS); 
-			strcat(level, " ");
-			strcat(level, player_number);
-			strcat(level, ax_char_newline);
-			write_to_file(fp, level);
-			strcpy(level, ax_char_newline);
-			write_to_file(fp, level);
-
-			free(player_number);
-		}
-		free(level);
-		fclose(fp);
-	}
-	error:
-	return;
-}
-
-/* Function: check_if_save_file_exists
- *------------------------------------------------------------------------------
- * This function verifies if the save file for the game exists. 
- *
- * Arguments:
- *	None.
- *
- * Return:
- *	bool true if save file exists, false if otherwise.
- *
- */
-bool check_if_save_file_exists()
-{
-	char path[512];
-	ax_get_resource_path(path, sizeof(path), SAVE_FILE_PATH);
-	bool file_exists = (access(path, F_OK) == 0);
-	return file_exists;
-}

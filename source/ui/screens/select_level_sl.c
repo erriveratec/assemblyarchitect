@@ -8,12 +8,12 @@
 #include "stage_buttons_sb.h"
 #include "file_fl.h"
 #include "stages.h"
+#include "storage/save_sv.h"
 #include "text_tx.h"
 #include "ui/escape_menu_em.h"
 #include "media/audio_au.h"
 #include "ui/screens/screen_common_sc.h"
 
-static const Uint32 TYPE_DELAY_MS = 90;  
  
 static char *SELECT_LEVEL_TEXT = "SELECT LEVEL";
 static char *SECTOR_0_TITLE = "SECTOR [00]";
@@ -297,7 +297,7 @@ int sl_select_level_sector_1()
 
 	if (level_initialized == false){
 		fl_load_hover_level_msgs();
-		fl_load_player_levels(g_player, player_levels);
+		sv_load_architect(g_player, player_levels);
 		level_initialized = true;
 		levels = malloc(sizeof(iface_btn_t *) * LV_SECTOR_LV_QTY);
 		create_sector_lvl_btns(levels, player_levels, LV_SECTOR_1);
@@ -456,7 +456,7 @@ int sl_select_level_sector_0()
 
 	if (level_initialized == false){
 		fl_load_hover_level_msgs();
-		fl_load_player_levels(g_player, player_levels);
+		sv_load_architect(g_player, player_levels);
 		level_initialized = true;
 		levels = malloc(sizeof(iface_btn_t *) * LV_SECTOR_LV_QTY);
 		create_sector_lvl_btns(levels, player_levels, LV_SECTOR_0);
