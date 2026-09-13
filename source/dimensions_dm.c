@@ -6,6 +6,7 @@
 #include"aux.h"
 #include"draw_dw.h"
 #include <SDL.h>
+#include "arrow_ar.h"
 
 
 #define RES_BOX_W 450
@@ -26,8 +27,6 @@
 #define REG_BOX_OFS 25
 #define BET_REG_OFS 5
 
-#define ARROW_H 30
-#define ARROW_W 30
 
 #define AVATAR_W 50
 #define AVATAR_H 50
@@ -626,25 +625,7 @@ SDL_Rect dm_get_value_box_wh()
 	return b;
 }
 
-/* Function: dm_get_arrow_wh
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object. 
- * 
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_arrow_wh()
-{
-	SDL_Rect b;
-	b.w = dm_scale_to_res(ARROW_W);
-	b.h = dm_scale_to_res(ARROW_H);
-	b.x = 0;
-	b.y = 0;
-	return b;
-}
+
 
 /* Function: dm_get_text_box_result_but3
  * -----------------------------------------------------------------------------
@@ -743,6 +724,8 @@ SDL_Rect dm_get_box_msg_wh()
 	return b;
 }//MUST BE REMOVED
 
+
+
 /* Function: dm_get_text_box_error
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object
@@ -757,7 +740,7 @@ SDL_Rect dm_get_text_box_error()
 {
 	SDL_Rect rb = dw_get_iface_big_lower_box();
 	SDL_Rect mb = dm_get_box_msg_wh();
-	SDL_Rect ab = dm_get_arrow_wh();
+	SDL_Rect ab = ar_get_arrow_wh();
 	
 	SDL_Rect b;
 	b.w = rb.w*2/3;
@@ -766,8 +749,6 @@ SDL_Rect dm_get_text_box_error()
 	b.y = rb.y + rb.h + 2*ab.h;
 	return b;
 }
-
-
 
 
 

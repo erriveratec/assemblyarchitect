@@ -49,6 +49,7 @@ void ar_animate_arrow(arrow_t *arrow);
 void ar_hide_execution_arrow();
 void ar_reset_execution_arrow();
 bool ar_move_execution_arrow(int instruction_number);
+SDL_Rect ar_get_arrow_wh();
 
 enum movement{
 	AR_MOV_MIN,

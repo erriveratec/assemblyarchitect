@@ -1,4 +1,5 @@
 
+#include <SDL2/SDL_stdinc.h>
 #include<stdio.h>
 #include<stdlib.h>
 #include<assert.h>
@@ -10,6 +11,9 @@
 #include"registers_rg.h"
 #include "dimensions_dm.h"
 
+static const Uint32 ARROW_H = 45;
+static const Uint32 ARROW_W = 45;
+static const Uint32 ARROW_MOVE_DELTA = 3;
 
 texture_t *g_lv_arrow;
 texture_t *g_ib_arrow;
@@ -51,7 +55,28 @@ static void initialize_zf_arrow();
 static void initialize_imm_up_arrow();
 static void check_execution_arrow_in_place(int instruction_number);
 bool ar_move_execution_arrow(int instruction_number);
-static void display_arrow_registers();
+SDL_Rect ar_get_arrow_wh();
+
+
+/* Function: ar_get_arrow_wh
+ * -----------------------------------------------------------------------------
+ * Returns the box dimensions for the object. 
+ * 
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	SDL_Rect with the positions of the object
+ */
+SDL_Rect ar_get_arrow_wh()
+{
+	SDL_Rect b;
+	b.w = dm_scale_to_res(ARROW_W);
+	b.h = dm_scale_to_res(ARROW_H);
+	b.x = 0;
+	b.y = 0;
+	return b;
+}
 
 /* Function: display_arrow_registers
  * -----------------------------------------------------------------------------
@@ -97,7 +122,7 @@ bool ar_move_execution_arrow(int instruction_number)
 	
 	bool in_final_position = false;
 
-	SDL_Rect a = dm_get_arrow_wh();
+	SDL_Rect a = ar_get_arrow_wh();
 	int y = cw_get_instruction_y_coord(instruction_number) + a.h/6;
 	
 	int mdelta = ax_get_arrow_move_delta();
@@ -129,7 +154,7 @@ static void check_execution_arrow_in_place(int instruction_number)
 	assert(instruction_number <= code_size && 
 		   "Instruction number is incorrect");
 
-	SDL_Rect a = dm_get_arrow_wh();
+	SDL_Rect a = ar_get_arrow_wh();
 	bool in_final_position = false;
 	
 	int y = cw_get_instruction_y_coord(instruction_number) + a.h/6;
@@ -151,7 +176,7 @@ static void check_execution_arrow_in_place(int instruction_number)
 void ar_reset_execution_arrow()
 {
 	SDL_Rect cb = cw_get_stage_code_box();
-	SDL_Rect a = dm_get_arrow_wh();
+	SDL_Rect a = ar_get_arrow_wh();
 	
 	g_arrow_exec.box.x = cb.x - a.w;
 	g_arrow_exec.box.y = cw_get_instruction_y_coord(0) + a.h/6;
@@ -194,7 +219,7 @@ void ar_hide_execution_arrow()
 static void initialize_regs_arrow()
 {
 	SDL_Rect rb = rg_get_register_box();
-	SDL_Rect a = dm_get_arrow_wh();
+	SDL_Rect a = ar_get_arrow_wh();
 	int text_h = dm_get_h_stage_elements_titles();
 	int text_w = get_text_width_fits_height(text_h, AX_REG_TEXT);
 	
@@ -224,7 +249,7 @@ static void initialize_regs_arrow()
 static void initialize_zf_arrow()
 {
 	SDL_Rect rb = rg_get_flag_value_box_by_id(ZF).box;
-	SDL_Rect a = dm_get_arrow_wh();
+	SDL_Rect a = ar_get_arrow_wh();
 	
 	g_arrow_zf.box.x = rb.x + rb.w + a.h;
 	g_arrow_zf.box.y = rb.y + rb.h/2 - a.w/2;
@@ -252,7 +277,7 @@ static void initialize_zf_arrow()
  */
 static void initialize_imm_up_arrow()
 {
-	SDL_Rect a = dm_get_arrow_wh();
+	SDL_Rect a = ar_get_arrow_wh();
 	SDL_Rect imm_box = dm_get_stage_imm_up();
 	SDL_Rect vb = dm_get_value_box_wh();
 	int text_h = dm_get_h_stage_elements_titles();
@@ -288,8 +313,8 @@ static void initialize_ins_arrow()
 {
 	int size = iw_get_instruction_list_size();
 	SDL_Rect ir = iw_get_instruction_rect_by_pos(size - 1);
-	SDL_Rect a = dm_get_arrow_wh();
-	g_arrow_ins.box.x = ir.x + ir.w + a.w/2; 
+	SDL_Rect a = ar_get_arrow_wh();
+	g_arrow_ins.box.x = ir.x + ir.w + a.w*2/3; 
 	g_arrow_ins.box.y = ir.y + ir.h/2 - a.h/2;
 	g_arrow_ins.box.w = a.w; 
 	g_arrow_ins.box.h = a.h;
@@ -322,7 +347,7 @@ static void initialize_ins_minus_arrow()
 	} else {
 		ir = iw_get_instruction_rect_by_pos(size - 2);
 	}
-	SDL_Rect a = dm_get_arrow_wh();
+	SDL_Rect a = ar_get_arrow_wh();
 	g_arrow_ins_minus.box.x = ir.x + ir.w + a.w/2; 
 	g_arrow_ins_minus.box.y = ir.y + ir.h/2 - a.h/2;
 	g_arrow_ins_minus.box.w = a.w; 
@@ -351,7 +376,7 @@ static void initialize_ins_minus_arrow()
 static void initialize_drop_arrow()
 {
 	int h = dm_get_screen_height();	
-	SDL_Rect a = dm_get_arrow_wh();
+	SDL_Rect a = ar_get_arrow_wh();
 	SDL_Rect cb = cw_get_stage_code_box();
 	
 	g_arrow_drop.box.x = (cb.x - 2*a.w);
@@ -380,10 +405,11 @@ static void initialize_drop_arrow()
 static void initialize_play_arrow()
 {
 	SDL_Rect sb = sb_get_stage_btns();
-	SDL_Rect a = dm_get_arrow_wh();
+	SDL_Rect a = ar_get_arrow_wh();
+	SDL_Rect play_btn = sb_get_sb_rect(PLAY);
 	g_arrow_play.box.w = a.w;	
 	g_arrow_play.box.h = a.h;
-	g_arrow_play.box.x = sb_get_sb_rect(PLAY).x + a.w/2;
+	g_arrow_play.box.x = play_btn.x + (play_btn.w - a.w)/2;
 	g_arrow_play.box.y = sb.y - 2*a.h;
 	g_arrow_play.in_place = false;
 	g_arrow_play.visible = true;
@@ -407,7 +433,7 @@ static void initialize_play_arrow()
 static void initialize_step_arrow()
 {
 	SDL_Rect sb = sb_get_stage_btns();
-	SDL_Rect a = dm_get_arrow_wh();
+	SDL_Rect a = ar_get_arrow_wh();
 	g_arrow_step.box.w = a.w;	
 	g_arrow_step.box.h = a.h;
 	g_arrow_step.box.x = sb_get_sb_rect(STEP).x + a.w/2;
@@ -434,7 +460,7 @@ static void initialize_step_arrow()
 static void initialize_fast_arrow()
 {
 	SDL_Rect sb = sb_get_stage_btns();
-	SDL_Rect a = dm_get_arrow_wh();
+	SDL_Rect a = ar_get_arrow_wh();
 	g_arrow_fast.box.w = a.w;	
 	g_arrow_fast.box.h = a.h;
 	g_arrow_fast.box.x = sb_get_sb_rect(FAST).x + a.w/2;
@@ -461,7 +487,7 @@ static void initialize_fast_arrow()
  */
 static void initialize_code_line_arrow()
 {
-	SDL_Rect a = dm_get_arrow_wh();
+	SDL_Rect a = ar_get_arrow_wh();
 	int pos = cw_get_code_list_size() - 1;
 
 	if (pos >= 0){
@@ -496,7 +522,7 @@ static void initialize_code_line_arrow()
  */
 static void initialize_del_arrow()
 {
-	SDL_Rect a = dm_get_arrow_wh();
+	SDL_Rect a = ar_get_arrow_wh();
 	SDL_Rect cb = cw_get_stage_code_box();
 	SDL_Rect tb = cw_get_text_box_rect();
 	g_arrow_del.box.x = cb.x + cb.w;
@@ -523,7 +549,7 @@ static void initialize_del_arrow()
  */
 static void initialize_op2_arrow()
 {
-	SDL_Rect a = dm_get_arrow_wh();
+	SDL_Rect a = ar_get_arrow_wh();
 	
 	int pos = 1;
 	int size  = cw_get_code_list_size();
@@ -558,7 +584,7 @@ static void initialize_op2_arrow()
  */
 static void initialize_error_arrow()
 {
-	SDL_Rect a = dm_get_arrow_wh();
+	SDL_Rect a = ar_get_arrow_wh();
 	SDL_Rect rb = dm_get_text_box_result_but3();		
 	SDL_Rect eb = dm_get_text_box_error();
 	SDL_Rect back_but =  dm_get_text_box_result_but1();
@@ -588,7 +614,7 @@ static void initialize_error_arrow()
  */
 static void initialize_challenge_arrow()
 {
-	SDL_Rect a = dm_get_arrow_wh();
+	SDL_Rect a = ar_get_arrow_wh();
 	SDL_Rect tb = cw_get_text_box_rect();
 	SDL_Rect cb = cw_get_stage_code_box();
 	g_arrow_challenge.box.x = cb.x + cb.w + a.w;
@@ -616,7 +642,7 @@ static void initialize_challenge_arrow()
 static void initialize_ib_arrow()
 { 	
 	SDL_Rect b =  dm_get_stage_input_buffer_box();
-	SDL_Rect dim = dm_get_arrow_wh();
+	SDL_Rect dim = ar_get_arrow_wh();
 	g_arrow_ib.box.x = b.x - 2*dim.w;
 	g_arrow_ib.box.y = b.y + b.h/2 - dim.h/2;
 	g_arrow_ib.box.w = dim.w;
@@ -628,7 +654,8 @@ static void initialize_ib_arrow()
 	g_arrow_ib.in_place = false;
 	g_arrow_ib.texture = g_ib_arrow;
 	g_arrow_ib.visible = true;
-	SDL_SetTextureColorMod(g_arrow_ib.texture->texture, 255, 0, 255);
+	//SDL_SetTextureColorMod(g_arrow_ib.texture->texture, 255, 0, 255);
+	SDL_SetTextureColorMod(g_arrow_ib.texture->texture, 255, 0, 0);
 
 }
 
@@ -645,7 +672,7 @@ static void initialize_ib_arrow()
 static void initialize_ob_arrow()
 { 	
 	SDL_Rect b =  dm_get_stage_output_buffer_box();
-	SDL_Rect dim = dm_get_arrow_wh();
+	SDL_Rect dim = ar_get_arrow_wh();
 	g_arrow_ob.box.x = b.x - 2*dim.w;
 	g_arrow_ob.box.y = b.y + b.h/2 - dim.h/2;
 	g_arrow_ob.box.w = dim.w;
@@ -658,6 +685,7 @@ static void initialize_ob_arrow()
 	g_arrow_ob.texture = g_ob_arrow;
 	g_arrow_ob.visible = true;
 	SDL_SetTextureColorMod(g_arrow_ob.texture->texture, 0, 255, 255);
+	SDL_SetTextureColorMod(g_arrow_ob.texture->texture, 255, 0, 0);
 }
 
 /* Function: initialize_arrow
@@ -865,9 +893,9 @@ void ar_animate_arrow(arrow_t *arrow)
 					arrow->in_place = false;
 				}
 				if (arrow->in_place == false){
-					arrow->box.y--;
+					arrow->box.y-= ARROW_MOVE_DELTA;
 				}else if (arrow->in_place == true){
-					arrow->box.y++;
+					arrow->box.y+= ARROW_MOVE_DELTA;
 				}
 			}
 			dw_draw_rotated_texture_fits_h(arrow->box.x, arrow->box.y, 
@@ -882,9 +910,9 @@ void ar_animate_arrow(arrow_t *arrow)
 					arrow->in_place = false;
 				}
 				if (arrow->in_place == false){
-					arrow->box.y++;
+					arrow->box.y+= ARROW_MOVE_DELTA;
 				}else if (arrow->in_place == true){
-					arrow->box.y--;
+					arrow->box.y-= ARROW_MOVE_DELTA;
 				}
 			}
 			dw_draw_rotated_texture_fits_h(arrow->box.x, arrow->box.y, 
@@ -899,9 +927,9 @@ void ar_animate_arrow(arrow_t *arrow)
 					arrow->in_place = false;
 				}
 				if (arrow->in_place == false){
-					arrow->box.x++;
+					arrow->box.x+= ARROW_MOVE_DELTA;
 				}else if (arrow->in_place == true){
-					arrow->box.x--;
+					arrow->box.x-= ARROW_MOVE_DELTA;
 				}
 			}
 			dw_draw_rotated_texture_fits_h(arrow->box.x, arrow->box.y, 
@@ -915,9 +943,9 @@ void ar_animate_arrow(arrow_t *arrow)
 					arrow->in_place = false;
 				}
 				if (arrow->in_place == false){
-					arrow->box.x--;
+					arrow->box.x-= ARROW_MOVE_DELTA;
 				}else if (arrow->in_place == true){
-					arrow->box.x++;
+					arrow->box.x+= ARROW_MOVE_DELTA;
 				}
 			}
 			dw_draw_rotated_texture_fits_h(arrow->box.x, arrow->box.y, 
