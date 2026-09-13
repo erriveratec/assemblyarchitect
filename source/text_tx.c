@@ -491,7 +491,6 @@ void tx_bottom_msg(int pos, int msg_id)
 	assert(msg_id >= 0 && msg_id < g_gbl_msgs_size && "Invalid msg_id");
 	SDL_Rect b;
 	int text_h;
-	SDL_Color color;
 	texture_array_t *a = g_gbl_msgs[msg_id];
 	int offset = dw_get_ofs_iface_filled_border();
 	switch(pos){
