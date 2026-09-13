@@ -491,9 +491,7 @@ static void level_16()
  */
 static void level_15()
 {
-	if (sb_chk_rst_esc_menu_active() == true){
-		return;
-	}
+	
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(true);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -521,9 +519,7 @@ static void level_15()
  */
 static void level_14()
 {
-	if (sb_chk_rst_esc_menu_active() == true){
-		return;
-	}
+	
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(true);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -573,9 +569,7 @@ static void level_14()
  */
 static void level_13()
 {
-	if (sb_chk_rst_esc_menu_active() == true){
-		return;
-	}
+	
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(true);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -635,9 +629,7 @@ static void level_13()
  */
 static void level_12()
 {
-	if (sb_chk_rst_esc_menu_active() == true){
-		return;
-	}
+	
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(true);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -666,9 +658,7 @@ static void level_12()
  */
 static void level_11()
 {
-	if (sb_chk_rst_esc_menu_active() == true){
-		return;
-	}
+	
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(true);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -696,9 +686,7 @@ static void level_11()
  */
 static void level_10()
 {
-	if (sb_chk_rst_esc_menu_active() == true){
-		return;
-	}
+	
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(true);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -746,9 +734,7 @@ static void level_10()
  */
 static void level_9()
 {
-	if (sb_chk_rst_esc_menu_active() == true){
-		return;
-	}
+	
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -776,9 +762,7 @@ static void level_9()
  */
 static void level_8()
 {
-	if (sb_chk_rst_esc_menu_active() == true){
-		return;
-	}
+	
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -831,9 +815,7 @@ static void level_8()
  */
 static void level_7()
 {
-	if (sb_chk_rst_esc_menu_active() == true){
-		return;
-	}
+	
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -869,9 +851,7 @@ static void level_7()
  */
 static void level_6()
 {
-	if (sb_chk_rst_esc_menu_active() == true){
-		return;
-	}
+	
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -907,9 +887,7 @@ static void level_6()
  */
 static void level_5()
 {
-	if (sb_chk_rst_esc_menu_active() == true){
-		return;
-	}
+	
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -952,9 +930,7 @@ static void level_5()
  */
 static void level_4()
 {
-	if (sb_chk_rst_esc_menu_active() == true){
-		return;
-	}
+	
 	sb_set_step_btns_avail(true);
 	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -993,9 +969,7 @@ static void level_4()
  */
 static void level_3()
 {
-	if (sb_chk_rst_esc_menu_active() == true){
-		return;
-	}
+	
 	sb_set_step_btns_avail(false);
 	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -1026,9 +1000,7 @@ static void level_3()
  */
 static void level_2()
 {
-	if (sb_chk_rst_esc_menu_active() == true){
-		return;
-	}
+	
 	sb_set_step_btns_avail(false);
 	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
@@ -1045,6 +1017,7 @@ static void level_2()
 		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome
 		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
 		set_code_editable(false, NO_EXCEPTION);
+		//set_arrange_enabled(false);
 		chk_ms_pressed_clear_msg(MSG0, true);
 	} else if (g_lv_msg[MSG1] == true && size == 0){
 		tx_text_box(TX_UPPER_BOX, MSG1, TX_INS);// IB can be read only once
@@ -1107,6 +1080,7 @@ static void level_2()
 	} else if (size == 2 && miss_op == false){
 		tx_text_box(TX_CODE_BOX, MSG11, TX_INS); //Right click a complete 
 		set_reg_selectable(true);
+		//set_arrange_enabled(true);
 		ar_display_arrow(AR_CODE);
 	}
 }
@@ -1123,9 +1097,7 @@ static void level_2()
  */
 static void level_1()
 {
-	if (sb_chk_rst_esc_menu_active() == true){
-		return;
-	}
+	
 	sb_set_step_btns_avail(false);
 	im_set_imm_up_avail(false);
 	int size = cw_get_code_list_size();
@@ -1217,9 +1189,7 @@ static void level_1()
  */
 static void level_0()
 {
-	if (sb_chk_rst_esc_menu_active() == true){
-		return;
-	}
+	
 	sb_set_step_btns_avail(false);
 	im_set_imm_up_avail(false);
 	draw_regs_arrow(false);
@@ -2029,6 +1999,9 @@ void lv_level_drawings(int level)
 {
 	assert(level < LV_LEVEL_MAX && level >= 0 && "Invalid level value");
 	
+	if (sb_chk_rst_esc_menu_active() == true){
+		return;
+	}
 	switch(level){
 		case LV_LEVEL_0:
 			level_0();

@@ -641,10 +641,7 @@ void rg_add_register_to_list(int id)
 	int register_text_w = get_text_width_fits_height(text_h, AX_REG_TEXT);
 	int x = register_box.x + ofs;
 
-	int y = 0;//rg_get_reg_box_y_pos(list_size);
-		//	register_box.y + ofs + list_size*2*(cb.h + 5) +
-		//    text_h + cb.h;
-
+	int y = 0;		
 	SDL_Rect r = {.x = x, .y = y, .w = cb.w, .h = cb.h};	
 	btn_t *b = bt_create_btn(r, reg_text);
 	check_mem(b);
