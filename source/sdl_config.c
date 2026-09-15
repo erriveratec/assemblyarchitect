@@ -126,6 +126,7 @@ int toggle_fullscreen()
 
 	SDL_GetWindowSize(g_window, &g_width, &g_height);
 	dm_set_screen_dimensions(g_width, g_height);
+	sb_handle_screen_resize();
 	return SUCCESS;
 }
 

@@ -23,6 +23,7 @@ static Uint32 STAGE_BUTTON_Y = 820;
 static Uint32 SCREEN_BORDERS_OFS = 5;
 
 bool g_step_btns_avail = true;
+static bool g_stage_buttons_visible = false;
 
 texture_t *stop_button = NULL;
 texture_t *fast_button = NULL;
@@ -238,8 +239,10 @@ void adjust_stage_buttons_position(int code_size)
 	SDL_Rect sb = sb_get_stage_btns();
 	int y_final;
 	if (code_size == CW_EMPTY){
+		g_stage_buttons_visible = false;
 		y_final = hidden_y;
 	} else {
+		g_stage_buttons_visible = true;
 		y_final = sb.y;
 	}
 
@@ -257,6 +260,26 @@ void adjust_stage_buttons_position(int code_size)
 		step->r.y -= delta;
 	}
 
+}
+
+void sb_handle_screen_resize()
+{
+	if (stop == NULL || fast == NULL || play == NULL || step == NULL){
+		return;
+	}
+
+	SDL_Rect sb = sb_get_stage_btns();
+	int space = get_ofs_space_stage_buttons();
+	int y = g_stage_buttons_visible ? sb.y :
+			dm_get_y_hidden_stage_buttons();
+
+	stop->r = (SDL_Rect){.x = sb.x, .y = y, .w = sb.w, .h = sb.h};
+	step->r = (SDL_Rect){.x = sb.x + sb.w + space,
+						 .y = y, .w = sb.w, .h = sb.h};
+	play->r = (SDL_Rect){.x = sb.x + 2 * (sb.w + space),
+						 .y = y, .w = sb.w, .h = sb.h};
+	fast->r = (SDL_Rect){.x = sb.x + 3 * (sb.w + space),
+						 .y = y, .w = sb.w, .h = sb.h};
 }
 
 /* Function: sb_draw_stage_btns
