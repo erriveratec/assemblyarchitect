@@ -11,8 +11,6 @@
 
 
 #define READ_ERROR -1
-#define SAVE_FILE_LINE_LENGTH 15
-
 #define SAVE_FILE_PATH "data/save.dat"
 #define STR_PLAYER_ENDS "PLAYER ENDS"
 
@@ -190,99 +188,36 @@ void sv_save_init_default()
 		char path[512];	
 		ax_get_resource_path(path, sizeof(path), SAVE_FILE_PATH);
 		FILE *fp = fopen(path, "w");
-		char *level = malloc(sizeof(char)*SAVE_FILE_LINE_LENGTH);
-		check_mem(level);
+		if (fp == NULL){
+			perror("Could not create save file");
+			return;
+		}
 
 		for (int j = 1; j <= SV_ARCHITECT_HANDLER_Z; j++){
-			char *player_number = ax_number_to_string_prepend_zero(j);
-
-			strcpy(level, STR_PLAYER); 
-			strcat(level, " ");
-			strcat(level, player_number);
-			strcat(level, ax_char_newline);
-			fl_write_to_file(fp, level);
-			strcpy(level, ax_char_newline);
-			fl_write_to_file(fp, level);
+			fprintf(fp, "%s %02d\n\n", STR_PLAYER, j);
 			for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
-				char *number = NULL;
-				if (i<10){
-					number = ax_number_to_string_prepend_zero(i);
-				} else {
-					number = ax_number_to_string(i);
-				}
-
-				check_mem(number);
-				
-				strcpy(level, STR_LEVEL_STARTS); 
-				strcat(level, " ");
-				strcat(level, number);
-				strcat(level, ax_char_newline);
-				fl_write_to_file(fp, level);
-				strcpy(level, ax_char_newline);
-				fl_write_to_file(fp, level);
-
-				if (i == 0){
-					strcpy(level, STR_LEVEL_ACTIVE_TRUE);
-				}else {
-					strcpy(level, STR_LEVEL_ACTIVE_FALSE);
-				}
-
-				fl_write_to_file(fp, level);
-				
-				strcpy(level, ax_char_newline);
-				fl_write_to_file(fp, level);
-				
-				strcpy(level, STR_CODE_STARTS);
-				fl_write_to_file(fp, level);
+				fprintf(fp, "%s %02d\n\n%s\n\n%s",
+						STR_LEVEL_STARTS, i,
+						i == 0 ? STR_LEVEL_ACTIVE_TRUE : STR_LEVEL_ACTIVE_FALSE,
+						STR_CODE_STARTS);
 				
 				if (i == 1){
-					strcpy(level, FL_L1_CODE_1);
-					fl_write_to_file(fp, level);
-					strcpy(level, FL_L1_CODE_2);
-					fl_write_to_file(fp, level);
-					strcpy(level, FL_L1_CODE_3);
-					fl_write_to_file(fp, level);
-
+					fputs(FL_L1_CODE_1, fp);
+					fputs(FL_L1_CODE_2, fp);
+					fputs(FL_L1_CODE_3, fp);
 				} else if (i == 8){
-					strcpy(level, FL_L8_CODE_1);
-					fl_write_to_file(fp, level);
-					strcpy(level, FL_L8_CODE_2);
-					fl_write_to_file(fp, level);
-
+					fputs(FL_L8_CODE_1, fp);
+					fputs(FL_L8_CODE_2, fp);
 				} else {
-					strcpy(level, ax_char_newline);
-					fl_write_to_file(fp, level);
+					fputc('\n', fp);
 				}
-				
-				strcpy(level, STR_CODE_ENDS);
-				fl_write_to_file(fp, level);
-				
-				strcpy(level, ax_char_newline);
-				fl_write_to_file(fp, level);
-
-				strcpy(level, STR_LEVEL_ENDS);
-				strcat(level, " ");
-				strcat(level, number);
-				strcat(level, ax_char_newline);
-				fl_write_to_file(fp, level);
-				strcpy(level, ax_char_newline);
-				fl_write_to_file(fp, level);
-				free(number);
+				fprintf(fp, "%s\n\n%s %02d\n\n", STR_CODE_ENDS,
+						STR_LEVEL_ENDS, i);
 			}
-			strcpy(level, STR_PLAYER_ENDS); 
-			strcat(level, " ");
-			strcat(level, player_number);
-			strcat(level, ax_char_newline);
-			fl_write_to_file(fp, level);
-			strcpy(level, ax_char_newline);
-			fl_write_to_file(fp, level);
-
-			free(player_number);
+			fprintf(fp, "%s %02d\n\n", STR_PLAYER_ENDS, j);
 		}
-		free(level);
 		fclose(fp);
 	}
-	error:
 	return;
 }
 

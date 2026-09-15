@@ -13,6 +13,7 @@
 #include "file_fl.h"
 #include "levels_lv.h"
 #include "text_tx.h"
+#include "level_config.h"
 
 #define READ_ERROR -1
 #define MSG_LENGTH 256
@@ -384,6 +385,12 @@ static void parse_registers(FILE *fp)
  */
 void fl_file_initialize_level(int level_id)
 {
+	if (lc_load_level(level_id) == SUCCESS){
+		return;
+	}
+	fprintf(stderr, "Could not load level %d from data/levels.cfg\n", level_id);
+	return;
+
 	char *line = NULL;	
 	size_t len = 0;
 	ssize_t read;
