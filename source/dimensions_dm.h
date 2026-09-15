@@ -11,6 +11,7 @@ enum resolutions{
 };
 
 void dm_set_screen_resolution(int resolution_id);
+void dm_set_screen_dimensions(int width, int height);
 
 int dm_get_h_between_code();
 int dm_get_h_big_text();

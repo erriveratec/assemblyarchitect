@@ -11,6 +11,7 @@
 #include "stage_buttons_sb.h"
 #include "arrow_ar.h"
 #include "media/audio_au.h"
+#include "dimensions_dm.h"
 
 #define ERROR -1
 
@@ -110,6 +111,22 @@ int init_sdl(int width, int height, int argc, char *args[])
 
 	return SUCCESS;
 
+}
+
+int toggle_fullscreen()
+{
+	Uint32 flags = SDL_GetWindowFlags(g_window);
+	Uint32 fullscreen = flags & SDL_WINDOW_FULLSCREEN_DESKTOP ? 0 :
+							 SDL_WINDOW_FULLSCREEN_DESKTOP;
+
+	if (SDL_SetWindowFullscreen(g_window, fullscreen) != 0){
+		SDL_Log("Could not toggle fullscreen: %s", SDL_GetError());
+		return FAIL;
+	}
+
+	SDL_GetWindowSize(g_window, &g_width, &g_height);
+	dm_set_screen_dimensions(g_width, g_height);
+	return SUCCESS;
 }
 
 

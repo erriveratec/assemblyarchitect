@@ -8,6 +8,7 @@
 #include "ui/button_bt.h"
 #include "draw_dw.h"
 #include "dimensions_dm.h"
+#include "sdl_config.h"
 
 #define ESC_MENU_TEXT1 "RETURN TO GAME"
 #define ESC_MENU_TEXT2 "TOGGLE FULL SCREEN"
@@ -204,7 +205,11 @@ void sb_display_escape_menu(bool show_menu)
 		if (bt_chk_rel_iface_btn(g_escape_b1, NULL) == true){
 			em_toggle_escape_menu();
 		} else if (bt_chk_rel_iface_btn(g_escape_b2, g_sfx_select) == true){
-			puts("Full screen must be implemented");	
+			if (toggle_fullscreen() == 0){
+				g_escape_b1->r = get_escape_b1_box();
+				g_escape_b2->r = get_escape_b2_box();
+				g_escape_b3->r = get_escape_b3_box();
+			}
 		} else if (bt_chk_rel_iface_btn(g_escape_b3, g_sfx_select) == true){
 			set_quit_game();
 		}
@@ -254,12 +259,16 @@ int em_update_escape_menu(bool show_menu)
 {
 	int press_btn_state = ESC_MENU_NONE;
 	
-if (show_menu == true){
+	if (show_menu == true){
 		
 		if (bt_chk_rel_iface_btn(g_escape_b1, NULL) == true){
 			em_toggle_escape_menu();
 		} else if (bt_chk_rel_iface_btn(g_escape_b2, g_sfx_select) == true){
-			puts("Full screen must be implemented");	
+			if (toggle_fullscreen() == 0){
+				g_escape_b1->r = get_escape_b1_box();
+				g_escape_b2->r = get_escape_b2_box();
+				g_escape_b3->r = get_escape_b3_box();
+			}
 		} else if (bt_chk_rel_iface_btn(g_escape_b3, g_sfx_select) == true){
 			press_btn_state = ESC_MENU_EXIT;
 		}

@@ -20,6 +20,7 @@ extern TTF_Font *g_font;
 int load_media();
 void close_sdl();
 int init_sdl(int width, int height, int argc, char *args[]);
+int toggle_fullscreen();
 
 
 #endif

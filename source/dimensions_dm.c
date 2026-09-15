@@ -1282,6 +1282,12 @@ void dm_set_screen_resolution(int resolution_id)
 	}	
 }
 
+void dm_set_screen_dimensions(int width, int height)
+{
+	g_screen_width = width;
+	g_screen_height = height;
+}
+
 /* Function: scale_to_resoution
  * -----------------------------------------------------------------------------
  * Scales the given dimension according to the scree resolution. The baseline
