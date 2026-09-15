@@ -371,11 +371,13 @@ void mc_display_operation_handler(int id)
 		if (two_buttons == true){
 			bt_draw_iface_btn(cont, em_get_escape_state(), g_sfx_iface_hover);
 		}
-			if (bt_chk_rel_iface_btn(back, g_sfx_iface_back_cancel) == true){
+		if (em_get_escape_state() == false &&
+			bt_chk_rel_iface_btn(back, g_sfx_iface_back_cancel) == true){
 				mc_set_op_menu_btn_state(BACK_BTN_PRESSED);
 				mc_set_rst_lvl(true);
 				button_pressed = true;
-			} else if (bt_chk_rel_iface_btn(cont, g_sfx_select)){
+			} else if (em_get_escape_state() == false && two_buttons == true &&
+					   bt_chk_rel_iface_btn(cont, g_sfx_select)){
 				mc_set_op_menu_btn_state(CONT_BTN_PRESSED);
 				button_pressed = true;
 			} else {
