@@ -32,6 +32,10 @@ typedef struct level_config_t {
 	int win_arg2;
 	int win_arg3;
 	bool win_flag;
+	bool win_arg1_set;
+	bool win_arg2_set;
+	bool win_arg3_set;
+	bool win_flag_set;
 } level_config_t;
 
 static char *trim(char *text)
@@ -46,6 +50,65 @@ static char *trim(char *text)
 static bool parse_bool(const char *text)
 {
 	return strcmp(text, "true") == 0;
+}
+
+static bool validate_win_condition(int level_id, const level_config_t *config)
+{
+	const char *required[4] = {NULL};
+	bool present[4] = {false};
+	int required_count = 0;
+
+	if (strcmp(config->win_type, "transform_input") == 0) {
+		required[0] = "win.repeat_1";
+		required[1] = "win.multiplier_2";
+		required[2] = "win.addend_3";
+		required[3] = "win.reverse_4";
+		present[0] = config->win_arg1_set;
+		present[1] = config->win_arg2_set;
+		present[2] = config->win_arg3_set;
+		present[3] = config->win_flag_set;
+		required_count = 4;
+	} else if (strcmp(config->win_type, "sum_groups") == 0) {
+		required[0] = "win.group_size_1";
+		required[1] = "win.insert_between_2";
+		required[2] = "win.inserted_value_3";
+		present[0] = config->win_arg1_set;
+		present[1] = config->win_flag_set;
+		present[2] = config->win_arg2_set;
+		required_count = 3;
+	} else if (strcmp(config->win_type, "copy_until") == 0) {
+		required[0] = "win.filter_enabled_1";
+		required[1] = "win.filter_value_2";
+		required[2] = "win.stop_value_3";
+		present[0] = config->win_arg1_set;
+		present[1] = config->win_arg2_set;
+		present[2] = config->win_arg3_set;
+		required_count = 3;
+	} else if (strcmp(config->win_type, "count_until") == 0) {
+		required[0] = "win.count_value_1";
+		required[1] = "win.stop_value_2";
+		present[0] = config->win_arg1_set;
+		present[1] = config->win_arg2_set;
+		required_count = 2;
+	} else if (strcmp(config->win_type, "decrement_offset") == 0) {
+		required[0] = "win.starting_offset_1";
+		present[0] = config->win_arg1_set;
+		required_count = 1;
+	} else {
+		fprintf(stderr, "levels.cfg: level %d has unknown win.type '%s'\n",
+			level_id, config->win_type);
+		return false;
+	}
+
+	bool valid = true;
+	for (int index = 0; index < required_count; index++) {
+		if (!present[index]) {
+			fprintf(stderr, "levels.cfg: level %d win.type '%s' requires %s\n",
+				level_id, config->win_type, required[index]);
+			valid = false;
+		}
+	}
+	return valid;
 }
 
 static void add_instructions(char *items)
@@ -165,14 +228,33 @@ int lc_load_level(int level_id)
 		else if (strcmp(key, "input.arg3") == 0) config.input_arg3 = atoi(value);
 		else if (strcmp(key, "instruction_limit") == 0) config.instruction_limit = atoi(value);
 		else if (strcmp(key, "win.type") == 0) snprintf(config.win_type, sizeof(config.win_type), "%s", value);
-		else if (strcmp(key, "win.arg1") == 0) config.win_arg1 = atoi(value);
-		else if (strcmp(key, "win.arg2") == 0) config.win_arg2 = atoi(value);
-		else if (strcmp(key, "win.arg3") == 0) config.win_arg3 = atoi(value);
-		else if (strcmp(key, "win.flag") == 0) config.win_flag = parse_bool(value);
+		else if (strcmp(key, "win.repeat_1") == 0 ||
+				 strcmp(key, "win.group_size_1") == 0 ||
+				 strcmp(key, "win.filter_enabled_1") == 0 ||
+				 strcmp(key, "win.count_value_1") == 0 ||
+				 strcmp(key, "win.starting_offset_1") == 0) {
+			config.win_arg1 = atoi(value);
+			config.win_arg1_set = true;
+		} else if (strcmp(key, "win.multiplier_2") == 0 ||
+				   strcmp(key, "win.inserted_value_3") == 0 ||
+				   strcmp(key, "win.filter_value_2") == 0 ||
+				   strcmp(key, "win.stop_value_2") == 0) {
+			config.win_arg2 = atoi(value);
+			config.win_arg2_set = true;
+		} else if (strcmp(key, "win.addend_3") == 0 ||
+				   strcmp(key, "win.stop_value_3") == 0) {
+			config.win_arg3 = atoi(value);
+			config.win_arg3_set = true;
+		} else if (strcmp(key, "win.reverse_4") == 0 ||
+				   strcmp(key, "win.insert_between_2") == 0) {
+			config.win_flag = parse_bool(value);
+			config.win_flag_set = true;
+		}
 	}
 	fclose(file);
 	if (!found || config.input_count <= 0 || config.instructions[0] == '\0' ||
 		config.registers[0] == '\0' || config.win_type[0] == '\0') return FAIL;
+	if (!validate_win_condition(level_id, &config)) return FAIL;
 	apply_level(level_id, &config);
 	return SUCCESS;
 }

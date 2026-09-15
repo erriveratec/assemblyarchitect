@@ -28,11 +28,18 @@ code_end
 [level 03]
 unlocked = true
 code_begin
+MOV rax, [ib]
+MOV [ob], rax
+MOV rax, [ib]
+MOV [ob], rax
+MOV rax, [ib]
+MOV [ob], rax
 code_end
 
 [level 04]
-unlocked = false
+unlocked = true
 code_begin
+MOV rax, [ib]
 code_end
 
 [level 05]
