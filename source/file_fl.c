@@ -91,8 +91,8 @@ char *fl_get_player_id_string(int player_id)
 {
 	char *number = ax_number_to_string_prepend_zero(player_id);
 	check_mem(number);
-	char *id = malloc(sizeof(char)*(strlen(STR_PLAYER) + 
-				strlen(ax_char_space) + strlen(number)));
+	char *id = malloc(sizeof(char) * (strlen(STR_PLAYER) +
+				strlen(ax_char_space) + strlen(number) + 1));
 	check_mem(id);
 
 	strcpy(id, STR_PLAYER);
@@ -127,8 +127,8 @@ char *fl_get_level_id_string(int level_id)
 	}
 	
 	check_mem(number);
-	char *id = malloc(sizeof(char)*(strlen(STR_LEVEL_STARTS) + 
-					  strlen(ax_char_space) + strlen(number)));
+	char *id = malloc(sizeof(char) * (strlen(STR_LEVEL_STARTS) +
+					  strlen(ax_char_space) + strlen(number) + 1));
 	check_mem(id);
 
 	strcpy(id, STR_LEVEL_STARTS);
@@ -159,7 +159,8 @@ static char *create_string_with_number(char *s,  int n)
 
 	char *number = ax_number_to_string_prepend_zero(n);
 	check_mem(number);
-	char *string = malloc(sizeof(char)*(strlen(s) + strlen(number)));
+	char *string = malloc(sizeof(char) *
+					  (strlen(s) + strlen(ax_char_space) + strlen(number) + 1));
 	check_mem(string);
 
 	strcpy(string, s);

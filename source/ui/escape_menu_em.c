@@ -12,6 +12,7 @@
 
 #define ESC_MENU_TEXT1 "RETURN TO GAME"
 #define ESC_MENU_TEXT2 "TOGGLE FULL SCREEN"
+#define ESC_MENU_TEXT2_WINDOWED "TOGGLE WINDOWED MODE"
 #define ESC_MENU_TEXT3 "EXIT GAME"
 static char *ESC_MENU_HEADER = "ESC MENU";
 
@@ -35,6 +36,7 @@ iface_btn_t *g_escape_b3;
 static SDL_Rect get_escape_b1_box();
 static SDL_Rect get_escape_b2_box();
 static SDL_Rect get_escape_b3_box();
+static void update_fullscreen_button_label();
 
 
 
@@ -107,6 +109,26 @@ static SDL_Rect get_escape_b3_box()
 	return b;
 }
 
+static void update_fullscreen_button_label()
+{
+	char *label = SDL_GetWindowFlags(g_window) &
+				  SDL_WINDOW_FULLSCREEN_DESKTOP ?
+				  ESC_MENU_TEXT2_WINDOWED : ESC_MENU_TEXT2;
+	texture_t *texture = dw_create_text_tex(label, C_WHITE);
+
+	if (texture == NULL){
+		return;
+	}
+
+	if (g_escape_b2_texture != NULL){
+		dw_free_texture(g_escape_b2_texture);
+	}
+	g_escape_b2_texture = texture;
+	if (g_escape_b2 != NULL){
+		g_escape_b2->t = texture;
+	}
+}
+
 
 /* Function: player_pressed_escape_key
  * ----------------------------------------------------------------------------
@@ -161,8 +183,6 @@ void em_init_escape_menu()
 {
 	g_escape_b1_texture = dw_create_text_tex(ESC_MENU_TEXT1, C_WHITE);
 
-	g_escape_b2_texture = dw_create_text_tex(ESC_MENU_TEXT2, C_WHITE);
-
 	g_escape_b3_texture = dw_create_text_tex(ESC_MENU_TEXT3, C_WHITE);
 	
 	g_escape_header_texture = dw_create_text_tex(ESC_MENU_HEADER, C_GREY);
@@ -171,8 +191,12 @@ void em_init_escape_menu()
 	SDL_Rect r = get_escape_b1_box();
 	g_escape_b1 = bt_create_iface_btn(r, g_escape_b1_texture, true);
 
+	g_escape_b2_texture = dw_create_text_tex(ESC_MENU_TEXT2, C_WHITE);
 	r = get_escape_b2_box();
 	g_escape_b2 = bt_create_iface_btn(r, g_escape_b2_texture, true);
+	if (SDL_GetWindowFlags(g_window) & SDL_WINDOW_FULLSCREEN_DESKTOP){
+		update_fullscreen_button_label();
+	}
 	
 	r = get_escape_b3_box();
 	g_escape_b3 = bt_create_iface_btn(r, g_escape_b3_texture, true);
@@ -206,6 +230,7 @@ void sb_display_escape_menu(bool show_menu)
 			em_toggle_escape_menu();
 		} else if (bt_chk_rel_iface_btn(g_escape_b2, g_sfx_select) == true){
 			if (toggle_fullscreen() == 0){
+				update_fullscreen_button_label();
 				g_escape_b1->r = get_escape_b1_box();
 				g_escape_b2->r = get_escape_b2_box();
 				g_escape_b3->r = get_escape_b3_box();
@@ -265,6 +290,7 @@ int em_update_escape_menu(bool show_menu)
 			em_toggle_escape_menu();
 		} else if (bt_chk_rel_iface_btn(g_escape_b2, g_sfx_select) == true){
 			if (toggle_fullscreen() == 0){
+				update_fullscreen_button_label();
 				g_escape_b1->r = get_escape_b1_box();
 				g_escape_b2->r = get_escape_b2_box();
 				g_escape_b3->r = get_escape_b3_box();

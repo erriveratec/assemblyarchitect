@@ -77,8 +77,8 @@ static char *get_player_end_string(int player_id)
 {
 	char *number = ax_number_to_string_prepend_zero(player_id);
 	check_mem(number);
-	char *id = malloc(sizeof(char)*(strlen(STR_PLAYER_ENDS) + 
-					  strlen(ax_char_space) + strlen(number)));
+	char *id = malloc(sizeof(char) * (strlen(STR_PLAYER_ENDS) +
+					  strlen(ax_char_space) + strlen(number) + 1));
 	check_mem(id);
 
 	strcpy(id, STR_PLAYER_ENDS);

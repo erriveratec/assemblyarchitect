@@ -92,7 +92,7 @@ SDL_Rect cw_get_stage_code_box()
 void cw_init_code_window_texture()
 {
 	g_comma_tex = dw_create_text_tex(",", C_WHITE);
-	g_numbers = malloc(sizeof(texture_t*)*MAX_CODE_LINES);
+	g_numbers = malloc(sizeof(texture_t*) * (MAX_CODE_LINES + 1));
 	for (int i = 0; i <= MAX_CODE_LINES; i++){
 		char *number = ax_number_to_string_two_digits(i);
 		g_numbers[i] = dw_create_text_tex(number, C_GREY);

@@ -677,7 +677,11 @@ void draw_output_buffer()
 		}
 	}
 	dw_draw_rectangle(output_box, C_WHITE);
-	btn_t ibtn = {.r = dm_get_stage_ob_text_box(), 
+	SDL_Rect output_label = {.x = output_box.x,
+						 .y = output_box.y + output_box.h,
+						 .w = 0,
+						 .h = dm_get_h_code_text()};
+	btn_t ibtn = {.r = output_label,
 				  .t = output_text, 
 				  .enabled = true};
 	ibtn.r.w = ax_get_texture_w_fit_h(ibtn.r.h, output_text);

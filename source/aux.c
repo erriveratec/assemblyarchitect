@@ -311,7 +311,8 @@ char *ax_create_string_append_hex(char *s,  int n)
 
 	number = ax_number_to_hex_string_two_digits(n);
 	check_mem(number);
-	char *string = malloc(sizeof(char)*(strlen(s) + strlen(number)));
+	char *string = malloc(sizeof(char) *
+					  (strlen(s) + strlen(ax_char_space) + strlen(number) + 1));
 	check_mem(string);
 
 	strcpy(string, s);
@@ -627,23 +628,9 @@ char *ax_number_to_string_two_digits(int number)
  */
 char *ax_number_to_string_prepend_zero(int number)
 {
-	char *zero = ax_number_to_string(0);
-	char *c = NULL;
-	char *final_string = NULL;
-	if (0 == number){
-		c = malloc(sizeof(char)*2);
-		sprintf(c, "%d", number);
-		final_string = malloc(sizeof(char)*(strlen(c)+1));
-		strcpy(final_string, zero);
-		strcat(final_string, c);
-	} else {
-		c = malloc(sizeof(char)*(int)log10(number)+2);
-		sprintf(c, "%d", number);
-		final_string = malloc(sizeof(char)*(strlen(c)+1));
-		strcpy(final_string, zero);
-		strcat(final_string, c);
-	}
-	return final_string;
+	char *text = malloc(sizeof(char) * 3);
+	snprintf(text, 3, "%02d", number);
+	return text;
 }
 
 /* Function: number_to_string

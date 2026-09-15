@@ -355,7 +355,7 @@ void tx_set_and_allocate_msgs_array(int size)
 {
 	assert(size > 0 && "Negative size");
 	g_msgs_size = size;
-	g_msgs = malloc(sizeof(texture_array_t*)*size);
+	g_msgs = calloc(size, sizeof(texture_array_t*));
 }
 
 /* Function: tx_set_message_in_array
@@ -439,6 +439,8 @@ void tx_free_level_text_textures()
 	for (int i = 0; i < g_msgs_size; i++){
 		dw_free_texture_array(g_msgs[i]);
 	}
+	free(g_msgs);
+	g_msgs = NULL;
 	g_msgs_size = 0;
 }
 
