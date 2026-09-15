@@ -13,7 +13,7 @@
 
 static const Uint32 ARROW_H = 45;
 static const Uint32 ARROW_W = 45;
-static const Uint32 ARROW_MOVE_DELTA = 3;
+static const Uint32 ARROW_MOVE_DELTA = 2;
 
 texture_t *g_lv_arrow;
 texture_t *g_ib_arrow;
