@@ -1,223 +1,233 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
 #include <assert.h>
+#include <errno.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/stat.h>
 #include <unistd.h>
-#include "storage/save_sv.h"
 #include "aux.h"
-#include "dbg.h"
+#include "code_window_cw.h"
 #include "file_fl.h"
 #include "levels_lv.h"
+#include "storage/save_sv.h"
 
+#define SAVE_DIRECTORY "data/saves"
+#define SAVE_FORMAT_HEADER "# Assembly Architect save format v1\n"
+#define CODE_BEGIN "code_begin"
+#define CODE_END "code_end"
 
-#define READ_ERROR -1
-#define SAVE_FILE_PATH "data/save.dat"
-#define STR_PLAYER_ENDS "PLAYER ENDS"
-
-
-bool check_if_level_is_active(FILE *fp);
-bool check_if_save_file_exists();
-void fl_write_to_file(FILE *fp, char *string);
-
-
-
-
-
-/* Function: check_if_level_is_active
- *------------------------------------------------------------------------------
- * Determines if the active flag for a given level is true or false
- *
- * Arguments:
- *	fp: the file pointer of the level data
- *
- * Return:
- *	boolean: true if the level was active, false if otherwise.
- *
- */
-bool check_if_level_is_active(FILE *fp)
+static bool get_player_save_path(int player_id, char *path, size_t path_size)
 {
-	char *line = NULL;	
-	size_t len = 0;
-	ssize_t read;
+	char relative_path[64];
+	int written = snprintf(relative_path, sizeof(relative_path),
+			"%s/player_%02d.sav", SAVE_DIRECTORY, player_id);
+	if (written < 0 || (size_t)written >= sizeof(relative_path)) return false;
+	ax_get_resource_path(path, path_size, relative_path);
+	return true;
+}
 
-	char *saveptr1;
-	char *text;
-	bool level_is_active = false;
+static bool ensure_save_directory(void)
+{
+	char path[512];
+	ax_get_resource_path(path, sizeof(path), SAVE_DIRECTORY);
+	if (mkdir(path, 0755) == 0 || errno == EEXIST) return true;
+	perror("Could not create save directory");
+	return false;
+}
 
-	while ((read = getline(&line, &len, fp)) != READ_ERROR){
-		if (strstr(line, STR_LEVEL_ACTIVE_TRUE) != NULL){
-			level_is_active = true;
-			break;
-		} else if (strstr(line, STR_LEVEL_ACTIVE_FALSE) != NULL){
-			level_is_active = false;
-			break;
-		} 
+static bool write_default_save(int player_id)
+{
+	char path[512];
+	if (!get_player_save_path(player_id, path, sizeof(path))) return false;
+	FILE *file = fopen(path, "w");
+	if (file == NULL) {
+		perror("Could not create player save");
+		return false;
 	}
-	return level_is_active;
+
+	fprintf(file, "%s[player]\nid = %d\n\n", SAVE_FORMAT_HEADER, player_id);
+	for (int level_id = 0; level_id < LV_LEVEL_QUANTITY; level_id++) {
+		fprintf(file, "[level %02d]\nunlocked = %s\n%s\n", level_id,
+			level_id == 0 ? "true" : "false", CODE_BEGIN);
+		if (level_id == 1) {
+			fputs(FL_L1_CODE_1, file);
+			fputs(FL_L1_CODE_2, file);
+			fputs(FL_L1_CODE_3, file);
+		} else if (level_id == 8) {
+			fputs(FL_L8_CODE_1, file);
+			fputs(FL_L8_CODE_2, file);
+		}
+		fprintf(file, "%s\n\n", CODE_END);
+	}
+	if (fclose(file) != 0) {
+		perror("Could not finish player save");
+		return false;
+	}
+	return true;
 }
 
-
-
-
-/* Function: get_player_end_string
- *------------------------------------------------------------------------------
- * This function is called to generate a string that will be looked on to the 
- * file to know when a a player info is finished
- *
- * Arguments:
- *	player: The player id number.
- *
- * Return:
- *	char * to the created string.
- *
- */
-static char *get_player_end_string(int player_id)
+static bool replace_save_file(const char *temporary_path, const char *save_path)
 {
-	char *number = ax_number_to_string_prepend_zero(player_id);
-	check_mem(number);
-	char *id = malloc(sizeof(char) * (strlen(STR_PLAYER_ENDS) +
-					  strlen(ax_char_space) + strlen(number) + 1));
-	check_mem(id);
-
-	strcpy(id, STR_PLAYER_ENDS);
-	strcat(id, ax_char_space);
-	strcat(id, number);
-	free(number);
-
-error:
-	return id;
+	if (rename(temporary_path, save_path) == 0) return true;
+	perror("Could not replace player save");
+	remove(temporary_path);
+	return false;
 }
 
+void sv_save_init_default(void)
+{
+	if (!ensure_save_directory()) return;
+	for (int player_id = SV_ARCHITECT_EXECUTOR_X;
+		 player_id <= SV_ARCHITECT_HANDLER_Z; player_id++) {
+		char path[512];
+		if (!get_player_save_path(player_id, path, sizeof(path))) continue;
+		if (access(path, F_OK) != 0) write_default_save(player_id);
+	}
+}
 
-/* Function: sv_load_architect
- *------------------------------------------------------------------------------
- * Fills an array passed as argument with the list of levels available for the
- * player
- *
- * Arguments:
- *	levels_array: an boolean array with the state of the available levels
- *
- * Return:
- *	void.
- *
- */
 void sv_load_architect(int player_id, bool *levels_array)
 {
-	assert(player_id >= SV_ARCHITECT_EXECUTOR_X && 
-		   player_id <= SV_ARCHITECT_HANDLER_Z &&
-		   "Invalid player id");
-	assert(levels_array != NULL && "levels array pointer is NULL");
-
-	char *line = NULL;	
-	size_t len = 0;
-	ssize_t read;
-	char path[512];
-
-	ax_get_resource_path(path, sizeof(path), SAVE_FILE_PATH);
-	FILE *fp = fopen(path, "r");
-	check_mem(fp);
-	char *saveptr1;
-	char *text;
-
-	char *player = fl_get_player_id_string(player_id);
-	char *player_end = get_player_end_string(player_id);
-	bool player_found = false;
-	bool level_found = false;
-	
-	char *level = NULL;
-	int level_num = 0;
-	while (READ_ERROR != (read = getline(&line, &len, fp))){
-		level = fl_get_level_id_string(level_num);
-		if (strstr(line, player) != NULL){
-			player_found = true;
-		} else if (strstr(line, player_end) != NULL){
-			player_found = false;
-			break;
-		}
-		else if (strstr(line, level) != NULL && player_found == true){
-			bool is_level_active = check_if_level_is_active(fp);
-			levels_array[level_num] = is_level_active;
-			level_num++;
-		} 
+	assert(player_id >= SV_ARCHITECT_EXECUTOR_X &&
+		player_id <= SV_ARCHITECT_HANDLER_Z);
+	assert(levels_array != NULL);
+	for (int level_id = 0; level_id < LV_LEVEL_QUANTITY; level_id++) {
+		levels_array[level_id] = false;
 	}
 
-error:
-	free(level);	
-	free(player);	
-	fclose(fp);	
-	return;
+	char path[512];
+	if (!get_player_save_path(player_id, path, sizeof(path))) return;
+	FILE *file = fopen(path, "r");
+	if (file == NULL) return;
 
+	char line[512];
+	int level_id = -1;
+	while (fgets(line, sizeof(line), file) != NULL) {
+		if (sscanf(line, "[level %d]", &level_id) == 1) continue;
+		if (level_id >= 0 && level_id < LV_LEVEL_QUANTITY &&
+			strncmp(line, "unlocked = ", 11) == 0) {
+			levels_array[level_id] = strcmp(line + 11, "true\n") == 0;
+			level_id = -1;
+		}
+	}
+	fclose(file);
 }
 
-/* Function: check_if_save_file_exists
- *------------------------------------------------------------------------------
- * This function verifies if the save file for the game exists. 
- *
- * Arguments:
- *	None.
- *
- * Return:
- *	bool true if save file exists, false if otherwise.
- *
- */
-bool check_if_save_file_exists()
+void sv_load_level_code(int player_id, int level_id)
 {
 	char path[512];
-	ax_get_resource_path(path, sizeof(path), SAVE_FILE_PATH);
-	bool file_exists = (access(path, F_OK) == 0);
-	return file_exists;
-}
+	if (!get_player_save_path(player_id, path, sizeof(path))) return;
+	FILE *file = fopen(path, "r");
+	if (file == NULL) return;
 
-/* Function: fl_save_init_default
- *------------------------------------------------------------------------------
- * This function verifies if the save file for the game exists, if it doesn't 
- * exists it creates it and initializes it
- *
- * Arguments:
- *  None.
- *
- * Return:
- *	void.
- *
- */
-void sv_save_init_default()
-{
-	bool file_exists = check_if_save_file_exists();
-
-	if (file_exists == false){
-		char path[512];	
-		ax_get_resource_path(path, sizeof(path), SAVE_FILE_PATH);
-		FILE *fp = fopen(path, "w");
-		if (fp == NULL){
-			perror("Could not create save file");
-			return;
+	char line[512];
+	bool selected = false;
+	bool reading_code = false;
+	while (fgets(line, sizeof(line), file) != NULL) {
+		int found_level = -1;
+		if (sscanf(line, "[level %d]", &found_level) == 1) {
+			selected = found_level == level_id;
+			reading_code = false;
+			continue;
 		}
-
-		for (int j = 1; j <= SV_ARCHITECT_HANDLER_Z; j++){
-			fprintf(fp, "%s %02d\n\n", STR_PLAYER, j);
-			for (int i = 0; i < LV_LEVEL_QUANTITY; i++){
-				fprintf(fp, "%s %02d\n\n%s\n\n%s",
-						STR_LEVEL_STARTS, i,
-						i == 0 ? STR_LEVEL_ACTIVE_TRUE : STR_LEVEL_ACTIVE_FALSE,
-						STR_CODE_STARTS);
-				
-				if (i == 1){
-					fputs(FL_L1_CODE_1, fp);
-					fputs(FL_L1_CODE_2, fp);
-					fputs(FL_L1_CODE_3, fp);
-				} else if (i == 8){
-					fputs(FL_L8_CODE_1, fp);
-					fputs(FL_L8_CODE_2, fp);
-				} else {
-					fputc('\n', fp);
-				}
-				fprintf(fp, "%s\n\n%s %02d\n\n", STR_CODE_ENDS,
-						STR_LEVEL_ENDS, i);
-			}
-			fprintf(fp, "%s %02d\n\n", STR_PLAYER_ENDS, j);
+		if (!selected) continue;
+		if (strncmp(line, CODE_BEGIN, strlen(CODE_BEGIN)) == 0) {
+			reading_code = true;
+			continue;
 		}
-		fclose(fp);
+		if (strncmp(line, CODE_END, strlen(CODE_END)) == 0) break;
+		if (reading_code && line[0] != '\n') {
+			line[strcspn(line, "\n")] = '\0';
+			cw_add_saved_line(line);
+		}
 	}
-	return;
+	fclose(file);
+	cw_update_saved_jump_instructions();
 }
 
+void sv_save_level_code(int player_id, int level_id)
+{
+	char path[512];
+	char temporary_path[544];
+	if (!get_player_save_path(player_id, path, sizeof(path))) return;
+	snprintf(temporary_path, sizeof(temporary_path), "%s.tmp", path);
+	FILE *source = fopen(path, "r");
+	FILE *temporary = fopen(temporary_path, "w");
+	if (source == NULL || temporary == NULL) {
+		perror("Could not save player level");
+		if (source != NULL) fclose(source);
+		if (temporary != NULL) fclose(temporary);
+		return;
+	}
+
+	char line[512];
+	bool selected = false;
+	while (fgets(line, sizeof(line), source) != NULL) {
+		int found_level = -1;
+		if (sscanf(line, "[level %d]", &found_level) == 1) {
+			selected = found_level == level_id;
+			fputs(line, temporary);
+			continue;
+		}
+		if (!selected) {
+			fputs(line, temporary);
+			continue;
+		}
+		if (strncmp(line, "unlocked = ", 11) == 0) {
+			fputs("unlocked = true\n", temporary);
+			continue;
+		}
+		if (strncmp(line, CODE_BEGIN, strlen(CODE_BEGIN)) == 0) {
+			fputs(CODE_BEGIN "\n", temporary);
+			write_player_code_to_file(temporary);
+			while (fgets(line, sizeof(line), source) != NULL &&
+				strncmp(line, CODE_END, strlen(CODE_END)) != 0) {}
+			fputs(CODE_END "\n", temporary);
+			selected = false;
+			continue;
+		}
+		fputs(line, temporary);
+	}
+	fclose(source);
+	if (fclose(temporary) != 0) {
+		perror("Could not finish player save");
+		remove(temporary_path);
+		return;
+	}
+	replace_save_file(temporary_path, path);
+}
+
+void sv_unlock_level(int player_id, int level_id)
+{
+	char path[512];
+	char temporary_path[544];
+	if (!get_player_save_path(player_id, path, sizeof(path))) return;
+	snprintf(temporary_path, sizeof(temporary_path), "%s.tmp", path);
+	FILE *source = fopen(path, "r");
+	FILE *temporary = fopen(temporary_path, "w");
+	if (source == NULL || temporary == NULL) {
+		perror("Could not unlock player level");
+		if (source != NULL) fclose(source);
+		if (temporary != NULL) fclose(temporary);
+		return;
+	}
+
+	char line[512];
+	bool selected = false;
+	while (fgets(line, sizeof(line), source) != NULL) {
+		int found_level = -1;
+		if (sscanf(line, "[level %d]", &found_level) == 1) selected = found_level == level_id;
+		if (selected && strncmp(line, "unlocked = ", 11) == 0) {
+			fputs("unlocked = true\n", temporary);
+			selected = false;
+		} else {
+			fputs(line, temporary);
+		}
+	}
+	fclose(source);
+	if (fclose(temporary) != 0) {
+		perror("Could not finish player save");
+		remove(temporary_path);
+		return;
+	}
+	replace_save_file(temporary_path, path);
+}

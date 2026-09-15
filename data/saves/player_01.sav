@@ -1,0 +1,211 @@
+# Assembly Architect save format v1
+[player]
+id = 1
+
+[level 00]
+unlocked = true
+code_begin
+MOV rax, [ib]
+MOV [ob], rax
+code_end
+
+[level 01]
+unlocked = true
+code_begin
+MOV [ob], rax
+MOV rax, rax
+MOV rax, rax
+code_end
+
+[level 02]
+unlocked = false
+code_begin
+code_end
+
+[level 03]
+unlocked = false
+code_begin
+code_end
+
+[level 04]
+unlocked = false
+code_begin
+code_end
+
+[level 05]
+unlocked = false
+code_begin
+code_end
+
+[level 06]
+unlocked = false
+code_begin
+code_end
+
+[level 07]
+unlocked = false
+code_begin
+code_end
+
+[level 08]
+unlocked = false
+code_begin
+MOV rax, [ib]
+MOV [ob], rax
+code_end
+
+[level 09]
+unlocked = false
+code_begin
+code_end
+
+[level 10]
+unlocked = false
+code_begin
+code_end
+
+[level 11]
+unlocked = false
+code_begin
+code_end
+
+[level 12]
+unlocked = false
+code_begin
+code_end
+
+[level 13]
+unlocked = false
+code_begin
+code_end
+
+[level 14]
+unlocked = false
+code_begin
+code_end
+
+[level 15]
+unlocked = false
+code_begin
+code_end
+
+[level 16]
+unlocked = false
+code_begin
+code_end
+
+[level 17]
+unlocked = false
+code_begin
+code_end
+
+[level 18]
+unlocked = false
+code_begin
+code_end
+
+[level 19]
+unlocked = false
+code_begin
+code_end
+
+[level 20]
+unlocked = false
+code_begin
+code_end
+
+[level 21]
+unlocked = false
+code_begin
+code_end
+
+[level 22]
+unlocked = false
+code_begin
+code_end
+
+[level 23]
+unlocked = false
+code_begin
+code_end
+
+[level 24]
+unlocked = false
+code_begin
+code_end
+
+[level 25]
+unlocked = false
+code_begin
+code_end
+
+[level 26]
+unlocked = false
+code_begin
+code_end
+
+[level 27]
+unlocked = false
+code_begin
+code_end
+
+[level 28]
+unlocked = false
+code_begin
+code_end
+
+[level 29]
+unlocked = false
+code_begin
+code_end
+
+[level 30]
+unlocked = false
+code_begin
+code_end
+
+[level 31]
+unlocked = false
+code_begin
+code_end
+
+[level 32]
+unlocked = false
+code_begin
+code_end
+
+[level 33]
+unlocked = false
+code_begin
+code_end
+
+[level 34]
+unlocked = false
+code_begin
+code_end
+
+[level 35]
+unlocked = false
+code_begin
+code_end
+
+[level 36]
+unlocked = false
+code_begin
+code_end
+
+[level 37]
+unlocked = false
+code_begin
+code_end
+
+[level 38]
+unlocked = false
+code_begin
+code_end
+
+[level 39]
+unlocked = false
+code_begin
+code_end
+

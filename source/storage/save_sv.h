@@ -14,5 +14,8 @@ typedef enum architect_id_t {
 
 void sv_load_architect(int player_id, bool *levels_array);
 void sv_save_init_default();
+void sv_load_level_code(int player_id, int level_id);
+void sv_save_level_code(int player_id, int level_id);
+void sv_unlock_level(int player_id, int level_id);
 
 #endif

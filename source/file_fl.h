@@ -36,6 +36,7 @@ void fl_load_save_file(int player_id, int level_id);
 void fl_enable_next_level(int player_id, int level_id);
 void fl_load_level_msgs(int level_id);
 void fl_load_hover_level_msgs();
+void write_player_code_to_file(FILE *fp);
 
 
 void fl_write_to_file(FILE *fp, char *string);

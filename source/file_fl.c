@@ -14,6 +14,7 @@
 #include "levels_lv.h"
 #include "text_tx.h"
 #include "level_config.h"
+#include "storage/save_sv.h"
 
 #define READ_ERROR -1
 #define MSG_LENGTH 256
@@ -644,40 +645,7 @@ void fl_load_save_file(int player_id, int level_id)
 	assert(player_id >= FL_PLAYER_1 && player_id <= FL_PLAYER_3 &&
 		   "Invalid player id");
 	assert(level_id >= 0 && level_id < LV_LEVEL_MAX && "Invalid level id");
-
-	char *line = NULL;	
-	size_t len = 0;
-	ssize_t read;
-	char path[512];
-
-	ax_get_resource_path(path, sizeof(path), SAVE_FILE_PATH);
-	FILE *fp = fopen(path, "r");
-	check_mem(fp);
-	char *saveptr1;
-	char *text;
-
-	char *player = fl_get_player_id_string(player_id);
-	char *level = fl_get_level_id_string(level_id);
-	bool player_found = false;
-	bool level_found = false;
-
-	while (READ_ERROR != (read = getline(&line, &len, fp))){
-		if (strstr(line, player) != NULL){
-			player_found = true;
-		} else if (strstr(line, level) != NULL && player_found == true){
-			level_found = true;
-		} else if (strstr(line, STR_CODE_STARTS) != NULL && 
-			level_found == true){
-			parse_saved_code(fp);
-			break;
-		} 
-	}
-
-error:
-	free(level);	
-	free(player);	
-	fclose(fp);	
-	return;
+	sv_load_level_code(player_id, level_id);
 }
 
 
@@ -792,56 +760,7 @@ void fl_save_level(int player_id, int level_id)
 	assert(level_id >= 0 && level_id < LV_LEVEL_MAX && "Invalid level");
 	assert(player_id >= FL_PLAYER_1 && player_id <= FL_PLAYER_3 && 
 		   "player");
-
-	char pathsave[512];
-	char pathsavetmp[512];
-
-	ax_get_resource_path(pathsave, sizeof(pathsave), SAVE_FILE_PATH);
-	ax_get_resource_path(pathsavetmp, sizeof(pathsavetmp), SAVE_FILE_PATH_TEMP);
-	FILE *fp = fopen(pathsave, "r");
-	FILE *fptemp = fopen(pathsavetmp, "w");
-	check_mem(fp);
-	check_mem(fptemp);
-
-	char *line = NULL;	
-	size_t len = 0;
-	ssize_t read;
-
-	char *player = fl_get_player_id_string(player_id);
-	char *level_start = get_delimeter_level_string(STR_LEVEL_STARTS, level_id);
-	char *level_end = get_delimeter_level_string(STR_LEVEL_ENDS, level_id);
-	bool level_found = false;
-	bool player_found = false;
-
-	while (READ_ERROR != (read = getline(&line, &len, fp))){
-		fl_write_to_file(fptemp, line);
-	
-		if (strcmp(line, level_start) == STRING_EQUAL){
-			level_found = true;
-			fl_write_to_file(fptemp, ax_char_newline);
-			fl_write_to_file(fptemp, STR_LEVEL_ACTIVE_TRUE);
-			fl_write_to_file(fptemp, ax_char_newline);
-			while (READ_ERROR != (read = getline(&line, &len, fp))){
-				if (strcmp(line, STR_CODE_STARTS) == STRING_EQUAL){
-					fl_write_to_file(fptemp, STR_CODE_STARTS);
-					write_player_code_to_file(fptemp);
-				}
-				if (strcmp(line, STR_CODE_ENDS) == STRING_EQUAL){
-					fl_write_to_file(fptemp, STR_CODE_ENDS);
-					break;
-					
-				}
-			}
-		} 
-	}
-	free(level_start);
-	free(level_end);
-	fclose(fp);
-	fclose(fptemp);
-
-	copy_file(pathsave,pathsavetmp);
-	delete_file(pathsavetmp);
-	error:
+	sv_save_level_code(player_id, level_id);
 	return;
 }
 
@@ -865,50 +784,7 @@ void fl_enable_next_level(int player_id, int level_id)
 	assert(player_id >= FL_PLAYER_1 && player_id <= FL_PLAYER_3 && 
 		   "player");
 	
-	char pathsave[512];
-	char pathsavetmp[512];
-
-	ax_get_resource_path(pathsave, sizeof(pathsave), SAVE_FILE_PATH);
-	ax_get_resource_path(pathsavetmp, sizeof(pathsavetmp), SAVE_FILE_PATH_TEMP);
-	FILE *fp = fopen(pathsave, "r");
-	FILE *fptemp = fopen(pathsavetmp, "w");
-	check_mem(fp);
-	check_mem(fptemp);
-
-	char *line = NULL;	
-	size_t len = 0;
-	ssize_t read;
-
-	char *player = fl_get_player_id_string(player_id);
-	char *level_start = get_delimeter_level_string(STR_LEVEL_STARTS, level_id);
-	char *level_end = get_delimeter_level_string(STR_LEVEL_ENDS, level_id);
-	bool level_found = false;
-	bool player_found = false;
-
-	while (READ_ERROR != (read = getline(&line, &len, fp))){
-		fl_write_to_file(fptemp, line);
-	
-		if (strcmp(line, level_start) == STRING_EQUAL){
-			level_found = true;
-			fl_write_to_file(fptemp, ax_char_newline);
-			fl_write_to_file(fptemp, STR_LEVEL_ACTIVE_TRUE);
-			fl_write_to_file(fptemp, ax_char_newline);
-			while (READ_ERROR != (read = getline(&line, &len, fp))){
-				if (strcmp(line, STR_CODE_STARTS) == STRING_EQUAL){
-					fl_write_to_file(fptemp, STR_CODE_STARTS);
-					break;
-				}
-			}
-		}
-	} 
-	free(level_start);
-	free(level_end);
-	fclose(fp);
-	fclose(fptemp);
-
-	copy_file(pathsave,pathsavetmp);
-	delete_file(pathsavetmp);
-	error:
+	sv_unlock_level(player_id, level_id);
 	return;
 }
 
