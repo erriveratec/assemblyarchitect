@@ -274,6 +274,9 @@ void mc_display_operation_handler(int id)
 {
 	assert(id >= NO_OPERATION && id < OPERATION_MAX &&
 		   "Incorrect id for the invalid operation handler");
+	if (em_get_escape_state() == true){
+		return;
+	}
 	
 	static bool sound_played = false;
 	if (id != NO_OPERATION){
