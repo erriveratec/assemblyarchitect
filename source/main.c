@@ -70,7 +70,6 @@ int main(int argc, char *args[])
 	}
 	SDL_PixelFormat *format = g_screen->format;
 	SDL_GetWindowSize(g_window, &g_width, &g_height);
-	dm_set_screen_dimensions(g_width, g_height);
 
 	au_init_audio();
 
@@ -121,8 +120,6 @@ int main(int argc, char *args[])
 						if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){
 							g_width = event.window.data1;
 							g_height = event.window.data2;
-							dm_set_screen_dimensions(g_width, g_height);
-							sb_handle_screen_resize();
 						}
 						break;
 				case SDL_KEYDOWN:

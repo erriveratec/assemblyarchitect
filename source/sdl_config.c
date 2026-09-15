@@ -78,6 +78,12 @@ int init_sdl(int width, int height, int argc, char *args[])
 		SDL_DestroyWindow(g_window);
 		return -1;
 	}
+	if (SDL_RenderSetLogicalSize(g_renderer, width, height) != 0){
+		SDL_Log("RenderSetLogicalSize failed: %s", SDL_GetError());
+		SDL_DestroyRenderer(g_renderer);
+		SDL_DestroyWindow(g_window);
+		return FAIL;
+	}
 
 	if (g_window == NULL){
 		printf("Window could not be created! SDL_Error: %s\n", 
@@ -125,8 +131,6 @@ int toggle_fullscreen()
 	}
 
 	SDL_GetWindowSize(g_window, &g_width, &g_height);
-	dm_set_screen_dimensions(g_width, g_height);
-	sb_handle_screen_resize();
 	return SUCCESS;
 }
 
