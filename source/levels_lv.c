@@ -491,9 +491,6 @@ static void level_16()
  */
 static void level_15()
 {
-	
-	sb_set_step_btns_avail(true);
-	im_set_imm_up_avail(true);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 	draw_im_up_arrow(chk_display_imm_up_arrow());
@@ -519,9 +516,6 @@ static void level_15()
  */
 static void level_14()
 {
-	
-	sb_set_step_btns_avail(true);
-	im_set_imm_up_avail(true);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 	draw_im_up_arrow(chk_display_imm_up_arrow());
@@ -569,9 +563,6 @@ static void level_14()
  */
 static void level_13()
 {
-	
-	sb_set_step_btns_avail(true);
-	im_set_imm_up_avail(true);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 	draw_im_up_arrow(chk_display_imm_up_arrow());
@@ -629,9 +620,6 @@ static void level_13()
  */
 static void level_12()
 {
-	
-	sb_set_step_btns_avail(true);
-	im_set_imm_up_avail(true);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 	draw_im_up_arrow(chk_display_imm_up_arrow());
@@ -658,9 +646,6 @@ static void level_12()
  */
 static void level_11()
 {
-	
-	sb_set_step_btns_avail(true);
-	im_set_imm_up_avail(true);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 	draw_im_up_arrow(chk_display_imm_up_arrow());
@@ -686,9 +671,6 @@ static void level_11()
  */
 static void level_10()
 {
-	
-	sb_set_step_btns_avail(true);
-	im_set_imm_up_avail(true);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 	draw_im_up_arrow(chk_display_imm_up_arrow());
@@ -734,9 +716,6 @@ static void level_10()
  */
 static void level_9()
 {
-	
-	sb_set_step_btns_avail(true);
-	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 
@@ -762,9 +741,6 @@ static void level_9()
  */
 static void level_8()
 {
-	
-	sb_set_step_btns_avail(true);
-	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 	
@@ -815,9 +791,6 @@ static void level_8()
  */
 static void level_7()
 {
-	
-	sb_set_step_btns_avail(true);
-	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 
@@ -851,9 +824,6 @@ static void level_7()
  */
 static void level_6()
 {
-	
-	sb_set_step_btns_avail(true);
-	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 
@@ -887,9 +857,6 @@ static void level_6()
  */
 static void level_5()
 {
-	
-	sb_set_step_btns_avail(true);
-	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 
@@ -930,9 +897,6 @@ static void level_5()
  */
 static void level_4()
 {
-	
-	sb_set_step_btns_avail(true);
-	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 	bool miss_op = cw_is_operand_pending();
@@ -969,9 +933,6 @@ static void level_4()
  */
 static void level_3()
 {
-	
-	sb_set_step_btns_avail(false);
-	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 
@@ -1000,9 +961,6 @@ static void level_3()
  */
 static void level_2()
 {
-	
-	sb_set_step_btns_avail(false);
-	im_set_imm_up_avail(false);
 	draw_regs_arrow(check_display_reg_lv_arrow());
 	draw_bufs_arrow(check_display_buf_arrow());
 
@@ -1097,9 +1055,6 @@ static void level_2()
  */
 static void level_1()
 {
-	
-	sb_set_step_btns_avail(false);
-	im_set_imm_up_avail(false);
 	int size = cw_get_code_list_size();
 	bool hold = check_player_is_holding_line();
  	bool play = get_play_state();
@@ -1189,9 +1144,6 @@ static void level_1()
  */
 static void level_0()
 {
-	
-	sb_set_step_btns_avail(false);
-	im_set_imm_up_avail(false);
 	draw_regs_arrow(false);
 	int flag = mc_get_operation_flag();
 

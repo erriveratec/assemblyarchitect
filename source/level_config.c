@@ -12,6 +12,8 @@
 #include "level_config.h"
 #include "levels_lv.h"
 #include "registers_rg.h"
+#include "stage_buttons_sb.h"
+#include "immediates_im.h"
 
 #define LEVELS_CONFIG_PATH "data/levels.cfg"
 #define LINE_SIZE 512
@@ -32,6 +34,10 @@ typedef struct level_config_t {
 	int win_arg2;
 	int win_arg3;
 	bool win_flag;
+	bool step_controls_enabled;
+	bool immediates_visible;
+	bool step_controls_enabled_set;
+	bool immediates_visible_set;
 	bool win_arg1_set;
 	bool win_arg2_set;
 	bool win_arg3_set;
@@ -182,6 +188,8 @@ static void apply_level(int level_id, level_config_t *config)
 	add_registers(config->registers);
 	bf_set_input_properties(input);
 	bf_generate_input_list();
+	sb_set_step_btns_avail(config->step_controls_enabled);
+	im_set_imm_up_avail(config->immediates_visible);
 	lv_set_level_win_condition_text(win_condition);
 	lv_reset_level_win_condition();
 	rg_update_register_box_position();
@@ -227,6 +235,13 @@ int lc_load_level(int level_id)
 		else if (strcmp(key, "input.arg2") == 0) config.input_arg2 = atoi(value);
 		else if (strcmp(key, "input.arg3") == 0) config.input_arg3 = atoi(value);
 		else if (strcmp(key, "instruction_limit") == 0) config.instruction_limit = atoi(value);
+		else if (strcmp(key, "ui.step_controls_enabled") == 0) {
+			config.step_controls_enabled = parse_bool(value);
+			config.step_controls_enabled_set = true;
+		} else if (strcmp(key, "ui.immediates_visible") == 0) {
+			config.immediates_visible = parse_bool(value);
+			config.immediates_visible_set = true;
+		}
 		else if (strcmp(key, "win.type") == 0) snprintf(config.win_type, sizeof(config.win_type), "%s", value);
 		else if (strcmp(key, "win.repeat_1") == 0 ||
 				 strcmp(key, "win.group_size_1") == 0 ||
@@ -254,6 +269,11 @@ int lc_load_level(int level_id)
 	fclose(file);
 	if (!found || config.input_count <= 0 || config.instructions[0] == '\0' ||
 		config.registers[0] == '\0' || config.win_type[0] == '\0') return FAIL;
+	if (!config.step_controls_enabled_set || !config.immediates_visible_set) {
+		fprintf(stderr, "levels.cfg: level %d requires ui.step_controls_enabled and ui.immediates_visible\n",
+			level_id);
+		return FAIL;
+	}
 	if (!validate_win_condition(level_id, &config)) return FAIL;
 	apply_level(level_id, &config);
 	return SUCCESS;
