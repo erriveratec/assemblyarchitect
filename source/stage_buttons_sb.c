@@ -264,6 +264,13 @@ void adjust_stage_buttons_position(int code_size)
 
 void sb_handle_screen_resize()
 {
+	if (ret_btn != NULL){
+		ret_btn->r = get_return_button_box();
+	}
+	if (rst_btn != NULL){
+		rst_btn->r = get_rst_btn_box();
+	}
+
 	if (stop == NULL || fast == NULL || play == NULL || step == NULL){
 		return;
 	}

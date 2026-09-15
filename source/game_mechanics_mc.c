@@ -360,7 +360,13 @@ void mc_display_operation_handler(int id)
 				cont = bt_create_iface_btn(r2, cont_texture, true);
 			}
 			
-		} 
+		}
+		if (two_buttons == false){
+			back->r = dm_get_text_box_result_but3();
+		} else {
+			back->r = dm_get_text_box_result_but1();
+			cont->r = dm_get_text_box_result_but2();
+		}
 		bt_draw_iface_btn(back, em_get_escape_state(), g_sfx_iface_hover);
 		if (two_buttons == true){
 			bt_draw_iface_btn(cont, em_get_escape_state(), g_sfx_iface_hover);
