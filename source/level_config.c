@@ -15,7 +15,7 @@
 #include "stage_buttons_sb.h"
 #include "immediates_im.h"
 
-#define LEVELS_CONFIG_PATH "data/levels.cfg"
+#define LEVEL_CONFIG_PATH_FORMAT "data/levels/%02d/level.cfg"
 #define LINE_SIZE 512
 
 typedef struct level_config_t {
@@ -198,8 +198,11 @@ static void apply_level(int level_id, level_config_t *config)
 
 int lc_load_level(int level_id)
 {
+	char relative_path[64];
 	char path[512];
-	ax_get_resource_path(path, sizeof(path), LEVELS_CONFIG_PATH);
+	snprintf(relative_path, sizeof(relative_path), LEVEL_CONFIG_PATH_FORMAT,
+		 level_id);
+	ax_get_resource_path(path, sizeof(path), relative_path);
 	FILE *file = fopen(path, "r");
 	if (file == NULL) return FAIL;
 

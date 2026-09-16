@@ -22,7 +22,7 @@
 #define LEVELS_FILE_PATH "data/levels.dat"
 #define SAVE_FILE_PATH "data/save.dat"
 #define SAVE_FILE_PATH_TEMP "data/save.dattemp"
-#define MSGS_FILE_PATH "data/level_msgs.dat"
+#define TUTORIAL_PATH_FORMAT "data/levels/%02d/tutorial.cfg"
 #define HOVER_MSGS_FILE_PATH "data/hover_lvl_msgs.dat"
 
 // Text for the save file creation
@@ -71,7 +71,8 @@ void write_player_code_to_file(FILE *fp);
 static void parse_saved_code(FILE *fp);
 static char *create_string_with_number(char *s,  int n);
 static void parse_win_condition(FILE *fp);
-static void parse_message(FILE *fp, int msg_pos, int w, int h);
+static void parse_message(FILE *fp, int msg_pos, int w, int h,
+					  const char *end_marker);
 
 void fl_write_to_file(FILE *fp, char *string);
 static char *get_delimeter_level_string(const char *text, int level_id);
@@ -500,29 +501,26 @@ error:
  *	void.
  *
  */
-static void parse_message(FILE *fp, int msg_pos, int w, int h)
+static void parse_message(FILE *fp, int msg_pos, int w, int h,
+					  const char *end_marker)
 {
 	char *line = NULL;	
 	size_t len = 0;
 	ssize_t read;
-
-	char *saveptr1;
-	char *text;
 	char msg[MSG_LENGTH] = "";
 
 	int i = 0;
 	while ((read = getline(&line, &len, fp)) != READ_ERROR){
-		text =  strtok_r(line, ax_char_newline, &saveptr1);
-		
-		if (strstr(STR_MSG_END, line) != NULL){
+		if (strstr(line, end_marker) != NULL){
 			tx_set_message_in_array(msg_pos, msg, w, h);
 			break;
-		} else if (i != 0){
-			strcat(msg, ax_char_newline);
-		}  
-		strcat(msg, text);
+		}
+		line[strcspn(line, "\n")] = '\0';
+		if (i != 0) strcat(msg, ax_char_newline);
+		strcat(msg, line);
 		i++;
 	}
+	free(line);
 	return;
 }
 
@@ -563,7 +561,7 @@ void fl_load_hover_level_msgs()
 			tx_set_and_allocate_msgs_array(size);
 		} else if (strstr(line, STR_MSG) != NULL && found == true){
 			char *pos = strchr(line, CHAR_SPACE);
-			parse_message(fp, atoi(pos), w, h);
+			parse_message(fp, atoi(pos), w, h, STR_MSG_END);
 		} else if (strstr(line, HOVER_MSGS_ENDS) != NULL && found == true){
 			found= false;
 			break;
@@ -594,36 +592,42 @@ void fl_load_level_msgs(int level_id)
 	size_t len = 0;
 	ssize_t read;
 
+	char relative_path[64];
 	char path[512];
-	ax_get_resource_path(path, sizeof(path), MSGS_FILE_PATH);
+	snprintf(relative_path, sizeof(relative_path), TUTORIAL_PATH_FORMAT,
+			 level_id);
+	ax_get_resource_path(path, sizeof(path), relative_path);
 	FILE *fp = fopen(path, "r");
 	check_mem(fp);
-	char *saveptr1;
-	char *text;
-
-	char *level = fl_get_level_id_string(level_id);
-	bool level_found = false;
 
 	int h = dm_get_h_msg();
 	int w = dw_get_iface_content_box(tx_get_text_box_wh()).w;
+	int message_count = 0;
 
 	while (READ_ERROR != (read = getline(&line, &len, fp))){
-		if (strstr(line, level) != NULL){
-			level_found = true;
-		} else if (strstr(line, STR_MSG_QTY) != NULL && level_found == true){
-			char *qty = strchr(line, CHAR_SPACE);
-			int size = atoi(qty);
-			tx_set_and_allocate_msgs_array(size);
-		} else if (strstr(line, STR_MSG) != NULL && level_found == true){
-			char *pos = strchr(line, CHAR_SPACE);
-			parse_message(fp, atoi(pos), w, h);
-		} else if (strstr(line, STR_LEVEL_ENDS) != NULL && level_found == true){
-			level_found= false;
-			break;
+		if (strncmp(line, "[message ", 9) == 0){
+			message_count++;
+		}
+	}
+	if (message_count == 0){
+		fprintf(stderr, "tutorial.cfg: level %d has no messages\n", level_id);
+		goto error;
+	}
+	tx_set_and_allocate_msgs_array(message_count);
+	rewind(fp);
+
+	while (READ_ERROR != (read = getline(&line, &len, fp))){
+		int message_id = -1;
+		if (sscanf(line, "[message %d]", &message_id) == 1){
+			while (READ_ERROR != (read = getline(&line, &len, fp))){
+				if (strstr(line, "text_begin") != NULL){
+					parse_message(fp, message_id, w, h, "text_end");
+					break;
+				}
+			}
 		}
 	}
 error:
-	free(level);	
 	fclose(fp);	
 	return;
 }
