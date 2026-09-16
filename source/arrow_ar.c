@@ -434,9 +434,10 @@ static void initialize_step_arrow()
 {
 	SDL_Rect sb = sb_get_stage_btns();
 	SDL_Rect a = ar_get_arrow_wh();
+	SDL_Rect step_btn = sb_get_sb_rect(STEP);
 	g_arrow_step.box.w = a.w;	
 	g_arrow_step.box.h = a.h;
-	g_arrow_step.box.x = sb_get_sb_rect(STEP).x + a.w/2;
+	g_arrow_step.box.x = step_btn.x + (step_btn.w - a.w)/2;
 	g_arrow_step.box.y = sb.y - 2*a.h;
 	g_arrow_step.in_place = false;
 	g_arrow_step.visible = true;
@@ -461,9 +462,10 @@ static void initialize_fast_arrow()
 {
 	SDL_Rect sb = sb_get_stage_btns();
 	SDL_Rect a = ar_get_arrow_wh();
+	SDL_Rect fast_btn = sb_get_sb_rect(FAST);
 	g_arrow_fast.box.w = a.w;	
 	g_arrow_fast.box.h = a.h;
-	g_arrow_fast.box.x = sb_get_sb_rect(FAST).x + a.w/2;
+	g_arrow_fast.box.x = fast_btn.x + (fast_btn.w - a.w)/2;
 	g_arrow_fast.box.y = sb.y - 2*a.h;
 	g_arrow_fast.in_place = false;
 	g_arrow_fast.visible = true;
