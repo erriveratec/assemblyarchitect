@@ -605,7 +605,7 @@ void fl_load_level_msgs(int level_id)
 	int message_count = 0;
 
 	while (READ_ERROR != (read = getline(&line, &len, fp))){
-		if (strncmp(line, "[message ", 9) == 0){
+		if (line[0] == '[' && strncmp(line, "[tutorial]", 10) != 0){
 			message_count++;
 		}
 	}
@@ -618,9 +618,11 @@ void fl_load_level_msgs(int level_id)
 
 	while (READ_ERROR != (read = getline(&line, &len, fp))){
 		int message_id = -1;
-		if (sscanf(line, "[message %d]", &message_id) == 1){
+		if (line[0] == '[' && strncmp(line, "[tutorial]", 10) != 0){
 			while (READ_ERROR != (read = getline(&line, &len, fp))){
+				if (sscanf(line, "id = %d", &message_id) == 1) continue;
 				if (strstr(line, "text_begin") != NULL){
+					if (message_id < 0 || message_id >= message_count) break;
 					parse_message(fp, message_id, w, h, "text_end");
 					break;
 				}

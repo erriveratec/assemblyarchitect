@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <SDL_mixer.h>
 #include "game_mechanics_mc.h"
+#include "tutorial_tr.h"
 #include "aux.h"
 #include "ui/button_bt.h"
 #include "ui/reset_menu_rm.h"
@@ -122,6 +123,7 @@ void init_level(int level_id)
 	bf_reset_win_condition();
 
 	fl_load_level_msgs(level_id);
+	tr_load_level(level_id);
 	lv_create_win_list();
 	lv_init_level_assets(level_id);
 
@@ -519,6 +521,7 @@ static void reset_level(int level_id, level_flags_t *flags)
 	rg_reset_obox();
 	rg_reset_rflags();
 	mc_set_op_menu_btn_state(NO_BTN_PRESSED);
+	tr_load_level(level_id);
 }
 
 /* Function: get_sector_id

@@ -16,6 +16,7 @@
 #include "file_fl.h"
 #include "game_mechanics_mc.h"
 #include "mouse_ms.h"
+#include "tutorial_tr.h"
 
 
 //Strings for the win condition
@@ -498,11 +499,7 @@ static void level_15()
 
 	int size = cw_get_code_list_size();
 	 
-	 if (g_lv_msg[MSG0] == true && size == 0){
-		tx_text_box(TX_BIG_BOX, MSG0, TX_NONE); //Welcome msg
-		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG0, true);
-	} 
+	if (size == 0 && tr_is_active("welcome")) tr_render_step("welcome");
 }
 /* Function: level_14
  * -----------------------------------------------------------------------------
@@ -523,31 +520,11 @@ static void level_14()
 
 	int size = cw_get_code_list_size();
 	 
-	 if (g_lv_msg[MSG0] == true && size == 0){
-		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome msg
-		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG0, true);
-	} else if (g_lv_msg[MSG1] == true && size == 0){
-		tx_text_box(TX_CODE_BOX, MSG1, TX_SYSNOT);//New instruction jNE
-		tx_bottom_msg(TX_CODE_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_INS);
-		chk_ms_pressed_clear_msg(MSG1, true);
-	} else if (g_lv_msg[MSG2] == true && size == 0){
-		tx_text_box(TX_CENTER_RIGHT_BOX, MSG2, TX_INS);//CMP modifies ZF
-		tx_bottom_msg(TX_CENTER_RIGHT_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_ZF);
-		chk_ms_pressed_clear_msg(MSG2, true);
-	} else if (g_lv_msg[MSG3] == true && size == 0){
-		tx_text_box(TX_LOWER_BOX, MSG3, TX_INS);//Different operands 0 in ZF
-		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_ZF);
-		chk_ms_pressed_clear_msg(MSG3, true);
-	} else if (g_lv_msg[MSG4] == true && size == 0){
-		tx_text_box(TX_CENTER_RIGHT_BOX, MSG4, TX_INS);//Different equal 1 in ZF
-		tx_bottom_msg(TX_CENTER_RIGHT_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_ZF);
-		chk_ms_pressed_clear_msg(MSG4, true);
-	} 
+	if (size == 0 && tr_is_active("welcome")) tr_render_step("welcome");
+	else if (size == 0 && tr_is_active("introduce_jump_not_equal")) tr_render_step("introduce_jump_not_equal");
+	else if (size == 0 && tr_is_active("explain_jump_not_equal")) tr_render_step("explain_jump_not_equal");
+	else if (size == 0 && tr_is_active("explain_zero_flag_clear")) tr_render_step("explain_zero_flag_clear");
+	else if (size == 0 && tr_is_active("explain_zero_flag_set")) tr_render_step("explain_zero_flag_set");
 
 }
 
@@ -570,42 +547,13 @@ static void level_13()
 
 	int size = cw_get_code_list_size();
 	 
-	 if (g_lv_msg[MSG0] == true && size == 0){
-		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome msg
-		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG0, true);
-	} else if (g_lv_msg[MSG1] == true && size == 0){
-		tx_text_box(TX_UPPER_BOX, MSG1, TX_SYSNOT);//New instruction je and cmp
-		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_INS_MINUS);
-		ar_display_arrow(AR_INS);
-		chk_ms_pressed_clear_msg(MSG1, true);
-	} else if (g_lv_msg[MSG2] == true && size == 0){
-		tx_text_box(TX_CENTER_BOX, MSG2, TX_INS);//Explains CMP
-		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_INS_MINUS);
-		chk_ms_pressed_clear_msg(MSG2, true);
-	} else if (g_lv_msg[MSG3] == true && size == 0){
-		tx_text_box(TX_CENTER_RIGHT_BOX, MSG3, TX_INS);//CMP modifies ZF
-		tx_bottom_msg(TX_CENTER_RIGHT_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_ZF);
-		chk_ms_pressed_clear_msg(MSG3, true);
-	} else if (g_lv_msg[MSG4] == true && size == 0){
-		tx_text_box(TX_LOWER_BOX, MSG4, TX_INS);//Different operands 0 in ZF
-		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_ZF);
-		chk_ms_pressed_clear_msg(MSG4, true);
-	} else if (g_lv_msg[MSG5] == true && size == 0){
-		tx_text_box(TX_INS_BOX, MSG5, TX_INS);// How JE works
-		tx_bottom_msg(TX_INS_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_INS);
-		chk_ms_pressed_clear_msg(MSG5, true);
-	} else if (g_lv_msg[MSG6] == true && size == 0){
-		tx_text_box(TX_CENTER_BOX, MSG6, TX_INS);// How JE works
-		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_CHALLENGE);
-		chk_ms_pressed_clear_msg(MSG6, true);
-	} 
+	if (size == 0 && tr_is_active("welcome")) tr_render_step("welcome");
+	else if (size == 0 && tr_is_active("introduce_compare_and_equal")) tr_render_step("introduce_compare_and_equal");
+	else if (size == 0 && tr_is_active("explain_compare")) tr_render_step("explain_compare");
+	else if (size == 0 && tr_is_active("explain_zero_flag_set")) tr_render_step("explain_zero_flag_set");
+	else if (size == 0 && tr_is_active("explain_zero_flag_clear")) tr_render_step("explain_zero_flag_clear");
+	else if (size == 0 && tr_is_active("explain_jump_equal")) tr_render_step("explain_jump_equal");
+	else if (size == 0 && tr_is_active("complete_compare_branch_program")) tr_render_step("complete_compare_branch_program");
 }
 
 /* Function: level_12
@@ -627,11 +575,7 @@ static void level_12()
 
 	int size = cw_get_code_list_size();
 	 
-	 if (g_lv_msg[MSG0] == true && size == 0){
-		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome msg
-		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG0, true);
-	} 
+	if (size == 0 && tr_is_active("welcome")) tr_render_step("welcome");
 }
 
 /* Function: level_11
@@ -652,11 +596,7 @@ static void level_11()
 
 	int size = cw_get_code_list_size();
 
-	if (g_lv_msg[MSG0] == true && size == 0){
-		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome msg
-		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG0, true);
-	} 
+	if (size == 0 && tr_is_active("welcome")) tr_render_step("welcome");
 }
 
 /* Function: level_10
@@ -677,31 +617,11 @@ static void level_10()
 
 	int size = cw_get_code_list_size();
 
-	if (g_lv_msg[MSG0] == true && size == 0){
-		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome msg
-		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG0, true);
-	} else if (g_lv_msg[MSG1] == true && size == 0){
-		tx_text_box(TX_CENTER_BOX, MSG1, TX_SYSNOT); //New section on the screen
-		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_IMM_UP);
-		chk_ms_pressed_clear_msg(MSG1, true);
-	} else if (g_lv_msg[MSG2] == true && size == 0){
-		tx_text_box(TX_UPPER_RIGHT_BOX, MSG2, TX_SYSNOT); //Can select immediat
-		tx_bottom_msg(TX_UPPER_RIGHT_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_IMM_UP);
-		chk_ms_pressed_clear_msg(MSG2, true);
-	} else if (g_lv_msg[MSG3] == true && size == 0){
-		tx_text_box(TX_CENTER_BOX, MSG3, TX_INS); //Imm can only be read
-		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_IMM_UP);
-		chk_ms_pressed_clear_msg(MSG3, true);
-	} else if (g_lv_msg[MSG4] == true && size == 0){
-		tx_text_box(TX_UPPER_RIGHT_BOX, MSG4, TX_INS); //Imm can only be read
-		tx_bottom_msg(TX_UPPER_RIGHT_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_IMM_UP);
-		chk_ms_pressed_clear_msg(MSG4, true);
-	} 
+	if (size == 0 && tr_is_active("welcome")) tr_render_step("welcome");
+	else if (size == 0 && tr_is_active("introduce_immediates")) tr_render_step("introduce_immediates");
+	else if (size == 0 && tr_is_active("select_immediate")) tr_render_step("select_immediate");
+	else if (size == 0 && tr_is_active("explain_immediate_read_only")) tr_render_step("explain_immediate_read_only");
+	else if (size == 0 && tr_is_active("show_immediate_examples")) tr_render_step("show_immediate_examples");
 }
 
 /* Function: level_9
@@ -754,29 +674,12 @@ static void level_8()
 		label_pick = (hld_line->ins->id == LABEL) ? true : false;
 	}
 
-	if (g_lv_msg[MSG0] == true && code_size == 2){
-		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome msg
-		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG0, true);
-	} else if (g_lv_msg[MSG1] == true && code_size == 2){
-		tx_text_box(TX_UPPER_BOX, MSG1, TX_SYSWAR); //Read challenge description
-		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_CHALLENGE);
-		chk_ms_pressed_clear_msg(MSG1, true);
-	} else if (g_lv_msg[MSG2] == true && code_size == 2){
-		tx_text_box(TX_LOWER_BOX, MSG2, TX_INS);// New instruction
-		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_INS);
-		chk_ms_pressed_clear_msg(MSG2, true);
-	} else if (code_size == 2 && jmp_pick == false){
-		tx_text_box(TX_INS_BOX, MSG3, TX_INS);// Select and drag jmp
-		ar_display_arrow(AR_INS);
-	} else if (code_size == 2 && jmp_pick == true){
-		tx_text_box(TX_CODE_BOX, MSG4, TX_INS); // Drop jmp in the code box
-		ar_display_arrow(AR_DROP);
-	} else if (code_size == 4 && label_pick == true){
-		tx_text_box(TX_UPPER_BOX, MSG5, TX_INS); // Place Label in the first pos
-	} 
+	if (code_size == 2 && tr_is_active("welcome")) tr_render_step("welcome");
+	else if (code_size == 2 && tr_is_active("review_instruction_limit")) tr_render_step("review_instruction_limit");
+	else if (code_size == 2 && tr_is_active("introduce_jump")) tr_render_step("introduce_jump");
+	else if (code_size == 2 && !jmp_pick && tr_is_active("select_jump")) tr_render_step("select_jump");
+	else if (code_size == 2 && jmp_pick && tr_is_active("place_jump")) tr_render_step("place_jump");
+	else if (code_size == 4 && label_pick && tr_is_active("set_jump_destination")) tr_render_step("set_jump_destination");
 }
 
 /* Function: level_7
@@ -797,19 +700,9 @@ static void level_7()
 	int code_size = cw_get_code_list_size();
 	static bool msg_descrip2 = true;
 
-	if (g_lv_msg[MSG0] == true && code_size == 0){
-		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES);//Welcome
-		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG0, true);
-	} else if (g_lv_msg[MSG1] == true && code_size == 0){
-		tx_text_box(TX_UPPER_BOX, MSG1, TX_SYSNOT);//Can use register as operands
-		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG1, true);
-	} else if (g_lv_msg[MSG2] == true && code_size == 0){
-		tx_text_box(TX_LOWER_BOX, MSG2, TX_INS);//Usage example
-		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG2, true);
-	}
+	if (code_size == 0 && tr_is_active("welcome")) tr_render_step("welcome");
+	else if (code_size == 0 && tr_is_active("introduce_same_register_operands")) tr_render_step("introduce_same_register_operands");
+	else if (code_size == 0 && tr_is_active("show_double_register_example")) tr_render_step("show_double_register_example");
 }
 
 /* Function: level_6
@@ -829,20 +722,9 @@ static void level_6()
 
 	int code_size = cw_get_code_list_size();
 
-	if (g_lv_msg[MSG0] == true && code_size == 0){
-		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES);//Welcome
-		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG0, true);
-	} else if (g_lv_msg[MSG1] == true && code_size == 0){
-		tx_text_box(TX_UPPER_BOX, MSG1, TX_SYSNOT);//operands be same register
-		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG1, true);
-	} else if (g_lv_msg[MSG2] == true && code_size == 0){
-		tx_text_box(TX_LOWER_BOX, MSG2, TX_INS);//Example of usage
-		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG2, true);
-	} 
-
+	if (code_size == 0 && tr_is_active("welcome")) tr_render_step("welcome");
+	else if (code_size == 0 && tr_is_active("introduce_register_operands")) tr_render_step("introduce_register_operands");
+	else if (code_size == 0 && tr_is_active("show_register_copy_example")) tr_render_step("show_register_copy_example");
 }
 
 /* Function: level_5
@@ -863,26 +745,10 @@ static void level_5()
 	bool hold = check_player_is_holding_line();
 	int code_size = cw_get_code_list_size();
 
-	if (g_lv_msg[MSG0] == true && code_size == 0){
-		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES);//Welcome 
-		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG0, true);
-	} else if (g_lv_msg[MSG1] == true && code_size == 0){
-		tx_text_box(TX_UPPER_BOX, MSG1, TX_SYSNOT);//New instruction add
-		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_INS);
-		chk_ms_pressed_clear_msg(MSG1, true);
-	} else if (g_lv_msg[MSG2] == true && code_size == 0){
-		tx_text_box(TX_LOWER_BOX, MSG2, TX_INS); //Usage
-		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_INS);
-		chk_ms_pressed_clear_msg(MSG2, true);
-	} else if (g_lv_msg[MSG3] == true && code_size == 0 && hold == false){
-		tx_text_box(TX_INS_BOX, MSG3, TX_SYSNOT); //Solve using add and mov
-		tx_bottom_msg(TX_INS_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG3, true);
-		//ar_display_arrow(AR_INS);
-	} 
+	if (code_size == 0 && tr_is_active("welcome")) tr_render_step("welcome");
+	else if (code_size == 0 && tr_is_active("introduce_add")) tr_render_step("introduce_add");
+	else if (code_size == 0 && tr_is_active("explain_add_syntax")) tr_render_step("explain_add_syntax");
+	else if (code_size == 0 && hold == false && tr_is_active("build_add_program")) tr_render_step("build_add_program");
 }
 
 /* Function: level_4
@@ -903,21 +769,11 @@ static void level_4()
 
 	int size = cw_get_code_list_size();
 
-	if (g_lv_msg[MSG0] && size == 0){
-		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome
-		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG0, true);
-	} else if (g_lv_msg[MSG1] == true && size == 0){
-		tx_text_box(TX_UPPER_BOX, MSG1, TX_SYSNOT); //More registers available
-		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_REG);
-		chk_ms_pressed_clear_msg(MSG1, true);
-	} else if (size == 1 && miss_op == false && g_lv_msg[MSG2] == true ){
-		tx_text_box(TX_CENTER_BOX, MSG2, TX_SYSNOT); // step-step
-		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_STEP);
+	if (size == 0 && tr_is_active("welcome")) tr_render_step("welcome");
+	else if (size == 0 && tr_is_active("introduce_registers")) tr_render_step("introduce_registers");
+	else if (size == 1 && miss_op == false && tr_is_active("introduce_execution_controls")) tr_render_step("introduce_execution_controls");
+	if (size == 1 && miss_op == false && tr_is_active("introduce_execution_controls")) {
 		ar_display_arrow(AR_FAST);
-		chk_ms_pressed_clear_msg(MSG2, true);
 	} 
 }
 
@@ -938,15 +794,8 @@ static void level_3()
 
 	int code_size = cw_get_code_list_size();
 
-	if (g_lv_msg[MSG0] == true && code_size == 0){
-		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome
-		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG0, true);
-	} else if (g_lv_msg[MSG1] == true && code_size == 0){
-		tx_text_box(TX_UPPER_BOX, MSG1, TX_INS);//Solve the challenge 
-		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG1, true);
-	}
+	if (code_size == 0 && tr_is_active("welcome")) tr_render_step("welcome");
+	else if (code_size == 0 && tr_is_active("complete_execution")) tr_render_step("complete_execution");
 }
 
 /* Function: level_2

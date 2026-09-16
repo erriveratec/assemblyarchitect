@@ -87,10 +87,16 @@ code_end
 [level 09]
 unlocked = true
 code_begin
+line 01
+MOV rax, [ib]
+ADD rax, [ib]
+ADD rax, [ib]
+MOV [ob], rax
+JMP 00
 code_end
 
 [level 10]
-unlocked = false
+unlocked = true
 code_begin
 code_end
 
