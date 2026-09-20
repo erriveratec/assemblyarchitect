@@ -18,16 +18,78 @@
 
 #define WIN_CONDITION_LENGTH 30
 
+typedef enum wc_insert_position_t {
+    WC_INSERT_BACK = 0,
+    WC_INSERT_FRONT
+} wc_insert_position_t;
+
 static List *g_expected_output = NULL;
 
-static bool wc_add_expected_value(int value, int type);
-static void win1_move_input_to_output(int rep, int mul,int sum, bool reversed);
-static void win2_add_inputs_in_groups(int grp_size, bool between, int in_val);
-static void win3_move_input_to_output_stop(bool target, int tval, int stop);
-static void win4_count_values_till_stop(int element, int stop);
-static void win5_move_input_to_output_add_dec_ofs(int dec);
+
+static bool wc_add_expected_value(
+    int value,
+    int type,
+    wc_insert_position_t position
+);
+
+//static bool wc_add_expected_value(int value, int type);
+static bool wc_build_transformed_copy(
+    int repetitions,
+    int multiplier,
+    int offset,
+    bool reverse
+);
+
+static bool wc_build_group_sums(
+    int group_size,
+    bool insert_between,
+    int separator_value
+);
+static bool wc_build_until_stop(
+    bool filter_enabled,
+    int target_value,
+    int stop_value
+);
+static bool wc_build_count_until_stop(
+    int target_value,
+    int stop_value
+);
+
+static bool wc_build_decreasing_offset(int initial_offset);
 static void set_win_condition(char *win_condition);
 static char level_win_condition[WIN_CONDITION_LENGTH];
+
+
+
+/* Adds one value to the expected output. */
+static bool wc_add_expected_value(
+    int value,
+    int type,
+    wc_insert_position_t position
+)
+{
+    assert(g_expected_output != NULL &&
+           "Expected-output list is NULL");
+
+    value_box_t *expected = malloc(sizeof(*expected));
+
+    if (expected == NULL) {
+        return false;
+    }
+
+    expected->value = value;
+    expected->type = type;
+
+    if (position == WC_INSERT_FRONT) {
+        List_unshift(g_expected_output, expected);
+    } else {
+        List_push(g_expected_output, expected);
+    }
+
+    return true;
+}
+
+
 
 /* Function: lv_reset_win_condition
  * -----------------------------------------------------------------------------
@@ -64,8 +126,8 @@ void lv_set_level_win_condition_text(char *win_condition)
  * This function creates the win condition according to what is in the levels
  * file
  * Nomeclature of the win conditions
- * WIN1: win1_move_input_to_output(rep, mul, rev) 
- * WIN2: win2_add_inputs_in_groups(group_size)
+ * WIN1: wc_build_transfromed_copy(rep, mul, rev) 
+ * WIN2: wx_build_group_sums(group_size)
  *
  * Arguments:
  * 	text: The text with the description of the win condition.
@@ -97,7 +159,7 @@ static void set_win_condition(char *win_condition)
 		} else if (strstr(reversed, "false") != NULL){
 			rev = false;
 		}
-		win1_move_input_to_output(rep, mul, sum, rev);
+		wc_build_transformed_copy(rep, mul, sum, rev);
 	} else if (strstr(win_cond, STR_WIN2) != NULL){
 		char *group_size_text = strtok_r(NULL, delim, &saveptr1);
 		int group_size = atoi(group_size_text);
@@ -110,7 +172,7 @@ static void set_win_condition(char *win_condition)
 		}
 		char *in_val_text = strtok_r(NULL, delim, &saveptr1);
 		int in_val = atoi(in_val_text);
-		win2_add_inputs_in_groups(group_size, between, in_val);
+		wc_build_group_sums(group_size, between, in_val);
 	} else if (strstr(win_cond, STR_WIN3) != NULL){
 		char *target_text = strtok_r(NULL, delim, &saveptr1);
 		int target = atoi(target_text);
@@ -118,17 +180,17 @@ static void set_win_condition(char *win_condition)
 		int tval = atoi(tval_text);
 		char *stop_text = strtok_r(NULL, delim, &saveptr1);
 		int stop = atoi(stop_text);
-		win3_move_input_to_output_stop(target, tval, stop);
+		wc_build_until_stop(target, tval, stop);
 	} else if (strstr(win_cond, STR_WIN4) != NULL){
 		char *element_text = strtok_r(NULL, delim, &saveptr1);
 		int element = atoi(element_text);
 		char *stop_text = strtok_r(NULL, delim, &saveptr1);
 		int stop = atoi(stop_text);
-		win4_count_values_till_stop(element, stop);
+		wc_build_count_until_stop(element, stop);
 	} else if (strstr(win_cond, STR_WIN5) != NULL){
 		char *dec_text = strtok_r(NULL, delim, &saveptr1);
 		int dec = atoi(dec_text);
-		win5_move_input_to_output_add_dec_ofs(dec);
+		wc_build_decreasing_offset(dec);
 	}
 
 	return;
@@ -182,220 +244,314 @@ bool lv_chk_correct_output()
 	return true;
 }
 
-/* Function: win1_move_input_to_output
- *------------------------------------------------------------------------------
- * Generates a win condition that is achieved by moving the elements from the
- * input buffer to the output buffer in order. Can apply repetitions and 
- * transformations to the output list if needed as its implementation is easy.
+/*
+ * Builds an expected output by transforming and copying every
+ * value from the input buffer.
  *
- * Arguments:
- *	rep: number of times a element of the IB will be copied to the OB.
- *  mul: multiplication transformation to the output buffer.
- *	sum: value that will be added to the output
- *  reversed: if the order of the inputs is reversed
+ * Each input value is transformed as:
  *
- * Return:
- *	Void.
+ *     multiplier * input_value + offset
+ *
+ * The transformed value is inserted `repetitions` times.
+ * When `reverse` is true, the resulting sequence is reversed.
+ *
+ * Returns true on success and false on allocation failure.
  */
-static void win1_move_input_to_output(int rep, int mul, int sum, bool rev)
+static bool wc_build_transformed_copy(
+    int repetitions,
+    int multiplier,
+    int offset,
+    bool reverse
+)
 {
-	List *input_list = get_input_list();
-	List *win_list = wc_get_expected_output();
+    List *input = get_input_list();
 
-	assert(rep > 0 && "The number of repetitions is less than 1");
-	assert(mul > 0 && "The mul factor es less than 1");
-	assert(input_list != NULL && "Input list pointer is NULL");
-	assert(win_list != NULL && "Win list pointer is NULL");
+    assert(repetitions > 0 &&
+           "Repetition count must be greater than zero");
 
-	int input_list_size = List_count(input_list);
-	int win_list_size = List_count(win_list);
+    assert(multiplier > 0 &&
+           "Multiplier must be greater than zero");
 
-	assert(input_list_size > 0 && "The size of the input list is incorrect");
-	assert(win_list_size == 0 && "The win list has elements");
+    assert(input != NULL &&
+           "Input list is NULL");
 
-	LIST_FOREACH(input_list, first, next, cur){
-		value_box_t *cur_input = cur->value;
-		value_box_t *new_win; 
-		for (int i = 0; i < rep; i++){
-			new_win = malloc(sizeof(value_box_t));
-			new_win->value = mul*cur_input->value + sum;
-			new_win->type = cur_input->type;
-			if (rev == false){
-				List_push(win_list, new_win);
-			} else if (rev == true){
-				List_unshift(win_list, new_win);
-			}
-		}
-	}
+    assert(g_expected_output != NULL &&
+           "Expected-output list is NULL");
+
+    assert(List_count(input) > 0 &&
+           "Input list is empty");
+
+    assert(List_count(g_expected_output) == 0 &&
+           "Expected-output list is not empty");
+
+    wc_insert_position_t position = reverse
+        ? WC_INSERT_FRONT
+        : WC_INSERT_BACK;
+
+    LIST_FOREACH(input, first, next, node) {
+        const value_box_t *input_value = node->value;
+
+        assert(input_value != NULL &&
+               "Input value is NULL");
+
+        int transformed_value =
+            multiplier * input_value->value + offset;
+
+        for (int i = 0; i < repetitions; ++i) {
+            bool added = wc_add_expected_value(
+                transformed_value,
+                input_value->type,
+                position
+            );
+
+            if (!added) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+/*
+ * Builds the expected output from input values encountered before
+ * the stop value.
+ *
+ * When filter_enabled is true, only values matching target_value
+ * are copied. The stop value itself is not copied.
+ *
+ * Returns true on success and false on allocation failure.
+ */
+static bool wc_build_until_stop(
+    bool filter_enabled,
+    int target_value,
+    int stop_value
+)
+{
+    List *input = get_input_list();
+
+    assert(input != NULL &&
+           "Input list is NULL");
+
+    assert(g_expected_output != NULL &&
+           "Expected-output list is NULL");
+
+    assert(List_count(input) > 0 &&
+           "Input list is empty");
+
+    assert(List_count(g_expected_output) == 0 &&
+           "Expected-output list is not empty");
+
+    LIST_FOREACH(input, first, next, node) {
+        const value_box_t *input_value = node->value;
+
+        assert(input_value != NULL &&
+               "Input value is NULL");
+
+        if (input_value->value == stop_value) {
+            break;
+        }
+
+        if (filter_enabled &&
+            input_value->value != target_value) {
+            continue;
+        }
+
+        if (!wc_add_expected_value(
+                input_value->value,
+                input_value->type,
+                WC_INSERT_BACK)) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
-/* Function: win3_move_input_to_output_stop
- *------------------------------------------------------------------------------
- * Generates a win condition that is achieved by moving the elements from the
- * input buffer to the output buffer up to a stop element
+/*
+ * Counts occurrences of target_value before stop_value is reached,
+ * then adds the count to the expected output.
  *
- * Arguments:
- *  target: if activated, only specific values should be move the OB
- * 	target_val: 
- *	stop: stop element that will be used to stop the movement
+ * The expected value inherits the type of the stop element.
  *
- * Return:
- *	Void.
+ * Returns false if allocation fails or stop_value is not found.
  */
-static void win3_move_input_to_output_stop(bool target, int tval, int stop)
+static bool wc_build_count_until_stop(
+    int target_value,
+    int stop_value
+)
 {
-	List *input_list = get_input_list();
-	List *win_list = wc_get_expected_output();
+    List *input = get_input_list();
 
-	int input_list_size = List_count(input_list);
-	int win_list_size = List_count(win_list);
+    assert(input != NULL &&
+           "Input list is NULL");
 
-	assert(input_list_size > 0 && "The size of the input list is incorrect");
-	assert(win_list_size == 0 && "The win list has elements");
+    assert(g_expected_output != NULL &&
+           "Expected-output list is NULL");
 
-	LIST_FOREACH(input_list, first, next, cur){
-		value_box_t *cur_input = cur->value;
-		value_box_t *new_win; 
-		if (cur_input->value == stop){
-			break;
-		} else if (target == true && cur_input->value == tval){
-			new_win = malloc(sizeof(value_box_t));
-			new_win->value = cur_input->value;
-			new_win->type = cur_input->type;
-			List_push(win_list, new_win);
-		} else if (target == false){
-			new_win = malloc(sizeof(value_box_t));
-			new_win->value = cur_input->value;
-			new_win->type = cur_input->type;
-			List_push(win_list, new_win);
-		} 
-	}
+    assert(List_count(input) > 0 &&
+           "Input list is empty");
+
+    assert(List_count(g_expected_output) == 0 &&
+           "Expected-output list is not empty");
+
+    int count = 0;
+
+    LIST_FOREACH(input, first, next, node) {
+        const value_box_t *input_value = node->value;
+
+        assert(input_value != NULL &&
+               "Input value is NULL");
+
+        /*
+         * Stop takes precedence if target_value and stop_value
+         * happen to contain the same value.
+         */
+        if (input_value->value == stop_value) {
+            return wc_add_expected_value(
+                count,
+                input_value->type,
+                WC_INSERT_BACK
+            );
+        }
+
+        if (input_value->value == target_value) {
+            ++count;
+        }
+    }
+
+    /*
+     * The input ended without the required stop value.
+     */
+    return false;
 }
 
-/* Function: win4_count_values_till_stop
- *------------------------------------------------------------------------------
- * Generates a win condition that is achieved by counting the number of 
- * appearances of an element until a stop  condition
+/*
+ * Builds the expected output by adding a decreasing offset
+ * to each input value.
  *
- * Arguments:
- *	element: element that will be counted
- *	stop: stop element that will be used to stop the movement
+ * The first value receives initial_offset, and the offset
+ * decreases by one for every following value.
  *
- * Return:
- *	Void.
+ * Returns true on success and false on allocation failure.
  */
-static void win4_count_values_till_stop(int element, int stop)
+static bool wc_build_decreasing_offset(int initial_offset)
 {
-	List *input_list = get_input_list();
-	List *win_list = wc_get_expected_output();
+    List *input = get_input_list();
 
-	int input_list_size = List_count(input_list);
-	int win_list_size = List_count(win_list);
+    assert(input != NULL &&
+           "Input list is NULL");
 
-	assert(input_list_size > 0 && "The size of the input list is incorrect");
-	assert(win_list_size == 0 && "The win list has elements");
+    assert(g_expected_output != NULL &&
+           "Expected-output list is NULL");
 
-	value_box_t *new_win = malloc(sizeof(value_box_t));
-	LIST_FOREACH(input_list, first, next, cur){
-		value_box_t *cur_input = cur->value;
-		if (cur_input->value == element){
-			new_win->value++;
-		} else if (cur_input->value == stop){
-			new_win->type = cur_input->type;
-			List_push(win_list, new_win);
-			break;
-		}
-	}
+    assert(List_count(input) > 0 &&
+           "Input list is empty");
+
+    assert(List_count(g_expected_output) == 0 &&
+           "Expected-output list is not empty");
+
+    int offset = initial_offset;
+
+    LIST_FOREACH(input, first, next, node) {
+        const value_box_t *input_value = node->value;
+
+        assert(input_value != NULL &&
+               "Input value is NULL");
+
+        int expected_value =
+            input_value->value + offset;
+
+        if (!wc_add_expected_value(
+                expected_value,
+                input_value->type,
+                WC_INSERT_BACK)) {
+            return false;
+        }
+
+        --offset;
+    }
+
+    return true;
 }
 
-/* Function: win5_move_input_to_output_add_dec_ofs
- *------------------------------------------------------------------------------
- * Generates a win condition that is generating moving the inputs to the outputs
- * and adding a decreasing offset
+/*
+ * Builds the expected output by adding input values in fixed-size groups.
  *
- * Arguments:
- *	dec: starting point of the dreceasing offset
+ * When insert_between is true, separator_value is inserted between
+ * consecutive group sums.
  *
- * Return:
- *	Void.
+ * Returns true on success and false on allocation failure.
  */
-static void win5_move_input_to_output_add_dec_ofs(int dec)
+static bool wc_build_group_sums(
+    int group_size,
+    bool insert_between,
+    int separator_value
+)
 {
-	List *input_list = get_input_list();
-	List *win_list = wc_get_expected_output();
+    List *input = get_input_list();
 
-	int input_list_size = List_count(input_list);
-	int win_list_size = List_count(win_list);
+    assert(group_size > 0 &&
+           "Group size must be greater than zero");
 
-	assert(input_list_size > 0 && "The size of the input list is incorrect");
-	assert(win_list_size == 0 && "The win list has elements");
+    assert(input != NULL &&
+           "Input list is NULL");
 
-	LIST_FOREACH(input_list, first, next, cur){
-		value_box_t *cur_input = cur->value;
-		value_box_t *new_win; 
-		new_win = malloc(sizeof(value_box_t));
-		new_win->value = cur_input->value + dec;
-		new_win->type = cur_input->type;
-		List_push(win_list, new_win);
-		dec--;
-	}
-}
+    assert(g_expected_output != NULL &&
+           "Expected-output list is NULL");
 
-/* Function: win2_add_inputs_in_groups
- *------------------------------------------------------------------------------
- * The solution of the challenge will be achieved is the player adds the inputs
- * in groups
- *
- * Arguments:
- *	grp_size: The size of the input group tha will be added
- *  between: If active the function inserts a value between each output
- *	in_value: Value that will be inserted between each output
- *
- * Return:
- *	Void.
- */
-static void win2_add_inputs_in_groups(int grp_size, bool between, int in_val)
-{
-	List *input_list = get_input_list();
-	List *win_list = wc_get_expected_output();
+    int input_count = List_count(input);
 
-	assert(input_list != NULL && "Input list pointer is NULL");
-	assert(win_list != NULL && "Win list pointer is NULL");
+    assert(input_count > 0 &&
+           "Input list is empty");
 
-	int input_list_size = List_count(input_list);
-	assert(input_list_size % grp_size == 0 && 
-					"The input size must be a multiple of group size");
-	
-	int win_list_size = List_count(win_list);
-	assert(input_list_size > 0 && "The size of the input list is incorrect");
-	assert(win_list_size == 0 && "The win list has elements");
+    assert(input_count % group_size == 0 &&
+           "Input size must be a multiple of group size");
 
-	int res = 1;
-	int array_index = 0;
-	int *values = malloc(sizeof(int)*input_list_size);
-			
-	LIST_FOREACH(input_list, first, next, cur){
-		value_box_t *cur_input = cur->value;
-		values[array_index] = cur_input->value;
-		if (res % grp_size == 0){
-			value_box_t *new_win = malloc(sizeof(value_box_t));
-			int val = 0;
-			for (int i = 0; i < grp_size; i++){
-				val += values[array_index - i];
-			}
-			new_win->value = val;
-			new_win->type = cur_input->type;
-			List_push(win_list, new_win);
-			if (between == true && array_index != (input_list_size - 1)){
-				value_box_t *inserted = malloc(sizeof(value_box_t));
-				inserted->value = in_val;
-				inserted->type = cur_input->type;
-				List_push(win_list, inserted);
-			}
-		}
-		res++;
-		array_index++;
-	}
+    assert(List_count(g_expected_output) == 0 &&
+           "Expected-output list is not empty");
+
+    int group_sum = 0;
+    int value_index = 0;
+
+    LIST_FOREACH(input, first, next, node) {
+        const value_box_t *input_value = node->value;
+
+        assert(input_value != NULL &&
+               "Input value is NULL");
+
+        group_sum += input_value->value;
+        ++value_index;
+
+        bool group_complete =
+            value_index % group_size == 0;
+
+        if (!group_complete) {
+            continue;
+        }
+
+        if (!wc_add_expected_value(
+                group_sum,
+                input_value->type,
+                WC_INSERT_BACK)) {
+            return false;
+        }
+
+        bool more_groups_remain =
+            value_index < input_count;
+
+        if (insert_between && more_groups_remain) {
+            if (!wc_add_expected_value(
+                    separator_value,
+                    input_value->type,
+                    WC_INSERT_BACK)) {
+                return false;
+            }
+        }
+
+        group_sum = 0;
+    }
+
+    return true;
 }
 
 /* Prints the expected output for debugging. */
@@ -481,7 +637,7 @@ int wc_get_expected_output_size(void)
 }
 
 
-/* Adds one value to the expected output. */
+/* Adds one value to the expected output. 
 static bool wc_add_expected_value(int value, int type)
 {
     assert(g_expected_output != NULL &&
@@ -497,7 +653,7 @@ static bool wc_add_expected_value(int value, int type)
 
     List_push(g_expected_output, expected);
     return true;
-}
+}*/
 
 
 
