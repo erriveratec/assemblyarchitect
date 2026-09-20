@@ -171,7 +171,7 @@ int get_input_buffer_list_size()
 */
 int get_output_buffer_list_size()
 {
-	List *list = get_output_list();
+	List *list = bf_get_output_list();
 	return List_count(list);
 }
 /* Function: bf_ms_rel_in_buf
@@ -345,7 +345,7 @@ List *get_input_list()
 	return input_list;
 }
 
-/* Function: get_output_list
+/* Function: bf_get_output_list
  *------------------------------------------------------------------------------
  * Arguments:
  *	None.
@@ -353,7 +353,7 @@ List *get_input_list()
  * Return:
  *	Pointer to input list.
  */
-List *get_output_list()
+List *bf_get_output_list()
 {
 	return output_list;
 }
@@ -369,7 +369,7 @@ List *get_output_list()
  */
 void bf_add_output_to_list()
 {
-	List *outputs = get_output_list();
+	List *outputs = bf_get_output_list();
 
 	assert(outputs != NULL && "Input pointer is NULL");
 	
@@ -646,7 +646,7 @@ void bf_draw_buffers()
  */
 void draw_output_buffer()
 {
-	List *outputs = get_output_list();
+	List *outputs = bf_get_output_list();
 	check_mem(outputs);
 	int	list_size = List_count(outputs);
 
@@ -704,7 +704,7 @@ bool check_if_output_buffer_position_set()
 {
 	bool in_pos = false;
 	int list_size = 0;
-	List *outputs = get_output_list();
+	List *outputs = bf_get_output_list();
 	if (outputs != NULL){
 		list_size = List_count(outputs);
 	}
@@ -828,7 +828,7 @@ int bf_get_buffer_value_box_y_coord_by_id(int id)
  */
 void bf_set_output_buffer_value_box(value_box_t val)
 {
-	List *outputs = get_output_list();
+	List *outputs = bf_get_output_list();
 	value_box_t *last = outputs->last->value;
    	
    last->value = val.value;
@@ -850,7 +850,7 @@ void bf_set_output_buffer_value_box(value_box_t val)
  */
 value_box_t bf_get_output_buffer_value_box()
 {
-	List *output_list = get_output_list();
+	List *output_list = bf_get_output_list();
 	value_box_t *last = output_list->last->value;
 
 	return *last;	
@@ -1017,7 +1017,7 @@ void print_input_list()
  */
 void print_output_list()
 {
-	List *output_list = get_output_list();
+	List *output_list = bf_get_output_list();
 
 	assert(output_list != NULL && "Output list pointer is NULL");
 

@@ -19,10 +19,6 @@ code_end
 [level 02]
 unlocked = true
 code_begin
-MOV rax, [ib]
-MOV [ob], rax
-MOV [ob], rax
-MOV [ob], rax
 code_end
 
 [level 03]
@@ -98,6 +94,12 @@ code_end
 [level 10]
 unlocked = true
 code_begin
+line 01
+MOV rax, [ib]
+MOV rbx, IMMUP5
+ADD rax, rbx
+MOV [ob], rax
+JMP 00
 code_end
 
 [level 11]

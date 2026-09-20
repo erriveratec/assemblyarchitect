@@ -14,6 +14,13 @@ extern const Uint32 LV_SECTOR_2_START;
 extern const Uint32 LV_SECTOR_3_START;
 extern const Uint32 LV_SECTOR_4_START;
 
+typedef struct lv_rules_t {
+    int instruction_limit;
+    bool arrangement_allowed;
+    bool deletion_allowed;
+    bool registers_selectable;
+    bool buffers_selectable;
+} lv_rules_t;
 
 enum LevelStates{
 	LV_LEVEL_0,
@@ -79,18 +86,8 @@ enum LevelStates{
 
 
 void lv_upd_level_assets(int level);
-void lv_set_level_win_condition_text(char *win_condition);
-void lv_reset_level_win_condition();
 void lv_init_level_assets(int level);
-void lv_create_win_list();
-void lv_destroy_win_list();
-void lv_reset_win_list();
-void lv_print_win_list();
 bool lv_check_if_win();
-void lv_reset_win_condition();
-bool lv_chk_correct_output();
-void lv_set_level_instructions_limit(int limit);
-int lv_get_level_instructions_limit();
 void lv_level_drawings(int level);
 void init_level(int level_id);
 bool lv_is_code_editable();
@@ -98,8 +95,13 @@ bool lv_is_buf_selectable();
 bool lv_is_reg_selectable();
 bool lv_is_arrange_enabled();
 bool lv_is_del_enabled();
-int lv_get_win_list_size();
 void lv_set_hold_line(code_line_t *line);
-void lv_set_play_state(bool state);
 void lv_init_stage_code(int level_id);
+int lv_get_level_instructions_limit();
+void lv_set_level_instructions_limit(int limit);
+
+
+
+
+
 #endif

@@ -2119,7 +2119,7 @@ void cw_player_holding_instruction(code_line_t *line, bool arng, bool del)
 	bt_draw_btn(line->ins->b, em_get_escape_state(), false);
 }
 
-/* Function: cw_check_code_pending_op1
+/* Function: cw_is_operand_1_pending
  * -----------------------------------------------------------------------------
  * This function verifies if any of the programmed lines is pending op2
  *
@@ -2130,7 +2130,7 @@ void cw_player_holding_instruction(code_line_t *line, bool arng, bool del)
  * 	true if a line is pending operand, false if otherwise
  *
  */
-bool cw_check_code_pending_op2()
+bool cw_is_operand_2_pending()
 {
 	List *code = get_code_list();
 
@@ -2146,7 +2146,7 @@ bool cw_check_code_pending_op2()
 	return pending;
 }
 
-/* Function: cw_check_code_pending_op1
+/* Function: cw_is_operand_1_pending
  * -----------------------------------------------------------------------------
  * This function verifies if any of the programmed lines is pending op1
  *
@@ -2157,7 +2157,7 @@ bool cw_check_code_pending_op2()
  * 	true if a line is pending operand, false if otherwise
  *
  */
-bool cw_check_code_pending_op1()
+bool cw_is_operand_1_pending()
 {
 	List *code = get_code_list();
 

@@ -6,14 +6,13 @@
 #include "aux.h"
 #include "buffers_bf.h"
 #include "code_window_cw.h"
-#include "dimensions_dm.h"
-#include "file_fl.h"
 #include "instruction_window_iw.h"
 #include "level_config.h"
 #include "levels_lv.h"
 #include "registers_rg.h"
 #include "stage_buttons_sb.h"
 #include "immediates_im.h"
+#include "gameplay/win_condition_wc.h"
 
 #define LEVEL_CONFIG_PATH_FORMAT "data/levels/%02d/level.cfg"
 #define LINE_SIZE 512

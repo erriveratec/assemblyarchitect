@@ -57,7 +57,7 @@ bool check_if_output_buffer_position_set();
 int get_input_buffer_list_size();
 int get_output_buffer_list_size();
 List *get_input_list();
-List *get_output_list();
+List *bf_get_output_list();
 void print_output_list();
 void print_input_list();
 

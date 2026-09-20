@@ -13,6 +13,7 @@
 #include "immediates_im.h"
 #include "ui/escape_menu_em.h"
 #include "media/audio_au.h"
+#include "gameplay/win_condition_wc.h"
 
 #define INPUT_BUFFER_EMPTY_TEXT "A value cannot be recovered if the "\
 "Input Buffer [IB] is empty"
@@ -46,6 +47,8 @@ texture_array_t *g_win_text = NULL;
 texture_t *g_system_error;
 texture_t *g_run_result;
 
+
+static bool g_play;
 static bool run_ended;
 static bool step_ended;
 static bool rst_lvl = false;
@@ -113,6 +116,38 @@ bool cmp_substract(int op_id, value_box_t val);
 static bool handle_ravatar_cmp(int op_id);
 static void rflag_generator(avatar_t *avatar, int id);
 void mc_set_op_menu_btn_state(int state);
+
+
+/* Function: mc_is_executing
+ * ----------------------------------------------------------------------------
+ * Returns the state of the play variables for the levels that requires it
+ *
+ * Arguments:
+ *	Void.
+ *
+ * Return:
+ *	Void.
+ */
+bool mc_is_executing()
+{
+	return g_play;
+}
+
+/* Function: mc_start_execution
+ * ----------------------------------------------------------------------------
+ * Sets the play variables for the levels that requires it 
+ *
+ * Arguments:
+ *	state: State to which the play variable will be set
+ *
+ * Return:
+ *	Void.
+ */
+void mc_start_execution(bool state)
+{
+	g_play = state;
+}
+
 
 /* Function: mc_set_op_menu_btn_state
  *------------------------------------------------------------------------------
@@ -2041,7 +2076,7 @@ void mc_run_code()
 	}
 	mc_set_run_ended(true);
 	int output_buffer_size = get_output_buffer_list_size();
-	int win_list_size = lv_get_win_list_size();
+	int win_list_size = wc_get_expected_output_size();
 	if (output_buffer_size < win_list_size){
 		mc_set_operation_flag(OUTPUT_BUFFER_INCOMPLETE);
 	}

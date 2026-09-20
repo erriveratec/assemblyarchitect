@@ -22,7 +22,7 @@
 #include "immediates_im.h"
 #include "electron_fx.h"
 #include "text_tx.h"
-
+#include "gameplay/win_condition_wc.h"
 
 typedef struct level_flags_t{
 	bool play;
@@ -124,7 +124,7 @@ void init_level(int level_id)
 
 	fl_load_level_msgs(level_id);
 	tr_load_level(level_id);
-	lv_create_win_list();
+	wc_create_expected_output();
 	lv_init_level_assets(level_id);
 
 	//goes before the load level
@@ -165,7 +165,7 @@ void init_level(int level_id)
 static void destroy_level(level_flags_t *flags)
 {
 	bf_destroy_buffer_lists(); 
-	lv_destroy_win_list(); 
+	wc_destroy_expected_output(); 
 	cw_destroy_code_window_assets(); 
 	iw_destroy_instruction_list(); 
 	tx_free_level_text_textures();
@@ -510,7 +510,7 @@ static void reset_level(int level_id, level_flags_t *flags)
 	bf_reset_input_list();
 	bf_reset_output_list();
 	bf_reset_win_condition();
-	lv_reset_win_list();
+	wc_reset_expected_output();
 	lv_reset_level_win_condition();
 	cw_reset_code_execution();
 	ar_hide_execution_arrow();
@@ -591,7 +591,7 @@ int stage_level(int level_id)
 		flag_handler(&flags, identify_clicked_stage_button());
 	}
 	
-	lv_set_play_state(flags.play);
+	mc_start_execution(flags.play);
 	lv_set_hold_line(hold_line);
 	
 	if ((flags.stop == true && flags.stop_enabled == true) 

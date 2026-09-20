@@ -43,4 +43,6 @@ bool mc_get_rst_lvl();
 void mc_set_operation_flag(int flag_id);
 int mc_get_op_menu_btn_state();
 void mc_set_op_menu_btn_state(int state);
+bool mc_is_executing();
+void mc_start_execution(bool state);
 #endif

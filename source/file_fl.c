@@ -15,6 +15,8 @@
 #include "text_tx.h"
 #include "level_config.h"
 #include "storage/save_sv.h"
+#include "gameplay/win_condition_wc.h"
+
 
 #define READ_ERROR -1
 #define MSG_LENGTH 256
@@ -457,7 +459,7 @@ void fl_file_initialize_level(int level_id)
 		} else if (strstr(line, STR_INSTRUCTION_LIMIT) != NULL 
 				   && level_found == true){
 			char *size = strchr(line, CHAR_SPACE);
-			lv_set_level_instructions_limit(atoi(size));
+			(atoi(size));
 		} else if (strstr(line, STR_INSTRUCTIONS_BEGIN) != NULL 
 				   && level_found == true){
 			iw_create_instruction_list();
