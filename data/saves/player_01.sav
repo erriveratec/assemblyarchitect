@@ -19,6 +19,10 @@ code_end
 [level 02]
 unlocked = true
 code_begin
+MOV rax, [ib]
+MOV [ob], rax
+MOV [ob], rax
+MOV [ob], rax
 code_end
 
 [level 03]
@@ -46,6 +50,12 @@ code_end
 [level 05]
 unlocked = true
 code_begin
+MOV rax, [ib]
+ADD rax, [ib]
+MOV [ob], rax
+MOV rax, [ib]
+ADD rax, [ib]
+MOV [ob], rax
 code_end
 
 [level 06]
@@ -90,39 +100,81 @@ unlocked = true
 code_begin
 line 01
 MOV rax, [ib]
-MOV rbx, IMMUP5
-ADD rax, rbx
+ADD rax, IMMUP5
 MOV [ob], rax
 JMP 00
 code_end
 
 [level 11]
-unlocked = false
+unlocked = true
 code_begin
+MOV rbx, IMMUP0
+line 02
+MOV rax, [ib]
+ADD rax, [ib]
+MOV [ob], rax
+MOV [ob], rbx
+JMP 01
 code_end
 
 [level 12]
-unlocked = false
+unlocked = true
 code_begin
+MOV rbx, IMMUP10
+line 02
+MOV rax, [ib]
+ADD rax, rbx
+MOV [ob], rax
+ADD rbx, IMMUP_1
+JMP 01
 code_end
 
 [level 13]
-unlocked = false
+unlocked = true
 code_begin
+line 01
+MOV rax, [ib]
+CMP rax, IMMUP0
+JE 06
+MOV [ob], rax
+JMP 00
+line 06
 code_end
 
 [level 14]
-unlocked = false
+unlocked = true
 code_begin
+line 01
+line 01
+MOV rax, [ib]
+CMP rax, IMMUP0
+JE 09
+CMP rax, IMMUP7
+JNE 01
+MOV [ob], rax
+JMP 00
+line 08
 code_end
 
 [level 15]
-unlocked = false
+unlocked = true
 code_begin
+MOV rbx, IMMUP0
+line 02
+line 02
+MOV rax, [ib]
+CMP rax, IMMUP0
+JE 10
+CMP rax, IMMUP3
+JNE 02
+ADD rbx, IMMUP1
+JMP 01
+line 09
+MOV [ob], rbx
 code_end
 
 [level 16]
-unlocked = false
+unlocked = true
 code_begin
 code_end
 
