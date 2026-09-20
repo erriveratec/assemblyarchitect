@@ -87,7 +87,7 @@ enum LevelStates{
 
 void lv_upd_level_assets(int level);
 void lv_init_level_assets(int level);
-bool lv_check_if_win();
+bool wc_is_satisfied();
 void lv_level_drawings(int level);
 void init_level(int level_id);
 bool lv_is_code_editable();

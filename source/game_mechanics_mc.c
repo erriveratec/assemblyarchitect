@@ -1325,9 +1325,9 @@ void operate_instruction(code_line_t *line, value_box_t value)
 			}
 			break;
 	}
-	if (lv_chk_correct_output() == false){
+	if (wc_matches_expected_prefix() == false){
 		mc_set_operation_flag(INVALID_OUTPUT_VALUE);
-	} else if (lv_chk_correct_output() == true && line->op1->id == OB){
+	} else if (wc_matches_expected_prefix() == true && line->op1->id == OB){
 		if (g_sfx_ready) Mix_PlayChannel(-1, g_sfx_run_correct_val, 0);
 	}
 }
@@ -1884,7 +1884,7 @@ static bool check_finishes_at_OB_correct_size()
 {
 	bool finished = false;
 	
-	bool win = lv_check_if_win();
+	bool win = wc_is_satisfied();
 	int input_buffer_size = get_input_buffer_list_size();
 	bool correct_code_size = check_correct_code_size();
 

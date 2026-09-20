@@ -266,7 +266,7 @@ static void parse_win_condition(FILE *fp)
 		if (strstr(STR_WIN_CONDITION_END, line) != NULL){
 			break;
 		} else if (strcmp(line, ax_char_newline) != STRING_EQUAL){
-			lv_set_level_win_condition_text(text);			
+			wc_set_condition_from_text(text);			
 		} 	
 	}
 	return;
@@ -480,7 +480,7 @@ void fl_file_initialize_level(int level_id)
 	// Init the level 
 	bf_set_input_properties(ip);
 	bf_generate_input_list();
-	lv_reset_level_win_condition();
+	wc_reset_condition();
 	rg_update_register_box_position();
 	iw_update_ins_box_size();
 error:

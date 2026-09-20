@@ -2,9 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <errno.h>
+#include <limits.h>
+#include <string.h>
 #include "list.h"
 #include "win_condition_wc.h"
-#include "buffers_bf.h"
 #include "aux.h"
 #include "buffers_bf.h"
 
@@ -16,7 +18,7 @@
 #define STR_WIN4 "WIN4"
 #define STR_WIN5 "WIN5"
 
-#define WIN_CONDITION_LENGTH 30
+#define WIN_CONDITION_LENGTH 128
 
 typedef enum wc_insert_position_t {
     WC_INSERT_BACK = 0,
@@ -25,21 +27,54 @@ typedef enum wc_insert_position_t {
 
 static List *g_expected_output = NULL;
 
+typedef enum wc_condition_t {
+    WC_CONDITION_INVALID = 0,
+    WC_CONDITION_TRANSFORMED_COPY,
+    WC_CONDITION_GROUP_SUMS,
+    WC_CONDITION_UNTIL_STOP,
+    WC_CONDITION_COUNT_UNTIL_STOP,
+    WC_CONDITION_DECREASING_OFFSET
+} wc_condition_t;
+
+typedef struct wc_config_t {
+    wc_condition_t condition;
+
+    int repetitions;
+    int multiplier;
+    int offset;
+    bool reverse;
+
+    int group_size;
+    bool insert_between;
+    int separator_value;
+
+    bool filter_enabled;
+    int target_value;
+    int stop_value;
+
+    int initial_offset;
+} wc_config_t;
+
+static wc_config_t g_active_config = {
+    .condition = WC_CONDITION_INVALID
+};
+
+static bool g_has_active_config = false;
+
+
+
 
 static bool wc_add_expected_value(
     int value,
     int type,
     wc_insert_position_t position
 );
-
-//static bool wc_add_expected_value(int value, int type);
 static bool wc_build_transformed_copy(
     int repetitions,
     int multiplier,
     int offset,
     bool reverse
 );
-
 static bool wc_build_group_sums(
     int group_size,
     bool insert_between,
@@ -56,9 +91,208 @@ static bool wc_build_count_until_stop(
 );
 
 static bool wc_build_decreasing_offset(int initial_offset);
-static void set_win_condition(char *win_condition);
-static char level_win_condition[WIN_CONDITION_LENGTH];
+static void wc_invalidate_active_condition(void);
 
+
+
+#define WC_TOKEN_DELIMITERS " \t\r\n"
+
+static void wc_invalidate_active_condition(void)
+{
+    g_active_config = (wc_config_t) {
+        .condition = WC_CONDITION_INVALID
+    };
+
+    g_has_active_config = false;
+}
+
+static bool wc_next_int(char **saveptr, int *result)
+{
+    assert(saveptr != NULL);
+    assert(result != NULL);
+
+    char *token = strtok_r(
+        NULL,
+        WC_TOKEN_DELIMITERS,
+        saveptr
+    );
+
+    if (token == NULL) {
+        return false;
+    }
+
+    errno = 0;
+
+    char *end = NULL;
+    long value = strtol(token, &end, 10);
+
+    if (errno != 0 ||
+        end == token ||
+        *end != '\0' ||
+        value < INT_MIN ||
+        value > INT_MAX) {
+        return false;
+    }
+
+    *result = (int)value;
+    return true;
+}
+
+static bool wc_next_bool(char **saveptr, bool *result)
+{
+    assert(saveptr != NULL);
+    assert(result != NULL);
+
+    char *token = strtok_r(
+        NULL,
+        WC_TOKEN_DELIMITERS,
+        saveptr
+    );
+
+    if (token == NULL) {
+        return false;
+    }
+
+    if (strcmp(token, "true") == 0) {
+        *result = true;
+        return true;
+    }
+
+    if (strcmp(token, "false") == 0) {
+        *result = false;
+        return true;
+    }
+
+    return false;
+}
+
+static bool wc_parse_condition(
+    const char *text,
+    wc_config_t *config
+)
+{
+    assert(text != NULL);
+    assert(config != NULL);
+
+    size_t text_length = strlen(text);
+
+    if (text_length >= WIN_CONDITION_LENGTH) {
+        return false;
+    }
+
+    char buffer[WIN_CONDITION_LENGTH];
+    memcpy(buffer, text, text_length + 1);
+
+    *config = (wc_config_t) {
+        .condition = WC_CONDITION_INVALID
+    };
+
+    char *saveptr = NULL;
+
+    char *condition = strtok_r(
+        buffer,
+        WC_TOKEN_DELIMITERS,
+        &saveptr
+    );
+
+    if (condition == NULL) {
+        return false;
+    }
+
+    if (strcmp(condition, STR_WIN1) == 0) {
+        config->condition =
+            WC_CONDITION_TRANSFORMED_COPY;
+
+        return
+            wc_next_int(
+                &saveptr,
+                &config->repetitions
+            ) &&
+            wc_next_int(
+                &saveptr,
+                &config->multiplier
+            ) &&
+            wc_next_int(
+                &saveptr,
+                &config->offset
+            ) &&
+            wc_next_bool(
+                &saveptr,
+                &config->reverse
+            );
+    }
+
+    if (strcmp(condition, STR_WIN2) == 0) {
+        config->condition =
+            WC_CONDITION_GROUP_SUMS;
+
+        return
+            wc_next_int(
+                &saveptr,
+                &config->group_size
+            ) &&
+            wc_next_bool(
+                &saveptr,
+                &config->insert_between
+            ) &&
+            wc_next_int(
+                &saveptr,
+                &config->separator_value
+            );
+    }
+
+    if (strcmp(condition, STR_WIN3) == 0) {
+        config->condition =
+            WC_CONDITION_UNTIL_STOP;
+
+        int filter = 0;
+
+        bool valid =
+            wc_next_int(&saveptr, &filter) &&
+            wc_next_int(
+                &saveptr,
+                &config->target_value
+            ) &&
+            wc_next_int(
+                &saveptr,
+                &config->stop_value
+            );
+
+        if (!valid || (filter != 0 && filter != 1)) {
+            return false;
+        }
+
+        config->filter_enabled = filter == 1;
+        return true;
+    }
+
+    if (strcmp(condition, STR_WIN4) == 0) {
+        config->condition =
+            WC_CONDITION_COUNT_UNTIL_STOP;
+
+        return
+            wc_next_int(
+                &saveptr,
+                &config->target_value
+            ) &&
+            wc_next_int(
+                &saveptr,
+                &config->stop_value
+            );
+    }
+
+    if (strcmp(condition, STR_WIN5) == 0) {
+        config->condition =
+            WC_CONDITION_DECREASING_OFFSET;
+
+        return wc_next_int(
+            &saveptr,
+            &config->initial_offset
+        );
+    }
+
+    return false;
+}
 
 
 /* Adds one value to the expected output. */
@@ -89,160 +323,193 @@ static bool wc_add_expected_value(
     return true;
 }
 
-
-
-/* Function: lv_reset_win_condition
- * -----------------------------------------------------------------------------
- * This function resets the win condition when the player resets the level
- *  
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-void lv_reset_level_win_condition()
-{
-	set_win_condition(level_win_condition);
-}
-
-/* Function: lv_level_win_condition
- * -----------------------------------------------------------------------------
- * Copies the win condition to the level variable and creates the win condition
- *  
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-void lv_set_level_win_condition_text(char *win_condition)
-{
-	strcpy(level_win_condition, win_condition);
-}
-
-/* Function: set_win_condition
- * -----------------------------------------------------------------------------
- * This function creates the win condition according to what is in the levels
- * file
- * Nomeclature of the win conditions
- * WIN1: wc_build_transfromed_copy(rep, mul, rev) 
- * WIN2: wx_build_group_sums(group_size)
+/*
+ * Builds the expected output from a validated win-condition
+ * configuration.
  *
- * Arguments:
- * 	text: The text with the description of the win condition.
- *	
- * Return:
- *	void
+ * Returns true when the expected output is built successfully.
+ * Returns false for an invalid condition or builder failure.
  */
-static void set_win_condition(char *win_condition)
+static bool wc_build_from_config(const wc_config_t *config)
 {
-	assert(win_condition != NULL && "NULL win condition text");
-	char win_condition_cpy[WIN_CONDITION_LENGTH];
-	strcpy(win_condition_cpy, win_condition);
-	char *saveptr1;
-	char *delim = ax_char_space;
-	char *win_cond;
-	
-	win_cond =  strtok_r(win_condition_cpy, delim, &saveptr1);
-	if (strstr(win_cond, STR_WIN1) != NULL){
-		char *rep_text = strtok_r(NULL, delim, &saveptr1);
-		int rep = atoi(rep_text);
-		char *mul_text = strtok_r(NULL, delim, &saveptr1);
-		int mul = atoi(mul_text);
-		char *sum_text = strtok_r(NULL, delim, &saveptr1);
-		int sum = atoi(sum_text);
-		char *reversed = strtok_r(NULL, delim, &saveptr1);
-		bool rev;
-		if (strstr(reversed, "true") != NULL){
-			rev = true;
-		} else if (strstr(reversed, "false") != NULL){
-			rev = false;
-		}
-		wc_build_transformed_copy(rep, mul, sum, rev);
-	} else if (strstr(win_cond, STR_WIN2) != NULL){
-		char *group_size_text = strtok_r(NULL, delim, &saveptr1);
-		int group_size = atoi(group_size_text);
-		char *bet_text = strtok_r(NULL, delim, &saveptr1);
-		bool between;
-		if (strstr(bet_text, "true") != NULL){
-			between = true;
-		} else if (strstr(bet_text, "false") != NULL){
-			between = false;
-		}
-		char *in_val_text = strtok_r(NULL, delim, &saveptr1);
-		int in_val = atoi(in_val_text);
-		wc_build_group_sums(group_size, between, in_val);
-	} else if (strstr(win_cond, STR_WIN3) != NULL){
-		char *target_text = strtok_r(NULL, delim, &saveptr1);
-		int target = atoi(target_text);
-		char *tval_text = strtok_r(NULL, delim, &saveptr1);
-		int tval = atoi(tval_text);
-		char *stop_text = strtok_r(NULL, delim, &saveptr1);
-		int stop = atoi(stop_text);
-		wc_build_until_stop(target, tval, stop);
-	} else if (strstr(win_cond, STR_WIN4) != NULL){
-		char *element_text = strtok_r(NULL, delim, &saveptr1);
-		int element = atoi(element_text);
-		char *stop_text = strtok_r(NULL, delim, &saveptr1);
-		int stop = atoi(stop_text);
-		wc_build_count_until_stop(element, stop);
-	} else if (strstr(win_cond, STR_WIN5) != NULL){
-		char *dec_text = strtok_r(NULL, delim, &saveptr1);
-		int dec = atoi(dec_text);
-		wc_build_decreasing_offset(dec);
-	}
+    assert(config != NULL &&
+           "Win-condition configuration is NULL");
 
-	return;
+    switch (config->condition) {
+        case WC_CONDITION_TRANSFORMED_COPY:
+            return wc_build_transformed_copy(
+                config->repetitions,
+                config->multiplier,
+                config->offset,
+                config->reverse
+            );
+
+        case WC_CONDITION_GROUP_SUMS:
+            return wc_build_group_sums(
+                config->group_size,
+                config->insert_between,
+                config->separator_value
+            );
+
+        case WC_CONDITION_UNTIL_STOP:
+            return wc_build_until_stop(
+                config->filter_enabled,
+                config->target_value,
+                config->stop_value
+            );
+
+        case WC_CONDITION_COUNT_UNTIL_STOP:
+            return wc_build_count_until_stop(
+                config->target_value,
+                config->stop_value
+            );
+
+        case WC_CONDITION_DECREASING_OFFSET:
+            return wc_build_decreasing_offset(
+                config->initial_offset
+            );
+
+        case WC_CONDITION_INVALID:
+        default:
+            return false;
+    }
+}
+/*
+ * Parses and activates a win condition from its text definition.
+ *
+ * The expected-output list is recreated before building the new
+ * condition. The active configuration is stored only after the
+ * expected output is built successfully.
+ *
+ * Returns true on success and false when parsing, allocation,
+ * or expected-output construction fails.
+ */
+
+bool wc_set_condition_from_text(const char *text)
+{
+    if (text == NULL) {
+        return false;
+    }
+
+    wc_config_t parsed_config = {
+        .condition = WC_CONDITION_INVALID
+    };
+
+    if (!wc_parse_condition(text, &parsed_config)) {
+        return false;
+    }
+
+    if (!wc_reset_expected_output()) {
+        wc_invalidate_active_condition();
+        return false;
+    }
+
+    if (!wc_build_from_config(&parsed_config)) {
+        wc_destroy_expected_output();
+        wc_invalidate_active_condition();
+        return false;
+    }
+
+    g_active_config = parsed_config;
+    g_has_active_config = true;
+
+    return true;
 }
 
 
-/* Function: lv_chk_correct_output
- *------------------------------------------------------------------------------
- * Evaluates the correctness of the output as values are being added
+
+/*
+ * Rebuilds the expected output using the active win-condition
+ * configuration.
  *
- * Arguments:
- *	None.
- *
- * Return:
- *	boolean stating if the output buffer contents are correct
+ * Returns true on success. Returns false when no condition is
+ * active, the expected-output list cannot be recreated, or the
+ * builder fails.
  */
-bool lv_chk_correct_output()
+bool wc_reset_condition(void)
 {
-	List *output_list = bf_get_output_list();
-	List *win_list = wc_get_expected_output();
+    if (!g_has_active_config) {
+        return false;
+    }
 
-	assert(output_list != NULL && "Output list pointer is NULL");
-	assert(win_list != NULL && "Win list pointer is NULL");
+    if (!wc_reset_expected_output()) {
+        wc_invalidate_active_condition();
+        return false;
+    }
 
-	int output_list_size = List_count(output_list);
-	int win_list_size = List_count(win_list);
+    if (!wc_build_from_config(&g_active_config)) {
+        wc_destroy_expected_output();
+        wc_invalidate_active_condition();
+        return false;
+    }
 
-	assert(win_list_size > 0 && "The win list has no elements");
-
-	if (output_list_size > win_list_size){
-		return false;
-	}
-	if (output_list_size == 0){
-		return true;
-	}
-
-	ListNode *win_node = win_list->first;
-	int i = 0;
-	LIST_FOREACH(output_list, first, next, cur){
-		if (i == output_list_size){
-			break;
-		}
-		value_box_t *output = cur->value;
-		value_box_t *win_val = win_node->value;
-		if (output->value != win_val->value){
-			return false;
-		}
-		win_node = win_node->next;
-		i++;
-	}
-	return true;
+    return true;
 }
+/*
+ * Checks whether the current output matches the beginning of the
+ * expected output.
+ *
+ * An empty output is considered valid. The function returns false
+ * if the output is longer than the expected output or if any value
+ * differs from the corresponding expected value.
+ */
+bool wc_matches_expected_prefix(void)
+{
+    List *output = bf_get_output_list();
+
+    assert(output != NULL &&
+           "Output list is NULL");
+
+    assert(g_expected_output != NULL &&
+           "Expected-output list is NULL");
+
+    int output_count = List_count(output);
+    int expected_count = List_count(g_expected_output);
+
+    if (expected_count == 0) {
+        return false;
+    }
+
+    if (output_count > expected_count) {
+        return false;
+    }
+
+    /*
+     * Producing no output has not violated the expected result yet.
+     */
+    if (output_count == 0) {
+        return true;
+    }
+
+    ListNode *expected_node = g_expected_output->first;
+
+    LIST_FOREACH(output, first, next, output_node) {
+        assert(expected_node != NULL &&
+               "Expected-output node is NULL");
+
+        const value_box_t *actual =
+            output_node->value;
+
+        const value_box_t *expected =
+            expected_node->value;
+
+        assert(actual != NULL &&
+               "Actual output value is NULL");
+
+        assert(expected != NULL &&
+               "Expected output value is NULL");
+
+        if (actual->value != expected->value) {
+            return false;
+        }
+
+        expected_node = expected_node->next;
+    }
+
+    return true;
+}
+
+
 
 /*
  * Builds an expected output by transforming and copying every
@@ -637,23 +904,7 @@ int wc_get_expected_output_size(void)
 }
 
 
-/* Adds one value to the expected output. 
-static bool wc_add_expected_value(int value, int type)
-{
-    assert(g_expected_output != NULL &&
-           "Expected-output list is NULL");
 
-    value_box_t *expected = malloc(sizeof(*expected));
-    if (expected == NULL) {
-        return false;
-    }
-
-    expected->value = value;
-    expected->type = type;
-
-    List_push(g_expected_output, expected);
-    return true;
-}*/
 
 
 
@@ -671,46 +922,54 @@ List *wc_get_expected_output()
 }
 
 
-/* Function: lv_check_if_win
- *------------------------------------------------------------------------------
- * Evaluates the whole output list against the win list to verify if the 
- * result is correct. Does not verifies if there are still elements in the
- * input list. 
- *
- * Arguments:
- *	None.
- *
- * Return:
- *	True if the win condition is met, false if otherwise
+
+/*
+ * Returns true when the actual output exactly matches the
+ * complete expected output.
  */
-bool lv_check_if_win()
+bool wc_is_satisfied(void)
 {
-	List *output = bf_get_output_list();
-	List *expected = wc_get_expected_output();
+    List *output = bf_get_output_list();
 
-	assert(output != NULL && "Output list pointer is NULL");
-	assert(expected != NULL && "Expected output list pointer is NULL");
+    assert(output != NULL &&
+           "Output list is NULL");
 
-	int output_count = List_count(output);
-	int expected_count = List_count(expected);
+    assert(g_expected_output != NULL &&
+           "Expected-output list is NULL");
 
-	if (output_count == 0){
-		return false;
-	}	
-	if (output_count != expected_count) {
-		return false;
-	}
+    int output_count = List_count(output);
+    int expected_count = List_count(g_expected_output);
 
-	ListNode *expected_node = expected->first;
+    if (output_count == 0 ||
+        output_count != expected_count) {
+        return false;
+    }
 
-	LIST_FOREACH(output, first, next, cur){
-		value_box_t *actual_value = cur->value;
-		value_box_t *expected_value = expected_node->value;
+    ListNode *expected_node =
+        g_expected_output->first;
 
-		if (actual_value->value != expected_value->value){
-			return false;
-		}
-		expected_node = expected_node->next;
-	}
-	return true;
+    LIST_FOREACH(output, first, next, output_node) {
+        assert(expected_node != NULL &&
+               "Expected-output node is NULL");
+
+        const value_box_t *actual =
+            output_node->value;
+
+        const value_box_t *expected =
+            expected_node->value;
+
+        assert(actual != NULL &&
+               "Actual output value is NULL");
+
+        assert(expected != NULL &&
+               "Expected output value is NULL");
+
+        if (actual->value != expected->value) {
+            return false;
+        }
+
+        expected_node = expected_node->next;
+    }
+
+    return true;
 }

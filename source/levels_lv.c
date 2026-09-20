@@ -815,7 +815,7 @@ static void level_1()
 	bool change_op = false;
 	bool mov_instruction = false;
 	bool press_play = false;
-	bool win = lv_check_if_win();
+	bool win = wc_is_satisfied();
 	code_line_t *i1= NULL;
 	code_line_t *i2 = NULL;
 	bool miss_op = cw_is_operand_pending();
@@ -904,7 +904,7 @@ static void level_0()
 	bool miss_op = cw_is_operand_pending();
 	bool miss_op1 = cw_is_operand_1_pending();
 	bool miss_op2 = cw_is_operand_2_pending();
-	bool win = lv_check_if_win();
+	bool win = wc_is_satisfied();
 
 	if (g_lv_msg[MSG0] == true && size == 0){
 		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome message
@@ -985,7 +985,7 @@ static void level_0()
 		set_code_editable(false, NO_EXCEPTION);
 		tx_text_box(TX_CODE_BOX, MSG15, TX_INS);	//Press play
 		ar_display_arrow(AR_PLAY);
-	} else if (lv_check_if_win() == true){
+	} else if (wc_is_satisfied() == true){
 		tx_text_box(TX_CENTER_BOX, MSG16, TX_SYSMES);//Congrats 
 	}
 }

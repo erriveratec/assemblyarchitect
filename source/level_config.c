@@ -189,8 +189,8 @@ static void apply_level(int level_id, level_config_t *config)
 	bf_generate_input_list();
 	sb_set_step_btns_avail(config->step_controls_enabled);
 	im_set_imm_up_avail(config->immediates_visible);
-	lv_set_level_win_condition_text(win_condition);
-	lv_reset_level_win_condition();
+	wc_set_condition_from_text(win_condition);
+	wc_reset_condition();
 	rg_update_register_box_position();
 	iw_update_ins_box_size();
 }

@@ -511,7 +511,7 @@ static void reset_level(int level_id, level_flags_t *flags)
 	bf_reset_output_list();
 	bf_reset_win_condition();
 	wc_reset_expected_output();
-	lv_reset_level_win_condition();
+	wc_reset_condition();
 	cw_reset_code_execution();
 	ar_hide_execution_arrow();
 	mc_reset_invalid_operation_flag();
@@ -616,7 +616,7 @@ int stage_level(int level_id)
 		flags.play = false;
 	} else if (mc_get_run_ended() == true 
 			   && flags.step_fst == true 
-			   && lv_check_if_win() == true){
+			   && wc_is_satisfied() == true){
 		mc_set_operation_flag(MC_WIN);
 		bf_set_win_condition();
 		int action_selected = mc_get_op_menu_btn_state();
