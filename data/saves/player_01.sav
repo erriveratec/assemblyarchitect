@@ -40,11 +40,6 @@ code_end
 unlocked = true
 code_begin
 MOV rax, [ib]
-MOV rbx, [ib]
-MOV rcx, [ib]
-MOV [ob], rcx
-MOV [ob], rbx
-MOV [ob], rax
 code_end
 
 [level 05]

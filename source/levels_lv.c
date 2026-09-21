@@ -662,20 +662,20 @@ static void level_5()
  * Return:
  *	Void.
  */
-static void level_4()
+static void level_4(void)
 {
-	draw_regs_arrow(check_display_reg_lv_arrow());
-	draw_bufs_arrow(check_display_buf_arrow());
-	bool miss_op = cw_is_operand_pending();
+    tutorial_state_t state = {
+        .code_size = cw_get_code_list_size(),
+        .operand_pending = cw_is_operand_pending()
+    };
 
-	int size = cw_get_code_list_size();
+    tr_update(&state);
 
-	if (size == 0 && tr_is_active("welcome")) tr_render_step("welcome");
-	else if (size == 0 && tr_is_active("introduce_registers")) tr_render_step("introduce_registers");
-	else if (size == 1 && miss_op == false && tr_is_active("introduce_execution_controls")) tr_render_step("introduce_execution_controls");
-	if (size == 1 && miss_op == false && tr_is_active("introduce_execution_controls")) {
-		ar_display_arrow(AR_FAST);
-	} 
+    if (state.code_size == 1 &&
+        !state.operand_pending &&
+        tr_is_active("introduce_execution_controls")) {
+        ar_display_arrow(AR_FAST);
+    }
 }
 
 /* Function: level_3
