@@ -664,16 +664,18 @@ static void level_5()
  */
 static void level_4(void)
 {
-    tutorial_state_t state = {
-        .code_size = cw_get_code_list_size(),
-        .operand_pending = cw_is_operand_pending()
-    };
+    draw_regs_arrow(
+        check_display_reg_lv_arrow()
+    );
 
-    tr_update(&state);
+    draw_bufs_arrow(
+        check_display_buf_arrow()
+    );
 
-    if (state.code_size == 1 &&
-        !state.operand_pending &&
-        tr_is_active("introduce_execution_controls")) {
+    cs_context_t context = cs_capture_context();
+
+	tr_update(&context);
+    if (context.code_size == 1 && context.operand_pending && tr_is_active("introduce_execution_controls")) {
         ar_display_arrow(AR_FAST);
     }
 }
@@ -698,12 +700,10 @@ static void level_3(void)
         check_display_buf_arrow()
     );
 
-    tutorial_state_t state = {
-        .code_size = cw_get_code_list_size()
-    };
-
-    tr_update(&state);
+    cs_context_t context = cs_capture_context();
+    tr_update(&context);
 }
+
 
 /* Function: level_2
  * -----------------------------------------------------------------------------

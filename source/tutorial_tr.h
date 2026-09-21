@@ -6,6 +6,8 @@
 #define TUTORIAL_STEP_NAME_LENGTH 64
 #define TUTORIAL_STEP_TEXT_LENGTH 256
 
+#include "gameplay/code_state_cs.h"
+
 typedef enum tutorial_box_t {
     TUTORIAL_BOX_BIG,
     TUTORIAL_BOX_UPPER,
@@ -67,11 +69,18 @@ int tr_get_step_count(void);
 const tutorial_step_t *tr_get_step(int index);
 const tutorial_step_t *tr_get_named_step(const char *name);
 bool tr_is_active(const char *name);
-bool tr_step_matches_current_state(const char *name,
-                                   const tutorial_state_t *state);
-const tutorial_step_t *tr_get_matching_step(const tutorial_state_t *state);
 void tr_deactivate(const char *name);
 void tr_render_step(const char *name);
-void tr_update(const tutorial_state_t *state);
+void tr_update(const cs_context_t *context);
+
+bool tr_step_matches_current_state(
+    const char *name,
+    const cs_context_t *context
+);
+
+const tutorial_step_t *tr_get_matching_step(
+    const cs_context_t *context
+);
+
 
 #endif

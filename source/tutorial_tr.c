@@ -17,14 +17,14 @@ static int g_step_count;
  * Renders the first active tutorial step that matches
  * the current gameplay state.
  */
-void tr_update(const tutorial_state_t *state)
+void tr_update(const cs_context_t *context)
 {
-    if (state == NULL) {
+    if (context == NULL) {
         return;
     }
 
     const tutorial_step_t *step =
-       tr_get_matching_step(state);
+       tr_get_matching_step(context);
 
     if (step == NULL) {
         return;    }
@@ -132,24 +132,24 @@ bool tr_is_active(const char *name)
 }
 
 bool tr_step_matches_current_state(const char *name,
-                                   const tutorial_state_t *state)
+                                   const cs_context_t *context)
 {
     tutorial_step_t *step = find_step(name);
-    if (step == NULL || !step->active || state == NULL) return false;
-    if (step->when_code_size >= 0 && step->when_code_size != state->code_size) return false;
-    if (step->when_holding >= 0 && step->when_holding != state->holding) return false;
-    if (step->when_operand_pending >= 0 && step->when_operand_pending != state->operand_pending) return false;
-    if (step->when_code_sorted >= 0 && step->when_code_sorted != state->code_sorted) return false;
-    if (step->when_play_state >= 0 && step->when_play_state != state->play_state) return false;
-    if (step->when_operation_flag >= 0 && step->when_operation_flag != state->operation_flag) return false;
+    if (step == NULL || !step->active || context == NULL) return false;
+    if (step->when_code_size >= 0 && step->when_code_size != context->code_size) return false;
+    if (step->when_holding >= 0 && step->when_holding != context->holding_instruction) return false;
+    if (step->when_operand_pending >= 0 && step->when_operand_pending != context->operand_pending) return false;
+    if (step->when_code_sorted >= 0 && step->when_code_sorted != context->code_sorted) return false;
+    if (step->when_play_state >= 0 && step->when_play_state != context->playing) return false;
+    if (step->when_operation_flag >= 0 && step->when_operation_flag != context->operation_flag) return false;
     return true;
 }
 
-const tutorial_step_t *tr_get_matching_step(const tutorial_state_t *state)
+const tutorial_step_t *tr_get_matching_step(const cs_context_t *context)
 {
-    if (state == NULL) return NULL;
+    if (context == NULL) return NULL;
     for (int index = 0; index < g_step_count; index++) {
-        if (tr_step_matches_current_state(g_steps[index].name, state)) return &g_steps[index];
+        if (tr_step_matches_current_state(g_steps[index].name, context)) return &g_steps[index];
     }
     return NULL;
 }
