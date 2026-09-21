@@ -72,5 +72,6 @@ bool tr_step_matches_current_state(const char *name,
 const tutorial_step_t *tr_get_matching_step(const tutorial_state_t *state);
 void tr_deactivate(const char *name);
 void tr_render_step(const char *name);
+void tr_update(const tutorial_state_t *state);
 
 #endif

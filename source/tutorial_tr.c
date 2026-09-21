@@ -13,6 +13,26 @@
 static tutorial_step_t g_steps[TUTORIAL_MAX_STEPS];
 static int g_step_count;
 
+/*
+ * Renders the first active tutorial step that matches
+ * the current gameplay state.
+ */
+void tr_update(const tutorial_state_t *state)
+{
+    if (state == NULL) {
+        return;
+    }
+
+    const tutorial_step_t *step =
+       tr_get_matching_step(state);
+
+    if (step == NULL) {
+        return;    }
+
+    tr_render_step(step->name);
+}
+
+
 static char *trim(char *text)
 {
     while (isspace((unsigned char)*text)) text++;

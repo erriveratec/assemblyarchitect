@@ -61,9 +61,6 @@ static wc_config_t g_active_config = {
 
 static bool g_has_active_config = false;
 
-
-
-
 static bool wc_add_expected_value(
     int value,
     int type,

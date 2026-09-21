@@ -688,15 +688,21 @@ static void level_4()
  * Return:
  *	Void.
  */
-static void level_3()
+static void level_3(void)
 {
-	draw_regs_arrow(check_display_reg_lv_arrow());
-	draw_bufs_arrow(check_display_buf_arrow());
+    draw_regs_arrow(
+        check_display_reg_lv_arrow()
+    );
 
-	int code_size = cw_get_code_list_size();
+    draw_bufs_arrow(
+        check_display_buf_arrow()
+    );
 
-	if (code_size == 0 && tr_is_active("welcome")) tr_render_step("welcome");
-	else if (code_size == 0 && tr_is_active("complete_execution")) tr_render_step("complete_execution");
+    tutorial_state_t state = {
+        .code_size = cw_get_code_list_size()
+    };
+
+    tr_update(&state);
 }
 
 /* Function: level_2
