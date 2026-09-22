@@ -672,12 +672,10 @@ static void level_4(void)
         check_display_buf_arrow()
     );
 
-    cs_context_t context = cs_capture_context();
+    cs_context_t context =
+        cs_capture_context();
 
-	tr_update(&context);
-    if (context.code_size == 1 && context.operand_pending && tr_is_active("introduce_execution_controls")) {
-        ar_display_arrow(AR_FAST);
-    }
+    tr_update(&context);
 }
 
 /* Function: level_3

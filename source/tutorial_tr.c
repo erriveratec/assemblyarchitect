@@ -98,6 +98,87 @@ static bool parse_arrow(const char *text, int *arrow_id)
     return true;
 }
 
+static bool add_arrow(
+    tutorial_step_t *step,
+    const char *text
+)
+{
+    if (step == NULL || text == NULL) {
+        return false;
+    }
+
+    if (step->arrow_count >= TUTORIAL_MAX_ARROWS) {
+        return false;
+    }
+
+    int arrow_id = -1;
+
+    if (!parse_arrow(text, &arrow_id)) {
+        return false;
+    }
+
+    if (arrow_id < 0) {
+        return true;
+    }
+
+    step->arrow_ids[step->arrow_count] = arrow_id;
+    step->arrow_count++;
+
+    return true;
+}
+
+static bool parse_arrows(
+    tutorial_step_t *step,
+    const char *text
+)
+{
+    if (step == NULL || text == NULL) {
+        return false;
+    }
+
+    char buffer[128];
+
+    int copied = snprintf(
+        buffer,
+        sizeof(buffer),
+        "%s",
+        text
+    );
+
+    if (copied < 0 ||
+        copied >= (int)sizeof(buffer)) {
+        return false;
+    }
+
+    step->arrow_count = 0;
+
+    char *saveptr = NULL;
+
+    char *token = strtok_r(
+        buffer,
+        ",",
+        &saveptr
+    );
+
+    while (token != NULL) {
+        char *arrow_name = trim(token);
+
+        if (!add_arrow(step, arrow_name)) {
+            step->arrow_count = 0;
+            return false;
+        }
+
+        token = strtok_r(
+            NULL,
+            ",",
+            &saveptr
+        );
+    }
+
+    return true;
+}
+
+
 static tutorial_step_t *find_step(const char *name)
 {
     for (int index = 0; index < g_step_count; index++) {
@@ -183,7 +264,9 @@ void tr_render_step(const char *name)
     if (step == NULL || !step->active) return;
     int step_id = (int)(step - g_steps);
     tx_text_box(get_text_box(step->box), step_id, get_header(step->header));
-    if (step->arrow_id >= 0) ar_display_arrow(step->arrow_id);
+    for (int index = 0; index < step->arrow_count; index++) {
+        ar_display_arrow(step->arrow_ids[index]);
+    }
     if ((step->dismiss == TUTORIAL_DISMISS_MOUSE_PRESS && ms_left_pressed()) ||
         (step->dismiss == TUTORIAL_DISMISS_MOUSE_RELEASE && ms_left_released())) {
         step->active = false;
@@ -210,7 +293,7 @@ bool tr_load_level(int level_id)
             if (g_step_count == TUTORIAL_MAX_STEPS) break;
             step = &g_steps[g_step_count++];
             sscanf(text, "[%63[^]]]", step->name);
-            step->arrow_id = -1;
+            step->arrow_count = 0;
             step->when_code_size = -1;
             step->when_holding = -1;
             step->when_operand_pending = -1;
@@ -242,7 +325,16 @@ bool tr_load_level(int level_id)
         if (strcmp(key, "box") == 0 && !parse_box(value, &step->box)) goto invalid;
         if (strcmp(key, "header") == 0 && !parse_header(value, &step->header)) goto invalid;
         if (strcmp(key, "dismiss") == 0 && !parse_dismiss(value, &step->dismiss)) goto invalid;
-        if (strcmp(key, "arrow") == 0 && !parse_arrow(value, &step->arrow_id)) goto invalid;
+        if (strcmp(key, "arrow") == 0) {
+         if (!parse_arrows(step, value)) {
+            goto invalid;
+            }
+        }
+        if (strcmp(key, "arrows") == 0) {
+            if (!parse_arrows(step, value)) {
+            goto invalid;
+            }
+        }
         if (strcmp(key, "when.code_size") == 0) step->when_code_size = atoi(value);
         if (strcmp(key, "when.holding") == 0) step->when_holding = atoi(value);
         if (strcmp(key, "when.operand_pending") == 0) step->when_operand_pending = atoi(value);

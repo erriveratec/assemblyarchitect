@@ -5,6 +5,7 @@
 
 #define TUTORIAL_STEP_NAME_LENGTH 64
 #define TUTORIAL_STEP_TEXT_LENGTH 256
+#define TUTORIAL_MAX_ARROWS 4
 
 #include "gameplay/code_state_cs.h"
 
@@ -33,13 +34,16 @@ typedef enum tutorial_dismiss_t {
     TUTORIAL_DISMISS_MOUSE_RELEASE
 } tutorial_dismiss_t;
 
+#define TUTORIAL_MAX_ARROWS 4
+
 typedef struct tutorial_step_t {
     char name[TUTORIAL_STEP_NAME_LENGTH];
     char text[TUTORIAL_STEP_TEXT_LENGTH];
     tutorial_box_t box;
     tutorial_header_t header;
     tutorial_dismiss_t dismiss;
-    int arrow_id;
+    int arrow_ids[TUTORIAL_MAX_ARROWS];
+    int arrow_count;
     int when_code_size;
     int when_holding;
     int when_operand_pending;
