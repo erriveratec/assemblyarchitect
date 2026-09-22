@@ -638,18 +638,19 @@ static void level_6()
  * Return:
  *	Void.
  */
-static void level_5()
+static void level_5(void)
 {
-	draw_regs_arrow(check_display_reg_lv_arrow());
-	draw_bufs_arrow(check_display_buf_arrow());
+    draw_regs_arrow(
+        check_display_reg_lv_arrow()
+    );
 
-	bool hold = chk_player_holds_line();
-	int code_size = cw_get_code_list_size();
+    draw_bufs_arrow(
+        check_display_buf_arrow()
+    );
 
-	if (code_size == 0 && tr_is_active("welcome")) tr_render_step("welcome");
-	else if (code_size == 0 && tr_is_active("introduce_add")) tr_render_step("introduce_add");
-	else if (code_size == 0 && tr_is_active("explain_add_syntax")) tr_render_step("explain_add_syntax");
-	else if (code_size == 0 && hold == false && tr_is_active("build_add_program")) tr_render_step("build_add_program");
+    cs_context_t context = cs_capture_context();
+
+    tr_update(&context);
 }
 
 /* Function: level_4
