@@ -616,16 +616,20 @@ static void level_7()
  * Return:
  *	Void.
  */
-static void level_6()
+static void level_6(void)
 {
-	draw_regs_arrow(check_display_reg_lv_arrow());
-	draw_bufs_arrow(check_display_buf_arrow());
+    draw_regs_arrow(
+        check_display_reg_lv_arrow()
+    );
 
-	int code_size = cw_get_code_list_size();
+    draw_bufs_arrow(
+        check_display_buf_arrow()
+    );
 
-	if (code_size == 0 && tr_is_active("welcome")) tr_render_step("welcome");
-	else if (code_size == 0 && tr_is_active("introduce_register_operands")) tr_render_step("introduce_register_operands");
-	else if (code_size == 0 && tr_is_active("show_register_copy_example")) tr_render_step("show_register_copy_example");
+    cs_context_t context =
+        cs_capture_context();
+
+    tr_update(&context);
 }
 
 /* Function: level_5

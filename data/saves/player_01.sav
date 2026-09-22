@@ -44,9 +44,6 @@ code_end
 [level 06]
 unlocked = true
 code_begin
-MOV rax, [ib]
-ADD rax, rax
-MOV [ob], rax
 code_end
 
 [level 07]
