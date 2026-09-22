@@ -71,20 +71,46 @@ bool chk_player_holds_line()
  * Return:
  *	cs_context_t: Current context of the code state machine
  */
-cs_context_t cs_capture_context(void) {
-	cs_context_t context;
-	context.code_size = cw_get_code_list_size();
-//	context.instruction_limit = lv_get_level_instructions_limit();
-	context.operation_flag = mc_get_operation_flag();
-	context.holding_instruction = chk_player_holds_line();
-	context.code_sorted = cw_check_code_sorted();
-	context.operand_pending = cw_is_operand_pending();
-	context.operand_1_pending = cw_is_operand_1_pending();
-	context.operand_2_pending = cw_is_operand_2_pending();
-	context.playing = mc_is_executing();
-//	context.won = lv_is_level_won();
+cs_context_t cs_capture_context(void)
+{
+    cs_context_t context = {0};
 
-	return context;
+    context.code_size =
+        cw_get_code_list_size();
+
+    context.operation_flag =
+        mc_get_operation_flag();
+
+    context.holding_instruction =
+        chk_player_holds_line();
+
+    context.held_instruction_id = -1;
+
+    code_line_t *held_line =
+        get_hold_line();
+
+    if (held_line != NULL &&
+        held_line->ins != NULL) {
+        context.held_instruction_id =
+            held_line->ins->id;
+    }
+
+    context.code_sorted =
+        cw_check_code_sorted();
+
+    context.operand_pending =
+        cw_is_operand_pending();
+
+    context.operand_1_pending =
+        cw_is_operand_1_pending();
+
+    context.operand_2_pending =
+        cw_is_operand_2_pending();
+
+    context.playing =
+        mc_is_executing();
+
+    return context;
 }
 
 /* Function: cs_get_state

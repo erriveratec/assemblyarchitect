@@ -560,27 +560,20 @@ static void level_9()
  * Return:
  *	Void.
  */
-static void level_8()
+static void level_8(void)
 {
-	draw_regs_arrow(check_display_reg_lv_arrow());
-	draw_bufs_arrow(check_display_buf_arrow());
-	
-	int code_size = cw_get_code_list_size();
-	bool jmp_pick = false;
-	bool label_pick = false;
-	code_line_t *hld_line = get_hold_line();
+    draw_regs_arrow(
+        check_display_reg_lv_arrow()
+    );
 
-	if (hld_line != NULL){
-		jmp_pick = (hld_line->ins->id == JMP) ? true : false;
-		label_pick = (hld_line->ins->id == LABEL) ? true : false;
-	}
+    draw_bufs_arrow(
+        check_display_buf_arrow()
+    );
 
-	if (code_size == 2 && tr_is_active("welcome")) tr_render_step("welcome");
-	else if (code_size == 2 && tr_is_active("review_instruction_limit")) tr_render_step("review_instruction_limit");
-	else if (code_size == 2 && tr_is_active("introduce_jump")) tr_render_step("introduce_jump");
-	else if (code_size == 2 && !jmp_pick && tr_is_active("select_jump")) tr_render_step("select_jump");
-	else if (code_size == 2 && jmp_pick && tr_is_active("place_jump")) tr_render_step("place_jump");
-	else if (code_size == 4 && label_pick && tr_is_active("set_jump_destination")) tr_render_step("set_jump_destination");
+    cs_context_t context =
+        cs_capture_context();
+
+    tr_update(&context);
 }
 
 /* Function: level_7
@@ -593,17 +586,20 @@ static void level_8()
  * Return:
  *	Void.
  */
-static void level_7()
+static void level_7(void)
 {
-	draw_regs_arrow(check_display_reg_lv_arrow());
-	draw_bufs_arrow(check_display_buf_arrow());
+    draw_regs_arrow(
+        check_display_reg_lv_arrow()
+    );
 
-	int code_size = cw_get_code_list_size();
-	static bool msg_descrip2 = true;
+    draw_bufs_arrow(
+        check_display_buf_arrow()
+    );
 
-	if (code_size == 0 && tr_is_active("welcome")) tr_render_step("welcome");
-	else if (code_size == 0 && tr_is_active("introduce_same_register_operands")) tr_render_step("introduce_same_register_operands");
-	else if (code_size == 0 && tr_is_active("show_double_register_example")) tr_render_step("show_double_register_example");
+    cs_context_t context =
+        cs_capture_context();
+
+    tr_update(&context);
 }
 
 /* Function: level_6

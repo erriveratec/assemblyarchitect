@@ -37,6 +37,7 @@ typedef struct cs_context_t {
     int operation_flag;
 
     bool holding_instruction;
+    int held_instruction_id;
     bool code_sorted;
     bool operand_pending;
     bool operand_1_pending;

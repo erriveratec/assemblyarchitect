@@ -6,6 +6,7 @@
 #include "mouse_ms.h"
 #include "text_tx.h"
 #include "tutorial_tr.h"
+#include "code_line_cl.h"
 
 #define TUTORIAL_PATH_FORMAT "data/levels/%02d/tutorial.cfg"
 #define TUTORIAL_MAX_STEPS 32
@@ -95,6 +96,36 @@ static bool parse_arrow(const char *text, int *arrow_id)
     else if (strcmp(text, "error") == 0) *arrow_id = AR_ERROR;
     else if (strcmp(text, "immediate") == 0) *arrow_id = AR_IMM_UP;
     else return false;
+    return true;
+}
+
+static bool parse_instruction_id(
+    const char *text,
+    int *instruction_id
+)
+{
+    if (text == NULL || instruction_id == NULL) {
+        return false;
+    }
+
+    if (strcmp(text, "MOV") == 0) {
+        *instruction_id = MOV;
+    } else if (strcmp(text, "ADD") == 0) {
+        *instruction_id = ADD;
+    } else if (strcmp(text, "LABEL") == 0) {
+        *instruction_id = LABEL;
+    } else if (strcmp(text, "JMP") == 0) {
+        *instruction_id = JMP;
+    } else if (strcmp(text, "CMP") == 0) {
+        *instruction_id = CMP;
+    } else if (strcmp(text, "JE") == 0) {
+        *instruction_id = JE;
+    } else if (strcmp(text, "JNE") == 0) {
+        *instruction_id = JNE;
+    } else {
+        return false;
+    }
+
     return true;
 }
 
@@ -219,6 +250,14 @@ bool tr_step_matches_current_state(const char *name,
     if (step == NULL || !step->active || context == NULL) return false;
     if (step->when_code_size >= 0 && step->when_code_size != context->code_size) return false;
     if (step->when_holding >= 0 && step->when_holding != context->holding_instruction) return false;
+    if (step->when_held_instruction_id >= 0 && step->when_held_instruction_id !=
+        context->held_instruction_id) {
+        return false;
+    }
+    if (step->when_held_instruction_not_id >= 0 && step->when_held_instruction_not_id ==
+        context->held_instruction_id) {
+        return false;
+    }
     if (step->when_operand_pending >= 0 && step->when_operand_pending != context->operand_pending) return false;
     if (step->when_code_sorted >= 0 && step->when_code_sorted != context->code_sorted) return false;
     if (step->when_play_state >= 0 && step->when_play_state != context->playing) return false;
@@ -296,6 +335,8 @@ bool tr_load_level(int level_id)
             step->arrow_count = 0;
             step->when_code_size = -1;
             step->when_holding = -1;
+            step->when_held_instruction_id = -1;
+            step->when_held_instruction_not_id = -1;
             step->when_operand_pending = -1;
             step->when_code_sorted = -1;
             step->when_play_state = -1;
@@ -337,6 +378,20 @@ bool tr_load_level(int level_id)
         }
         if (strcmp(key, "when.code_size") == 0) step->when_code_size = atoi(value);
         if (strcmp(key, "when.holding") == 0) step->when_holding = atoi(value);
+        if (strcmp(key, "when.held_instruction") == 0) {
+        if (!parse_instruction_id(
+            value,
+            &step->when_held_instruction_id)) {
+            goto invalid;
+            }
+        }
+        if (strcmp(key, "when.held_instruction_not") == 0) {
+            if (!parse_instruction_id(
+            value,
+            &step->when_held_instruction_not_id)) {
+            goto invalid;
+            }
+        }
         if (strcmp(key, "when.operand_pending") == 0) step->when_operand_pending = atoi(value);
         if (strcmp(key, "when.code_sorted") == 0) step->when_code_sorted = atoi(value);
         if (strcmp(key, "when.play_state") == 0) step->when_play_state = atoi(value);
