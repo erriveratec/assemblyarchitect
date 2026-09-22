@@ -510,19 +510,24 @@ static void level_11()
  * Return:
  *	Void.
  */
-static void level_10()
+static void level_10(void)
 {
-	draw_regs_arrow(check_display_reg_lv_arrow());
-	draw_bufs_arrow(check_display_buf_arrow());
-	draw_im_up_arrow(chk_display_imm_up_arrow());
+    draw_regs_arrow(
+        check_display_reg_lv_arrow()
+    );
 
-	int size = cw_get_code_list_size();
+    draw_bufs_arrow(
+        check_display_buf_arrow()
+    );
 
-	if (size == 0 && tr_is_active("welcome")) tr_render_step("welcome");
-	else if (size == 0 && tr_is_active("introduce_immediates")) tr_render_step("introduce_immediates");
-	else if (size == 0 && tr_is_active("select_immediate")) tr_render_step("select_immediate");
-	else if (size == 0 && tr_is_active("explain_immediate_read_only")) tr_render_step("explain_immediate_read_only");
-	else if (size == 0 && tr_is_active("show_immediate_examples")) tr_render_step("show_immediate_examples");
+    draw_im_up_arrow(
+        chk_display_imm_up_arrow()
+    );
+
+    cs_context_t context =
+        cs_capture_context();
+
+    tr_update(&context);
 }
 
 /* Function: level_9

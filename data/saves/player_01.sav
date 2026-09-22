@@ -68,11 +68,6 @@ code_end
 [level 10]
 unlocked = true
 code_begin
-line 01
-MOV rax, [ib]
-ADD rax, IMMUP5
-MOV [ob], rax
-JMP 00
 code_end
 
 [level 11]
