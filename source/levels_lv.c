@@ -535,18 +535,20 @@ static void level_10()
  * Return:
  *	Void.
  */
-static void level_9()
+static void level_9(void)
 {
-	draw_regs_arrow(check_display_reg_lv_arrow());
-	draw_bufs_arrow(check_display_buf_arrow());
+    draw_regs_arrow(
+        check_display_reg_lv_arrow()
+    );
 
-	int code_size = cw_get_code_list_size();
+    draw_bufs_arrow(
+        check_display_buf_arrow()
+    );
 
-	if (g_lv_msg[MSG0] == true && code_size == 0){
-		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome msg
-		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG0, true);
-	}
+    cs_context_t context =
+        cs_capture_context();
+
+    tr_update(&context);
 }
 
 
