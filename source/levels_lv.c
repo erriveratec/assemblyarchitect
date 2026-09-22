@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include "levels_lv.h"
-
+#include "gameplay/interaction_rules_ir.h"
 #include "registers_rg.h"
 #include "instruction_window_iw.h"
 #include "code_window_cw.h"
@@ -20,10 +20,10 @@
 #define LV_MSGS_QTY 15
 
 // Exceptions of the selection of the code
-#define NO_EXCEPTION -1
-#define INS_EXCEPTION -2
-#define OP1_LAST -3
-#define OP2_LAST -4
+#define NO_EXCEPTION IR_NO_EXCEPTION
+#define INS_EXCEPTION IR_INSTRUCTION_EXCEPTION
+#define OP1_LAST IR_OPERAND_1_LAST
+#define OP2_LAST IR_OPERAND_2_LAST
 
 const Uint32 LV_SECTOR_1_START = 8;
 const Uint32 LV_SECTOR_2_START = 16;
@@ -31,13 +31,6 @@ const Uint32 LV_SECTOR_3_START = 24;
 const Uint32 LV_SECTOR_4_START = 32;
 const Uint32 LV_SECTOR_LV_QTY = 8;
 
-static bool g_code_editable;
-static int g_code_editable_exception;
-static bool g_buf_selectable;
-static bool g_reg_selectable;
-static bool g_arng_enabled;
-static bool g_del_enabled;
-static int g_level_instructions_limit;
 
 static bool g_lv_msg[LV_MSGS_QTY];
 
@@ -121,9 +114,9 @@ static void init_lv_msgs()
  * Return:
  *	Boolean indicating if the regs is editable
  */
-bool lv_is_reg_selectable()
+bool lv_is_reg_selectable(void)
 {
-	return g_reg_selectable;
+    return ir_is_register_selectable();
 }
 
 
@@ -139,7 +132,7 @@ bool lv_is_reg_selectable()
  */
 static void set_reg_selectable(bool state)
 {
-	g_reg_selectable = state;
+    ir_set_register_selectable(state);
 }
 
 /* Function: lv_is_buf_selectable
@@ -152,9 +145,9 @@ static void set_reg_selectable(bool state)
  * Return:
  *	Boolean indicating if the code is editable
  */
-bool lv_is_buf_selectable()
+bool lv_is_buf_selectable(void)
 {
-	return g_buf_selectable;
+    return ir_is_buffer_selectable();
 }
 
 /* Function: set_buf_selectable
@@ -169,7 +162,7 @@ bool lv_is_buf_selectable()
  */
 static void set_buf_selectable(bool state)
 {
-	g_buf_selectable = state;
+    ir_set_buffer_selectable(state);
 }
 
 /* Function: lv_is_arrange_enabled
@@ -182,9 +175,9 @@ static void set_buf_selectable(bool state)
  * Return:
  *	Boolean indicating if the arrange is enabled
  */
-bool lv_is_arrange_enabled()
+bool lv_is_arrange_enabled(void)
 {
-	return g_arng_enabled;
+    return ir_is_arrange_enabled();
 }
 
 /* Function: set_arrange_enabled
@@ -199,7 +192,7 @@ bool lv_is_arrange_enabled()
  */
 static void set_arrange_enabled(bool state)
 {
-	g_arng_enabled = state;
+    ir_set_arrange_enabled(state);
 }
 
 /* Function: lv_is_del_enabled
@@ -212,9 +205,9 @@ static void set_arrange_enabled(bool state)
  * Return:
  *	Boolean indicating if the delete is enabled
  */
-bool lv_is_del_enabled()
+bool lv_is_del_enabled(void)
 {
-	return g_del_enabled;
+    return ir_is_delete_enabled();
 }
 
 /* Function: set_del_enabled
@@ -229,7 +222,7 @@ bool lv_is_del_enabled()
  */
 static void set_del_enabled(bool state)
 {
-	g_del_enabled = state;
+    ir_set_delete_enabled(state);
 }
 
 /* Function: lv_init_stage_code
@@ -273,31 +266,9 @@ void lv_init_stage_code(int level_id)
  * Return:
  *	Boolean indicating if the code is editable
  */
-bool lv_is_code_editable()
+bool lv_is_code_editable(void)
 {
-	bool editable;
-	int exception = g_code_editable_exception;
-	
-	if (exception == NO_EXCEPTION){
-		editable = g_code_editable;
-	} else if (iw_chk_click_ins() == true && 
-													exception == INS_EXCEPTION){
-		editable = true;	
-	} else if (cw_chk_click_code() == true) {
-		code_line_t *line = cw_get_clicked_code();
-		int pos = cw_get_code_line_pos_by_ptr(line);
-		pos++;//instruction pos starts at zero;
-		if (pos == exception){
-			editable = true;	
-		}
-	} else if (exception == OP2_LAST){
-		int code_size = cw_get_code_list_size();
-		editable = cw_chk_click_code_op2(code_size);
-	} else {
-		editable = g_code_editable;
-	}
-	
-	return editable;
+    return ir_is_code_editable();
 }
 
 /* Function: set_code_editable
@@ -314,8 +285,7 @@ bool lv_is_code_editable()
  */
 static void set_code_editable(bool state, int exception)
 {
-	g_code_editable_exception = exception;
-	g_code_editable = state;
+    ir_set_code_editable(state, exception);
 }
 
 /* Function: chk_ms_rel_clear_msg
@@ -391,16 +361,26 @@ static void level_16()
  * Return:
  *	Void.
  */
-static void level_15()
+static void level_15(void)
 {
-	draw_regs_arrow(check_display_reg_lv_arrow());
-	draw_bufs_arrow(check_display_buf_arrow());
-	draw_im_up_arrow(chk_display_imm_up_arrow());
-	rg_draw_flag_boxes();
+    draw_regs_arrow(
+        check_display_reg_lv_arrow()
+    );
 
-	int size = cw_get_code_list_size();
-	 
-	if (size == 0 && tr_is_active("welcome")) tr_render_step("welcome");
+    draw_bufs_arrow(
+        check_display_buf_arrow()
+    );
+
+    draw_im_up_arrow(
+        chk_display_imm_up_arrow()
+    );
+
+    rg_draw_flag_boxes();
+
+    cs_context_t context =
+        cs_capture_context();
+
+    tr_update(&context);
 }
 /* Function: level_14
  * -----------------------------------------------------------------------------
@@ -412,21 +392,26 @@ static void level_15()
  * Return:
  *	Void.
  */
-static void level_14()
+static void level_14(void)
 {
-	draw_regs_arrow(check_display_reg_lv_arrow());
-	draw_bufs_arrow(check_display_buf_arrow());
-	draw_im_up_arrow(chk_display_imm_up_arrow());
-	rg_draw_flag_boxes();
+    draw_regs_arrow(
+        check_display_reg_lv_arrow()
+    );
 
-	int size = cw_get_code_list_size();
-	 
-	if (size == 0 && tr_is_active("welcome")) tr_render_step("welcome");
-	else if (size == 0 && tr_is_active("introduce_jump_not_equal")) tr_render_step("introduce_jump_not_equal");
-	else if (size == 0 && tr_is_active("explain_jump_not_equal")) tr_render_step("explain_jump_not_equal");
-	else if (size == 0 && tr_is_active("explain_zero_flag_clear")) tr_render_step("explain_zero_flag_clear");
-	else if (size == 0 && tr_is_active("explain_zero_flag_set")) tr_render_step("explain_zero_flag_set");
+    draw_bufs_arrow(
+        check_display_buf_arrow()
+    );
 
+    draw_im_up_arrow(
+        chk_display_imm_up_arrow()
+    );
+
+    rg_draw_flag_boxes();
+
+    cs_context_t context =
+        cs_capture_context();
+
+    tr_update(&context);
 }
 
 /* Function: level_13
@@ -439,22 +424,26 @@ static void level_14()
  * Return:
  *	Void.
  */
-static void level_13()
+static void level_13(void)
 {
-	draw_regs_arrow(check_display_reg_lv_arrow());
-	draw_bufs_arrow(check_display_buf_arrow());
-	draw_im_up_arrow(chk_display_imm_up_arrow());
-	rg_draw_flag_boxes();
+    draw_regs_arrow(
+        check_display_reg_lv_arrow()
+    );
 
-	int size = cw_get_code_list_size();
-	 
-	if (size == 0 && tr_is_active("welcome")) tr_render_step("welcome");
-	else if (size == 0 && tr_is_active("introduce_compare_and_equal")) tr_render_step("introduce_compare_and_equal");
-	else if (size == 0 && tr_is_active("explain_compare")) tr_render_step("explain_compare");
-	else if (size == 0 && tr_is_active("explain_zero_flag_set")) tr_render_step("explain_zero_flag_set");
-	else if (size == 0 && tr_is_active("explain_zero_flag_clear")) tr_render_step("explain_zero_flag_clear");
-	else if (size == 0 && tr_is_active("explain_jump_equal")) tr_render_step("explain_jump_equal");
-	else if (size == 0 && tr_is_active("complete_compare_branch_program")) tr_render_step("complete_compare_branch_program");
+    draw_bufs_arrow(
+        check_display_buf_arrow()
+    );
+
+    draw_im_up_arrow(
+        chk_display_imm_up_arrow()
+    );
+
+    rg_draw_flag_boxes();
+
+    cs_context_t context =
+        cs_capture_context();
+
+    tr_update(&context);
 }
 
 /* Function: level_12
@@ -467,16 +456,24 @@ static void level_13()
  * Return:
  *	Void.
  */
-static void level_12()
+static void level_12(void)
 {
-	draw_regs_arrow(check_display_reg_lv_arrow());
-	draw_bufs_arrow(check_display_buf_arrow());
-	draw_im_up_arrow(chk_display_imm_up_arrow());
-	//rg_draw_flag_boxes();
+    draw_regs_arrow(
+        check_display_reg_lv_arrow()
+    );
 
-	int size = cw_get_code_list_size();
-	 
-	if (size == 0 && tr_is_active("welcome")) tr_render_step("welcome");
+    draw_bufs_arrow(
+        check_display_buf_arrow()
+    );
+
+    draw_im_up_arrow(
+        chk_display_imm_up_arrow()
+    );
+
+    cs_context_t context =
+        cs_capture_context();
+
+    tr_update(&context);
 }
 
 /* Function: level_11
@@ -489,15 +486,24 @@ static void level_12()
  * Return:
  *	Void.
  */
-static void level_11()
+static void level_11(void)
 {
-	draw_regs_arrow(check_display_reg_lv_arrow());
-	draw_bufs_arrow(check_display_buf_arrow());
-	draw_im_up_arrow(chk_display_imm_up_arrow());
+    draw_regs_arrow(
+        check_display_reg_lv_arrow()
+    );
 
-	int size = cw_get_code_list_size();
+    draw_bufs_arrow(
+        check_display_buf_arrow()
+    );
 
-	if (size == 0 && tr_is_active("welcome")) tr_render_step("welcome");
+    draw_im_up_arrow(
+        chk_display_imm_up_arrow()
+    );
+
+    cs_context_t context =
+        cs_capture_context();
+
+    tr_update(&context);
 }
 
 /* Function: level_10
@@ -1153,9 +1159,9 @@ static void draw_im_up_arrow(bool show_arrows)
  * Return:
  *	The limit number of instructions for the level
  */
-int lv_get_level_instructions_limit()
+int lv_get_level_instructions_limit(void)
 {
-	return g_level_instructions_limit;
+    return ir_get_instruction_limit();
 }
 
 
@@ -1169,7 +1175,7 @@ int lv_get_level_instructions_limit()
  */
 void lv_set_level_instructions_limit(int limit)
 {
-	g_level_instructions_limit = limit;
+    ir_set_instruction_limit(limit);
 }
 
 

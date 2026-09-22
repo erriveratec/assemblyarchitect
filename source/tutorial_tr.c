@@ -249,6 +249,9 @@ bool tr_step_matches_current_state(const char *name,
     tutorial_step_t *step = find_step(name);
     if (step == NULL || !step->active || context == NULL) return false;
     if (step->when_code_size >= 0 && step->when_code_size != context->code_size) return false;
+    if (step->when_code_size_max >= 0 && context->code_size > step->when_code_size_max) {
+        return false;
+    }
     if (step->when_holding >= 0 && step->when_holding != context->holding_instruction) return false;
     if (step->when_held_instruction_id >= 0 && step->when_held_instruction_id !=
         context->held_instruction_id) {
@@ -259,6 +262,12 @@ bool tr_step_matches_current_state(const char *name,
         return false;
     }
     if (step->when_operand_pending >= 0 && step->when_operand_pending != context->operand_pending) return false;
+    if (step->when_operand_1_pending >= 0 && step->when_operand_1_pending != context->operand_1_pending) {
+        return false;
+    }
+    if (step->when_operand_2_pending >= 0 && step->when_operand_2_pending != context->operand_2_pending) {
+        return false;
+    }
     if (step->when_code_sorted >= 0 && step->when_code_sorted != context->code_sorted) return false;
     if (step->when_play_state >= 0 && step->when_play_state != context->playing) return false;
     if (step->when_operation_flag >= 0 && step->when_operation_flag != context->operation_flag) return false;
@@ -334,10 +343,13 @@ bool tr_load_level(int level_id)
             sscanf(text, "[%63[^]]]", step->name);
             step->arrow_count = 0;
             step->when_code_size = -1;
+            step->when_code_size_max = -1;
             step->when_holding = -1;
             step->when_held_instruction_id = -1;
             step->when_held_instruction_not_id = -1;
             step->when_operand_pending = -1;
+            step->when_operand_1_pending = -1;
+            step->when_operand_2_pending = -1;
             step->when_code_sorted = -1;
             step->when_play_state = -1;
             step->when_operation_flag = -1;
@@ -377,6 +389,9 @@ bool tr_load_level(int level_id)
             }
         }
         if (strcmp(key, "when.code_size") == 0) step->when_code_size = atoi(value);
+        if (strcmp(key, "when.code_size_max") == 0) {
+            step->when_code_size_max = atoi(value);
+        }
         if (strcmp(key, "when.holding") == 0) step->when_holding = atoi(value);
         if (strcmp(key, "when.held_instruction") == 0) {
         if (!parse_instruction_id(
@@ -393,6 +408,12 @@ bool tr_load_level(int level_id)
             }
         }
         if (strcmp(key, "when.operand_pending") == 0) step->when_operand_pending = atoi(value);
+        if (strcmp(key, "when.operand_1_pending") == 0) {
+            step->when_operand_1_pending = atoi(value);
+        }
+        if (strcmp(key, "when.operand_2_pending") == 0) {
+            step->when_operand_2_pending = atoi(value);
+        }
         if (strcmp(key, "when.code_sorted") == 0) step->when_code_sorted = atoi(value);
         if (strcmp(key, "when.play_state") == 0) step->when_play_state = atoi(value);
         if (strcmp(key, "when.operation_flag") == 0) step->when_operation_flag = atoi(value);

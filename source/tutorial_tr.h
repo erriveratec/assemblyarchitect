@@ -45,10 +45,13 @@ typedef struct tutorial_step_t {
     int arrow_ids[TUTORIAL_MAX_ARROWS];
     int arrow_count;
     int when_code_size;
+    int when_code_size_max;
     int when_holding;
     int when_held_instruction_id;
     int when_held_instruction_not_id;
     int when_operand_pending;
+    int when_operand_1_pending;
+    int when_operand_2_pending;
     int when_code_sorted;
     int when_play_state;
     int when_operation_flag;
