@@ -410,6 +410,11 @@ bool tr_load_level(int level_id)
     while (fgets(line, sizeof(line), file) != NULL) {
         char *text = trim(line);
         if (text[0] == '[' && strcmp(text, "[tutorial]") != 0) {
+            if (reading_text) {
+                fprintf(stderr, "tutorial.cfg: level %d step '%s' " "is missing text_end\n", level_id, step != NULL ? step->name : "unknown");
+
+            goto invalid;
+            }
             if (g_step_count == TUTORIAL_MAX_STEPS) break;
             step = &g_steps[g_step_count++];
             sscanf(text, "[%63[^]]]", step->name);
@@ -435,8 +440,22 @@ bool tr_load_level(int level_id)
             continue;
         }
         if (step == NULL) continue;
-        if (strcmp(text, "text_begin") == 0) { reading_text = true; continue; }
-        if (strcmp(text, "text_end") == 0) { reading_text = false; continue; }
+        if (strcmp(text, "text_begin") == 0) {
+            if (reading_text) {
+                fprintf(stderr, "tutorial.cfg: level %d step '%s' " "contains nested text_begin\n", level_id, step->name);
+                goto invalid;
+            }
+            reading_text = true;
+            continue;
+        }
+        if (strcmp(text, "text_end") == 0) { 
+            if (!reading_text) {
+                fprintf(stderr, "tutorial.cfg: level %d step '%s' " "contains text_end without text_begin\n", level_id, step->name); 
+                goto invalid;
+        }
+        reading_text = false;
+        continue;
+        }
         if (reading_text) {
             size_t used = strlen(step->text);
             snprintf(step->text + used, sizeof(step->text) - used, "%s%s", used == 0 ? "" : "\n", text);
@@ -525,6 +544,10 @@ bool tr_load_level(int level_id)
             }
         }
     }
+    if (reading_text) {
+        fprintf(stderr, "tutorial.cfg: level %d step '%s' " "is missing text_end at end of file\n", level_id, step != NULL ? step->name : "unknown");
+        goto invalid;
+ }
     fclose(file);
     return g_step_count > 0;
 

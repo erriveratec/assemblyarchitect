@@ -727,88 +727,20 @@ static void level_3(void)
  * Return:
  *	Void.
  */
-static void level_2()
+static void level_2(void)
 {
-	draw_regs_arrow(check_display_reg_lv_arrow());
-	draw_bufs_arrow(check_display_buf_arrow());
+    draw_regs_arrow(
+        check_display_reg_lv_arrow()
+    );
 
-	int size = cw_get_code_list_size();
-	bool hold = chk_player_holds_line();
-	bool miss_op1 = cw_is_operand_1_pending();
-	bool miss_op2 = cw_is_operand_2_pending();
-	bool miss_op = cw_is_operand_pending();
-	bool sorted = cw_check_code_sorted();
+    draw_bufs_arrow(
+        check_display_buf_arrow()
+    );
 
-	if (g_lv_msg[MSG0] == true && size == 0){
-		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome
-		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		set_code_editable(false, NO_EXCEPTION);
-		//set_arrange_enabled(false);
-		chk_ms_pressed_clear_msg(MSG0, true);
-	} else if (g_lv_msg[MSG1] == true && size == 0){
-		tx_text_box(TX_UPPER_BOX, MSG1, TX_INS);// IB can be read only once
-		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_IB);
-		chk_ms_pressed_clear_msg(MSG1, true);
-	} else if (g_lv_msg[MSG2] == true && size == 0){
-		tx_text_box(TX_LOWER_BOX, MSG2, TX_INS); //Reg can be read multiples
-		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
-		draw_regs_arrow(true);
-		chk_ms_pressed_clear_msg(MSG2, true);
-	} else if (size == 0 && hold == false){
-		tx_text_box(TX_INS_BOX, MSG3, TX_INS);// Select and drag mov
-		ar_display_arrow(AR_INS);
-		set_code_editable(true, NO_EXCEPTION);
-	} else if (size == 0 && hold == true){
-		tx_text_box(TX_CODE_BOX, MSG4, TX_INS); // Drop in code box
-		ar_display_arrow(AR_DROP);
-	} else if (size == 1 && hold == true && miss_op == true){
-		tx_text_box(TX_CODE_BOX, MSG4, TX_INS); // Drop in code box
-		ar_display_arrow(AR_DROP);
-	} else if (size == 1 
-			   && sorted == true 
-			   && hold == false 
-			   && g_lv_msg[MSG5] == true){
-		tx_text_box(TX_LOWER_BOX, MSG5, TX_INS); // All operands are shown
-		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
-		chk_ms_rel_clear_msg(MSG5, true);
-	} else if (size == 1 && miss_op1 == true && sorted == true){
-		tx_text_box(TX_CODE_BOX, MSG6, TX_INS); //Sel rax
-		set_buf_selectable(false);
-	} else if (size == 1 
-			   && miss_op2 == true 
-			   && sorted == true
-			   && g_lv_msg[MSG7] == true){
-		tx_text_box(TX_CENTER_BOX, MSG7, TX_INS); //Valid op combinations
-		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
-		chk_ms_rel_clear_msg(MSG7, true);
-	} else if (size == 1 && miss_op2 == true && sorted == true){
-		tx_text_box(TX_UPPER_BOX, MSG8, TX_INS); //Select IB
-		set_buf_selectable(true);
-		set_reg_selectable(false);
-	} else if (size == 1 && miss_op == false && hold == false){
-		tx_text_box(TX_INS_BOX, MSG9, TX_INS); //Select second instruction
-		ar_display_arrow(AR_INS);
-		set_reg_selectable(true);
-	} else if (size == 1 && miss_op == false & hold == true){
-		tx_text_box(TX_CODE_BOX, MSG4, TX_INS);//Drop in code box
-		ar_display_arrow(AR_DROP);
-	} else if (size == 2 && miss_op1 == true){
-		tx_text_box(TX_CODE_BOX, MSG10, TX_INS);//Use mov [ob], rax several 
-		set_reg_selectable(false);
-		set_buf_selectable(true);
-		ar_init_arrow(AR_CODE);
-	} else if (size == 2 && miss_op1 == false && miss_op2 == true){
-		tx_text_box(TX_CODE_BOX, MSG10, TX_INS);//Use mov [ob], rax several 
-		set_buf_selectable(false);
-		set_reg_selectable(true);
-		ar_init_arrow(AR_CODE);
-	} else if (size == 2 && miss_op == false){
-		tx_text_box(TX_CODE_BOX, MSG11, TX_INS); //Right click a complete 
-		set_reg_selectable(true);
-		//set_arrange_enabled(true);
-		ar_display_arrow(AR_CODE);
-	}
+    cs_context_t context =
+        cs_capture_context();
+
+    tr_update(&context);
 }
 
 /* Function: level_1
