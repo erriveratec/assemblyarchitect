@@ -80,7 +80,7 @@ const tutorial_step_t *tr_get_named_step(const char *name);
 bool tr_is_active(const char *name);
 void tr_deactivate(const char *name);
 void tr_render_step(const char *name);
-void tr_update(const cs_context_t *context);
+
 
 bool tr_step_matches_current_state(
     const char *name,
@@ -88,6 +88,10 @@ bool tr_step_matches_current_state(
 );
 
 const tutorial_step_t *tr_get_matching_step(
+    const cs_context_t *context
+);
+
+const tutorial_step_t *tr_update(
     const cs_context_t *context
 );
 

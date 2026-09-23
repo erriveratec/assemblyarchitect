@@ -13,6 +13,7 @@
 #include "stage_buttons_sb.h"
 #include "immediates_im.h"
 #include "gameplay/win_condition_wc.h"
+#include "gameplay/interaction_rules_ir.h"
 
 #define LEVEL_CONFIG_PATH_FORMAT "data/levels/%02d/level.cfg"
 #define LINE_SIZE 512
@@ -158,6 +159,20 @@ static void apply_level(int level_id, level_config_t *config)
 	input.mod_num2 = config->input_arg2;
 	input.mod_num3 = config->input_arg3;
 
+	ir_rules_t rules = {
+        .instruction_limit = config->instruction_limit,
+
+        .code_editable = true,
+        .code_editable_exception = IR_NO_EXCEPTION,
+
+        .buffer_selectable = true,
+        .register_selectable = true,
+        .arrange_enabled = true,
+        .delete_enabled = true
+    };
+
+    ir_set_base_rules(&rules);
+
 	char title[32];
 	char win_condition[64];
 	snprintf(title, sizeof(title), "ADDRESS %02X", level_id);
@@ -180,7 +195,6 @@ static void apply_level(int level_id, level_config_t *config)
 
 	cw_set_stage_name(title);
 	cw_set_challenge_text(config->challenge);
-	lv_set_level_instructions_limit(config->instruction_limit);
 	iw_create_instruction_list();
 	add_instructions(config->instructions);
 	create_register_list();
@@ -190,7 +204,6 @@ static void apply_level(int level_id, level_config_t *config)
 	sb_set_step_btns_avail(config->step_controls_enabled);
 	im_set_imm_up_avail(config->immediates_visible);
 	wc_set_condition_from_text(win_condition);
-	wc_reset_condition();
 	rg_update_register_box_position();
 	iw_update_ins_box_size();
 }

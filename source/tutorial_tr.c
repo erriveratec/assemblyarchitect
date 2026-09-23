@@ -1,12 +1,14 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 #include "arrow_ar.h"
 #include "aux.h"
 #include "mouse_ms.h"
 #include "text_tx.h"
 #include "tutorial_tr.h"
 #include "code_line_cl.h"
+#include "gameplay/interaction_rules_ir.h"
 
 #define TUTORIAL_PATH_FORMAT "data/levels/%02d/tutorial.cfg"
 #define TUTORIAL_MAX_STEPS 32
@@ -14,23 +16,71 @@
 static tutorial_step_t g_steps[TUTORIAL_MAX_STEPS];
 static int g_step_count;
 
+static void tr_apply_step_effects(
+    const tutorial_step_t *step
+)
+{
+    if (step == NULL) {
+        return;
+    }
+
+    if (step->effect_code_editable >= 0) {
+        ir_set_code_editable(
+            step->effect_code_editable != 0,
+            IR_NO_EXCEPTION
+        );
+    }
+
+    if (step->effect_buffer_selectable >= 0) {
+        ir_set_buffer_selectable(
+            step->effect_buffer_selectable != 0
+        );
+    }
+
+    if (step->effect_register_selectable >= 0) {
+        ir_set_register_selectable(
+            step->effect_register_selectable != 0
+        );
+    }
+
+    if (step->effect_arrange_enabled >= 0) {
+        ir_set_arrange_enabled(
+            step->effect_arrange_enabled != 0
+        );
+    }
+
+    if (step->effect_delete_enabled >= 0) {
+        ir_set_delete_enabled(
+            step->effect_delete_enabled != 0
+        );
+    }
+}
+
 /*
  * Renders the first active tutorial step that matches
  * the current gameplay state.
  */
-void tr_update(const cs_context_t *context)
+const tutorial_step_t *tr_update(
+    const cs_context_t *context
+)
 {
+    ir_restore_base_rules();
+
     if (context == NULL) {
-        return;
+        return NULL;
     }
 
     const tutorial_step_t *step =
-       tr_get_matching_step(context);
+        tr_get_matching_step(context);
 
     if (step == NULL) {
-        return;    }
+        return NULL;
+    }
 
+    tr_apply_step_effects(step);
     tr_render_step(step->name);
+
+    return step;
 }
 
 
@@ -41,6 +91,28 @@ static char *trim(char *text)
     while (end > text && isspace((unsigned char)end[-1])) end--;
     *end = '\0';
     return text;
+}
+
+static bool parse_effect_bool(
+    const char *text,
+    int *result
+)
+{
+    if (text == NULL || result == NULL) {
+        return false;
+    }
+
+    if (strcmp(text, "0") == 0) {
+        *result = 0;
+        return true;
+    }
+
+    if (strcmp(text, "1") == 0) {
+        *result = 1;
+        return true;
+    }
+
+    return false;
 }
 
 static bool parse_box(const char *text, tutorial_box_t *box)
@@ -417,11 +489,41 @@ bool tr_load_level(int level_id)
         if (strcmp(key, "when.code_sorted") == 0) step->when_code_sorted = atoi(value);
         if (strcmp(key, "when.play_state") == 0) step->when_play_state = atoi(value);
         if (strcmp(key, "when.operation_flag") == 0) step->when_operation_flag = atoi(value);
-        if (strcmp(key, "effects.code_editable") == 0) step->effect_code_editable = atoi(value);
-        if (strcmp(key, "effects.buffer_selectable") == 0) step->effect_buffer_selectable = atoi(value);
-        if (strcmp(key, "effects.register_selectable") == 0) step->effect_register_selectable = atoi(value);
-        if (strcmp(key, "effects.arrange_enabled") == 0) step->effect_arrange_enabled = atoi(value);
-        if (strcmp(key, "effects.delete_enabled") == 0) step->effect_delete_enabled = atoi(value);
+        if (strcmp(key, "effects.code_editable") == 0) {
+            if (!parse_effect_bool(
+                    value,
+                    &step->effect_code_editable)) {
+                goto invalid;
+            }
+        }
+        if (strcmp(key, "effects.buffer_selectable") == 0) {
+            if (!parse_effect_bool(
+                    value,
+                    &step->effect_buffer_selectable)) {
+                goto invalid;
+            }
+        }
+        if (strcmp(key, "effects.register_selectable") == 0) {
+            if (!parse_effect_bool(
+                    value,
+                    &step->effect_register_selectable)) {
+                goto invalid;
+            }
+        }
+        if (strcmp(key, "effects.arrange_enabled") == 0) {
+            if (!parse_effect_bool(
+                    value,
+                    &step->effect_arrange_enabled)) {
+                goto invalid;
+            }
+        }
+        if (strcmp(key, "effects.delete_enabled") == 0) {
+            if (!parse_effect_bool(
+                    value,
+                    &step->effect_delete_enabled)) {
+                goto invalid;
+            }
+        }
     }
     fclose(file);
     return g_step_count > 0;
