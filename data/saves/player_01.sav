@@ -5,15 +5,13 @@ id = 1
 [level 00]
 unlocked = true
 code_begin
-MOV rax, [ib]
-MOV [ob], rax
 code_end
 
 [level 01]
 unlocked = true
 code_begin
-MOV [ob], rax
 MOV rax, [ib]
+MOV [ob], rax
 code_end
 
 [level 02]

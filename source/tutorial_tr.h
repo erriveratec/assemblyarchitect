@@ -34,6 +34,14 @@ typedef enum tutorial_dismiss_t {
     TUTORIAL_DISMISS_MOUSE_RELEASE
 } tutorial_dismiss_t;
 
+typedef enum tutorial_edit_exception_t {
+    TUTORIAL_EDIT_EXCEPTION_UNSET = -1,
+    TUTORIAL_EDIT_EXCEPTION_NONE,
+    TUTORIAL_EDIT_EXCEPTION_INSTRUCTION,
+    TUTORIAL_EDIT_EXCEPTION_LAST_LINE,
+    TUTORIAL_EDIT_EXCEPTION_LAST_OPERAND_2
+} tutorial_edit_exception_t;
+
 #define TUTORIAL_MAX_ARROWS 4
 
 typedef struct tutorial_step_t {
@@ -52,10 +60,16 @@ typedef struct tutorial_step_t {
     int when_operand_pending;
     int when_operand_1_pending;
     int when_operand_2_pending;
+    int when_first_operand_1_id;
+    int when_first_operand_2_id;
+    int when_last_operand_1_id;
+    int when_last_operand_2_id;
+    int when_last_line_state;
     int when_code_sorted;
     int when_play_state;
     int when_operation_flag;
     int effect_code_editable;
+    tutorial_edit_exception_t effect_code_editable_exception;
     int effect_buffer_selectable;
     int effect_register_selectable;
     int effect_arrange_enabled;

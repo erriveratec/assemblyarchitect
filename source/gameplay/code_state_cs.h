@@ -44,6 +44,11 @@ typedef struct cs_context_t {
     bool operand_2_pending;
     bool playing;
     bool won;
+    int first_operand_1_id;
+    int first_operand_2_id;
+    int last_operand_1_id;
+    int last_operand_2_id;
+    int last_line_state;
 } cs_context_t;
 
 cs_context_t cs_capture_context(void);

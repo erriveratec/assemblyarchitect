@@ -753,82 +753,12 @@ static void level_2(void)
  * Return:
  *	Void.
  */
-static void level_1()
+static void level_1(void)
 {
-	int size = cw_get_code_list_size();
-	bool hold = chk_player_holds_line();
- 	bool play = mc_is_executing();
-	int limit = lv_get_level_instructions_limit();
-	const int pos_one = 0;
-	const int pos_two = 1;
-	const int two_instructions = 2;
-	bool change_op = false;
-	bool mov_instruction = false;
-	bool press_play = false;
-	bool win = wc_is_satisfied();
-	code_line_t *i1= NULL;
-	code_line_t *i2 = NULL;
-	bool miss_op = cw_is_operand_pending();
+    cs_context_t context =
+        cs_capture_context();
 
-	if (size >= two_instructions && hold == false){
-		i1 = cw_get_code_line_at_pos(pos_one);
-		i2 = cw_get_code_line_at_pos(pos_two);
-	}
-	if (i2 != NULL && i2->op1 != NULL && i2->op2 != NULL){
-		if (i2->op1->id == RAX && i2->op2->id == RAX){
-			change_op = true;
-		} 
-	}
-	if (i1 != NULL && i1->op1 != NULL && i1->op2 != NULL &&
-	    i2 != NULL && i2->op1 != NULL && i2->op2 != NULL) {
-		if (i1->op1->id == OB && i1->op2->id == RAX &&
-		    i2->op1->id == RAX && i2->op2->id == IB){
-			mov_instruction = true;
-		} else if (i1->op1->id == RAX && i1->op2->id == IB &&
-		    i2->op1->id == OB && i2->op2->id == RAX){
-			press_play = true;
-		}
-	}
-	if (g_lv_msg[MSG0] == true && size == 3){
-		set_code_editable(false, NO_EXCEPTION);
-		set_arrange_enabled(false);
-		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome
-		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG0, true);
-	} else if (g_lv_msg[MSG1] == true && size == 3){
-		set_code_editable(false, NO_EXCEPTION);
-		tx_text_box(TX_UPPER_BOX, MSG1, TX_INS); //Rearrange
-		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG1, true);
-	} else if (size > limit && hold == false){
-		set_code_editable(false, size);
-		tx_text_box(TX_CODE_BOX, MSG2, TX_INS); //Select last instruction
-		ar_display_arrow(AR_CODE);
-	} else if (size > limit && hold == true){
-		tx_text_box(TX_CODE_BOX, MSG3, TX_INS); //Delete the instruction
-		ar_display_arrow(AR_DEL);
-	} else if (change_op == true && hold == false){
-		set_code_editable(false, OP2_LAST);
-		if (i2->state != CHANGING_OP2){
-			tx_text_box(TX_CODE_BOX, MSG4, TX_INS); // Select operand
-			ar_display_arrow(AR_OP2);
-		} else if (i2->state == CHANGING_OP2){
-			tx_text_box(TX_UPPER_BOX, MSG5, TX_INS); // Select IB
-			ar_display_arrow(AR_IB);
-			ar_init_arrow(AR_CODE);
-	} else if (size == 2 && miss_op == false){
-		}
-	} else if (mov_instruction == true){
-		set_code_editable(false, size);
-		set_del_enabled(false);
-		set_arrange_enabled(true);
-		tx_text_box(TX_CODE_BOX, MSG6, TX_INS); //Mov ins to first pos
-		ar_display_arrow(AR_CODE);
-	} else if (press_play == true && play == false && win == false){
-		set_code_editable(false, NO_EXCEPTION);
-		tx_text_box(TX_CODE_BOX, MSG7, TX_INS); //Press play
-		ar_display_arrow(AR_PLAY);
-	}
+    tr_update(&context);
 }
 
 /* Function: level_0

@@ -1,559 +1,846 @@
+#include <assert.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
+
 #include "arrow_ar.h"
 #include "aux.h"
+#include "code_line_cl.h"
+#include "gameplay/interaction_rules_ir.h"
 #include "mouse_ms.h"
 #include "text_tx.h"
 #include "tutorial_tr.h"
-#include "code_line_cl.h"
-#include "gameplay/interaction_rules_ir.h"
 
 #define TUTORIAL_PATH_FORMAT "data/levels/%02d/tutorial.cfg"
 #define TUTORIAL_MAX_STEPS 32
 
-static tutorial_step_t g_steps[TUTORIAL_MAX_STEPS];
-static int g_step_count;
+static tutorial_step_t        g_steps[TUTORIAL_MAX_STEPS];
+static int                    g_step_count;
+static const tutorial_step_t *g_current_step = NULL;
 
-static void tr_apply_step_effects(
-    const tutorial_step_t *step
-)
+static int tr_get_edit_exception(const tutorial_step_t *step,
+								 const cs_context_t    *context)
 {
-    if (step == NULL) {
-        return;
-    }
+	if (step == NULL || context == NULL) {
+		return IR_NO_EXCEPTION;
+	}
 
-    if (step->effect_code_editable >= 0) {
-        ir_set_code_editable(
-            step->effect_code_editable != 0,
-            IR_NO_EXCEPTION
-        );
-    }
+	switch (step->effect_code_editable_exception) {
+	case TUTORIAL_EDIT_EXCEPTION_INSTRUCTION:
+		return IR_INSTRUCTION_EXCEPTION;
 
-    if (step->effect_buffer_selectable >= 0) {
-        ir_set_buffer_selectable(
-            step->effect_buffer_selectable != 0
-        );
-    }
+	case TUTORIAL_EDIT_EXCEPTION_LAST_LINE:
+		return context->code_size;
 
-    if (step->effect_register_selectable >= 0) {
-        ir_set_register_selectable(
-            step->effect_register_selectable != 0
-        );
-    }
+	case TUTORIAL_EDIT_EXCEPTION_LAST_OPERAND_2:
+		return IR_OPERAND_2_LAST;
 
-    if (step->effect_arrange_enabled >= 0) {
-        ir_set_arrange_enabled(
-            step->effect_arrange_enabled != 0
-        );
-    }
+	case TUTORIAL_EDIT_EXCEPTION_NONE:
+	case TUTORIAL_EDIT_EXCEPTION_UNSET:
+	default:
+		return IR_NO_EXCEPTION;
+	}
+}
 
-    if (step->effect_delete_enabled >= 0) {
-        ir_set_delete_enabled(
-            step->effect_delete_enabled != 0
-        );
-    }
+static void tr_apply_step_effects(const tutorial_step_t *step,
+								  const cs_context_t    *context)
+{
+	if (step == NULL) {
+		return;
+	}
+
+	if (step->effect_code_editable >= 0) {
+		int exception = tr_get_edit_exception(step, context);
+
+		ir_set_code_editable(step->effect_code_editable != 0, exception);
+	}
+
+	if (step->effect_buffer_selectable >= 0) {
+		ir_set_buffer_selectable(step->effect_buffer_selectable != 0);
+	}
+
+	if (step->effect_register_selectable >= 0) {
+		ir_set_register_selectable(step->effect_register_selectable != 0);
+	}
+
+	if (step->effect_arrange_enabled >= 0) {
+		ir_set_arrange_enabled(step->effect_arrange_enabled != 0);
+	}
+
+	if (step->effect_delete_enabled >= 0) {
+		ir_set_delete_enabled(step->effect_delete_enabled != 0);
+	}
+}
+
+static void tr_initialize_step_arrows(const tutorial_step_t *step)
+{
+	if (step == NULL) {
+		return;
+	}
+
+	for (int index = 0; index < step->arrow_count; index++) {
+		ar_init_arrow(step->arrow_ids[index]);
+	}
 }
 
 /*
  * Renders the first active tutorial step that matches
  * the current gameplay state.
  */
-const tutorial_step_t *tr_update(
-    const cs_context_t *context
-)
+const tutorial_step_t *tr_update(const cs_context_t *context)
 {
-    ir_restore_base_rules();
+	ir_restore_base_rules();
 
-    if (context == NULL) {
-        return NULL;
-    }
+	if (context == NULL) {
+		g_current_step = NULL;
+		return NULL;
+	}
 
-    const tutorial_step_t *step =
-        tr_get_matching_step(context);
+	const tutorial_step_t *step = tr_get_matching_step(context);
 
-    if (step == NULL) {
-        return NULL;
-    }
+	if (step == NULL) {
+		g_current_step = NULL;
+		return NULL;
+	}
 
-    tr_apply_step_effects(step);
-    tr_render_step(step->name);
+	if (step != g_current_step) {
+		g_current_step = step;
+		tr_initialize_step_arrows(step);
+	}
 
-    return step;
+	tr_apply_step_effects(step, context);
+
+	tr_render_step(step->name);
+
+	return step;
 }
-
 
 static char *trim(char *text)
 {
-    while (isspace((unsigned char)*text)) text++;
-    char *end = text + strlen(text);
-    while (end > text && isspace((unsigned char)end[-1])) end--;
-    *end = '\0';
-    return text;
+	while (isspace((unsigned char)*text)) {
+		text++;
+	}
+
+	char *end = text + strlen(text);
+	while (end > text && isspace((unsigned char)end[-1])) {
+		end--;
+	}
+	*end = '\0';
+
+	return text;
 }
 
-static bool parse_effect_bool(
-    const char *text,
-    int *result
-)
+static bool parse_effect_bool(const char *text, int *result)
 {
-    if (text == NULL || result == NULL) {
-        return false;
-    }
+	if (text == NULL || result == NULL) {
+		return false;
+	}
 
-    if (strcmp(text, "0") == 0) {
-        *result = 0;
-        return true;
-    }
+	if (strcmp(text, "0") == 0) {
+		*result = 0;
+		return true;
+	}
 
-    if (strcmp(text, "1") == 0) {
-        *result = 1;
-        return true;
-    }
+	if (strcmp(text, "1") == 0) {
+		*result = 1;
+		return true;
+	}
 
-    return false;
+	return false;
 }
 
 static bool parse_box(const char *text, tutorial_box_t *box)
 {
-    if (strcmp(text, "big") == 0) *box = TUTORIAL_BOX_BIG;
-    else if (strcmp(text, "upper") == 0) *box = TUTORIAL_BOX_UPPER;
-    else if (strcmp(text, "upper_right") == 0) *box = TUTORIAL_BOX_UPPER_RIGHT;
-    else if (strcmp(text, "center") == 0) *box = TUTORIAL_BOX_CENTER;
-    else if (strcmp(text, "center_right") == 0) *box = TUTORIAL_BOX_CENTER_RIGHT;
-    else if (strcmp(text, "lower") == 0) *box = TUTORIAL_BOX_LOWER;
-    else if (strcmp(text, "code") == 0) *box = TUTORIAL_BOX_CODE;
-    else if (strcmp(text, "instruction") == 0) *box = TUTORIAL_BOX_INSTRUCTION;
-    else return false;
-    return true;
+	if (strcmp(text, "big") == 0) {
+		*box = TUTORIAL_BOX_BIG;
+	} else if (strcmp(text, "upper") == 0) {
+		*box = TUTORIAL_BOX_UPPER;
+	} else if (strcmp(text, "upper_right") == 0) {
+		*box = TUTORIAL_BOX_UPPER_RIGHT;
+	} else if (strcmp(text, "center") == 0) {
+		*box = TUTORIAL_BOX_CENTER;
+	} else if (strcmp(text, "center_right") == 0) {
+		*box = TUTORIAL_BOX_CENTER_RIGHT;
+	} else if (strcmp(text, "lower") == 0) {
+		*box = TUTORIAL_BOX_LOWER;
+	} else if (strcmp(text, "code") == 0) {
+		*box = TUTORIAL_BOX_CODE;
+	} else if (strcmp(text, "instruction") == 0) {
+		*box = TUTORIAL_BOX_INSTRUCTION;
+	} else {
+		return false;
+	}
+
+	return true;
 }
 
 static bool parse_header(const char *text, tutorial_header_t *header)
 {
-    if (strcmp(text, "none") == 0) *header = TUTORIAL_HEADER_NONE;
-    else if (strcmp(text, "system_message") == 0) *header = TUTORIAL_HEADER_SYSTEM_MESSAGE;
-    else if (strcmp(text, "system_notice") == 0) *header = TUTORIAL_HEADER_SYSTEM_NOTICE;
-    else if (strcmp(text, "system_warning") == 0) *header = TUTORIAL_HEADER_SYSTEM_WARNING;
-    else if (strcmp(text, "instruction") == 0) *header = TUTORIAL_HEADER_INSTRUCTION;
-    else return false;
-    return true;
+	if (strcmp(text, "none") == 0) {
+		*header = TUTORIAL_HEADER_NONE;
+	} else if (strcmp(text, "system_message") == 0) {
+		*header = TUTORIAL_HEADER_SYSTEM_MESSAGE;
+	} else if (strcmp(text, "system_notice") == 0) {
+		*header = TUTORIAL_HEADER_SYSTEM_NOTICE;
+	} else if (strcmp(text, "system_warning") == 0) {
+		*header = TUTORIAL_HEADER_SYSTEM_WARNING;
+	} else if (strcmp(text, "instruction") == 0) {
+		*header = TUTORIAL_HEADER_INSTRUCTION;
+	} else {
+		return false;
+	}
+
+	return true;
 }
 
 static bool parse_dismiss(const char *text, tutorial_dismiss_t *dismiss)
 {
-    if (strcmp(text, "none") == 0) *dismiss = TUTORIAL_DISMISS_NONE;
-    else if (strcmp(text, "mouse_press") == 0) *dismiss = TUTORIAL_DISMISS_MOUSE_PRESS;
-    else if (strcmp(text, "mouse_release") == 0) *dismiss = TUTORIAL_DISMISS_MOUSE_RELEASE;
-    else return false;
-    return true;
+	if (strcmp(text, "none") == 0) {
+		*dismiss = TUTORIAL_DISMISS_NONE;
+	} else if (strcmp(text, "mouse_press") == 0) {
+		*dismiss = TUTORIAL_DISMISS_MOUSE_PRESS;
+	} else if (strcmp(text, "mouse_release") == 0) {
+		*dismiss = TUTORIAL_DISMISS_MOUSE_RELEASE;
+	} else {
+		return false;
+	}
+
+	return true;
 }
 
 static bool parse_arrow(const char *text, int *arrow_id)
 {
-    if (strcmp(text, "none") == 0) *arrow_id = -1;
-    else if (strcmp(text, "instruction") == 0) *arrow_id = AR_INS;
-    else if (strcmp(text, "challenge") == 0) *arrow_id = AR_CHALLENGE;
-    else if (strcmp(text, "drop") == 0) *arrow_id = AR_DROP;
-    else if (strcmp(text, "zero_flag") == 0) *arrow_id = AR_ZF;
-    else if (strcmp(text, "code") == 0) *arrow_id = AR_CODE;
-    else if (strcmp(text, "delete") == 0) *arrow_id = AR_DEL;
-    else if (strcmp(text, "operand_two") == 0) *arrow_id = AR_OP2;
-    else if (strcmp(text, "input_buffer") == 0) *arrow_id = AR_IB;
-    else if (strcmp(text, "output_buffer") == 0) *arrow_id = AR_OB;
-    else if (strcmp(text, "register") == 0) *arrow_id = AR_REG;
-    else if (strcmp(text, "play") == 0) *arrow_id = AR_PLAY;
-    else if (strcmp(text, "step") == 0) *arrow_id = AR_STEP;
-    else if (strcmp(text, "fast") == 0) *arrow_id = AR_FAST;
-    else if (strcmp(text, "error") == 0) *arrow_id = AR_ERROR;
-    else if (strcmp(text, "immediate") == 0) *arrow_id = AR_IMM_UP;
-    else return false;
-    return true;
+	if (strcmp(text, "none") == 0) {
+		*arrow_id = -1;
+	} else if (strcmp(text, "instruction") == 0) {
+		*arrow_id = AR_INS;
+	} else if (strcmp(text, "challenge") == 0) {
+		*arrow_id = AR_CHALLENGE;
+	} else if (strcmp(text, "drop") == 0) {
+		*arrow_id = AR_DROP;
+	} else if (strcmp(text, "zero_flag") == 0) {
+		*arrow_id = AR_ZF;
+	} else if (strcmp(text, "code") == 0) {
+		*arrow_id = AR_CODE;
+	} else if (strcmp(text, "delete") == 0) {
+		*arrow_id = AR_DEL;
+	} else if (strcmp(text, "operand_two") == 0) {
+		*arrow_id = AR_OP2;
+	} else if (strcmp(text, "input_buffer") == 0) {
+		*arrow_id = AR_IB;
+	} else if (strcmp(text, "output_buffer") == 0) {
+		*arrow_id = AR_OB;
+	} else if (strcmp(text, "register") == 0) {
+		*arrow_id = AR_REG;
+	} else if (strcmp(text, "play") == 0) {
+		*arrow_id = AR_PLAY;
+	} else if (strcmp(text, "step") == 0) {
+		*arrow_id = AR_STEP;
+	} else if (strcmp(text, "fast") == 0) {
+		*arrow_id = AR_FAST;
+	} else if (strcmp(text, "error") == 0) {
+		*arrow_id = AR_ERROR;
+	} else if (strcmp(text, "immediate") == 0) {
+		*arrow_id = AR_IMM_UP;
+	} else {
+		return false;
+	}
+
+	return true;
 }
 
-static bool parse_instruction_id(
-    const char *text,
-    int *instruction_id
-)
+static bool parse_line_state(const char *text, int *line_state)
 {
-    if (text == NULL || instruction_id == NULL) {
-        return false;
-    }
+	if (text == NULL || line_state == NULL) {
+		return false;
+	}
 
-    if (strcmp(text, "MOV") == 0) {
-        *instruction_id = MOV;
-    } else if (strcmp(text, "ADD") == 0) {
-        *instruction_id = ADD;
-    } else if (strcmp(text, "LABEL") == 0) {
-        *instruction_id = LABEL;
-    } else if (strcmp(text, "JMP") == 0) {
-        *instruction_id = JMP;
-    } else if (strcmp(text, "CMP") == 0) {
-        *instruction_id = CMP;
-    } else if (strcmp(text, "JE") == 0) {
-        *instruction_id = JE;
-    } else if (strcmp(text, "JNE") == 0) {
-        *instruction_id = JNE;
-    } else {
-        return false;
-    }
+	if (strcmp(text, "MISSING_BOTH") == 0) {
+		*line_state = MISSING_BOTH;
+	} else if (strcmp(text, "MISSING_OP1") == 0) {
+		*line_state = MISSING_OP1;
+	} else if (strcmp(text, "MISSING_OP2") == 0) {
+		*line_state = MISSING_OP2;
+	} else if (strcmp(text, "CHANGING_OP1") == 0) {
+		*line_state = CHANGING_OP1;
+	} else if (strcmp(text, "CHANGING_OP2") == 0) {
+		*line_state = CHANGING_OP2;
+	} else if (strcmp(text, "COMPLETE") == 0) {
+		*line_state = COMPLETE;
+	} else if (strcmp(text, "IN_EXECUTION") == 0) {
+		*line_state = IN_EXECUTION;
+	} else if (strcmp(text, "EXECUTED") == 0) {
+		*line_state = EXECUTED;
+	} else {
+		return false;
+	}
 
-    return true;
+	return true;
 }
 
-static bool add_arrow(
-    tutorial_step_t *step,
-    const char *text
-)
+static bool parse_operand_id(const char *text, int *operand_id)
 {
-    if (step == NULL || text == NULL) {
-        return false;
-    }
+	if (text == NULL || operand_id == NULL) {
+		return false;
+	}
 
-    if (step->arrow_count >= TUTORIAL_MAX_ARROWS) {
-        return false;
-    }
+	if (strcmp(text, "RAX") == 0) {
+		*operand_id = RAX;
+	} else if (strcmp(text, "RBX") == 0) {
+		*operand_id = RBX;
+	} else if (strcmp(text, "RCX") == 0) {
+		*operand_id = RCX;
+	} else if (strcmp(text, "RDX") == 0) {
+		*operand_id = RDX;
+	} else if (strcmp(text, "RDI") == 0) {
+		*operand_id = RDI;
+	} else if (strcmp(text, "IB") == 0) {
+		*operand_id = IB;
+	} else if (strcmp(text, "OB") == 0) {
+		*operand_id = OB;
+	} else {
+		return false;
+	}
 
-    int arrow_id = -1;
-
-    if (!parse_arrow(text, &arrow_id)) {
-        return false;
-    }
-
-    if (arrow_id < 0) {
-        return true;
-    }
-
-    step->arrow_ids[step->arrow_count] = arrow_id;
-    step->arrow_count++;
-
-    return true;
+	return true;
 }
 
-static bool parse_arrows(
-    tutorial_step_t *step,
-    const char *text
-)
+static bool parse_instruction_id(const char *text, int *instruction_id)
 {
-    if (step == NULL || text == NULL) {
-        return false;
-    }
+	if (text == NULL || instruction_id == NULL) {
+		return false;
+	}
 
-    char buffer[128];
+	if (strcmp(text, "MOV") == 0) {
+		*instruction_id = MOV;
+	} else if (strcmp(text, "ADD") == 0) {
+		*instruction_id = ADD;
+	} else if (strcmp(text, "LABEL") == 0) {
+		*instruction_id = LABEL;
+	} else if (strcmp(text, "JMP") == 0) {
+		*instruction_id = JMP;
+	} else if (strcmp(text, "CMP") == 0) {
+		*instruction_id = CMP;
+	} else if (strcmp(text, "JE") == 0) {
+		*instruction_id = JE;
+	} else if (strcmp(text, "JNE") == 0) {
+		*instruction_id = JNE;
+	} else {
+		return false;
+	}
 
-    int copied = snprintf(
-        buffer,
-        sizeof(buffer),
-        "%s",
-        text
-    );
-
-    if (copied < 0 ||
-        copied >= (int)sizeof(buffer)) {
-        return false;
-    }
-
-    step->arrow_count = 0;
-
-    char *saveptr = NULL;
-
-    char *token = strtok_r(
-        buffer,
-        ",",
-        &saveptr
-    );
-
-    while (token != NULL) {
-        char *arrow_name = trim(token);
-
-        if (!add_arrow(step, arrow_name)) {
-            step->arrow_count = 0;
-            return false;
-        }
-
-        token = strtok_r(
-            NULL,
-            ",",
-            &saveptr
-        );
-    }
-
-    return true;
+	return true;
 }
 
+static bool add_arrow(tutorial_step_t *step, const char *text)
+{
+	if (step == NULL || text == NULL) {
+		return false;
+	}
+
+	if (step->arrow_count >= TUTORIAL_MAX_ARROWS) {
+		return false;
+	}
+
+	int arrow_id = -1;
+
+	if (!parse_arrow(text, &arrow_id)) {
+		return false;
+	}
+
+	if (arrow_id < 0) {
+		return true;
+	}
+
+	step->arrow_ids[step->arrow_count] = arrow_id;
+	step->arrow_count++;
+
+	return true;
+}
+
+static bool parse_arrows(tutorial_step_t *step, const char *text)
+{
+	if (step == NULL || text == NULL) {
+		return false;
+	}
+
+	char buffer[128];
+	int  copied = snprintf(buffer, sizeof(buffer), "%s", text);
+
+	if (copied < 0 || copied >= (int)sizeof(buffer)) {
+		return false;
+	}
+
+	step->arrow_count = 0;
+	char *saveptr     = NULL;
+	char *token       = strtok_r(buffer, ",", &saveptr);
+
+	while (token != NULL) {
+		char *arrow_name = trim(token);
+
+		if (!add_arrow(step, arrow_name)) {
+			step->arrow_count = 0;
+			return false;
+		}
+
+		token = strtok_r(NULL, ",", &saveptr);
+	}
+
+	return true;
+}
+
+static bool parse_edit_exception(const char                *text,
+								 tutorial_edit_exception_t *exception)
+{
+	if (text == NULL || exception == NULL) {
+		return false;
+	}
+
+	if (strcmp(text, "none") == 0) {
+		*exception = TUTORIAL_EDIT_EXCEPTION_NONE;
+	} else if (strcmp(text, "instruction") == 0) {
+		*exception = TUTORIAL_EDIT_EXCEPTION_INSTRUCTION;
+	} else if (strcmp(text, "last_line") == 0) {
+		*exception = TUTORIAL_EDIT_EXCEPTION_LAST_LINE;
+	} else if (strcmp(text, "last_operand_2") == 0) {
+		*exception = TUTORIAL_EDIT_EXCEPTION_LAST_OPERAND_2;
+	} else {
+		return false;
+	}
+
+	return true;
+}
 
 static tutorial_step_t *find_step(const char *name)
 {
-    for (int index = 0; index < g_step_count; index++) {
-        if (strcmp(g_steps[index].name, name) == 0) return &g_steps[index];
-    }
-    return NULL;
+	for (int index = 0; index < g_step_count; index++) {
+		if (strcmp(g_steps[index].name, name) == 0) {
+			return &g_steps[index];
+		}
+	}
+
+	return NULL;
 }
 
 void tr_clear(void)
 {
-    memset(g_steps, 0, sizeof(g_steps));
-    g_step_count = 0;
+	memset(g_steps, 0, sizeof(g_steps));
+
+	g_step_count   = 0;
+	g_current_step = NULL;
 }
 
 int tr_get_step_count(void) { return g_step_count; }
 
 const tutorial_step_t *tr_get_step(int index)
 {
-    if (index < 0 || index >= g_step_count) return NULL;
-    return &g_steps[index];
+	if (index < 0 || index >= g_step_count) {
+		return NULL;
+	}
+
+	return &g_steps[index];
 }
 
 const tutorial_step_t *tr_get_named_step(const char *name)
 {
-    return find_step(name);
+	return find_step(name);
 }
 
 bool tr_is_active(const char *name)
 {
-    tutorial_step_t *step = find_step(name);
-    return step != NULL && step->active;
+	tutorial_step_t *step = find_step(name);
+	return step != NULL && step->active;
 }
 
-bool tr_step_matches_current_state(const char *name,
-                                   const cs_context_t *context)
+bool tr_step_matches_current_state(const char         *name,
+								   const cs_context_t *context)
 {
-    tutorial_step_t *step = find_step(name);
-    if (step == NULL || !step->active || context == NULL) return false;
-    if (step->when_code_size >= 0 && step->when_code_size != context->code_size) return false;
-    if (step->when_code_size_max >= 0 && context->code_size > step->when_code_size_max) {
-        return false;
-    }
-    if (step->when_holding >= 0 && step->when_holding != context->holding_instruction) return false;
-    if (step->when_held_instruction_id >= 0 && step->when_held_instruction_id !=
-        context->held_instruction_id) {
-        return false;
-    }
-    if (step->when_held_instruction_not_id >= 0 && step->when_held_instruction_not_id ==
-        context->held_instruction_id) {
-        return false;
-    }
-    if (step->when_operand_pending >= 0 && step->when_operand_pending != context->operand_pending) return false;
-    if (step->when_operand_1_pending >= 0 && step->when_operand_1_pending != context->operand_1_pending) {
-        return false;
-    }
-    if (step->when_operand_2_pending >= 0 && step->when_operand_2_pending != context->operand_2_pending) {
-        return false;
-    }
-    if (step->when_code_sorted >= 0 && step->when_code_sorted != context->code_sorted) return false;
-    if (step->when_play_state >= 0 && step->when_play_state != context->playing) return false;
-    if (step->when_operation_flag >= 0 && step->when_operation_flag != context->operation_flag) return false;
-    return true;
+	tutorial_step_t *step = find_step(name);
+
+	if (step == NULL || !step->active || context == NULL) {
+		return false;
+	}
+
+	if (step->when_code_size >= 0 &&
+	    step->when_code_size != context->code_size) {
+		return false;
+	}
+	if (step->when_code_size_max >= 0 &&
+	    context->code_size > step->when_code_size_max) {
+		return false;
+	}
+	if (step->when_holding >= 0 &&
+	    step->when_holding != context->holding_instruction) {
+		return false;
+	}
+	if (step->when_held_instruction_id >= 0 &&
+	    step->when_held_instruction_id != context->held_instruction_id) {
+		return false;
+	}
+	if (step->when_held_instruction_not_id >= 0 &&
+	    step->when_held_instruction_not_id == context->held_instruction_id) {
+		return false;
+	}
+	if (step->when_operand_pending >= 0 &&
+	    step->when_operand_pending != context->operand_pending) {
+		return false;
+	}
+	if (step->when_operand_1_pending >= 0 &&
+	    step->when_operand_1_pending != context->operand_1_pending) {
+		return false;
+	}
+	if (step->when_operand_2_pending >= 0 &&
+	    step->when_operand_2_pending != context->operand_2_pending) {
+		return false;
+	}
+	if (step->when_first_operand_1_id >= 0 &&
+	    step->when_first_operand_1_id != context->first_operand_1_id) {
+		return false;
+	}
+	if (step->when_first_operand_2_id >= 0 &&
+	    step->when_first_operand_2_id != context->first_operand_2_id) {
+		return false;
+	}
+	if (step->when_last_operand_1_id >= 0 &&
+	    step->when_last_operand_1_id != context->last_operand_1_id) {
+		return false;
+	}
+	if (step->when_last_operand_2_id >= 0 &&
+	    step->when_last_operand_2_id != context->last_operand_2_id) {
+		return false;
+	}
+	if (step->when_last_line_state >= 0 &&
+	    step->when_last_line_state != context->last_line_state) {
+		return false;
+	}
+	if (step->when_code_sorted >= 0 &&
+	    step->when_code_sorted != context->code_sorted) {
+		return false;
+	}
+	if (step->when_play_state >= 0 &&
+	    step->when_play_state != context->playing) {
+		return false;
+	}
+	if (step->when_operation_flag >= 0 &&
+	    step->when_operation_flag != context->operation_flag) {
+		return false;
+	}
+
+	return true;
 }
 
 const tutorial_step_t *tr_get_matching_step(const cs_context_t *context)
 {
-    if (context == NULL) return NULL;
-    for (int index = 0; index < g_step_count; index++) {
-        if (tr_step_matches_current_state(g_steps[index].name, context)) return &g_steps[index];
-    }
-    return NULL;
+	if (context == NULL) {
+		return NULL;
+	}
+
+	for (int index = 0; index < g_step_count; index++) {
+		if (tr_step_matches_current_state(g_steps[index].name, context)) {
+			return &g_steps[index];
+		}
+	}
+
+	return NULL;
 }
 
 void tr_deactivate(const char *name)
 {
-    tutorial_step_t *step = find_step(name);
-    if (step != NULL) step->active = false;
+	tutorial_step_t *step = find_step(name);
+	if (step != NULL) {
+		step->active = false;
+	}
 }
 
 static int get_text_box(tutorial_box_t box)
 {
-    switch (box) {
-        case TUTORIAL_BOX_BIG: return TX_BIG_BOX;
-        case TUTORIAL_BOX_UPPER: return TX_UPPER_BOX;
-        case TUTORIAL_BOX_UPPER_RIGHT: return TX_UPPER_RIGHT_BOX;
-        case TUTORIAL_BOX_CENTER: return TX_CENTER_BOX;
-        case TUTORIAL_BOX_CENTER_RIGHT: return TX_CENTER_RIGHT_BOX;
-        case TUTORIAL_BOX_LOWER: return TX_LOWER_BOX;
-        case TUTORIAL_BOX_CODE: return TX_CODE_BOX;
-        case TUTORIAL_BOX_INSTRUCTION: return TX_INS_BOX;
-    }
-    return TX_BIG_BOX;
+	switch (box) {
+	case TUTORIAL_BOX_BIG:
+		return TX_BIG_BOX;
+	case TUTORIAL_BOX_UPPER:
+		return TX_UPPER_BOX;
+	case TUTORIAL_BOX_UPPER_RIGHT:
+		return TX_UPPER_RIGHT_BOX;
+	case TUTORIAL_BOX_CENTER:
+		return TX_CENTER_BOX;
+	case TUTORIAL_BOX_CENTER_RIGHT:
+		return TX_CENTER_RIGHT_BOX;
+	case TUTORIAL_BOX_LOWER:
+		return TX_LOWER_BOX;
+	case TUTORIAL_BOX_CODE:
+		return TX_CODE_BOX;
+	case TUTORIAL_BOX_INSTRUCTION:
+		return TX_INS_BOX;
+	}
+
+	return TX_BIG_BOX;
 }
 
 static int get_header(tutorial_header_t header) { return TX_NONE + header; }
 
 void tr_render_step(const char *name)
 {
-    tutorial_step_t *step = find_step(name);
-    if (step == NULL || !step->active) return;
-    int step_id = (int)(step - g_steps);
-    tx_text_box(get_text_box(step->box), step_id, get_header(step->header));
-    for (int index = 0; index < step->arrow_count; index++) {
-        ar_display_arrow(step->arrow_ids[index]);
-    }
-    if ((step->dismiss == TUTORIAL_DISMISS_MOUSE_PRESS && ms_left_pressed()) ||
-        (step->dismiss == TUTORIAL_DISMISS_MOUSE_RELEASE && ms_left_released())) {
-        step->active = false;
-        ms_reset_mouse_values();
-    }
+	tutorial_step_t *step = find_step(name);
+	if (step == NULL || !step->active) {
+		return;
+	}
+
+	int step_id = (int)(step - g_steps);
+	tx_text_box(get_text_box(step->box), step_id, get_header(step->header));
+
+	for (int index = 0; index < step->arrow_count; index++) {
+		ar_display_arrow(step->arrow_ids[index]);
+	}
+
+	if ((step->dismiss == TUTORIAL_DISMISS_MOUSE_PRESS && ms_left_pressed()) ||
+	    (step->dismiss == TUTORIAL_DISMISS_MOUSE_RELEASE &&
+	     ms_left_released())) {
+		step->active = false;
+		ms_reset_mouse_values();
+	}
 }
 
 bool tr_load_level(int level_id)
 {
-    char relative_path[64];
-    char path[512];
-    snprintf(relative_path, sizeof(relative_path), TUTORIAL_PATH_FORMAT, level_id);
-    ax_get_resource_path(path, sizeof(path), relative_path);
-    FILE *file = fopen(path, "r");
-    if (file == NULL) return false;
+	char relative_path[64];
+	char path[512];
 
-    tr_clear();
-    char line[512];
-    tutorial_step_t *step = NULL;
-    bool reading_text = false;
-    while (fgets(line, sizeof(line), file) != NULL) {
-        char *text = trim(line);
-        if (text[0] == '[' && strcmp(text, "[tutorial]") != 0) {
-            if (reading_text) {
-                fprintf(stderr, "tutorial.cfg: level %d step '%s' " "is missing text_end\n", level_id, step != NULL ? step->name : "unknown");
+	snprintf(relative_path, sizeof(relative_path), TUTORIAL_PATH_FORMAT,
+	         level_id);
+	ax_get_resource_path(path, sizeof(path), relative_path);
 
-            goto invalid;
-            }
-            if (g_step_count == TUTORIAL_MAX_STEPS) break;
-            step = &g_steps[g_step_count++];
-            sscanf(text, "[%63[^]]]", step->name);
-            step->arrow_count = 0;
-            step->when_code_size = -1;
-            step->when_code_size_max = -1;
-            step->when_holding = -1;
-            step->when_held_instruction_id = -1;
-            step->when_held_instruction_not_id = -1;
-            step->when_operand_pending = -1;
-            step->when_operand_1_pending = -1;
-            step->when_operand_2_pending = -1;
-            step->when_code_sorted = -1;
-            step->when_play_state = -1;
-            step->when_operation_flag = -1;
-            step->effect_code_editable = -1;
-            step->effect_buffer_selectable = -1;
-            step->effect_register_selectable = -1;
-            step->effect_arrange_enabled = -1;
-            step->effect_delete_enabled = -1;
-            step->active = true;
-            reading_text = false;
-            continue;
-        }
-        if (step == NULL) continue;
-        if (strcmp(text, "text_begin") == 0) {
-            if (reading_text) {
-                fprintf(stderr, "tutorial.cfg: level %d step '%s' " "contains nested text_begin\n", level_id, step->name);
-                goto invalid;
-            }
-            reading_text = true;
-            continue;
-        }
-        if (strcmp(text, "text_end") == 0) { 
-            if (!reading_text) {
-                fprintf(stderr, "tutorial.cfg: level %d step '%s' " "contains text_end without text_begin\n", level_id, step->name); 
-                goto invalid;
-        }
-        reading_text = false;
-        continue;
-        }
-        if (reading_text) {
-            size_t used = strlen(step->text);
-            snprintf(step->text + used, sizeof(step->text) - used, "%s%s", used == 0 ? "" : "\n", text);
-            continue;
-        }
-        char *equals = strchr(text, '=');
-        if (equals == NULL) continue;
-        *equals = '\0';
-        char *key = trim(text);
-        char *value = trim(equals + 1);
-        if (strcmp(key, "box") == 0 && !parse_box(value, &step->box)) goto invalid;
-        if (strcmp(key, "header") == 0 && !parse_header(value, &step->header)) goto invalid;
-        if (strcmp(key, "dismiss") == 0 && !parse_dismiss(value, &step->dismiss)) goto invalid;
-        if (strcmp(key, "arrow") == 0) {
-         if (!parse_arrows(step, value)) {
-            goto invalid;
-            }
-        }
-        if (strcmp(key, "arrows") == 0) {
-            if (!parse_arrows(step, value)) {
-            goto invalid;
-            }
-        }
-        if (strcmp(key, "when.code_size") == 0) step->when_code_size = atoi(value);
-        if (strcmp(key, "when.code_size_max") == 0) {
-            step->when_code_size_max = atoi(value);
-        }
-        if (strcmp(key, "when.holding") == 0) step->when_holding = atoi(value);
-        if (strcmp(key, "when.held_instruction") == 0) {
-        if (!parse_instruction_id(
-            value,
-            &step->when_held_instruction_id)) {
-            goto invalid;
-            }
-        }
-        if (strcmp(key, "when.held_instruction_not") == 0) {
-            if (!parse_instruction_id(
-            value,
-            &step->when_held_instruction_not_id)) {
-            goto invalid;
-            }
-        }
-        if (strcmp(key, "when.operand_pending") == 0) step->when_operand_pending = atoi(value);
-        if (strcmp(key, "when.operand_1_pending") == 0) {
-            step->when_operand_1_pending = atoi(value);
-        }
-        if (strcmp(key, "when.operand_2_pending") == 0) {
-            step->when_operand_2_pending = atoi(value);
-        }
-        if (strcmp(key, "when.code_sorted") == 0) step->when_code_sorted = atoi(value);
-        if (strcmp(key, "when.play_state") == 0) step->when_play_state = atoi(value);
-        if (strcmp(key, "when.operation_flag") == 0) step->when_operation_flag = atoi(value);
-        if (strcmp(key, "effects.code_editable") == 0) {
-            if (!parse_effect_bool(
-                    value,
-                    &step->effect_code_editable)) {
-                goto invalid;
-            }
-        }
-        if (strcmp(key, "effects.buffer_selectable") == 0) {
-            if (!parse_effect_bool(
-                    value,
-                    &step->effect_buffer_selectable)) {
-                goto invalid;
-            }
-        }
-        if (strcmp(key, "effects.register_selectable") == 0) {
-            if (!parse_effect_bool(
-                    value,
-                    &step->effect_register_selectable)) {
-                goto invalid;
-            }
-        }
-        if (strcmp(key, "effects.arrange_enabled") == 0) {
-            if (!parse_effect_bool(
-                    value,
-                    &step->effect_arrange_enabled)) {
-                goto invalid;
-            }
-        }
-        if (strcmp(key, "effects.delete_enabled") == 0) {
-            if (!parse_effect_bool(
-                    value,
-                    &step->effect_delete_enabled)) {
-                goto invalid;
-            }
-        }
-    }
-    if (reading_text) {
-        fprintf(stderr, "tutorial.cfg: level %d step '%s' " "is missing text_end at end of file\n", level_id, step != NULL ? step->name : "unknown");
-        goto invalid;
- }
-    fclose(file);
-    return g_step_count > 0;
+	FILE *file = fopen(path, "r");
+	if (file == NULL) {
+		return false;
+	}
+
+	tr_clear();
+	char             line[512];
+	tutorial_step_t *step         = NULL;
+	bool             reading_text = false;
+
+	while (fgets(line, sizeof(line), file) != NULL) {
+		char *text = trim(line);
+
+		if (text[0] == '[' && strcmp(text, "[tutorial]") != 0) {
+			if (reading_text) {
+				fprintf(stderr,
+				        "tutorial.cfg: level %d step '%s' "
+				        "is missing text_end\n",
+				        level_id, step != NULL ? step->name : "unknown");
+				goto invalid;
+			}
+
+			if (g_step_count == TUTORIAL_MAX_STEPS) {
+				break;
+			}
+
+			step = &g_steps[g_step_count++];
+			sscanf(text, "[%63[^]]]", step->name);
+			step->arrow_count                  = 0;
+			step->when_code_size               = -1;
+			step->when_code_size_max           = -1;
+			step->when_holding                 = -1;
+			step->when_held_instruction_id     = -1;
+			step->when_held_instruction_not_id = -1;
+			step->when_operand_pending         = -1;
+			step->when_operand_1_pending       = -1;
+			step->when_operand_2_pending       = -1;
+			step->when_first_operand_1_id      = -1;
+			step->when_first_operand_2_id      = -1;
+			step->when_last_operand_1_id       = -1;
+			step->when_last_operand_2_id       = -1;
+			step->when_last_line_state         = -1;
+			step->when_code_sorted             = -1;
+			step->when_play_state              = -1;
+			step->when_operation_flag          = -1;
+			step->effect_code_editable         = -1;
+			step->effect_code_editable_exception =
+			    TUTORIAL_EDIT_EXCEPTION_UNSET;
+			step->effect_buffer_selectable   = -1;
+			step->effect_register_selectable = -1;
+			step->effect_arrange_enabled     = -1;
+			step->effect_delete_enabled      = -1;
+			step->active                     = true;
+			reading_text                     = false;
+			continue;
+		}
+
+		if (step == NULL) {
+			continue;
+		}
+
+		if (strcmp(text, "text_begin") == 0) {
+			if (reading_text) {
+				fprintf(stderr,
+				        "tutorial.cfg: level %d step '%s' "
+				        "contains nested text_begin\n",
+				        level_id, step->name);
+				goto invalid;
+			}
+			reading_text = true;
+			continue;
+		}
+
+		if (strcmp(text, "text_end") == 0) {
+			if (!reading_text) {
+				fprintf(stderr,
+				        "tutorial.cfg: level %d step '%s' "
+				        "contains text_end without text_begin\n",
+				        level_id, step->name);
+				goto invalid;
+			}
+			reading_text = false;
+			continue;
+		}
+
+		if (reading_text) {
+			size_t used = strlen(step->text);
+			snprintf(step->text + used, sizeof(step->text) - used, "%s%s",
+			         used == 0 ? "" : "\n", text);
+			continue;
+		}
+
+		char *equals = strchr(text, '=');
+		if (equals == NULL) {
+			continue;
+		}
+
+		*equals     = '\0';
+		char *key   = trim(text);
+		char *value = trim(equals + 1);
+
+		if (strcmp(key, "box") == 0 && !parse_box(value, &step->box)) {
+			goto invalid;
+		}
+		if (strcmp(key, "header") == 0 && !parse_header(value, &step->header)) {
+			goto invalid;
+		}
+		if (strcmp(key, "dismiss") == 0 &&
+		    !parse_dismiss(value, &step->dismiss)) {
+			goto invalid;
+		}
+		if (strcmp(key, "arrow") == 0) {
+			if (!parse_arrows(step, value)) {
+				goto invalid;
+			}
+		}
+		if (strcmp(key, "arrows") == 0) {
+			if (!parse_arrows(step, value)) {
+				goto invalid;
+			}
+		}
+		if (strcmp(key, "when.code_size") == 0) {
+			step->when_code_size = atoi(value);
+		}
+		if (strcmp(key, "when.code_size_max") == 0) {
+			step->when_code_size_max = atoi(value);
+		}
+		if (strcmp(key, "when.holding") == 0) {
+			step->when_holding = atoi(value);
+		}
+		if (strcmp(key, "when.held_instruction") == 0) {
+			if (!parse_instruction_id(value, &step->when_held_instruction_id)) {
+				goto invalid;
+			}
+		}
+		if (strcmp(key, "when.held_instruction_not") == 0) {
+			if (!parse_instruction_id(value,
+			                          &step->when_held_instruction_not_id)) {
+				goto invalid;
+			}
+		}
+		if (strcmp(key, "when.operand_pending") == 0) {
+			step->when_operand_pending = atoi(value);
+		}
+		if (strcmp(key, "when.operand_1_pending") == 0) {
+			step->when_operand_1_pending = atoi(value);
+		}
+		if (strcmp(key, "when.operand_2_pending") == 0) {
+			step->when_operand_2_pending = atoi(value);
+		}
+		if (strcmp(key, "when.last_operand_1") == 0) {
+			if (!parse_operand_id(value, &step->when_last_operand_1_id)) {
+				goto invalid;
+			}
+		}
+		if (strcmp(key, "when.first_operand_1") == 0) {
+			if (!parse_operand_id(value, &step->when_first_operand_1_id)) {
+				goto invalid;
+			}
+		}
+		if (strcmp(key, "when.first_operand_2") == 0) {
+			if (!parse_operand_id(value, &step->when_first_operand_2_id)) {
+				goto invalid;
+			}
+		}
+
+		if (strcmp(key, "when.last_operand_2") == 0) {
+			if (!parse_operand_id(value, &step->when_last_operand_2_id)) {
+				goto invalid;
+			}
+		}
+		if (strcmp(key, "when.last_line_state") == 0) {
+			if (!parse_line_state(value, &step->when_last_line_state)) {
+				goto invalid;
+			}
+		}
+		if (strcmp(key, "when.code_sorted") == 0) {
+			step->when_code_sorted = atoi(value);
+		}
+		if (strcmp(key, "when.play_state") == 0) {
+			step->when_play_state = atoi(value);
+		}
+		if (strcmp(key, "when.operation_flag") == 0) {
+			step->when_operation_flag = atoi(value);
+		}
+		if (strcmp(key, "effects.code_editable") == 0) {
+			if (!parse_effect_bool(value, &step->effect_code_editable)) {
+				goto invalid;
+			}
+		}
+		if (strcmp(key, "effects.code_editable_exception") == 0) {
+			if (!parse_edit_exception(value,
+			                          &step->effect_code_editable_exception)) {
+				goto invalid;
+			}
+		}
+		if (strcmp(key, "effects.buffer_selectable") == 0) {
+			if (!parse_effect_bool(value, &step->effect_buffer_selectable)) {
+				goto invalid;
+			}
+		}
+		if (strcmp(key, "effects.register_selectable") == 0) {
+			if (!parse_effect_bool(value, &step->effect_register_selectable)) {
+				goto invalid;
+			}
+		}
+		if (strcmp(key, "effects.arrange_enabled") == 0) {
+			if (!parse_effect_bool(value, &step->effect_arrange_enabled)) {
+				goto invalid;
+			}
+		}
+		if (strcmp(key, "effects.delete_enabled") == 0) {
+			if (!parse_effect_bool(value, &step->effect_delete_enabled)) {
+				goto invalid;
+			}
+		}
+	}
+
+	if (reading_text) {
+		fprintf(stderr,
+		        "tutorial.cfg: level %d step '%s' "
+		        "is missing text_end at end of file\n",
+		        level_id, step != NULL ? step->name : "unknown");
+		goto invalid;
+	}
+
+	fclose(file);
+	return g_step_count > 0;
 
 invalid:
-    fprintf(stderr, "tutorial.cfg: level %d has invalid metadata\n", level_id);
-    fclose(file);
-    tr_clear();
-    return false;
+	fprintf(stderr, "tutorial.cfg: level %d has invalid metadata\n", level_id);
+	fclose(file);
+	tr_clear();
+	return false;
 }
