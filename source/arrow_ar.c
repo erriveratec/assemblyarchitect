@@ -233,7 +233,7 @@ static void initialize_regs_arrow()
 	g_arrow_regs.in_place = false;
 	g_arrow_regs.texture = g_reg_arrow;
 	g_arrow_regs.visible =  true;
-	SDL_SetTextureColorMod(g_arrow_regs.texture->texture, 255, 255, 0);
+	SDL_SetTextureColorMod(g_arrow_regs.texture->texture, 255, 0, 0);
 }
 
 /* Function: initialize_zf_arrow
@@ -262,7 +262,7 @@ static void initialize_zf_arrow()
 	g_arrow_zf.in_place = false;
 	g_arrow_zf.texture = g_reg_arrow;
 	g_arrow_zf.visible =  true;
-	SDL_SetTextureColorMod(g_arrow_regs.texture->texture, 255, 0, 0);
+	SDL_SetTextureColorMod(g_arrow_zf.texture->texture, 255, 0, 0);
 }
 
 /* Function: initialize_reg_arrow

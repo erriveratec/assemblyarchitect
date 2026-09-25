@@ -31,7 +31,8 @@ typedef enum tutorial_header_t {
 typedef enum tutorial_dismiss_t {
     TUTORIAL_DISMISS_NONE,
     TUTORIAL_DISMISS_MOUSE_PRESS,
-    TUTORIAL_DISMISS_MOUSE_RELEASE
+    TUTORIAL_DISMISS_MOUSE_RELEASE,
+    TUTORIAL_DISMISS_OPERATION_ERROR
 } tutorial_dismiss_t;
 
 typedef enum tutorial_edit_exception_t {
@@ -67,7 +68,9 @@ typedef struct tutorial_step_t {
     int when_last_line_state;
     int when_code_sorted;
     int when_play_state;
+    int when_won;
     int when_operation_flag;
+    int when_operation_error;
     int effect_code_editable;
     tutorial_edit_exception_t effect_code_editable_exception;
     int effect_buffer_selectable;

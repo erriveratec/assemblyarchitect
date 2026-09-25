@@ -490,6 +490,7 @@ static void rst_btn_hdl(int level_id, level_flags_t *f)
 		lv_init_stage_code(level_id);
 		code_updated_actions(level_id);
 		lv_init_level_assets(level_id);
+		tr_load_level(level_id);
 	}
 }
 
@@ -521,7 +522,6 @@ static void reset_level(int level_id, level_flags_t *flags)
 	rg_reset_obox();
 	rg_reset_rflags();
 	mc_set_op_menu_btn_state(NO_BTN_PRESSED);
-	tr_load_level(level_id);
 }
 
 /* Function: get_sector_id

@@ -15,23 +15,22 @@
 #define ARROW_MDELTA_FAST 30
 #define CW_MDELTA 15
 
-char *ax_char_space = " ";
-char *ax_char_comma = ",";
+char *ax_char_space   = " ";
+char *ax_char_comma   = ",";
 char *ax_char_newline = "\n";
-char *ax_char_colon = ":";
-char *ax_char_dash = "-";
-char *ax_level_text = "Level";
+char *ax_char_colon   = ":";
+char *ax_char_dash    = "-";
+char *ax_level_text   = "Level";
 
 static int move_delta;
 static int arrow_mdelta;
 #include <sys/stat.h>
 #include <string.h>
 
-
 static int dir_exists(const char *path)
 {
-    struct stat st;
-    return (stat(path, &st) == 0 && S_ISDIR(st.st_mode));
+	struct stat st;
+	return (stat(path, &st) == 0 && S_ISDIR(st.st_mode));
 }
 
 /* Function: ax_get_resource_path
@@ -48,24 +47,22 @@ static int dir_exists(const char *path)
  */
 void ax_get_resource_path(char *out, size_t out_size, const char *relative)
 {
-    char *base = SDL_GetBasePath();
+	char *base = SDL_GetBasePath();
 
-    /* Case 1: running inside .app bundle */
-    char app_path[512];
-    snprintf(app_path, sizeof(app_path),
-             "%s../Resources", base);
+	/* Case 1: running inside .app bundle */
+	char app_path[512];
+	snprintf(app_path, sizeof(app_path), "%s../Resources", base);
 
-    if (dir_exists(app_path)) {
-        snprintf(out, out_size, "%s/%s", app_path, relative);
-        SDL_free(base);
-        return;
-    }
+	if (dir_exists(app_path)) {
+		snprintf(out, out_size, "%s/%s", app_path, relative);
+		SDL_free(base);
+		return;
+	}
 
-    /* Case 2: running from project directory */
-    snprintf(out, out_size, "%s%s", base, relative);
-    SDL_free(base);
+	/* Case 2: running from project directory */
+	snprintf(out, out_size, "%s%s", base, relative);
+	SDL_free(base);
 }
-
 
 /* Function: ax_chk_mouse_hover_rect
  *------------------------------------------------------------------------------
@@ -73,26 +70,24 @@ void ax_get_resource_path(char *out, size_t out_size, const char *relative)
  *
  * Arguments:
  * 	r: The rectangle to be verified
- *	
+ *
  * Return:
  *	true if the mouse hovered the rectangle
  *	false if otherwise
  *
-*/
+ */
 bool ax_chk_mouse_hover_rect(SDL_Rect r)
 {
 	int mouse_x = ms_get_mouse_x();
 	int mouse_y = ms_get_mouse_y();
 
 	bool hover;
-	if (mouse_x > r.x 
-		&& mouse_x < (r.x + r.w) 
-		&& mouse_y > r.y 
-		&& mouse_y < (r.y + r.h)){
+	if (mouse_x > r.x && mouse_x < (r.x + r.w) && mouse_y > r.y &&
+	    mouse_y < (r.y + r.h)) {
 		hover = true;
 	} else {
 		hover = false;
-	} 
+	}
 	return hover;
 }
 /* Function: ax_set_arrow_mdelta
@@ -107,9 +102,9 @@ bool ax_chk_mouse_hover_rect(SDL_Rect r)
  */
 void ax_set_arrow_mdelta(bool fast)
 {
-	if (fast == true){
+	if (fast == true) {
 		arrow_mdelta = dm_scale_to_res(ARROW_MDELTA_FAST);
-	} else if (fast == false){
+	} else if (fast == false) {
 		arrow_mdelta = dm_scale_to_res(ARROW_MDELTA_SLOW);
 	}
 }
@@ -124,10 +119,7 @@ void ax_set_arrow_mdelta(bool fast)
  * Return:
  *	Arrow move delta
  */
-int ax_get_arrow_move_delta()
-{
-	return arrow_mdelta;
-}
+int ax_get_arrow_move_delta() { return arrow_mdelta; }
 
 /* Function: ax_get_cw_move_delta
  *------------------------------------------------------------------------------
@@ -139,10 +131,7 @@ int ax_get_arrow_move_delta()
  * Return:
  *	Code windows move delta
  */
-int ax_get_cw_move_delta()
-{
-	return dm_scale_to_res(CW_MDELTA);
-}
+int ax_get_cw_move_delta() { return dm_scale_to_res(CW_MDELTA); }
 
 /* Function: ax_set_fast_move_delta
  *------------------------------------------------------------------------------
@@ -156,9 +145,9 @@ int ax_get_cw_move_delta()
  */
 void ax_set_fast_move_delta(bool state)
 {
-	if (state == true){
+	if (state == true) {
 		move_delta = dm_scale_to_res(FAST_MOVE_DELTA);
-	} else if (state == false){
+	} else if (state == false) {
 		move_delta = dm_scale_to_res(MOVE_DELTA);
 	}
 }
@@ -173,11 +162,7 @@ void ax_set_fast_move_delta(bool state)
  * Return:
  *	delta: The movement ammount.
  */
-int ax_get_move_delta()
-{
-	return move_delta;
-}
-
+int ax_get_move_delta() { return move_delta; }
 
 /* Function: ax_pad_rectangle
  *------------------------------------------------------------------------------
@@ -196,16 +181,16 @@ int ax_get_move_delta()
 SDL_Rect ax_pad_rectangle(SDL_Rect b, int offset, bool inside)
 {
 	SDL_Rect r;
-	if (inside == true){
+	if (inside == true) {
 		r.x = b.x + offset;
 		r.y = b.y + offset;
-		r.w = b.w - 2*offset;
-		r.h = b.h - 2*offset;
-	} else if (inside == false){
+		r.w = b.w - 2 * offset;
+		r.h = b.h - 2 * offset;
+	} else if (inside == false) {
 		r.x = b.x - offset;
 		r.y = b.y - offset;
-		r.w = b.w + 2*offset;
-		r.h = b.h + 2*offset;
+		r.w = b.w + 2 * offset;
+		r.h = b.h + 2 * offset;
 	}
 	return r;
 }
@@ -229,11 +214,11 @@ SDL_Rect ax_scale_rect_proportion(SDL_Rect r, float scale)
 	b.w = (int)r.w * scale;
 	b.h = (int)r.h * scale;
 
-	int x_center = r.x + r.w/2;
-	int y_center = r.y + r.h/2;
-  
-	b.x = x_center - b.w/2;
-	b.y = y_center - b.h/2;
+	int x_center = r.x + r.w / 2;
+	int y_center = r.y + r.h / 2;
+
+	b.x = x_center - b.w / 2;
+	b.y = y_center - b.h / 2;
 
 	return b;
 }
@@ -256,8 +241,8 @@ SDL_Rect ax_scale_rect_percentage(SDL_Rect r, float scale)
 	SDL_Rect b = r;
 	b.x -= (int)(scale * (float)b.w);
 	b.y -= (int)(scale * (float)b.h);
-	b.w += (int)(2*scale * (float)b.w);
-	b.h += (int)(2*scale * (float)b.h);
+	b.w += (int)(2 * scale * (float)b.w);
+	b.h += (int)(2 * scale * (float)b.h);
 
 	return b;
 }
@@ -272,7 +257,7 @@ SDL_Rect ax_scale_rect_percentage(SDL_Rect r, float scale)
  */
 int ax_get_texture_h_fit_w(int w, texture_t *t)
 {
-	float h = (float) (t->h * w)/t->w;
+	float h = (float)(t->h * w) / t->w;
 	return (int)h;
 }
 
@@ -286,13 +271,13 @@ int ax_get_texture_h_fit_w(int w, texture_t *t)
  */
 int ax_get_texture_w_fit_h(int h, texture_t *t)
 {
-	float w = (float) (t->w * h)/t->h;
+	float w = (float)(t->w * h) / t->h;
 	return (int)w;
 }
 
 /* Function: ax_create_string_append_hex
  *------------------------------------------------------------------------------
- * Creates a string with a number attached to the end, there is not prepend 
+ * Creates a string with a number attached to the end, there is not prepend
  * zero value added.
  *
  * Arguments:
@@ -303,16 +288,16 @@ int ax_get_texture_w_fit_h(int h, texture_t *t)
  *	char * to the created string.
  *
  */
-char *ax_create_string_append_hex(char *s,  int n)
+char *ax_create_string_append_hex(char *s, int n)
 {
 	assert(s != NULL && "The string pointer is NULL");
-	
+
 	char *number = NULL;
 
 	number = ax_number_to_hex_string_two_digits(n);
 	check_mem(number);
-	char *string = malloc(sizeof(char) *
-					  (strlen(s) + strlen(ax_char_space) + strlen(number) + 1));
+	char *string = malloc(sizeof(char) * (strlen(s) + strlen(ax_char_space) +
+	                                      strlen(number) + 1));
 	check_mem(string);
 
 	strcpy(string, s);
@@ -327,7 +312,7 @@ error:
 /* Function: ax_copy_vbox
  *------------------------------------------------------------------------------
  * Assigns all the values to a box, it frees the old texture for an updated one
- * 
+ *
  *
  * Arguments:
  *	*vb: A pointer to the value box that will be modified.
@@ -339,15 +324,15 @@ error:
  */
 void ax_copy_vbox(value_box_t *dst, value_box_t src, bool pos)
 {
-	dst->value = src.value;
-	dst->type = src.type;
+	dst->value       = src.value;
+	dst->type        = src.type;
 	dst->visible_box = src.visible_box;
-	if (pos == true){
+	if (pos == true) {
 		dst->box = src.box;
 	}
 	dw_free_texture(dst->t);
 	char *number = ax_number_to_string(src.value);
-	dst->t = dw_create_text_tex(number, C_WHITE);
+	dst->t       = dw_create_text_tex(number, C_WHITE);
 	free(number);
 }
 
@@ -363,23 +348,22 @@ void ax_draw_value_box(value_box_t *box, SDL_Color color)
 {
 	int text_w = 0;
 
-	SDL_Rect val =  dm_get_value_box_val_wh();
-	if (box->t != NULL){
+	SDL_Rect val = dm_get_value_box_val_wh();
+	if (box->t != NULL) {
 		text_w = ax_get_texture_w_fit_h(val.h, box->t);
 	}
 
-	dw_draw_filled_rectangle(box->box, C_BLACK ,color);
+	dw_draw_filled_rectangle(box->box, C_BLACK, color);
 
-	SDL_Rect vb = dm_get_value_box_val_wh();
-	int x_offset = (vb.w - text_w)/2;
-	int y_offset = ((vb.h - val.h)/2) + (val.h/5)/2;
-	
-	SDL_Rect r = {.x = box->box.x + x_offset, .y = box->box.y + y_offset,
-				  .h = val.h};
-	if(box->t != NULL){
+	SDL_Rect vb       = dm_get_value_box_val_wh();
+	int      x_offset = (vb.w - text_w) / 2;
+	int      y_offset = ((vb.h - val.h) / 2) + (val.h / 5) / 2;
+
+	SDL_Rect r = {
+	    .x = box->box.x + x_offset, .y = box->box.y + y_offset, .h = val.h};
+	if (box->t != NULL) {
 		dw_draw_texture_fit_h(r, box->t);
-	}	
-
+	}
 }
 
 /* Function: ax_get_text_h_fit_w
@@ -399,22 +383,20 @@ int ax_get_text_h_fit_w(int w, char *text)
 	texture_t *text_texture = NULL;
 
 	text_texture = dw_create_text_tex(text, C_WHITE);
-	assert(NULL != text_texture && 
-		   "Failed to load texture from rendered text");
-	
-	float scale = get_scale_fit_width(w, text_texture);
-	int text_height = (int)text_texture->h * scale;
+	assert(NULL != text_texture && "Failed to load texture from rendered text");
+
+	float scale       = get_scale_fit_width(w, text_texture);
+	int   text_height = (int)text_texture->h * scale;
 
 	dw_free_texture(text_texture);
 
 	return text_height;
-
 }
 
 /* Function: get_text_width_fits_height
  * -----------------------------------------------------------------------------
  * This function receives a text string and a height value for that string and
- * returns the 
+ * returns the
  *
  * Arguments:
  *	h: height dimension.
@@ -428,24 +410,21 @@ int get_text_width_fits_height(int h, char *text)
 	texture_t *text_texture = NULL;
 
 	text_texture = dw_create_text_tex(text, C_WHITE);
-	assert(NULL != text_texture && 
-		   "Failed to load texture from rendered text");
-	
-	float scale = get_scale_fit_height(h, text_texture);
-	int text_width = (int)text_texture->w * scale;
+	assert(NULL != text_texture && "Failed to load texture from rendered text");
+
+	float scale      = get_scale_fit_height(h, text_texture);
+	int   text_width = (int)text_texture->w * scale;
 
 	dw_free_texture(text_texture);
 
 	return text_width;
-
 }
-
 
 /* Function: get_scale_fit_height
  * -----------------------------------------------------------------------------
- * This function receives a texture and a height value and returns the 
+ * This function receives a texture and a height value and returns the
  * corresponding scale factor of the texture to fit the received height value.
- * 
+ *
  * Arguments:
  *	h: height dimension.
  *	t: texture that will be used for calculating the dimension.
@@ -457,15 +436,15 @@ float get_scale_fit_height(int h, texture_t *texture)
 {
 	assert(NULL != texture && "The texture pointer is NULL");
 
-	float scale_h = (float)h/texture->h;
+	float scale_h = (float)h / texture->h;
 	return scale_h;
 }
 
 /* Function: get_scale_fit_width
  * -----------------------------------------------------------------------------
- * This function receives a texture and a width value and sets the 
+ * This function receives a texture and a width value and sets the
  * corresponding scale factor of the texture to fit the received width value.
- * 
+ *
  * Arguments:
  *	w: width dimension.
  *	t: texture that will be used for calculating the dimension.
@@ -477,14 +456,13 @@ float get_scale_fit_width(int w, texture_t *texture)
 {
 	assert(NULL != texture && "The texture pointer is NULL");
 
-	float scale_w = (float)w/texture->w;
+	float scale_w = (float)w / texture->w;
 	return scale_w;
 }
 
-
 /* Function: ax_get_x_delta_div
  * ----------------------------------------------------------------------------
- * Delta will be calculated according to the proportions of the x and y 
+ * Delta will be calculated according to the proportions of the x and y
  * of the final values
  *
  * Arguments:
@@ -498,21 +476,21 @@ float get_scale_fit_width(int w, texture_t *texture)
  */
 int ax_get_x_delta_div(int x1, int x2, int y1, int y2)
 {
-	int x_dis = abs(x1 - x2);
-	int y_dis = abs(y1 - y2);
-	float prop;	
-	
-	if (x_dis > y_dis){
-	 	prop = 1;
+	int   x_dis = abs(x1 - x2);
+	int   y_dis = abs(y1 - y2);
+	float prop;
+
+	if (x_dis > y_dis) {
+		prop = 1;
 	} else {
-		prop = (float) y_dis/(float) x_dis;
+		prop = (float)y_dis / (float)x_dis;
 	}
 	return prop;
 }
 
 /* Function: ax_get_y_delta_div
  * ----------------------------------------------------------------------------
- * Delta will be calculated according to the proportions of the x and y 
+ * Delta will be calculated according to the proportions of the x and y
  * of the final values
  *
  * Arguments:
@@ -526,14 +504,14 @@ int ax_get_x_delta_div(int x1, int x2, int y1, int y2)
  */
 int ax_get_y_delta_div(int x1, int x2, int y1, int y2)
 {
-	int x_dis = abs(x1 - x2);
-	int y_dis = abs(y1 - y2);
-	float prop;	
-	
-	if (y_dis > x_dis){
-	 	prop = 1;
+	int   x_dis = abs(x1 - x2);
+	int   y_dis = abs(y1 - y2);
+	float prop;
+
+	if (y_dis > x_dis) {
+		prop = 1;
 	} else {
-		prop = (float) x_dis/(float) y_dis;
+		prop = (float)x_dis / (float)y_dis;
 	}
 	return prop;
 }
@@ -554,18 +532,18 @@ int ax_get_y_delta_div(int x1, int x2, int y1, int y2)
 int ax_get_movement_delta(int v1, int v2, int max_delta)
 {
 	int distance = abs(v1 - v2);
-	
-	float half_delta = (float)max_delta/2;
+
+	float half_delta = (float)max_delta / 2;
 
 	int delta = 0;
-	
-	if(distance < 4){
+
+	if (distance < 4) {
 		delta = 1;
-	} else if (distance <= half_delta/2){
-		delta = half_delta/4;
-	} else if (distance <= half_delta){
-		delta = half_delta/2;
-	} else if (distance <= max_delta){
+	} else if (distance <= half_delta / 2) {
+		delta = half_delta / 4;
+	} else if (distance <= half_delta) {
+		delta = half_delta / 2;
+	} else if (distance <= max_delta) {
 		delta = half_delta;
 	} else {
 		delta = max_delta;
@@ -586,11 +564,10 @@ int ax_get_movement_delta(int v1, int v2, int max_delta)
  */
 char *ax_number_to_hex_string_two_digits(int number)
 {
-	assert(number >= 0 && number < 100 && "Invalid number value");	
+	assert(number >= 0 && number < 100 && "Invalid number value");
 	char *number_hex = malloc(sizeof(char) * 3);
 	snprintf(number_hex, 3, "%02X", number & 0xFF);
 	return number_hex;
-
 }
 
 /* Function: ax_number_to_string_two_digits
@@ -606,18 +583,18 @@ char *ax_number_to_hex_string_two_digits(int number)
  */
 char *ax_number_to_string_two_digits(int number)
 {
-	assert(number >= 0 && number < 100 && "Invalid number value");	
+	assert(number >= 0 && number < 100 && "Invalid number value");
 	char *number_text = NULL;
-	if (number < 10){
-			number_text = ax_number_to_string_prepend_zero(number);
-		} else {
-			number_text = ax_number_to_string(number);
-		}
+	if (number < 10) {
+		number_text = ax_number_to_string_prepend_zero(number);
+	} else {
+		number_text = ax_number_to_string(number);
+	}
 	return number_text;
 }
 /* Function: ax_number_to_string_prepend_zero
  * ----------------------------------------------------------------------------
- * This function receives receives an integer and it returns it as a 
+ * This function receives receives an integer and it returns it as a
  * string form with a prepend zero as the first character
  *
  * Arguments:
@@ -635,7 +612,7 @@ char *ax_number_to_string_prepend_zero(int number)
 
 /* Function: number_to_string
  * -------------------------------------
- * This function receives receives an integer and it returns it as a 
+ * This function receives receives an integer and it returns it as a
  * string form that can be used to generate a texture and display it
  * on screen.
  *
@@ -650,29 +627,28 @@ char *ax_number_to_string(int number)
 {
 	char *c = NULL;
 
-	if (number == 0){
-		c = malloc(sizeof(char)*2);
+	if (number == 0) {
+		c = malloc(sizeof(char) * 2);
 		sprintf(c, "%d", number);
-	} else if (number == NO_VALUE){
-		c = malloc(sizeof(char)*2);
+	} else if (number == NO_VALUE) {
+		c               = malloc(sizeof(char) * 2);
 		char negative[] = "-";
 		strcpy(c, negative);
-	} else if (number < 0){
-		int absolute = abs(number);
-		char *abs_number = malloc(sizeof(char)*(int)log10(absolute)+2);
+	} else if (number < 0) {
+		int   absolute   = abs(number);
+		char *abs_number = malloc(sizeof(char) * (int)log10(absolute) + 2);
 		sprintf(abs_number, "%d", absolute);
-		c = malloc(sizeof(char)*(int)log10(absolute)+3);
+		c               = malloc(sizeof(char) * (int)log10(absolute) + 3);
 		char negative[] = "-";
 		strcpy(c, negative);
 		strcat(c, abs_number);
 		free(abs_number);
 	} else {
-		c = malloc(sizeof(char)*(int)log10(number)+2);
+		c = malloc(sizeof(char) * (int)log10(number) + 2);
 		sprintf(c, "%d", number);
 	}
 	return c;
 }
-
 
 /* Function: check_text_fits_width_by_height
  * -------------------------------------
@@ -690,23 +666,21 @@ char *ax_number_to_string(int number)
  */
 bool check_text_fits_width_by_height(char *t, int h, int w)
 {
-	bool check = false;
+	bool       check        = false;
 	texture_t *text_texture = NULL;
 
 	text_texture = dw_create_text_tex(t, C_WHITE);
-	assert(NULL != text_texture && 
-		   "Failed to load texture from rendered text");
+	assert(NULL != text_texture && "Failed to load texture from rendered text");
 
-	float scale_by_height = (float)h/(float)text_texture->h;
+	float scale_by_height   = (float)h / (float)text_texture->h;
 	float scaled_text_width = (float)text_texture->w * scale_by_height;
-	if (scaled_text_width < w){
+	if (scaled_text_width < w) {
 		check = true;
 	}
 
 	dw_free_texture(text_texture);
 	return check;
 }
-
 
 /* Function: get_text_width
  * -------------------------------------
@@ -726,20 +700,18 @@ int get_text_width(char *text, float scale)
 	texture_t *text_texture = NULL;
 
 	text_texture = dw_create_text_tex(text, C_WHITE);
-	assert(NULL != text_texture && 
-		   "Failed to load texture from rendered text");
+	assert(NULL != text_texture && "Failed to load texture from rendered text");
 
 	int scaled_text_width = (float)text_texture->w * scale;
 
 	dw_free_texture(text_texture);
 
 	return scaled_text_width;
-
 }
 
 /* Function: ax_get_wrapped_text_height
  * -----------------------------------------------------------------------------
- * This function calculates the height required for a warped text in a given 
+ * This function calculates the height required for a warped text in a given
  * scale with a give width.
  *
  * Arguments:
@@ -754,48 +726,53 @@ int ax_get_wrapped_text_height(int w, int h, char *t)
 {
 	assert(0 < w && "The width of the text is negative");
 	assert(0 < h && "The height of the text is negative");
-	assert( NULL != t && "Text pointer is NULL");
+	assert(NULL != t && "Text pointer is NULL");
 
-	int x_pos = WRAPPED_TEXT_X_OFFSET;
-	int y_pos = 0;
-	int y_offset = h;
+	int x_pos       = WRAPPED_TEXT_X_OFFSET;
+	int y_pos       = 0;
+	int y_offset    = h;
 	int string_size = strlen(t);
-	
-	char *text = malloc(sizeof(char)*string_size);
+
+	char *text = calloc((size_t)string_size + 1, sizeof(char));
 	check_mem(text);
-	int last_fit = 0;
+	int last_fit      = 0;
 	int already_drawn = 0;
-	for (int i = 0; i <= string_size; i++){
-		if (t[i] == CHAR_SPACE || t[i] == CHAR_NULL || t[i] == CHAR_NEWLINE){
-			
+	for (int i = 0; i <= string_size; i++) {
+		if (t[i] == CHAR_SPACE || t[i] == CHAR_NULL || t[i] == CHAR_NEWLINE) {
+			if (t[i] == CHAR_NEWLINE && already_drawn > 0 &&
+			    i == already_drawn + 1) {
+				y_pos += y_offset;
+				already_drawn = i;
+				last_fit      = i;
+				continue;
+			}
+
 			strncpy(text, t + already_drawn, i - already_drawn);
-			
-			if (check_text_fits_width_by_height(text, h, w) == true){
+
+			if (check_text_fits_width_by_height(text, h, w) == true) {
 				last_fit = i;
 			}
-			if (check_text_fits_width_by_height(text, h, w) == false || 
-									 CHAR_NULL == t[i] || t[i] == CHAR_NEWLINE){
-				if (last_fit == already_drawn){
+			if (check_text_fits_width_by_height(text, h, w) == false ||
+			    CHAR_NULL == t[i] || t[i] == CHAR_NEWLINE) {
+				if (last_fit == already_drawn) {
 					puts("The size of the font does not fits width");
 					last_fit = string_size;
 				}
 				memset(text, 0, string_size);
-				if (already_drawn == 0){
+				if (already_drawn == 0) {
 					strncpy(text, t + already_drawn, last_fit - already_drawn);
 				} else {
-					strncpy(text, t + already_drawn + 1, 
-						   						  last_fit - already_drawn - 1);
+					strncpy(text, t + already_drawn + 1,
+					        last_fit - already_drawn - 1);
 				}
 				y_pos += y_offset;
 				already_drawn = last_fit;
-				i = last_fit;
+				i             = last_fit;
 				memset(text, 0, string_size);
 			}
 		}
-	} 
+	}
 	free(text);
 error:
 	return y_pos;
 }
-
-

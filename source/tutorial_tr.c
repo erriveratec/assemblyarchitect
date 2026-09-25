@@ -10,6 +10,7 @@
 #include "mouse_ms.h"
 #include "text_tx.h"
 #include "tutorial_tr.h"
+#include "game_mechanics_mc.h"
 
 #define TUTORIAL_PATH_FORMAT "data/levels/%02d/tutorial.cfg"
 #define TUTORIAL_MAX_STEPS 32
@@ -83,6 +84,36 @@ static void tr_initialize_step_arrows(const tutorial_step_t *step)
 	}
 }
 
+static void tr_process_state_dismissals(
+    const cs_context_t *context
+)
+{
+    if (context == NULL) {
+        return;
+    }
+
+    bool operation_error =
+        context->operation_flag != NO_OPERATION &&
+        context->operation_flag != MC_WIN;
+
+    if (!operation_error) {
+        return;
+    }
+
+    for (int index = 0;
+         index < g_step_count;
+         index++) {
+        tutorial_step_t *step =
+            &g_steps[index];
+
+        if (step->active &&
+            step->dismiss ==
+                TUTORIAL_DISMISS_OPERATION_ERROR) {
+            step->active = false;
+        }
+    }
+}
+
 /*
  * Renders the first active tutorial step that matches
  * the current gameplay state.
@@ -95,7 +126,7 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 		g_current_step = NULL;
 		return NULL;
 	}
-
+    tr_process_state_dismissals(context);
 	const tutorial_step_t *step = tr_get_matching_step(context);
 
 	if (step == NULL) {
@@ -201,7 +232,9 @@ static bool parse_dismiss(const char *text, tutorial_dismiss_t *dismiss)
 		*dismiss = TUTORIAL_DISMISS_MOUSE_PRESS;
 	} else if (strcmp(text, "mouse_release") == 0) {
 		*dismiss = TUTORIAL_DISMISS_MOUSE_RELEASE;
-	} else {
+	} else if (strcmp(text, "operation_error") == 0) {
+        *dismiss = TUTORIAL_DISMISS_OPERATION_ERROR;
+    } else {
 		return false;
 	}
 
@@ -521,10 +554,23 @@ bool tr_step_matches_current_state(const char         *name,
 	    step->when_play_state != context->playing) {
 		return false;
 	}
+    if (step->when_won >= 0 &&
+        step->when_won != (context->won ? 1 : 0)) {
+        return false;
+    }
 	if (step->when_operation_flag >= 0 &&
 	    step->when_operation_flag != context->operation_flag) {
 		return false;
 	}
+    if (step->when_operation_error >= 0) {
+        bool has_error =
+        context->operation_flag != NO_OPERATION &&
+        context->operation_flag != MC_WIN;
+
+        if (step->when_operation_error != (has_error ? 1 : 0)) {
+            return false;
+        }
+    }
 
 	return true;
 }
@@ -653,7 +699,9 @@ bool tr_load_level(int level_id)
 			step->when_last_line_state         = -1;
 			step->when_code_sorted             = -1;
 			step->when_play_state              = -1;
+            step->when_won                     = -1;
 			step->when_operation_flag          = -1;
+            step->when_operation_error         = -1;
 			step->effect_code_editable         = -1;
 			step->effect_code_editable_exception =
 			    TUTORIAL_EDIT_EXCEPTION_UNSET;
@@ -791,9 +839,19 @@ bool tr_load_level(int level_id)
 		if (strcmp(key, "when.play_state") == 0) {
 			step->when_play_state = atoi(value);
 		}
+        if (strcmp(key, "when.won") == 0) {
+            if (!parse_effect_bool(value, &step->when_won)) {
+            goto invalid;
+            }
+        }
 		if (strcmp(key, "when.operation_flag") == 0) {
 			step->when_operation_flag = atoi(value);
 		}
+        if (strcmp(key, "when.operation_error") == 0) {
+            if (!parse_effect_bool(value, &step->when_operation_error)) {
+                goto invalid;
+            }
+        }
 		if (strcmp(key, "effects.code_editable") == 0) {
 			if (!parse_effect_bool(value, &step->effect_code_editable)) {
 				goto invalid;

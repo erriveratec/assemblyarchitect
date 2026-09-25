@@ -772,102 +772,12 @@ static void level_1(void)
  * Return:
  *	Void.
  */
-static void level_0()
+static void level_0(void)
 {
-	draw_regs_arrow(false);
-	int flag = mc_get_operation_flag();
+    cs_context_t context =
+        cs_capture_context();
 
-	bool play = mc_is_executing(); //ya
-	bool hold = chk_player_holds_line(); //ya 
-	int size = cw_get_code_list_size(); //ya
-	bool sorted = cw_check_code_sorted();//ya
-	bool miss_op = cw_is_operand_pending();
-	bool miss_op1 = cw_is_operand_1_pending();
-	bool miss_op2 = cw_is_operand_2_pending();
-	bool win = wc_is_satisfied();
-
-	if (g_lv_msg[MSG0] == true && size == 0){
-		tx_text_box(TX_BIG_BOX, MSG0, TX_SYSMES); //Welcome message
-		tx_bottom_msg(TX_BIG_BOX, TX_MSG_CLICKANY);
-		chk_ms_pressed_clear_msg(MSG0, true);
-	} else if (g_lv_msg[MSG1] == true && size == 0){
-		tx_text_box(TX_UPPER_BOX, MSG1, TX_INS); //Read challenge
-		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_CHALLENGE);
-		chk_ms_pressed_clear_msg(MSG1, true);
-	} else if (g_lv_msg[MSG2] == true && size == 0){
-		tx_text_box(TX_UPPER_BOX, MSG2, TX_INS); //Move from the Input Buffer
-		tx_bottom_msg(TX_UPPER_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_IB);
-		chk_ms_pressed_clear_msg(MSG2, true);
-	} else if (g_lv_msg[MSG3] == true && size == 0){
-		tx_text_box(TX_LOWER_BOX, MSG3, TX_INS); //To the Output Buffer
-		tx_bottom_msg(TX_LOWER_BOX, TX_MSG_CLICKANY);
-		ar_display_arrow(AR_OB);
-		chk_ms_pressed_clear_msg(MSG3, true);
-	} else if (g_lv_msg[MSG4] == true && size == 0){
-		tx_text_box(TX_CENTER_BOX, MSG4, TX_INS);//To register first
-		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_CLICKANY);
-		draw_regs_arrow(true);
-		chk_ms_pressed_clear_msg(MSG4, true);
-	} else if (size == 0 && hold == false){
-		tx_text_box(TX_INS_BOX, MSG5, TX_INS);//Select and drag instruction
-		ar_display_arrow(AR_INS);
-	} else if (size == 0 && hold == true){
-		tx_text_box(TX_CODE_BOX, MSG6, TX_INS); // Drop ins in code box
-		ar_display_arrow(AR_DROP);
-	} else if (size == 1 && hold == true && miss_op == true){
-		tx_text_box(TX_CODE_BOX, MSG6, TX_INS); // Drop ins in code box
-		ar_display_arrow(AR_DROP);
-	} else if (size == 1 && sorted == true && miss_op1 == true){
-		tx_text_box(TX_CENTER_BOX, MSG7, TX_INS);//Select rax
-		set_code_editable(false, NO_EXCEPTION);
-		set_buf_selectable(false);
-		set_reg_selectable(true);
-		draw_regs_arrow(true);
-	} else if(size == 1 && sorted == true && miss_op2 == true){
-		tx_text_box(TX_UPPER_BOX, MSG8, TX_INS);//Select input buffer
-		set_buf_selectable(true);
-		set_reg_selectable(false);
-		draw_regs_arrow(false);
-		ar_display_arrow(AR_IB);
-	} else if(size == 1 && miss_op == false && g_lv_msg[MSG9] == true){
-		set_code_editable(false, INS_EXCEPTION);
-		tx_text_box(TX_CODE_BOX, MSG9, TX_INS);// Press play button
-		ar_display_arrow(AR_PLAY);
-		set_arrange_enabled(false);
-		if (play == true){
-			g_lv_msg[MSG9] = false;
-		}
-	} else if (flag != MC_WIN && flag != NO_OPERATION ){
-		tx_text_box(TX_CENTER_BOX, MSG10, TX_SYSWAR); //ERROR
-		tx_bottom_msg(TX_CENTER_BOX, TX_MSG_PRESSBACK);
-		ar_display_arrow(AR_ERROR);
-	} else if(size == 1 && hold == false && play == false 
-			  && g_lv_msg[MSG11] == true && miss_op == false){
-		tx_text_box(TX_INS_BOX, MSG11, TX_INS);	 //Select another mov ins
-		ar_display_arrow(AR_INS);
-	} else if(size == 1 && hold == true && miss_op == false){
-		tx_text_box(TX_CODE_BOX, MSG12, TX_INS); // Drop below instruction
-		ar_display_arrow(AR_DROP);
-	} else if(size == 2 && hold == true){
-		tx_text_box(TX_CODE_BOX, MSG12, TX_INS); // Drop below instruction
-		ar_display_arrow(AR_DROP);
-	} else if (size == 2 && sorted == true && miss_op1 == true){
-		tx_text_box(TX_CODE_BOX, MSG13, TX_INS);//Select OB	
-		set_code_editable(false, NO_EXCEPTION);
-		ar_display_arrow(AR_OB);
-	} else if(size == 2 && sorted == true && miss_op == true){
-		set_reg_selectable(true);
-		tx_text_box(TX_CODE_BOX, MSG14, TX_INS); //Select rax
-		draw_regs_arrow(true);
-	} else if(size == 2 && miss_op == false && play == false && win == false){
-		set_code_editable(false, NO_EXCEPTION);
-		tx_text_box(TX_CODE_BOX, MSG15, TX_INS);	//Press play
-		ar_display_arrow(AR_PLAY);
-	} else if (wc_is_satisfied() == true){
-		tx_text_box(TX_CENTER_BOX, MSG16, TX_SYSMES);//Congrats 
-	}
+    tr_update(&context);
 }
 
 /* Function: check_display_reg_lv_arrow
