@@ -450,6 +450,12 @@ static tutorial_step_t *find_step(const char *name)
 
 void tr_clear(void)
 {
+	for (int index = 0; index < g_step_count; index++) {
+		dw_free_texture_array(g_steps[index].text_texture);
+
+		g_steps[index].text_texture = NULL;
+	}
+
 	memset(g_steps, 0, sizeof(g_steps));
 
 	g_step_count   = 0;
@@ -630,8 +636,8 @@ void tr_render_step(const char *name)
 		return;
 	}
 
-	int step_id = (int)(step - g_steps);
-	tx_text_box(get_text_box(step->box), step_id, get_header(step->header));
+	tx_text_box_texture(get_text_box(step->box), step->text_texture,
+	                    get_header(step->header));
 
 	for (int index = 0; index < step->arrow_count; index++) {
 		ar_display_arrow(step->arrow_ids[index]);
@@ -682,6 +688,7 @@ bool tr_load_level(int level_id)
 
 			step = &g_steps[g_step_count++];
 			sscanf(text, "[%63[^]]]", step->name);
+			step->text_texture                 = NULL;
 			step->priority                     = 0;
 			step->arrow_count                  = 0;
 			step->when_code_size               = -1;
@@ -738,7 +745,28 @@ bool tr_load_level(int level_id)
 				        level_id, step->name);
 				goto invalid;
 			}
+
 			reading_text = false;
+
+			if (step->text[0] == '\0') {
+				fprintf(stderr,
+				        "tutorial.cfg: level %d step '%s' "
+				        "contains empty text\n",
+				        level_id, step->name);
+				goto invalid;
+			}
+
+			step->text_texture =
+			    tx_create_text_box_message(get_text_box(step->box), step->text);
+
+			if (step->text_texture == NULL) {
+				fprintf(stderr,
+				        "tutorial.cfg: level %d step '%s' "
+				        "could not create text texture\n",
+				        level_id, step->name);
+				goto invalid;
+			}
+
 			continue;
 		}
 

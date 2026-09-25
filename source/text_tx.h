@@ -1,8 +1,8 @@
 #ifndef TEXT_TX_H
 #define TEXT_TX_H
-#include<stdio.h>
-#include<stdlib.h>
-#include"draw_dw.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include "draw_dw.h"
 
 void tx_init_global_msgs();
 void tx_text_box(int pos, int msg_id, int header);
@@ -10,15 +10,15 @@ void tx_bottom_msg(int pos, int msg_id);
 void tx_free_level_text_textures();
 void tx_set_and_allocate_msgs_array(int size);
 void tx_set_message_in_array(int pos, char *msg, int w, int h);
-bool tx_draw_create_typewriter_text(texture_t **t, 
-									SDL_Rect r, 
-									const char *text, 
-									size_t *index, 
-									SDL_Color color);
+bool tx_draw_create_typewriter_text(texture_t **t, SDL_Rect r, const char *text,
+                                    size_t *index, SDL_Color color);
 texture_array_t *tx_get_message_texture(int pos);
-SDL_Rect tx_get_text_box_wh();
+SDL_Rect         tx_get_text_box_wh();
+texture_array_t *tx_create_text_box_message(int position, const char *message);
 
-enum text_box_positions{
+void tx_text_box_texture(int position, texture_array_t *message, int header);
+
+enum text_box_positions {
 	TX_BOX_MIN,
 	TX_INS_BOX,
 	TX_UPPER_BOX,
@@ -33,22 +33,12 @@ enum text_box_positions{
 	TX_BOX_MAX
 };
 
-enum gbl_msgs{
-	TX_MSG_CLICKANY,
-	TX_MSG_PRESSPLAY,
-	TX_MSG_PRESSBACK
-};
+enum gbl_msgs { TX_MSG_CLICKANY, TX_MSG_PRESSPLAY, TX_MSG_PRESSBACK };
 
-enum header{
-	TX_NONE,
-	TX_SYSMES,
-	TX_SYSNOT,
-	TX_SYSWAR,
-	TX_INS
-};
+enum header { TX_NONE, TX_SYSMES, TX_SYSNOT, TX_SYSWAR, TX_INS };
 
-enum msgs{
-	MSG0,	
+enum msgs {
+	MSG0,
 	MSG1,
 	MSG2,
 	MSG3,

@@ -24,7 +24,7 @@
 #include "text_tx.h"
 #include "gameplay/win_condition_wc.h"
 
-typedef struct level_flags_t{
+typedef struct level_flags_t {
 	bool play;
 	bool stop;
 	bool stop_enabled;
@@ -38,18 +38,18 @@ static SDL_Rect result_box;
 
 int g_player = FL_NO_PLAYER;
 
-void stage_drawings(int level);
+void                stage_drawings(int level);
 static code_line_t *pending_operand_handler();
-static void flag_handler(level_flags_t *flags, int clicked_button);
+static void         flag_handler(level_flags_t *flags, int clicked_button);
 static code_line_t *edit_code(int level_id);
-static void reset_level(int level_id, level_flags_t *flags);
-static void destroy_level(level_flags_t *flags);
-static void init_stage_assets();
-static void code_updated_actions(int level_id);
-static void set_code_editable();
-static void reset_code_editable();
-static void rst_btn_hdl(int level_id, level_flags_t *f);
-static int get_sector_id(int level_id);
+static void         reset_level(int level_id, level_flags_t *flags);
+static void         destroy_level(level_flags_t *flags);
+static void         init_stage_assets();
+static void         code_updated_actions(int level_id);
+static void         set_code_editable();
+static void         reset_code_editable();
+static void         rst_btn_hdl(int level_id, level_flags_t *f);
+static int          get_sector_id(int level_id);
 
 /* Function: reset_level_flags
  * -------------------------------------
@@ -57,22 +57,22 @@ static int get_sector_id(int level_id);
  * 	flags: the flag levels that will be reset
  *
  * Return:
- *	void.	
+ *	void.
  */
 void reset_level_flags(level_flags_t *flags)
 {
-	flags->play = false;
-	flags->stop = false;
+	flags->play         = false;
+	flags->stop         = false;
 	flags->stop_enabled = false;
-	flags->fast = false;
-	flags->step = false;
-	flags->step_fst = false;
-	flags->non_stop = false;
+	flags->fast         = false;
+	flags->step         = false;
+	flags->step_fst     = false;
+	flags->non_stop     = false;
 }
 
 /* Function: init_stage_assets
  * ----------------------------------------------------------------------------
- * Initializes several aspects of the stages that were initialized 
+ * Initializes several aspects of the stages that were initialized
  * as the level was created. Independly of the level that player is playing.
  * the stages should be initialized. Code box and instruction box should not
  * be initialized here.
@@ -81,7 +81,7 @@ void reset_level_flags(level_flags_t *flags)
  * 	None.
  *
  * Return:
- *	void.	
+ *	void.
  */
 static void init_stage_assets()
 {
@@ -89,7 +89,7 @@ static void init_stage_assets()
 
 	SDL_Rect r0 = dm_get_stage_input_buffer_box();
 	bf_set_input_box(r0);
-	
+
 	SDL_Rect r1 = dm_get_stage_output_buffer_box();
 	bf_set_output_box(r1);
 
@@ -114,36 +114,37 @@ static void init_stage_assets()
  */
 void init_level(int level_id)
 {
-	assert(level_id >= 0 && level_id < LV_LEVEL_MAX &&  "Invalid stage id");
-	
-	
+	assert(level_id >= 0 && level_id < LV_LEVEL_MAX && "Invalid stage id");
+
 	init_stage_assets();
 	bf_create_input_list();
 	bf_create_output_list();
 	bf_reset_win_condition();
 
-	fl_load_level_msgs(level_id);
-	tr_load_level(level_id);
+	if (!tr_load_level(level_id)) {
+		fprintf(stderr, "Unable to load tutorial for level %d\n", level_id);
+	}
+
 	wc_create_expected_output();
 	lv_init_level_assets(level_id);
 
-	//goes before the load level
+	// goes before the load level
 	SDL_Rect r0 = dm_get_stage_reg_box();
-	rg_set_register_box(r0); 	
-	
+	rg_set_register_box(r0);
+
 	fl_file_initialize_level(level_id);
-	
+
 	// must go after level loading
-	rg_init_flag_and_vboxes(); 	
+	rg_init_flag_and_vboxes();
 
 	SDL_Rect r1 = cw_get_stage_code_box();
 	cw_set_scroll_box(r1);
 	cw_set_code_box(r1);
-	
+
 	SDL_Rect r2 = dm_get_stage_instruction_box();
-	//iw_set_instruction_box(r2);
-	
-	cw_create_code_list();	
+	// iw_set_instruction_box(r2);
+
+	cw_create_code_list();
 	fl_load_save_file(g_player, level_id);
 	mc_init_avatar();
 
@@ -155,7 +156,7 @@ void init_level(int level_id)
  * -----------------------------------------------------------------------------
  * This function should be called each time the player leaves a level as it
  * should clean everything for the next invocation of the level.
- * 
+ *
  * Arguments:
  * stage_id: the id for the specific stage that is going to be played
  *
@@ -164,17 +165,17 @@ void init_level(int level_id)
  */
 static void destroy_level(level_flags_t *flags)
 {
-	bf_destroy_buffer_lists(); 
-	wc_destroy_expected_output(); 
-	cw_destroy_code_window_assets(); 
-	iw_destroy_instruction_list(); 
-	tx_free_level_text_textures();
+	bf_destroy_buffer_lists();
+	wc_destroy_expected_output();
+	cw_destroy_code_window_assets();
+	iw_destroy_instruction_list();
+	tr_clear();
 	rg_destroy_register_list();
 	rg_destroy_value_boxes();
 	reset_level_flags(flags);
 	bf_reset_input_list_x_pos();
 	mc_destroy_avatar_textures();
-	return ;
+	return;
 }
 
 /* Function: stages_drawings
@@ -190,7 +191,7 @@ static void destroy_level(level_flags_t *flags)
 void stage_drawings(int level)
 {
 	iw_draw_ins_box();
-	cw_draw_code_window();	
+	cw_draw_code_window();
 	sb_draw_stage_btns(cw_get_code_list_size());
 	im_draw_imm();
 	ar_display_arrow(AR_EXEC);
@@ -204,10 +205,6 @@ void stage_drawings(int level)
 	return;
 }
 
-
-
-
-
 /* Function: stage_button_handler
  * ----------------------------------------------------------------------------
  * Arguments:
@@ -219,27 +216,27 @@ void stage_drawings(int level)
 void stage_button_handler()
 {
 	int clicked_button = identify_clicked_stage_button();
-	
-	switch(clicked_button){
-		case STOP:
-			
-			break;
 
-		case STEP:
+	switch (clicked_button) {
+	case STOP:
 
-			break;
+		break;
 
-		case PLAY:
+	case STEP:
 
-			break;
+		break;
 
-		case FAST:
+	case PLAY:
 
-			break;
+		break;
 
-		case INVALID:
+	case FAST:
 
-			break;
+		break;
+
+	case INVALID:
+
+		break;
 	}
 }
 
@@ -258,61 +255,61 @@ static void flag_handler(level_flags_t *flags, int clicked_button)
 {
 	assert(clicked_button != INVALID && "Invalid clicked button");
 	assert(flags != NULL && "The flags pointer is NULL");
-	
-	switch(clicked_button){
-		case PLAY: 
-			if (flags->play == false && flags->step_fst == false){
-				ar_reset_execution_arrow();
-			}
-			flags->play = true;
-			flags->non_stop = true;
-			flags->stop = false;
-			flags->stop_enabled = true;
-			flags->fast = false;
-			flags->step = false;
-			flags->step_fst = true;
-			ax_set_fast_move_delta(false);
-			ax_set_arrow_mdelta(false);
-			break;
-		case STOP:
-			flags->stop = true;
-			flags->non_stop = false;
-			flags->play = false;
-			flags->fast = false;
-			flags->step = false;
-			flags->step_fst = false;
-			mc_reset_invalid_operation_flag();	
-			ax_set_fast_move_delta(false);
-			ax_set_arrow_mdelta(false);
-			break;
-		case FAST:
-			if (flags->play == false && flags->step_fst == false){
-				ar_reset_execution_arrow();
-			}
-			flags->fast = true;
-			flags->play = true;
-			flags->stop = false;
-			flags->non_stop = true;
-			flags->stop_enabled = true;
-			flags->step = false;
-			flags->step_fst = true;
-			ax_set_fast_move_delta(true);
-			ax_set_arrow_mdelta(true);
-			break;
-		case STEP:
-			if (flags->step_fst == false){
-				ar_reset_execution_arrow();
-			}
-			flags->step_fst = true;
-			flags->step = true;
-			flags->stop = false;
-			flags->non_stop = true;
-			flags->stop_enabled = true;
-			flags->play = false;
-			flags->fast = false;
-			ax_set_fast_move_delta(false);
-			ax_set_arrow_mdelta(false);
-			break;
+
+	switch (clicked_button) {
+	case PLAY:
+		if (flags->play == false && flags->step_fst == false) {
+			ar_reset_execution_arrow();
+		}
+		flags->play         = true;
+		flags->non_stop     = true;
+		flags->stop         = false;
+		flags->stop_enabled = true;
+		flags->fast         = false;
+		flags->step         = false;
+		flags->step_fst     = true;
+		ax_set_fast_move_delta(false);
+		ax_set_arrow_mdelta(false);
+		break;
+	case STOP:
+		flags->stop     = true;
+		flags->non_stop = false;
+		flags->play     = false;
+		flags->fast     = false;
+		flags->step     = false;
+		flags->step_fst = false;
+		mc_reset_invalid_operation_flag();
+		ax_set_fast_move_delta(false);
+		ax_set_arrow_mdelta(false);
+		break;
+	case FAST:
+		if (flags->play == false && flags->step_fst == false) {
+			ar_reset_execution_arrow();
+		}
+		flags->fast         = true;
+		flags->play         = true;
+		flags->stop         = false;
+		flags->non_stop     = true;
+		flags->stop_enabled = true;
+		flags->step         = false;
+		flags->step_fst     = true;
+		ax_set_fast_move_delta(true);
+		ax_set_arrow_mdelta(true);
+		break;
+	case STEP:
+		if (flags->step_fst == false) {
+			ar_reset_execution_arrow();
+		}
+		flags->step_fst     = true;
+		flags->step         = true;
+		flags->stop         = false;
+		flags->non_stop     = true;
+		flags->stop_enabled = true;
+		flags->play         = false;
+		flags->fast         = false;
+		ax_set_fast_move_delta(false);
+		ax_set_arrow_mdelta(false);
+		break;
 	}
 }
 /* Function: code_updated_actions
@@ -338,7 +335,7 @@ static void code_updated_actions(int level_id)
  * This function is called when an instruction is pending an operand.
  * In case that the instruction that is pending an operand is a jump, it
  * generates the label operand to be put on the code
- * 
+ *
  * Arguments:
  * 	Void.
  *
@@ -347,56 +344,54 @@ static void code_updated_actions(int level_id)
  */
 static code_line_t *pending_operand_handler()
 {
-	bool reg_sel = rg_chk_rel_in_reg();
-	bool buf_sel = bf_ms_rel_in_buf();
+	bool reg_sel   = rg_chk_rel_in_reg();
+	bool buf_sel   = bf_ms_rel_in_buf();
 	bool label_sel = cw_ms_rel_in_label();
-	bool imm_sel = im_ms_rel_in_upimm();
-	bool rel = ms_left_released();
+	bool imm_sel   = im_ms_rel_in_upimm();
+	bool rel       = ms_left_released();
 
 	code_line_t *l = cw_get_code_line_pending_operand();
 	code_line_t *r = NULL;
 	cw_highlight_code_pending_operand();
 
-	if (cl_is_ins_jmp_type(l->ins->id) == true && l->state == MISSING_OP1){
+	if (cl_is_ins_jmp_type(l->ins->id) == true && l->state == MISSING_OP1) {
 		r = cw_create_label_code_line();
 		cw_player_holding_instruction(r, false, true);
 		operand_t *a = cw_create_jmp_op(r);
 		cw_assign_op_to_line(a, l);
-	} else if (reg_sel == true && lv_is_reg_selectable() == true){
+	} else if (reg_sel == true && lv_is_reg_selectable() == true) {
 		operand_t *r = rg_create_sel_reg_op();
 		cw_assign_op_to_line(r, l);
-	} else if (buf_sel == true && lv_is_buf_selectable() == true){
+	} else if (buf_sel == true && lv_is_buf_selectable() == true) {
 		operand_t *b = bf_create_sel_buf_op();
-		if (cl_is_op_compatible(b, l) == true){
+		if (cl_is_op_compatible(b, l) == true) {
 			cw_assign_op_to_line(b, l);
 		} else {
 			cl_destroy_operand(b);
 		}
-	} else if (imm_sel == true){
+	} else if (imm_sel == true) {
 		operand_t *i = im_create_sel_imm_op();
-		if (cl_is_op_compatible(i, l) == true){
+		if (cl_is_op_compatible(i, l) == true) {
 			cw_assign_op_to_line(i, l);
 		}
-	} else if (rel == true 
-			   && reg_sel == false 
-			   && buf_sel == false
-			   && imm_sel == false){
-		if (l->state == CHANGING_OP1 || l->state == CHANGING_OP2){
-			l->state = COMPLETE;	
-			int qty = cl_get_instruction_operand_quantity(l->ins->id);
-			if (qty == ONE_OPERAND || qty == TWO_OPERANDS){
-				l->op1->b->animated = false;
-				l->op1->b->anim_dir = false;
+	} else if (rel == true && reg_sel == false && buf_sel == false &&
+	           imm_sel == false) {
+		if (l->state == CHANGING_OP1 || l->state == CHANGING_OP2) {
+			l->state = COMPLETE;
+			int qty  = cl_get_instruction_operand_quantity(l->ins->id);
+			if (qty == ONE_OPERAND || qty == TWO_OPERANDS) {
+				l->op1->b->animated   = false;
+				l->op1->b->anim_dir   = false;
 				l->op1->b->anim_state = 0;
-				if (cl_is_ins_jmp_type(l->ins->id) == true){
-					l->op1->jptr->op1->b->animated = false;
-					l->op1->jptr->op1->b->anim_dir = false;
+				if (cl_is_ins_jmp_type(l->ins->id) == true) {
+					l->op1->jptr->op1->b->animated   = false;
+					l->op1->jptr->op1->b->anim_dir   = false;
 					l->op1->jptr->op1->b->anim_state = 0;
 				}
-			} 
-			if (qty == TWO_OPERANDS){
-				l->op2->b->animated = false;
-				l->op2->b->anim_dir = false;
+			}
+			if (qty == TWO_OPERANDS) {
+				l->op2->b->animated   = false;
+				l->op2->b->anim_dir   = false;
 				l->op2->b->anim_state = 0;
 			}
 		}
@@ -417,55 +412,50 @@ static code_line_t *pending_operand_handler()
  */
 static code_line_t *edit_code(int level_id)
 {
-	assert(level_id >= 0 && level_id <= LV_LEVEL_QUANTITY && 
-		   											"Incorrect level_id value");
-		
-	static code_line_t *line = NULL;
-	bool left_pressed = ms_left_pressed();
-	bool left_released = ms_left_released();
-	static bool hold_line = false;
-	
-	if (cw_is_operand_pending() == true
-		&& line == NULL 
-		&& cw_check_code_sorted() == true 
-		&& cw_chk_click_code() == false){
-		line = pending_operand_handler();	
-		if (cw_is_operand_pending() == false){
+	assert(level_id >= 0 && level_id <= LV_LEVEL_QUANTITY &&
+	       "Incorrect level_id value");
+
+	static code_line_t *line          = NULL;
+	bool                left_pressed  = ms_left_pressed();
+	bool                left_released = ms_left_released();
+	static bool         hold_line     = false;
+
+	if (cw_is_operand_pending() == true && line == NULL &&
+	    cw_check_code_sorted() == true && cw_chk_click_code() == false) {
+		line = pending_operand_handler();
+		if (cw_is_operand_pending() == false) {
 			code_updated_actions(level_id);
 		}
-		if (line != NULL){
+		if (line != NULL) {
 			hold_line = true;
 		}
-	} else if (cw_chk_click_code_op() == true
-			   && line == NULL 
-			   && lv_is_code_editable() == true){
-		cw_change_clicked_code_line_state();	
-	} else if (iw_chk_click_ins() == true 
-			   && line == NULL
-			   && lv_is_code_editable() == true){
+	} else if (cw_chk_click_code_op() == true && line == NULL &&
+	           lv_is_code_editable() == true) {
+		cw_change_clicked_code_line_state();
+	} else if (iw_chk_click_ins() == true && line == NULL &&
+	           lv_is_code_editable() == true) {
 		line = cl_new_code_line(iw_get_clicked_instruction());
-	} else if (cw_chk_click_code() == true 
-			   && line == NULL 
-			   && lv_is_code_editable() == true){
+	} else if (cw_chk_click_code() == true && line == NULL &&
+	           lv_is_code_editable() == true) {
 		line = cw_get_clicked_code();
-	} else if (cw_chk_rclick_code() == true && line == NULL){
-		line = cw_clone_rclicked_line(cw_get_rclicked_code());
+	} else if (cw_chk_rclick_code() == true && line == NULL) {
+		line      = cw_clone_rclicked_line(cw_get_rclicked_code());
 		hold_line = true;
-	} else if ((left_pressed == true || hold_line == true) && line != NULL){
+	} else if ((left_pressed == true || hold_line == true) && line != NULL) {
 		bool arrange = lv_is_arrange_enabled();
-		bool delete = lv_is_del_enabled();
+		bool delete  = lv_is_del_enabled();
 		cw_player_holding_instruction(line, arrange, delete);
 		hold_line = (left_released == true) ? false : true;
-	} else if (left_pressed == false && line != NULL){
-		if (cw_check_if_in_code_list(line) == false){
+	} else if (left_pressed == false && line != NULL) {
+		if (cw_check_if_in_code_list(line) == false) {
 			cl_destroy_code_line(line);
-		} 
-		if (cw_is_operand_pending() == false){
+		}
+		if (cw_is_operand_pending() == false) {
 			code_updated_actions(level_id);
 		}
 		line = NULL;
 	}
-	return line; 
+	return line;
 }
 
 /* Function: rst_btn_hdl
@@ -481,10 +471,10 @@ static code_line_t *edit_code(int level_id)
  */
 static void rst_btn_hdl(int level_id, level_flags_t *f)
 {
-	if (sb_chk_rel_rst_btn() == true){
+	if (sb_chk_rel_rst_btn() == true) {
 		rm_set_rst_menu(true);
 	}
-	if (rm_chk_rst_menu_btns(rm_chk_rst_menu_state()) == true){
+	if (rm_chk_rst_menu_btns(rm_chk_rst_menu_state()) == true) {
 		reset_level(level_id, f);
 		cw_clear_code_list();
 		lv_init_stage_code(level_id);
@@ -505,7 +495,7 @@ static void rst_btn_hdl(int level_id, level_flags_t *f)
  */
 static void reset_level(int level_id, level_flags_t *flags)
 {
-	mc_reset_avatar();			
+	mc_reset_avatar();
 	reset_level_flags(flags);
 	rg_reset_register_values();
 	bf_reset_input_list();
@@ -537,115 +527,105 @@ static void reset_level(int level_id, level_flags_t *flags)
 static int get_sector_id(int level_id)
 {
 	int ret_screen = LV_SELECT_SECTOR;
-	if (level_id < LV_SECTOR_1_START){
-		ret_screen = LV_SECTOR_0;	
-	} else if (level_id < LV_SECTOR_2_START && level_id >= LV_SECTOR_1_START){
-		ret_screen = LV_SECTOR_1;	
-	} else if (level_id < LV_SECTOR_2_START && level_id >= LV_SECTOR_1_START){
-		ret_screen = LV_SECTOR_1;	
-	} else if (level_id < LV_SECTOR_4_START && level_id >= LV_SECTOR_3_START){
-		ret_screen = LV_SECTOR_3;	
-	} else if (level_id >= LV_SECTOR_4_START){
-		ret_screen = LV_SECTOR_4;	
-	} 	
+	if (level_id < LV_SECTOR_1_START) {
+		ret_screen = LV_SECTOR_0;
+	} else if (level_id < LV_SECTOR_2_START && level_id >= LV_SECTOR_1_START) {
+		ret_screen = LV_SECTOR_1;
+	} else if (level_id < LV_SECTOR_2_START && level_id >= LV_SECTOR_1_START) {
+		ret_screen = LV_SECTOR_1;
+	} else if (level_id < LV_SECTOR_4_START && level_id >= LV_SECTOR_3_START) {
+		ret_screen = LV_SECTOR_3;
+	} else if (level_id >= LV_SECTOR_4_START) {
+		ret_screen = LV_SECTOR_4;
+	}
 	return ret_screen;
 }
 
-
-
 int stage_level(int level_id)
 {
-	//Electron animation
-	int W = dm_get_screen_width();
-	int H = dm_get_screen_height();   
-  	static fx_electron_t* fx;
-	static Uint64 last_type_ms;
-	static Uint64 anim_prev_ms;
-	Uint64 cur_time = SDL_GetTicks64();
-	static bool electron_init = false;
+	// Electron animation
+	int                   W = dm_get_screen_width();
+	int                   H = dm_get_screen_height();
+	static fx_electron_t *fx;
+	static Uint64         last_type_ms;
+	static Uint64         anim_prev_ms;
+	Uint64                cur_time      = SDL_GetTicks64();
+	static bool           electron_init = false;
 
-	if (electron_init == false){
+	if (electron_init == false) {
 		electron_init = true;
-		last_type_ms = cur_time;
-		fx = fx_electron_create(g_renderer, W, H, NULL);
+		last_type_ms  = cur_time;
+		fx            = fx_electron_create(g_renderer, W, H, NULL);
 	}
 
-	float dt=(cur_time - anim_prev_ms)/1000.0f;
+	float dt     = (cur_time - anim_prev_ms) / 1000.0f;
 	anim_prev_ms = cur_time;
 	fx_electron_update(fx, dt);
-    fx_electron_render(fx, g_renderer);
+	fx_electron_render(fx, g_renderer);
 
-	//Electron animation
+	// Electron animation
 
-	int ret_val = LV_PLAY_LEVEL;
-	static bool reset = false;
-	static code_line_t *hold_line = NULL;
+	int                  ret_val   = LV_PLAY_LEVEL;
+	static bool          reset     = false;
+	static code_line_t  *hold_line = NULL;
 	static level_flags_t flags;
-	bool back_to_level_selection = sb_chck_rel_ret_btn(); 
-	
+	bool                 back_to_level_selection = sb_chck_rel_ret_btn();
+
 	lv_set_hold_line(hold_line);
 	stage_drawings(level_id);
 	rst_btn_hdl(level_id, &flags);
 	cw_sort_code();
 
-	if (sb_chk_click_stage_btn() == true && cw_is_operand_pending() == false){
+	if (sb_chk_click_stage_btn() == true && cw_is_operand_pending() == false) {
 		flag_handler(&flags, identify_clicked_stage_button());
 	}
-	
+
 	mc_start_execution(flags.play);
-	
-	
-	if ((flags.stop == true && flags.stop_enabled == true) 
-			   || reset == true){
-		reset_level(level_id, &flags);	
+
+	if ((flags.stop == true && flags.stop_enabled == true) || reset == true) {
+		reset_level(level_id, &flags);
 		reset = false;
-	} else if (flags.non_stop == false || cw_is_operand_pending() == true){
+	} else if (flags.non_stop == false || cw_is_operand_pending() == true) {
 		hold_line = edit_code(level_id);
 		lv_set_hold_line(hold_line);
-	} else if (flags.play == true && cw_is_operand_pending() == false){
+	} else if (flags.play == true && cw_is_operand_pending() == false) {
 		mc_run_code();
-	} else if (flags.step == true && cw_is_operand_pending() == false){
+	} else if (flags.step == true && cw_is_operand_pending() == false) {
 		mc_run_code();
 		flags.step = !mc_get_step_ended();
-	} 
+	}
 	int op_flag = mc_get_operation_flag();
-	if (op_flag != NO_OPERATION && op_flag != MC_WIN){
+	if (op_flag != NO_OPERATION && op_flag != MC_WIN) {
 		reset = mc_get_rst_lvl();
-		if (reset == true){
-			reset_level(level_id, &flags);	
+		if (reset == true) {
+			reset_level(level_id, &flags);
 		}
 		flags.play = false;
-	} else if (mc_get_run_ended() == true 
-			   && flags.step_fst == true 
-			   && wc_is_satisfied() == true){
+	} else if (mc_get_run_ended() == true && flags.step_fst == true &&
+	           wc_is_satisfied() == true) {
 		mc_set_operation_flag(MC_WIN);
 		bf_set_win_condition();
 		int action_selected = mc_get_op_menu_btn_state();
-		flags.play = false;
+		flags.play          = false;
 		fl_enable_next_level(g_player, level_id + 1);
-		if (action_selected == BACK_BTN_PRESSED){
-			reset_level(level_id, &flags);		
-		} else if (action_selected == CONT_BTN_PRESSED){
+		if (action_selected == BACK_BTN_PRESSED) {
+			reset_level(level_id, &flags);
+		} else if (action_selected == CONT_BTN_PRESSED) {
 			back_to_level_selection = true;
-
-		} 
+		}
 	}
 
-	if (back_to_level_selection == true){
+	if (back_to_level_selection == true) {
 		ret_val = get_sector_id(level_id);
-		reset_level(level_id, &flags);		
+		reset_level(level_id, &flags);
 		destroy_level(&flags);
 		electron_init = false;
-  		aa_electron_fx_destroy(fx);
+		aa_electron_fx_destroy(fx);
 	}
 
 	rm_render_rst_menu(rm_chk_rst_menu_state());
 	em_render_escape_menu(em_get_escape_state());
-	
 
-//sb_display_escape_menu(em_get_escape_state());
+	// sb_display_escape_menu(em_get_escape_state());
 	return ret_val;
 }
-
-
-

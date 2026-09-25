@@ -17,7 +17,6 @@
 #include "storage/save_sv.h"
 #include "gameplay/win_condition_wc.h"
 
-
 #define READ_ERROR -1
 #define MSG_LENGTH 256
 
@@ -31,7 +30,7 @@
 #define STR_LEVEL_ACTIVE "LEVEL ACTIVE"
 #define STR_LEVEL "ADDRESS"
 
-//Load level strings
+// Load level strings
 #define STR_CHALLENGE_TEXT_BEGIN "ChallengeTextBegin"
 #define STR_CHALLENGE_TEXT_END "ChallengeTextEnd"
 #define STR_INPUT_SIZE "InputSize"
@@ -39,8 +38,8 @@
 #define STR_INPUT_TYPE "InputType"
 #define STR_INPUT_MOD "InputMod"
 #define STR_MOD_NONE "None"
-#define STR_MOD_FORCE "Force"//stop
-#define STR_MOD_INCREASE "Increase"// stop, number, probability
+#define STR_MOD_FORCE "Force"       // stop
+#define STR_MOD_INCREASE "Increase" // stop, number, probability
 #define STR_NATURAL "Natural"
 #define STR_WHOLE "Whole"
 #define STR_CHAR "Char"
@@ -52,37 +51,36 @@
 #define STR_WIN_CONDITION_BEGIN "WinConditionBegin"
 #define STR_WIN_CONDITION_END "WinConditionEnd"
 
-//LEVEL MESSAGES STRINGS
+// LEVEL MESSAGES STRINGS
 #define STR_MSG_QTY "QUANTITY"
 #define STR_MSG "MSG"
 #define STR_MSG_END "MSG_END"
 
 char *HOVER_MSGS_STARTS = "+++MESSAGES STARTS";
-char *HOVER_MSGS_ENDS = "+++MESSAGES ENDS";
+char *HOVER_MSGS_ENDS   = "+++MESSAGES ENDS";
 
 static char *get_player_end_string(int player_id);
-static void parse_challenge_text(FILE *fp);
-static int get_level_id_number(int level_id);
+static void  parse_challenge_text(FILE *fp);
+static int   get_level_id_number(int level_id);
 static char *get_delimiter_level_string(char *text, int level_id);
-static void parse_instructions(FILE *fp);
-static void parse_registers(FILE *fp);
-bool check_if_save_file_exists();
-void copy_file(char *src, char *dst);
-void delete_file(char *path);
-void write_player_code_to_file(FILE *fp);
-static void parse_saved_code(FILE *fp);
-static char *create_string_with_number(char *s,  int n);
-static void parse_win_condition(FILE *fp);
-static void parse_message(FILE *fp, int msg_pos, int w, int h,
-					  const char *end_marker);
+static void  parse_instructions(FILE *fp);
+static void  parse_registers(FILE *fp);
+bool         check_if_save_file_exists();
+void         copy_file(char *src, char *dst);
+void         delete_file(char *path);
+void         write_player_code_to_file(FILE *fp);
+static void  parse_saved_code(FILE *fp);
+static char *create_string_with_number(char *s, int n);
+static void  parse_win_condition(FILE *fp);
+static void  parse_message(FILE *fp, int msg_pos, int w, int h,
+                           const char *end_marker);
 
-void fl_write_to_file(FILE *fp, char *string);
+void         fl_write_to_file(FILE *fp, char *string);
 static char *get_delimeter_level_string(const char *text, int level_id);
-
 
 /* Function: fl_get_player_id_string
  *------------------------------------------------------------------------------
- * This function is called to generate a string that will be looked on to the 
+ * This function is called to generate a string that will be looked on to the
  * file to search a level.
  *
  * Arguments:
@@ -96,8 +94,9 @@ char *fl_get_player_id_string(int player_id)
 {
 	char *number = ax_number_to_string_prepend_zero(player_id);
 	check_mem(number);
-	char *id = malloc(sizeof(char) * (strlen(STR_PLAYER) +
-				strlen(ax_char_space) + strlen(number) + 1));
+	char *id =
+	    malloc(sizeof(char) * (strlen(STR_PLAYER) + strlen(ax_char_space) +
+	                           strlen(number) + 1));
 	check_mem(id);
 
 	strcpy(id, STR_PLAYER);
@@ -111,7 +110,7 @@ error:
 
 /* Function: fl_get_level_id_string
  *------------------------------------------------------------------------------
- * This function is called to generate a string that will be looked on to the 
+ * This function is called to generate a string that will be looked on to the
  * file to search a level
  *
  * Arguments:
@@ -125,15 +124,16 @@ char *fl_get_level_id_string(int level_id)
 {
 	char *number = NULL;
 
-	if (level_id < 10){
+	if (level_id < 10) {
 		number = ax_number_to_string_prepend_zero(level_id);
 	} else {
 		number = ax_number_to_string(level_id);
 	}
-	
+
 	check_mem(number);
-	char *id = malloc(sizeof(char) * (strlen(STR_LEVEL_STARTS) +
-					  strlen(ax_char_space) + strlen(number) + 1));
+	char *id =
+	    malloc(sizeof(char) * (strlen(STR_LEVEL_STARTS) +
+	                           strlen(ax_char_space) + strlen(number) + 1));
 	check_mem(id);
 
 	strcpy(id, STR_LEVEL_STARTS);
@@ -157,15 +157,14 @@ error:
  *	char * to the created string.
  *
  */
-static char *create_string_with_number(char *s,  int n)
+static char *create_string_with_number(char *s, int n)
 {
 	assert(s != NULL && "The string pointer is NULL");
 
-
 	char *number = ax_number_to_string_prepend_zero(n);
 	check_mem(number);
-	char *string = malloc(sizeof(char) *
-					  (strlen(s) + strlen(ax_char_space) + strlen(number) + 1));
+	char *string = malloc(sizeof(char) * (strlen(s) + strlen(ax_char_space) +
+	                                      strlen(number) + 1));
 	check_mem(string);
 
 	strcpy(string, s);
@@ -177,11 +176,9 @@ error:
 	return string;
 }
 
-
-
 /* Function: get_delimeter_level_string
  *------------------------------------------------------------------------------
- * This function is called to generate a string that will be looked on to the 
+ * This function is called to generate a string that will be looked on to the
  * save file to search a level
  *
  * Arguments:
@@ -195,8 +192,8 @@ static char *get_delimeter_level_string(const char *text, int level_id)
 {
 	char *number = ax_number_to_string_two_digits(level_id);
 	check_mem(number);
-	char *string = malloc(sizeof(char)*(strlen(text) + 2*CHAR_SIZE + 
-						  strlen(number)+1));
+	char *string = malloc(sizeof(char) *
+	                      (strlen(text) + 2 * CHAR_SIZE + strlen(number) + 1));
 	check_mem(string);
 
 	strcpy(string, text);
@@ -222,18 +219,18 @@ error:
  */
 static void parse_challenge_text(FILE *fp)
 {
-	char *line = NULL;	
-	size_t len = 0;
+	char   *line = NULL;
+	size_t  len  = 0;
 	ssize_t read;
 
 	char *saveptr1;
 	char *text;
 	char *delim = "\"";
 
-	while ((read = getline(&line, &len, fp)) != READ_ERROR){
-		
-		text =  strtok_r(line, delim, &saveptr1);
-		if (strstr(line, STR_CHALLENGE_TEXT_END) != NULL){
+	while ((read = getline(&line, &len, fp)) != READ_ERROR) {
+
+		text = strtok_r(line, delim, &saveptr1);
+		if (strstr(line, STR_CHALLENGE_TEXT_END) != NULL) {
 			break;
 		} else {
 			cw_set_challenge_text(text);
@@ -254,20 +251,20 @@ static void parse_challenge_text(FILE *fp)
  */
 static void parse_win_condition(FILE *fp)
 {
-	char *line = NULL;	
-	size_t len = 0;
+	char   *line = NULL;
+	size_t  len  = 0;
 	ssize_t read;
 
 	char *saveptr1;
 	char *text;
 
-	while ((read = getline(&line, &len, fp)) != READ_ERROR){
-		text =  strtok_r(line, ax_char_newline, &saveptr1);
-		if (strstr(STR_WIN_CONDITION_END, line) != NULL){
+	while ((read = getline(&line, &len, fp)) != READ_ERROR) {
+		text = strtok_r(line, ax_char_newline, &saveptr1);
+		if (strstr(STR_WIN_CONDITION_END, line) != NULL) {
 			break;
-		} else if (strcmp(line, ax_char_newline) != STRING_EQUAL){
-			wc_set_condition_from_text(text);			
-		} 	
+		} else if (strcmp(line, ax_char_newline) != STRING_EQUAL) {
+			wc_set_condition_from_text(text);
+		}
 	}
 	return;
 }
@@ -285,21 +282,21 @@ static void parse_win_condition(FILE *fp)
  */
 static void parse_saved_code(FILE *fp)
 {
-	char *line = NULL;	
-	size_t len = 0;
+	char   *line = NULL;
+	size_t  len  = 0;
 	ssize_t read;
 
 	char *saveptr1;
 	char *text;
 
-	while ((read = getline(&line, &len, fp)) != READ_ERROR){
-		text =  strtok_r(line, ax_char_newline, &saveptr1);
-		if (strstr(STR_CODE_ENDS, line) != NULL){
+	while ((read = getline(&line, &len, fp)) != READ_ERROR) {
+		text = strtok_r(line, ax_char_newline, &saveptr1);
+		if (strstr(STR_CODE_ENDS, line) != NULL) {
 			cw_update_saved_jump_instructions();
 			break;
-		} else if (strcmp(line, ax_char_newline) != STRING_EQUAL){
+		} else if (strcmp(line, ax_char_newline) != STRING_EQUAL) {
 			cw_add_saved_line(text);
-		} 	
+		}
 	}
 	return;
 }
@@ -314,26 +311,26 @@ static void parse_saved_code(FILE *fp)
  */
 static void parse_instructions(FILE *fp)
 {
-	char *line = NULL;	
-	size_t len = 0;
+	char   *line = NULL;
+	size_t  len  = 0;
 	ssize_t read;
 
-	while ((read = getline(&line, &len, fp)) != READ_ERROR){
-		if (strstr(line, add_text) != NULL){
+	while ((read = getline(&line, &len, fp)) != READ_ERROR) {
+		if (strstr(line, add_text) != NULL) {
 			iw_add_instruction_to_list(ADD);
-		} else if (strstr(line, mov_text) != NULL){
+		} else if (strstr(line, mov_text) != NULL) {
 			iw_add_instruction_to_list(MOV);
-		} else if (strstr(line, label_text) != NULL){
+		} else if (strstr(line, label_text) != NULL) {
 			iw_add_instruction_to_list(LABEL);
-		} else if (strstr(line, jmp_text) != NULL){
+		} else if (strstr(line, jmp_text) != NULL) {
 			iw_add_instruction_to_list(JMP);
-		} else if (strstr(line, cmp_text) != NULL){
+		} else if (strstr(line, cmp_text) != NULL) {
 			iw_add_instruction_to_list(CMP);
-		} else if (strstr(line, je_text) != NULL){
+		} else if (strstr(line, je_text) != NULL) {
 			iw_add_instruction_to_list(JE);
-		} else if (strstr(line, jne_text) != NULL){
+		} else if (strstr(line, jne_text) != NULL) {
 			iw_add_instruction_to_list(JNE);
-		} else if (strstr(line, STR_INSTRUCTIONS_END)){
+		} else if (strstr(line, STR_INSTRUCTIONS_END)) {
 			break;
 		} else {
 			printf("Error: a non valid instruction was read -> %s\n", line);
@@ -351,29 +348,28 @@ static void parse_instructions(FILE *fp)
  */
 static void parse_registers(FILE *fp)
 {
-	char *line = NULL;	
-	size_t len = 0;
+	char   *line = NULL;
+	size_t  len  = 0;
 	ssize_t read;
 
-	while ((read = getline(&line, &len, fp)) != READ_ERROR){
-		if (strstr(line, "rax") != NULL){
+	while ((read = getline(&line, &len, fp)) != READ_ERROR) {
+		if (strstr(line, "rax") != NULL) {
 			rg_add_register_to_list(RAX);
-		} else if (strstr(line, "rbx") != NULL){
+		} else if (strstr(line, "rbx") != NULL) {
 			rg_add_register_to_list(RBX);
-		} else if (strstr(line, "rcx") != NULL){
+		} else if (strstr(line, "rcx") != NULL) {
 			rg_add_register_to_list(RCX);
-		} else if (strstr(line, "rdx") != NULL){
+		} else if (strstr(line, "rdx") != NULL) {
 			rg_add_register_to_list(RDX);
-		} else if (strstr(line, "rdi") != NULL){
+		} else if (strstr(line, "rdi") != NULL) {
 			rg_add_register_to_list(RDI);
-		} else if (strstr(line, STR_REGISTERS_END)){
+		} else if (strstr(line, STR_REGISTERS_END)) {
 			break;
 		} else {
 			printf("Error: a non valid register was read -> %s\n", line);
 		}
 	}
 }
-
 
 /* Function: fl_file_initialize_level
  *------------------------------------------------------------------------------
@@ -389,16 +385,16 @@ static void parse_registers(FILE *fp)
  */
 void fl_file_initialize_level(int level_id)
 {
-	if (lc_load_level(level_id) == SUCCESS){
+	if (lc_load_level(level_id) == SUCCESS) {
 		return;
 	}
 	fprintf(stderr, "Could not load level %d from data/levels.cfg\n", level_id);
 	return;
 
-	char *line = NULL;	
-	size_t len = 0;
+	char   *line = NULL;
+	size_t  len  = 0;
 	ssize_t read;
-	char path[512];
+	char    path[512];
 
 	ax_get_resource_path(path, sizeof(path), LEVELS_FILE_PATH);
 	FILE *fp = fopen(path, "r");
@@ -406,78 +402,78 @@ void fl_file_initialize_level(int level_id)
 	char *saveptr1;
 	char *text;
 
-	char *level = fl_get_level_id_string(level_id);
-	bool level_found = false;
+	char *level       = fl_get_level_id_string(level_id);
+	bool  level_found = false;
 
 	input_properties_t ip;
 
-
-	while (READ_ERROR != (read = getline(&line, &len, fp))){
-		if (strstr(line, level) != NULL){
+	while (READ_ERROR != (read = getline(&line, &len, fp))) {
+		if (strstr(line, level) != NULL) {
 			level_found = true;
-			char *name = ax_create_string_append_hex(STR_LEVEL, level_id);
+			char *name  = ax_create_string_append_hex(STR_LEVEL, level_id);
 			cw_set_stage_name(name);
 			free(name);
 
 		} else if (strstr(line, STR_CHALLENGE_TEXT_BEGIN) != NULL &&
-														   level_found == true){
+		           level_found == true) {
 			parse_challenge_text(fp);
-		} else if (strstr(line, STR_INPUT_SIZE) != NULL && level_found == true){
+		} else if (strstr(line, STR_INPUT_SIZE) != NULL &&
+		           level_found == true) {
 			char *size = strchr(line, CHAR_SPACE);
-			ip.size = atoi(size);
-		} else if (strstr(line, STR_INPUT_MOD) != NULL && level_found == true){
-			if (strstr(line, STR_MOD_NONE)){
-				ip.mod = NONE; 
-			} else if (strstr(line, STR_MOD_FORCE)){
-				ip.mod = FORCE; //funciona de wava
-				char *num = strchr(line, CHAR_SPACE);
+			ip.size    = atoi(size);
+		} else if (strstr(line, STR_INPUT_MOD) != NULL && level_found == true) {
+			if (strstr(line, STR_MOD_NONE)) {
+				ip.mod = NONE;
+			} else if (strstr(line, STR_MOD_FORCE)) {
+				ip.mod      = FORCE; // funciona de wava
+				char *num   = strchr(line, CHAR_SPACE);
 				ip.mod_num1 = atoi(num);
-			} else if (strstr(line, STR_MOD_INCREASE)){
+			} else if (strstr(line, STR_MOD_INCREASE)) {
 				char *delim = ax_char_space;
-				ip.mod = INCREASE;
+				ip.mod      = INCREASE;
 				strtok_r(line, delim, &saveptr1);
 				strtok_r(NULL, delim, &saveptr1);
-				char *num1= strtok_r(NULL, delim, &saveptr1);
+				char *num1  = strtok_r(NULL, delim, &saveptr1);
 				ip.mod_num1 = atoi(num1);
-				char *num2 = strtok_r(NULL, delim, &saveptr1);
+				char *num2  = strtok_r(NULL, delim, &saveptr1);
 				ip.mod_num2 = atoi(num2);
-				char *num3 = strtok_r(NULL, delim,  &saveptr1);
+				char *num3  = strtok_r(NULL, delim, &saveptr1);
 				ip.mod_num3 = atoi(num3);
 			}
 
-		}  else if (strstr(line, STR_INPUT_TYPE) != NULL && level_found == true){
-			if (strstr(line, STR_NATURAL)){
+		} else if (strstr(line, STR_INPUT_TYPE) != NULL &&
+		           level_found == true) {
+			if (strstr(line, STR_NATURAL)) {
 				ip.type = NATURAL;
-			} else if (strstr(line, STR_WHOLE)){
+			} else if (strstr(line, STR_WHOLE)) {
 
-			} else if (strstr(line, STR_CHAR)){
+			} else if (strstr(line, STR_CHAR)) {
 
-			} else if (strstr(line, STR_MIXED)){
-
+			} else if (strstr(line, STR_MIXED)) {
 			}
 
-		} else if (strstr(line, STR_INSTRUCTION_LIMIT) != NULL 
-				   && level_found == true){
+		} else if (strstr(line, STR_INSTRUCTION_LIMIT) != NULL &&
+		           level_found == true) {
 			char *size = strchr(line, CHAR_SPACE);
 			(atoi(size));
-		} else if (strstr(line, STR_INSTRUCTIONS_BEGIN) != NULL 
-				   && level_found == true){
+		} else if (strstr(line, STR_INSTRUCTIONS_BEGIN) != NULL &&
+		           level_found == true) {
 			iw_create_instruction_list();
 			parse_instructions(fp);
-		} else if (strstr(line, STR_REGISTERS_BEGIN) != NULL 
-				   && level_found == true){
+		} else if (strstr(line, STR_REGISTERS_BEGIN) != NULL &&
+		           level_found == true) {
 			create_register_list();
 			parse_registers(fp);
-		} else if (strstr(line, STR_WIN_CONDITION_BEGIN) != NULL 
-		           && level_found == true){
+		} else if (strstr(line, STR_WIN_CONDITION_BEGIN) != NULL &&
+		           level_found == true) {
 			parse_win_condition(fp);
-		} else if (strstr(line, STR_LEVEL_ENDS) != NULL && level_found == true){
-			level_found= false;
+		} else if (strstr(line, STR_LEVEL_ENDS) != NULL &&
+		           level_found == true) {
+			level_found = false;
 			break;
 		}
-
 	}
-	// Init the level 
+	// Init the level
 	bf_set_input_properties(ip);
 	bf_generate_input_list();
 	wc_reset_condition();
@@ -504,21 +500,22 @@ error:
  *
  */
 static void parse_message(FILE *fp, int msg_pos, int w, int h,
-					  const char *end_marker)
+                          const char *end_marker)
 {
-	char *line = NULL;	
-	size_t len = 0;
+	char   *line = NULL;
+	size_t  len  = 0;
 	ssize_t read;
-	char msg[MSG_LENGTH] = "";
+	char    msg[MSG_LENGTH] = "";
 
 	int i = 0;
-	while ((read = getline(&line, &len, fp)) != READ_ERROR){
-		if (strstr(line, end_marker) != NULL){
+	while ((read = getline(&line, &len, fp)) != READ_ERROR) {
+		if (strstr(line, end_marker) != NULL) {
 			tx_set_message_in_array(msg_pos, msg, w, h);
 			break;
 		}
 		line[strcspn(line, "\n")] = '\0';
-		if (i != 0) strcat(msg, ax_char_newline);
+		if (i != 0)
+			strcat(msg, ax_char_newline);
 		strcat(msg, line);
 		i++;
 	}
@@ -526,113 +523,65 @@ static void parse_message(FILE *fp, int msg_pos, int w, int h,
 	return;
 }
 
-/* Function: fl_load_level_msgs
+
+
+/* Function: fl_load_hover_level_msgs
  *------------------------------------------------------------------------------
- * Reads the level messages from the file
+ * Loads the hover descriptions displayed in the level-selection UI.
  *
  * Arguments:
- *	file: string containing the name of the save file
+ *	None.
  *
  * Return:
  *	void.
  *
  */
-void fl_load_hover_level_msgs()
+void fl_load_hover_level_msgs(void)
 {
-	char *line = NULL;	
-	size_t len = 0;
+	char   *line = NULL;
+	size_t  len  = 0;
 	ssize_t read;
-
-	char path[512];
-	ax_get_resource_path(path, sizeof(path), HOVER_MSGS_FILE_PATH);
-	FILE *fp = fopen(path, "r");
-	check_mem(fp);
-	char *saveptr1;
-	char *text;
-	bool found = false;
-
-	int w = dm_get_screen_width();
-	int h = dm_get_h_big_text();
-
-	while (READ_ERROR != (read = getline(&line, &len, fp))){
-		if (strstr(line, HOVER_MSGS_STARTS) != NULL){
-			found = true;
-		} else if (strstr(line, STR_MSG_QTY) != NULL && found == true){
-			char *qty = strchr(line, CHAR_SPACE);
-			int size = atoi(qty);
-			tx_set_and_allocate_msgs_array(size);
-		} else if (strstr(line, STR_MSG) != NULL && found == true){
-			char *pos = strchr(line, CHAR_SPACE);
-			parse_message(fp, atoi(pos), w, h, STR_MSG_END);
-		} else if (strstr(line, HOVER_MSGS_ENDS) != NULL && found == true){
-			found= false;
-			break;
-		}
-	}
-error:
-	fclose(fp);	
-	return;
-}
-
-/* Function: fl_load_level_msgs
- *------------------------------------------------------------------------------
- * Reads the level messages from the file
- *
- * Arguments:
- *	file: string containing the name of the save file
- *
- * Return:
- *	void.
- *
- */
-void fl_load_level_msgs(int level_id)
-{
-	assert(level_id >= 0 && level_id < LV_LEVEL_MAX &&
-		   "Invalid level id");
-
-	char *line = NULL;	
-	size_t len = 0;
-	ssize_t read;
+	int     message_count = 0;
+	int     message_index = 0;
+	int     text_height   = dm_get_h_msg();
+	int     text_width    = dw_get_iface_content_box(tx_get_text_box_wh()).w;
 
 	char relative_path[64];
 	char path[512];
-	snprintf(relative_path, sizeof(relative_path), TUTORIAL_PATH_FORMAT,
-			 level_id);
+
+	snprintf(relative_path, sizeof(relative_path), "%s", HOVER_MSGS_FILE_PATH);
 	ax_get_resource_path(path, sizeof(path), relative_path);
-	FILE *fp = fopen(path, "r");
-	check_mem(fp);
 
-	int h = dm_get_h_msg();
-	int w = dw_get_iface_content_box(tx_get_text_box_wh()).w;
-	int message_count = 0;
+	FILE *file = fopen(path, "r");
+	check_mem(file);
 
-	while (READ_ERROR != (read = getline(&line, &len, fp))){
-		if (line[0] == '[' && strncmp(line, "[tutorial]", 10) != 0){
+	while ((read = getline(&line, &len, file)) != READ_ERROR) {
+		if (strncmp(line, "MSG ", 4) == 0) {
 			message_count++;
 		}
 	}
-	if (message_count == 0){
-		fprintf(stderr, "tutorial.cfg: level %d has no messages\n", level_id);
+
+	if (message_count == 0) {
+		fprintf(stderr, "hover_lvl_msgs.dat has no hover messages\n");
 		goto error;
 	}
-	tx_set_and_allocate_msgs_array(message_count);
-	rewind(fp);
 
-	while (READ_ERROR != (read = getline(&line, &len, fp))){
-		int message_id = -1;
-		if (line[0] == '[' && strncmp(line, "[tutorial]", 10) != 0){
-			while (READ_ERROR != (read = getline(&line, &len, fp))){
-				if (sscanf(line, "id = %d", &message_id) == 1) continue;
-				if (strstr(line, "text_begin") != NULL){
-					if (message_id < 0 || message_id >= message_count) break;
-					parse_message(fp, message_id, w, h, "text_end");
-					break;
-				}
-			}
+	tx_set_and_allocate_msgs_array(message_count);
+	rewind(file);
+
+	while ((read = getline(&line, &len, file)) != READ_ERROR) {
+		if (strncmp(line, "MSG ", 4) == 0) {
+			parse_message(file, message_index, text_width, text_height,
+			              "MSG_END");
+			message_index++;
 		}
 	}
+
 error:
-	fclose(fp);	
+	free(line);
+	if (file != NULL) {
+		fclose(file);
+	}
 	return;
 }
 
@@ -651,17 +600,14 @@ error:
 void fl_load_save_file(int player_id, int level_id)
 {
 	assert(player_id >= FL_PLAYER_1 && player_id <= FL_PLAYER_3 &&
-		   "Invalid player id");
+	       "Invalid player id");
 	assert(level_id >= 0 && level_id < LV_LEVEL_MAX && "Invalid level id");
 	sv_load_level_code(player_id, level_id);
 }
 
-
-
-
 /* Function: copy_file
  *------------------------------------------------------------------------------
- * This funcion receives a source and a destination file and copies one into 
+ * This funcion receives a source and a destination file and copies one into
  * the another.
  *
  * Arguments:
@@ -680,17 +626,17 @@ void copy_file(char *dst, char *src)
 	check_mem(src_fp);
 	check_mem(dst_fp);
 
-	char *line = NULL;	
-	size_t len = 0;
+	char   *line = NULL;
+	size_t  len  = 0;
 	ssize_t read;
 
-	while (READ_ERROR != (read = getline(&line, &len, src_fp))){
+	while (READ_ERROR != (read = getline(&line, &len, src_fp))) {
 		fl_write_to_file(dst_fp, line);
 	}
 	fclose(src_fp);
 	fclose(dst_fp);
 
-	error:
+error:
 	return;
 }
 
@@ -709,13 +655,10 @@ void delete_file(char *file)
 {
 	assert(file != NULL && "The file pointer is invalid");
 
-	if (remove(file) != 0){
+	if (remove(file) != 0) {
 		printf("Error: The file could not ve deleted\n");
 	}
-
 }
-
-
 
 /* Function: write_player_code_to_file
  *------------------------------------------------------------------------------
@@ -733,15 +676,15 @@ void write_player_code_to_file(FILE *fp)
 	assert(fp != NULL && "The file pointer is NULL");
 
 	int list_size = cw_get_code_list_size();
-	for (int i = 0; i < list_size; i++){
+	for (int i = 0; i < list_size; i++) {
 		int instruction = cw_get_instruction_at_code_pos(i);
-		int op1 = NO_OPERAND;
-		int op2 = NO_OPERAND;
-		
-		if (cl_get_instruction_operand_quantity(instruction) > ZERO_OPERANDS){
+		int op1         = NO_OPERAND;
+		int op2         = NO_OPERAND;
+
+		if (cl_get_instruction_operand_quantity(instruction) > ZERO_OPERANDS) {
 			op1 = cw_get_instruction_operand(i, FIRST_OP);
 		}
-		if (cl_get_instruction_operand_quantity(instruction) == TWO_OPERANDS){
+		if (cl_get_instruction_operand_quantity(instruction) == TWO_OPERANDS) {
 			op2 = cw_get_instruction_operand(i, SECOND_OP);
 		}
 
@@ -753,7 +696,7 @@ void write_player_code_to_file(FILE *fp)
 
 /* Function: fl_save_level
  *------------------------------------------------------------------------------
- * This functions receives the state of the list developed by the player for a 
+ * This functions receives the state of the list developed by the player for a
  * level and saves it to a text file for later storage.
  *
  * Arguments:
@@ -766,16 +709,15 @@ void write_player_code_to_file(FILE *fp)
 void fl_save_level(int player_id, int level_id)
 {
 	assert(level_id >= 0 && level_id < LV_LEVEL_MAX && "Invalid level");
-	assert(player_id >= FL_PLAYER_1 && player_id <= FL_PLAYER_3 && 
-		   "player");
+	assert(player_id >= FL_PLAYER_1 && player_id <= FL_PLAYER_3 && "player");
 	sv_save_level_code(player_id, level_id);
 	return;
 }
 
 /* Function: fl_enable_next_level
  *------------------------------------------------------------------------------
- * When a player finishes a level, this function puts the level flag as 
- * active fot eh next player. 
+ * When a player finishes a level, this function puts the level flag as
+ * active fot eh next player.
  *
  * Arguments:
  *  player_id: The id of the player that is going to be changed.
@@ -787,11 +729,9 @@ void fl_save_level(int player_id, int level_id)
  */
 void fl_enable_next_level(int player_id, int level_id)
 {
-	assert(level_id >= 0 && level_id < LV_LEVEL_MAX && 
-		   "Invalid level");
-	assert(player_id >= FL_PLAYER_1 && player_id <= FL_PLAYER_3 && 
-		   "player");
-	
+	assert(level_id >= 0 && level_id < LV_LEVEL_MAX && "Invalid level");
+	assert(player_id >= FL_PLAYER_1 && player_id <= FL_PLAYER_3 && "player");
+
 	sv_unlock_level(player_id, level_id);
 	return;
 }
@@ -811,11 +751,8 @@ void fl_enable_next_level(int player_id, int level_id)
  */
 void fl_write_to_file(FILE *fp, char *string)
 {
-	if (fputs(string, fp) == EOF){
+	if (fputs(string, fp) == EOF) {
 		perror("Error writin to the file");
 		fclose(fp);
 	}
 }
-
-
-
