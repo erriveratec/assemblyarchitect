@@ -583,6 +583,7 @@ int stage_level(int level_id)
 	static level_flags_t flags;
 	bool back_to_level_selection = sb_chck_rel_ret_btn(); 
 	
+	lv_set_hold_line(hold_line);
 	stage_drawings(level_id);
 	rst_btn_hdl(level_id, &flags);
 	cw_sort_code();
@@ -592,7 +593,7 @@ int stage_level(int level_id)
 	}
 	
 	mc_start_execution(flags.play);
-	lv_set_hold_line(hold_line);
+	
 	
 	if ((flags.stop == true && flags.stop_enabled == true) 
 			   || reset == true){

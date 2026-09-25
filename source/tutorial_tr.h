@@ -48,6 +48,7 @@ typedef enum tutorial_edit_exception_t {
 typedef struct tutorial_step_t {
     char name[TUTORIAL_STEP_NAME_LENGTH];
     char text[TUTORIAL_STEP_TEXT_LENGTH];
+    int priority;
     tutorial_box_t box;
     tutorial_header_t header;
     tutorial_dismiss_t dismiss;

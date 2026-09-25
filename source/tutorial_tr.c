@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
@@ -20,7 +21,7 @@ static int                    g_step_count;
 static const tutorial_step_t *g_current_step = NULL;
 
 static int tr_get_edit_exception(const tutorial_step_t *step,
-								 const cs_context_t    *context)
+                                 const cs_context_t    *context)
 {
 	if (step == NULL || context == NULL) {
 		return IR_NO_EXCEPTION;
@@ -44,7 +45,7 @@ static int tr_get_edit_exception(const tutorial_step_t *step,
 }
 
 static void tr_apply_step_effects(const tutorial_step_t *step,
-								  const cs_context_t    *context)
+                                  const cs_context_t    *context)
 {
 	if (step == NULL) {
 		return;
@@ -84,34 +85,26 @@ static void tr_initialize_step_arrows(const tutorial_step_t *step)
 	}
 }
 
-static void tr_process_state_dismissals(
-    const cs_context_t *context
-)
+static void tr_process_state_dismissals(const cs_context_t *context)
 {
-    if (context == NULL) {
-        return;
-    }
+	if (context == NULL) {
+		return;
+	}
 
-    bool operation_error =
-        context->operation_flag != NO_OPERATION &&
-        context->operation_flag != MC_WIN;
+	bool operation_error = context->operation_flag != NO_OPERATION &&
+	                       context->operation_flag != MC_WIN;
 
-    if (!operation_error) {
-        return;
-    }
+	if (!operation_error) {
+		return;
+	}
 
-    for (int index = 0;
-         index < g_step_count;
-         index++) {
-        tutorial_step_t *step =
-            &g_steps[index];
+	for (int index = 0; index < g_step_count; index++) {
+		tutorial_step_t *step = &g_steps[index];
 
-        if (step->active &&
-            step->dismiss ==
-                TUTORIAL_DISMISS_OPERATION_ERROR) {
-            step->active = false;
-        }
-    }
+		if (step->active && step->dismiss == TUTORIAL_DISMISS_OPERATION_ERROR) {
+			step->active = false;
+		}
+	}
 }
 
 /*
@@ -126,7 +119,7 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 		g_current_step = NULL;
 		return NULL;
 	}
-    tr_process_state_dismissals(context);
+	tr_process_state_dismissals(context);
 	const tutorial_step_t *step = tr_get_matching_step(context);
 
 	if (step == NULL) {
@@ -233,8 +226,8 @@ static bool parse_dismiss(const char *text, tutorial_dismiss_t *dismiss)
 	} else if (strcmp(text, "mouse_release") == 0) {
 		*dismiss = TUTORIAL_DISMISS_MOUSE_RELEASE;
 	} else if (strcmp(text, "operation_error") == 0) {
-        *dismiss = TUTORIAL_DISMISS_OPERATION_ERROR;
-    } else {
+		*dismiss = TUTORIAL_DISMISS_OPERATION_ERROR;
+	} else {
 		return false;
 	}
 
@@ -423,7 +416,7 @@ static bool parse_arrows(tutorial_step_t *step, const char *text)
 }
 
 static bool parse_edit_exception(const char                *text,
-								 tutorial_edit_exception_t *exception)
+                                 tutorial_edit_exception_t *exception)
 {
 	if (text == NULL || exception == NULL) {
 		return false;
@@ -486,7 +479,7 @@ bool tr_is_active(const char *name)
 }
 
 bool tr_step_matches_current_state(const char         *name,
-								   const cs_context_t *context)
+                                   const cs_context_t *context)
 {
 	tutorial_step_t *step = find_step(name);
 
@@ -554,23 +547,21 @@ bool tr_step_matches_current_state(const char         *name,
 	    step->when_play_state != context->playing) {
 		return false;
 	}
-    if (step->when_won >= 0 &&
-        step->when_won != (context->won ? 1 : 0)) {
-        return false;
-    }
+	if (step->when_won >= 0 && step->when_won != (context->won ? 1 : 0)) {
+		return false;
+	}
 	if (step->when_operation_flag >= 0 &&
 	    step->when_operation_flag != context->operation_flag) {
 		return false;
 	}
-    if (step->when_operation_error >= 0) {
-        bool has_error =
-        context->operation_flag != NO_OPERATION &&
-        context->operation_flag != MC_WIN;
+	if (step->when_operation_error >= 0) {
+		bool has_error = context->operation_flag != NO_OPERATION &&
+		                 context->operation_flag != MC_WIN;
 
-        if (step->when_operation_error != (has_error ? 1 : 0)) {
-            return false;
-        }
-    }
+		if (step->when_operation_error != (has_error ? 1 : 0)) {
+			return false;
+		}
+	}
 
 	return true;
 }
@@ -581,13 +572,21 @@ const tutorial_step_t *tr_get_matching_step(const cs_context_t *context)
 		return NULL;
 	}
 
+	const tutorial_step_t *best_step = NULL;
+
 	for (int index = 0; index < g_step_count; index++) {
-		if (tr_step_matches_current_state(g_steps[index].name, context)) {
-			return &g_steps[index];
+		tutorial_step_t *candidate = &g_steps[index];
+
+		if (!tr_step_matches_current_state(candidate->name, context)) {
+			continue;
+		}
+
+		if (best_step == NULL || candidate->priority > best_step->priority) {
+			best_step = candidate;
 		}
 	}
 
-	return NULL;
+	return best_step;
 }
 
 void tr_deactivate(const char *name)
@@ -683,6 +682,7 @@ bool tr_load_level(int level_id)
 
 			step = &g_steps[g_step_count++];
 			sscanf(text, "[%63[^]]]", step->name);
+			step->priority                     = 0;
 			step->arrow_count                  = 0;
 			step->when_code_size               = -1;
 			step->when_code_size_max           = -1;
@@ -699,9 +699,9 @@ bool tr_load_level(int level_id)
 			step->when_last_line_state         = -1;
 			step->when_code_sorted             = -1;
 			step->when_play_state              = -1;
-            step->when_won                     = -1;
+			step->when_won                     = -1;
 			step->when_operation_flag          = -1;
-            step->when_operation_error         = -1;
+			step->when_operation_error         = -1;
 			step->effect_code_editable         = -1;
 			step->effect_code_editable_exception =
 			    TUTORIAL_EDIT_EXCEPTION_UNSET;
@@ -767,6 +767,20 @@ bool tr_load_level(int level_id)
 		if (strcmp(key, "dismiss") == 0 &&
 		    !parse_dismiss(value, &step->dismiss)) {
 			goto invalid;
+		}
+		if (strcmp(key, "priority") == 0) {
+			char *end      = NULL;
+			long  priority = strtol(value, &end, 10);
+
+			if (end == value || *end != '\0') {
+				goto invalid;
+			}
+
+			if (priority < 0 || priority > 1000) {
+				goto invalid;
+			}
+
+			step->priority = (int)priority;
 		}
 		if (strcmp(key, "arrow") == 0) {
 			if (!parse_arrows(step, value)) {
@@ -839,19 +853,19 @@ bool tr_load_level(int level_id)
 		if (strcmp(key, "when.play_state") == 0) {
 			step->when_play_state = atoi(value);
 		}
-        if (strcmp(key, "when.won") == 0) {
-            if (!parse_effect_bool(value, &step->when_won)) {
-            goto invalid;
-            }
-        }
+		if (strcmp(key, "when.won") == 0) {
+			if (!parse_effect_bool(value, &step->when_won)) {
+				goto invalid;
+			}
+		}
 		if (strcmp(key, "when.operation_flag") == 0) {
 			step->when_operation_flag = atoi(value);
 		}
-        if (strcmp(key, "when.operation_error") == 0) {
-            if (!parse_effect_bool(value, &step->when_operation_error)) {
-                goto invalid;
-            }
-        }
+		if (strcmp(key, "when.operation_error") == 0) {
+			if (!parse_effect_bool(value, &step->when_operation_error)) {
+				goto invalid;
+			}
+		}
 		if (strcmp(key, "effects.code_editable") == 0) {
 			if (!parse_effect_bool(value, &step->effect_code_editable)) {
 				goto invalid;
