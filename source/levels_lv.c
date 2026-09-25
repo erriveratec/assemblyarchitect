@@ -17,8 +17,6 @@
 #include "gameplay/code_state_cs.h"
 
 
-#define LV_MSGS_QTY 15
-
 // Exceptions of the selection of the code
 #define NO_EXCEPTION IR_NO_EXCEPTION
 #define INS_EXCEPTION IR_INSTRUCTION_EXCEPTION
@@ -31,8 +29,6 @@ const Uint32 LV_SECTOR_3_START = 24;
 const Uint32 LV_SECTOR_4_START = 32;
 const Uint32 LV_SECTOR_LV_QTY = 8;
 
-
-static bool g_lv_msg[LV_MSGS_QTY];
 
 static lv_rules_t g_lv_rules = {0};
 
@@ -64,44 +60,6 @@ static void set_code_editable(bool state, int exception);
 static void set_buf_selectable(bool state);
 static void set_reg_selectable(bool state);
 static void set_arrange_enabled(bool state);
-static void init_lv_msgs();
-static void chk_ms_pressed_clear_msg(int message_id, bool reset_mouse);
-static void chk_ms_rel_clear_msg(int message_id, bool reset_mouse);
-static int get_level_state();
-
-/* Function: get_level_state
- * ----------------------------------------------------------------------------
- * Get the state of the state machine of the level that is being played
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	Identifier of the state of the level that is being played
- */
-static int get_level_state()
-{
-	return 0;	
-}
-
-
-/* Function: lv_init_lv_msgs
- * ----------------------------------------------------------------------------
- * Sets all the spaces of g_lv_msgs to true
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	Void.
- */
-static void init_lv_msgs()
-{
-	for (int i = 0; i < LV_MSGS_QTY; i++){
-		g_lv_msg[i] = true;
-	}
-}
-
 
 
 /* Function: lv_is_reg_selectable
@@ -288,51 +246,6 @@ static void set_code_editable(bool state, int exception)
     ir_set_code_editable(state, exception);
 }
 
-/* Function: chk_ms_rel_clear_msg
- * -----------------------------------------------------------------------------
- * Verifies if the mouse was released and sets the message variable to false.
- * It has an option for clearing the mouse state
- *
- * Arguments:
- * 	msg_id: The id of the message to be set on false
- *  rs_ms: Boolean to indicate if the mouse state is cleared
- *	
- * Return:
- *	Void.
- */
-static void chk_ms_rel_clear_msg(int message_id, bool reset_mouse)
-{
-	if (ms_left_released() == true){
-		g_lv_msg[message_id] = false;
-		if (reset_mouse == true){
-			ms_reset_mouse_values();
-		}
-	}
-}
-
-/* Function: chk_ms_pressed_clear_msg
- * -----------------------------------------------------------------------------
- * Verifies if the mouse was pressed and sets the message variable to false.
- * It has an option for clearing the mouse state
- *
- * Arguments:
- * 	msg_id: The id of the message to be set on false
- *  rs_ms: Boolean to indicate if the mouse state is cleared
- *	
- * Return:
- *	Void.
- */
-static void chk_ms_pressed_clear_msg(int message_id, bool reset_mouse)
-{
-	if (sb_chk_hov_rst_ret_btns() == false){
-		if (ms_left_pressed() == true){
-			g_lv_msg[message_id] = false;
-			if (reset_mouse == true){
-				ms_reset_mouse_values();
-			}
-		}
-	}
-}
 
 /* Function: level_16
  * -----------------------------------------------------------------------------
@@ -969,7 +882,6 @@ void lv_init_level_assets(int level)
 	set_code_editable(true, NO_EXCEPTION);
 	set_buf_selectable(true);
 	set_reg_selectable(true);
-	init_lv_msgs();
 }
 
 /* Function: lv_upd_level_assets
