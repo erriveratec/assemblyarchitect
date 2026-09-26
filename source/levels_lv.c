@@ -15,6 +15,7 @@
 #include "mouse_ms.h"
 #include "tutorial_tr.h"
 #include "gameplay/code_state_cs.h"
+#include "gameplay/level_presentation_lp.h"
 
 
 // Exceptions of the selection of the code
@@ -60,7 +61,7 @@ static void set_code_editable(bool state, int exception);
 static void set_buf_selectable(bool state);
 static void set_reg_selectable(bool state);
 static void set_arrange_enabled(bool state);
-
+static void draw_contextual_features(void);
 
 /* Function: lv_is_reg_selectable
  * ----------------------------------------------------------------------------
@@ -276,19 +277,7 @@ static void level_16()
  */
 static void level_15(void)
 {
-    draw_regs_arrow(
-        check_display_reg_lv_arrow()
-    );
-
-    draw_bufs_arrow(
-        check_display_buf_arrow()
-    );
-
-    draw_im_up_arrow(
-        chk_display_imm_up_arrow()
-    );
-
-    rg_draw_flag_boxes();
+    draw_contextual_features();  
 
     cs_context_t context =
         cs_capture_context();
@@ -692,6 +681,33 @@ static void level_0(void)
 
     tr_update(&context);
 }
+
+static void draw_contextual_features(void)
+{
+    if (lp_are_register_hints_enabled()) {
+        draw_regs_arrow(
+            check_display_reg_lv_arrow()
+        );
+    }
+
+    if (lp_are_buffer_hints_enabled()) {
+        draw_bufs_arrow(
+            check_display_buf_arrow()
+        );
+    }
+
+    if (lp_are_immediate_hints_enabled()) {
+        draw_im_up_arrow(
+            chk_display_imm_up_arrow()
+        );
+    }
+
+    if (lp_are_flag_boxes_visible()) {
+        rg_draw_flag_boxes();
+    }
+}
+
+
 
 /* Function: check_display_reg_lv_arrow
  * -----------------------------------------------------------------------------
