@@ -375,6 +375,60 @@ void tx_set_message_in_array(int pos, char *msg, int w, int h)
 	g_msgs[pos] = dw_create_text_tex_array_by_h(w, h, C_WHITE, msg);
 }
 
+void tx_set_single_line_message(int position, const char *message)
+{
+	if (position < 0 || position >= g_msgs_size) {
+		fprintf(stderr,
+		        "tx_set_single_line_message: "
+		        "invalid position %d\n",
+		        position);
+		return;
+	}
+
+	if (message == NULL || message[0] == '\0') {
+		fprintf(stderr,
+		        "tx_set_single_line_message: "
+		        "empty message at position %d\n",
+		        position);
+		return;
+	}
+
+	texture_array_t *array = calloc(1, sizeof(texture_array_t));
+
+	if (array == NULL) {
+		fprintf(stderr, "tx_set_single_line_message: "
+		                "unable to allocate texture array\n");
+		return;
+	}
+
+	array->size = 1;
+	array->t    = calloc(1, sizeof(texture_t *));
+
+	if (array->t == NULL) {
+		free(array);
+		fprintf(stderr, "tx_set_single_line_message: "
+		                "unable to allocate texture entry\n");
+		return;
+	}
+
+	array->t[0] = dw_create_text_tex((char *)message, C_WHITE);
+
+	if (array->t[0] == NULL) {
+		dw_free_texture_array(array);
+		fprintf(stderr,
+		        "tx_set_single_line_message: "
+		        "unable to render position %d\n",
+		        position);
+		return;
+	}
+
+	if (g_msgs[position] != NULL) {
+		dw_free_texture_array(g_msgs[position]);
+	}
+
+	g_msgs[position] = array;
+}
+
 /* Function: tx_init_global_msgs
  * -----------------------------------------------------------------------------
  * Creates the textures of global messages that are used across several levels.
