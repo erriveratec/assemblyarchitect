@@ -469,18 +469,34 @@ static code_line_t *edit_code(int level_id)
  * Return:
  *	void.
  */
-static void rst_btn_hdl(int level_id, level_flags_t *f)
+static void rst_btn_hdl(int level_id, level_flags_t *flags)
 {
-	if (sb_chk_rel_rst_btn() == true) {
+	bool menu_was_active = rm_chk_rst_menu_state();
+
+	bool reset_button_released = sb_chk_rel_rst_btn();
+
+	if (reset_button_released) {
 		rm_set_rst_menu(true);
 	}
-	if (rm_chk_rst_menu_btns(rm_chk_rst_menu_state()) == true) {
-		reset_level(level_id, f);
+
+	bool reset_confirmed = rm_chk_rst_menu_btns(rm_chk_rst_menu_state());
+
+	bool menu_is_active = rm_chk_rst_menu_state();
+
+	bool menu_closed = menu_was_active && !menu_is_active;
+
+	if (reset_confirmed) {
+		reset_level(level_id, flags);
+
 		cw_clear_code_list();
 		lv_init_stage_code(level_id);
 		code_updated_actions(level_id);
 		lv_init_level_assets(level_id);
 		tr_load_level(level_id);
+	}
+
+	if (reset_button_released || menu_closed) {
+		ms_reset_mouse_values();
 	}
 }
 
@@ -572,8 +588,13 @@ int stage_level(int level_id)
 	bool                 back_to_level_selection = sb_chck_rel_ret_btn();
 
 	lv_set_hold_line(hold_line);
-	stage_drawings(level_id);
+
+	if (ms_left_pressed() && sb_chk_hov_rst_ret_btns()) {
+    	ms_consume_left_press();
+	}
+
 	rst_btn_hdl(level_id, &flags);
+	stage_drawings(level_id);
 	cw_sort_code();
 
 	if (sb_chk_click_stage_btn() == true && cw_is_operand_pending() == false) {
