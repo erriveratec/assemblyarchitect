@@ -17,6 +17,7 @@ code_end
 [level 02]
 unlocked = true
 code_begin
+MOV rax, [ib]
 code_end
 
 [level 03]

@@ -67,6 +67,64 @@ static char *trim(char *text)
 
 static bool parse_bool(const char *text) { return strcmp(text, "true") == 0; }
 
+static bool validate_ui_properties(int level_id, const level_config_t *config)
+{
+	if (config == NULL) {
+		fprintf(stderr, "level.cfg: level %d has no configuration\n", level_id);
+		return false;
+	}
+
+	if (!config->step_controls_enabled_set) {
+		fprintf(stderr,
+		        "level.cfg: level %d is missing "
+		        "ui.step_controls_enabled\n",
+		        level_id);
+		return false;
+	}
+
+	if (!config->immediates_visible_set) {
+		fprintf(stderr,
+		        "level.cfg: level %d is missing "
+		        "ui.immediates_visible\n",
+		        level_id);
+		return false;
+	}
+
+	if (!config->register_hints_enabled_set) {
+		fprintf(stderr,
+		        "level.cfg: level %d is missing "
+		        "ui.register_hints_enabled\n",
+		        level_id);
+		return false;
+	}
+
+	if (!config->buffer_hints_enabled_set) {
+		fprintf(stderr,
+		        "level.cfg: level %d is missing "
+		        "ui.buffer_hints_enabled\n",
+		        level_id);
+		return false;
+	}
+
+	if (!config->immediate_hints_enabled_set) {
+		fprintf(stderr,
+		        "level.cfg: level %d is missing "
+		        "ui.immediate_hints_enabled\n",
+		        level_id);
+		return false;
+	}
+
+	if (!config->flag_boxes_visible_set) {
+		fprintf(stderr,
+		        "level.cfg: level %d is missing "
+		        "ui.flag_boxes_visible\n",
+		        level_id);
+		return false;
+	}
+
+	return true;
+}
+
 static bool validate_win_condition(int level_id, const level_config_t *config)
 {
 	const char *required[4]    = {NULL};
@@ -347,11 +405,7 @@ int lc_load_level(int level_id)
 	if (!found || config.input_count <= 0 || config.instructions[0] == '\0' ||
 	    config.registers[0] == '\0' || config.win_type[0] == '\0')
 		return FAIL;
-	if (!config.step_controls_enabled_set || !config.immediates_visible_set) {
-		fprintf(stderr,
-		        "levels.cfg: level %d requires ui.step_controls_enabled and "
-		        "ui.immediates_visible\n",
-		        level_id);
+	if (!validate_ui_properties(level_id, &config)) {
 		return FAIL;
 	}
 	if (!validate_win_condition(level_id, &config))
