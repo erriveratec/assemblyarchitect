@@ -17,7 +17,6 @@
 #include "gameplay/code_state_cs.h"
 #include "gameplay/level_presentation_lp.h"
 
-
 // Exceptions of the selection of the code
 #define NO_EXCEPTION IR_NO_EXCEPTION
 #define INS_EXCEPTION IR_INSTRUCTION_EXCEPTION
@@ -28,11 +27,11 @@ const Uint32 LV_SECTOR_1_START = 8;
 const Uint32 LV_SECTOR_2_START = 16;
 const Uint32 LV_SECTOR_3_START = 24;
 const Uint32 LV_SECTOR_4_START = 32;
-const Uint32 LV_SECTOR_LV_QTY = 8;
-
+const Uint32 LV_SECTOR_LV_QTY  = 8;
 
 static lv_rules_t g_lv_rules = {0};
 
+static void level_generic(void);
 static void level_0();
 static void level_1();
 static void level_2();
@@ -52,7 +51,7 @@ static void level_15();
 static void level_16();
 static void level_17();
 static bool check_display_reg_lv_arrow();
-static int check_display_buf_arrow();
+static int  check_display_buf_arrow();
 static bool chk_display_imm_up_arrow();
 static void draw_regs_arrow(bool show_arrows);
 static void draw_bufs_arrow(int buf_id);
@@ -73,11 +72,7 @@ static void draw_contextual_features(void);
  * Return:
  *	Boolean indicating if the regs is editable
  */
-bool lv_is_reg_selectable(void)
-{
-    return ir_is_register_selectable();
-}
-
+bool lv_is_reg_selectable(void) { return ir_is_register_selectable(); }
 
 /* Function: set_reg_selectable
  * ----------------------------------------------------------------------------
@@ -91,7 +86,7 @@ bool lv_is_reg_selectable(void)
  */
 static void set_reg_selectable(bool state)
 {
-    ir_set_register_selectable(state);
+	ir_set_register_selectable(state);
 }
 
 /* Function: lv_is_buf_selectable
@@ -104,14 +99,11 @@ static void set_reg_selectable(bool state)
  * Return:
  *	Boolean indicating if the code is editable
  */
-bool lv_is_buf_selectable(void)
-{
-    return ir_is_buffer_selectable();
-}
+bool lv_is_buf_selectable(void) { return ir_is_buffer_selectable(); }
 
 /* Function: set_buf_selectable
  * ----------------------------------------------------------------------------
- * Sets the buf global variable 
+ * Sets the buf global variable
  *
  * Arguments:
  *	void.
@@ -119,10 +111,7 @@ bool lv_is_buf_selectable(void)
  * Return:
  *	Void.
  */
-static void set_buf_selectable(bool state)
-{
-    ir_set_buffer_selectable(state);
-}
+static void set_buf_selectable(bool state) { ir_set_buffer_selectable(state); }
 
 /* Function: lv_is_arrange_enabled
  * ----------------------------------------------------------------------------
@@ -134,10 +123,7 @@ static void set_buf_selectable(bool state)
  * Return:
  *	Boolean indicating if the arrange is enabled
  */
-bool lv_is_arrange_enabled(void)
-{
-    return ir_is_arrange_enabled();
-}
+bool lv_is_arrange_enabled(void) { return ir_is_arrange_enabled(); }
 
 /* Function: set_arrange_enabled
  * ----------------------------------------------------------------------------
@@ -149,10 +135,7 @@ bool lv_is_arrange_enabled(void)
  * Return:
  *	Void.
  */
-static void set_arrange_enabled(bool state)
-{
-    ir_set_arrange_enabled(state);
-}
+static void set_arrange_enabled(bool state) { ir_set_arrange_enabled(state); }
 
 /* Function: lv_is_del_enabled
  * ----------------------------------------------------------------------------
@@ -164,10 +147,7 @@ static void set_arrange_enabled(bool state)
  * Return:
  *	Boolean indicating if the delete is enabled
  */
-bool lv_is_del_enabled(void)
-{
-    return ir_is_delete_enabled();
-}
+bool lv_is_del_enabled(void) { return ir_is_delete_enabled(); }
 
 /* Function: set_del_enabled
  * ----------------------------------------------------------------------------
@@ -179,10 +159,7 @@ bool lv_is_del_enabled(void)
  * Return:
  *	Void.
  */
-static void set_del_enabled(bool state)
-{
-    ir_set_delete_enabled(state);
-}
+static void set_del_enabled(bool state) { ir_set_delete_enabled(state); }
 
 /* Function: lv_init_stage_code
  * ----------------------------------------------------------------------------
@@ -198,22 +175,21 @@ void lv_init_stage_code(int level_id)
 {
 	assert(level_id < LV_LEVEL_MAX && level_id >= 0 && "Invalid level value");
 
-	if (level_id == LV_LEVEL_1){
-			char i1[] = FL_L1_CODE_1;
-			char i2[] = FL_L1_CODE_2;
-			char i3[] = FL_L1_CODE_3;
-			cw_add_saved_line(i1);
-			cw_add_saved_line(i2);
-			cw_add_saved_line(i3);
-			ar_init_arrow(AR_CODE);
-	} else if (level_id == LV_LEVEL_8){
-			char i1[] = FL_L8_CODE_1;
-			char i2[] = FL_L8_CODE_2;
-			cw_add_saved_line(i1);
-			cw_add_saved_line(i2);
+	if (level_id == LV_LEVEL_1) {
+		char i1[] = FL_L1_CODE_1;
+		char i2[] = FL_L1_CODE_2;
+		char i3[] = FL_L1_CODE_3;
+		cw_add_saved_line(i1);
+		cw_add_saved_line(i2);
+		cw_add_saved_line(i3);
+		ar_init_arrow(AR_CODE);
+	} else if (level_id == LV_LEVEL_8) {
+		char i1[] = FL_L8_CODE_1;
+		char i2[] = FL_L8_CODE_2;
+		cw_add_saved_line(i1);
+		cw_add_saved_line(i2);
 	}
 }
-
 
 /* Function: lv_is_code_editable
  * ----------------------------------------------------------------------------
@@ -225,10 +201,7 @@ void lv_init_stage_code(int level_id)
  * Return:
  *	Boolean indicating if the code is editable
  */
-bool lv_is_code_editable(void)
-{
-    return ir_is_code_editable();
-}
+bool lv_is_code_editable(void) { return ir_is_code_editable(); }
 
 /* Function: set_code_editable
  * ----------------------------------------------------------------------------
@@ -244,9 +217,8 @@ bool lv_is_code_editable(void)
  */
 static void set_code_editable(bool state, int exception)
 {
-    ir_set_code_editable(state, exception);
+	ir_set_code_editable(state, exception);
 }
-
 
 /* Function: level_16
  * -----------------------------------------------------------------------------
@@ -254,486 +226,69 @@ static void set_code_editable(bool state, int exception)
  *
  * Arguments:
  * 	Void.
- *	
+ *
  * Return:
  *	Void.
  */
 static void level_16()
 {
- if (sb_chk_rst_esc_menu_active() == true){
+	if (sb_chk_rst_esc_menu_active() == true) {
 		return;
 	}
 }
 
-/* Function: level_15
- * -----------------------------------------------------------------------------
- * This functions handles all the special cases of the tutorial of level 10
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-static void level_15(void)
+static void level_generic(void)
 {
-    draw_contextual_features();  
+	draw_contextual_features();
 
-    cs_context_t context =
-        cs_capture_context();
+	cs_context_t context = cs_capture_context();
 
-    tr_update(&context);
-}
-/* Function: level_14
- * -----------------------------------------------------------------------------
- * This functions handles all the special cases of the tutorial of level 10
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-static void level_14(void)
-{
-    draw_regs_arrow(
-        check_display_reg_lv_arrow()
-    );
-
-    draw_bufs_arrow(
-        check_display_buf_arrow()
-    );
-
-    draw_im_up_arrow(
-        chk_display_imm_up_arrow()
-    );
-
-    rg_draw_flag_boxes();
-
-    cs_context_t context =
-        cs_capture_context();
-
-    tr_update(&context);
-}
-
-/* Function: level_13
- * -----------------------------------------------------------------------------
- * This functions handles all the special cases of the tutorial of level 10
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-static void level_13(void)
-{
-    draw_regs_arrow(
-        check_display_reg_lv_arrow()
-    );
-
-    draw_bufs_arrow(
-        check_display_buf_arrow()
-    );
-
-    draw_im_up_arrow(
-        chk_display_imm_up_arrow()
-    );
-
-    rg_draw_flag_boxes();
-
-    cs_context_t context =
-        cs_capture_context();
-
-    tr_update(&context);
-}
-
-/* Function: level_12
- * -----------------------------------------------------------------------------
- * This functions handles all the special cases of the tutorial of level 10
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-static void level_12(void)
-{
-    draw_regs_arrow(
-        check_display_reg_lv_arrow()
-    );
-
-    draw_bufs_arrow(
-        check_display_buf_arrow()
-    );
-
-    draw_im_up_arrow(
-        chk_display_imm_up_arrow()
-    );
-
-    cs_context_t context =
-        cs_capture_context();
-
-    tr_update(&context);
-}
-
-/* Function: level_11
- * -----------------------------------------------------------------------------
- * This functions handles all the special cases of the tutorial of level 10
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-static void level_11(void)
-{
-    draw_regs_arrow(
-        check_display_reg_lv_arrow()
-    );
-
-    draw_bufs_arrow(
-        check_display_buf_arrow()
-    );
-
-    draw_im_up_arrow(
-        chk_display_imm_up_arrow()
-    );
-
-    cs_context_t context =
-        cs_capture_context();
-
-    tr_update(&context);
-}
-
-/* Function: level_10
- * -----------------------------------------------------------------------------
- * This functions handles all the special cases of the tutorial of level 10
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-static void level_10(void)
-{
-    draw_regs_arrow(
-        check_display_reg_lv_arrow()
-    );
-
-    draw_bufs_arrow(
-        check_display_buf_arrow()
-    );
-
-    draw_im_up_arrow(
-        chk_display_imm_up_arrow()
-    );
-
-    cs_context_t context =
-        cs_capture_context();
-
-    tr_update(&context);
-}
-
-/* Function: level_9
- * -----------------------------------------------------------------------------
- * This functions handles all the special cases of the tutorial of level 10
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-static void level_9(void)
-{
-    draw_regs_arrow(
-        check_display_reg_lv_arrow()
-    );
-
-    draw_bufs_arrow(
-        check_display_buf_arrow()
-    );
-
-    cs_context_t context =
-        cs_capture_context();
-
-    tr_update(&context);
-}
-
-
-/* Function: level_8
- * -----------------------------------------------------------------------------
- * This functions handles all the special cases of the tutorial of level 3
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-static void level_8(void)
-{
-    draw_regs_arrow(
-        check_display_reg_lv_arrow()
-    );
-
-    draw_bufs_arrow(
-        check_display_buf_arrow()
-    );
-
-    cs_context_t context =
-        cs_capture_context();
-
-    tr_update(&context);
-}
-
-/* Function: level_7
- * -----------------------------------------------------------------------------
- * This functions handles all the special cases of the tutorial of level 3
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-static void level_7(void)
-{
-    draw_regs_arrow(
-        check_display_reg_lv_arrow()
-    );
-
-    draw_bufs_arrow(
-        check_display_buf_arrow()
-    );
-
-    cs_context_t context =
-        cs_capture_context();
-
-    tr_update(&context);
-}
-
-/* Function: level_6
- * -----------------------------------------------------------------------------
- * This functions handles all the special cases of the tutorial of level 3
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-static void level_6(void)
-{
-    draw_regs_arrow(
-        check_display_reg_lv_arrow()
-    );
-
-    draw_bufs_arrow(
-        check_display_buf_arrow()
-    );
-
-    cs_context_t context =
-        cs_capture_context();
-
-    tr_update(&context);
-}
-
-/* Function: level_5
- * -----------------------------------------------------------------------------
- * This functions handles all the special cases of the tutorial of level 3
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-static void level_5(void)
-{
-    draw_regs_arrow(
-        check_display_reg_lv_arrow()
-    );
-
-    draw_bufs_arrow(
-        check_display_buf_arrow()
-    );
-
-    cs_context_t context = cs_capture_context();
-
-    tr_update(&context);
-}
-
-/* Function: level_4
- * -----------------------------------------------------------------------------
- * This functions handles all the special cases of the tutorial of level 3
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-static void level_4(void)
-{
-    draw_regs_arrow(
-        check_display_reg_lv_arrow()
-    );
-
-    draw_bufs_arrow(
-        check_display_buf_arrow()
-    );
-
-    cs_context_t context =
-        cs_capture_context();
-
-    tr_update(&context);
-}
-
-/* Function: level_3
- * -----------------------------------------------------------------------------
- * This functions handles all the special cases of the tutorial of level 3
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-static void level_3(void)
-{
-    draw_regs_arrow(
-        check_display_reg_lv_arrow()
-    );
-
-    draw_bufs_arrow(
-        check_display_buf_arrow()
-    );
-
-    cs_context_t context = cs_capture_context();
-    tr_update(&context);
-}
-
-
-/* Function: level_2
- * -----------------------------------------------------------------------------
- * This functions handles all the special cases of the tutorial of level 3
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-static void level_2(void)
-{
-    draw_regs_arrow(
-        check_display_reg_lv_arrow()
-    );
-
-    draw_bufs_arrow(
-        check_display_buf_arrow()
-    );
-
-    cs_context_t context =
-        cs_capture_context();
-
-    tr_update(&context);
-}
-
-/* Function: level_1
- * -----------------------------------------------------------------------------
- * This functions handles all the special cases of the tutorial of level 1
- *
- * Arguments:
- * 	Void.
- *	
- * Return:
- *	Void.
- */
-static void level_1(void)
-{
-    cs_context_t context =
-        cs_capture_context();
-
-    tr_update(&context);
-}
-
-/* Function: level_0
- * -----------------------------------------------------------------------------
- * This functions handles all the special cases of the tutorial of level 1
- *
- * Arguments:
- * 	holding_line: boolean that indicates if the player is holding a line
- * 	play: boolean indicating if the player pressed play
- *	
- * Return:
- *	Void.
- */
-static void level_0(void)
-{
-    cs_context_t context =
-        cs_capture_context();
-
-    tr_update(&context);
+	tr_update(&context);
 }
 
 static void draw_contextual_features(void)
 {
-    if (lp_are_register_hints_enabled()) {
-        draw_regs_arrow(
-            check_display_reg_lv_arrow()
-        );
-    }
+	if (lp_are_register_hints_enabled()) {
+		draw_regs_arrow(check_display_reg_lv_arrow());
+	}
 
-    if (lp_are_buffer_hints_enabled()) {
-        draw_bufs_arrow(
-            check_display_buf_arrow()
-        );
-    }
+	if (lp_are_buffer_hints_enabled()) {
+		draw_bufs_arrow(check_display_buf_arrow());
+	}
 
-    if (lp_are_immediate_hints_enabled()) {
-        draw_im_up_arrow(
-            chk_display_imm_up_arrow()
-        );
-    }
+	if (lp_are_immediate_hints_enabled()) {
+		draw_im_up_arrow(chk_display_imm_up_arrow());
+	}
 
-    if (lp_are_flag_boxes_visible()) {
-        rg_draw_flag_boxes();
-    }
+	if (lp_are_flag_boxes_visible()) {
+		rg_draw_flag_boxes();
+	}
 }
-
-
 
 /* Function: check_display_reg_lv_arrow
  * -----------------------------------------------------------------------------
  * Analize the state of the operands to determine if the register arrow should
  * be displayed
- * 
+ *
  * Arguments:
  * 	None.
  *
  * Return:
- *	The id of the operand that the arrow must be shown 
+ *	The id of the operand that the arrow must be shown
  */
-static int check_display_buf_arrow() 
+static int check_display_buf_arrow()
 {
 	int display_ar = NO_OPERAND;
-	if (cw_check_code_sorted() == true && 
-									   cw_is_operand_pending() == true){
+	if (cw_check_code_sorted() == true && cw_is_operand_pending() == true) {
 		code_line_t *l = cw_get_code_line_pending_operand();
-		if (l->ins->id != JMP && l->ins->id !=LABEL){
+		if (l->ins->id != JMP && l->ins->id != LABEL) {
 			operand_t o;
 			o.id = IB;
-			if (cl_is_op_compatible(&o, l) == true){
+			if (cl_is_op_compatible(&o, l) == true) {
 				display_ar = IB;
-			} 
+			}
 			o.id = OB;
-			if (cl_is_op_compatible(&o, l) == true){
+			if (cl_is_op_compatible(&o, l) == true) {
 				display_ar = OB;
 			}
 		}
@@ -745,24 +300,24 @@ static int check_display_buf_arrow()
  * -----------------------------------------------------------------------------
  * Function that verifies according to the flags if the bufs arrows must
  * be drawn
- * 
+ *
  * Arguments:
  * 	buf_id: true displays arros, false does not show arrows.
  *
  * Return:
  *	Void.
  */
-static void draw_bufs_arrow(int buf_id) 
+static void draw_bufs_arrow(int buf_id)
 {
-	switch(buf_id){
-		case IB:
-			ar_display_arrow(AR_IB);
-			break;
-		case OB:
-			ar_display_arrow(AR_OB);
-			break;
-		default:
-			break;
+	switch (buf_id) {
+	case IB:
+		ar_display_arrow(AR_IB);
+		break;
+	case OB:
+		ar_display_arrow(AR_OB);
+		break;
+	default:
+		break;
 	}
 }
 
@@ -770,21 +325,21 @@ static void draw_bufs_arrow(int buf_id)
  * -----------------------------------------------------------------------------
  * Analize the state of the operands to determine if the register arrow should
  * be displayed
- * 
+ *
  * Arguments:
  * 	None.
  *
  * Return:
  *	true if the pointing arrow to the registers should be displayed
  */
-static bool check_display_reg_lv_arrow() 
+static bool check_display_reg_lv_arrow()
 {
 	bool display_ar = false;
-	if (cw_check_code_sorted() == true && cw_is_operand_pending() == true){
+	if (cw_check_code_sorted() == true && cw_is_operand_pending() == true) {
 		code_line_t *l = cw_get_code_line_pending_operand();
-		if (l->ins->id != JMP && l->ins->id != LABEL){
+		if (l->ins->id != JMP && l->ins->id != LABEL) {
 			operand_t o;
-			o.id = RAX;
+			o.id       = RAX;
 			display_ar = cl_is_op_compatible(&o, l);
 		}
 	}
@@ -795,21 +350,21 @@ static bool check_display_reg_lv_arrow()
  * -----------------------------------------------------------------------------
  * Analize the state of the operands to determine if the immediate arrow should
  * be displayed
- * 
+ *
  * Arguments:
  * 	None.
  *
  * Return:
  *	true if the pointing arrow to the registers should be displayed
  */
-static bool chk_display_imm_up_arrow() 
+static bool chk_display_imm_up_arrow()
 {
 	bool display_ar = false;
-	if (cw_check_code_sorted() == true && cw_is_operand_pending() == true){
+	if (cw_check_code_sorted() == true && cw_is_operand_pending() == true) {
 		code_line_t *l = cw_get_code_line_pending_operand();
-		if (l->ins->id != JMP && l->ins->id != LABEL){
+		if (l->ins->id != JMP && l->ins->id != LABEL) {
 			operand_t o;
-			o.id = IMMUP0 ;
+			o.id       = IMMUP0;
 			display_ar = cl_is_op_compatible(&o, l);
 		}
 	}
@@ -820,16 +375,16 @@ static bool chk_display_imm_up_arrow()
  * -----------------------------------------------------------------------------
  * Function that verifies according to the flags if the register arrows must
  * be drawn
- * 
+ *
  * Arguments:
  * 	show_arrow: true displays arros, false does not show arrows.
  *
  * Return:
  *	Void.
  */
-static void draw_regs_arrow(bool show_arrows) 
+static void draw_regs_arrow(bool show_arrows)
 {
-	if (show_arrows == true){
+	if (show_arrows == true) {
 		ar_display_arrow(AR_REG);
 	}
 }
@@ -838,16 +393,16 @@ static void draw_regs_arrow(bool show_arrows)
  * -----------------------------------------------------------------------------
  * Function that verifies according to the flags if the register arrows must
  * be drawn
- * 
+ *
  * Arguments:
  * 	show_arrow: true displays arros, false does not show arrows.
  *
  * Return:
  *	Void.
  */
-static void draw_im_up_arrow(bool show_arrows) 
+static void draw_im_up_arrow(bool show_arrows)
 {
-	if (show_arrows == true){
+	if (show_arrows == true) {
 		ar_display_arrow(AR_IMM_UP);
 	}
 }
@@ -856,29 +411,24 @@ static void draw_im_up_arrow(bool show_arrows)
  * -----------------------------------------------------------------------------
  * Arguments:
  * 	Void.
- *	
+ *
  * Return:
  *	The limit number of instructions for the level
  */
-int lv_get_level_instructions_limit(void)
-{
-    return ir_get_instruction_limit();
-}
-
+int lv_get_level_instructions_limit(void) { return ir_get_instruction_limit(); }
 
 /* Function: lv_set_level_instructions_limit
  * -----------------------------------------------------------------------------
  * Arguments:
  * 	Limit: The quantity of the instructions that the level will allow
- *	
+ *
  * Return:
  *	void
  */
 void lv_set_level_instructions_limit(int limit)
 {
-    ir_set_instruction_limit(limit);
+	ir_set_instruction_limit(limit);
 }
-
 
 /* Function: lv_init_level_assets
  *------------------------------------------------------------------------------
@@ -913,13 +463,13 @@ void lv_init_level_assets(int level)
 void lv_upd_level_assets(int level)
 {
 	assert(level < LV_LEVEL_MAX && level >= 0 && "Invalid level value");
-	
-	switch(level){
-		case LV_LEVEL_2:
-			ar_init_arrow(AR_CODE);
-			break;
-		default:
-			break;
+
+	switch (level) {
+	case LV_LEVEL_2:
+		ar_init_arrow(AR_CODE);
+		break;
+	default:
+		break;
 	}
 }
 /* Function: lv_level_drawings
@@ -936,88 +486,39 @@ void lv_upd_level_assets(int level)
 void lv_level_drawings(int level)
 {
 	assert(level < LV_LEVEL_MAX && level >= 0 && "Invalid level value");
-	
-	if (sb_chk_rst_esc_menu_active() == true){
+
+	if (sb_chk_rst_esc_menu_active() == true) {
 		return;
 	}
-	switch(level){
-		case LV_LEVEL_0:
-			level_0();
-			break;
+	switch (level) {
+	case LV_LEVEL_0:
+	case LV_LEVEL_1:
+	case LV_LEVEL_2:
+	case LV_LEVEL_3:
+	case LV_LEVEL_4:
+	case LV_LEVEL_5:
+	case LV_LEVEL_6:
+	case LV_LEVEL_7:
+	case LV_LEVEL_8:
+	case LV_LEVEL_9:
+	case LV_LEVEL_10:
+	case LV_LEVEL_11:
+	case LV_LEVEL_12:
+	case LV_LEVEL_13:
+	case LV_LEVEL_14:
+	case LV_LEVEL_15:
+		level_generic();
+		break;
+	case LV_LEVEL_16:
+		level_16();
+		break;
 
-		case LV_LEVEL_1:
-			level_1();
-			break;
-
-		case LV_LEVEL_2:
-			level_2();
-			break;
-	
-		case LV_LEVEL_3:
-			level_3();
-			break;
-
-		case LV_LEVEL_4:
-			level_4();
-			break;
-	
-		case LV_LEVEL_5:
-			level_5();
-			break;
-	
-		case LV_LEVEL_6:
-			level_6();
-			break;
-		
-		case LV_LEVEL_7:
-			level_7();
-			break;
-
-		case LV_LEVEL_8:
-			level_8();
-			break;
-
-		case LV_LEVEL_9:
-			level_9();
-			break;
-
-		case LV_LEVEL_10:
-			level_10();
-			break;
-
-		case LV_LEVEL_11:
-			level_11();
-			break;
-		
-		case LV_LEVEL_12:
-			level_12();
-			break;
-		
-		case LV_LEVEL_13:
-			level_13();
-			break;
-		
-		case LV_LEVEL_14:
-			level_14();
-			break;
-		
-		case LV_LEVEL_15:
-			level_15();
-			break;
-
-		case LV_LEVEL_16:
-			level_16();
-			break;
-
-		default:
-			rg_draw_flag_boxes();
-			sb_set_step_btns_avail(true);
-		 	im_set_imm_up_avail(true);
-			draw_bufs_arrow(check_display_buf_arrow());
-			draw_im_up_arrow(chk_display_imm_up_arrow());
-			draw_regs_arrow(check_display_reg_lv_arrow());
+	default:
+		rg_draw_flag_boxes();
+		sb_set_step_btns_avail(true);
+		im_set_imm_up_avail(true);
+		draw_bufs_arrow(check_display_buf_arrow());
+		draw_im_up_arrow(chk_display_imm_up_arrow());
+		draw_regs_arrow(check_display_reg_lv_arrow());
 	}
 }
-
-
-

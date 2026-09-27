@@ -8,7 +8,7 @@ code_begin
 code_end
 
 [level 01]
-unlocked = false
+unlocked = true
 code_begin
 MOV [ob], rax
 MOV rax, rax
@@ -16,7 +16,7 @@ MOV rax, rax
 code_end
 
 [level 02]
-unlocked = false
+unlocked = true
 code_begin
 code_end
 
