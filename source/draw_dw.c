@@ -888,3 +888,12 @@ void dw_draw_filled_rectangle(SDL_Rect r, SDL_Color in, SDL_Color out)
 	SDL_RenderDrawRect(g_renderer, &rect);
 	SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
 }
+
+void dw_draw_filled_rectangle_f(SDL_FRect r, SDL_Color in, SDL_Color out)
+{
+	SDL_SetRenderDrawColor(g_renderer, in.r, in.g, in.b, in.a);
+	SDL_RenderFillRectF(g_renderer, &r);
+	SDL_SetRenderDrawColor(g_renderer, out.r, out.g, out.b, out.a);
+	SDL_RenderDrawRectF(g_renderer, &r);
+	SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
+}

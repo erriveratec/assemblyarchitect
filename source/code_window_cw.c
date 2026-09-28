@@ -1203,6 +1203,35 @@ SDL_Rect cw_get_text_box_rect()
 	return g_text_box;
 }
 
+float cw_get_challenge_highlight_limit()
+{
+	int h = dm_get_h_msg();
+	if (g_text_box.w <= 0 || g_text_box.h <= 0) {
+		return (float)dm_get_btn_anim_max();
+	}
+
+	float anim_limit = (float)dm_get_btn_anim_max();
+	float left_space = g_text_box.x - g_code_box.x;
+	float right_space = g_code_box.x + g_code_box.w -
+	                    g_text_box.x - g_text_box.w;
+	float horizontal_space = left_space < right_space ? left_space : right_space;
+	float top_space = g_text_box.y - g_code_box.y;
+	float bottom_space = g_code_box.y + g_code_box.h -
+	                     g_text_box.y - g_text_box.h;
+	float vertical_space = top_space < bottom_space ? top_space : bottom_space;
+	float horizontal_limit =
+	    2.0f * horizontal_space * h / g_text_box.w;
+	float vertical_limit =
+	    2.0f * vertical_space * h / g_text_box.h;
+	if (horizontal_limit < anim_limit) {
+		anim_limit = horizontal_limit > 0.0f ? horizontal_limit : 0.0f;
+	}
+	if (vertical_limit < anim_limit) {
+		anim_limit = vertical_limit > 0.0f ? vertical_limit : 0.0f;
+	}
+	return anim_limit;
+}
+
 /* Function: in_code_window
  * -----------------------------------------------------------------------------
  * This function verifies if the mouse coordinates are inside of one of the 
@@ -1522,25 +1551,7 @@ void cw_draw_code_window()
 		dw_draw_rectangle(g_text_box, C_GREY);
 	} else {
 		int line_count = g_challenge_text->size;
-		float anim_limit = (float)dm_get_btn_anim_max();
-		float left_space = g_text_box.x - g_code_box.x;
-		float right_space = g_code_box.x + g_code_box.w -
-		                    g_text_box.x - g_text_box.w;
-		float horizontal_space = left_space < right_space ? left_space : right_space;
-		float top_space = g_text_box.y - g_code_box.y;
-		float bottom_space = g_code_box.y + g_code_box.h -
-		                     g_text_box.y - g_text_box.h;
-		float vertical_space = top_space < bottom_space ? top_space : bottom_space;
-		float horizontal_limit =
-		    2.0f * horizontal_space * h / g_text_box.w;
-		float vertical_limit =
-		    2.0f * vertical_space * h / g_text_box.h;
-		if (horizontal_limit < anim_limit) {
-			anim_limit = horizontal_limit > 0.0f ? horizontal_limit : 0.0f;
-		}
-		if (vertical_limit < anim_limit) {
-			anim_limit = vertical_limit > 0.0f ? vertical_limit : 0.0f;
-		}
+		float anim_limit = cw_get_challenge_highlight_limit();
 		if (g_challenge_anim_state > anim_limit) {
 			g_challenge_anim_state = anim_limit;
 		}

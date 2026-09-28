@@ -6,6 +6,7 @@
 
 #include "arrow_ar.h"
 #include "aux.h"
+#include "buffers_bf.h"
 #include "code_line_cl.h"
 #include "code_window_cw.h"
 #include "gameplay/interaction_rules_ir.h"
@@ -118,6 +119,7 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 
 	if (context == NULL) {
 		cw_set_challenge_highlight(false);
+		bf_set_buffer_highlights(false, false);
 		g_current_step = NULL;
 		return NULL;
 	}
@@ -126,11 +128,15 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 
 	if (step == NULL) {
 		cw_set_challenge_highlight(false);
+		bf_set_buffer_highlights(false, false);
 		g_current_step = NULL;
 		return NULL;
 	}
 	cw_set_challenge_highlight(
 	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_CHALLENGE) != 0);
+	bf_set_buffer_highlights(
+	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_INPUT_BUFFER) != 0,
+	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_OUTPUT_BUFFER) != 0);
 
 	if (step != g_current_step) {
 		g_current_step = step;
@@ -194,6 +200,10 @@ static bool parse_highlights(char *text, int *targets)
 		char *highlight = trim(token);
 		if (strcmp(highlight, "challenge") == 0) {
 			*targets |= TUTORIAL_HIGHLIGHT_CHALLENGE;
+		} else if (strcmp(highlight, "input_buffer") == 0) {
+			*targets |= TUTORIAL_HIGHLIGHT_INPUT_BUFFER;
+		} else if (strcmp(highlight, "output_buffer") == 0) {
+			*targets |= TUTORIAL_HIGHLIGHT_OUTPUT_BUFFER;
 		} else {
 			return false;
 		}
@@ -481,6 +491,7 @@ static tutorial_step_t *find_step(const char *name)
 void tr_clear(void)
 {
 	cw_set_challenge_highlight(false);
+	bf_set_buffer_highlights(false, false);
 	for (int index = 0; index < g_step_count; index++) {
 		dw_free_texture_array(g_steps[index].text_texture);
 

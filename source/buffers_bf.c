@@ -9,6 +9,7 @@
 #include "list.h"
 #include "dbg.h"
 #include "aux.h"
+#include "code_window_cw.h"
 #include "dimensions_dm.h"
 #include "ui/button_bt.h"
 #include "code_line_cl.h"
@@ -41,6 +42,15 @@ SDL_Rect output_box;
 
 static List *input_list = NULL;
 static List *output_list = NULL;
+static bool g_input_buffer_highlight;
+static bool g_output_buffer_highlight;
+static bool g_buffer_anim_dir;
+static float g_buffer_anim_state;
+
+typedef struct buffer_animation_t {
+	bool active;
+	float scale;
+} buffer_animation_t;
 
 btn_t input_buffer_button;
 btn_t output_buffer_button;
@@ -62,6 +72,25 @@ static void destroy_output_list();
 static void bf_create_natural_input_list(int size);
 static void bf_create_natural_force_input_list();
 static void bf_create_natural_increase_input_list();
+static buffer_animation_t get_buffer_animation(SDL_Rect *label_box,
+										 texture_t *label,
+										 bool highlighted);
+static SDL_FRect transform_buffer_rect(SDL_Rect rect,
+									  buffer_animation_t animation);
+static SDL_FRect transform_buffer_body_rect(SDL_Rect body_box,
+										   SDL_Rect label_box,
+										   buffer_animation_t animation);
+static SDL_FRect transform_buffer_content_rect(SDL_Rect rect,
+											  SDL_Rect body_box,
+											  SDL_FRect animated_body,
+											  buffer_animation_t animation);
+static void draw_buffer_label(SDL_Rect label_box, texture_t *label,
+							 SDL_Rect hit_box,
+							 buffer_animation_t animation);
+static void draw_buffer_value_box(value_box_t *value, SDL_Color color,
+								 SDL_Rect body_box,
+								 SDL_FRect animated_body,
+								 buffer_animation_t animation);
 
 
 /* Function: iw_init_buf_texture
@@ -330,6 +359,17 @@ void bf_set_output_buffer_button(SDL_Rect r)
 	output_buffer_button.r = r;
 	output_buffer_button.enabled = true;
 
+}
+
+void bf_set_buffer_highlights(bool input_enabled, bool output_enabled)
+{
+	if (input_enabled != g_input_buffer_highlight ||
+	    output_enabled != g_output_buffer_highlight) {
+		g_buffer_anim_dir = false;
+		g_buffer_anim_state = 0.0f;
+	}
+	g_input_buffer_highlight = input_enabled;
+	g_output_buffer_highlight = output_enabled;
 }
 
 /* Function: get_input_list
@@ -632,6 +672,141 @@ void bf_draw_buffers()
 {
 	draw_input_buffer();
 	draw_output_buffer();
+	if (g_input_buffer_highlight || g_output_buffer_highlight) {
+		float anim_limit = cw_get_challenge_highlight_limit();
+		float anim_delta = dm_get_btn_anim_delta() * 0.5f;
+		if (anim_delta < 0.25f) {
+			anim_delta = 0.25f;
+		}
+		if (!g_buffer_anim_dir && g_buffer_anim_state >= anim_limit) {
+			g_buffer_anim_dir = true;
+		} else if (g_buffer_anim_dir && g_buffer_anim_state <= 0.0f) {
+			g_buffer_anim_dir = false;
+		}
+		g_buffer_anim_state += g_buffer_anim_dir ? -anim_delta : anim_delta;
+		if (g_buffer_anim_state > anim_limit) {
+			g_buffer_anim_state = anim_limit;
+		} else if (g_buffer_anim_state < 0.0f) {
+			g_buffer_anim_state = 0.0f;
+		}
+	}
+}
+
+static buffer_animation_t get_buffer_animation(SDL_Rect *label_box,
+										 texture_t *label,
+										 bool highlighted)
+{
+	label_box->w = ax_get_texture_w_fit_h(label_box->h, label);
+	buffer_animation_t animation = {
+		.active = highlighted,
+		.scale = 1.0f
+	};
+	if (!highlighted) {
+		return animation;
+	}
+
+	float anim_limit = cw_get_challenge_highlight_limit();
+	float pulse = g_buffer_anim_state < anim_limit ?
+	              g_buffer_anim_state : anim_limit;
+	animation.scale = 1.0f + pulse / dm_get_h_msg();
+	return animation;
+}
+
+static SDL_FRect transform_buffer_rect(SDL_Rect rect,
+									  buffer_animation_t animation)
+{
+	return (SDL_FRect){
+		.x = rect.x + rect.w / 2.0f - rect.w * animation.scale / 2.0f,
+		.y = rect.y + rect.h / 2.0f - rect.h * animation.scale / 2.0f,
+		.w = rect.w * animation.scale,
+		.h = rect.h * animation.scale
+	};
+}
+
+static SDL_FRect transform_buffer_body_rect(SDL_Rect body_box,
+										   SDL_Rect label_box,
+										   buffer_animation_t animation)
+{
+	SDL_FRect label_rect = transform_buffer_rect(label_box, animation);
+	float height = body_box.h * animation.scale;
+	float gap;
+	float y;
+	if (body_box.y > label_box.y) {
+		gap = body_box.y - label_box.y - label_box.h;
+		y = label_rect.y + label_rect.h + gap;
+	} else {
+		gap = label_box.y - body_box.y - body_box.h;
+		y = label_rect.y - gap - height;
+	}
+	return (SDL_FRect){
+		.x = label_rect.x,
+		.y = y,
+		.w = body_box.w * animation.scale,
+		.h = height
+	};
+}
+
+static SDL_FRect transform_buffer_content_rect(SDL_Rect rect,
+											  SDL_Rect body_box,
+											  SDL_FRect animated_body,
+											  buffer_animation_t animation)
+{
+	return (SDL_FRect){
+		.x = animated_body.x + (rect.x - body_box.x) * animation.scale,
+		.y = animated_body.y + (rect.y - body_box.y) * animation.scale,
+		.w = rect.w * animation.scale,
+		.h = rect.h * animation.scale
+	};
+}
+
+static void draw_buffer_label(SDL_Rect label_box, texture_t *label,
+							 SDL_Rect hit_box,
+							 buffer_animation_t animation)
+{
+	if (!animation.active) {
+		btn_t button = {.r = label_box, .t = label, .enabled = true};
+		bool hover = ax_chk_mouse_hover_rect(hit_box);
+		bt_draw_btn(&button, sb_chk_rst_esc_menu_active(), hover);
+		return;
+	}
+
+	SDL_FRect label_rect = transform_buffer_rect(label_box, animation);
+	bool hover = ax_chk_mouse_hover_rect(hit_box) &&
+	             !sb_chk_rst_esc_menu_active();
+	dw_set_texture_color_mod(label, hover ? C_WHITE : C_LIGHTGREY);
+	dw_draw_texture_fit_h_f(label_rect, label);
+	dw_set_texture_color_mod(label, C_WHITE);
+}
+
+static void draw_buffer_value_box(value_box_t *value, SDL_Color color,
+								 SDL_Rect body_box,
+								 SDL_FRect animated_body,
+								 buffer_animation_t animation)
+{
+	if (!animation.active) {
+		ax_draw_value_box(value, color);
+		return;
+	}
+
+	SDL_FRect value_box = transform_buffer_content_rect(
+	    value->box, body_box, animated_body, animation);
+	dw_draw_filled_rectangle_f(value_box, C_BLACK, color);
+	if (value->t == NULL) {
+		return;
+	}
+
+	SDL_Rect value_size = dm_get_value_box_wh();
+	SDL_Rect text_size = dm_get_value_box_val_wh();
+	int text_width = ax_get_texture_w_fit_h(text_size.h, value->t);
+	SDL_Rect text_box = {
+		.x = value->box.x + (value_size.w - text_width) / 2,
+		.y = value->box.y + (value_size.h - text_size.h) / 2 +
+		     (text_size.h / 5) / 2,
+		.w = text_width,
+		.h = text_size.h
+	};
+	dw_draw_texture_fit_h_f(transform_buffer_content_rect(
+	    text_box, body_box, animated_body, animation), value->t);
 }
 
 /* Function: draw_output_buffer
@@ -654,6 +829,16 @@ void draw_output_buffer()
 	int ofs = dm_get_ofs_buffer_value_box();
 	int ofsval = dm_get_ofs_between_value_box();
 	SDL_Rect val =  dm_get_value_box_wh();
+	SDL_Rect output_label = {.x = output_box.x,
+						 .y = output_box.y + output_box.h,
+						 .w = 0,
+						 .h = dm_get_h_code_text()};
+	buffer_animation_t animation = get_buffer_animation(
+	    &output_label, output_text, g_output_buffer_highlight);
+	SDL_FRect animated_output_box = animation.active ?
+	    transform_buffer_body_rect(output_box, output_label, animation) :
+	    (SDL_FRect){.x = output_box.x, .y = output_box.y,
+	                .w = output_box.w, .h = output_box.h};
 	if (check_win_condition() == true){
 		x = OUTPUT_BUFFER_WIN_X;	
 	} else {
@@ -667,7 +852,8 @@ void draw_output_buffer()
 			cur_output->box.x = draw_x;
 
 			if (cur_output->visible_box != false){
-				ax_draw_value_box(cur_output, C_WHITE);
+				draw_buffer_value_box(cur_output, C_WHITE, output_box,
+				                      animated_output_box, animation);
 			}
 			draw_x -= val.w + ofsval;
 		}
@@ -676,17 +862,12 @@ void draw_output_buffer()
 								   						BUFFER_MOVEMENT_DELTA);
 		}
 	}
-	dw_draw_rectangle(output_box, C_WHITE);
-	SDL_Rect output_label = {.x = output_box.x,
-						 .y = output_box.y + output_box.h,
-						 .w = 0,
-						 .h = dm_get_h_code_text()};
-	btn_t ibtn = {.r = output_label,
-				  .t = output_text, 
-				  .enabled = true};
-	ibtn.r.w = ax_get_texture_w_fit_h(ibtn.r.h, output_text);
-	bool hover = ax_chk_mouse_hover_rect(output_buffer_button.r);
-	bt_draw_btn(&ibtn, sb_chk_rst_esc_menu_active(), hover);
+	if (animation.active) {
+		dw_draw_rectangle_f(animated_output_box, C_WHITE);
+	} else {
+		dw_draw_rectangle(output_box, C_WHITE);
+	}
+	draw_buffer_label(output_label, output_text, output_buffer_button.r, animation);
 
 error:
 	return;
@@ -739,6 +920,13 @@ void draw_input_buffer()
 	int ofs = dm_get_ofs_buffer_value_box();
 	int ofsval = dm_get_ofs_between_value_box();
 	SDL_Rect val =  dm_get_value_box_wh();
+	SDL_Rect input_label = dm_get_stage_ib_text_box();
+	buffer_animation_t animation = get_buffer_animation(
+	    &input_label, input_text, g_input_buffer_highlight);
+	SDL_FRect animated_input_box = animation.active ?
+	    transform_buffer_body_rect(input_box, input_label, animation) :
+	    (SDL_FRect){.x = input_box.x, .y = input_box.y,
+	                .w = input_box.w, .h = input_box.h};
 	int x = input_box.x + ofs;
 	int y = input_box.y + ofs;
 
@@ -751,7 +939,8 @@ void draw_input_buffer()
 		LIST_FOREACH(inputs, first, next, cur){
 			value_box_t *cur_input = cur->value;
 			cur_input->box.x = draw_x;
-			ax_draw_value_box(cur_input, C_WHITE);
+			draw_buffer_value_box(cur_input, C_WHITE, input_box,
+			                      animated_input_box, animation);
 			draw_x += val.w + ofsval;
 		}
 		if (g_input_list_x_pos > x){
@@ -761,13 +950,12 @@ void draw_input_buffer()
 		}
 	}
 
-	dw_draw_rectangle(input_box, C_WHITE);
-	btn_t ibtn = {.r = dm_get_stage_ib_text_box(), 
-				  .t = input_text, 
-				  .enabled = true};
-	ibtn.r.w = ax_get_texture_w_fit_h(ibtn.r.h, input_text);
-	bool hover = ax_chk_mouse_hover_rect(input_buffer_button.r);
-	bt_draw_btn(&ibtn, sb_chk_rst_esc_menu_active(), hover);
+	if (animation.active) {
+		dw_draw_rectangle_f(animated_input_box, C_WHITE);
+	} else {
+		dw_draw_rectangle(input_box, C_WHITE);
+	}
+	draw_buffer_label(input_label, input_text, input_buffer_button.r, animation);
 }
 
 /* Function: bf_get_buffer_value_box_x_coord_by_id

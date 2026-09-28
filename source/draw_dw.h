@@ -26,6 +26,7 @@ void dw_free_texture_array(texture_array_t *t);
 void dw_draw_rectangle(SDL_Rect r, SDL_Color c);
 void dw_draw_rectangle_f(SDL_FRect r, SDL_Color c);
 void dw_draw_filled_rectangle(SDL_Rect r, SDL_Color in, SDL_Color out);
+void dw_draw_filled_rectangle_f(SDL_FRect r, SDL_Color in, SDL_Color out);
 void dw_draw_thick_rect(SDL_Rect r, int w, SDL_Color c);
 
 int dw_draw_texture_fit_h(SDL_Rect r, texture_t *t);

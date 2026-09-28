@@ -38,6 +38,7 @@ void bf_set_input_box(SDL_Rect r);
 void bf_set_output_box(SDL_Rect r);
 void bf_set_input_buffer_button(SDL_Rect r);
 void bf_set_output_buffer_button(SDL_Rect r);
+void bf_set_buffer_highlights(bool input_enabled, bool output_enabled);
 
 void bf_create_input_list();
 void bf_create_output_list();
