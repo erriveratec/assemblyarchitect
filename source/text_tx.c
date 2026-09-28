@@ -449,7 +449,7 @@ void tx_init_global_msgs()
 
 	int w = dw_get_iface_content_box(tx_get_text_box_wh()).w;
 	g_gbl_msgs[TX_MSG_CLICKANY] =
-	    dw_create_text_tex_array_by_h(w, text_h, C_SHADOWGREY, MSG_CLICKANY);
+	    dw_create_text_tex_array_by_h(w, text_h, C_WHITE, MSG_CLICKANY);
 	g_gbl_msgs[TX_MSG_PRESSPLAY] =
 	    dw_create_text_tex_array_by_h(w, text_h, C_SHADOWGREY, MSG_PRESSPLAY);
 	g_gbl_msgs[TX_MSG_PRESSBACK] =
