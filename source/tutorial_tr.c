@@ -121,6 +121,7 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 
 	if (context == NULL) {
 		cw_set_challenge_highlight(false);
+		cw_set_code_box_highlight(false);
 		bf_set_buffer_highlights(false, false);
 		rg_set_register_highlight(false);
 		iw_set_highlight_instructions(0);
@@ -132,6 +133,7 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 
 	if (step == NULL) {
 		cw_set_challenge_highlight(false);
+		cw_set_code_box_highlight(false);
 		bf_set_buffer_highlights(false, false);
 		rg_set_register_highlight(false);
 		iw_set_highlight_instructions(0);
@@ -139,7 +141,10 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 		return NULL;
 	}
 	cw_set_challenge_highlight(
-	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_CHALLENGE) != 0);
+	    (step->highlight_targets & (TUTORIAL_HIGHLIGHT_CHALLENGE |
+	                               TUTORIAL_HIGHLIGHT_CODE_BOX)) != 0);
+	cw_set_code_box_highlight(
+	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_CODE_BOX) != 0);
 	bf_set_buffer_highlights(
 	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_INPUT_BUFFER) != 0,
 	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_OUTPUT_BUFFER) != 0);
@@ -209,6 +214,8 @@ static bool parse_highlights(char *text, int *targets)
 		char *highlight = trim(token);
 		if (strcmp(highlight, "challenge") == 0) {
 			*targets |= TUTORIAL_HIGHLIGHT_CHALLENGE;
+		} else if (strcmp(highlight, "code_box") == 0) {
+			*targets |= TUTORIAL_HIGHLIGHT_CODE_BOX;
 		} else if (strcmp(highlight, "input_buffer") == 0) {
 			*targets |= TUTORIAL_HIGHLIGHT_INPUT_BUFFER;
 		} else if (strcmp(highlight, "output_buffer") == 0) {
@@ -526,6 +533,7 @@ static tutorial_step_t *find_step(const char *name)
 void tr_clear(void)
 {
 	cw_set_challenge_highlight(false);
+	cw_set_code_box_highlight(false);
 	bf_set_buffer_highlights(false, false);
 	rg_set_register_highlight(false);
 	iw_set_highlight_instructions(0);

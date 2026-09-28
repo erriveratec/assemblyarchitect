@@ -1,5 +1,6 @@
 #include <SDL.h>
 #include <assert.h>
+#include <math.h>
 #include <string.h>
 #include "code_window_cw.h"
 #include "list.h"
@@ -26,6 +27,7 @@ static SDL_Rect g_code_box;
 static SDL_Rect g_scroll_box;
 static SDL_Rect g_text_box;
 static bool g_challenge_highlight;
+static bool g_code_box_highlight;
 static bool g_challenge_anim_dir;
 static float g_challenge_anim_state;
 
@@ -1284,6 +1286,11 @@ void cw_set_challenge_highlight(bool enabled)
 	g_challenge_highlight = enabled;
 }
 
+void cw_set_code_box_highlight(bool enabled)
+{
+	g_code_box_highlight = enabled;
+}
+
 /* Function: cw_set_scroll_box
  * -----------------------------------------------------------------------------
  * This function is called to set the value on the code box object
@@ -1537,9 +1544,51 @@ void cw_draw_code_window()
 	if (in_code_window() == true){
 		adjust_code_box_position();
 	}
+	float code_box_top = g_code_box.y;
+	float code_box_bottom = g_code_box.y + g_code_box.h;
+	if (g_code_box_highlight) {
+		float anim_limit = cw_get_challenge_highlight_limit();
+		float pulse = g_challenge_anim_state < anim_limit ?
+		              g_challenge_anim_state : anim_limit;
+		float scale = 1.0f + pulse / dm_get_h_msg();
+		code_box_top -= g_code_box.h * (scale - 1.0f) / 2.0f;
+		code_box_bottom += g_code_box.h * (scale - 1.0f) / 2.0f;
+	}
 	
 	
-	dw_draw_thick_rect(g_code_box, dm_get_w_borders(), C_GREY);
+	if (g_code_box_highlight) {
+		float anim_limit = cw_get_challenge_highlight_limit();
+		float pulse = g_challenge_anim_state < anim_limit ?
+		              g_challenge_anim_state : anim_limit;
+		float scale = 1.0f + pulse / dm_get_h_msg();
+		SDL_FRect outer = {
+			.x = g_code_box.x,
+			.y = g_code_box.y,
+			.w = g_code_box.w,
+			.h = g_code_box.h
+		};
+		int border = dm_get_w_borders();
+		SDL_Rect inner_rect = {
+			.x = g_code_box.x + border,
+			.y = g_code_box.y + border,
+			.w = g_code_box.w - 2 * border,
+			.h = g_code_box.h - 2 * border
+		};
+		SDL_FRect inner = {
+			.x = inner_rect.x,
+			.y = inner_rect.y,
+			.w = inner_rect.w,
+			.h = inner_rect.h
+		};
+		dw_draw_filled_rectangle_f(
+		    dw_grow_rect_height(outer, outer.h * (scale - 1.0f)),
+		                          C_GREY, C_GREY);
+		dw_draw_filled_rectangle_f(
+		    dw_grow_rect_height(inner, inner.h * (scale - 1.0f)),
+		                          C_BLACK, C_BLACK);
+	} else {
+		dw_draw_thick_rect(g_code_box, dm_get_w_borders(), C_GREY);
+	}
 //	dw_draw_thick_rect(g_scroll_box, dm_get_w_borders(), C_GREY);
 
 	display_player_code();
@@ -1616,10 +1665,10 @@ void cw_draw_code_window()
 	SDL_Rect upbox = {.x = g_code_box.x,
 					  .y = 0,
 					  .w = g_code_box.w,
-					  .h = g_code_box.y};
+					  .h = code_box_top > 0.0f ? (int)code_box_top : 0};
 	dw_draw_filled_rectangle(upbox, C_BLACK, C_BLACK);
 	SDL_Rect downbox = {.x = g_code_box.x,
-			 			.y = g_code_box.y + g_code_box.h,
+					  .y = (int)ceilf(code_box_bottom),
 			 			.w = g_code_box.w,
 		     			.h = g_code_box.h};
 	dw_draw_filled_rectangle(downbox, C_BLACK, C_BLACK);
