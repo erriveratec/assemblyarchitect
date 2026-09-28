@@ -11,6 +11,7 @@
 #include "code_window_cw.h"
 #include "gameplay/interaction_rules_ir.h"
 #include "mouse_ms.h"
+#include "registers_rg.h"
 #include "text_tx.h"
 #include "tutorial_tr.h"
 #include "game_mechanics_mc.h"
@@ -120,6 +121,7 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 	if (context == NULL) {
 		cw_set_challenge_highlight(false);
 		bf_set_buffer_highlights(false, false);
+		rg_set_register_highlight(false);
 		g_current_step = NULL;
 		return NULL;
 	}
@@ -129,6 +131,7 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 	if (step == NULL) {
 		cw_set_challenge_highlight(false);
 		bf_set_buffer_highlights(false, false);
+		rg_set_register_highlight(false);
 		g_current_step = NULL;
 		return NULL;
 	}
@@ -137,6 +140,8 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 	bf_set_buffer_highlights(
 	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_INPUT_BUFFER) != 0,
 	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_OUTPUT_BUFFER) != 0);
+	rg_set_register_highlight(
+	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_REGISTERS) != 0);
 
 	if (step != g_current_step) {
 		g_current_step = step;
@@ -204,6 +209,8 @@ static bool parse_highlights(char *text, int *targets)
 			*targets |= TUTORIAL_HIGHLIGHT_INPUT_BUFFER;
 		} else if (strcmp(highlight, "output_buffer") == 0) {
 			*targets |= TUTORIAL_HIGHLIGHT_OUTPUT_BUFFER;
+		} else if (strcmp(highlight, "register") == 0) {
+			*targets |= TUTORIAL_HIGHLIGHT_REGISTERS;
 		} else {
 			return false;
 		}
@@ -492,6 +499,7 @@ void tr_clear(void)
 {
 	cw_set_challenge_highlight(false);
 	bf_set_buffer_highlights(false, false);
+	rg_set_register_highlight(false);
 	for (int index = 0; index < g_step_count; index++) {
 		dw_free_texture_array(g_steps[index].text_texture);
 

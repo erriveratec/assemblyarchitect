@@ -20,6 +20,7 @@ void rg_set_register_box(SDL_Rect r);
 int rg_get_registers_text_width(int h);
 void rg_add_register_to_list(int id);
 void rg_draw_registers();
+void rg_set_register_highlight(bool enabled);
 void rg_draw_flag_boxes();
 bool rg_chk_rel_in_reg();
 operand_t *rg_get_default_operand_register();

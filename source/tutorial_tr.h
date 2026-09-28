@@ -47,7 +47,8 @@ typedef enum tutorial_edit_exception_t {
 typedef enum tutorial_highlight_t {
     TUTORIAL_HIGHLIGHT_CHALLENGE = 1 << 0,
     TUTORIAL_HIGHLIGHT_INPUT_BUFFER = 1 << 1,
-    TUTORIAL_HIGHLIGHT_OUTPUT_BUFFER = 1 << 2
+    TUTORIAL_HIGHLIGHT_OUTPUT_BUFFER = 1 << 2,
+    TUTORIAL_HIGHLIGHT_REGISTERS = 1 << 3
 } tutorial_highlight_t;
 
 #define TUTORIAL_MAX_ARROWS 4
