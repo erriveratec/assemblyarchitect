@@ -93,7 +93,7 @@ static bool validate_ui_properties(int level_id, const level_config_t *config)
 	if (!config->register_hints_enabled_set) {
 		fprintf(stderr,
 		        "level.cfg: level %d is missing "
-		        "ui.register_hints_enabled\n",
+			        "ui.register_hints_arrow_enabled\n",
 		        level_id);
 		return false;
 	}
@@ -101,7 +101,7 @@ static bool validate_ui_properties(int level_id, const level_config_t *config)
 	if (!config->buffer_hints_enabled_set) {
 		fprintf(stderr,
 		        "level.cfg: level %d is missing "
-		        "ui.buffer_hints_enabled\n",
+			        "ui.buffer_hints_arrow_enabled\n",
 		        level_id);
 		return false;
 	}
@@ -109,7 +109,7 @@ static bool validate_ui_properties(int level_id, const level_config_t *config)
 	if (!config->immediate_hints_enabled_set) {
 		fprintf(stderr,
 		        "level.cfg: level %d is missing "
-		        "ui.immediate_hints_enabled\n",
+			        "ui.immediate_hints_arrow_enabled\n",
 		        level_id);
 		return false;
 	}
@@ -360,15 +360,15 @@ int lc_load_level(int level_id)
 		} else if (strcmp(key, "ui.immediates_visible") == 0) {
 			config.immediates_visible     = parse_bool(value);
 			config.immediates_visible_set = true;
-		} else if (strcmp(key, "ui.register_hints_enabled") == 0) {
+		} else if (strcmp(key, "ui.register_hints_arrow_enabled") == 0) {
 			config.register_hints_enabled = parse_bool(value);
 
 			config.register_hints_enabled_set = true;
-		} else if (strcmp(key, "ui.buffer_hints_enabled") == 0) {
+		} else if (strcmp(key, "ui.buffer_hints_arrow_enabled") == 0) {
 			config.buffer_hints_enabled = parse_bool(value);
 
 			config.buffer_hints_enabled_set = true;
-		} else if (strcmp(key, "ui.immediate_hints_enabled") == 0) {
+		} else if (strcmp(key, "ui.immediate_hints_arrow_enabled") == 0) {
 			config.immediate_hints_enabled = parse_bool(value);
 
 			config.immediate_hints_enabled_set = true;
