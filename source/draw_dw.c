@@ -863,6 +863,20 @@ void dw_draw_rectangle_f(SDL_FRect r, SDL_Color c)
 	SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
 }
 
+SDL_FRect dw_grow_rect_height(SDL_FRect rect, float height_growth)
+{
+	assert(rect.h > 0.0f && "Rectangle height must be positive");
+	float scale = (rect.h + height_growth) / rect.h;
+	float width = rect.w * scale;
+	float height = rect.h + height_growth;
+	return (SDL_FRect){
+		.x = rect.x + (rect.w - width) / 2.0f,
+		.y = rect.y + (rect.h - height) / 2.0f,
+		.w = width,
+		.h = height
+	};
+}
+
 /* Function: dw_draw_filled_rectangle
  *-----------------------------------------------------------------------------
  * Draw rectangle with filled content, a color for tthe outline can be

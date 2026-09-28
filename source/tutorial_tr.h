@@ -88,6 +88,7 @@ typedef struct tutorial_step_t {
     int effect_arrange_enabled;
     int effect_delete_enabled;
     int highlight_targets;
+    int highlight_instruction_mask;
     bool active;
 } tutorial_step_t;
 

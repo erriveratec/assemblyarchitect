@@ -1556,29 +1556,30 @@ void cw_draw_code_window()
 			g_challenge_anim_state = anim_limit;
 		}
 
-		float scale = 1.0f + g_challenge_anim_state / h;
-		float box_width = g_text_box.w * scale;
-		float box_height = g_text_box.h * scale;
-		SDL_FRect challenge_box = {
-			.x = g_text_box.x + (g_text_box.w - box_width) / 2.0f,
-			.y = g_text_box.y + (g_text_box.h - box_height) / 2.0f,
-			.w = box_width,
-			.h = box_height
+		float line_height = h + g_challenge_anim_state;
+		SDL_FRect base_challenge_box = {
+			.x = g_text_box.x,
+			.y = g_text_box.y,
+			.w = g_text_box.w,
+			.h = g_text_box.h
 		};
-		float line_height = h * scale;
+		SDL_FRect challenge_box = dw_grow_rect_height(
+		    base_challenge_box, g_challenge_anim_state * line_count);
 		float y = g_text_box.y + g_text_box.h / 2.0f -
 		          line_count * line_height / 2.0f;
 		for (int index = 0; index < line_count; index++) {
 			texture_t *line = g_challenge_text->t[index];
 			if (line != NULL) {
-				float width = (float)(line->w * line_height) / line->h;
-				SDL_FRect line_box = {
-					.x = g_text_box.x + (g_text_box.w - width) / 2.0f,
-					.y = y,
-					.w = width,
-					.h = line_height
+				float base_width = (float)(line->w * h) / line->h;
+				SDL_FRect base_line_box = {
+					.x = g_text_box.x + (g_text_box.w - base_width) / 2.0f,
+					.y = y + g_challenge_anim_state / 2.0f,
+					.w = base_width,
+					.h = h
 				};
-				dw_draw_texture_fit_h_f(line_box, line);
+				dw_draw_texture_fit_h_f(
+				    dw_grow_rect_height(base_line_box, g_challenge_anim_state),
+				    line);
 			}
 			y += line_height;
 		}

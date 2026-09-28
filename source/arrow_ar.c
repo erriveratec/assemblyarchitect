@@ -314,13 +314,19 @@ static void initialize_ins_arrow()
 	int size = iw_get_instruction_list_size();
 	SDL_Rect ir = iw_get_instruction_rect_by_pos(size - 1);
 	SDL_Rect a = ar_get_arrow_wh();
-	g_arrow_ins.box.x = ir.x + ir.w + a.w*2/3; 
+	SDL_Rect code_button = dm_get_code_button_wh();
+	float max_scale = 1.0f +
+	                  (float)dm_get_btn_anim_max() / code_button.h;
+	int max_instruction_right = ir.x + ir.w / 2 +
+	                             (int)(ir.w * max_scale / 2.0f);
+	int arrow_gap = a.w / 16;
+	g_arrow_ins.travel = a.h;
+	g_arrow_ins.box.x = max_instruction_right + arrow_gap;
 	g_arrow_ins.box.y = ir.y + ir.h/2 - a.h/2;
 	g_arrow_ins.box.w = a.w; 
 	g_arrow_ins.box.h = a.h;
 	g_arrow_ins.startx = g_arrow_ins.box.x;
 	g_arrow_ins.starty = g_arrow_ins.box.y;
-	g_arrow_ins.travel = a.h;			
 	g_arrow_ins.dir = AR_LEFT;
 	g_arrow_ins.in_place = false;
 	g_arrow_ins.visible =  true;
@@ -939,15 +945,28 @@ void ar_animate_arrow(arrow_t *arrow)
 			break;
 		case AR_LEFT:
 			if (arrow->travel != 0){
-				if (arrow->box.x <= arrow->startx - arrow->travel){
-					arrow->in_place = true;	
-				} else if (arrow->box.x >= arrow->startx){
-					arrow->in_place = false;
-				}
-				if (arrow->in_place == false){
-					arrow->box.x-= ARROW_MOVE_DELTA;
-				}else if (arrow->in_place == true){
-					arrow->box.x+= ARROW_MOVE_DELTA;
+				if (arrow == &g_arrow_ins) {
+					if (arrow->box.x >= arrow->startx + arrow->travel) {
+						arrow->in_place = true;
+					} else if (arrow->box.x <= arrow->startx) {
+						arrow->in_place = false;
+					}
+					if (arrow->in_place == false) {
+						arrow->box.x += ARROW_MOVE_DELTA;
+					} else {
+						arrow->box.x -= ARROW_MOVE_DELTA;
+					}
+				} else {
+					if (arrow->box.x <= arrow->startx - arrow->travel) {
+						arrow->in_place = true;
+					} else if (arrow->box.x >= arrow->startx) {
+						arrow->in_place = false;
+					}
+					if (arrow->in_place == false) {
+						arrow->box.x -= ARROW_MOVE_DELTA;
+					} else {
+						arrow->box.x += ARROW_MOVE_DELTA;
+					}
 				}
 			}
 			dw_draw_rotated_texture_fits_h(arrow->box.x, arrow->box.y, 

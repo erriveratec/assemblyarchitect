@@ -9,6 +9,7 @@
 #include "dimensions_dm.h"
 #include "stage_buttons_sb.h"
 #include "aux.h"
+#include "code_window_cw.h"
 
 
 #define INSTRUCTIONS_TEXT "Instructions"
@@ -17,9 +18,13 @@ texture_t *instructions_text;
 
 static List *instruction_list = NULL;
 SDL_Rect g_instruction_box;
+static int g_highlight_instruction_mask;
+static bool g_instruction_anim_dir;
+static float g_instruction_anim_state;
 
 static List *get_instruction_list();
 static void draw_instruction_text();
+static void draw_highlighted_instruction(btn_t *button);
 
 /* Function: iw_init_ins_box
  *------------------------------------------------------------------------------
@@ -346,8 +351,65 @@ void iw_draw_ins_box()
 
 	LIST_FOREACH(instructions, first, next, cur){
 		instruction_t *c = cur->value;
-		bt_draw_btn(c->b, sb_chk_rst_esc_menu_active(), false);
+		if ((g_highlight_instruction_mask & (1 << c->id)) != 0) {
+			draw_highlighted_instruction(c->b);
+		} else {
+			bt_draw_btn(c->b, sb_chk_rst_esc_menu_active(), false);
+		}
 	}
+
+	if (g_highlight_instruction_mask != 0) {
+		float anim_limit = cw_get_challenge_highlight_limit();
+		float anim_delta = dm_get_btn_anim_delta() * 0.5f;
+		if (anim_delta < 0.25f) {
+			anim_delta = 0.25f;
+		}
+		if (!g_instruction_anim_dir && g_instruction_anim_state >= anim_limit) {
+			g_instruction_anim_dir = true;
+		} else if (g_instruction_anim_dir && g_instruction_anim_state <= 0.0f) {
+			g_instruction_anim_dir = false;
+		}
+		g_instruction_anim_state +=
+		    g_instruction_anim_dir ? -anim_delta : anim_delta;
+		if (g_instruction_anim_state > anim_limit) {
+			g_instruction_anim_state = anim_limit;
+		} else if (g_instruction_anim_state < 0.0f) {
+			g_instruction_anim_state = 0.0f;
+		}
+	}
+}
+
+void iw_set_highlight_instructions(int instruction_mask)
+{
+	if (instruction_mask != g_highlight_instruction_mask) {
+		g_instruction_anim_dir = false;
+		g_instruction_anim_state = 0.0f;
+	}
+	g_highlight_instruction_mask = instruction_mask;
+}
+
+static void draw_highlighted_instruction(btn_t *button)
+{
+	float cycle_limit = cw_get_challenge_highlight_limit();
+	float cycle_pulse = g_instruction_anim_state < cycle_limit ?
+	                    g_instruction_anim_state : cycle_limit;
+	float center_x = button->r.x + button->r.w / 2.0f;
+	float center_y = button->r.y + button->r.h / 2.0f;
+	float fit_scale = (float)button->r.w / button->t->w;
+	float fit_height = (float)button->r.h / button->t->h;
+	fit_scale = fit_scale < fit_height ? fit_scale : fit_height;
+	SDL_FRect base_text = {
+		.x = center_x - button->t->w * fit_scale / 2.0f,
+		.y = center_y - button->t->h * fit_scale / 2.0f,
+		.w = button->t->w * fit_scale,
+		.h = button->t->h * fit_scale
+	};
+	SDL_FRect text = dw_grow_rect_height(base_text, cycle_pulse);
+	bool hover = ax_chk_mouse_hover_rect(button->r) &&
+	             !sb_chk_rst_esc_menu_active();
+	dw_set_texture_color_mod(button->t, hover ? C_WHITE : C_LIGHTGREY);
+	dw_draw_texture_fit_h_f(text, button->t);
+	dw_set_texture_color_mod(button->t, C_WHITE);
 }
 
 

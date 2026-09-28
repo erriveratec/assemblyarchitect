@@ -49,7 +49,7 @@ static float g_buffer_anim_state;
 
 typedef struct buffer_animation_t {
 	bool active;
-	float scale;
+	float growth;
 } buffer_animation_t;
 
 btn_t input_buffer_button;
@@ -699,28 +699,28 @@ static buffer_animation_t get_buffer_animation(SDL_Rect *label_box,
 	label_box->w = ax_get_texture_w_fit_h(label_box->h, label);
 	buffer_animation_t animation = {
 		.active = highlighted,
-		.scale = 1.0f
+		.growth = 0.0f
 	};
 	if (!highlighted) {
 		return animation;
 	}
 
 	float anim_limit = cw_get_challenge_highlight_limit();
-	float pulse = g_buffer_anim_state < anim_limit ?
-	              g_buffer_anim_state : anim_limit;
-	animation.scale = 1.0f + pulse / dm_get_h_msg();
+	animation.growth = g_buffer_anim_state < anim_limit ?
+	                   g_buffer_anim_state : anim_limit;
 	return animation;
 }
 
 static SDL_FRect transform_buffer_rect(SDL_Rect rect,
 									  buffer_animation_t animation)
 {
-	return (SDL_FRect){
-		.x = rect.x + rect.w / 2.0f - rect.w * animation.scale / 2.0f,
-		.y = rect.y + rect.h / 2.0f - rect.h * animation.scale / 2.0f,
-		.w = rect.w * animation.scale,
-		.h = rect.h * animation.scale
+	SDL_FRect base = {
+		.x = rect.x,
+		.y = rect.y,
+		.w = rect.w,
+		.h = rect.h
 	};
+	return dw_grow_rect_height(base, animation.growth);
 }
 
 static SDL_FRect transform_buffer_body_rect(SDL_Rect body_box,
@@ -728,7 +728,9 @@ static SDL_FRect transform_buffer_body_rect(SDL_Rect body_box,
 										   buffer_animation_t animation)
 {
 	SDL_FRect label_rect = transform_buffer_rect(label_box, animation);
-	float height = body_box.h * animation.scale;
+	float height = body_box.h + animation.growth;
+	float scale = height / body_box.h;
+	float width = body_box.w * scale;
 	float gap;
 	float y;
 	if (body_box.y > label_box.y) {
@@ -741,7 +743,7 @@ static SDL_FRect transform_buffer_body_rect(SDL_Rect body_box,
 	return (SDL_FRect){
 		.x = label_rect.x,
 		.y = y,
-		.w = body_box.w * animation.scale,
+		.w = width,
 		.h = height
 	};
 }
@@ -751,12 +753,14 @@ static SDL_FRect transform_buffer_content_rect(SDL_Rect rect,
 											  SDL_FRect animated_body,
 											  buffer_animation_t animation)
 {
-	return (SDL_FRect){
-		.x = animated_body.x + (rect.x - body_box.x) * animation.scale,
-		.y = animated_body.y + (rect.y - body_box.y) * animation.scale,
-		.w = rect.w * animation.scale,
-		.h = rect.h * animation.scale
+	float parent_scale = animated_body.h / body_box.h;
+	SDL_FRect base = {
+		.x = animated_body.x + (rect.x - body_box.x) * parent_scale,
+		.y = animated_body.y + (rect.y - body_box.y) * parent_scale,
+		.w = rect.w,
+		.h = rect.h
 	};
+	return dw_grow_rect_height(base, animation.growth);
 }
 
 static void draw_buffer_label(SDL_Rect label_box, texture_t *label,

@@ -31,9 +31,11 @@ static void draw_register_text();
 static void draw_register_box();
 static void draw_value_boxes();
 static void display_arrow_registers();
-static SDL_FRect transform_register_rect(SDL_Rect rect);
+static float get_register_highlight_pulse();
+static int get_register_heading_offset(int text_width);
+static SDL_FRect grow_register_rect(SDL_Rect rect, float height_growth);
 static void draw_register_text_highlight();
-static void draw_register_value_highlight(value_box_t *value);
+static void draw_register_value_highlight(value_box_t *value, btn_t *button);
 static void draw_register_button_highlight(btn_t *button, SDL_Rect hover_rect);
 
 value_box_t g_ibox;
@@ -696,7 +698,7 @@ void rg_draw_registers()
 		hover_rect.h += button->r.h;
 		if (g_register_highlight) {
 			draw_register_button_highlight(button, hover_rect);
-			draw_register_value_highlight(&reg->value);
+			draw_register_value_highlight(&reg->value, button);
 		} else {
 			bool hover = ax_chk_mouse_hover_rect(hover_rect);
 			bt_draw_btn(button, sb_chk_rst_esc_menu_active(), hover);
@@ -733,20 +735,36 @@ void rg_set_register_highlight(bool enabled)
 	g_register_highlight = enabled;
 }
 
-static SDL_FRect transform_register_rect(SDL_Rect rect)
+static SDL_FRect grow_register_rect(SDL_Rect rect, float height_growth)
 {
-	float anim_limit = cw_get_challenge_highlight_limit();
-	float pulse = g_register_anim_state < anim_limit ?
-	              g_register_anim_state : anim_limit;
-	float scale = 1.0f + pulse / dm_get_h_msg();
-	float center_x = rect.x + rect.w / 2.0f;
-	float center_y = rect.y + rect.h / 2.0f;
-	return (SDL_FRect){
-		.x = center_x + (rect.x - center_x) * scale,
-		.y = center_y + (rect.y - center_y) * scale,
-		.w = rect.w * scale,
-		.h = rect.h * scale
+	SDL_FRect base = {
+		.x = rect.x,
+		.y = rect.y,
+		.w = rect.w,
+		.h = rect.h
 	};
+	return dw_grow_rect_height(base, height_growth);
+}
+
+static float get_register_highlight_pulse()
+{
+	float cycle_limit = cw_get_challenge_highlight_limit();
+	return g_register_anim_state < cycle_limit ?
+	       g_register_anim_state : cycle_limit;
+}
+
+static int get_register_heading_offset(int text_width)
+{
+	int text_height = dm_get_h_stage_elements_titles();
+	SDL_FRect base = {
+		.x = 0.0f,
+		.y = 0.0f,
+		.w = text_width,
+		.h = text_height
+	};
+	SDL_FRect max_size = dw_grow_rect_height(
+	    base, cw_get_challenge_highlight_limit());
+	return (int)((max_size.w - text_width) / 2.0f);
 }
 
 static void draw_register_text_highlight()
@@ -754,17 +772,22 @@ static void draw_register_text_highlight()
 	int text_h = dm_get_h_stage_elements_titles();
 	int text_w = get_text_width_fits_height(text_h, AX_REG_TEXT);
 	SDL_Rect text = {
-		.x = register_box.x,
+		.x = register_box.x + get_register_heading_offset(text_w),
 		.y = register_box.y - text_h,
 		.w = text_w,
 		.h = text_h
 	};
-	dw_draw_texture_fit_h_f(transform_register_rect(text), g_reg_text);
+	dw_draw_texture_fit_h_f(
+	    grow_register_rect(text, get_register_highlight_pulse()), g_reg_text);
 }
 
-static void draw_register_value_highlight(value_box_t *value)
+static void draw_register_value_highlight(value_box_t *value, btn_t *button)
 {
-	SDL_FRect box = transform_register_rect(value->box);
+	float pulse = get_register_highlight_pulse();
+	SDL_FRect animated_button = grow_register_rect(button->r, pulse);
+	float gap = button->r.y - value->box.y - value->box.h;
+	SDL_FRect box = grow_register_rect(value->box, pulse);
+	box.y = animated_button.y - gap - box.h;
 	dw_draw_filled_rectangle_f(box, C_BLACK, C_WHITE);
 	if (value->t == NULL) {
 		return;
@@ -780,16 +803,26 @@ static void draw_register_value_highlight(value_box_t *value)
 		.w = text_width,
 		.h = text_size.h
 	};
-	dw_draw_texture_fit_h_f(transform_register_rect(text), value->t);
+	SDL_FRect animated_text = grow_register_rect(text, pulse);
+	animated_text.x = box.x + (box.w - animated_text.w) / 2.0f;
+	animated_text.y = box.y + (box.h - animated_text.h) / 2.0f +
+		     (text_size.h / 5.0f) / 2.0f;
+	dw_draw_texture_fit_h_f(animated_text, value->t);
 }
 
 static void draw_register_button_highlight(btn_t *button, SDL_Rect hover_rect)
 {
 	bool hover = ax_chk_mouse_hover_rect(hover_rect) &&
 	             !sb_chk_rst_esc_menu_active();
-	SDL_FRect label = transform_register_rect(button->r);
-	label.w = (float)(button->t->w * label.h) / button->t->h;
-	label.x = button->r.x + button->r.w / 2.0f - label.w / 2.0f;
+	float pulse = get_register_highlight_pulse();
+	SDL_FRect label = {
+		.x = button->r.x + (button->r.w -
+		     ax_get_texture_w_fit_h(button->r.h, button->t)) / 2.0f,
+		.y = button->r.y,
+		.w = ax_get_texture_w_fit_h(button->r.h, button->t),
+		.h = button->r.h
+	};
+	label = dw_grow_rect_height(label, pulse);
 	dw_set_texture_color_mod(button->t, hover ? C_WHITE : C_LIGHTGREY);
 	dw_draw_texture_fit_h_f(label, button->t);
 	dw_set_texture_color_mod(button->t, C_WHITE);
@@ -875,7 +908,7 @@ static void draw_register_text()
 {
 	int text_h = dm_get_h_stage_elements_titles();
 	int text_w = get_text_width_fits_height(text_h, AX_REG_TEXT);
-	int x = register_box.x;
+	int x = register_box.x + get_register_heading_offset(text_w);
 	int y = register_box.y - text_h;
 
 	SDL_Rect r = {.x = x, .y = y, .h = text_h};

@@ -10,6 +10,7 @@
 #include "code_line_cl.h"
 #include "code_window_cw.h"
 #include "gameplay/interaction_rules_ir.h"
+#include "instruction_window_iw.h"
 #include "mouse_ms.h"
 #include "registers_rg.h"
 #include "text_tx.h"
@@ -122,6 +123,7 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 		cw_set_challenge_highlight(false);
 		bf_set_buffer_highlights(false, false);
 		rg_set_register_highlight(false);
+		iw_set_highlight_instructions(0);
 		g_current_step = NULL;
 		return NULL;
 	}
@@ -132,6 +134,7 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 		cw_set_challenge_highlight(false);
 		bf_set_buffer_highlights(false, false);
 		rg_set_register_highlight(false);
+		iw_set_highlight_instructions(0);
 		g_current_step = NULL;
 		return NULL;
 	}
@@ -142,6 +145,7 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_OUTPUT_BUFFER) != 0);
 	rg_set_register_highlight(
 	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_REGISTERS) != 0);
+	iw_set_highlight_instructions(step->highlight_instruction_mask);
 
 	if (step != g_current_step) {
 		g_current_step = step;
@@ -405,6 +409,30 @@ static bool parse_instruction_id(const char *text, int *instruction_id)
 	return true;
 }
 
+static bool parse_instruction_highlights(char *text, int *mask)
+{
+	if (text == NULL || mask == NULL) {
+		return false;
+	}
+
+	*mask = 0;
+	char *token = strtok(text, ",");
+	if (token == NULL) {
+		return false;
+	}
+
+	while (token != NULL) {
+		int instruction_id;
+		if (!parse_instruction_id(trim(token), &instruction_id)) {
+			return false;
+		}
+		*mask |= 1 << instruction_id;
+		token = strtok(NULL, ",");
+	}
+
+	return *mask != 0;
+}
+
 static bool add_arrow(tutorial_step_t *step, const char *text)
 {
 	if (step == NULL || text == NULL) {
@@ -500,6 +528,7 @@ void tr_clear(void)
 	cw_set_challenge_highlight(false);
 	bf_set_buffer_highlights(false, false);
 	rg_set_register_highlight(false);
+	iw_set_highlight_instructions(0);
 	for (int index = 0; index < g_step_count; index++) {
 		dw_free_texture_array(g_steps[index].text_texture);
 
@@ -771,6 +800,7 @@ bool tr_load_level(int level_id)
 			step->effect_arrange_enabled     = -1;
 			step->effect_delete_enabled      = -1;
 			step->highlight_targets          = 0;
+			step->highlight_instruction_mask = 0;
 			step->active                     = true;
 			reading_text                     = false;
 			continue;
@@ -877,6 +907,11 @@ bool tr_load_level(int level_id)
 		}
 		if (strcmp(key, "highlight") == 0 &&
 		    !parse_highlights(value, &step->highlight_targets)) {
+			goto invalid;
+		}
+		if (strcmp(key, "highlight_instruction") == 0 &&
+		    !parse_instruction_highlights(value,
+		                                  &step->highlight_instruction_mask)) {
 			goto invalid;
 		}
 		if (strcmp(key, "when.code_size") == 0) {
