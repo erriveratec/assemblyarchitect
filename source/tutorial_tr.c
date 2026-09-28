@@ -636,8 +636,12 @@ void tr_render_step(const char *name)
 		return;
 	}
 
-	tx_text_box_texture(get_text_box(step->box), step->text_texture,
-	                    get_header(step->header));
+	int text_box = get_text_box(step->box);
+	tx_text_box_texture(text_box, step->text_texture, get_header(step->header));
+	if (step->dismiss == TUTORIAL_DISMISS_MOUSE_PRESS ||
+	    step->dismiss == TUTORIAL_DISMISS_MOUSE_RELEASE) {
+		tx_bottom_msg(text_box, TX_MSG_CLICKANY);
+	}
 
 	for (int index = 0; index < step->arrow_count; index++) {
 		ar_display_arrow(step->arrow_ids[index]);
