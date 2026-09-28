@@ -377,8 +377,10 @@ static code_line_t *pending_operand_handler()
 	} else if (rel == true && reg_sel == false && buf_sel == false &&
 	           imm_sel == false) {
 		if (l->state == CHANGING_OP1 || l->state == CHANGING_OP2) {
-			l->state = COMPLETE;
 			int qty  = cl_get_instruction_operand_quantity(l->ins->id);
+			bool missing_op2 = l->state == CHANGING_OP1 &&
+								qty == TWO_OPERANDS && l->op2 == NULL;
+			l->state = missing_op2 ? MISSING_OP2 : COMPLETE;
 			if (qty == ONE_OPERAND || qty == TWO_OPERANDS) {
 				l->op1->b->animated   = false;
 				l->op1->b->anim_dir   = false;
@@ -389,7 +391,7 @@ static code_line_t *pending_operand_handler()
 					l->op1->jptr->op1->b->anim_state = 0;
 				}
 			}
-			if (qty == TWO_OPERANDS) {
+			if (qty == TWO_OPERANDS && l->op2 != NULL) {
 				l->op2->b->animated   = false;
 				l->op2->b->anim_dir   = false;
 				l->op2->b->anim_state = 0;
@@ -421,7 +423,8 @@ static code_line_t *edit_code(int level_id)
 	static bool         hold_line     = false;
 
 	if (cw_is_operand_pending() == true && line == NULL &&
-	    cw_check_code_sorted() == true && cw_chk_click_code() == false) {
+	    cw_check_code_sorted() == true && cw_chk_click_code() == false &&
+	    cw_chk_click_code_op() == false) {
 		line = pending_operand_handler();
 		if (cw_is_operand_pending() == false) {
 			code_updated_actions(level_id);

@@ -2522,7 +2522,8 @@ void cw_assign_op_to_line(operand_t *op, code_line_t *line)
 			line->op1->b->animated = false;
 			line->op1->b->anim_dir = false;
 			line->op1->b->anim_state = 0;
-			line->state = COMPLETE;
+			line->state = (operand_quantity == TWO_OPERANDS &&
+							line->op2 == NULL) ? MISSING_OP2 : COMPLETE;
 			break;
 		case CHANGING_OP2:
 			cl_destroy_operand(line->op2);	

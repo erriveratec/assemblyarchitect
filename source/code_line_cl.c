@@ -889,7 +889,12 @@ bool cl_is_op_compatible(operand_t *op, code_line_t *line)
 			}			
 			break;
 		case CHANGING_OP1:
-			if (cl_is_op_reg(line->op2->id) == true && op->id != IB){
+			if (line->op2 == NULL){
+				if (op->id != IB &&
+					(op->id != OB || line->ins->id == MOV)){
+					compatible = true;
+				}
+			} else if (cl_is_op_reg(line->op2->id) == true && op->id != IB){
 				if (op->id == OB && is_op_imm == false && line->ins->id == MOV){
 					compatible = true;
 				}
