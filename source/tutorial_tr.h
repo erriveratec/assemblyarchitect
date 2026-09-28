@@ -44,6 +44,10 @@ typedef enum tutorial_edit_exception_t {
     TUTORIAL_EDIT_EXCEPTION_LAST_OPERAND_2
 } tutorial_edit_exception_t;
 
+typedef enum tutorial_highlight_t {
+    TUTORIAL_HIGHLIGHT_CHALLENGE = 1 << 0
+} tutorial_highlight_t;
+
 #define TUTORIAL_MAX_ARROWS 4
 
 typedef struct tutorial_step_t {
@@ -80,6 +84,7 @@ typedef struct tutorial_step_t {
     int effect_register_selectable;
     int effect_arrange_enabled;
     int effect_delete_enabled;
+    int highlight_targets;
     bool active;
 } tutorial_step_t;
 

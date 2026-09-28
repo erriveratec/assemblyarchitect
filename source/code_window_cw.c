@@ -25,6 +25,9 @@ static List *code_list = NULL;
 static SDL_Rect g_code_box;
 static SDL_Rect g_scroll_box;
 static SDL_Rect g_text_box;
+static bool g_challenge_highlight;
+static bool g_challenge_anim_dir;
+static float g_challenge_anim_state;
 
 texture_array_t *g_challenge_text;
 texture_t *g_stage_name;
@@ -1243,6 +1246,15 @@ void cw_set_challenge_text(char *text)
 	g_challenge_text = dw_create_text_tex_array_by_h(w, h, C_SILVERGREY, text);
 }
 
+void cw_set_challenge_highlight(bool enabled)
+{
+	if (!enabled) {
+		g_challenge_anim_dir = false;
+		g_challenge_anim_state = 0.0f;
+	}
+	g_challenge_highlight = enabled;
+}
+
 /* Function: cw_set_scroll_box
  * -----------------------------------------------------------------------------
  * This function is called to set the value on the code box object
@@ -1505,10 +1517,78 @@ void cw_draw_code_window()
 	display_line_number();
 
 	int h = dm_get_h_msg();
-	dw_draw_wrapped_texture_by_h(g_text_box, h, g_challenge_text);
+	if (!g_challenge_highlight) {
+		dw_draw_wrapped_texture_by_h(g_text_box, h, g_challenge_text);
+		dw_draw_rectangle(g_text_box, C_GREY);
+	} else {
+		int line_count = g_challenge_text->size;
+		float anim_limit = (float)dm_get_btn_anim_max();
+		float left_space = g_text_box.x - g_code_box.x;
+		float right_space = g_code_box.x + g_code_box.w -
+		                    g_text_box.x - g_text_box.w;
+		float horizontal_space = left_space < right_space ? left_space : right_space;
+		float top_space = g_text_box.y - g_code_box.y;
+		float bottom_space = g_code_box.y + g_code_box.h -
+		                     g_text_box.y - g_text_box.h;
+		float vertical_space = top_space < bottom_space ? top_space : bottom_space;
+		float horizontal_limit =
+		    2.0f * horizontal_space * h / g_text_box.w;
+		float vertical_limit =
+		    2.0f * vertical_space * h / g_text_box.h;
+		if (horizontal_limit < anim_limit) {
+			anim_limit = horizontal_limit > 0.0f ? horizontal_limit : 0.0f;
+		}
+		if (vertical_limit < anim_limit) {
+			anim_limit = vertical_limit > 0.0f ? vertical_limit : 0.0f;
+		}
+		if (g_challenge_anim_state > anim_limit) {
+			g_challenge_anim_state = anim_limit;
+		}
 
-	// Text rectangle
-	dw_draw_rectangle(g_text_box, C_GREY);
+		float scale = 1.0f + g_challenge_anim_state / h;
+		float box_width = g_text_box.w * scale;
+		float box_height = g_text_box.h * scale;
+		SDL_FRect challenge_box = {
+			.x = g_text_box.x + (g_text_box.w - box_width) / 2.0f,
+			.y = g_text_box.y + (g_text_box.h - box_height) / 2.0f,
+			.w = box_width,
+			.h = box_height
+		};
+		float line_height = h * scale;
+		float y = g_text_box.y + g_text_box.h / 2.0f -
+		          line_count * line_height / 2.0f;
+		for (int index = 0; index < line_count; index++) {
+			texture_t *line = g_challenge_text->t[index];
+			if (line != NULL) {
+				float width = (float)(line->w * line_height) / line->h;
+				SDL_FRect line_box = {
+					.x = g_text_box.x + (g_text_box.w - width) / 2.0f,
+					.y = y,
+					.w = width,
+					.h = line_height
+				};
+				dw_draw_texture_fit_h_f(line_box, line);
+			}
+			y += line_height;
+		}
+		dw_draw_rectangle_f(challenge_box, C_GREY);
+
+		float anim_delta = dm_get_btn_anim_delta() * 0.5f;
+		if (anim_delta < 0.25f) {
+			anim_delta = 0.25f;
+		}
+		if (!g_challenge_anim_dir && g_challenge_anim_state >= anim_limit) {
+			g_challenge_anim_dir = true;
+		} else if (g_challenge_anim_dir && g_challenge_anim_state <= 0) {
+			g_challenge_anim_dir = false;
+		}
+		g_challenge_anim_state += g_challenge_anim_dir ? -anim_delta : anim_delta;
+		if (g_challenge_anim_state > anim_limit) {
+			g_challenge_anim_state = anim_limit;
+		} else if (g_challenge_anim_state < 0) {
+			g_challenge_anim_state = 0.0f;
+		}
+	}
 	
 	
 	// Text of the level

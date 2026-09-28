@@ -410,6 +410,19 @@ int dw_draw_texture_fit_h(SDL_Rect r, texture_t *t)
 	return SUCCESS;
 }
 
+int dw_draw_texture_fit_h_f(SDL_FRect r, texture_t *t)
+{
+	assert(r.h > 0 && "The height value is invalid");
+	assert(t != NULL && "The texture pointer cannot be NULL");
+
+	r.w = (float)(t->w * r.h) / t->h;
+	if (SDL_RenderCopyF(g_renderer, t->texture, NULL, &r) < 0) {
+		printf("Texture could not be copied SDL_Error: %s\n", SDL_GetError());
+		return FAIL;
+	}
+	return SUCCESS;
+}
+
 /* Function: dw_draw_texture_fit_h
  * -----------------------------------------------------------------------------
  * Draws a texture scaling it correctly to a given height
@@ -840,6 +853,13 @@ void dw_draw_rectangle(SDL_Rect r, SDL_Color c)
 	SDL_Rect rect = r;
 	SDL_SetRenderDrawColor(g_renderer, c.r, c.g, c.b, c.a);
 	SDL_RenderDrawRect(g_renderer, &rect);
+	SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
+}
+
+void dw_draw_rectangle_f(SDL_FRect r, SDL_Color c)
+{
+	SDL_SetRenderDrawColor(g_renderer, c.r, c.g, c.b, 255);
+	SDL_RenderDrawRectF(g_renderer, &r);
 	SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
 }
 

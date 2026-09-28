@@ -7,6 +7,7 @@
 #include "arrow_ar.h"
 #include "aux.h"
 #include "code_line_cl.h"
+#include "code_window_cw.h"
 #include "gameplay/interaction_rules_ir.h"
 #include "mouse_ms.h"
 #include "text_tx.h"
@@ -116,6 +117,7 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 	ir_restore_base_rules();
 
 	if (context == NULL) {
+		cw_set_challenge_highlight(false);
 		g_current_step = NULL;
 		return NULL;
 	}
@@ -123,9 +125,12 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 	const tutorial_step_t *step = tr_get_matching_step(context);
 
 	if (step == NULL) {
+		cw_set_challenge_highlight(false);
 		g_current_step = NULL;
 		return NULL;
 	}
+	cw_set_challenge_highlight(
+	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_CHALLENGE) != 0);
 
 	if (step != g_current_step) {
 		g_current_step = step;
@@ -171,6 +176,31 @@ static bool parse_effect_bool(const char *text, int *result)
 	}
 
 	return false;
+}
+
+static bool parse_highlights(char *text, int *targets)
+{
+	if (text == NULL || targets == NULL) {
+		return false;
+	}
+
+	*targets = 0;
+	char *token = strtok(text, ",");
+	if (token == NULL) {
+		return false;
+	}
+
+	while (token != NULL) {
+		char *highlight = trim(token);
+		if (strcmp(highlight, "challenge") == 0) {
+			*targets |= TUTORIAL_HIGHLIGHT_CHALLENGE;
+		} else {
+			return false;
+		}
+		token = strtok(NULL, ",");
+	}
+
+	return *targets != 0;
 }
 
 static bool parse_box(const char *text, tutorial_box_t *box)
@@ -450,6 +480,7 @@ static tutorial_step_t *find_step(const char *name)
 
 void tr_clear(void)
 {
+	cw_set_challenge_highlight(false);
 	for (int index = 0; index < g_step_count; index++) {
 		dw_free_texture_array(g_steps[index].text_texture);
 
@@ -720,6 +751,7 @@ bool tr_load_level(int level_id)
 			step->effect_register_selectable = -1;
 			step->effect_arrange_enabled     = -1;
 			step->effect_delete_enabled      = -1;
+			step->highlight_targets          = 0;
 			step->active                     = true;
 			reading_text                     = false;
 			continue;
@@ -823,6 +855,10 @@ bool tr_load_level(int level_id)
 			if (!parse_arrows(step, value)) {
 				goto invalid;
 			}
+		}
+		if (strcmp(key, "highlight") == 0 &&
+		    !parse_highlights(value, &step->highlight_targets)) {
+			goto invalid;
 		}
 		if (strcmp(key, "when.code_size") == 0) {
 			step->when_code_size = atoi(value);
