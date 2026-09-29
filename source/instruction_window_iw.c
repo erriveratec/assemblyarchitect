@@ -360,22 +360,8 @@ void iw_draw_ins_box()
 
 	if (g_highlight_instruction_mask != 0) {
 		float anim_limit = cw_get_challenge_highlight_limit();
-		float anim_delta = dm_get_btn_anim_delta() * 0.5f;
-		if (anim_delta < 0.25f) {
-			anim_delta = 0.25f;
-		}
-		if (!g_instruction_anim_dir && g_instruction_anim_state >= anim_limit) {
-			g_instruction_anim_dir = true;
-		} else if (g_instruction_anim_dir && g_instruction_anim_state <= 0.0f) {
-			g_instruction_anim_dir = false;
-		}
-		g_instruction_anim_state +=
-		    g_instruction_anim_dir ? -anim_delta : anim_delta;
-		if (g_instruction_anim_state > anim_limit) {
-			g_instruction_anim_state = anim_limit;
-		} else if (g_instruction_anim_state < 0.0f) {
-			g_instruction_anim_state = 0.0f;
-		}
+		dw_advance_pulse(&g_instruction_anim_state, &g_instruction_anim_dir,
+		                anim_limit, dw_get_highlight_pulse_delta());
 	}
 }
 
@@ -391,8 +377,7 @@ void iw_set_highlight_instructions(int instruction_mask)
 static void draw_highlighted_instruction(btn_t *button)
 {
 	float cycle_limit = cw_get_challenge_highlight_limit();
-	float cycle_pulse = g_instruction_anim_state < cycle_limit ?
-	                    g_instruction_anim_state : cycle_limit;
+	float cycle_pulse = dw_clamp_pulse(g_instruction_anim_state, cycle_limit);
 	float center_x = button->r.x + button->r.w / 2.0f;
 	float center_y = button->r.y + button->r.h / 2.0f;
 	float fit_scale = (float)button->r.w / button->t->w;
@@ -404,7 +389,8 @@ static void draw_highlighted_instruction(btn_t *button)
 		.w = button->t->w * fit_scale,
 		.h = button->t->h * fit_scale
 	};
-	SDL_FRect text = dw_grow_rect_height(base_text, cycle_pulse);
+	SDL_FRect text = dw_grow_rect_height(
+	    base_text, cycle_pulse * DW_TEXT_HIGHLIGHT_GROWTH_FACTOR);
 	bool hover = ax_chk_mouse_hover_rect(button->r) &&
 	             !sb_chk_rst_esc_menu_active();
 	dw_set_texture_color_mod(button->t, hover ? C_WHITE : C_LIGHTGREY);

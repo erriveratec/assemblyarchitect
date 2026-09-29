@@ -17,6 +17,7 @@
 
 #define NOT_FOUND -1
 #define CODE_LINES_SIZE 5
+#define CODE_BOX_HIGHLIGHT_GROWTH_MULTIPLIER 10.0f
 static Uint32 CODE_BOX_W = 350;
 static Uint32 CODE_BOX_Y = 50;
 
@@ -30,6 +31,8 @@ static bool g_challenge_highlight;
 static bool g_code_box_highlight;
 static bool g_challenge_anim_dir;
 static float g_challenge_anim_state;
+static bool g_code_box_anim_dir;
+static float g_code_box_anim_state;
 
 texture_array_t *g_challenge_text;
 texture_t *g_stage_name;
@@ -1288,6 +1291,10 @@ void cw_set_challenge_highlight(bool enabled)
 
 void cw_set_code_box_highlight(bool enabled)
 {
+	if (enabled != g_code_box_highlight) {
+		g_code_box_anim_dir = false;
+		g_code_box_anim_state = 0.0f;
+	}
 	g_code_box_highlight = enabled;
 }
 
@@ -1544,23 +1551,20 @@ void cw_draw_code_window()
 	if (in_code_window() == true){
 		adjust_code_box_position();
 	}
+	float code_box_frame_growth = 0.0f;
 	float code_box_top = g_code_box.y;
 	float code_box_bottom = g_code_box.y + g_code_box.h;
 	if (g_code_box_highlight) {
 		float anim_limit = cw_get_challenge_highlight_limit();
-		float pulse = g_challenge_anim_state < anim_limit ?
-		              g_challenge_anim_state : anim_limit;
-		float scale = 1.0f + pulse / dm_get_h_msg();
-		code_box_top -= g_code_box.h * (scale - 1.0f) / 2.0f;
-		code_box_bottom += g_code_box.h * (scale - 1.0f) / 2.0f;
+		float pulse = dw_clamp_pulse(g_code_box_anim_state, anim_limit);
+		code_box_frame_growth =
+		    pulse * CODE_BOX_HIGHLIGHT_GROWTH_MULTIPLIER;
+		code_box_top -= code_box_frame_growth / 2.0f;
+		code_box_bottom += code_box_frame_growth / 2.0f;
 	}
 	
 	
 	if (g_code_box_highlight) {
-		float anim_limit = cw_get_challenge_highlight_limit();
-		float pulse = g_challenge_anim_state < anim_limit ?
-		              g_challenge_anim_state : anim_limit;
-		float scale = 1.0f + pulse / dm_get_h_msg();
 		SDL_FRect outer = {
 			.x = g_code_box.x,
 			.y = g_code_box.y,
@@ -1581,11 +1585,15 @@ void cw_draw_code_window()
 			.h = inner_rect.h
 		};
 		dw_draw_filled_rectangle_f(
-		    dw_grow_rect_height(outer, outer.h * (scale - 1.0f)),
+		    dw_grow_rect_height(outer, code_box_frame_growth),
 		                          C_GREY, C_GREY);
 		dw_draw_filled_rectangle_f(
-		    dw_grow_rect_height(inner, inner.h * (scale - 1.0f)),
+		    dw_grow_rect_height(inner, code_box_frame_growth),
 		                          C_BLACK, C_BLACK);
+
+		dw_advance_pulse(&g_code_box_anim_state, &g_code_box_anim_dir,
+		                cw_get_challenge_highlight_limit(),
+		                dw_get_highlight_pulse_delta());
 	} else {
 		dw_draw_thick_rect(g_code_box, dm_get_w_borders(), C_GREY);
 	}
@@ -1601,9 +1609,8 @@ void cw_draw_code_window()
 	} else {
 		int line_count = g_challenge_text->size;
 		float anim_limit = cw_get_challenge_highlight_limit();
-		if (g_challenge_anim_state > anim_limit) {
-			g_challenge_anim_state = anim_limit;
-		}
+		g_challenge_anim_state =
+		    dw_clamp_pulse(g_challenge_anim_state, anim_limit);
 
 		float line_height = h + g_challenge_anim_state;
 		SDL_FRect base_challenge_box = {
@@ -1634,21 +1641,8 @@ void cw_draw_code_window()
 		}
 		dw_draw_rectangle_f(challenge_box, C_GREY);
 
-		float anim_delta = dm_get_btn_anim_delta() * 0.5f;
-		if (anim_delta < 0.25f) {
-			anim_delta = 0.25f;
-		}
-		if (!g_challenge_anim_dir && g_challenge_anim_state >= anim_limit) {
-			g_challenge_anim_dir = true;
-		} else if (g_challenge_anim_dir && g_challenge_anim_state <= 0) {
-			g_challenge_anim_dir = false;
-		}
-		g_challenge_anim_state += g_challenge_anim_dir ? -anim_delta : anim_delta;
-		if (g_challenge_anim_state > anim_limit) {
-			g_challenge_anim_state = anim_limit;
-		} else if (g_challenge_anim_state < 0) {
-			g_challenge_anim_state = 0.0f;
-		}
+		dw_advance_pulse(&g_challenge_anim_state, &g_challenge_anim_dir,
+		                anim_limit, dw_get_highlight_pulse_delta());
 	}
 	
 	

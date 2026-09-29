@@ -877,6 +877,44 @@ SDL_FRect dw_grow_rect_height(SDL_FRect rect, float height_growth)
 	};
 }
 
+float dw_clamp_pulse(float pulse, float limit)
+{
+	if (limit <= 0.0f || pulse <= 0.0f) {
+		return 0.0f;
+	}
+	return pulse < limit ? pulse : limit;
+}
+
+float dw_get_highlight_pulse_delta(void)
+{
+	float delta = dm_get_btn_anim_delta() * 0.5f;
+	return delta < 0.25f ? 0.25f : delta;
+}
+
+void dw_advance_pulse(float *pulse, bool *descending, float limit,
+					  float delta)
+{
+	assert(pulse != NULL && descending != NULL);
+	if (limit <= 0.0f || delta <= 0.0f) {
+		*pulse = 0.0f;
+		*descending = false;
+		return;
+	}
+
+	if (!*descending && *pulse >= limit) {
+		*descending = true;
+	} else if (*descending && *pulse <= 0.0f) {
+		*descending = false;
+	}
+
+	*pulse += *descending ? -delta : delta;
+	if (*pulse > limit) {
+		*pulse = limit;
+	} else if (*pulse < 0.0f) {
+		*pulse = 0.0f;
+	}
+}
+
 /* Function: dw_draw_filled_rectangle
  *-----------------------------------------------------------------------------
  * Draw rectangle with filled content, a color for tthe outline can be

@@ -674,21 +674,8 @@ void bf_draw_buffers()
 	draw_output_buffer();
 	if (g_input_buffer_highlight || g_output_buffer_highlight) {
 		float anim_limit = cw_get_challenge_highlight_limit();
-		float anim_delta = dm_get_btn_anim_delta() * 0.5f;
-		if (anim_delta < 0.25f) {
-			anim_delta = 0.25f;
-		}
-		if (!g_buffer_anim_dir && g_buffer_anim_state >= anim_limit) {
-			g_buffer_anim_dir = true;
-		} else if (g_buffer_anim_dir && g_buffer_anim_state <= 0.0f) {
-			g_buffer_anim_dir = false;
-		}
-		g_buffer_anim_state += g_buffer_anim_dir ? -anim_delta : anim_delta;
-		if (g_buffer_anim_state > anim_limit) {
-			g_buffer_anim_state = anim_limit;
-		} else if (g_buffer_anim_state < 0.0f) {
-			g_buffer_anim_state = 0.0f;
-		}
+		dw_advance_pulse(&g_buffer_anim_state, &g_buffer_anim_dir,
+		                anim_limit, dw_get_highlight_pulse_delta());
 	}
 }
 
@@ -706,8 +693,7 @@ static buffer_animation_t get_buffer_animation(SDL_Rect *label_box,
 	}
 
 	float anim_limit = cw_get_challenge_highlight_limit();
-	animation.growth = g_buffer_anim_state < anim_limit ?
-	                   g_buffer_anim_state : anim_limit;
+	animation.growth = dw_clamp_pulse(g_buffer_anim_state, anim_limit);
 	return animation;
 }
 

@@ -708,21 +708,8 @@ void rg_draw_registers()
 
 	if (g_register_highlight) {
 		float anim_limit = cw_get_challenge_highlight_limit();
-		float anim_delta = dm_get_btn_anim_delta() * 0.5f;
-		if (anim_delta < 0.25f) {
-			anim_delta = 0.25f;
-		}
-		if (!g_register_anim_dir && g_register_anim_state >= anim_limit) {
-			g_register_anim_dir = true;
-		} else if (g_register_anim_dir && g_register_anim_state <= 0.0f) {
-			g_register_anim_dir = false;
-		}
-		g_register_anim_state += g_register_anim_dir ? -anim_delta : anim_delta;
-		if (g_register_anim_state > anim_limit) {
-			g_register_anim_state = anim_limit;
-		} else if (g_register_anim_state < 0.0f) {
-			g_register_anim_state = 0.0f;
-		}
+		dw_advance_pulse(&g_register_anim_state, &g_register_anim_dir,
+		                anim_limit, dw_get_highlight_pulse_delta());
 	}
 }
 
@@ -749,8 +736,7 @@ static SDL_FRect grow_register_rect(SDL_Rect rect, float height_growth)
 static float get_register_highlight_pulse()
 {
 	float cycle_limit = cw_get_challenge_highlight_limit();
-	return g_register_anim_state < cycle_limit ?
-	       g_register_anim_state : cycle_limit;
+	return dw_clamp_pulse(g_register_anim_state, cycle_limit);
 }
 
 static int get_register_heading_offset(int text_width)
@@ -763,7 +749,8 @@ static int get_register_heading_offset(int text_width)
 		.h = text_height
 	};
 	SDL_FRect max_size = dw_grow_rect_height(
-	    base, cw_get_challenge_highlight_limit());
+	    base, cw_get_challenge_highlight_limit() *
+	              DW_TEXT_HIGHLIGHT_GROWTH_FACTOR);
 	return (int)((max_size.w - text_width) / 2.0f);
 }
 
@@ -778,12 +765,14 @@ static void draw_register_text_highlight()
 		.h = text_h
 	};
 	dw_draw_texture_fit_h_f(
-	    grow_register_rect(text, get_register_highlight_pulse()), g_reg_text);
+	    grow_register_rect(text, get_register_highlight_pulse() *
+	                                 DW_TEXT_HIGHLIGHT_GROWTH_FACTOR), g_reg_text);
 }
 
 static void draw_register_value_highlight(value_box_t *value, btn_t *button)
 {
-	float pulse = get_register_highlight_pulse();
+	float pulse = get_register_highlight_pulse() *
+	              DW_TEXT_HIGHLIGHT_GROWTH_FACTOR;
 	SDL_FRect animated_button = grow_register_rect(button->r, pulse);
 	float gap = button->r.y - value->box.y - value->box.h;
 	SDL_FRect box = grow_register_rect(value->box, pulse);

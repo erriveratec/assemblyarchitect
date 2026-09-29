@@ -141,8 +141,7 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 		return NULL;
 	}
 	cw_set_challenge_highlight(
-	    (step->highlight_targets & (TUTORIAL_HIGHLIGHT_CHALLENGE |
-	                               TUTORIAL_HIGHLIGHT_CODE_BOX)) != 0);
+	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_CHALLENGE) != 0);
 	cw_set_code_box_highlight(
 	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_CODE_BOX) != 0);
 	bf_set_buffer_highlights(
