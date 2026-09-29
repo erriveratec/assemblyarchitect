@@ -29,10 +29,8 @@ static SDL_Rect g_scroll_box;
 static SDL_Rect g_text_box;
 static bool g_challenge_highlight;
 static bool g_code_box_highlight;
-static bool g_challenge_anim_dir;
-static float g_challenge_anim_state;
-static bool g_code_box_anim_dir;
-static float g_code_box_anim_state;
+static dw_pulse_t g_challenge_pulse;
+static dw_pulse_t g_code_box_pulse;
 
 texture_array_t *g_challenge_text;
 texture_t *g_stage_name;
@@ -1283,8 +1281,7 @@ void cw_set_challenge_text(char *text)
 void cw_set_challenge_highlight(bool enabled)
 {
 	if (!enabled) {
-		g_challenge_anim_dir = false;
-		g_challenge_anim_state = 0.0f;
+		dw_pulse_reset(&g_challenge_pulse);
 	}
 	g_challenge_highlight = enabled;
 }
@@ -1292,8 +1289,7 @@ void cw_set_challenge_highlight(bool enabled)
 void cw_set_code_box_highlight(bool enabled)
 {
 	if (enabled != g_code_box_highlight) {
-		g_code_box_anim_dir = false;
-		g_code_box_anim_state = 0.0f;
+		dw_pulse_reset(&g_code_box_pulse);
 	}
 	g_code_box_highlight = enabled;
 }
@@ -1556,7 +1552,7 @@ void cw_draw_code_window()
 	float code_box_bottom = g_code_box.y + g_code_box.h;
 	if (g_code_box_highlight) {
 		float anim_limit = cw_get_challenge_highlight_limit();
-		float pulse = dw_clamp_pulse(g_code_box_anim_state, anim_limit);
+		float pulse = dw_pulse_value(&g_code_box_pulse, anim_limit);
 		code_box_frame_growth =
 		    pulse * CODE_BOX_HIGHLIGHT_GROWTH_MULTIPLIER;
 		code_box_top -= code_box_frame_growth / 2.0f;
@@ -1592,9 +1588,7 @@ void cw_draw_code_window()
 		                          C_BLACK, C_BLACK);
 
 		float anim_limit = cw_get_challenge_highlight_limit();
-		dw_advance_pulse(&g_code_box_anim_state, &g_code_box_anim_dir,
-		                anim_limit,
-		                dw_get_highlight_pulse_delta(anim_limit));
+		dw_pulse_advance(&g_code_box_pulse, anim_limit);
 	} else {
 		dw_draw_thick_rect(g_code_box, dm_get_w_borders(), C_GREY);
 	}
@@ -1610,10 +1604,9 @@ void cw_draw_code_window()
 	} else {
 		int line_count = g_challenge_text->size;
 		float anim_limit = cw_get_challenge_highlight_limit();
-		g_challenge_anim_state =
-		    dw_clamp_pulse(g_challenge_anim_state, anim_limit);
+		float challenge_pulse = dw_pulse_value(&g_challenge_pulse, anim_limit);
 
-		float line_height = h + g_challenge_anim_state;
+		float line_height = h + challenge_pulse;
 		SDL_FRect base_challenge_box = {
 			.x = g_text_box.x,
 			.y = g_text_box.y,
@@ -1621,7 +1614,7 @@ void cw_draw_code_window()
 			.h = g_text_box.h
 		};
 		SDL_FRect challenge_box = dw_grow_rect_height(
-		    base_challenge_box, g_challenge_anim_state * line_count);
+		    base_challenge_box, challenge_pulse * line_count);
 		float y = g_text_box.y + g_text_box.h / 2.0f -
 		          line_count * line_height / 2.0f;
 		for (int index = 0; index < line_count; index++) {
@@ -1630,20 +1623,19 @@ void cw_draw_code_window()
 				float base_width = (float)(line->w * h) / line->h;
 				SDL_FRect base_line_box = {
 					.x = g_text_box.x + (g_text_box.w - base_width) / 2.0f,
-					.y = y + g_challenge_anim_state / 2.0f,
+					.y = y + challenge_pulse / 2.0f,
 					.w = base_width,
 					.h = h
 				};
 				dw_draw_texture_fit_h_f(
-				    dw_grow_rect_height(base_line_box, g_challenge_anim_state),
+				    dw_grow_rect_height(base_line_box, challenge_pulse),
 				    line);
 			}
 			y += line_height;
 		}
 		dw_draw_rectangle_f(challenge_box, C_GREY);
 
-		dw_advance_pulse(&g_challenge_anim_state, &g_challenge_anim_dir,
-		                anim_limit, dw_get_highlight_pulse_delta(anim_limit));
+		dw_pulse_advance(&g_challenge_pulse, anim_limit);
 	}
 	
 	

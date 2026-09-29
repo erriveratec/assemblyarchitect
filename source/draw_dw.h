@@ -17,6 +17,12 @@ typedef struct texture_array_t{
 	texture_t **t;
 } texture_array_t;
 
+/* Ping-pong animation state whose value is measured in pixels. */
+typedef struct dw_pulse_t {
+	float value;
+	bool descending;
+} dw_pulse_t;
+
 texture_t *dw_load_texture(const char *path);
 texture_t *dw_create_text_tex(char *texture_text, SDL_Color text_color);
 texture_array_t *dw_create_text_tex_array_by_h(int w, int h, SDL_Color c, char *t);
@@ -29,10 +35,10 @@ void dw_draw_rectangle_f(SDL_FRect r, SDL_Color c);
 void dw_draw_filled_rectangle(SDL_Rect r, SDL_Color in, SDL_Color out);
 void dw_draw_filled_rectangle_f(SDL_FRect r, SDL_Color in, SDL_Color out);
 SDL_FRect dw_grow_rect_height(SDL_FRect rect, float height_growth);
-float dw_clamp_pulse(float pulse, float limit);
-float dw_get_highlight_pulse_delta(float pulse_limit);
-void dw_advance_pulse(float *pulse, bool *descending, float limit,
-					  float delta);
+/* Reset, sample, and advance a pixel-valued pulse using operand cycle timing. */
+void dw_pulse_reset(dw_pulse_t *pulse);
+float dw_pulse_value(const dw_pulse_t *pulse, float limit);
+void dw_pulse_advance(dw_pulse_t *pulse, float limit);
 void dw_draw_thick_rect(SDL_Rect r, int w, SDL_Color c);
 
 int dw_draw_texture_fit_h(SDL_Rect r, texture_t *t);

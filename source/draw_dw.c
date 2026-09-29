@@ -877,44 +877,43 @@ SDL_FRect dw_grow_rect_height(SDL_FRect rect, float height_growth)
 	};
 }
 
-float dw_clamp_pulse(float pulse, float limit)
+void dw_pulse_reset(dw_pulse_t *pulse)
 {
-	if (limit <= 0.0f || pulse <= 0.0f) {
-		return 0.0f;
-	}
-	return pulse < limit ? pulse : limit;
+	assert(pulse != NULL);
+	pulse->value = 0.0f;
+	pulse->descending = false;
 }
 
-float dw_get_highlight_pulse_delta(float pulse_limit)
+float dw_pulse_value(const dw_pulse_t *pulse, float limit)
 {
+	assert(pulse != NULL);
+	if (limit <= 0.0f || pulse->value <= 0.0f) {
+		return 0.0f;
+	}
+	return pulse->value < limit ? pulse->value : limit;
+}
+
+void dw_pulse_advance(dw_pulse_t *pulse, float limit)
+{
+	assert(pulse != NULL);
 	int operand_max = dm_get_btn_anim_max();
-	if (pulse_limit <= 0.0f || operand_max <= 0) {
-		return 0.0f;
-	}
-	return (float)dm_get_btn_anim_delta() * pulse_limit / operand_max;
-}
-
-void dw_advance_pulse(float *pulse, bool *descending, float limit,
-					  float delta)
-{
-	assert(pulse != NULL && descending != NULL);
-	if (limit <= 0.0f || delta <= 0.0f) {
-		*pulse = 0.0f;
-		*descending = false;
+	if (limit <= 0.0f || operand_max <= 0) {
+		dw_pulse_reset(pulse);
 		return;
 	}
+	float delta = (float)dm_get_btn_anim_delta() * limit / operand_max;
 
-	if (!*descending && *pulse >= limit) {
-		*descending = true;
-	} else if (*descending && *pulse <= 0.0f) {
-		*descending = false;
+	if (!pulse->descending && pulse->value >= limit) {
+		pulse->descending = true;
+	} else if (pulse->descending && pulse->value <= 0.0f) {
+		pulse->descending = false;
 	}
 
-	*pulse += *descending ? -delta : delta;
-	if (*pulse > limit) {
-		*pulse = limit;
-	} else if (*pulse < 0.0f) {
-		*pulse = 0.0f;
+	pulse->value += pulse->descending ? -delta : delta;
+	if (pulse->value > limit) {
+		pulse->value = limit;
+	} else if (pulse->value < 0.0f) {
+		pulse->value = 0.0f;
 	}
 }
 

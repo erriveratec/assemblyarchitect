@@ -44,8 +44,7 @@ static List *input_list = NULL;
 static List *output_list = NULL;
 static bool g_input_buffer_highlight;
 static bool g_output_buffer_highlight;
-static bool g_buffer_anim_dir;
-static float g_buffer_anim_state;
+static dw_pulse_t g_buffer_pulse;
 
 typedef struct buffer_animation_t {
 	bool active;
@@ -365,8 +364,7 @@ void bf_set_buffer_highlights(bool input_enabled, bool output_enabled)
 {
 	if (input_enabled != g_input_buffer_highlight ||
 	    output_enabled != g_output_buffer_highlight) {
-		g_buffer_anim_dir = false;
-		g_buffer_anim_state = 0.0f;
+		dw_pulse_reset(&g_buffer_pulse);
 	}
 	g_input_buffer_highlight = input_enabled;
 	g_output_buffer_highlight = output_enabled;
@@ -674,8 +672,7 @@ void bf_draw_buffers()
 	draw_output_buffer();
 	if (g_input_buffer_highlight || g_output_buffer_highlight) {
 		float anim_limit = cw_get_challenge_highlight_limit();
-		dw_advance_pulse(&g_buffer_anim_state, &g_buffer_anim_dir,
-		                anim_limit, dw_get_highlight_pulse_delta(anim_limit));
+		dw_pulse_advance(&g_buffer_pulse, anim_limit);
 	}
 }
 
@@ -693,7 +690,7 @@ static buffer_animation_t get_buffer_animation(SDL_Rect *label_box,
 	}
 
 	float anim_limit = cw_get_challenge_highlight_limit();
-	animation.growth = dw_clamp_pulse(g_buffer_anim_state, anim_limit);
+	animation.growth = dw_pulse_value(&g_buffer_pulse, anim_limit);
 	return animation;
 }
 

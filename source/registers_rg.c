@@ -22,8 +22,7 @@
 static List *register_list = NULL;
 static SDL_Rect register_box;
 static bool g_register_highlight;
-static bool g_register_anim_dir;
-static float g_register_anim_state;
+static dw_pulse_t g_register_pulse;
 
 static void set_register_box_member(int value, int member);
 reg_t *create_register(int id, btn_t *b);
@@ -681,13 +680,8 @@ void rg_draw_registers()
 	
 	assert(registers != NULL && "Invalid pointer");
 
-	if (g_register_highlight) {
-		draw_register_box();
-		draw_register_text();
-	} else {
-		draw_register_box();
-		draw_register_text();
-	}
+	draw_register_box();
+	draw_register_text();
 	draw_value_boxes();
 	
 	LIST_FOREACH(registers, first, next, cur){
@@ -697,11 +691,11 @@ void rg_draw_registers()
 		hover_rect.h += button->r.h;
 		if (g_register_highlight) {
 			draw_register_button_highlight(button, hover_rect);
-		#if RG_HIGHLIGHT_REGISTER_VALUES
+#if RG_HIGHLIGHT_REGISTER_VALUES
 			draw_register_value_highlight(&reg->value, button);
-	#else
+#else
 			ax_draw_value_box(&reg->value, C_WHITE);
-	#endif
+#endif
 		} else {
 			bool hover = ax_chk_mouse_hover_rect(hover_rect);
 			bt_draw_btn(button, sb_chk_rst_esc_menu_active(), hover);
@@ -711,16 +705,14 @@ void rg_draw_registers()
 
 	if (g_register_highlight) {
 		float anim_limit = cw_get_challenge_highlight_limit();
-		dw_advance_pulse(&g_register_anim_state, &g_register_anim_dir,
-		                anim_limit, dw_get_highlight_pulse_delta(anim_limit));
+		dw_pulse_advance(&g_register_pulse, anim_limit);
 	}
 }
 
 void rg_set_register_highlight(bool enabled)
 {
 	if (enabled != g_register_highlight) {
-		g_register_anim_dir = false;
-		g_register_anim_state = 0.0f;
+		dw_pulse_reset(&g_register_pulse);
 	}
 	g_register_highlight = enabled;
 }
@@ -739,7 +731,7 @@ static SDL_FRect grow_register_rect(SDL_Rect rect, float height_growth)
 static float get_register_highlight_pulse()
 {
 	float cycle_limit = cw_get_challenge_highlight_limit();
-	return dw_clamp_pulse(g_register_anim_state, cycle_limit);
+	return dw_pulse_value(&g_register_pulse, cycle_limit);
 }
 
 static void draw_register_value_highlight(value_box_t *value, btn_t *button)
