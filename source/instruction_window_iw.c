@@ -361,7 +361,7 @@ void iw_draw_ins_box()
 	if (g_highlight_instruction_mask != 0) {
 		float anim_limit = cw_get_challenge_highlight_limit();
 		dw_advance_pulse(&g_instruction_anim_state, &g_instruction_anim_dir,
-		                anim_limit, dw_get_highlight_pulse_delta());
+		                anim_limit, dw_get_highlight_pulse_delta(anim_limit));
 	}
 }
 

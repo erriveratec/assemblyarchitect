@@ -1591,9 +1591,10 @@ void cw_draw_code_window()
 		    dw_grow_rect_height(inner, code_box_frame_growth),
 		                          C_BLACK, C_BLACK);
 
+		float anim_limit = cw_get_challenge_highlight_limit();
 		dw_advance_pulse(&g_code_box_anim_state, &g_code_box_anim_dir,
-		                cw_get_challenge_highlight_limit(),
-		                dw_get_highlight_pulse_delta());
+		                anim_limit,
+		                dw_get_highlight_pulse_delta(anim_limit));
 	} else {
 		dw_draw_thick_rect(g_code_box, dm_get_w_borders(), C_GREY);
 	}
@@ -1642,7 +1643,7 @@ void cw_draw_code_window()
 		dw_draw_rectangle_f(challenge_box, C_GREY);
 
 		dw_advance_pulse(&g_challenge_anim_state, &g_challenge_anim_dir,
-		                anim_limit, dw_get_highlight_pulse_delta());
+		                anim_limit, dw_get_highlight_pulse_delta(anim_limit));
 	}
 	
 	

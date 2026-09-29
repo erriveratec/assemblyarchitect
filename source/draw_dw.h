@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #define WRAPPED_TEXT_X_OFFSET 5
-#define DW_TEXT_HIGHLIGHT_GROWTH_FACTOR 2.0f
+#define DW_TEXT_HIGHLIGHT_GROWTH_FACTOR 4.0f //3.98 to match chaging operand
 
 typedef struct texture_t{
 	int w;
@@ -30,7 +30,7 @@ void dw_draw_filled_rectangle(SDL_Rect r, SDL_Color in, SDL_Color out);
 void dw_draw_filled_rectangle_f(SDL_FRect r, SDL_Color in, SDL_Color out);
 SDL_FRect dw_grow_rect_height(SDL_FRect rect, float height_growth);
 float dw_clamp_pulse(float pulse, float limit);
-float dw_get_highlight_pulse_delta(void);
+float dw_get_highlight_pulse_delta(float pulse_limit);
 void dw_advance_pulse(float *pulse, bool *descending, float limit,
 					  float delta);
 void dw_draw_thick_rect(SDL_Rect r, int w, SDL_Color c);

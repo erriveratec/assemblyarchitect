@@ -675,7 +675,7 @@ void bf_draw_buffers()
 	if (g_input_buffer_highlight || g_output_buffer_highlight) {
 		float anim_limit = cw_get_challenge_highlight_limit();
 		dw_advance_pulse(&g_buffer_anim_state, &g_buffer_anim_dir,
-		                anim_limit, dw_get_highlight_pulse_delta());
+		                anim_limit, dw_get_highlight_pulse_delta(anim_limit));
 	}
 }
 

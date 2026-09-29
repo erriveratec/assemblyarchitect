@@ -885,10 +885,13 @@ float dw_clamp_pulse(float pulse, float limit)
 	return pulse < limit ? pulse : limit;
 }
 
-float dw_get_highlight_pulse_delta(void)
+float dw_get_highlight_pulse_delta(float pulse_limit)
 {
-	float delta = dm_get_btn_anim_delta() * 0.5f;
-	return delta < 0.25f ? 0.25f : delta;
+	int operand_max = dm_get_btn_anim_max();
+	if (pulse_limit <= 0.0f || operand_max <= 0) {
+		return 0.0f;
+	}
+	return (float)dm_get_btn_anim_delta() * pulse_limit / operand_max;
 }
 
 void dw_advance_pulse(float *pulse, bool *descending, float limit,
