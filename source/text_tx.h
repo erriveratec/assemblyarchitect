@@ -31,7 +31,8 @@ enum text_box_positions {
 	TX_STAGEBUTTON_BOX,
 	TX_BIG_BOX,
 	TX_ERROR_BOX,
-	TX_BOX_MAX
+	TX_BOX_MAX,
+	TX_LARGE_BOX = 1 << 8
 };
 
 enum gbl_msgs { TX_MSG_CLICKANY, TX_MSG_PRESSPLAY, TX_MSG_PRESSBACK };

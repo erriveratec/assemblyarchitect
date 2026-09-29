@@ -17,6 +17,8 @@
 static const Uint32 TEXT_H_BOTTOM_MSG = 17;
 static const Uint32 TEXT_BOX_H        = 360; // 1920/5
 static const Uint32 TEXT_BOX_W        = 384;
+static const Uint32 LARGE_TEXT_BOX_H  = 440;
+static const Uint32 LARGE_TEXT_BOX_W  = 600;
 
 static const Uint32 BORDER_OFS = 10;
 
@@ -526,65 +528,29 @@ static int get_box_member(SDL_Rect *box, int member)
  * Return:
  *	Void.
  */
+static bool tx_get_text_box_layout(int position, SDL_Rect *box,
+                                   SDL_Rect *content, int *text_height);
+
 void tx_bottom_msg(int pos, int msg_id)
 {
 	assert(msg_id >= 0 && msg_id < g_gbl_msgs_size && "Invalid msg_id");
 	SDL_Rect         b;
-	int              text_h;
-	texture_array_t *a      = g_gbl_msgs[msg_id];
-	int              offset = dw_get_ofs_iface_filled_border();
-	switch (pos) {
-	case TX_INS_BOX:
-		text_h = get_h_bottom_msg();
-		b      = get_text_box_ins();
-		b.y += b.h / 2 - 2 * text_h; // Writes at the center of the box
-		break;
-	case TX_UPPER_BOX:
-		text_h = get_h_bottom_msg();
-		b      = get_text_box_upper();
-		b.y += b.h / 2 - 2 * text_h; // Writes at the center of the box
-		break;
-	case TX_UPPER_RIGHT_BOX:
-		text_h = get_h_bottom_msg();
-		b      = get_text_box_upper_right();
-		b.y += b.h / 2 - 2 * text_h; // Writes at the center of the box
-		break;
-	case TX_CENTER_BOX:
-		text_h = get_h_bottom_msg();
-		b      = get_text_box_center();
-		b.y += b.h / 2 - 2 * text_h; // Writes at the center of the box
-		break;
-	case TX_CENTER_RIGHT_BOX:
-		text_h = get_h_bottom_msg();
-		b      = get_text_box_center_right();
-		b.y += b.h / 2 - 2 * text_h; // Writes at the center of the box
-		break;
-	case TX_LOWER_BOX:
-		text_h = get_h_bottom_msg();
-		b      = get_text_box_lower();
-		b.y += b.h / 2 - 2 * text_h; // Writes at the center of the box
-		break;
-	case TX_CODE_BOX:
-		text_h = get_h_bottom_msg();
-		b      = get_text_box_code();
-		b.y += b.h / 2 - 2 * text_h; // Writes at the center of the box
-		break;
-	case TX_STAGEBUTTON_BOX:
-		b      = dm_get_text_box_stagebutton();
-		text_h = dm_get_h_msg();
-		b.y += b.h / 2 - 2 * text_h; // Writes at the center of the box
-		break;
-	case TX_BIG_BOX:
-		text_h = get_h_bottom_msg();
-		b      = get_text_box_center_up();
-		b.y += b.h / 2 - 2 * text_h; // Writes at the center of the box
-		break;
-	case TX_ERROR_BOX:
+	SDL_Rect         content;
+	int              layout_text_height;
+	int              text_h = get_h_bottom_msg();
+	texture_array_t *a = g_gbl_msgs[msg_id];
+	if (pos == TX_ERROR_BOX) {
 		b      = dm_get_text_box_error();
 		b.y    = dm_get_text_box_error().y + dm_get_text_box_error().h * 4 / 6;
 		b.h    = dm_get_text_box_error().h / 6;
-		text_h = get_h_bottom_msg();
-		break;
+	} else {
+		if (!tx_get_text_box_layout(pos, &b, &content, &layout_text_height)) {
+			return;
+		}
+		if (pos == TX_STAGEBUTTON_BOX) {
+			text_h = dm_get_h_msg();
+		}
+		b.y += b.h / 2 - 2 * text_h;
 	}
 	dw_draw_wrapped_texture_by_h(b, text_h, a);
 }
@@ -595,6 +561,8 @@ static bool tx_get_text_box_layout(int position, SDL_Rect *box,
 	if (box == NULL || content == NULL || text_height == NULL) {
 		return false;
 	}
+	bool large = (position & TX_LARGE_BOX) != 0;
+	position &= ~TX_LARGE_BOX;
 
 	switch (position) {
 	case TX_INS_BOX:
@@ -649,6 +617,39 @@ static bool tx_get_text_box_layout(int position, SDL_Rect *box,
 
 	default:
 		return false;
+	}
+
+	if (large) {
+		int width  = dm_scale_to_res(LARGE_TEXT_BOX_W);
+		int height = dm_scale_to_res(LARGE_TEXT_BOX_H);
+		int extra_width  = width - box->w;
+		int extra_height = height - box->h;
+
+		if (position == TX_CENTER_BOX || position == TX_UPPER_BOX ||
+		    position == TX_LOWER_BOX || position == TX_CODE_BOX ||
+		    position == TX_BIG_BOX) {
+			box->x -= extra_width / 2;
+		}
+		if (position == TX_CENTER_BOX || position == TX_CENTER_RIGHT_BOX ||
+		    position == TX_STAGEBUTTON_BOX) {
+			box->y -= extra_height / 2;
+		} else if (position == TX_LOWER_BOX || position == TX_CODE_BOX) {
+			box->y -= extra_height;
+		}
+		box->w = width;
+		box->h = height;
+		if (box->x + box->w > dm_get_screen_width()) {
+			box->x = dm_get_screen_width() - box->w;
+		}
+		if (box->y + box->h > dm_get_screen_height()) {
+			box->y = dm_get_screen_height() - box->h;
+		}
+		if (box->x < 0) {
+			box->x = 0;
+		}
+		if (box->y < 0) {
+			box->y = 0;
+		}
 	}
 
 	*content = dw_get_iface_content_box(*box);

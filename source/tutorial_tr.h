@@ -60,6 +60,7 @@ typedef struct tutorial_step_t {
     texture_array_t *text_texture;
     int priority;
     tutorial_box_t box;
+    bool big_box;
     tutorial_header_t header;
     tutorial_dismiss_t dismiss;
     int arrow_ids[TUTORIAL_MAX_ARROWS];

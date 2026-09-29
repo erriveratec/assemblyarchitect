@@ -689,28 +689,40 @@ void tr_deactivate(const char *name)
 	}
 }
 
-static int get_text_box(tutorial_box_t box)
+static int get_text_box(const tutorial_step_t *step)
 {
-	switch (box) {
+	int position;
+	switch (step->box) {
 	case TUTORIAL_BOX_BIG:
-		return TX_BIG_BOX;
+		position = TX_BIG_BOX;
+		break;
 	case TUTORIAL_BOX_UPPER:
-		return TX_UPPER_BOX;
+		position = TX_UPPER_BOX;
+		break;
 	case TUTORIAL_BOX_UPPER_RIGHT:
-		return TX_UPPER_RIGHT_BOX;
+		position = TX_UPPER_RIGHT_BOX;
+		break;
 	case TUTORIAL_BOX_CENTER:
-		return TX_CENTER_BOX;
+		position = TX_CENTER_BOX;
+		break;
 	case TUTORIAL_BOX_CENTER_RIGHT:
-		return TX_CENTER_RIGHT_BOX;
+		position = TX_CENTER_RIGHT_BOX;
+		break;
 	case TUTORIAL_BOX_LOWER:
-		return TX_LOWER_BOX;
+		position = TX_LOWER_BOX;
+		break;
 	case TUTORIAL_BOX_CODE:
-		return TX_CODE_BOX;
+		position = TX_CODE_BOX;
+		break;
 	case TUTORIAL_BOX_INSTRUCTION:
-		return TX_INS_BOX;
+		position = TX_INS_BOX;
+		break;
+	default:
+		position = TX_BIG_BOX;
+		break;
 	}
 
-	return TX_BIG_BOX;
+	return step->big_box ? position | TX_LARGE_BOX : position;
 }
 
 static int get_header(tutorial_header_t header) { return TX_NONE + header; }
@@ -722,7 +734,7 @@ void tr_render_step(const char *name)
 		return;
 	}
 
-	int text_box = get_text_box(step->box);
+	int text_box = get_text_box(step);
 	tx_text_box_texture(text_box, step->text_texture, get_header(step->header));
 	if (step->dismiss == TUTORIAL_DISMISS_MOUSE_PRESS ||
 	    step->dismiss == TUTORIAL_DISMISS_MOUSE_RELEASE) {
@@ -762,8 +774,12 @@ bool tr_load_level(int level_id)
 
 	while (fgets(line, sizeof(line), file) != NULL) {
 		char *text = trim(line);
+		size_t text_length = strlen(text);
+		char *closing_bracket = strchr(text, ']');
 
-		if (text[0] == '[' && strcmp(text, "[tutorial]") != 0) {
+		if (text_length >= 2 && text[0] == '[' &&
+		    closing_bracket == text + text_length - 1 &&
+		    strcmp(text, "[tutorial]") != 0) {
 			if (reading_text) {
 				fprintf(stderr,
 				        "tutorial.cfg: level %d step '%s' "
@@ -780,6 +796,7 @@ bool tr_load_level(int level_id)
 			sscanf(text, "[%63[^]]]", step->name);
 			step->text_texture                 = NULL;
 			step->priority                     = 0;
+			step->big_box                      = false;
 			step->arrow_count                  = 0;
 			step->when_code_size               = -1;
 			step->when_code_size_max           = -1;
@@ -849,7 +866,7 @@ bool tr_load_level(int level_id)
 			}
 
 			step->text_texture =
-			    tx_create_text_box_message(get_text_box(step->box), step->text);
+			    tx_create_text_box_message(get_text_box(step), step->text);
 
 			if (step->text_texture == NULL) {
 				fprintf(stderr,
@@ -880,6 +897,15 @@ bool tr_load_level(int level_id)
 
 		if (strcmp(key, "box") == 0 && !parse_box(value, &step->box)) {
 			goto invalid;
+		}
+		if (strcmp(key, "box_size") == 0) {
+			if (strcmp(value, "big") == 0) {
+				step->big_box = true;
+			} else if (strcmp(value, "normal") == 0) {
+				step->big_box = false;
+			} else {
+				goto invalid;
+			}
 		}
 		if (strcmp(key, "header") == 0 && !parse_header(value, &step->header)) {
 			goto invalid;
