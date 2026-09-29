@@ -20,6 +20,12 @@
 #define ASCII 1
 #define DEFAULT_BUFFER_SIZE 5
 #define BUFFER_MOVEMENT_DELTA 5
+#ifndef BF_HIGHLIGHT_BUFFER_BOXES
+#define BF_HIGHLIGHT_BUFFER_BOXES 0
+#endif
+#ifndef BF_BUFFER_LABEL_HIGHLIGHT_GROWTH_FACTOR
+#define BF_BUFFER_LABEL_HIGHLIGHT_GROWTH_FACTOR 2.5f // 1.0 base 4.0 change operand
+#endif
 
 #define NATURAL_NMAX 9
 #define NATURAL_NMIN 1
@@ -48,6 +54,7 @@ static dw_pulse_t g_buffer_pulse;
 
 typedef struct buffer_animation_t {
 	bool active;
+	bool boxes_active;
 	float growth;
 } buffer_animation_t;
 
@@ -683,6 +690,7 @@ static buffer_animation_t get_buffer_animation(SDL_Rect *label_box,
 	label_box->w = ax_get_texture_w_fit_h(label_box->h, label);
 	buffer_animation_t animation = {
 		.active = highlighted,
+		.boxes_active = highlighted && BF_HIGHLIGHT_BUFFER_BOXES,
 		.growth = 0.0f
 	};
 	if (!highlighted) {
@@ -703,7 +711,8 @@ static SDL_FRect transform_buffer_rect(SDL_Rect rect,
 		.w = rect.w,
 		.h = rect.h
 	};
-	return dw_grow_rect_height(base, animation.growth);
+	return dw_grow_rect_height(
+	    base, animation.growth * BF_BUFFER_LABEL_HIGHLIGHT_GROWTH_FACTOR);
 }
 
 static SDL_FRect transform_buffer_body_rect(SDL_Rect body_box,
@@ -770,7 +779,7 @@ static void draw_buffer_value_box(value_box_t *value, SDL_Color color,
 								 SDL_FRect animated_body,
 								 buffer_animation_t animation)
 {
-	if (!animation.active) {
+	if (!animation.boxes_active) {
 		ax_draw_value_box(value, color);
 		return;
 	}
@@ -822,7 +831,7 @@ void draw_output_buffer()
 						 .h = dm_get_h_code_text()};
 	buffer_animation_t animation = get_buffer_animation(
 	    &output_label, output_text, g_output_buffer_highlight);
-	SDL_FRect animated_output_box = animation.active ?
+	SDL_FRect animated_output_box = animation.boxes_active ?
 	    transform_buffer_body_rect(output_box, output_label, animation) :
 	    (SDL_FRect){.x = output_box.x, .y = output_box.y,
 	                .w = output_box.w, .h = output_box.h};
@@ -849,7 +858,7 @@ void draw_output_buffer()
 								   						BUFFER_MOVEMENT_DELTA);
 		}
 	}
-	if (animation.active) {
+	if (animation.boxes_active) {
 		dw_draw_rectangle_f(animated_output_box, C_WHITE);
 	} else {
 		dw_draw_rectangle(output_box, C_WHITE);
@@ -910,7 +919,7 @@ void draw_input_buffer()
 	SDL_Rect input_label = dm_get_stage_ib_text_box();
 	buffer_animation_t animation = get_buffer_animation(
 	    &input_label, input_text, g_input_buffer_highlight);
-	SDL_FRect animated_input_box = animation.active ?
+	SDL_FRect animated_input_box = animation.boxes_active ?
 	    transform_buffer_body_rect(input_box, input_label, animation) :
 	    (SDL_FRect){.x = input_box.x, .y = input_box.y,
 	                .w = input_box.w, .h = input_box.h};
@@ -937,7 +946,7 @@ void draw_input_buffer()
 		}
 	}
 
-	if (animation.active) {
+	if (animation.boxes_active) {
 		dw_draw_rectangle_f(animated_input_box, C_WHITE);
 	} else {
 		dw_draw_rectangle(input_box, C_WHITE);
