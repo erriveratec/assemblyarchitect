@@ -31,9 +31,8 @@
 "items in the Output Buffer [ob] after run"
 
 #define WIN_TEXT "Execution produced the expected output"
-
-static char *SYSTEM_ERROR_TEXT = "SYSTEM ERROR";
-static char *RUN_RESULT_TEXT = "RUN RESULT";
+#define RUN_COMPLETED_TEXT "RUN COMPLETED"
+#define RUN_FAILED_TEXT "RUN FAILED"
 
 texture_array_t *ib_empty = NULL;
 texture_array_t *reg_val_bad = NULL;
@@ -44,8 +43,10 @@ texture_array_t *exc_code_size = NULL;
 texture_array_t *ob_incomplete = NULL;
 texture_array_t *g_win_text = NULL;
 
-texture_t *g_system_error;
-texture_t *g_run_result;
+static texture_t *g_run_completed = NULL;
+static texture_t *g_run_failed = NULL;
+static iface_btn_t *g_result_back_button = NULL;
+static iface_btn_t *g_result_continue_button = NULL;
 
 
 static bool g_play;
@@ -221,8 +222,8 @@ bool mc_get_rst_lvl()
  */
 void mc_init_errors_texture()
 {
-	int text_h = dm_get_h_msg();		
-	SDL_Rect rb = dw_get_iface_content_box(dw_get_iface_big_lower_box());
+	int text_h = dm_get_h_msg();
+	SDL_Rect rb = dw_get_iface_content_box(dm_get_run_result_box());
 
 	ib_empty = dw_create_text_tex_array_by_h(rb.w, 
 										text_h, 
@@ -258,9 +259,41 @@ void mc_init_errors_texture()
 											   C_WHITE, 
 											   WIN_TEXT);
 	
-	g_system_error = dw_create_text_tex(SYSTEM_ERROR_TEXT, C_GREY);
+	g_run_completed = dw_create_text_tex(RUN_COMPLETED_TEXT, C_WHITE);
+	g_run_failed = dw_create_text_tex(RUN_FAILED_TEXT, C_WHITE);
+}
 
-	g_run_result = dw_create_text_tex(RUN_RESULT_TEXT, C_GREY);
+void mc_destroy_errors_texture()
+{
+	if (g_result_back_button != NULL) {
+		bt_destroy_iface_btn(g_result_back_button);
+		g_result_back_button = NULL;
+	}
+	if (g_result_continue_button != NULL) {
+		bt_destroy_iface_btn(g_result_continue_button);
+		g_result_continue_button = NULL;
+	}
+
+	dw_free_texture(g_run_completed);
+	g_run_completed = NULL;
+	dw_free_texture(g_run_failed);
+	g_run_failed = NULL;
+	dw_free_texture_array(ib_empty);
+	ib_empty = NULL;
+	dw_free_texture_array(reg_val_bad);
+	reg_val_bad = NULL;
+	dw_free_texture_array(flag_val_bad);
+	flag_val_bad = NULL;
+	dw_free_texture_array(ob_val_bad);
+	ob_val_bad = NULL;
+	dw_free_texture_array(ib_unproc_vals);
+	ib_unproc_vals = NULL;
+	dw_free_texture_array(exc_code_size);
+	exc_code_size = NULL;
+	dw_free_texture_array(ob_incomplete);
+	ob_incomplete = NULL;
+	dw_free_texture_array(g_win_text);
+	g_win_text = NULL;
 }
 
 /* Function: mc_reset_invalid_operation_flag
@@ -315,53 +348,45 @@ void mc_display_operation_handler(int id)
 	
 	static bool sound_played = false;
 	if (id != NO_OPERATION){
-		SDL_Rect r = dw_get_iface_big_lower_box();
+		SDL_Rect result_box = dm_get_run_result_box();
 		texture_array_t *message = NULL;
 		texture_t *header = NULL;
-		bool two_buttons = false;
+		bool success = id == MC_WIN;
+		bool two_buttons = success;
 		Mix_Chunk *play_sound = NULL;
 		
 		
 		switch(id){
 			case INPUT_BUFFER_EMPTY:
 				message = ib_empty;
-				header = g_system_error;
 				play_sound = g_sfx_run_error;
 				break;
 			case REG_VALUE_INVALID:
 				message = reg_val_bad;
-				header = g_system_error;
 				play_sound = g_sfx_run_error;
 				break;
 			case FLAG_VALUE_INVALID:
 				message = flag_val_bad;
-				header = g_system_error;
 				play_sound = g_sfx_run_error;
 				break;
 			case INVALID_OUTPUT_VALUE:
 				message = ob_val_bad;
-				header = g_system_error;
 				play_sound = g_sfx_run_error;
 				break;
 			case UNPROCESSED_IB_VALUES:
 				message = ib_unproc_vals;
-				header = g_system_error;
 				play_sound = g_sfx_run_error;
 				break;
 			case EXCEEDS_CODE_LIMIT:
 				message = exc_code_size;
-				header = g_system_error;
 				play_sound = g_sfx_run_error;
 				break;
 			case OUTPUT_BUFFER_INCOMPLETE:
 				message = ob_incomplete;
-				header = g_system_error;
 				play_sound = g_sfx_run_error;
 				break;
 			case MC_WIN:
 				message = g_win_text;
-				header = g_run_result;
-				two_buttons = true;
 				play_sound = g_sfx_run_win;
 				break;
 			default: 
@@ -371,62 +396,43 @@ void mc_display_operation_handler(int id)
 			Mix_PlayChannel(-1, play_sound, 0);
 			sound_played = true;
 		}
-		dw_draw_iface_box(r, header);
-		SDL_Rect b = dw_get_iface_content_box(dw_get_iface_big_lower_box());
-		b.h -= dm_get_text_box_result_but3().h;
-		int text_h = dm_get_h_msg();		
-		dw_draw_wrapped_texture_by_h(b, text_h, message);
-		
-		static bool button_created = false;
-		static iface_btn_t *back;
-		static iface_btn_t *cont;
-		bool button_pressed = false;
+		header = success ? g_run_completed : g_run_failed;
+		dw_draw_iface_box_with_status(result_box, header, success);
+		SDL_Rect message_box = dm_get_run_result_message_box();
+		dw_draw_wrapped_texture_by_h(message_box, dm_get_h_msg(), message);
 
-		if (button_created == false){
-			button_created = true;
+		if (g_result_back_button == NULL &&
+		    g_result_continue_button == NULL) {
 			texture_t *back_texture = dw_create_text_tex(AX_STR_BACK, C_WHITE);
 			texture_t *cont_texture = dw_create_text_tex(AX_STR_CONT, C_WHITE);
 			check_mem(back_texture);
-			if (two_buttons == false){
-				SDL_Rect r = dm_get_text_box_result_but3();		
-				back = bt_create_iface_btn(r, back_texture, true);
-				cont = bt_create_iface_btn(r, cont_texture, true);//NOT USED
-			}else if (two_buttons == true){
-				SDL_Rect r1 = dm_get_text_box_result_but1();		
-				back = bt_create_iface_btn(r1, back_texture, true);
-				SDL_Rect r2 = dm_get_text_box_result_but2();		
-				cont = bt_create_iface_btn(r2, cont_texture, true);
-			}
-			
+			check_mem(cont_texture);
+			g_result_back_button = bt_create_iface_btn(
+			    dm_get_text_box_result_but3(), back_texture, true);
+			g_result_continue_button = bt_create_iface_btn(
+			    dm_get_text_box_result_but2(), cont_texture, true);
 		}
-		if (two_buttons == false){
-			back->r = dm_get_text_box_result_but3();
-		} else {
-			back->r = dm_get_text_box_result_but1();
-			cont->r = dm_get_text_box_result_but2();
-		}
-		bt_draw_iface_btn(back, em_get_escape_state(), g_sfx_iface_hover);
+		g_result_back_button->r = success ? dm_get_text_box_result_but1() :
+		                                    dm_get_text_box_result_but3();
+		g_result_continue_button->r = dm_get_text_box_result_but2();
+		bt_draw_iface_btn(g_result_back_button, em_get_escape_state(),
+		                  g_sfx_iface_hover);
 		if (two_buttons == true){
-			bt_draw_iface_btn(cont, em_get_escape_state(), g_sfx_iface_hover);
+			bt_draw_iface_btn(g_result_continue_button, em_get_escape_state(),
+			                  g_sfx_iface_hover);
 		}
 		if (em_get_escape_state() == false &&
-			bt_chk_rel_iface_btn(back, g_sfx_iface_back_cancel) == true){
+		    bt_chk_rel_iface_btn(g_result_back_button,
+		                         g_sfx_iface_back_cancel) == true){
 				mc_set_op_menu_btn_state(BACK_BTN_PRESSED);
 				mc_set_rst_lvl(true);
-				button_pressed = true;
 			} else if (em_get_escape_state() == false && two_buttons == true &&
-					   bt_chk_rel_iface_btn(cont, g_sfx_select)){
+				   bt_chk_rel_iface_btn(g_result_continue_button, g_sfx_select)){
 				mc_set_op_menu_btn_state(CONT_BTN_PRESSED);
-				button_pressed = true;
 			} else {
 				mc_set_op_menu_btn_state(NO_BTN_PRESSED);
 			}
 
-			if (button_pressed == true){
-				bt_destroy_iface_btn(back);
-				bt_destroy_iface_btn(cont);
-				button_created = false;
-			}
 	} else {
 		sound_played = false;
 		mc_set_rst_lvl(false);

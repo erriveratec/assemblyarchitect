@@ -30,6 +30,8 @@ SDL_Color C_DARKGREY      = {31, 31, 31, 255};
 SDL_Color C_SOFTBLACK     = {20, 20, 20, 255};
 SDL_Color C_NEARBLACK     = {16, 16, 16, 255};
 SDL_Color C_AMBER         = {0xFF, 0xBF, 0x00, 255};
+SDL_Color C_SUCCESS_GREEN = {64, 200, 96, 255};
+SDL_Color C_FAILURE_RED   = {232, 80, 80, 255};
 
 texture_t *g_arrow = NULL;
 
@@ -46,6 +48,8 @@ static int      draw_scaled_texture(int x, int y, float s, texture_t *t);
 static int      get_ofs_iface_inner_border();
 static int      get_h_iface_header();
 static SDL_Rect get_iface_box_big_wh();
+static SDL_Rect get_iface_header_box(SDL_Rect b);
+static void     draw_status_symbol(SDL_Rect box, bool success);
 
 /* Function: tx_get_iface_box_big_wh
  * -----------------------------------------------------------------------------
@@ -108,6 +112,17 @@ SDL_Rect dw_get_iface_big_center_box()
 	b.x = (w - b.w) / 2;
 	b.y = (h - b.h) / 2;
 	return b;
+}
+
+static SDL_Rect get_iface_header_box(SDL_Rect b)
+{
+	int offset = dw_get_ofs_iface_filled_border();
+	int inner_border = get_ofs_iface_inner_border();
+	SDL_Rect header_box = ax_pad_rectangle(b, offset, true);
+	header_box = ax_pad_rectangle(header_box, inner_border, true);
+	header_box = ax_pad_rectangle(header_box, inner_border, true);
+	header_box.h = get_h_iface_header();
+	return header_box;
 }
 
 /* Function: dm_get_ofs_iface_filled_border
@@ -303,8 +318,7 @@ void dw_draw_iface_box(SDL_Rect b, texture_t *header)
 	in = ax_pad_rectangle(in, inner_border, true);
 	dw_draw_thick_rect(in, inner_border, C_SOFTBLACK);
 
-	SDL_Rect header_box = in;
-	header_box.h        = get_h_iface_header();
+	SDL_Rect header_box = get_iface_header_box(b);
 
 	in = ax_pad_rectangle(in, inner_border, true);
 
@@ -334,6 +348,79 @@ void dw_draw_iface_box(SDL_Rect b, texture_t *header)
 		                        .h = text_h};
 		dw_draw_texture_fit_h(header_text, header);
 	}
+}
+
+void dw_draw_iface_box_with_status(SDL_Rect b, texture_t *header,
+                                   bool success)
+{
+	assert(header != NULL && "The result header texture cannot be NULL");
+	dw_draw_iface_box(b, NULL);
+
+	SDL_Rect header_box = get_iface_header_box(b);
+	int text_h = dw_get_h_iface_header_txt();
+	int text_w = ax_get_texture_w_fit_h(text_h, header);
+	int icon_size = dm_scale_to_res(28);
+	int gap = dm_scale_to_res(10);
+	int group_w = icon_size + gap + text_w;
+	int max_text_w = header_box.w - icon_size - gap;
+	if (text_w > max_text_w) {
+		text_h = text_h * max_text_w / text_w;
+		text_w = max_text_w;
+		group_w = icon_size + gap + text_w;
+	}
+
+	int group_x = header_box.x + (header_box.w - group_w) / 2;
+	SDL_Rect icon_box = {
+		.x = group_x,
+		.y = header_box.y + (header_box.h - icon_size) / 2,
+		.w = icon_size,
+		.h = icon_size
+	};
+	SDL_Rect text_box = {
+		.x = group_x + icon_size + gap,
+		.y = header_box.y + (header_box.h - text_h) / 2,
+		.w = text_w,
+		.h = text_h
+	};
+
+	draw_status_symbol(icon_box, success);
+	dw_draw_texture_fit_h(text_box, header);
+}
+
+static void draw_status_symbol(SDL_Rect box, bool success)
+{
+	Uint8 old_r, old_g, old_b, old_a;
+	SDL_GetRenderDrawColor(g_renderer, &old_r, &old_g, &old_b, &old_a);
+	SDL_Color color = success ? C_SUCCESS_GREEN : C_FAILURE_RED;
+	SDL_SetRenderDrawColor(g_renderer, color.r, color.g, color.b, color.a);
+
+	int thickness = dm_scale_to_res(4);
+	int inset = dm_scale_to_res(4);
+	if (success) {
+		int x1 = box.x + inset;
+		int y1 = box.y + box.h / 2;
+		int x2 = box.x + box.w * 2 / 5;
+		int y2 = box.y + box.h - inset;
+		int x3 = box.x + box.w - inset;
+		int y3 = box.y + inset;
+		for (int offset = 0; offset < thickness; offset++) {
+			SDL_RenderDrawLine(g_renderer, x1, y1 + offset, x2, y2 + offset);
+			SDL_RenderDrawLine(g_renderer, x2, y2 + offset, x3, y3 + offset);
+		}
+	} else {
+		int left = box.x + inset;
+		int right = box.x + box.w - inset;
+		int top = box.y + inset;
+		int bottom = box.y + box.h - inset;
+		for (int offset = 0; offset < thickness; offset++) {
+			SDL_RenderDrawLine(g_renderer, left + offset, top, right + offset,
+			                   bottom);
+			SDL_RenderDrawLine(g_renderer, right - offset, top, left - offset,
+			                   bottom);
+		}
+	}
+
+	SDL_SetRenderDrawColor(g_renderer, old_r, old_g, old_b, old_a);
 }
 
 /* Function: dw_draw_rotated_texture_fits_height

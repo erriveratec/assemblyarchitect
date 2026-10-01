@@ -33,6 +33,7 @@ int mc_get_operation_flag();
 void mc_reset_invalid_operation_flag();
 void mc_display_operation_handler(int id);
 void mc_init_errors_texture();
+void mc_destroy_errors_texture();
 void mc_destroy_avatar_textures();
 void mc_set_run_ended(bool state);
 bool mc_get_run_ended();

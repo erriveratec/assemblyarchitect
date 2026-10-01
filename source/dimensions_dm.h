@@ -79,6 +79,8 @@ SDL_Rect dm_get_text_box_stagebutton();
 SDL_Rect dm_get_text_box_result_but1();//Back in win condition
 SDL_Rect dm_get_text_box_result_but2();//Continue in win condition
 SDL_Rect dm_get_text_box_result_but3();//Back in error condition
+SDL_Rect dm_get_run_result_box();
+SDL_Rect dm_get_run_result_message_box();
 
 int dm_get_btn_anim_max();
 int dm_get_btn_anim_delta();

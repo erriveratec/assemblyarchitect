@@ -198,10 +198,10 @@ void stage_drawings(int level)
 	bf_draw_buffers();
 	rg_draw_registers();
 	mc_draw_avatar();
-	mc_display_operation_handler(mc_get_operation_flag());
-	lv_level_drawings(level);
 	sb_draw_ret_btn();
 	sb_draw_rst_btn();
+	mc_display_operation_handler(mc_get_operation_flag());
+	lv_level_drawings(level);
 	return;
 }
 

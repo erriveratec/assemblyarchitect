@@ -50,6 +50,8 @@ void dw_draw_wrapped_texture_by_h(SDL_Rect r, int h, texture_array_t *a);
 void dw_draw_rotated_texture_fits_h(int x, int y, int h, double angle, 
 															      texture_t *t);
 void dw_draw_iface_box(SDL_Rect r, texture_t *header);
+void dw_draw_iface_box_with_status(SDL_Rect r, texture_t *header,
+								   bool success);
 SDL_Rect dw_get_iface_content_box(SDL_Rect b);
 
 void dw_draw_inner_shadow_lines(SDL_Rect r, 
@@ -87,5 +89,7 @@ extern SDL_Color C_DARKGREY;
 extern SDL_Color C_DIMGREY;
 extern SDL_Color C_BLUE;
 extern SDL_Color C_AMBER;
+extern SDL_Color C_SUCCESS_GREEN;
+extern SDL_Color C_FAILURE_RED;
 #endif
 

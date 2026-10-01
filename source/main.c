@@ -209,5 +209,6 @@ int main(int argc, char *args[])
 			SDL_Delay(sleep);
 		}
 	}
+	mc_destroy_errors_texture();
 }
 
