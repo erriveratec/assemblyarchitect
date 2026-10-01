@@ -13,6 +13,7 @@
 #include "registers_rg.h"
 #include "buffers_bf.h"
 #include "game_mechanics_mc.h"
+#include "ui/run_result_rr.h"
 #include "code_window_cw.h"
 #include "immediates_im.h"
 #include "ui/escape_menu_em.h"
@@ -27,7 +28,7 @@
 #define BG_COLOR_RED 0xFF0000FF
 #define BG_COLOR_GREEN 0x00FF00FF
 
-static void initialize_game_assets();
+static bool initialize_game_assets();
 
 /* Function: initialize_game_assets
  * ----------------------------------------------------------------------------
@@ -39,7 +40,7 @@ static void initialize_game_assets();
  * Return:
  *	LV_STUDIO_SCREEN
  */
-static void initialize_game_assets()
+static bool initialize_game_assets()
 {
 	
 	SDL_Rect rb = dw_get_iface_content_box(dw_get_iface_big_lower_box());
@@ -53,9 +54,12 @@ static void initialize_game_assets()
 	iw_init_ins_box();
 	rg_init_reg_texture();
 	bf_init_buffer_assets();
-	mc_init_errors_texture();
+	if (!rr_initialize()) {
+		return false;
+	}
 	cw_init_code_window_texture();
 	im_init_imm_assets();
+	return true;
 }
 
 int main(int argc, char *args[])
@@ -76,7 +80,9 @@ int main(int argc, char *args[])
 	au_load_audio_media();
 	load_media();
 	sv_save_init_default();
-	initialize_game_assets();
+	if (!initialize_game_assets()) {
+		return FAIL;
+	}
 
 	int sleep = 0;
 	int state = LV_STUDIO_SCREEN;
@@ -209,6 +215,6 @@ int main(int argc, char *args[])
 			SDL_Delay(sleep);
 		}
 	}
-	mc_destroy_errors_texture();
+	rr_destroy();
 }
 

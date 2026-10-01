@@ -11,48 +11,13 @@
 #include "levels_lv.h"
 #include "arrow_ar.h"
 #include "immediates_im.h"
-#include "ui/escape_menu_em.h"
 #include "media/audio_au.h"
 #include "gameplay/win_condition_wc.h"
-
-#define INPUT_BUFFER_EMPTY_TEXT "A value cannot be recovered if the "\
-"Input Buffer [IB] is empty"
-#define REG_VALUE_INVALID_TEXT "Register cannot be read if a value "\
-"hasn't been stored first"
-#define FLAG_VALUE_INVALID_TEXT "FLAG cannot be read if a value "\
-"hasn't been stored first"
-
-#define INVALID_OUTPUT_VALUE_TEXT "Incorrect value in the output buffer"
-#define UNPROCESSED_IB_VALUES_TEXT "Output is correct but only works by"\
-" that specific set of values"
-#define EXCEEDS_CODE_LIMIT_TEXT "Correct output but exceeds code size"\
-" limit"
-#define OUTPUT_BUFFER_INCOMPLETE_TEXT "Not enough "\
-"items in the Output Buffer [ob] after run"
-
-#define WIN_TEXT "Execution produced the expected output"
-#define RUN_COMPLETED_TEXT "RUN COMPLETED"
-#define RUN_FAILED_TEXT "RUN FAILED"
-
-texture_array_t *ib_empty = NULL;
-texture_array_t *reg_val_bad = NULL;
-texture_array_t *flag_val_bad = NULL;
-texture_array_t *ob_val_bad = NULL;
-texture_array_t *ib_unproc_vals = NULL;
-texture_array_t *exc_code_size = NULL;
-texture_array_t *ob_incomplete = NULL;
-texture_array_t *g_win_text = NULL;
-
-static texture_t *g_run_completed = NULL;
-static texture_t *g_run_failed = NULL;
-static iface_btn_t *g_result_back_button = NULL;
-static iface_btn_t *g_result_continue_button = NULL;
 
 
 static bool g_play;
 static bool run_ended;
 static bool step_ended;
-static bool rst_lvl = false;
 
 enum avatar_id{
 	NOAVATAR,
@@ -61,7 +26,6 @@ enum avatar_id{
 	RAVATAR
 };
 
-int g_op_menu_btn = NO_BTN_PRESSED;
 static int g_invalid_operation_flag = NO_OPERATION;
 
 typedef struct avatar_t{
@@ -116,9 +80,6 @@ static void draw_ravatar();
 bool cmp_substract(int op_id, value_box_t val);
 static bool handle_ravatar_cmp(int op_id);
 static void rflag_generator(avatar_t *avatar, int id);
-void mc_set_op_menu_btn_state(int state);
-
-
 /* Function: mc_is_executing
  * ----------------------------------------------------------------------------
  * Returns the state of the play variables for the levels that requires it
@@ -150,152 +111,6 @@ void mc_start_execution(bool state)
 }
 
 
-/* Function: mc_set_op_menu_btn_state
- *------------------------------------------------------------------------------
- * Sets the variable the state of the button selected in op mendu
- *
- * Arguments:
- *	state: The state to which the menu will be set
- *
- * Return:
- *	Void.
- */
-void mc_set_op_menu_btn_state(int state)
-{
-	g_op_menu_btn = state;
-}
-
-/* Function: mc_get_op_menu_btn_state
- *------------------------------------------------------------------------------
- * Sets the variable the state of the button selected in op mendu
- *
- * Arguments:
- *	state: The state to which the menu will be set
- *
- * Return:
- *	Void.
- */
-int mc_get_op_menu_btn_state()
-{
-	return g_op_menu_btn;
-}
-
-/* Function: mc_set_rst_lvl
- *------------------------------------------------------------------------------
- * Sets the variable to reset the level
- *
- * Arguments:
- *	state: The state to which the variable will be set.
- *
- * Return:
- *	Void.
- */
-void mc_set_rst_lvl(bool state)
-{
-	rst_lvl = state;
-}
-
-/* Function: mc_get_rst_lvl
- *------------------------------------------------------------------------------
- * Sets the variable to reset the level
- *
- * Arguments:
- *	state: The state to which the variable will be set.
- *
- * Return:
- *	Void.
- */
-bool mc_get_rst_lvl()
-{
-	return rst_lvl;
-}
-
-/* Function: mc_init_errors_texture
- *------------------------------------------------------------------------------
- * Creates the instructions texture of the instruction box
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	Void.
- */
-void mc_init_errors_texture()
-{
-	int text_h = dm_get_h_msg();
-	SDL_Rect rb = dw_get_iface_content_box(dm_get_run_result_box());
-
-	ib_empty = dw_create_text_tex_array_by_h(rb.w, 
-										text_h, 
-										C_WHITE, 
-										INPUT_BUFFER_EMPTY_TEXT);
-	reg_val_bad = dw_create_text_tex_array_by_h(rb.w, 
-										   text_h, 
-										   C_WHITE, 
-										   REG_VALUE_INVALID_TEXT);
-	flag_val_bad = dw_create_text_tex_array_by_h(rb.w, 
-										    text_h, 
-										    C_WHITE, 
-											FLAG_VALUE_INVALID_TEXT);
-	ob_val_bad = dw_create_text_tex_array_by_h(rb.w, 
-										  text_h, 
-										  C_WHITE, 
-										  INVALID_OUTPUT_VALUE_TEXT);
-	ib_unproc_vals = dw_create_text_tex_array_by_h(rb.w, 
-											  text_h,
-											  C_WHITE, 
-											  UNPROCESSED_IB_VALUES_TEXT);
-	exc_code_size = dw_create_text_tex_array_by_h(rb.w, 
-											 text_h, 
-											 C_WHITE, 
-											 EXCEEDS_CODE_LIMIT_TEXT);
-	ob_incomplete = dw_create_text_tex_array_by_h(rb.w, 
-											 text_h, 
-											 C_WHITE, 
-										     OUTPUT_BUFFER_INCOMPLETE_TEXT);
-	
-	g_win_text = dw_create_text_tex_array_by_h(rb.w, 
-											   text_h, 
-											   C_WHITE, 
-											   WIN_TEXT);
-	
-	g_run_completed = dw_create_text_tex(RUN_COMPLETED_TEXT, C_WHITE);
-	g_run_failed = dw_create_text_tex(RUN_FAILED_TEXT, C_WHITE);
-}
-
-void mc_destroy_errors_texture()
-{
-	if (g_result_back_button != NULL) {
-		bt_destroy_iface_btn(g_result_back_button);
-		g_result_back_button = NULL;
-	}
-	if (g_result_continue_button != NULL) {
-		bt_destroy_iface_btn(g_result_continue_button);
-		g_result_continue_button = NULL;
-	}
-
-	dw_free_texture(g_run_completed);
-	g_run_completed = NULL;
-	dw_free_texture(g_run_failed);
-	g_run_failed = NULL;
-	dw_free_texture_array(ib_empty);
-	ib_empty = NULL;
-	dw_free_texture_array(reg_val_bad);
-	reg_val_bad = NULL;
-	dw_free_texture_array(flag_val_bad);
-	flag_val_bad = NULL;
-	dw_free_texture_array(ob_val_bad);
-	ob_val_bad = NULL;
-	dw_free_texture_array(ib_unproc_vals);
-	ib_unproc_vals = NULL;
-	dw_free_texture_array(exc_code_size);
-	exc_code_size = NULL;
-	dw_free_texture_array(ob_incomplete);
-	ob_incomplete = NULL;
-	dw_free_texture_array(g_win_text);
-	g_win_text = NULL;
-}
-
 /* Function: mc_reset_invalid_operation_flag
  * -----------------------------------------------------------------------------
  * Resets the invalid operation flag when the player has pressed stop
@@ -326,121 +141,6 @@ int mc_get_operation_flag()
 {
 	return g_invalid_operation_flag;
 }
-
-/* Function: invalid_operation_handler
- * -----------------------------------------------------------------------------
- * This function is called in all the stages, an invalid operation message
- * the nature of the message will depend accordingly to an identifier
- * 
- * Arguments:
- *	id: The identifier of the exception that ocurred.
- *
- * Return:
- *	void.
- */
-void mc_display_operation_handler(int id)
-{
-	assert(id >= NO_OPERATION && id < OPERATION_MAX &&
-		   "Incorrect id for the invalid operation handler");
-	if (em_get_escape_state() == true){
-		return;
-	}
-	
-	static bool sound_played = false;
-	if (id != NO_OPERATION){
-		SDL_Rect result_box = dm_get_run_result_box();
-		texture_array_t *message = NULL;
-		texture_t *header = NULL;
-		bool success = id == MC_WIN;
-		bool two_buttons = success;
-		Mix_Chunk *play_sound = NULL;
-		
-		
-		switch(id){
-			case INPUT_BUFFER_EMPTY:
-				message = ib_empty;
-				play_sound = g_sfx_run_error;
-				break;
-			case REG_VALUE_INVALID:
-				message = reg_val_bad;
-				play_sound = g_sfx_run_error;
-				break;
-			case FLAG_VALUE_INVALID:
-				message = flag_val_bad;
-				play_sound = g_sfx_run_error;
-				break;
-			case INVALID_OUTPUT_VALUE:
-				message = ob_val_bad;
-				play_sound = g_sfx_run_error;
-				break;
-			case UNPROCESSED_IB_VALUES:
-				message = ib_unproc_vals;
-				play_sound = g_sfx_run_error;
-				break;
-			case EXCEEDS_CODE_LIMIT:
-				message = exc_code_size;
-				play_sound = g_sfx_run_error;
-				break;
-			case OUTPUT_BUFFER_INCOMPLETE:
-				message = ob_incomplete;
-				play_sound = g_sfx_run_error;
-				break;
-			case MC_WIN:
-				message = g_win_text;
-				play_sound = g_sfx_run_win;
-				break;
-			default: 
-				puts("ERROR: Invalid operation incorrec id");
-		}
-		if (sound_played == false){	
-			Mix_PlayChannel(-1, play_sound, 0);
-			sound_played = true;
-		}
-		header = success ? g_run_completed : g_run_failed;
-		dw_draw_iface_box_with_status(result_box, header, success);
-		SDL_Rect message_box = dm_get_run_result_message_box();
-		dw_draw_wrapped_texture_by_h(message_box, dm_get_h_msg(), message);
-
-		if (g_result_back_button == NULL &&
-		    g_result_continue_button == NULL) {
-			texture_t *back_texture = dw_create_text_tex(AX_STR_BACK, C_WHITE);
-			texture_t *cont_texture = dw_create_text_tex(AX_STR_CONT, C_WHITE);
-			check_mem(back_texture);
-			check_mem(cont_texture);
-			g_result_back_button = bt_create_iface_btn(
-			    dm_get_text_box_result_but3(), back_texture, true);
-			g_result_continue_button = bt_create_iface_btn(
-			    dm_get_text_box_result_but2(), cont_texture, true);
-		}
-		g_result_back_button->r = success ? dm_get_text_box_result_but1() :
-		                                    dm_get_text_box_result_but3();
-		g_result_continue_button->r = dm_get_text_box_result_but2();
-		bt_draw_iface_btn(g_result_back_button, em_get_escape_state(),
-		                  g_sfx_iface_hover);
-		if (two_buttons == true){
-			bt_draw_iface_btn(g_result_continue_button, em_get_escape_state(),
-			                  g_sfx_iface_hover);
-		}
-		if (em_get_escape_state() == false &&
-		    bt_chk_rel_iface_btn(g_result_back_button,
-		                         g_sfx_iface_back_cancel) == true){
-				mc_set_op_menu_btn_state(BACK_BTN_PRESSED);
-				mc_set_rst_lvl(true);
-			} else if (em_get_escape_state() == false && two_buttons == true &&
-				   bt_chk_rel_iface_btn(g_result_continue_button, g_sfx_select)){
-				mc_set_op_menu_btn_state(CONT_BTN_PRESSED);
-			} else {
-				mc_set_op_menu_btn_state(NO_BTN_PRESSED);
-			}
-
-	} else {
-		sound_played = false;
-		mc_set_rst_lvl(false);
-	}
-	error:
-	return;
-}
-
 
 /* Function: mc_set_invalid_operation_flag
  * -----------------------------------------------------------------------------

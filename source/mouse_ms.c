@@ -359,6 +359,11 @@ void ms_consume_left_press(void)
     set_mouse_left_pressed(false);
 }
 
+void ms_consume_left_release(void)
+{
+	set_mouse_left_released(false);
+}
+
 /* Function: ms_reset_mouse_values
  * -----------------------------------------------------------------------------
  * This function is used for clearing the values not used in the mouse for next

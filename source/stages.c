@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <SDL_mixer.h>
 #include "game_mechanics_mc.h"
+#include "ui/run_result_rr.h"
 #include "tutorial_tr.h"
 #include "aux.h"
 #include "ui/button_bt.h"
@@ -38,7 +39,7 @@ static SDL_Rect result_box;
 
 int g_player = FL_NO_PLAYER;
 
-void                stage_drawings(int level);
+void                stage_drawings(int level, int operation_id);
 static code_line_t *pending_operand_handler();
 static void         flag_handler(level_flags_t *flags, int clicked_button);
 static code_line_t *edit_code(int level_id);
@@ -188,7 +189,7 @@ static void destroy_level(level_flags_t *flags)
  * Return:
  *	Void.
  */
-void stage_drawings(int level)
+void stage_drawings(int level, int operation_id)
 {
 	iw_draw_ins_box();
 	cw_draw_code_window();
@@ -200,9 +201,9 @@ void stage_drawings(int level)
 	mc_draw_avatar();
 	sb_draw_ret_btn();
 	sb_draw_rst_btn();
-	mc_display_operation_handler(mc_get_operation_flag());
+	/* Keep the Level 0 failure explanation layered over the centered result. */
+	rr_render(operation_id);
 	lv_level_drawings(level);
-	return;
 }
 
 /* Function: stage_button_handler
@@ -530,7 +531,7 @@ static void reset_level(int level_id, level_flags_t *flags)
 	rg_reset_ibox();
 	rg_reset_obox();
 	rg_reset_rflags();
-	mc_set_op_menu_btn_state(NO_BTN_PRESSED);
+	rr_reset_state();
 }
 
 /* Function: get_sector_id
@@ -585,7 +586,6 @@ int stage_level(int level_id)
 	// Electron animation
 
 	int                  ret_val   = LV_PLAY_LEVEL;
-	static bool          reset     = false;
 	static code_line_t  *hold_line = NULL;
 	static level_flags_t flags;
 	bool                 back_to_level_selection = sb_chck_rel_ret_btn();
@@ -597,7 +597,17 @@ int stage_level(int level_id)
 	}
 
 	rst_btn_hdl(level_id, &flags);
-	stage_drawings(level_id);
+	int operation_id = mc_get_operation_flag();
+	run_result_action_t result_action = rr_update(operation_id);
+	if (result_action == RUN_RESULT_ACTION_BACK) {
+		reset_level(level_id, &flags);
+		flags.play = false;
+	} else if (operation_id == MC_WIN &&
+	           result_action == RUN_RESULT_ACTION_CONTINUE) {
+		rr_reset_state();
+		back_to_level_selection = true;
+	}
+	stage_drawings(level_id, operation_id);
 	cw_sort_code();
 
 	if (sb_chk_click_stage_btn() == true && cw_is_operand_pending() == false) {
@@ -606,9 +616,8 @@ int stage_level(int level_id)
 
 	mc_start_execution(flags.play);
 
-	if ((flags.stop == true && flags.stop_enabled == true) || reset == true) {
+	if (flags.stop == true && flags.stop_enabled == true) {
 		reset_level(level_id, &flags);
-		reset = false;
 	} else if (flags.non_stop == false || cw_is_operand_pending() == true) {
 		hold_line = edit_code(level_id);
 		lv_set_hold_line(hold_line);
@@ -620,26 +629,17 @@ int stage_level(int level_id)
 	}
 	int op_flag = mc_get_operation_flag();
 	if (op_flag != NO_OPERATION && op_flag != MC_WIN) {
-		reset = mc_get_rst_lvl();
-		if (reset == true) {
-			reset_level(level_id, &flags);
-		}
 		flags.play = false;
 	} else if (mc_get_run_ended() == true && flags.step_fst == true &&
 	           wc_is_satisfied() == true) {
 		mc_set_operation_flag(MC_WIN);
 		bf_set_win_condition();
-		int action_selected = mc_get_op_menu_btn_state();
 		flags.play          = false;
 		fl_enable_next_level(g_player, level_id + 1);
-		if (action_selected == BACK_BTN_PRESSED) {
-			reset_level(level_id, &flags);
-		} else if (action_selected == CONT_BTN_PRESSED) {
-			back_to_level_selection = true;
-		}
 	}
 
 	if (back_to_level_selection == true) {
+		rr_reset_state();
 		ret_val = get_sector_id(level_id);
 		reset_level(level_id, &flags);
 		destroy_level(&flags);

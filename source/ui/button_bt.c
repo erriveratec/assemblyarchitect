@@ -262,6 +262,9 @@ bool bt_chk_hover_iface_btn(iface_btn_t *btn)
 iface_btn_t *bt_create_iface_btn(SDL_Rect r, texture_t *t, bool enabled)
 {
 	iface_btn_t *new_button = malloc(sizeof(iface_btn_t));
+	if (new_button == NULL) {
+		return NULL;
+	}
 	new_button->r = r;
 	float scale_w = (float)r.w/t->w;
 	float scale_h = (float)r.h/t->h;

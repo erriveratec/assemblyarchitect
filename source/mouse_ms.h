@@ -27,4 +27,5 @@ void ms_init_mouse();
 void ms_clear_mouse_values();
 void ms_reset_mouse_values();
 void ms_consume_left_press(void);
+void ms_consume_left_release(void);
 #endif

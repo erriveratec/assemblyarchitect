@@ -685,6 +685,9 @@ texture_t *dw_create_text_tex(char *texture_text, SDL_Color text_color)
 
 	texture_t   *new_texture     = (texture_t *)malloc(sizeof(texture_t));
 	SDL_Texture *created_texture = NULL;
+	if (new_texture == NULL) {
+		return NULL;
+	}
 
 	// Render text surface
 	SDL_Surface *text_surface =
@@ -692,6 +695,7 @@ texture_t *dw_create_text_tex(char *texture_text, SDL_Color text_color)
 	if (text_surface == NULL) {
 		printf("Unable to render text surface! SDL_ttf Error: %s\n",
 		       TTF_GetError());
+		free(new_texture);
 		return NULL;
 	} else {
 		created_texture =
@@ -700,6 +704,8 @@ texture_t *dw_create_text_tex(char *texture_text, SDL_Color text_color)
 			printf("Unable to create texture from rendered text!"
 			       "SDL Error: %s\n",
 			       SDL_GetError());
+			SDL_FreeSurface(text_surface);
+			free(new_texture);
 			return NULL;
 		}
 
@@ -785,14 +791,26 @@ texture_array_t *dw_create_text_tex_array_by_h(int w, int h, SDL_Color c,
 	assert(h > 0 && "The height of the text is negative");
 	assert(t != NULL && "Text pointer is NULL");
 
-	texture_array_t *array = malloc(sizeof(texture_array_t));
+	texture_array_t *array = calloc(1, sizeof(texture_array_t));
+	if (array == NULL) {
+		return NULL;
+	}
 	array->size            = ax_get_wrapped_text_height(w, h, t) / h;
 	array->t               = calloc(array->size, sizeof(texture_t *));
+	if (array->t == NULL) {
+		free(array);
+		return NULL;
+	}
 
 	int y_offset = h;
 
 	int   string_size = strlen(t);
 	char *text        = calloc((size_t)string_size + 1, sizeof(char));
+	if (text == NULL) {
+		free(array->t);
+		free(array);
+		return NULL;
+	}
 
 	int last_fit      = 0;
 	int already_drawn = 0;
