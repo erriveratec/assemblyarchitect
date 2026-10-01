@@ -73,6 +73,11 @@ typedef struct run_result_layout_t {
 	int text_height;
 } run_result_layout_t;
 
+/*
+ * Resolve this configuration once during application initialization. Changing
+ * modes requires restart; runtime changes would rebuild wrapped text textures
+ * and reinitialize dependent arrows.
+ */
 static const run_result_layout_config_t g_run_result_layout_config = {
 	.size = RUN_RESULT_BOX_LARGE,
 	.position = TX_CENTER_BOX,
@@ -84,7 +89,8 @@ static const run_result_layout_config_t g_run_result_layout_config = {
 	.bottom_padding = 24
 };
 
-static run_result_box_size_t g_effective_layout_size;
+static run_result_layout_t g_failure_layout;
+static run_result_layout_t g_success_layout;
 static bool g_layout_resolved;
 
 static bool rr_rect_contains(SDL_Rect outer, SDL_Rect inner)
@@ -129,13 +135,11 @@ static bool rr_get_layout_for_size(run_result_box_size_t size,
 		.large_text = false
 	};
 	SDL_Rect base_box;
-	SDL_Rect base_content;
 	int text_height = 0;
-	if (!tx_get_text_box_rects(&options, &base_box, &base_content,
+	if (!tx_get_text_box_rects(&options, &base_box, NULL,
 	                           &text_height)) {
 		return false;
 	}
-	(void)base_content;
 
 	SDL_Rect box = base_box;
 	if (size == RUN_RESULT_BOX_CUSTOM) {
@@ -183,19 +187,20 @@ static bool rr_get_layout_for_size(run_result_box_size_t size,
 		return false;
 	}
 	box.y = (int)offset_y;
-	if (size == RUN_RESULT_BOX_CUSTOM) {
-		int margin = dm_scale_to_res(16);
-		int64_t right = (int64_t)box.x + box.w;
-		int64_t bottom = (int64_t)box.y + box.h;
-		if (box.x < margin || right > dm_get_screen_width() - margin) {
-			if (failure_reason != NULL) *failure_reason = "box exceeds the screen safe width";
-			return false;
-		}
-		if (box.y < margin || bottom > dm_get_screen_height() - margin) {
-			if (failure_reason != NULL) *failure_reason =
-				"vertical offset moves the modal outside the screen safe area";
-			return false;
-		}
+	int safe_margin = dm_scale_to_res(16);
+	int64_t box_right = (int64_t)box.x + box.w;
+	int64_t box_bottom = (int64_t)box.y + box.h;
+	if (box.x < safe_margin ||
+	    box_right > (int64_t)dm_get_screen_width() - safe_margin) {
+		if (failure_reason != NULL) *failure_reason =
+			"final box exceeds the screen safe width";
+		return false;
+	}
+	if (box.y < safe_margin ||
+	    box_bottom > (int64_t)dm_get_screen_height() - safe_margin) {
+		if (failure_reason != NULL) *failure_reason =
+			"vertical offset moves the final box outside the screen safe area";
+		return false;
 	}
 
 	SDL_Rect content = dw_get_iface_content_box(box);
@@ -368,48 +373,48 @@ static bool rr_get_layout_for_size(run_result_box_size_t size,
 
 static bool rr_validate_layout_mode(run_result_box_size_t size,
 									run_result_layout_t *failure_layout,
+									run_result_layout_t *success_layout,
 									const char **failure_reason)
 {
-	run_result_layout_t success_layout;
 	if (!rr_get_layout_for_size(size, false, failure_layout, failure_reason) ||
-	    !rr_get_layout_for_size(size, true, &success_layout, failure_reason)) {
+	    !rr_get_layout_for_size(size, true, success_layout, failure_reason)) {
 		return false;
 	}
-	if (failure_layout->message.w != success_layout.message.w ||
-	    failure_layout->message.h != success_layout.message.h) {
+	if (failure_layout->message.w != success_layout->message.w ||
+	    failure_layout->text_height != success_layout->text_height) {
 		if (failure_reason != NULL) *failure_reason =
-			"failure and success message areas do not match";
+			"failure and success message widths or text heights do not match";
 		return false;
 	}
 	return true;
 }
 
-static bool rr_resolve_layout(run_result_layout_t *failure_layout)
+static bool rr_resolve_layout(void)
 {
 	const char *failure_reason = NULL;
 	run_result_box_size_t requested_size = g_run_result_layout_config.size;
-	if (rr_validate_layout_mode(requested_size, failure_layout,
-	                            &failure_reason)) {
-		g_effective_layout_size = requested_size;
+	g_layout_resolved = false;
+	if (rr_validate_layout_mode(requested_size, &g_failure_layout,
+	                            &g_success_layout, &failure_reason)) {
 		g_layout_resolved = true;
 		return true;
 	}
-	if (requested_size != RUN_RESULT_BOX_CUSTOM) {
-		fprintf(stderr, "Run Result layout rejected: %s\n",
-		        failure_reason != NULL ? failure_reason : "unknown geometry error");
-		return false;
-	}
-
-	fprintf(stderr, "Run Result custom layout rejected: %s\n",
-	        failure_reason != NULL ? failure_reason : "unknown geometry error");
-	fputs("Falling back to the large Run Result layout\n", stderr);
-	if (!rr_validate_layout_mode(RUN_RESULT_BOX_LARGE, failure_layout,
-	                             &failure_reason)) {
+	if (requested_size == RUN_RESULT_BOX_LARGE) {
 		fprintf(stderr, "Large Run Result layout rejected: %s\n",
 		        failure_reason != NULL ? failure_reason : "unknown geometry error");
 		return false;
 	}
-	g_effective_layout_size = RUN_RESULT_BOX_LARGE;
+
+	fprintf(stderr, "Run Result %s layout rejected: %s\n",
+	        requested_size == RUN_RESULT_BOX_CUSTOM ? "custom" : "standard",
+	        failure_reason != NULL ? failure_reason : "unknown geometry error");
+	fputs("Falling back to the large Run Result layout\n", stderr);
+	if (!rr_validate_layout_mode(RUN_RESULT_BOX_LARGE, &g_failure_layout,
+	                             &g_success_layout, &failure_reason)) {
+		fprintf(stderr, "Large Run Result layout rejected: %s\n",
+		        failure_reason != NULL ? failure_reason : "unknown geometry error");
+		return false;
+	}
 	g_layout_resolved = true;
 	return true;
 }
@@ -419,8 +424,8 @@ static bool rr_get_layout(bool success, run_result_layout_t *layout)
 	if (!g_layout_resolved || layout == NULL) {
 		return false;
 	}
-	return rr_get_layout_for_size(g_effective_layout_size, success, layout,
-	                              NULL);
+	*layout = success ? g_success_layout : g_failure_layout;
+	return true;
 }
 
 static bool rr_is_success(int operation_id)
@@ -489,12 +494,11 @@ bool rr_initialize(void)
 		return true;
 	}
 
-	run_result_layout_t layout;
-	if (!rr_resolve_layout(&layout)) {
+	if (!rr_resolve_layout()) {
 		return false;
 	}
-	int message_width = layout.message.w;
-	int text_h = layout.text_height;
+	int message_width = g_failure_layout.message.w;
+	int text_h = g_failure_layout.text_height;
 
 #define RR_CHECK_RESOURCE(resource, expression) \
 	do { \
@@ -530,7 +534,8 @@ bool rr_initialize(void)
 		fprintf(stderr, "Run Result initialization failed: Back button label\n");
 		goto error;
 	}
-	g_result_back_button = bt_create_iface_btn(layout.back_button, back_label, true);
+	g_result_back_button = bt_create_iface_btn(g_failure_layout.back_button,
+	                                          back_label, true);
 	if (g_result_back_button == NULL) {
 		dw_free_texture(back_label);
 		fprintf(stderr, "Run Result initialization failed: Back button\n");
@@ -542,7 +547,8 @@ bool rr_initialize(void)
 		fprintf(stderr, "Run Result initialization failed: Continue button label\n");
 		goto error;
 	}
-	g_result_continue_button = bt_create_iface_btn(layout.continue_button,
+	g_result_continue_button = bt_create_iface_btn(
+	                                              g_success_layout.continue_button,
 	                                              continue_label, true);
 	if (g_result_continue_button == NULL) {
 		dw_free_texture(continue_label);
@@ -594,6 +600,8 @@ void rr_destroy(void)
 	g_win_text = NULL;
 	g_initialized = false;
 	g_layout_resolved = false;
+	g_failure_layout = (run_result_layout_t){0};
+	g_success_layout = (run_result_layout_t){0};
 	rr_reset_state();
 }
 

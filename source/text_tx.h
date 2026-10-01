@@ -26,6 +26,7 @@ typedef struct tx_text_box_options_t {
 	bool large_text;
 } tx_text_box_options_t;
 
+/* Output pointers may be NULL, but at least one output must be requested. */
 bool tx_get_text_box_rects(const tx_text_box_options_t *options,
 						   SDL_Rect *box, SDL_Rect *content,
 						   int *text_height);

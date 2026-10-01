@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <stdint.h>
 #include <SDL_mixer.h>
 #include "text_tx.h"
 #include "draw_dw.h"
@@ -561,61 +562,63 @@ bool tx_get_text_box_rects(
 	const tx_text_box_options_t *options, SDL_Rect *box, SDL_Rect *content,
 	int *text_height)
 {
-	if (options == NULL || box == NULL || content == NULL ||
-	    text_height == NULL) {
+	if (options == NULL ||
+	    (box == NULL && content == NULL && text_height == NULL)) {
 		return false;
 	}
 	enum text_box_positions position = options->position;
+	SDL_Rect resolved_box;
+	int resolved_text_height;
 
 	switch (position) {
 	case TX_INS_BOX:
-		*box         = get_text_box_ins();
-		*text_height = dm_get_h_msg();
+		resolved_box = get_text_box_ins();
+		resolved_text_height = dm_get_h_msg();
 		break;
 
 	case TX_UPPER_BOX:
-		*box         = get_text_box_upper();
-		*text_height = dm_get_h_msg();
+		resolved_box = get_text_box_upper();
+		resolved_text_height = dm_get_h_msg();
 		break;
 
 	case TX_UPPER_RIGHT_BOX:
-		*box         = get_text_box_upper_right();
-		*text_height = dm_get_h_msg();
+		resolved_box = get_text_box_upper_right();
+		resolved_text_height = dm_get_h_msg();
 		break;
 
 	case TX_CENTER_BOX:
-		*box         = get_text_box_center();
-		*text_height = dm_get_h_msg();
+		resolved_box = get_text_box_center();
+		resolved_text_height = dm_get_h_msg();
 		break;
 
 	case TX_CENTER_RIGHT_BOX:
-		*box         = get_text_box_center_right();
-		*text_height = dm_get_h_msg();
+		resolved_box = get_text_box_center_right();
+		resolved_text_height = dm_get_h_msg();
 		break;
 
 	case TX_LOWER_BOX:
-		*box         = get_text_box_lower();
-		*text_height = dm_get_h_msg();
+		resolved_box = get_text_box_lower();
+		resolved_text_height = dm_get_h_msg();
 		break;
 
 	case TX_CODE_BOX:
-		*box         = get_text_box_code();
-		*text_height = dm_get_h_msg();
+		resolved_box = get_text_box_code();
+		resolved_text_height = dm_get_h_msg();
 		break;
 
 	case TX_STAGEBUTTON_BOX:
-		*box         = dm_get_text_box_stagebutton();
-		*text_height = dm_get_h_msg();
+		resolved_box = dm_get_text_box_stagebutton();
+		resolved_text_height = dm_get_h_msg();
 		break;
 
 	case TX_CENTER_UP_BOX:
-		*box         = get_text_box_center_up();
-		*text_height = dm_get_h_msg();
+		resolved_box = get_text_box_center_up();
+		resolved_text_height = dm_get_h_msg();
 		break;
 
 	case TX_ERROR_BOX:
-		*box         = dm_get_text_box_error();
-		*text_height = dm_get_h_big_text();
+		resolved_box = dm_get_text_box_error();
+		resolved_text_height = dm_get_h_big_text();
 		break;
 
 	default:
@@ -625,40 +628,60 @@ bool tx_get_text_box_rects(
 	if (options->large_box) {
 		int width  = dm_scale_to_res(LARGE_TEXT_BOX_W);
 		int height = dm_scale_to_res(LARGE_TEXT_BOX_H);
-		int extra_width  = width - box->w;
-		int extra_height = height - box->h;
+		int extra_width  = width - resolved_box.w;
+		int extra_height = height - resolved_box.h;
 
 		if (position == TX_CENTER_BOX || position == TX_UPPER_BOX ||
 		    position == TX_LOWER_BOX || position == TX_CODE_BOX ||
 		    position == TX_CENTER_UP_BOX) {
-			box->x -= extra_width / 2;
+			resolved_box.x -= extra_width / 2;
 		}
 		if (position == TX_CENTER_BOX || position == TX_CENTER_RIGHT_BOX ||
 		    position == TX_STAGEBUTTON_BOX) {
-			box->y -= extra_height / 2;
+			resolved_box.y -= extra_height / 2;
 		} else if (position == TX_LOWER_BOX || position == TX_CODE_BOX) {
-			box->y -= extra_height;
+			resolved_box.y -= extra_height;
 		}
-		box->w = width;
-		box->h = height;
-		if (box->x + box->w > dm_get_screen_width()) {
-			box->x = dm_get_screen_width() - box->w;
+		resolved_box.w = width;
+		resolved_box.h = height;
+		if (resolved_box.x + resolved_box.w > dm_get_screen_width()) {
+			resolved_box.x = dm_get_screen_width() - resolved_box.w;
 		}
-		if (box->y + box->h > dm_get_screen_height()) {
-			box->y = dm_get_screen_height() - box->h;
+		if (resolved_box.y + resolved_box.h > dm_get_screen_height()) {
+			resolved_box.y = dm_get_screen_height() - resolved_box.h;
 		}
-		if (box->x < 0) {
-			box->x = 0;
+		if (resolved_box.x < 0) {
+			resolved_box.x = 0;
 		}
-		if (box->y < 0) {
-			box->y = 0;
+		if (resolved_box.y < 0) {
+			resolved_box.y = 0;
 		}
 	}
 	if (options->large_text) {
-		*text_height = dm_get_h_big_text();
+		resolved_text_height = dm_get_h_big_text();
 	}
 
-	*content = dw_get_iface_content_box(*box);
+	SDL_Rect resolved_content = dw_get_iface_content_box(resolved_box);
+	int64_t box_right = (int64_t)resolved_box.x + resolved_box.w;
+	int64_t box_bottom = (int64_t)resolved_box.y + resolved_box.h;
+	int64_t content_right = (int64_t)resolved_content.x + resolved_content.w;
+	int64_t content_bottom = (int64_t)resolved_content.y + resolved_content.h;
+	if (resolved_box.w <= 0 || resolved_box.h <= 0 ||
+	    resolved_content.w <= 0 || resolved_content.h <= 0 ||
+	    resolved_text_height <= 0 || resolved_content.x < resolved_box.x ||
+	    resolved_content.y < resolved_box.y || content_right > box_right ||
+	    content_bottom > box_bottom) {
+		return false;
+	}
+	if (box != NULL) {
+		*box = resolved_box;
+	}
+	if (content != NULL) {
+		*content = resolved_content;
+	}
+	if (text_height != NULL) {
+		*text_height = resolved_text_height;
+	}
 	return true;
 }
 
