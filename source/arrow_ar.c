@@ -11,6 +11,7 @@
 #include"buffers_bf.h"
 #include"registers_rg.h"
 #include "dimensions_dm.h"
+#include "ui/run_result_rr_internal.h"
 
 static const Uint32 ARROW_H = 45;
 static const Uint32 ARROW_W = 45;
@@ -599,16 +600,18 @@ static void initialize_op2_arrow()
 static void initialize_error_arrow()
 {
 	SDL_Rect a = ar_get_arrow_wh();
-	SDL_Rect rb = dm_get_text_box_result_but3();		
-	SDL_Rect eb = dm_get_text_box_error();
-	SDL_Rect back_but =  dm_get_text_box_result_but1();
-	g_arrow_error.box.x = rb.x - a.w;
-	g_arrow_error.box.y = rb.y + rb.h/2 - a.h/2;
+	SDL_Rect back_button;
+	if (!rr_get_failure_back_button_rect(&back_button)) {
+		g_arrow_error.visible = false;
+		return;
+	}
+	g_arrow_error.box.x = back_button.x - a.w;
+	g_arrow_error.box.y = back_button.y + back_button.h / 2 - a.h / 2;
 	g_arrow_error.box.w = a.w;
 	g_arrow_error.box.h = a.h;
 	g_arrow_error.in_place = false;
 	g_arrow_error.visible = true;
-	g_arrow_error.startx = rb.x + rb.w/2 - back_but.w/2 - 2*a.w;			
+	g_arrow_error.startx = back_button.x - 2 * a.w;
 	g_arrow_error.starty = g_arrow_error.box.y;
 	g_arrow_error.travel = a.h;
 	g_arrow_error.dir = AR_RIGHT;

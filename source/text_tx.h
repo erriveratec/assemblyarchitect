@@ -26,6 +26,10 @@ typedef struct tx_text_box_options_t {
 	bool large_text;
 } tx_text_box_options_t;
 
+bool tx_get_text_box_rects(const tx_text_box_options_t *options,
+						   SDL_Rect *box, SDL_Rect *content,
+						   int *text_height);
+
 void tx_init_global_msgs();
 void tx_text_box(int pos, int msg_id, int header);
 void tx_bottom_msg(const tx_text_box_options_t *options, int msg_id);

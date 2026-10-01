@@ -528,10 +528,6 @@ static int get_box_member(SDL_Rect *box, int member)
  * Return:
  *	Void.
  */
-static bool tx_get_text_box_layout(
-	const tx_text_box_options_t *options, SDL_Rect *box, SDL_Rect *content,
-	int *text_height);
-
 void tx_bottom_msg(const tx_text_box_options_t *options, int msg_id)
 {
 	assert(msg_id >= 0 && msg_id < g_gbl_msgs_size && "Invalid msg_id");
@@ -549,8 +545,8 @@ void tx_bottom_msg(const tx_text_box_options_t *options, int msg_id)
 		b.y    = dm_get_text_box_error().y + dm_get_text_box_error().h * 4 / 6;
 		b.h    = dm_get_text_box_error().h / 6;
 	} else {
-		if (!tx_get_text_box_layout(options, &b, &content,
-		                            &layout_text_height)) {
+		if (!tx_get_text_box_rects(options, &b, &content,
+	                           &layout_text_height)) {
 			return;
 		}
 		if (options->position == TX_STAGEBUTTON_BOX) {
@@ -561,7 +557,7 @@ void tx_bottom_msg(const tx_text_box_options_t *options, int msg_id)
 	dw_draw_wrapped_texture_by_h(b, text_h, a);
 }
 
-static bool tx_get_text_box_layout(
+bool tx_get_text_box_rects(
 	const tx_text_box_options_t *options, SDL_Rect *box, SDL_Rect *content,
 	int *text_height)
 {
@@ -701,7 +697,7 @@ void tx_text_box_texture(const tx_text_box_options_t *options,
 	SDL_Rect content;
 	int      text_height = 0;
 
-	if (!tx_get_text_box_layout(options, &box, &content, &text_height)) {
+	if (!tx_get_text_box_rects(options, &box, &content, &text_height)) {
 		fprintf(stderr, "tx_text_box_texture: invalid box options\n");
 		return;
 	}
@@ -724,7 +720,7 @@ texture_array_t *tx_create_text_box_message(
 	SDL_Rect content;
 	int      text_height = 0;
 
-	if (!tx_get_text_box_layout(options, &box, &content, &text_height)) {
+	if (!tx_get_text_box_rects(options, &box, &content, &text_height)) {
 		return NULL;
 	}
 

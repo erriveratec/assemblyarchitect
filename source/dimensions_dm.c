@@ -8,7 +8,7 @@
 #include <SDL.h>
 #include "arrow_ar.h"
 
-#define RES_BOX_OFFSET 35
+#define MODAL_BOX_PADDING 35
 
 #define TEXT_BOX_LOWER_X 675
 #define TEXT_BOX_LOWER_Y 565
@@ -55,11 +55,8 @@
 #define RET_RES_OFS 5
 
 
-#define RES_BUTTON_H 60
-#define RES_BUTTON_W 155
-#define RESULT_BOX_Y_OFFSET 30
-#define RESULT_BUTTON_GAP 30
-#define RESULT_CONTENT_BUTTON_GAP 15
+#define MODAL_BUTTON_H 60
+#define MODAL_BUTTON_W 155
 
 #define RAIL_W 4
 #define RAIL_END_W 16
@@ -129,7 +126,7 @@ static int dm_get_ofs_val_box_x();
  */
 int dm_get_ofs_res_box()
 {
-	return dm_scale_to_res(RES_BOX_OFFSET);
+	return dm_scale_to_res(MODAL_BOX_PADDING);
 }
 
 
@@ -627,100 +624,15 @@ SDL_Rect dm_get_value_box_wh()
 
 
 
-/* Function: dm_get_text_box_result_but3
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object. This is for the text of the
- * result box.
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_run_result_box()
+SDL_Rect dm_get_modal_button_wh()
 {
-	SDL_Rect rb = dw_get_iface_big_center_box();
-	rb.y -= dm_scale_to_res(RESULT_BOX_Y_OFFSET);
-	return rb;
-}
-
-SDL_Rect dm_get_run_result_message_box()
-{
-	SDL_Rect rb = dm_get_run_result_box();
-	SDL_Rect content = dw_get_iface_content_box(rb);
-	SDL_Rect back_button = dm_get_text_box_result_but3();
-	content.h = back_button.y - content.y -
-	            dm_scale_to_res(RESULT_CONTENT_BUTTON_GAP);
-	return content;
-}
-
-/* Function: dm_get_text_box_result_but3
- * -----------------------------------------------------------------------------
- * Returns the centered Back button rectangle for a failure result.
- */
-SDL_Rect dm_get_text_box_result_but3()
-{
-	SDL_Rect rb = dm_get_run_result_box();
-	SDL_Rect content = dw_get_iface_content_box(rb);
-	SDL_Rect b;
-	b.w = dm_scale_to_res(RES_BUTTON_W);
-	b.h = dm_scale_to_res(RES_BUTTON_H);
-	b.x = content.x + (content.w - b.w) / 2;
-	b.y = rb.y + rb.h - b.h - dm_scale_to_res(RES_BOX_OFFSET);
-	return b;
-}
-
-/* Function: dm_get_text_box_result_but2
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object. This is for the text of the
- * result box.
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_text_box_result_but2()
-{
-	SDL_Rect rb = dm_get_run_result_box();
-	SDL_Rect content = dw_get_iface_content_box(rb);
-	SDL_Rect b;
-	b.w = dm_scale_to_res(RES_BUTTON_W);
-	b.h = dm_scale_to_res(RES_BUTTON_H);
-	int gap = dm_scale_to_res(RESULT_BUTTON_GAP);
-	int group_w = 2 * b.w + gap;
-	int group_x = content.x + (content.w - group_w) / 2;
-	b.x = group_x + b.w + gap;
-	b.y = rb.y + rb.h - b.h - dm_scale_to_res(RES_BOX_OFFSET);
-	return b;
-}
-
-/* Function: dm_get_text_box_result_but1
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object. This is for the text of the
- * result box.
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_text_box_result_but1()
-{
-	SDL_Rect rb = dm_get_run_result_box();
-	SDL_Rect content = dw_get_iface_content_box(rb);
-	SDL_Rect b;
-	b.w = dm_scale_to_res(RES_BUTTON_W);
-	b.h = dm_scale_to_res(RES_BUTTON_H);
-	int gap = dm_scale_to_res(RESULT_BUTTON_GAP);
-	int group_w = 2 * b.w + gap;
-	int group_x = content.x + (content.w - group_w) / 2;
-	b.x = group_x;
-	b.y = rb.y + rb.h - b.h - dm_scale_to_res(RES_BOX_OFFSET);
-	return b;
+	SDL_Rect button = {
+		.w = dm_scale_to_res(MODAL_BUTTON_W),
+		.h = dm_scale_to_res(MODAL_BUTTON_H),
+		.x = 0,
+		.y = 0
+	};
+	return button;
 }
 
 

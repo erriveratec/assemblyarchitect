@@ -1,9 +1,13 @@
 #include <stdbool.h>
+#include <limits.h>
+#include <stdint.h>
 #include <stdio.h>
 #include "ui/run_result_rr.h"
+#include "ui/run_result_rr_internal.h"
 #include "game_mechanics_mc.h"
 #include "dimensions_dm.h"
 #include "draw_dw.h"
+#include "text_tx.h"
 #include "ui/button_bt.h"
 #include "ui/escape_menu_em.h"
 #include "media/audio_au.h"
@@ -43,6 +47,382 @@ static int g_presented_operation_id = NO_OPERATION;
 static bool g_result_sound_played;
 static bool g_initialized;
 
+typedef enum run_result_box_size_t {
+	RUN_RESULT_BOX_STANDARD = 0,
+	RUN_RESULT_BOX_LARGE,
+	RUN_RESULT_BOX_CUSTOM
+} run_result_box_size_t;
+
+typedef struct run_result_layout_config_t {
+	run_result_box_size_t size;
+	enum text_box_positions position;
+	int custom_width;
+	int custom_height;
+	int vertical_offset;
+	int button_gap;
+	int message_button_gap;
+	int bottom_padding;
+} run_result_layout_config_t;
+
+typedef struct run_result_layout_t {
+	SDL_Rect box;
+	SDL_Rect content;
+	SDL_Rect message;
+	SDL_Rect back_button;
+	SDL_Rect continue_button;
+	int text_height;
+} run_result_layout_t;
+
+static const run_result_layout_config_t g_run_result_layout_config = {
+	.size = RUN_RESULT_BOX_LARGE,
+	.position = TX_CENTER_BOX,
+	.custom_width = 900,
+	.custom_height = 520,
+	.vertical_offset = -30,
+	.button_gap = 30,
+	.message_button_gap = 15,
+	.bottom_padding = 24
+};
+
+static run_result_box_size_t g_effective_layout_size;
+static bool g_layout_resolved;
+
+static bool rr_rect_contains(SDL_Rect outer, SDL_Rect inner)
+{
+	if (outer.w <= 0 || outer.h <= 0 || inner.w <= 0 || inner.h <= 0) {
+		return false;
+	}
+	int64_t outer_right = (int64_t)outer.x + outer.w;
+	int64_t outer_bottom = (int64_t)outer.y + outer.h;
+	int64_t inner_right = (int64_t)inner.x + inner.w;
+	int64_t inner_bottom = (int64_t)inner.y + inner.h;
+	return inner.x >= outer.x && inner.y >= outer.y &&
+	       inner_right <= outer_right && inner_bottom <= outer_bottom;
+}
+
+static bool rr_rects_overlap(SDL_Rect first, SDL_Rect second)
+{
+	if (first.w <= 0 || first.h <= 0 || second.w <= 0 || second.h <= 0) {
+		return false;
+	}
+	return (int64_t)first.x < (int64_t)second.x + second.w &&
+	       (int64_t)second.x < (int64_t)first.x + first.w &&
+	       (int64_t)first.y < (int64_t)second.y + second.h &&
+	       (int64_t)second.y < (int64_t)first.y + first.h;
+}
+
+static bool rr_get_layout_for_size(run_result_box_size_t size,
+								   bool success,
+								   run_result_layout_t *layout,
+								   const char **failure_reason)
+{
+	if (failure_reason != NULL) {
+		*failure_reason = "unable to resolve the configured text-box position";
+	}
+	if (layout == NULL) {
+		return false;
+	}
+
+	tx_text_box_options_t options = {
+		.position = g_run_result_layout_config.position,
+		.large_box = size == RUN_RESULT_BOX_LARGE,
+		.large_text = false
+	};
+	SDL_Rect base_box;
+	SDL_Rect base_content;
+	int text_height = 0;
+	if (!tx_get_text_box_rects(&options, &base_box, &base_content,
+	                           &text_height)) {
+		return false;
+	}
+	(void)base_content;
+
+	SDL_Rect box = base_box;
+	if (size == RUN_RESULT_BOX_CUSTOM) {
+		if (g_run_result_layout_config.custom_width <= 0) {
+			if (failure_reason != NULL) *failure_reason = "width must be positive";
+			return false;
+		}
+		if (g_run_result_layout_config.custom_height <= 0) {
+			if (failure_reason != NULL) *failure_reason = "height must be positive";
+			return false;
+		}
+		int width = dm_scale_to_res(g_run_result_layout_config.custom_width);
+		int height = dm_scale_to_res(g_run_result_layout_config.custom_height);
+		int screen_width = dm_get_screen_width();
+		int screen_height = dm_get_screen_height();
+		if (width <= 0) {
+			if (failure_reason != NULL) *failure_reason = "scaled width must be positive";
+			return false;
+		}
+		if (height <= 0) {
+			if (failure_reason != NULL) *failure_reason = "scaled height must be positive";
+			return false;
+		}
+		int margin = dm_scale_to_res(16);
+		if (screen_width <= 2 * margin || width > screen_width - 2 * margin) {
+			if (failure_reason != NULL) *failure_reason = "width exceeds the usable screen width";
+			return false;
+		}
+		if (screen_height <= 2 * margin || height > screen_height - 2 * margin) {
+			if (failure_reason != NULL) *failure_reason = "height exceeds the usable screen height";
+			return false;
+		}
+		int center_x = base_box.x + base_box.w / 2;
+		int center_y = base_box.y + base_box.h / 2;
+		box.w = width;
+		box.h = height;
+		box.x = center_x - width / 2;
+		box.y = center_y - height / 2;
+	}
+	int64_t offset_y = (int64_t)box.y +
+	                   dm_scale_to_res(g_run_result_layout_config.vertical_offset);
+	if (offset_y < INT_MIN || offset_y > INT_MAX) {
+		if (failure_reason != NULL) *failure_reason =
+			"vertical offset exceeds supported coordinates";
+		return false;
+	}
+	box.y = (int)offset_y;
+	if (size == RUN_RESULT_BOX_CUSTOM) {
+		int margin = dm_scale_to_res(16);
+		int64_t right = (int64_t)box.x + box.w;
+		int64_t bottom = (int64_t)box.y + box.h;
+		if (box.x < margin || right > dm_get_screen_width() - margin) {
+			if (failure_reason != NULL) *failure_reason = "box exceeds the screen safe width";
+			return false;
+		}
+		if (box.y < margin || bottom > dm_get_screen_height() - margin) {
+			if (failure_reason != NULL) *failure_reason =
+				"vertical offset moves the modal outside the screen safe area";
+			return false;
+		}
+	}
+
+	SDL_Rect content = dw_get_iface_content_box(box);
+	if (content.w <= 0 || content.h <= 0 ||
+	    !rr_rect_contains(box, content)) {
+		if (failure_reason != NULL) *failure_reason =
+			"content rectangle is outside the box or has no usable area";
+		return false;
+	}
+	SDL_Rect button_size = dm_get_modal_button_wh();
+	int gap = dm_scale_to_res(g_run_result_layout_config.button_gap);
+	int message_gap = dm_scale_to_res(
+		g_run_result_layout_config.message_button_gap);
+	int bottom_padding = dm_scale_to_res(
+		g_run_result_layout_config.bottom_padding);
+	if (button_size.w <= 0 || button_size.h <= 0) {
+		if (failure_reason != NULL) *failure_reason =
+			"modal button dimensions must be positive";
+		return false;
+	}
+	if (gap < 0) {
+		if (failure_reason != NULL) *failure_reason =
+			"success button gap must not be negative";
+		return false;
+	}
+	if (bottom_padding < 0) {
+		if (failure_reason != NULL) *failure_reason =
+			"bottom padding must not be negative";
+		return false;
+	}
+	int button_width = button_size.w;
+	if (success) {
+		int max_button_width = (content.w - gap) / 2;
+		if (size == RUN_RESULT_BOX_CUSTOM && max_button_width < button_width) {
+			if (failure_reason != NULL) *failure_reason =
+				"success button group exceeds content width";
+			return false;
+		}
+		if (max_button_width < button_width) {
+			button_width = max_button_width;
+		}
+	} else if (content.w < button_width) {
+		button_width = content.w;
+	}
+
+	int64_t reserved_height = (int64_t)button_size.h + message_gap +
+	                          bottom_padding;
+	int64_t message_height = (int64_t)content.h - reserved_height;
+	if (button_width <= 0) {
+		if (failure_reason != NULL) *failure_reason =
+			"button row has no usable width";
+		return false;
+	}
+	if (message_gap < 0 || message_height <= 0 ||
+	    message_height < text_height) {
+		if (failure_reason != NULL) *failure_reason =
+			"message area cannot fit one line above the button row";
+		return false;
+	}
+
+	if (message_height > INT_MAX) {
+		if (failure_reason != NULL) *failure_reason =
+			"message rectangle height exceeds supported dimensions";
+		return false;
+	}
+	SDL_Rect back_button = {
+		.x = content.x + (content.w - button_width) / 2,
+		.y = content.y + content.h - button_size.h - bottom_padding,
+		.w = button_width,
+		.h = button_size.h
+	};
+	SDL_Rect continue_button = back_button;
+	if (success) {
+		int group_width = 2 * button_width + gap;
+		int group_x = content.x + (content.w - group_width) / 2;
+		back_button.x = group_x;
+		continue_button.x = group_x + button_width + gap;
+	}
+
+	run_result_layout_t computed_layout = {
+		.box = box,
+		.content = content,
+		.message = {
+			.x = content.x,
+			.y = content.y,
+			.w = content.w,
+			.h = (int)message_height
+		},
+		.back_button = back_button,
+		.continue_button = continue_button,
+		.text_height = text_height
+	};
+	if (!rr_rect_contains(computed_layout.content, computed_layout.message)) {
+		if (failure_reason != NULL) *failure_reason =
+			"message rectangle is outside the content area";
+		return false;
+	}
+	if (!rr_rect_contains(computed_layout.content,
+	                      computed_layout.back_button)) {
+		if (failure_reason != NULL) *failure_reason = success ?
+			"success Back button is outside the content area" :
+			"failure Back button is outside the content area";
+		return false;
+	}
+	int expected_button_y = content.y + content.h - button_size.h - bottom_padding;
+	if (computed_layout.back_button.y != expected_button_y) {
+		if (failure_reason != NULL) *failure_reason =
+			"Back button does not respect bottom padding";
+		return false;
+	}
+	if (rr_rects_overlap(computed_layout.message, computed_layout.back_button)) {
+		if (failure_reason != NULL) *failure_reason =
+			success ? "success Back button overlaps message area" :
+			"failure Back button overlaps message area";
+		return false;
+	}
+	if (!success) {
+		int centered_x = content.x + (content.w - computed_layout.back_button.w) / 2;
+		if (computed_layout.back_button.x != centered_x) {
+			if (failure_reason != NULL) *failure_reason =
+				"failure Back button is not horizontally centered";
+			return false;
+		}
+	} else {
+		if (!rr_rect_contains(computed_layout.content,
+		                      computed_layout.continue_button)) {
+			if (failure_reason != NULL) *failure_reason =
+				"success Continue button is outside the content area";
+			return false;
+		}
+		int group_width = computed_layout.back_button.w + gap +
+		                  computed_layout.continue_button.w;
+		int group_x = content.x + (content.w - group_width) / 2;
+		if (group_width > content.w || computed_layout.back_button.x != group_x ||
+		    computed_layout.continue_button.x !=
+		        computed_layout.back_button.x + computed_layout.back_button.w + gap) {
+			if (failure_reason != NULL) *failure_reason =
+				"success button group exceeds content width or is not centered";
+			return false;
+		}
+		if (computed_layout.back_button.w != computed_layout.continue_button.w ||
+		    computed_layout.back_button.h != computed_layout.continue_button.h ||
+		    computed_layout.back_button.y != computed_layout.continue_button.y ||
+		    computed_layout.back_button.x >= computed_layout.continue_button.x) {
+			if (failure_reason != NULL) *failure_reason =
+				"success buttons are not aligned as a two-button group";
+			return false;
+		}
+		if (rr_rects_overlap(computed_layout.back_button,
+		                     computed_layout.continue_button)) {
+			if (failure_reason != NULL) *failure_reason =
+				"success Back and Continue buttons overlap";
+			return false;
+		}
+		if (computed_layout.continue_button.y != expected_button_y) {
+			if (failure_reason != NULL) *failure_reason =
+				"Continue button does not respect bottom padding";
+			return false;
+		}
+		if (rr_rects_overlap(computed_layout.message,
+		                     computed_layout.continue_button)) {
+			if (failure_reason != NULL) *failure_reason =
+				"success Continue button overlaps message area";
+			return false;
+		}
+	}
+	*layout = computed_layout;
+	return true;
+}
+
+static bool rr_validate_layout_mode(run_result_box_size_t size,
+									run_result_layout_t *failure_layout,
+									const char **failure_reason)
+{
+	run_result_layout_t success_layout;
+	if (!rr_get_layout_for_size(size, false, failure_layout, failure_reason) ||
+	    !rr_get_layout_for_size(size, true, &success_layout, failure_reason)) {
+		return false;
+	}
+	if (failure_layout->message.w != success_layout.message.w ||
+	    failure_layout->message.h != success_layout.message.h) {
+		if (failure_reason != NULL) *failure_reason =
+			"failure and success message areas do not match";
+		return false;
+	}
+	return true;
+}
+
+static bool rr_resolve_layout(run_result_layout_t *failure_layout)
+{
+	const char *failure_reason = NULL;
+	run_result_box_size_t requested_size = g_run_result_layout_config.size;
+	if (rr_validate_layout_mode(requested_size, failure_layout,
+	                            &failure_reason)) {
+		g_effective_layout_size = requested_size;
+		g_layout_resolved = true;
+		return true;
+	}
+	if (requested_size != RUN_RESULT_BOX_CUSTOM) {
+		fprintf(stderr, "Run Result layout rejected: %s\n",
+		        failure_reason != NULL ? failure_reason : "unknown geometry error");
+		return false;
+	}
+
+	fprintf(stderr, "Run Result custom layout rejected: %s\n",
+	        failure_reason != NULL ? failure_reason : "unknown geometry error");
+	fputs("Falling back to the large Run Result layout\n", stderr);
+	if (!rr_validate_layout_mode(RUN_RESULT_BOX_LARGE, failure_layout,
+	                             &failure_reason)) {
+		fprintf(stderr, "Large Run Result layout rejected: %s\n",
+		        failure_reason != NULL ? failure_reason : "unknown geometry error");
+		return false;
+	}
+	g_effective_layout_size = RUN_RESULT_BOX_LARGE;
+	g_layout_resolved = true;
+	return true;
+}
+
+static bool rr_get_layout(bool success, run_result_layout_t *layout)
+{
+	if (!g_layout_resolved || layout == NULL) {
+		return false;
+	}
+	return rr_get_layout_for_size(g_effective_layout_size, success, layout,
+	                              NULL);
+}
+
 static bool rr_is_success(int operation_id)
 {
 	return operation_id == MC_WIN;
@@ -73,14 +453,28 @@ static texture_array_t *rr_get_message(int operation_id)
 	}
 }
 
-static void rr_assign_button_rectangles(int operation_id)
+static bool rr_assign_button_rectangles(const run_result_layout_t *layout)
 {
-	if (g_result_back_button == NULL || g_result_continue_button == NULL) {
-		return;
+	if (layout == NULL || g_result_back_button == NULL ||
+	    g_result_continue_button == NULL) {
+		return false;
 	}
-	g_result_back_button->r = rr_is_success(operation_id) ?
-		dm_get_text_box_result_but1() : dm_get_text_box_result_but3();
-	g_result_continue_button->r = dm_get_text_box_result_but2();
+	g_result_back_button->r = layout->back_button;
+	g_result_continue_button->r = layout->continue_button;
+	return true;
+}
+
+bool rr_get_failure_back_button_rect(SDL_Rect *button_rect)
+{
+	if (button_rect == NULL) {
+		return false;
+	}
+	run_result_layout_t layout;
+	if (!rr_get_layout(false, &layout)) {
+		return false;
+	}
+	*button_rect = layout.back_button;
+	return true;
 }
 
 void rr_reset_state(void)
@@ -95,11 +489,12 @@ bool rr_initialize(void)
 		return true;
 	}
 
-	int text_h = dm_get_h_msg();
-	SDL_Rect result_box = dm_get_run_result_box();
-	SDL_Rect message_box = dm_get_run_result_message_box();
-	SDL_Rect content_box = dw_get_iface_content_box(result_box);
-	int message_width = message_box.w > 0 ? message_box.w : content_box.w;
+	run_result_layout_t layout;
+	if (!rr_resolve_layout(&layout)) {
+		return false;
+	}
+	int message_width = layout.message.w;
+	int text_h = layout.text_height;
 
 #define RR_CHECK_RESOURCE(resource, expression) \
 	do { \
@@ -135,8 +530,7 @@ bool rr_initialize(void)
 		fprintf(stderr, "Run Result initialization failed: Back button label\n");
 		goto error;
 	}
-	g_result_back_button = bt_create_iface_btn(
-		dm_get_text_box_result_but3(), back_label, true);
+	g_result_back_button = bt_create_iface_btn(layout.back_button, back_label, true);
 	if (g_result_back_button == NULL) {
 		dw_free_texture(back_label);
 		fprintf(stderr, "Run Result initialization failed: Back button\n");
@@ -148,8 +542,8 @@ bool rr_initialize(void)
 		fprintf(stderr, "Run Result initialization failed: Continue button label\n");
 		goto error;
 	}
-	g_result_continue_button = bt_create_iface_btn(
-		dm_get_text_box_result_but2(), continue_label, true);
+	g_result_continue_button = bt_create_iface_btn(layout.continue_button,
+	                                              continue_label, true);
 	if (g_result_continue_button == NULL) {
 		dw_free_texture(continue_label);
 		fprintf(stderr, "Run Result initialization failed: Continue button\n");
@@ -199,6 +593,7 @@ void rr_destroy(void)
 	dw_free_texture_array(g_win_text);
 	g_win_text = NULL;
 	g_initialized = false;
+	g_layout_resolved = false;
 	rr_reset_state();
 }
 
@@ -217,7 +612,11 @@ run_result_action_t rr_update(int operation_id)
 		return RUN_RESULT_ACTION_NONE;
 	}
 
-	rr_assign_button_rectangles(operation_id);
+	run_result_layout_t layout;
+	if (!rr_get_layout(rr_is_success(operation_id), &layout) ||
+	    !rr_assign_button_rectangles(&layout)) {
+		return RUN_RESULT_ACTION_NONE;
+	}
 	if (operation_id != g_presented_operation_id) {
 		g_presented_operation_id = operation_id;
 		g_result_sound_played = false;
@@ -258,6 +657,11 @@ void rr_render(int operation_id)
 		return;
 	}
 
+	run_result_layout_t layout;
+	if (!rr_get_layout(rr_is_success(operation_id), &layout) ||
+	    !rr_assign_button_rectangles(&layout)) {
+		return;
+	}
 	texture_array_t *message = rr_get_message(operation_id);
 	texture_t *header = rr_is_success(operation_id) ?
 		g_run_completed : g_run_failed;
@@ -267,11 +671,9 @@ void rr_render(int operation_id)
 		return;
 	}
 
-	dw_draw_iface_box_with_status(dm_get_run_result_box(), header,
+	dw_draw_iface_box_with_status(layout.box, header,
 	                              rr_is_success(operation_id));
-	dw_draw_wrapped_texture_by_h(dm_get_run_result_message_box(),
-	                             dm_get_h_msg(), message);
-	rr_assign_button_rectangles(operation_id);
+	dw_draw_wrapped_texture_by_h(layout.message, layout.text_height, message);
 	bt_draw_iface_btn(g_result_back_button, false, g_sfx_iface_hover);
 	if (rr_is_success(operation_id)) {
 		bt_draw_iface_btn(g_result_continue_button, false, g_sfx_iface_hover);
