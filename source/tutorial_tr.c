@@ -689,46 +689,41 @@ void tr_deactivate(const char *name)
 	}
 }
 
-static int get_text_box(const tutorial_step_t *step)
+static tx_text_box_options_t get_text_box_options(const tutorial_step_t *step)
 {
-	int position;
+	tx_text_box_options_t options = {
+	    .position = TX_CENTER_UP_BOX,
+	    .large_box = step->large_box,
+	    .large_text = step->large_text,
+	};
+
 	switch (step->box) {
 	case TUTORIAL_BOX_CENTER_UP:
-		position = TX_CENTER_UP_BOX;
+		options.position = TX_CENTER_UP_BOX;
 		break;
 	case TUTORIAL_BOX_UPPER:
-		position = TX_UPPER_BOX;
+		options.position = TX_UPPER_BOX;
 		break;
 	case TUTORIAL_BOX_UPPER_RIGHT:
-		position = TX_UPPER_RIGHT_BOX;
+		options.position = TX_UPPER_RIGHT_BOX;
 		break;
 	case TUTORIAL_BOX_CENTER:
-		position = TX_CENTER_BOX;
+		options.position = TX_CENTER_BOX;
 		break;
 	case TUTORIAL_BOX_CENTER_RIGHT:
-		position = TX_CENTER_RIGHT_BOX;
+		options.position = TX_CENTER_RIGHT_BOX;
 		break;
 	case TUTORIAL_BOX_LOWER:
-		position = TX_LOWER_BOX;
+		options.position = TX_LOWER_BOX;
 		break;
 	case TUTORIAL_BOX_CODE:
-		position = TX_CODE_BOX;
+		options.position = TX_CODE_BOX;
 		break;
 	case TUTORIAL_BOX_INSTRUCTION:
-		position = TX_INS_BOX;
-		break;
-	default:
-		position = TX_CENTER_UP_BOX;
+		options.position = TX_INS_BOX;
 		break;
 	}
-
-	if (step->large_box) {
-		position |= TX_LARGE_BOX;
-	}
-	if (step->large_text) {
-		position |= TX_LARGE_TEXT;
-	}
-	return position;
+	return options;
 }
 
 static int get_header(tutorial_header_t header) { return TX_NONE + header; }
@@ -740,11 +735,12 @@ void tr_render_step(const char *name)
 		return;
 	}
 
-	int text_box = get_text_box(step);
-	tx_text_box_texture(text_box, step->text_texture, get_header(step->header));
+	tx_text_box_options_t text_box = get_text_box_options(step);
+	tx_text_box_texture(&text_box, step->text_texture,
+	                    get_header(step->header));
 	if (step->dismiss == TUTORIAL_DISMISS_MOUSE_PRESS ||
 	    step->dismiss == TUTORIAL_DISMISS_MOUSE_RELEASE) {
-		tx_bottom_msg(text_box, TX_MSG_CLICKANY);
+		tx_bottom_msg(&text_box, TX_MSG_CLICKANY);
 	}
 
 	for (int index = 0; index < step->arrow_count; index++) {
@@ -872,8 +868,9 @@ bool tr_load_level(int level_id)
 				goto invalid;
 			}
 
+			tx_text_box_options_t text_box = get_text_box_options(step);
 			step->text_texture =
-			    tx_create_text_box_message(get_text_box(step), step->text);
+			    tx_create_text_box_message(&text_box, step->text);
 
 			if (step->text_texture == NULL) {
 				fprintf(stderr,

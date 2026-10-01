@@ -528,26 +528,32 @@ static int get_box_member(SDL_Rect *box, int member)
  * Return:
  *	Void.
  */
-static bool tx_get_text_box_layout(int position, SDL_Rect *box,
-                                   SDL_Rect *content, int *text_height);
+static bool tx_get_text_box_layout(
+	const tx_text_box_options_t *options, SDL_Rect *box, SDL_Rect *content,
+	int *text_height);
 
-void tx_bottom_msg(int pos, int msg_id)
+void tx_bottom_msg(const tx_text_box_options_t *options, int msg_id)
 {
 	assert(msg_id >= 0 && msg_id < g_gbl_msgs_size && "Invalid msg_id");
+	if (options == NULL) {
+		return;
+	}
+
 	SDL_Rect         b;
 	SDL_Rect         content;
 	int              layout_text_height;
 	int              text_h = get_h_bottom_msg();
 	texture_array_t *a = g_gbl_msgs[msg_id];
-	if (pos == TX_ERROR_BOX) {
+	if (options->position == TX_ERROR_BOX) {
 		b      = dm_get_text_box_error();
 		b.y    = dm_get_text_box_error().y + dm_get_text_box_error().h * 4 / 6;
 		b.h    = dm_get_text_box_error().h / 6;
 	} else {
-		if (!tx_get_text_box_layout(pos, &b, &content, &layout_text_height)) {
+		if (!tx_get_text_box_layout(options, &b, &content,
+		                            &layout_text_height)) {
 			return;
 		}
-		if (pos == TX_STAGEBUTTON_BOX) {
+		if (options->position == TX_STAGEBUTTON_BOX) {
 			text_h = dm_get_h_msg();
 		}
 		b.y += b.h / 2 - 2 * text_h;
@@ -555,15 +561,15 @@ void tx_bottom_msg(int pos, int msg_id)
 	dw_draw_wrapped_texture_by_h(b, text_h, a);
 }
 
-static bool tx_get_text_box_layout(int position, SDL_Rect *box,
-                                   SDL_Rect *content, int *text_height)
+static bool tx_get_text_box_layout(
+	const tx_text_box_options_t *options, SDL_Rect *box, SDL_Rect *content,
+	int *text_height)
 {
-	if (box == NULL || content == NULL || text_height == NULL) {
+	if (options == NULL || box == NULL || content == NULL ||
+	    text_height == NULL) {
 		return false;
 	}
-	bool large_box  = (position & TX_LARGE_BOX) != 0;
-	bool large_text = (position & TX_LARGE_TEXT) != 0;
-	position &= ~(TX_LARGE_BOX | TX_LARGE_TEXT);
+	enum text_box_positions position = options->position;
 
 	switch (position) {
 	case TX_INS_BOX:
@@ -620,7 +626,7 @@ static bool tx_get_text_box_layout(int position, SDL_Rect *box,
 		return false;
 	}
 
-	if (large_box) {
+	if (options->large_box) {
 		int width  = dm_scale_to_res(LARGE_TEXT_BOX_W);
 		int height = dm_scale_to_res(LARGE_TEXT_BOX_H);
 		int extra_width  = width - box->w;
@@ -652,7 +658,7 @@ static bool tx_get_text_box_layout(int position, SDL_Rect *box,
 			box->y = 0;
 		}
 	}
-	if (large_text) {
+	if (options->large_text) {
 		*text_height = dm_get_h_big_text();
 	}
 
@@ -683,7 +689,8 @@ static texture_t *tx_get_header_texture(int header)
 	}
 }
 
-void tx_text_box_texture(int position, texture_array_t *message, int header)
+void tx_text_box_texture(const tx_text_box_options_t *options,
+			texture_array_t *message, int header)
 {
 	if (message == NULL) {
 		fprintf(stderr, "tx_text_box_texture: message texture is NULL\n");
@@ -694,8 +701,8 @@ void tx_text_box_texture(int position, texture_array_t *message, int header)
 	SDL_Rect content;
 	int      text_height = 0;
 
-	if (!tx_get_text_box_layout(position, &box, &content, &text_height)) {
-		fprintf(stderr, "tx_text_box_texture: invalid position %d\n", position);
+	if (!tx_get_text_box_layout(options, &box, &content, &text_height)) {
+		fprintf(stderr, "tx_text_box_texture: invalid box options\n");
 		return;
 	}
 
@@ -706,7 +713,8 @@ void tx_text_box_texture(int position, texture_array_t *message, int header)
 	dw_draw_wrapped_texture_by_h(content, text_height, message);
 }
 
-texture_array_t *tx_create_text_box_message(int position, const char *message)
+texture_array_t *tx_create_text_box_message(
+	const tx_text_box_options_t *options, const char *message)
 {
 	if (message == NULL || message[0] == '\0') {
 		return NULL;
@@ -716,7 +724,7 @@ texture_array_t *tx_create_text_box_message(int position, const char *message)
 	SDL_Rect content;
 	int      text_height = 0;
 
-	if (!tx_get_text_box_layout(position, &box, &content, &text_height)) {
+	if (!tx_get_text_box_layout(options, &box, &content, &text_height)) {
 		return NULL;
 	}
 
@@ -754,5 +762,10 @@ void tx_text_box(int position, int message_id, int header)
 		return;
 	}
 
-	tx_text_box_texture(position, message, header);
+	tx_text_box_options_t options = {
+	    .position = position,
+	    .large_box = false,
+	    .large_text = false,
+	};
+	tx_text_box_texture(&options, message, header);
 }

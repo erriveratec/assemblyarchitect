@@ -8,9 +8,6 @@
 #include <SDL.h>
 #include "arrow_ar.h"
 
-
-#define RES_BOX_W 450
-#define RES_BOX_H 270
 #define RES_BOX_OFFSET 35
 
 #define TEXT_BOX_LOWER_X 675
