@@ -15,7 +15,6 @@ void rr_destroy(void);
 run_result_action_t rr_update(int operation_id);
 void rr_render(int operation_id);
 
-bool rr_is_visible(int operation_id);
 void rr_reset_state(void);
 
 #endif

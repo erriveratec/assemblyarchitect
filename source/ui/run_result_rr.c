@@ -89,12 +89,6 @@ void rr_reset_state(void)
 	g_result_sound_played = false;
 }
 
-bool rr_is_visible(int operation_id)
-{
-	return g_initialized && rr_is_valid_operation(operation_id) &&
-	       !em_get_escape_state();
-}
-
 bool rr_initialize(void)
 {
 	if (g_initialized) {

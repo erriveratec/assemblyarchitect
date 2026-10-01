@@ -1,6 +1,5 @@
 #include <assert.h>
 #include <stdbool.h>
-#include <SDL_mixer.h>
 #include "game_mechanics_mc.h"
 #include "ui/run_result_rr.h"
 #include "tutorial_tr.h"
@@ -34,8 +33,6 @@ typedef struct level_flags_t {
 	bool step_fst;
 	bool non_stop;
 } level_flags_t;
-
-static SDL_Rect result_box;
 
 int g_player = FL_NO_PLAYER;
 
@@ -201,7 +198,11 @@ void stage_drawings(int level, int operation_id)
 	mc_draw_avatar();
 	sb_draw_ret_btn();
 	sb_draw_rst_btn();
-	/* Keep the Level 0 failure explanation layered over the centered result. */
+	/*
+	 * Draw the result before tutorial overlays so Level 0 can explain the
+	 * first incomplete run while the result remains visible. Tutorial layouts
+	 * must not cover result buttons.
+	 */
 	rr_render(operation_id);
 	lv_level_drawings(level);
 }
@@ -607,7 +608,10 @@ int stage_level(int level_id)
 		rr_reset_state();
 		back_to_level_selection = true;
 	}
-	stage_drawings(level_id, operation_id);
+	operation_id = mc_get_operation_flag();
+	if (result_action != RUN_RESULT_ACTION_CONTINUE) {
+		stage_drawings(level_id, operation_id);
+	}
 	cw_sort_code();
 
 	if (sb_chk_click_stage_btn() == true && cw_is_operand_pending() == false) {

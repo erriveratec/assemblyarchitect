@@ -42,10 +42,6 @@ static bool initialize_game_assets();
  */
 static bool initialize_game_assets()
 {
-	
-	SDL_Rect rb = dw_get_iface_content_box(dw_get_iface_big_lower_box());
-	int text_h = dm_get_h_msg();		
-
 	em_init_escape_menu();
 	rm_init_rst_menu();
 	sb_init_ret_btn();
