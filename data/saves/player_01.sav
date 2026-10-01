@@ -12,9 +12,8 @@ code_end
 [level 01]
 unlocked = true
 code_begin
+MOV rax, [ib]
 MOV [ob], rax
-MOV rax, rax
-MOV rax, rax
 code_end
 
 [level 02]
