@@ -20,6 +20,7 @@ static List *instruction_list = NULL;
 SDL_Rect g_instruction_box;
 static int g_highlight_instruction_mask;
 static dw_pulse_t g_instruction_pulse;
+static float g_instruction_highlight_value;
 
 static List *get_instruction_list();
 static void draw_instruction_text();
@@ -347,6 +348,9 @@ void iw_draw_ins_box()
 	draw_instruction_text();
 	
 	dw_draw_thick_rect(g_instruction_box, dm_get_w_borders(), C_GREY);
+	float anim_limit = cw_get_challenge_highlight_limit();
+	g_instruction_highlight_value = g_highlight_instruction_mask != 0 ?
+	    dw_pulse_value(&g_instruction_pulse, anim_limit) : 0.0f;
 
 	LIST_FOREACH(instructions, first, next, cur){
 		instruction_t *c = cur->value;
@@ -358,7 +362,6 @@ void iw_draw_ins_box()
 	}
 
 	if (g_highlight_instruction_mask != 0) {
-		float anim_limit = cw_get_challenge_highlight_limit();
 		dw_pulse_advance(&g_instruction_pulse, anim_limit);
 	}
 }
@@ -371,10 +374,22 @@ void iw_set_highlight_instructions(int instruction_mask)
 	g_highlight_instruction_mask = instruction_mask;
 }
 
+bool iw_get_highlight_instruction_progress(float *progress)
+{
+	if (progress == NULL || g_highlight_instruction_mask == 0) {
+		return false;
+	}
+	float anim_limit = cw_get_challenge_highlight_limit();
+	if (anim_limit <= 0.0f) {
+		return false;
+	}
+	*progress = dw_pulse_progress(g_instruction_highlight_value, anim_limit);
+	return true;
+}
+
 static void draw_highlighted_instruction(btn_t *button)
 {
-	float cycle_limit = cw_get_challenge_highlight_limit();
-	float cycle_pulse = dw_pulse_value(&g_instruction_pulse, cycle_limit);
+	float cycle_pulse = g_instruction_highlight_value;
 	float center_x = button->r.x + button->r.w / 2.0f;
 	float center_y = button->r.y + button->r.h / 2.0f;
 	float fit_scale = (float)button->r.w / button->t->w;

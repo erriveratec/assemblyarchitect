@@ -11,7 +11,7 @@
 #include "gameplay/code_state_cs.h"
 
 typedef enum tutorial_box_t {
-    TUTORIAL_BOX_BIG,
+    TUTORIAL_BOX_CENTER_UP,
     TUTORIAL_BOX_UPPER,
     TUTORIAL_BOX_UPPER_RIGHT,
     TUTORIAL_BOX_CENTER,
@@ -60,7 +60,8 @@ typedef struct tutorial_step_t {
     texture_array_t *text_texture;
     int priority;
     tutorial_box_t box;
-    bool big_box;
+    bool large_box;
+    bool large_text;
     tutorial_header_t header;
     tutorial_dismiss_t dismiss;
     int arrow_ids[TUTORIAL_MAX_ARROWS];

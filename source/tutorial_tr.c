@@ -232,8 +232,8 @@ static bool parse_highlights(char *text, int *targets)
 
 static bool parse_box(const char *text, tutorial_box_t *box)
 {
-	if (strcmp(text, "big") == 0) {
-		*box = TUTORIAL_BOX_BIG;
+	if (strcmp(text, "center_up") == 0) {
+		*box = TUTORIAL_BOX_CENTER_UP;
 	} else if (strcmp(text, "upper") == 0) {
 		*box = TUTORIAL_BOX_UPPER;
 	} else if (strcmp(text, "upper_right") == 0) {
@@ -693,8 +693,8 @@ static int get_text_box(const tutorial_step_t *step)
 {
 	int position;
 	switch (step->box) {
-	case TUTORIAL_BOX_BIG:
-		position = TX_BIG_BOX;
+	case TUTORIAL_BOX_CENTER_UP:
+		position = TX_CENTER_UP_BOX;
 		break;
 	case TUTORIAL_BOX_UPPER:
 		position = TX_UPPER_BOX;
@@ -718,11 +718,17 @@ static int get_text_box(const tutorial_step_t *step)
 		position = TX_INS_BOX;
 		break;
 	default:
-		position = TX_BIG_BOX;
+		position = TX_CENTER_UP_BOX;
 		break;
 	}
 
-	return step->big_box ? position | TX_LARGE_BOX : position;
+	if (step->large_box) {
+		position |= TX_LARGE_BOX;
+	}
+	if (step->large_text) {
+		position |= TX_LARGE_TEXT;
+	}
+	return position;
 }
 
 static int get_header(tutorial_header_t header) { return TX_NONE + header; }
@@ -796,7 +802,8 @@ bool tr_load_level(int level_id)
 			sscanf(text, "[%63[^]]]", step->name);
 			step->text_texture                 = NULL;
 			step->priority                     = 0;
-			step->big_box                      = false;
+			step->large_box                    = false;
+			step->large_text                   = false;
 			step->arrow_count                  = 0;
 			step->when_code_size               = -1;
 			step->when_code_size_max           = -1;
@@ -899,10 +906,17 @@ bool tr_load_level(int level_id)
 			goto invalid;
 		}
 		if (strcmp(key, "box_size") == 0) {
-			if (strcmp(value, "big") == 0) {
-				step->big_box = true;
+			if (strcmp(value, "large") == 0) {
+				step->large_box = true;
 			} else if (strcmp(value, "normal") == 0) {
-				step->big_box = false;
+				step->large_box = false;
+			} else {
+				goto invalid;
+			}
+		}
+		if (strcmp(key, "text_size") == 0) {
+			if (strcmp(value, "large") == 0) {
+				step->large_text = true;
 			} else {
 				goto invalid;
 			}

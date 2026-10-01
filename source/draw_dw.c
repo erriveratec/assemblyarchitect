@@ -893,6 +893,14 @@ float dw_pulse_value(const dw_pulse_t *pulse, float limit)
 	return pulse->value < limit ? pulse->value : limit;
 }
 
+float dw_pulse_progress(float value, float limit)
+{
+	if (limit <= 0.0f || value <= 0.0f) {
+		return 0.0f;
+	}
+	return value < limit ? value / limit : 1.0f;
+}
+
 void dw_pulse_advance(dw_pulse_t *pulse, float limit)
 {
 	assert(pulse != NULL);

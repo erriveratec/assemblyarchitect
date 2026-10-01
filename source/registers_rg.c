@@ -23,6 +23,7 @@ static List *register_list = NULL;
 static SDL_Rect register_box;
 static bool g_register_highlight;
 static dw_pulse_t g_register_pulse;
+static float g_register_highlight_value;
 
 static void set_register_box_member(int value, int member);
 reg_t *create_register(int id, btn_t *b);
@@ -31,7 +32,6 @@ static void draw_register_text();
 static void draw_register_box();
 static void draw_value_boxes();
 static void display_arrow_registers();
-static float get_register_highlight_pulse();
 static SDL_FRect grow_register_rect(SDL_Rect rect, float height_growth);
 static void draw_register_value_highlight(value_box_t *value, btn_t *button);
 static void draw_register_button_highlight(btn_t *button, SDL_Rect hover_rect);
@@ -683,6 +683,9 @@ void rg_draw_registers()
 	draw_register_box();
 	draw_register_text();
 	draw_value_boxes();
+	float anim_limit = cw_get_challenge_highlight_limit();
+	g_register_highlight_value = g_register_highlight ?
+	    dw_pulse_value(&g_register_pulse, anim_limit) : 0.0f;
 	
 	LIST_FOREACH(registers, first, next, cur){
 		reg_t *reg = cur->value;
@@ -704,7 +707,6 @@ void rg_draw_registers()
 	}
 
 	if (g_register_highlight) {
-		float anim_limit = cw_get_challenge_highlight_limit();
 		dw_pulse_advance(&g_register_pulse, anim_limit);
 	}
 }
@@ -715,6 +717,19 @@ void rg_set_register_highlight(bool enabled)
 		dw_pulse_reset(&g_register_pulse);
 	}
 	g_register_highlight = enabled;
+}
+
+bool rg_get_register_highlight_progress(float *progress)
+{
+	if (progress == NULL || !g_register_highlight) {
+		return false;
+	}
+	float anim_limit = cw_get_challenge_highlight_limit();
+	if (anim_limit <= 0.0f) {
+		return false;
+	}
+	*progress = dw_pulse_progress(g_register_highlight_value, anim_limit);
+	return true;
 }
 
 static SDL_FRect grow_register_rect(SDL_Rect rect, float height_growth)
@@ -728,15 +743,9 @@ static SDL_FRect grow_register_rect(SDL_Rect rect, float height_growth)
 	return dw_grow_rect_height(base, height_growth);
 }
 
-static float get_register_highlight_pulse()
-{
-	float cycle_limit = cw_get_challenge_highlight_limit();
-	return dw_pulse_value(&g_register_pulse, cycle_limit);
-}
-
 static void draw_register_value_highlight(value_box_t *value, btn_t *button)
 {
-	float pulse = get_register_highlight_pulse();
+	float pulse = g_register_highlight_value;
 	SDL_FRect animated_button = grow_register_rect(button->r, pulse);
 	float gap = button->r.y - value->box.y - value->box.h;
 	SDL_FRect box = grow_register_rect(value->box, pulse);
@@ -767,7 +776,7 @@ static void draw_register_button_highlight(btn_t *button, SDL_Rect hover_rect)
 {
 	bool hover = ax_chk_mouse_hover_rect(hover_rect) &&
 	             !sb_chk_rst_esc_menu_active();
-	float pulse = get_register_highlight_pulse() *
+	float pulse = g_register_highlight_value *
 	              DW_TEXT_HIGHLIGHT_GROWTH_FACTOR;
 	SDL_FRect label = {
 		.x = button->r.x + (button->r.w -

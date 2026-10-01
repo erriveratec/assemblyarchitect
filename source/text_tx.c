@@ -561,8 +561,9 @@ static bool tx_get_text_box_layout(int position, SDL_Rect *box,
 	if (box == NULL || content == NULL || text_height == NULL) {
 		return false;
 	}
-	bool large = (position & TX_LARGE_BOX) != 0;
-	position &= ~TX_LARGE_BOX;
+	bool large_box  = (position & TX_LARGE_BOX) != 0;
+	bool large_text = (position & TX_LARGE_TEXT) != 0;
+	position &= ~(TX_LARGE_BOX | TX_LARGE_TEXT);
 
 	switch (position) {
 	case TX_INS_BOX:
@@ -605,9 +606,9 @@ static bool tx_get_text_box_layout(int position, SDL_Rect *box,
 		*text_height = dm_get_h_msg();
 		break;
 
-	case TX_BIG_BOX:
+	case TX_CENTER_UP_BOX:
 		*box         = get_text_box_center_up();
-		*text_height = dm_get_h_big_text();
+		*text_height = dm_get_h_msg();
 		break;
 
 	case TX_ERROR_BOX:
@@ -619,7 +620,7 @@ static bool tx_get_text_box_layout(int position, SDL_Rect *box,
 		return false;
 	}
 
-	if (large) {
+	if (large_box) {
 		int width  = dm_scale_to_res(LARGE_TEXT_BOX_W);
 		int height = dm_scale_to_res(LARGE_TEXT_BOX_H);
 		int extra_width  = width - box->w;
@@ -627,7 +628,7 @@ static bool tx_get_text_box_layout(int position, SDL_Rect *box,
 
 		if (position == TX_CENTER_BOX || position == TX_UPPER_BOX ||
 		    position == TX_LOWER_BOX || position == TX_CODE_BOX ||
-		    position == TX_BIG_BOX) {
+		    position == TX_CENTER_UP_BOX) {
 			box->x -= extra_width / 2;
 		}
 		if (position == TX_CENTER_BOX || position == TX_CENTER_RIGHT_BOX ||
@@ -650,6 +651,9 @@ static bool tx_get_text_box_layout(int position, SDL_Rect *box,
 		if (box->y < 0) {
 			box->y = 0;
 		}
+	}
+	if (large_text) {
+		*text_height = dm_get_h_big_text();
 	}
 
 	*content = dw_get_iface_content_box(*box);

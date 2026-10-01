@@ -8,12 +8,12 @@
 #include"instruction_window_iw.h"
 #include"code_window_cw.h"
 #include"stage_buttons_sb.h"
+#include"buffers_bf.h"
 #include"registers_rg.h"
 #include "dimensions_dm.h"
 
 static const Uint32 ARROW_H = 45;
 static const Uint32 ARROW_W = 45;
-static const Uint32 ARROW_MOVE_DELTA = 2;
 
 texture_t *g_lv_arrow;
 texture_t *g_ib_arrow;
@@ -56,6 +56,12 @@ static void initialize_imm_up_arrow();
 static void check_execution_arrow_in_place(int instruction_number);
 bool ar_move_execution_arrow(int instruction_number);
 SDL_Rect ar_get_arrow_wh();
+static arrow_t *get_arrow_by_id(int arrow_id);
+static bool get_highlight_progress(const arrow_t *arrow, float *progress);
+static void initialize_motion_pulse(arrow_t *arrow);
+static float get_motion_progress(arrow_t *arrow);
+static void position_arrow(arrow_t *arrow, float progress);
+static void draw_arrow(arrow_t *arrow);
 
 
 /* Function: ar_get_arrow_wh
@@ -685,10 +691,10 @@ static void initialize_ob_arrow()
 	g_arrow_ob.box.y = b.y + b.h/2 - dim.h/2;
 	g_arrow_ob.box.w = dim.w;
 	g_arrow_ob.box.h = dim.h;
-	g_arrow_ob.startx = g_arrow_ib.box.x;
-	g_arrow_ob.starty = g_arrow_ib.box.y;
+	g_arrow_ob.startx = g_arrow_ob.box.x;
+	g_arrow_ob.starty = g_arrow_ob.box.y;
 	g_arrow_ob.dir = AR_RIGHT;
-	g_arrow_ob.travel = b.x - g_arrow_ib.startx - dim.w;
+	g_arrow_ob.travel = b.x - g_arrow_ob.startx - dim.w;
 	g_arrow_ob.in_place = false;
 	g_arrow_ob.texture = g_ob_arrow;
 	g_arrow_ob.visible = true;
@@ -709,22 +715,53 @@ static void initialize_ob_arrow()
 void ar_initialize_arrows()
 {
 	SDL_SetTextureColorMod(g_lv_arrow->texture, 255, 0, 0);
-	initialize_ins_arrow();
-	initialize_ins_minus_arrow();
-	initialize_drop_arrow();
-	initialize_play_arrow();
-	initialize_step_arrow();
-	initialize_fast_arrow();
-	initialize_code_line_arrow();
-	initialize_del_arrow();
-	initialize_op2_arrow();
-	initialize_error_arrow();
-	initialize_challenge_arrow();
-	initialize_ib_arrow();
-	initialize_ob_arrow();
-	initialize_regs_arrow();
-	initialize_zf_arrow();
-	initialize_imm_up_arrow();
+	for (int arrow_id = AR_INS; arrow_id <= AR_IMM_UP; arrow_id++) {
+		if (arrow_id != AR_EXEC) {
+			ar_init_arrow(arrow_id);
+		}
+	}
+}
+
+static arrow_t *get_arrow_by_id(int arrow_id)
+{
+	switch (arrow_id) {
+		case AR_INS:
+			return &g_arrow_ins;
+		case AR_INS_MINUS:
+			return &g_arrow_ins_minus;
+		case AR_DROP:
+			return &g_arrow_drop;
+		case AR_PLAY:
+			return &g_arrow_play;
+		case AR_STEP:
+			return &g_arrow_step;
+		case AR_FAST:
+			return &g_arrow_fast;
+		case AR_CODE:
+			return &g_arrow_code_line;
+		case AR_DEL:
+			return &g_arrow_del;
+		case AR_OP2:
+			return &g_arrow_op2;
+		case AR_ERROR:
+			return &g_arrow_error;
+		case AR_CHALLENGE:
+			return &g_arrow_challenge;
+		case AR_IB:
+			return &g_arrow_ib;
+		case AR_OB:
+			return &g_arrow_ob;
+		case AR_EXEC:
+			return &g_arrow_exec;
+		case AR_REG:
+			return &g_arrow_regs;
+		case AR_ZF:
+			return &g_arrow_zf;
+		case AR_IMM_UP:
+			return &g_arrow_imm_up;
+		default:
+			return NULL;
+	}
 }
 /* Function: ar_init_arrow
  * -----------------------------------------------------------------------------
@@ -794,6 +831,11 @@ void ar_init_arrow(int arrow_id)
 		default:
 			break;
 	}
+	arrow_t *arrow = get_arrow_by_id(arrow_id);
+	if (arrow != NULL) {
+		arrow->motion_initialized = false;
+		dw_pulse_reset(&arrow->motion_pulse);
+	}
 }
 
 /* Function: display_arrow
@@ -808,67 +850,8 @@ void ar_init_arrow(int arrow_id)
  */
 void ar_display_arrow(int arrow_id)
 {
-	int x;
-	int y;
-	int travel;
-	int dir;
-	arrow_t *aptr;
-	switch(arrow_id){
-		case AR_INS:
-			aptr = &g_arrow_ins;
-			break;
-		case AR_INS_MINUS:
-			aptr = &g_arrow_ins_minus;
-			break;
-		case AR_DROP:
-			aptr = &g_arrow_drop;
-			break;
-		case AR_PLAY:
-			aptr = &g_arrow_play;
-			break;
-		case AR_STEP:
-			aptr = &g_arrow_step;
-			break;
-		case AR_FAST:
-			aptr = &g_arrow_fast;
-			break;
-		case AR_CODE:
-			aptr = &g_arrow_code_line;
-			break;
-		case AR_DEL:
-			aptr = &g_arrow_del;
-			break;
-		case AR_OP2:
-			aptr = &g_arrow_op2;
-			break;
-		case AR_ERROR:
-			aptr = &g_arrow_error;
-			break;
-		case AR_CHALLENGE:
-			aptr = &g_arrow_challenge;
-			break;
-		case AR_IB:
-			aptr = &g_arrow_ib;
-			break;
-		case AR_OB:
-			aptr = &g_arrow_ob;
-			break;
-		case AR_EXEC:
-			aptr = &g_arrow_exec;
-			break;
-		case AR_REG:
-			aptr = &g_arrow_regs;
-			break;
-		case AR_ZF:
-			aptr = &g_arrow_zf;
-			break;
-		case AR_IMM_UP:
-			aptr = &g_arrow_imm_up;
-			break;
-		default:
-			break;
-	}
-	if (aptr->visible == true){
+	arrow_t *aptr = get_arrow_by_id(arrow_id);
+	if (aptr != NULL && aptr->visible == true){
 		ar_animate_arrow(aptr);
 	}
 }
@@ -890,91 +873,124 @@ void ar_display_arrow(int arrow_id)
  */
 void ar_animate_arrow(arrow_t *arrow) 
 {
-	assert(arrow !=NULL && "arrow object is NULL");
-	
-	switch(arrow->dir){
+	assert(arrow != NULL && "arrow object is NULL");
+	if (arrow->travel > 0) {
+		position_arrow(arrow, get_motion_progress(arrow));
+	}
+	draw_arrow(arrow);
+}
+
+
+static bool get_highlight_progress(const arrow_t *arrow, float *progress)
+{
+	if (arrow == &g_arrow_ins) {
+		return iw_get_highlight_instruction_progress(progress);
+	}
+	if (arrow == &g_arrow_regs) {
+		return rg_get_register_highlight_progress(progress);
+	}
+	if (arrow == &g_arrow_ib) {
+		return bf_get_input_buffer_highlight_progress(progress);
+	}
+	if (arrow == &g_arrow_ob) {
+		return bf_get_output_buffer_highlight_progress(progress);
+	}
+	return false;
+}
+
+static void initialize_motion_pulse(arrow_t *arrow)
+{
+	int offset = 0;
+	switch (arrow->dir) {
 		case AR_UP:
-			if (arrow->travel != 0){
-				if (arrow->box.y <= arrow->starty - arrow->travel){
-					arrow->in_place = true;	
-				} else if (arrow->box.y >= arrow->starty){
-					arrow->in_place = false;
-				}
-				if (arrow->in_place == false){
-					arrow->box.y-= ARROW_MOVE_DELTA;
-				}else if (arrow->in_place == true){
-					arrow->box.y+= ARROW_MOVE_DELTA;
-				}
-			}
-			dw_draw_rotated_texture_fits_h(arrow->box.x, arrow->box.y, 
-	     								   arrow->box.h, -90.0, arrow->texture);
+			offset = arrow->starty - arrow->box.y;
 			break;
-
 		case AR_DOWN:
-			if (arrow->travel != 0){
-				if (arrow->box.y >= arrow->starty + arrow->travel){
-					arrow->in_place = true;	
-				} else if (arrow->box.y <= arrow->starty){
-					arrow->in_place = false;
-				}
-				if (arrow->in_place == false){
-					arrow->box.y+= ARROW_MOVE_DELTA;
-				}else if (arrow->in_place == true){
-					arrow->box.y-= ARROW_MOVE_DELTA;
-				}
-			}
-			dw_draw_rotated_texture_fits_h(arrow->box.x, arrow->box.y, 
-	     								   arrow->box.h, 90.0, arrow->texture);
+			offset = arrow->box.y - arrow->starty;
 			break;
-
 		case AR_RIGHT:
-			if (arrow->travel != 0){
-				if (arrow->box.x >= arrow->startx + arrow->travel){
-					arrow->in_place = true;	
-				} else if (arrow->box.x <= arrow->startx){
-					arrow->in_place = false;
-				}
-				if (arrow->in_place == false){
-					arrow->box.x+= ARROW_MOVE_DELTA;
-				}else if (arrow->in_place == true){
-					arrow->box.x-= ARROW_MOVE_DELTA;
-				}
-			}
-			dw_draw_rotated_texture_fits_h(arrow->box.x, arrow->box.y, 
-										     arrow->box.h, 0.0, arrow->texture);
+			offset = arrow->box.x - arrow->startx;
 			break;
 		case AR_LEFT:
-			if (arrow->travel != 0){
-				if (arrow == &g_arrow_ins) {
-					if (arrow->box.x >= arrow->startx + arrow->travel) {
-						arrow->in_place = true;
-					} else if (arrow->box.x <= arrow->startx) {
-						arrow->in_place = false;
-					}
-					if (arrow->in_place == false) {
-						arrow->box.x += ARROW_MOVE_DELTA;
-					} else {
-						arrow->box.x -= ARROW_MOVE_DELTA;
-					}
-				} else {
-					if (arrow->box.x <= arrow->startx - arrow->travel) {
-						arrow->in_place = true;
-					} else if (arrow->box.x >= arrow->startx) {
-						arrow->in_place = false;
-					}
-					if (arrow->in_place == false) {
-						arrow->box.x -= ARROW_MOVE_DELTA;
-					} else {
-						arrow->box.x += ARROW_MOVE_DELTA;
-					}
-				}
-			}
-			dw_draw_rotated_texture_fits_h(arrow->box.x, arrow->box.y, 
-										  arrow->box.h, 180.00, arrow->texture);
+			offset = arrow == &g_arrow_ins ?
+			    arrow->travel - (arrow->box.x - arrow->startx) :
+			    arrow->startx - arrow->box.x;
 			break;
 		default:
 			break;
 	}
-	return;
+
+	if (offset < 0) {
+		offset = 0;
+	} else if (offset > arrow->travel) {
+		offset = arrow->travel;
+	}
+	arrow->motion_pulse.value = (float)offset;
+	arrow->motion_pulse.descending = arrow == &g_arrow_ins ?
+	    !arrow->in_place : arrow->in_place;
+	arrow->motion_initialized = true;
+}
+
+static float get_motion_progress(arrow_t *arrow)
+{
+	float progress;
+	if (get_highlight_progress(arrow, &progress)) {
+		return progress;
+	}
+
+	if (!arrow->motion_initialized) {
+		initialize_motion_pulse(arrow);
+	}
+	progress = dw_pulse_value(&arrow->motion_pulse,
+	                          (float)arrow->travel);
+	dw_pulse_advance(&arrow->motion_pulse, (float)arrow->travel);
+	return dw_pulse_progress(progress, (float)arrow->travel);
+}
+
+static void position_arrow(arrow_t *arrow, float progress)
+{
+	int distance = (int)(arrow->travel * progress);
+	switch (arrow->dir) {
+		case AR_UP:
+			arrow->box.y = arrow->starty - distance;
+			break;
+		case AR_DOWN:
+			arrow->box.y = arrow->starty + distance;
+			break;
+		case AR_RIGHT:
+			arrow->box.x = arrow->startx + distance;
+			break;
+		case AR_LEFT:
+			arrow->box.x = arrow == &g_arrow_ins ?
+			    arrow->startx + arrow->travel - distance :
+			    arrow->startx - distance;
+			break;
+		default:
+			break;
+	}
+}
+
+static void draw_arrow(arrow_t *arrow)
+{
+	switch (arrow->dir) {
+		case AR_UP:
+			dw_draw_rotated_texture_fits_h(arrow->box.x, arrow->box.y,
+			                              arrow->box.h, -90.0, arrow->texture);
+			break;
+		case AR_DOWN:
+			dw_draw_rotated_texture_fits_h(arrow->box.x, arrow->box.y,
+			                              arrow->box.h, 90.0, arrow->texture);
+			break;
+		case AR_RIGHT:
+			dw_draw_rotated_texture_fits_h(arrow->box.x, arrow->box.y,
+			                              arrow->box.h, 0.0, arrow->texture);
+			break;
+		case AR_LEFT:
+			dw_draw_rotated_texture_fits_h(arrow->box.x, arrow->box.y,
+			                              arrow->box.h, 180.0, arrow->texture);
+			break;
+		default:
+			break;
+	}
 }
 

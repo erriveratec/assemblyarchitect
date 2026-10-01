@@ -38,6 +38,7 @@ SDL_FRect dw_grow_rect_height(SDL_FRect rect, float height_growth);
 /* Reset, sample, and advance a pixel-valued pulse using operand cycle timing. */
 void dw_pulse_reset(dw_pulse_t *pulse);
 float dw_pulse_value(const dw_pulse_t *pulse, float limit);
+float dw_pulse_progress(float value, float limit);
 void dw_pulse_advance(dw_pulse_t *pulse, float limit);
 void dw_draw_thick_rect(SDL_Rect r, int w, SDL_Color c);
 

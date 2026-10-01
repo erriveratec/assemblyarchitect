@@ -51,6 +51,7 @@ static List *output_list = NULL;
 static bool g_input_buffer_highlight;
 static bool g_output_buffer_highlight;
 static dw_pulse_t g_buffer_pulse;
+static float g_buffer_highlight_value;
 
 typedef struct buffer_animation_t {
 	bool active;
@@ -78,6 +79,7 @@ static void destroy_output_list();
 static void bf_create_natural_input_list(int size);
 static void bf_create_natural_force_input_list();
 static void bf_create_natural_increase_input_list();
+static bool get_buffer_highlight_progress(bool highlighted, float *progress);
 static buffer_animation_t get_buffer_animation(SDL_Rect *label_box,
 										 texture_t *label,
 										 bool highlighted);
@@ -675,12 +677,38 @@ void bf_set_output_box(SDL_Rect r)
  */
 void bf_draw_buffers()
 {
+	bool highlighted = g_input_buffer_highlight || g_output_buffer_highlight;
+	float anim_limit = cw_get_challenge_highlight_limit();
+	g_buffer_highlight_value = highlighted ?
+	    dw_pulse_value(&g_buffer_pulse, anim_limit) : 0.0f;
 	draw_input_buffer();
 	draw_output_buffer();
-	if (g_input_buffer_highlight || g_output_buffer_highlight) {
-		float anim_limit = cw_get_challenge_highlight_limit();
+	if (highlighted) {
 		dw_pulse_advance(&g_buffer_pulse, anim_limit);
 	}
+}
+
+bool bf_get_input_buffer_highlight_progress(float *progress)
+{
+	return get_buffer_highlight_progress(g_input_buffer_highlight, progress);
+}
+
+bool bf_get_output_buffer_highlight_progress(float *progress)
+{
+	return get_buffer_highlight_progress(g_output_buffer_highlight, progress);
+}
+
+static bool get_buffer_highlight_progress(bool highlighted, float *progress)
+{
+	if (progress == NULL || !highlighted) {
+		return false;
+	}
+	float anim_limit = cw_get_challenge_highlight_limit();
+	if (anim_limit <= 0.0f) {
+		return false;
+	}
+	*progress = dw_pulse_progress(g_buffer_highlight_value, anim_limit);
+	return true;
 }
 
 static buffer_animation_t get_buffer_animation(SDL_Rect *label_box,
@@ -697,8 +725,7 @@ static buffer_animation_t get_buffer_animation(SDL_Rect *label_box,
 		return animation;
 	}
 
-	float anim_limit = cw_get_challenge_highlight_limit();
-	animation.growth = dw_pulse_value(&g_buffer_pulse, anim_limit);
+	animation.growth = g_buffer_highlight_value;
 	return animation;
 }
 

@@ -19,6 +19,9 @@ typedef struct arrow_t{
 	int dir;
 	bool in_place;
 	bool visible;
+	bool motion_initialized;
+	/* Used when the arrow has no active highlight pulse to follow. */
+	dw_pulse_t motion_pulse;
 	texture_t *texture;
 } arrow_t;
 

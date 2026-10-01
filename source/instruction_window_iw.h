@@ -10,6 +10,7 @@ bool iw_chk_click_ins();
 instruction_t *iw_get_clicked_instruction();
 void iw_draw_ins_box();
 void iw_set_highlight_instructions(int instruction_mask);
+bool iw_get_highlight_instruction_progress(float *progress);
 int iw_get_instruction_y_by_id(int id);
 int iw_get_instruction_list_size();
 SDL_Rect iw_get_instruction_rect_by_pos(int pos);
