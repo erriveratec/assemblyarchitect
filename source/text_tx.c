@@ -8,6 +8,7 @@
 #include <SDL_mixer.h>
 #include "text_tx.h"
 #include "draw_dw.h"
+#include "sdl_config.h"
 #include "code_window_cw.h"
 #include "dimensions_dm.h"
 #include "media/audio_au.h"
@@ -760,6 +761,51 @@ typedef struct tx_style_prefix_t {
 	tx_text_style_t style;
 } tx_style_prefix_t;
 
+typedef enum tx_token_class_t {
+	TX_TOKEN_CLASS_TEXT,
+	TX_TOKEN_CLASS_INSTRUCTION,
+	TX_TOKEN_CLASS_REGISTER,
+	TX_TOKEN_CLASS_BUFFER,
+	TX_TOKEN_CLASS_FLAG,
+	TX_TOKEN_CLASS_IMMEDIATE,
+	TX_TOKEN_CLASS_LABEL,
+	TX_TOKEN_CLASS_MEMORY,
+	TX_TOKEN_CLASS_OPERATOR,
+	TX_TOKEN_CLASS_ADDRESS
+} tx_token_class_t;
+
+typedef struct tx_styled_run_t {
+	size_t start;
+	size_t length;
+	tx_text_style_t style;
+	tx_token_class_t token_class;
+} tx_styled_run_t;
+
+typedef struct tx_arch_token_t {
+	const char *spelling;
+	tx_token_class_t token_class;
+} tx_arch_token_t;
+
+/* The game exposes architecture IDs and display lookups, but no safe lexical
+ * classifier for scanning arbitrary tutorial prose. Keep its vocabulary here. */
+static const tx_arch_token_t g_tutorial_arch_tokens[] = {
+	{"MOV", TX_TOKEN_CLASS_INSTRUCTION},
+	{"ADD", TX_TOKEN_CLASS_INSTRUCTION},
+	{"line", TX_TOKEN_CLASS_INSTRUCTION},
+	{"JMP", TX_TOKEN_CLASS_INSTRUCTION},
+	{"CMP", TX_TOKEN_CLASS_INSTRUCTION},
+	{"JE", TX_TOKEN_CLASS_INSTRUCTION},
+	{"JNE", TX_TOKEN_CLASS_INSTRUCTION},
+	{"rax", TX_TOKEN_CLASS_REGISTER},
+	{"rbx", TX_TOKEN_CLASS_REGISTER},
+	{"rcx", TX_TOKEN_CLASS_REGISTER},
+	{"rdx", TX_TOKEN_CLASS_REGISTER},
+	{"rdi", TX_TOKEN_CLASS_REGISTER},
+	{"[ib]", TX_TOKEN_CLASS_BUFFER},
+	{"[ob]", TX_TOKEN_CLASS_BUFFER},
+	{"ZF", TX_TOKEN_CLASS_FLAG},
+};
+
 static const tx_style_prefix_t g_tutorial_style_prefixes[] = {
 	{"@syntax ", sizeof("@syntax ") - 1, TX_TEXT_STYLE_SYNTAX},
 	{"@directive ", sizeof("@directive ") - 1, TX_TEXT_STYLE_DIRECTIVE},
@@ -804,7 +850,7 @@ static tx_text_style_t tx_parse_tutorial_line(char *line)
 	return TX_TEXT_STYLE_BODY;
 }
 
-static SDL_Color tx_get_style_color(tx_text_style_t style)
+static SDL_Color tx_get_line_style_color(tx_text_style_t style)
 {
 	/* Semantic roles reuse the shared palette rather than defining new colors. */
 	switch (style) {
@@ -820,130 +866,522 @@ static SDL_Color tx_get_style_color(tx_text_style_t style)
 	}
 }
 
-static bool tx_append_empty_row(texture_array_t *destination)
+static SDL_Color tx_get_token_color(tx_token_class_t token_class)
 {
-	if (destination->size == INT_MAX ||
-	    (size_t)(destination->size + 1) > SIZE_MAX / sizeof(*destination->t)) {
-		return false;
+	switch (token_class) {
+	case TX_TOKEN_CLASS_TEXT:
+		return C_WHITE;
+	default:
+		return C_TERMINAL_GREEN;
 	}
+}
 
-	texture_t **rows = realloc(destination->t,
-	                           (size_t)(destination->size + 1) * sizeof(*rows));
-	if (rows == NULL) {
-		return false;
+static bool tx_is_identifier_char(unsigned char character)
+{
+	return isalnum(character) != 0 || character == '_';
+}
+
+static bool tx_append_run(tx_styled_run_t *runs, size_t *run_count,
+						  size_t start, size_t length,
+						  tx_text_style_t style,
+						  tx_token_class_t token_class)
+{
+	if (length == 0) {
+		return true;
 	}
-
-	destination->t = rows;
-	destination->t[destination->size] = NULL;
-	destination->size++;
+	if (*run_count > 0) {
+		tx_styled_run_t *previous = &runs[*run_count - 1];
+		if (previous->start + previous->length == start &&
+		    previous->style == style && previous->token_class == token_class) {
+			previous->length += length;
+			return true;
+		}
+	}
+	runs[*run_count] = (tx_styled_run_t){start, length, style, token_class};
+	(*run_count)++;
 	return true;
 }
 
-static bool tx_append_wrapped_rows(texture_array_t *destination,
-	                                  texture_array_t *wrapped)
+static bool tx_classify_token(const char *line, size_t position,
+						  size_t line_length, size_t *token_length,
+						  tx_token_class_t *token_class)
 {
-	if (wrapped->size <= 0 || wrapped->t == NULL ||
-	    wrapped->size > INT_MAX - destination->size ||
-	    (size_t)(destination->size + wrapped->size) >
-	        SIZE_MAX / sizeof(*destination->t)) {
-		return false;
+	for (size_t index = 0;
+	     index < sizeof(g_tutorial_arch_tokens) /
+	                 sizeof(g_tutorial_arch_tokens[0]); index++) {
+		const tx_arch_token_t *token = &g_tutorial_arch_tokens[index];
+		size_t length = strlen(token->spelling);
+		if (length > line_length - position ||
+		    memcmp(line + position, token->spelling, length) != 0) {
+			continue;
+		}
+		if (token->token_class != TX_TOKEN_CLASS_BUFFER &&
+		    ((position > 0 &&
+		      tx_is_identifier_char((unsigned char)line[position - 1])) ||
+		     (position + length < line_length &&
+		      tx_is_identifier_char((unsigned char)line[position + length])))) {
+			continue;
+		}
+		*token_length = length;
+		*token_class = token->token_class;
+		return true;
 	}
-
-	int total_size = destination->size + wrapped->size;
-	texture_t **rows = realloc(destination->t,
-	                           (size_t)total_size * sizeof(*rows));
-	if (rows == NULL) {
-		return false;
-	}
-
-	destination->t = rows;
-	memcpy(destination->t + destination->size, wrapped->t,
-	       (size_t)wrapped->size * sizeof(*rows));
-	destination->size = total_size;
-	free(wrapped->t);
-	free(wrapped);
-	return true;
+	return false;
 }
 
-texture_array_t *tx_create_styled_text_box_message(
-	const tx_text_box_options_t *options, const char *message)
+static tx_styled_run_t *tx_tokenize_line(const char *line, size_t line_length,
+									 tx_text_style_t line_style,
+									 size_t *run_count)
 {
-	if (message == NULL || message[0] == '\0') {
+	if (line_length == SIZE_MAX ||
+	    line_length + 1 > SIZE_MAX / sizeof(tx_styled_run_t)) {
 		return NULL;
 	}
+	tx_styled_run_t *runs = calloc(line_length + 1, sizeof(*runs));
+	if (runs == NULL) {
+		return NULL;
+	}
+	*run_count = 0;
+	for (size_t position = 0; position < line_length;) {
+		size_t token_length = 0;
+		tx_token_class_t token_class = TX_TOKEN_CLASS_TEXT;
+		if (tx_classify_token(line, position, line_length, &token_length,
+		                      &token_class)) {
+			tx_append_run(runs, run_count, position, token_length,
+			              TX_TEXT_STYLE_SYNTAX, token_class);
+			position += token_length;
+		} else {
+			size_t start = position++;
+			while (position < line_length &&
+			       !tx_classify_token(line, position, line_length,
+			                          &token_length, &token_class)) {
+				position++;
+			}
+			tx_append_run(runs, run_count, start, position - start,
+			              line_style, TX_TOKEN_CLASS_TEXT);
+		}
+	}
+	return runs;
+}
 
+static bool tx_measure_span(const char *line, size_t start, size_t end,
+							int text_height, int *width)
+{
+	if (end < start || end - start == SIZE_MAX) {
+		return false;
+	}
+	char *text = malloc(end - start + 1);
+	if (text == NULL) {
+		return false;
+	}
+	memcpy(text, line + start, end - start);
+	text[end - start] = '\0';
+	texture_t *texture = dw_create_text_tex(text, C_WHITE);
+	free(text);
+	if (texture == NULL || texture->h <= 0 || texture->w <= 0) {
+		dw_free_texture(texture);
+		return false;
+	}
+	int64_t measured = (int64_t)texture->w * text_height / texture->h;
+	dw_free_texture(texture);
+	if (measured > INT_MAX) {
+		return false;
+	}
+	*width = (int)measured;
+	return true;
+}
+
+static bool tx_row_append_fragment(tx_styled_row_t *row, const char *text,
+								   size_t length, SDL_Color color,
+								   int text_height)
+{
+	if (length == 0 || length == SIZE_MAX) {
+		return length == 0;
+	}
+	char *fragment_text = malloc(length + 1);
+	if (fragment_text == NULL) {
+		return false;
+	}
+	memcpy(fragment_text, text, length);
+	fragment_text[length] = '\0';
+	bool only_space = true;
+	for (size_t index = 0; index < length; index++) {
+		if (!isspace((unsigned char)fragment_text[index])) {
+			only_space = false;
+			break;
+		}
+	}
+	if (only_space) {
+		texture_t *space_texture = dw_create_text_tex(fragment_text, color);
+		int native_width = 0;
+		int native_height = 0;
+		bool measured = space_texture != NULL && space_texture->h > 0 &&
+		                space_texture->w > 0;
+		if (measured) {
+			native_width = space_texture->w;
+			native_height = space_texture->h;
+		} else {
+			measured = TTF_SizeText(g_font, fragment_text,
+			                        &native_width, &native_height) == 0 &&
+			           native_height > 0;
+		}
+		dw_free_texture(space_texture);
+		free(fragment_text);
+		if (!measured) {
+			return false;
+		}
+		int64_t advance = (int64_t)native_width * text_height / native_height;
+		if (advance < 0 || advance > INT_MAX - row->rendered_width) {
+			return false;
+		}
+		row->rendered_width += (int)advance;
+		return true;
+	}
+	texture_t *texture = dw_create_text_tex(fragment_text, color);
+	free(fragment_text);
+	if (texture == NULL || texture->h <= 0 || texture->w <= 0) {
+		dw_free_texture(texture);
+		return false;
+	}
+	int64_t width = (int64_t)texture->w * text_height / texture->h;
+	if (width <= 0 || width > INT_MAX - row->rendered_width) {
+		dw_free_texture(texture);
+		return false;
+	}
+	if (row->fragment_count == INT_MAX ||
+	    (size_t)(row->fragment_count + 1) > SIZE_MAX / sizeof(*row->fragments)) {
+		dw_free_texture(texture);
+		return false;
+	}
+	tx_text_fragment_t *fragments = realloc(
+	    row->fragments, (size_t)(row->fragment_count + 1) * sizeof(*fragments));
+	if (fragments == NULL) {
+		dw_free_texture(texture);
+		return false;
+	}
+	row->fragments = fragments;
+	row->fragments[row->fragment_count++] = (tx_text_fragment_t){
+	    .texture = texture, .x_offset = row->rendered_width};
+	row->rendered_width += (int)width;
+	return true;
+}
+
+static void tx_free_row(tx_styled_row_t *row)
+{
+	if (row == NULL) {
+		return;
+	}
+	for (int index = 0; index < row->fragment_count; index++) {
+		dw_free_texture(row->fragments[index].texture);
+	}
+	free(row->fragments);
+	*row = (tx_styled_row_t){0};
+}
+
+void tx_free_styled_text(tx_styled_text_t *message)
+{
+	if (message == NULL) {
+		return;
+	}
+	for (int index = 0; index < message->row_count; index++) {
+		tx_free_row(&message->rows[index]);
+	}
+	free(message->rows);
+	free(message);
+}
+
+static bool tx_append_row(tx_styled_text_t *message, tx_styled_row_t *row)
+{
+	if (message->row_count == INT_MAX ||
+	    (size_t)(message->row_count + 1) > SIZE_MAX / sizeof(*message->rows)) {
+		return false;
+	}
+	tx_styled_row_t *rows = realloc(
+	    message->rows, (size_t)(message->row_count + 1) * sizeof(*rows));
+	if (rows == NULL) {
+		return false;
+	}
+	message->rows = rows;
+	message->rows[message->row_count++] = *row;
+	*row = (tx_styled_row_t){0};
+	return true;
+}
+
+static bool tx_append_empty_styled_row(tx_styled_text_t *message)
+{
+	tx_styled_row_t row = {0};
+	return tx_append_row(message, &row);
+}
+
+static bool tx_create_row_from_span(tx_styled_text_t *message,
+									const char *line,
+									const tx_styled_run_t *runs,
+									size_t run_count,
+									size_t start, size_t end,
+									int text_height)
+{
+	tx_styled_row_t row = {0};
+	for (size_t index = 0; index < run_count; index++) {
+		const tx_styled_run_t *run = &runs[index];
+		size_t run_end = run->start + run->length;
+		size_t part_start = run->start > start ? run->start : start;
+		size_t part_end = run_end < end ? run_end : end;
+		if (part_start >= part_end) {
+			continue;
+		}
+		SDL_Color color = run->token_class == TX_TOKEN_CLASS_TEXT
+		                      ? tx_get_line_style_color(run->style)
+		                      : tx_get_token_color(run->token_class);
+		if (!tx_row_append_fragment(&row, line + part_start,
+		                            part_end - part_start, color, text_height)) {
+			tx_free_row(&row);
+			return false;
+		}
+	}
+	if (!tx_append_row(message, &row)) {
+		tx_free_row(&row);
+		return false;
+	}
+	return true;
+}
+
+static size_t tx_next_utf8_character(const char *text, size_t position,
+									 size_t end)
+{
+	unsigned char first = (unsigned char)text[position];
+	size_t count = first < 0x80 ? 1 : (first & 0xE0) == 0xC0 ? 2 :
+	               (first & 0xF0) == 0xE0 ? 3 : (first & 0xF8) == 0xF0 ? 4 : 1;
+	if (count > end - position) {
+		return position + 1;
+	}
+	for (size_t index = 1; index < count; index++) {
+		if (((unsigned char)text[position + index] & 0xC0) != 0x80) {
+			return position + 1;
+		}
+	}
+	return position + count;
+}
+
+static bool tx_wrap_styled_line(tx_styled_text_t *message, const char *line,
+								size_t line_length,
+								const tx_styled_run_t *runs,
+								size_t run_count, int content_width,
+								int text_height)
+{
+	size_t row_start = 0;
+	while (row_start < line_length) {
+		size_t cursor = row_start;
+		size_t last_fit = row_start;
+		while (cursor < line_length) {
+			size_t word_end = cursor;
+			while (word_end < line_length &&
+			       !isspace((unsigned char)line[word_end])) {
+				word_end = tx_next_utf8_character(line, word_end, line_length);
+			}
+			size_t chunk_end = word_end;
+			while (chunk_end < line_length &&
+			       isspace((unsigned char)line[chunk_end])) {
+				chunk_end++;
+			}
+			int measured = 0;
+			if (!tx_measure_span(line, row_start, chunk_end, text_height,
+			                     &measured)) {
+				return false;
+			}
+			if (measured <= content_width) {
+				cursor = chunk_end;
+				last_fit = cursor;
+				continue;
+			}
+			if (last_fit > row_start) {
+				if (!tx_create_row_from_span(message, line, runs, run_count,
+				                             row_start, last_fit, text_height)) {
+					return false;
+				}
+				row_start = last_fit;
+				break;
+			}
+			if (word_end == row_start) {
+				word_end = tx_next_utf8_character(line, row_start, line_length);
+			}
+			size_t split = row_start;
+			for (size_t next = row_start; next < word_end;) {
+				next = tx_next_utf8_character(line, next, word_end);
+				if (!tx_measure_span(line, row_start, next, text_height,
+				                     &measured)) {
+					return false;
+				}
+				if (measured > content_width) {
+					if (split == row_start) {
+						split = next;
+					}
+					break;
+				}
+				split = next;
+			}
+			if (split == row_start ||
+			    !tx_create_row_from_span(message, line, runs, run_count,
+			                            row_start, split, text_height)) {
+				return false;
+			}
+			row_start = split;
+			break;
+		}
+		if (cursor == line_length) {
+			if (!tx_create_row_from_span(message, line, runs, run_count,
+			                             row_start, line_length, text_height)) {
+				return false;
+			}
+			row_start = line_length;
+		}
+	}
+	return true;
+}
+
+tx_styled_text_t *tx_create_styled_text_box_message(
+	const tx_text_box_options_t *options, const char *message,
+	tx_text_layout_info_t *layout_info)
+{
+	if (layout_info != NULL) {
+		*layout_info = (tx_text_layout_info_t){0};
+	}
+	if (options == NULL || message == NULL || message[0] == '\0') {
+		return NULL;
+	}
 	SDL_Rect content;
-	int      text_height = 0;
-	if (!tx_get_text_box_rects(options, NULL, &content, &text_height)) {
+	int text_height = 0;
+	if (!tx_get_text_box_rects(options, NULL, &content, &text_height) ||
+	    content.w <= 0 || content.h <= 0 || text_height <= 0) {
 		return NULL;
 	}
-
 	size_t message_length = strlen(message);
 	if (message_length == SIZE_MAX) {
 		return NULL;
 	}
-
 	char *line = malloc(message_length + 1);
-	texture_array_t *result = calloc(1, sizeof(*result));
+	tx_styled_text_t *result = calloc(1, sizeof(*result));
 	if (line == NULL || result == NULL) {
 		free(line);
-		free(result);
+		tx_free_styled_text(result);
 		return NULL;
 	}
-
-	int max_rows = content.h / text_height;
 	size_t line_start = 0;
 	while (line_start <= message_length) {
 		size_t line_end = line_start;
 		while (line_end < message_length && message[line_end] != '\n') {
 			line_end++;
 		}
-
 		size_t line_length = line_end - line_start;
 		memcpy(line, message + line_start, line_length);
 		line[line_length] = '\0';
-		tx_text_style_t style = tx_parse_tutorial_line(line);
-
-		if (line[0] == '\0') {
-			if (result->size >= max_rows || !tx_append_empty_row(result)) {
+		tx_text_style_t line_style = tx_parse_tutorial_line(line);
+		line_length = strlen(line);
+		if (line_length == 0) {
+			if (!tx_append_empty_styled_row(result)) {
 				goto failure;
 			}
 		} else {
-			texture_array_t *wrapped = dw_create_text_tex_array_by_h(
-			    content.w, text_height, tx_get_style_color(style), line);
-			if (wrapped == NULL) {
+			size_t run_count = 0;
+			tx_styled_run_t *runs = tx_tokenize_line(
+			    line, line_length, line_style, &run_count);
+			if (runs == NULL ||
+			    !tx_wrap_styled_line(result, line, line_length, runs, run_count,
+			                         content.w, text_height)) {
+				free(runs);
 				goto failure;
 			}
-
-			bool row_overflow = wrapped->size > max_rows - result->size;
-			for (int row = 0; !row_overflow && row < wrapped->size; row++) {
-				texture_t *texture = wrapped->t[row];
-				if (texture != NULL &&
-				    (texture->h <= 0 ||
-				     (int64_t)texture->w * text_height / texture->h >
-				         content.w)) {
-					row_overflow = true;
-				}
-			}
-			if (row_overflow || !tx_append_wrapped_rows(result, wrapped)) {
-				dw_free_texture_array(wrapped);
-				goto failure;
-			}
+			free(runs);
 		}
-
 		if (line_end == message_length) {
 			break;
 		}
 		line_start = line_end + 1;
 	}
-
+	int max_rows = content.h / text_height;
+	int visible_rows = result->row_count < max_rows ? result->row_count : max_rows;
+	if (layout_info != NULL) {
+		layout_info->required_rows = result->row_count;
+		layout_info->visible_rows = visible_rows;
+		layout_info->overflow_rows = result->row_count - visible_rows;
+		layout_info->overflowed = layout_info->overflow_rows > 0;
+	}
 	free(line);
 	return result;
 
 failure:
 	free(line);
-	dw_free_texture_array(result);
+	tx_free_styled_text(result);
 	return NULL;
+}
+
+void tx_draw_styled_text_box_message(const tx_text_box_options_t *options,
+									const tx_styled_text_t *message, int header)
+{
+	if (message == NULL || message->rows == NULL || message->row_count <= 0 ||
+	    g_renderer == NULL) {
+		return;
+	}
+	SDL_Rect box;
+	SDL_Rect content;
+	int text_height = 0;
+	if (!tx_get_text_box_rects(options, &box, &content, &text_height) ||
+	    content.w <= 0 || content.h <= 0 || text_height <= 0) {
+		return;
+	}
+	for (int row_index = 0; row_index < message->row_count; row_index++) {
+		const tx_styled_row_t *row = &message->rows[row_index];
+		if (row->fragment_count < 0 || row->rendered_width < 0 ||
+		    (row->fragment_count > 0 && row->fragments == NULL)) {
+			return;
+		}
+		for (int fragment = 0; fragment < row->fragment_count; fragment++) {
+			const tx_text_fragment_t *part = &row->fragments[fragment];
+			if (part->texture == NULL || part->texture->texture == NULL ||
+			    part->texture->w <= 0 || part->texture->h <= 0 ||
+			    part->x_offset < 0) {
+				return;
+			}
+		}
+	}
+	dw_draw_iface_box(box, tx_get_header_texture(header));
+	int visible_rows = content.h / text_height;
+	if (visible_rows > message->row_count) {
+		visible_rows = message->row_count;
+	}
+	int64_t y = content.y;
+	if (message->row_count <= content.h / text_height) {
+		y += ((int64_t)content.h - (int64_t)message->row_count * text_height) / 2;
+	}
+	SDL_Rect old_clip;
+	SDL_RenderGetClipRect(g_renderer, &old_clip);
+	SDL_bool clipping_was_enabled = SDL_RenderIsClipEnabled(g_renderer);
+	SDL_Rect drawing_clip = content;
+	if (clipping_was_enabled) {
+		SDL_IntersectRect(&content, &old_clip, &drawing_clip);
+	}
+	if (SDL_RenderSetClipRect(g_renderer, &drawing_clip) != 0) {
+		SDL_RenderSetClipRect(g_renderer,
+		                      clipping_was_enabled ? &old_clip : NULL);
+		return;
+	}
+	for (int row_index = 0; row_index < visible_rows; row_index++) {
+		const tx_styled_row_t *row = &message->rows[row_index];
+		int64_t row_x = (int64_t)content.x +
+		                ((int64_t)content.w - row->rendered_width) / 2;
+		for (int fragment = 0; fragment < row->fragment_count; fragment++) {
+			const tx_text_fragment_t *part = &row->fragments[fragment];
+			int64_t x = row_x + part->x_offset;
+			if (x < INT_MIN || x > INT_MAX || y < INT_MIN || y > INT_MAX) {
+				continue;
+			}
+			SDL_Rect destination = {
+				.x = (int)x, .y = (int)y, .w = content.w, .h = text_height};
+			dw_draw_texture_fit_h(destination, part->texture);
+		}
+		y += text_height;
+	}
+	SDL_RenderSetClipRect(g_renderer,
+	                      clipping_was_enabled ? &old_clip : NULL);
 }
 
 /* Function: tx_text_box

@@ -12,6 +12,9 @@ DATA_DIRS = sound fonts data img
 APP_ICON = icon.icns
 
 S_FILES := $(shell find $(S_DIR) -type f -name '*.c')
+TEST_EXEC = tutorial_text_test
+TEST_SOURCE = tests/tutorial_text_test.c
+TEST_SOURCES := $(filter-out $(S_DIR)/main.c,$(S_FILES))
 
  
 ############################
@@ -69,6 +72,11 @@ build:
 
 run: build
 	./$(EXEC)
+
+test:
+	$(CC) $(CFLAGS) $(TEST_SOURCE) $(TEST_SOURCES) -o $(TEST_EXEC) \
+	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
+	./$(TEST_EXEC)
 
 ############################
 # App bundle target
@@ -154,7 +162,7 @@ app: build
 ############################
 
 clean:
-	rm -rf $(EXEC) $(APP_BUNDLE)
+	rm -rf $(EXEC) $(APP_BUNDLE) $(TEST_EXEC)
 	rm -rf assemblyArchitect*
 	rm -f source/.*.swp
 	rm -f data/.*.swp

@@ -537,9 +537,9 @@ void tr_clear(void)
 	rg_set_register_highlight(false);
 	iw_set_highlight_instructions(0);
 	for (int index = 0; index < g_step_count; index++) {
-		dw_free_texture_array(g_steps[index].text_texture);
+		tx_free_styled_text(g_steps[index].text_message);
 
-		g_steps[index].text_texture = NULL;
+		g_steps[index].text_message = NULL;
 	}
 
 	memset(g_steps, 0, sizeof(g_steps));
@@ -736,8 +736,8 @@ void tr_render_step(const char *name)
 	}
 
 	tx_text_box_options_t text_box = get_text_box_options(step);
-	tx_text_box_texture(&text_box, step->text_texture,
-	                    get_header(step->header));
+	tx_draw_styled_text_box_message(&text_box, step->text_message,
+	                                get_header(step->header));
 	if (step->dismiss == TUTORIAL_DISMISS_MOUSE_PRESS ||
 	    step->dismiss == TUTORIAL_DISMISS_MOUSE_RELEASE) {
 		tx_bottom_msg(&text_box, TX_MSG_CLICKANY);
@@ -802,7 +802,7 @@ bool tr_load_level(int level_id)
 
 			step = &g_steps[g_step_count++];
 			sscanf(text, "[%63[^]]]", step->name);
-			step->text_texture                 = NULL;
+			step->text_message                 = NULL;
 			step->priority                     = 0;
 			step->large_box                    = false;
 			step->large_text                   = false;
@@ -876,15 +876,25 @@ bool tr_load_level(int level_id)
 			}
 
 			tx_text_box_options_t text_box = get_text_box_options(step);
-			step->text_texture =
-			    tx_create_styled_text_box_message(&text_box, step->text);
+			tx_text_layout_info_t layout = {0};
+			step->text_message =
+			    tx_create_styled_text_box_message(&text_box, step->text, &layout);
 
-			if (step->text_texture == NULL) {
+			if (step->text_message == NULL) {
 				fprintf(stderr,
-				        "tutorial.cfg: level %d step '%s' "
+				        "tutorial.cfg: error: level %d step '%s' "
 				        "could not create text texture\n",
 				        level_id, step->name);
 				goto invalid;
+			}
+			if (layout.overflowed) {
+				fprintf(stderr,
+				        "tutorial.cfg: warning: level %d step '%s' text "
+				        "overflows: requires %d rows, box supports %d, %d "
+				        "row%s clipped\n",
+				        level_id, step->name, layout.required_rows,
+				        layout.visible_rows, layout.overflow_rows,
+				        layout.overflow_rows == 1 ? "" : "s");
 			}
 
 			continue;

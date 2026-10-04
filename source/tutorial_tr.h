@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include "draw_dw.h"
+#include "text_tx.h"
 
 #define TUTORIAL_STEP_NAME_LENGTH 64
 #define TUTORIAL_STEP_TEXT_LENGTH 256
@@ -57,7 +58,7 @@ typedef enum tutorial_highlight_t {
 typedef struct tutorial_step_t {
     char name[TUTORIAL_STEP_NAME_LENGTH];
     char text[TUTORIAL_STEP_TEXT_LENGTH];
-    texture_array_t *text_texture;
+    tx_styled_text_t *text_message;
     int priority;
     tutorial_box_t box;
     bool large_box;

@@ -26,12 +26,36 @@ typedef struct tx_text_box_options_t {
 	bool large_text;
 } tx_text_box_options_t;
 
+typedef struct tx_text_layout_info_t {
+	int required_rows;
+	int visible_rows;
+	int overflow_rows;
+	bool overflowed;
+} tx_text_layout_info_t;
+
 typedef enum tx_text_style_t {
 	TX_TEXT_STYLE_BODY,
 	TX_TEXT_STYLE_SYNTAX,
 	TX_TEXT_STYLE_DIRECTIVE,
 	TX_TEXT_STYLE_WARNING
 } tx_text_style_t;
+
+typedef struct tx_text_fragment_t {
+	texture_t *texture;
+	int x_offset;
+} tx_text_fragment_t;
+
+typedef struct tx_styled_row_t {
+	tx_text_fragment_t *fragments;
+	int fragment_count;
+	int rendered_width;
+} tx_styled_row_t;
+
+/* Owns its rows and every fragment texture stored in them. */
+typedef struct tx_styled_text_t {
+	tx_styled_row_t *rows;
+	int row_count;
+} tx_styled_text_t;
 
 /* Output pointers may be NULL, but at least one output must be requested. */
 bool tx_get_text_box_rects(const tx_text_box_options_t *options,
@@ -57,8 +81,13 @@ texture_array_t *tx_create_text_box_message(
  * @directive marks the required operation or execution action, and @warning
  * marks important constraints. Unprefixed lines use body style; unknown
  * prefixes remain ordinary visible text. */
-texture_array_t *tx_create_styled_text_box_message(
-	const tx_text_box_options_t *options, const char *message);
+tx_styled_text_t *tx_create_styled_text_box_message(
+	const tx_text_box_options_t *options, const char *message,
+	tx_text_layout_info_t *layout_info);
+
+void tx_draw_styled_text_box_message(const tx_text_box_options_t *options,
+									const tx_styled_text_t *message, int header);
+void tx_free_styled_text(tx_styled_text_t *message);
 
 void tx_text_box_texture(const tx_text_box_options_t *options,
 			 texture_array_t *message, int header);
