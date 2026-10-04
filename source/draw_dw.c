@@ -1,5 +1,4 @@
 #include <assert.h>
-#include <stdint.h>
 #include <string.h>
 #include <SDL.h>
 #include <SDL_image.h>
@@ -18,6 +17,7 @@ SDL_Color C_CYAN          = {0, 255, 255, 255};
 SDL_Color C_YELLOW        = {255, 255, 0, 255};
 SDL_Color C_MAGENTA       = {255, 0, 255, 255};
 SDL_Color C_GREEN         = {0, 255, 0, 255};
+//SDL_Color C_TERMINAL_GREEN = {72, 190, 105, 255};
 SDL_Color C_TERMINAL_GREEN = { 80, 255, 120, 255 };
 SDL_Color C_WHITE         = {255, 255, 255, 255};
 SDL_Color C_VERYLIGHTGREY = {234, 234, 234, 255};
@@ -889,19 +889,11 @@ error:
 void dw_draw_wrapped_texture_by_h(SDL_Rect r, int h, texture_array_t *a)
 {
 	assert(a != NULL && "Text pointer is NULL");
-	if (a == NULL || a->t == NULL || a->size <= 0 || h <= 0 ||
-	    r.w <= 0 || r.h < h) {
-		return;
-	}
 
-	int visible_rows = r.h / h;
-	int row_count = a->size < visible_rows ? a->size : visible_rows;
-	int64_t y_pos = (int64_t)r.y;
-	if (a->size <= visible_rows) {
-		y_pos += ((int64_t)r.h - (int64_t)a->size * h) / 2;
-	}
+	int y_pos    = r.y + (r.h - a->size * h) / 2;
+	int y_offset = h;
 
-	for (int i = 0; i < row_count; i++) {
+	for (int i = 0; i < a->size; i++) {
 		texture_t *line_texture = a->t[i];
 
 		if (line_texture != NULL) {
@@ -909,13 +901,12 @@ void dw_draw_wrapped_texture_by_h(SDL_Rect r, int h, texture_array_t *a)
 
 			int x_pos = r.x + (r.w - width) / 2;
 
-			SDL_Rect line_rect = {
-				.x = x_pos, .y = (int)y_pos, .w = width, .h = h};
+			SDL_Rect line_rect = {.x = x_pos, .y = y_pos, .w = width, .h = h};
 
 			dw_draw_texture_fit_h(line_rect, line_texture);
 		}
 
-		y_pos += h;
+		y_pos += y_offset;
 	}
 error:
 	return;

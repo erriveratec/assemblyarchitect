@@ -857,9 +857,9 @@ static SDL_Color tx_get_line_style_color(tx_text_style_t style)
 	case TX_TEXT_STYLE_SYNTAX:
 		return C_TERMINAL_GREEN;
 	case TX_TEXT_STYLE_DIRECTIVE:
-		return C_AMBER;
+		return C_WHITE;
 	case TX_TEXT_STYLE_WARNING:
-		return C_ORANGE;
+		return C_WHITE;
 	case TX_TEXT_STYLE_BODY:
 	default:
 		return C_WHITE;
