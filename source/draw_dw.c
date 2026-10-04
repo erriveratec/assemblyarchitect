@@ -17,6 +17,7 @@ SDL_Color C_CYAN          = {0, 255, 255, 255};
 SDL_Color C_YELLOW        = {255, 255, 0, 255};
 SDL_Color C_MAGENTA       = {255, 0, 255, 255};
 SDL_Color C_GREEN         = {0, 255, 0, 255};
+SDL_Color C_TERMINAL_GREEN = { 80, 255, 120, 255 };
 SDL_Color C_WHITE         = {255, 255, 255, 255};
 SDL_Color C_VERYLIGHTGREY = {234, 234, 234, 255};
 SDL_Color C_LIGHTGREY     = {224, 224, 224, 255};

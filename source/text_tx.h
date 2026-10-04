@@ -26,6 +26,13 @@ typedef struct tx_text_box_options_t {
 	bool large_text;
 } tx_text_box_options_t;
 
+typedef enum tx_text_style_t {
+	TX_TEXT_STYLE_BODY,
+	TX_TEXT_STYLE_SYNTAX,
+	TX_TEXT_STYLE_DIRECTIVE,
+	TX_TEXT_STYLE_WARNING
+} tx_text_style_t;
+
 /* Output pointers may be NULL, but at least one output must be requested. */
 bool tx_get_text_box_rects(const tx_text_box_options_t *options,
 						   SDL_Rect *box, SDL_Rect *content,
@@ -43,6 +50,14 @@ bool tx_draw_create_typewriter_text(texture_t **t, SDL_Rect r, const char *text,
 texture_array_t *tx_get_message_texture(int pos);
 SDL_Rect         tx_get_text_box_wh();
 texture_array_t *tx_create_text_box_message(
+	const tx_text_box_options_t *options, const char *message);
+
+/* Tutorial authoring prefixes style a complete logical source line and are
+ * stripped before rendering: @syntax marks assembly forms and operands,
+ * @directive marks the required operation or execution action, and @warning
+ * marks important constraints. Unprefixed lines use body style; unknown
+ * prefixes remain ordinary visible text. */
+texture_array_t *tx_create_styled_text_box_message(
 	const tx_text_box_options_t *options, const char *message);
 
 void tx_text_box_texture(const tx_text_box_options_t *options,

@@ -773,8 +773,14 @@ bool tr_load_level(int level_id)
 	char             line[512];
 	tutorial_step_t *step         = NULL;
 	bool             reading_text = false;
+	size_t           text_line_count = 0;
 
 	while (fgets(line, sizeof(line), file) != NULL) {
+		char   raw_line[sizeof(line)];
+		size_t raw_length = strcspn(line, "\r\n");
+		memcpy(raw_line, line, raw_length);
+		raw_line[raw_length] = '\0';
+		line[raw_length] = '\0';
 		char *text = trim(line);
 		size_t text_length = strlen(text);
 		char *closing_bracket = strchr(text, ']');
@@ -846,6 +852,7 @@ bool tr_load_level(int level_id)
 				goto invalid;
 			}
 			reading_text = true;
+			text_line_count = 0;
 			continue;
 		}
 
@@ -870,7 +877,7 @@ bool tr_load_level(int level_id)
 
 			tx_text_box_options_t text_box = get_text_box_options(step);
 			step->text_texture =
-			    tx_create_text_box_message(&text_box, step->text);
+			    tx_create_styled_text_box_message(&text_box, step->text);
 
 			if (step->text_texture == NULL) {
 				fprintf(stderr,
@@ -885,8 +892,20 @@ bool tr_load_level(int level_id)
 
 		if (reading_text) {
 			size_t used = strlen(step->text);
-			snprintf(step->text + used, sizeof(step->text) - used, "%s%s",
-			         used == 0 ? "" : "\n", text);
+			size_t separator_length = text_line_count == 0 ? 0 : 1;
+			if (used + separator_length + raw_length >= sizeof(step->text)) {
+				fprintf(stderr,
+				        "tutorial.cfg: level %d step '%s' text exceeds %zu bytes\n",
+				        level_id, step->name, sizeof(step->text) - 1);
+				goto invalid;
+			}
+
+			if (separator_length != 0) {
+				step->text[used++] = '\n';
+			}
+			memcpy(step->text + used, raw_line, raw_length);
+			step->text[used + raw_length] = '\0';
+			text_line_count++;
 			continue;
 		}
 

@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdint.h>
+#include <limits.h>
+#include <ctype.h>
+#include <string.h>
 #include <SDL_mixer.h>
 #include "text_tx.h"
 #include "draw_dw.h"
@@ -749,6 +752,198 @@ texture_array_t *tx_create_text_box_message(
 
 	return dw_create_text_tex_array_by_h(content.w, text_height, C_WHITE,
 	                                     (char *)message);
+}
+
+typedef struct tx_style_prefix_t {
+	const char *prefix;
+	size_t length;
+	tx_text_style_t style;
+} tx_style_prefix_t;
+
+static const tx_style_prefix_t g_tutorial_style_prefixes[] = {
+	{"@syntax ", sizeof("@syntax ") - 1, TX_TEXT_STYLE_SYNTAX},
+	{"@directive ", sizeof("@directive ") - 1, TX_TEXT_STYLE_DIRECTIVE},
+	{"@warning ", sizeof("@warning ") - 1, TX_TEXT_STYLE_WARNING},
+};
+
+static char *tx_trim_line(char *line)
+{
+	while (isspace((unsigned char)*line)) {
+		line++;
+	}
+
+	char *end = line + strlen(line);
+	while (end > line && isspace((unsigned char)end[-1])) {
+		end--;
+	}
+	*end = '\0';
+	return line;
+}
+
+static tx_text_style_t tx_parse_tutorial_line(char *line)
+{
+	/* Match only after optional indentation, then strip one recognized prefix. */
+	char *content = tx_trim_line(line);
+
+	for (size_t index = 0;
+	     index < sizeof(g_tutorial_style_prefixes) /
+	                 sizeof(g_tutorial_style_prefixes[0]);
+	     index++) {
+		const tx_style_prefix_t *prefix = &g_tutorial_style_prefixes[index];
+		if (strncmp(content, prefix->prefix, prefix->length) == 0) {
+			memmove(line, content + prefix->length,
+			        strlen(content + prefix->length) + 1);
+			tx_trim_line(line);
+			return prefix->style;
+		}
+	}
+
+	if (content != line) {
+		memmove(line, content, strlen(content) + 1);
+	}
+	return TX_TEXT_STYLE_BODY;
+}
+
+static SDL_Color tx_get_style_color(tx_text_style_t style)
+{
+	/* Semantic roles reuse the shared palette rather than defining new colors. */
+	switch (style) {
+	case TX_TEXT_STYLE_SYNTAX:
+		return C_TERMINAL_GREEN;
+	case TX_TEXT_STYLE_DIRECTIVE:
+		return C_AMBER;
+	case TX_TEXT_STYLE_WARNING:
+		return C_ORANGE;
+	case TX_TEXT_STYLE_BODY:
+	default:
+		return C_WHITE;
+	}
+}
+
+static bool tx_append_empty_row(texture_array_t *destination)
+{
+	if (destination->size == INT_MAX ||
+	    (size_t)(destination->size + 1) > SIZE_MAX / sizeof(*destination->t)) {
+		return false;
+	}
+
+	texture_t **rows = realloc(destination->t,
+	                           (size_t)(destination->size + 1) * sizeof(*rows));
+	if (rows == NULL) {
+		return false;
+	}
+
+	destination->t = rows;
+	destination->t[destination->size] = NULL;
+	destination->size++;
+	return true;
+}
+
+static bool tx_append_wrapped_rows(texture_array_t *destination,
+	                                  texture_array_t *wrapped)
+{
+	if (wrapped->size <= 0 || wrapped->t == NULL ||
+	    wrapped->size > INT_MAX - destination->size ||
+	    (size_t)(destination->size + wrapped->size) >
+	        SIZE_MAX / sizeof(*destination->t)) {
+		return false;
+	}
+
+	int total_size = destination->size + wrapped->size;
+	texture_t **rows = realloc(destination->t,
+	                           (size_t)total_size * sizeof(*rows));
+	if (rows == NULL) {
+		return false;
+	}
+
+	destination->t = rows;
+	memcpy(destination->t + destination->size, wrapped->t,
+	       (size_t)wrapped->size * sizeof(*rows));
+	destination->size = total_size;
+	free(wrapped->t);
+	free(wrapped);
+	return true;
+}
+
+texture_array_t *tx_create_styled_text_box_message(
+	const tx_text_box_options_t *options, const char *message)
+{
+	if (message == NULL || message[0] == '\0') {
+		return NULL;
+	}
+
+	SDL_Rect content;
+	int      text_height = 0;
+	if (!tx_get_text_box_rects(options, NULL, &content, &text_height)) {
+		return NULL;
+	}
+
+	size_t message_length = strlen(message);
+	if (message_length == SIZE_MAX) {
+		return NULL;
+	}
+
+	char *line = malloc(message_length + 1);
+	texture_array_t *result = calloc(1, sizeof(*result));
+	if (line == NULL || result == NULL) {
+		free(line);
+		free(result);
+		return NULL;
+	}
+
+	int max_rows = content.h / text_height;
+	size_t line_start = 0;
+	while (line_start <= message_length) {
+		size_t line_end = line_start;
+		while (line_end < message_length && message[line_end] != '\n') {
+			line_end++;
+		}
+
+		size_t line_length = line_end - line_start;
+		memcpy(line, message + line_start, line_length);
+		line[line_length] = '\0';
+		tx_text_style_t style = tx_parse_tutorial_line(line);
+
+		if (line[0] == '\0') {
+			if (result->size >= max_rows || !tx_append_empty_row(result)) {
+				goto failure;
+			}
+		} else {
+			texture_array_t *wrapped = dw_create_text_tex_array_by_h(
+			    content.w, text_height, tx_get_style_color(style), line);
+			if (wrapped == NULL) {
+				goto failure;
+			}
+
+			bool row_overflow = wrapped->size > max_rows - result->size;
+			for (int row = 0; !row_overflow && row < wrapped->size; row++) {
+				texture_t *texture = wrapped->t[row];
+				if (texture != NULL &&
+				    (texture->h <= 0 ||
+				     (int64_t)texture->w * text_height / texture->h >
+				         content.w)) {
+					row_overflow = true;
+				}
+			}
+			if (row_overflow || !tx_append_wrapped_rows(result, wrapped)) {
+				dw_free_texture_array(wrapped);
+				goto failure;
+			}
+		}
+
+		if (line_end == message_length) {
+			break;
+		}
+		line_start = line_end + 1;
+	}
+
+	free(line);
+	return result;
+
+failure:
+	free(line);
+	dw_free_texture_array(result);
+	return NULL;
 }
 
 /* Function: tx_text_box
