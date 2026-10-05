@@ -150,6 +150,16 @@ aa_result_t aa_program_clone_instruction(aa_program_t *program,
  */
 aa_result_t aa_program_replace_from(aa_program_t *destination,
 										const aa_program_t *source);
+/* Transactionally replaces semantic contents using caller-supplied stable IDs.
+ * This identity-preserving reconciliation API is not a normal editor mutation:
+ * IDs must be nonzero and unique, and all label references must resolve to
+ * LABEL instructions. The input array is borrowed for the call only, may point
+ * into the destination's borrowed instruction storage, and is copied before
+ * replacement. Revision changes once only when semantics or ordering change;
+ * next_id never moves backward and remains available for future appends. */
+aa_result_t aa_program_reconcile(aa_program_t *destination,
+								 const aa_instruction_t *instructions,
+								 size_t count);
 
 aa_result_t aa_instruction_validate(const aa_instruction_t *instruction);
 aa_validation_report_t aa_program_validate(const aa_program_t *program,

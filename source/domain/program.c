@@ -552,6 +552,124 @@ aa_result_t aa_program_replace_from(aa_program_t *destination,
 	return AA_RESULT_OK;
 }
 
+static bool instructions_equal(const aa_instruction_t *left,
+							  const aa_instruction_t *right)
+{
+	if (left->id != right->id || left->opcode != right->opcode ||
+		left->operand_count != right->operand_count) {
+		return false;
+	}
+	for (size_t position = 0; position < left->operand_count; position++) {
+		const aa_operand_t *left_operand = &left->operands[position];
+		const aa_operand_t *right_operand = &right->operands[position];
+		if (left_operand->kind != right_operand->kind) {
+			return false;
+		}
+		switch (left_operand->kind) {
+		case AA_OPERAND_NONE:
+			break;
+		case AA_OPERAND_REGISTER:
+			if (left_operand->value.reg != right_operand->value.reg) {
+				return false;
+			}
+			break;
+		case AA_OPERAND_BUFFER:
+			if (left_operand->value.buffer != right_operand->value.buffer) {
+				return false;
+			}
+			break;
+		case AA_OPERAND_IMMEDIATE:
+			if (left_operand->value.immediate != right_operand->value.immediate) {
+				return false;
+			}
+			break;
+		case AA_OPERAND_LABEL_REFERENCE:
+			if (left_operand->value.label_instruction_id !=
+				right_operand->value.label_instruction_id) {
+				return false;
+			}
+			break;
+		default:
+			return false;
+		}
+	}
+	return true;
+}
+
+aa_result_t aa_program_reconcile(aa_program_t *destination,
+								 const aa_instruction_t *instructions,
+								 size_t count)
+{
+	if (destination == NULL || (count != 0 && instructions == NULL)) {
+		return AA_RESULT_INVALID_ARGUMENT;
+	}
+	if (count > SIZE_MAX / sizeof(*instructions)) {
+		return AA_RESULT_ALLOCATION_FAILED;
+	}
+	if (destination->next_id == AA_INSTRUCTION_ID_INVALID) {
+		return AA_RESULT_ID_EXHAUSTED;
+	}
+	aa_program_t candidate = {
+		.instructions = (aa_instruction_t *)instructions,
+		.count = count,
+		.capacity = count
+	};
+	aa_instruction_id_t max_id = AA_INSTRUCTION_ID_INVALID;
+	for (size_t position = 0; position < count; position++) {
+		const aa_instruction_t *instruction = &instructions[position];
+		if (instruction->id == AA_INSTRUCTION_ID_INVALID) {
+			return AA_RESULT_INVALID_ARGUMENT;
+		}
+		for (size_t prior = 0; prior < position; prior++) {
+			if (instructions[prior].id == instruction->id) {
+				return AA_RESULT_INVALID_ARGUMENT;
+			}
+		}
+		if (instruction->id > max_id) {
+			max_id = instruction->id;
+		}
+	}
+	if (max_id == UINT32_MAX) {
+		return AA_RESULT_ID_EXHAUSTED;
+	}
+	aa_validation_report_t validation = aa_program_validate_partial(&candidate,
+														 NULL);
+	if (validation.result != AA_RESULT_OK) {
+		return validation.result;
+	}
+	bool unchanged = destination->count == count;
+	for (size_t position = 0; unchanged && position < count; position++) {
+		unchanged = instructions_equal(&destination->instructions[position],
+									   &instructions[position]);
+	}
+	uint64_t candidate_next = (uint64_t)max_id + 1;
+	if (unchanged) {
+		if (candidate_next > destination->next_id) {
+			destination->next_id = (aa_instruction_id_t)candidate_next;
+		}
+		return AA_RESULT_OK;
+	}
+	aa_instruction_id_t next_id = destination->next_id;
+	if (candidate_next > next_id) {
+		next_id = (aa_instruction_id_t)candidate_next;
+	}
+	aa_instruction_t *replacement = NULL;
+	if (count != 0) {
+		replacement = malloc(count * sizeof(*replacement));
+		if (replacement == NULL) {
+			return AA_RESULT_ALLOCATION_FAILED;
+		}
+		memcpy(replacement, instructions, count * sizeof(*replacement));
+	}
+	free(destination->instructions);
+	destination->instructions = replacement;
+	destination->count = count;
+	destination->capacity = count;
+	destination->next_id = next_id;
+	destination->revision++;
+	return AA_RESULT_OK;
+}
+
 static aa_validation_report_t program_validate(const aa_program_t *program,
 											  const aa_program_rules_t *rules,
 											  bool allow_missing_operands)

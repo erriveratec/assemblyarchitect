@@ -8,6 +8,7 @@
 
 typedef struct aa_legacy_line_snapshot {
 	const void *identity;
+	aa_instruction_id_t bound_instruction_id;
 	int opcode;
 	bool has_operand_1;
 	int operand_1;
@@ -34,6 +35,7 @@ typedef enum aa_legacy_import_issue {
 	AA_LEGACY_IMPORT_ISSUE_INVALID_LINE,
 	AA_LEGACY_IMPORT_ISSUE_JUMP_TARGET_MISSING,
 	AA_LEGACY_IMPORT_ISSUE_JUMP_TARGET_NOT_LABEL,
+	AA_LEGACY_IMPORT_ISSUE_IDENTITY_MISMATCH,
 	AA_LEGACY_IMPORT_ISSUE_DOMAIN_REJECTED
 } aa_legacy_import_issue_t;
 
@@ -48,6 +50,14 @@ typedef struct aa_legacy_import_report {
  * call. No legacy pointer or presentation state is retained by the program.
  */
 aa_result_t aa_legacy_program_import(
+	aa_program_t *destination,
+	const aa_legacy_program_reader_t *reader,
+	aa_legacy_import_report_t *report);
+
+/* Reconciles a non-structural legacy edit using the stable IDs supplied by
+ * each line binding. It rejects count/order/identity mismatches; unlike full
+ * import, it never assigns replacement IDs. */
+aa_result_t aa_legacy_program_reconcile(
 	aa_program_t *destination,
 	const aa_legacy_program_reader_t *reader,
 	aa_legacy_import_report_t *report);

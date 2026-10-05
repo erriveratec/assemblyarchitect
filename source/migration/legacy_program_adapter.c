@@ -446,3 +446,157 @@ cleanup:
 	free(lines);
 	return result;
 }
+
+aa_result_t aa_legacy_program_reconcile(
+	aa_program_t *destination,
+	const aa_legacy_program_reader_t *reader,
+	aa_legacy_import_report_t *report)
+{
+	set_report(report, AA_RESULT_OK, AA_LEGACY_IMPORT_ISSUE_NONE, 0, SIZE_MAX);
+	if (destination == NULL || reader == NULL || reader->count == NULL ||
+		reader->read_line == NULL) {
+		set_report(report, AA_RESULT_INVALID_ARGUMENT,
+				   AA_LEGACY_IMPORT_ISSUE_INVALID_READER, 0, SIZE_MAX);
+		return AA_RESULT_INVALID_ARGUMENT;
+	}
+	size_t count = reader->count(reader->context);
+	if (count != aa_program_count(destination)) {
+		set_report(report, AA_RESULT_INVALID_ARGUMENT,
+				   AA_LEGACY_IMPORT_ISSUE_IDENTITY_MISMATCH, 0, SIZE_MAX);
+		return AA_RESULT_INVALID_ARGUMENT;
+	}
+	if (count > SIZE_MAX / sizeof(aa_imported_line_t) ||
+		count > SIZE_MAX / sizeof(aa_instruction_t)) {
+		set_report(report, AA_RESULT_ALLOCATION_FAILED,
+				   AA_LEGACY_IMPORT_ISSUE_DOMAIN_REJECTED, 0, SIZE_MAX);
+		return AA_RESULT_ALLOCATION_FAILED;
+	}
+	aa_imported_line_t *lines = count == 0 ? NULL : calloc(count, sizeof(*lines));
+	aa_instruction_t *candidate = count == 0 ? NULL :
+		calloc(count, sizeof(*candidate));
+	if (count != 0 && (lines == NULL || candidate == NULL)) {
+		free(lines);
+		free(candidate);
+		set_report(report, AA_RESULT_ALLOCATION_FAILED,
+				   AA_LEGACY_IMPORT_ISSUE_DOMAIN_REJECTED, 0, SIZE_MAX);
+		return AA_RESULT_ALLOCATION_FAILED;
+	}
+	aa_result_t result = AA_RESULT_OK;
+	for (size_t position = 0; position < count; position++) {
+		if (!reader->read_line(reader->context, position,
+							  &lines[position].snapshot)) {
+			result = AA_RESULT_INVALID_ARGUMENT;
+			set_report(report, result, AA_LEGACY_IMPORT_ISSUE_READER_FAILED,
+					   position, SIZE_MAX);
+			goto cleanup_reconcile;
+		}
+		aa_legacy_line_snapshot_t *snapshot = &lines[position].snapshot;
+		const aa_instruction_t *bound = aa_program_instruction_at(destination,
+																  position);
+		if (snapshot->identity == NULL ||
+			snapshot->bound_instruction_id == AA_INSTRUCTION_ID_INVALID ||
+			bound == NULL || bound->id != snapshot->bound_instruction_id ||
+			aa_program_find_by_id(destination,
+								 snapshot->bound_instruction_id) == NULL) {
+			result = AA_RESULT_INVALID_ARGUMENT;
+			set_report(report, result,
+					   AA_LEGACY_IMPORT_ISSUE_IDENTITY_MISMATCH,
+					   position, SIZE_MAX);
+			goto cleanup_reconcile;
+		}
+		for (size_t prior = 0; prior < position; prior++) {
+			if (lines[prior].snapshot.identity == snapshot->identity ||
+				lines[prior].snapshot.bound_instruction_id ==
+					snapshot->bound_instruction_id) {
+				result = AA_RESULT_INVALID_ARGUMENT;
+				set_report(report, result,
+						   AA_LEGACY_IMPORT_ISSUE_IDENTITY_MISMATCH,
+						   position, SIZE_MAX);
+				goto cleanup_reconcile;
+			}
+		}
+		result = convert_legacy_opcode(snapshot->opcode,
+									   &lines[position].opcode);
+		if (result != AA_RESULT_OK) {
+			set_report(report, result, AA_LEGACY_IMPORT_ISSUE_UNKNOWN_OPCODE,
+					   position, SIZE_MAX);
+			goto cleanup_reconcile;
+		}
+		candidate[position] = aa_instruction_create(lines[position].opcode);
+		candidate[position].id = snapshot->bound_instruction_id;
+		bool is_jump = lines[position].opcode == AA_OPCODE_JMP ||
+			lines[position].opcode == AA_OPCODE_JE ||
+			lines[position].opcode == AA_OPCODE_JNE;
+		if (snapshot->has_operand_2 &&
+			(lines[position].opcode == AA_OPCODE_LABEL || is_jump)) {
+			result = AA_RESULT_INVALID_OPERAND;
+			set_report(report, result, AA_LEGACY_IMPORT_ISSUE_INVALID_LINE,
+					   position, 1);
+			goto cleanup_reconcile;
+		}
+		if (!is_jump && snapshot->jump_target_identity != NULL) {
+			result = AA_RESULT_INVALID_OPERAND;
+			set_report(report, result, AA_LEGACY_IMPORT_ISSUE_INVALID_LINE,
+					   position, 0);
+			goto cleanup_reconcile;
+		}
+		if (is_jump && !snapshot->has_operand_1 &&
+			snapshot->jump_target_identity != NULL) {
+			result = AA_RESULT_INVALID_OPERAND;
+			set_report(report, result, AA_LEGACY_IMPORT_ISSUE_INVALID_LINE,
+					   position, 0);
+			goto cleanup_reconcile;
+		}
+		if (!is_jump && lines[position].opcode != AA_OPCODE_LABEL) {
+			result = aa_legacy_instruction_from_snapshot(snapshot,
+												 &candidate[position], report);
+			if (result != AA_RESULT_OK) {
+				if (report != NULL) {
+					report->position = position;
+				}
+				goto cleanup_reconcile;
+			}
+			candidate[position].id = snapshot->bound_instruction_id;
+		}
+	}
+	for (size_t position = 0; position < count; position++) {
+		if (lines[position].opcode != AA_OPCODE_JMP &&
+			lines[position].opcode != AA_OPCODE_JE &&
+			lines[position].opcode != AA_OPCODE_JNE) {
+			continue;
+		}
+		const aa_legacy_line_snapshot_t *snapshot = &lines[position].snapshot;
+		if (!snapshot->has_operand_1) {
+			continue;
+		}
+		size_t target_position = find_line_by_identity(
+			lines, count, snapshot->jump_target_identity);
+		if (snapshot->jump_target_identity == NULL ||
+			target_position == SIZE_MAX) {
+			result = AA_RESULT_UNRESOLVED_SYMBOL;
+			set_report(report, result,
+					   AA_LEGACY_IMPORT_ISSUE_JUMP_TARGET_MISSING,
+					   position, 0);
+			goto cleanup_reconcile;
+		}
+		if (lines[target_position].opcode != AA_OPCODE_LABEL) {
+			result = AA_RESULT_UNRESOLVED_SYMBOL;
+			set_report(report, result,
+					   AA_LEGACY_IMPORT_ISSUE_JUMP_TARGET_NOT_LABEL,
+					   position, 0);
+			goto cleanup_reconcile;
+		}
+		candidate[position].operands[0] = aa_operand_label_reference(
+			lines[target_position].snapshot.bound_instruction_id);
+	}
+	result = aa_program_reconcile(destination, candidate, count);
+	if (result != AA_RESULT_OK) {
+		set_report(report, result, AA_LEGACY_IMPORT_ISSUE_DOMAIN_REJECTED,
+				   0, SIZE_MAX);
+	}
+
+cleanup_reconcile:
+	free(candidate);
+	free(lines);
+	return result;
+}

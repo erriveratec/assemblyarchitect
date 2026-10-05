@@ -12,5 +12,7 @@ extern int g_player;
 void init_level(int level, aa_program_t *program);
 int stage_level(int level, aa_program_t *program);
 void stages_cancel_pending_edit(void);
+bool stages_refresh_program_snapshot(aa_program_t *program);
+bool stages_reconcile_program_snapshot(aa_program_t *program);
 
 #endif

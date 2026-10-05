@@ -28,6 +28,7 @@ typedef enum cw_append_result {
 
 typedef bool (*cw_append_authority_fn)(
 	const aa_legacy_line_snapshot_t *snapshot,
+	aa_instruction_id_t *created_id,
 	void *context);
 
 typedef enum cw_existing_edit_kind {
@@ -61,6 +62,9 @@ bool cw_player_holding_instruction(code_line_t *line, bool arng, bool del);
 void cw_draw_held_instruction(code_line_t *line);
 void cw_clear_held_instruction(void);
 bool cw_refresh_label_and_jump_presentation(void);
+bool cw_rebuild_domain_bindings(const aa_program_t *program);
+bool cw_domain_bindings_valid(const aa_program_t *program);
+void cw_clear_domain_bindings(void);
 cw_append_result_t cw_append_new_line_authoritatively(
 	code_line_t *line,
 	bool arrange,
@@ -105,6 +109,7 @@ int cw_get_instruction_y_coord(int instruction_position); //review usage
 int cw_get_code_line_x(int instruction_id);
 int cw_get_code_line_y(int pos);
 bool cw_ms_rel_in_label();
+code_line_t *cw_get_released_label_code_line(void);
 operand_t *cw_create_jmp_op(code_line_t *addr);
 bool cw_update_saved_jump_instructions(void);
 void cw_operate_jump_instruction(code_line_t *line);

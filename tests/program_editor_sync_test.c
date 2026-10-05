@@ -15,6 +15,7 @@
 #include "list.h"
 #include "mouse_ms.h"
 #include "sdl_config.h"
+#include "stages.h"
 #include "ui/button_bt.h"
 
 static SDL_Surface *test_surface;
@@ -78,6 +79,7 @@ static aa_legacy_program_reader_t make_reader(const reader_fixture_t *fixture)
 
 static bool append_from_legacy_snapshot(
 	const aa_legacy_line_snapshot_t *snapshot,
+	aa_instruction_id_t *created_id,
 	void *context)
 {
 	aa_program_t *program = context;
@@ -91,13 +93,15 @@ static bool append_from_legacy_snapshot(
 		AA_RESULT_OK) {
 		return false;
 	}
-	return aa_program_append(program, &instruction, NULL) == AA_RESULT_OK;
+	return aa_program_append(program, &instruction, created_id) == AA_RESULT_OK;
 }
 
 static bool reject_domain_append(const aa_legacy_line_snapshot_t *snapshot,
+								 aa_instruction_id_t *created_id,
 								 void *context)
 {
 	(void)snapshot;
+	(void)created_id;
 	(void)context;
 	return false;
 }
@@ -552,6 +556,7 @@ static void assert_control_flow_transaction_state(
 {
 	assert(aa_program_count(program) == expected_count);
 	assert((size_t)cw_get_code_list_size() == expected_count);
+	assert(cw_domain_bindings_valid(program));
 	for (size_t position = 0; position < expected_count; position++) {
 		code_line_t *line = cw_get_code_line_at_pos((int)position);
 		assert(line == expected_order[position]);
@@ -680,6 +685,7 @@ static void test_domain_authoritative_control_flow_transactions(void)
 	aa_legacy_import_report_t report;
 	assert(cw_get_legacy_program_reader(&reader));
 	assert(aa_legacy_program_import(program, &reader, &report) == AA_RESULT_OK);
+	assert(cw_rebuild_domain_bindings(program));
 	code_line_t *tracked_lines[20];
 	aa_instruction_id_t tracked_ids[20];
 	size_t tracked_count = sizeof(initial_order) / sizeof(initial_order[0]);
@@ -970,6 +976,7 @@ static void test_code_window_transactions(void)
 	assert(program != NULL);
 	cw_set_challenge_text("test challenge");
 	cw_create_code_list();
+	assert(cw_rebuild_domain_bindings(program));
 	code_line_t *first = create_line(MOV);
 	uint64_t revision = aa_program_revision(program);
 	assert(cw_append_new_line_authoritatively(
@@ -984,6 +991,7 @@ static void test_code_window_transactions(void)
 	assert(aa_program_revision(program) == revision + 1);
 	assert(cw_get_code_list_size() == 1);
 	assert(cw_get_code_line_at_pos(0) == first);
+	assert(cw_domain_bindings_valid(program));
 	aa_instruction_id_t first_id = aa_program_instruction_at(program, 0)->id;
 
 	code_line_t *second = create_line(ADD);
@@ -994,7 +1002,13 @@ static void test_code_window_transactions(void)
 	assert(aa_program_count(program) == 2);
 	assert(aa_program_revision(program) == revision + 1);
 	assert(cw_get_code_line_at_pos(1) == second);
+	assert(cw_domain_bindings_valid(program));
 	aa_instruction_id_t second_id = aa_program_instruction_at(program, 1)->id;
+	aa_program_t *mismatched_program = aa_program_create();
+	assert(mismatched_program != NULL);
+	assert(!cw_rebuild_domain_bindings(mismatched_program));
+	assert(cw_domain_bindings_valid(program));
+	aa_program_destroy(mismatched_program);
 
 	SDL_Rect scroll = {.x = 1, .y = 1, .w = 1000, .h = 1000};
 	cw_set_code_box(scroll);
@@ -1015,6 +1029,7 @@ static void test_code_window_transactions(void)
 	assert(aa_program_instruction_at(program, 1)->id == first_id);
 	assert(cw_get_code_line_at_pos(0) == second);
 	assert(cw_get_code_line_at_pos(1) == first);
+	assert(cw_domain_bindings_valid(program));
 
 	set_mouse_position(0, 0);
 	revision = aa_program_revision(program);
@@ -1026,9 +1041,11 @@ static void test_code_window_transactions(void)
 	assert(cw_get_code_list_size() == 1);
 	assert(aa_program_instruction_at(program, 0)->id == first_id);
 	assert(cw_get_code_line_at_pos(0) == first);
+	assert(cw_domain_bindings_valid(program));
 	cl_destroy_code_line(second);
 
 	cw_destroy_code_window_assets();
+	assert(!cw_domain_bindings_valid(program));
 	aa_program_destroy(program);
 }
 
@@ -1051,7 +1068,7 @@ static void test_domain_append_has_single_authority(void)
 		.present = true
 	};
 	fixture.line.identity = &fixture.identity;
-	assert(append_from_legacy_snapshot(&fixture.line, program));
+	assert(append_from_legacy_snapshot(&fixture.line, NULL, program));
 	assert(aa_program_revision(program) == starting_revision + 1);
 	assert(aa_program_count(program) == 1);
 	const aa_instruction_t *instruction = aa_program_instruction_at(program, 0);
@@ -1230,6 +1247,66 @@ static void test_program_lifecycle_reuse(void)
 	aa_program_destroy(program);
 }
 
+static void test_bound_jump_target_completion_reconciliation(void)
+{
+	aa_program_t *program = aa_program_create();
+	assert(program != NULL);
+	cw_create_code_list();
+	code_line_t *jump = create_jump_line(JMP, "", 0, NULL);
+	code_line_t *unrelated = create_complete_ordinary_line(MOV);
+	code_line_t *label = create_label_line("00:", 0);
+	assert(cw_player_holding_instruction(jump, false, false));
+	cw_clear_held_instruction();
+	assert(cw_player_holding_instruction(unrelated, false, false));
+	cw_clear_held_instruction();
+	assert(cw_player_holding_instruction(label, false, false));
+	cw_clear_held_instruction();
+	assert(stages_refresh_program_snapshot(program));
+	assert(cw_domain_bindings_valid(program));
+	assert(aa_program_count(program) == 3);
+	aa_instruction_id_t jump_id = aa_program_instruction_at(program, 0)->id;
+	aa_instruction_id_t unrelated_id = aa_program_instruction_at(program, 1)->id;
+	aa_instruction_id_t label_id = aa_program_instruction_at(program, 2)->id;
+	uint64_t revision = aa_program_revision(program);
+
+	operand_t *target = cw_create_jmp_op(label);
+	assert(target != NULL);
+	cw_assign_op_to_line(target, jump);
+	assert(jump->state == COMPLETE);
+	assert(stages_reconcile_program_snapshot(program));
+	assert(aa_program_revision(program) == revision + 1);
+	assert(aa_program_instruction_at(program, 0)->id == jump_id);
+	assert(aa_program_instruction_at(program, 1)->id == unrelated_id);
+	assert(aa_program_instruction_at(program, 2)->id == label_id);
+	assert(aa_program_find_by_id(program, unrelated_id)->opcode == AA_OPCODE_MOV);
+	const aa_instruction_t *domain_jump = aa_program_find_by_id(program, jump_id);
+	assert(domain_jump != NULL && domain_jump->operands[0].kind ==
+		AA_OPERAND_LABEL_REFERENCE);
+	assert(domain_jump->operands[0].value.label_instruction_id == label_id);
+	assert(cw_domain_bindings_valid(program));
+
+	assert(stages_reconcile_program_snapshot(program));
+	assert(aa_program_revision(program) == revision + 1);
+	assert(aa_program_find_by_id(program, jump_id) == domain_jump);
+	assert(cw_domain_bindings_valid(program));
+
+	code_line_t *external_label = create_label_line("00:", 0);
+	cl_destroy_operand(jump->op1);
+	jump->op1 = create_repair_test_operand("00", 0, external_label, false);
+	jump->state = COMPLETE;
+	revision = aa_program_revision(program);
+	assert(!stages_reconcile_program_snapshot(program));
+	assert(aa_program_revision(program) == revision);
+	assert(aa_program_find_by_id(program, jump_id)->operands[0].value.
+		label_instruction_id == label_id);
+	assert(!cw_domain_bindings_valid(program));
+	cl_destroy_code_line(external_label);
+	cw_clear_code_list();
+	cw_destroy_code_window_assets();
+	cw_clear_domain_bindings();
+	aa_program_destroy(program);
+}
+
 static void test_failed_domain_commit_is_atomic(void)
 {
 	aa_program_t *program = aa_program_create();
@@ -1240,7 +1317,7 @@ static void test_failed_domain_commit_is_atomic(void)
 	};
 	fixture.line.identity = &fixture.identity;
 	uint64_t revision = aa_program_revision(program);
-	assert(!reject_domain_append(&fixture.line, program));
+	assert(!reject_domain_append(&fixture.line, NULL, program));
 	assert(aa_program_count(program) == 0);
 	assert(aa_program_revision(program) == revision);
 	aa_program_destroy(program);
@@ -1287,6 +1364,7 @@ int main(void)
 	test_program_lifecycle_reuse();
 	test_move_remove_revision_and_rollback();
 	test_code_window_transactions();
+	test_bound_jump_target_completion_reconciliation();
 	test_domain_authoritative_control_flow_transactions();
 	test_program_reserve_contract();
 	test_control_flow_repair_empty_and_ordinary();

@@ -424,6 +424,125 @@ static void test_import_failures_are_atomic(void)
 	aa_program_destroy(destination);
 }
 
+static void assert_reconcile_rejected_unchanged(
+	aa_program_t *program,
+	legacy_fixture_t *fixture,
+	aa_result_t expected_result,
+	aa_legacy_import_issue_t expected_issue)
+{
+	aa_instruction_t before[FIXTURE_CAPACITY];
+	size_t count = aa_program_count(program);
+	assert(count <= FIXTURE_CAPACITY);
+	for (size_t position = 0; position < count; position++) {
+		before[position] = *aa_program_instruction_at(program, position);
+	}
+	uint64_t revision = aa_program_revision(program);
+	aa_legacy_program_reader_t reader = fixture_reader(fixture);
+	aa_legacy_import_report_t report;
+	assert(aa_legacy_program_reconcile(program, &reader, &report) ==
+		expected_result);
+	assert(report.issue == expected_issue);
+	assert(aa_program_count(program) == count);
+	assert(aa_program_revision(program) == revision);
+	for (size_t position = 0; position < count; position++) {
+		assert(memcmp(aa_program_instruction_at(program, position),
+					  &before[position], sizeof(before[position])) == 0);
+	}
+}
+
+static void test_identity_bound_reconciliation(void)
+{
+	legacy_fixture_t fixture = {0};
+	fixture.failed_read_position = SIZE_MAX;
+	aa_legacy_line_snapshot_t *label = fixture_add(&fixture, LABEL);
+	aa_legacy_line_snapshot_t *jump = fixture_add(&fixture, JMP);
+	aa_legacy_line_snapshot_t *second_jump = fixture_add(&fixture, JE);
+	aa_legacy_line_snapshot_t *first_mov = fixture_add(&fixture, MOV);
+	aa_legacy_line_snapshot_t *duplicate_mov = fixture_add(&fixture, MOV);
+	aa_legacy_line_snapshot_t *incomplete_jump = fixture_add(&fixture, JNE);
+
+	aa_program_t *program = aa_program_create();
+	assert(program != NULL);
+	import_ok(program, &fixture);
+	aa_instruction_id_t ids[6];
+	for (size_t position = 0; position < fixture.count; position++) {
+		ids[position] = aa_program_instruction_at(program, position)->id;
+		fixture.lines[position].bound_instruction_id = ids[position];
+	}
+	uint64_t revision = aa_program_revision(program);
+	aa_legacy_program_reader_t reader = fixture_reader(&fixture);
+	aa_legacy_import_report_t report;
+	assert(aa_legacy_program_reconcile(program, &reader, &report) == AA_RESULT_OK);
+	assert(aa_program_revision(program) == revision);
+
+	jump->has_operand_1 = true;
+	jump->jump_target_identity = label->identity;
+	second_jump->has_operand_1 = true;
+	second_jump->jump_target_identity = label->identity;
+	first_mov->has_operand_1 = true;
+	first_mov->operand_1 = RAX;
+	first_mov->has_operand_2 = true;
+	first_mov->operand_2 = IB;
+	revision = aa_program_revision(program);
+	assert(aa_legacy_program_reconcile(program, &reader, &report) == AA_RESULT_OK);
+	assert(aa_program_revision(program) == revision + 1);
+	for (size_t position = 0; position < fixture.count; position++) {
+		assert(aa_program_instruction_at(program, position)->id == ids[position]);
+	}
+	assert(aa_program_find_by_id(program, ids[1])->operands[0].value.
+		label_instruction_id == ids[0]);
+	assert(aa_program_find_by_id(program, ids[2])->operands[0].value.
+		label_instruction_id == ids[0]);
+	assert(aa_program_find_by_id(program, ids[3])->operands[0].value.reg ==
+		AA_REGISTER_RAX);
+	assert(aa_program_find_by_id(program, ids[4])->operands[0].kind ==
+		AA_OPERAND_NONE);
+	assert(aa_program_find_by_id(program, ids[5])->operands[0].kind ==
+		AA_OPERAND_NONE);
+	revision = aa_program_revision(program);
+	assert(aa_legacy_program_reconcile(program, &reader, &report) == AA_RESULT_OK);
+	assert(aa_program_revision(program) == revision);
+
+	jump->jump_target_identity = &fixture.outside_identity;
+	assert_reconcile_rejected_unchanged(program, &fixture,
+		AA_RESULT_UNRESOLVED_SYMBOL,
+		AA_LEGACY_IMPORT_ISSUE_JUMP_TARGET_MISSING);
+	jump->jump_target_identity = first_mov->identity;
+	assert_reconcile_rejected_unchanged(program, &fixture,
+		AA_RESULT_UNRESOLVED_SYMBOL,
+		AA_LEGACY_IMPORT_ISSUE_JUMP_TARGET_NOT_LABEL);
+	jump->jump_target_identity = label->identity;
+	fixture.lines[1].bound_instruction_id = ids[0];
+	assert_reconcile_rejected_unchanged(program, &fixture,
+		AA_RESULT_INVALID_ARGUMENT,
+		AA_LEGACY_IMPORT_ISSUE_IDENTITY_MISMATCH);
+	fixture.lines[1].bound_instruction_id = AA_INSTRUCTION_ID_INVALID;
+	assert_reconcile_rejected_unchanged(program, &fixture,
+		AA_RESULT_INVALID_ARGUMENT,
+		AA_LEGACY_IMPORT_ISSUE_IDENTITY_MISMATCH);
+	fixture.lines[1].bound_instruction_id = ids[1];
+	fixture.count--;
+	assert_reconcile_rejected_unchanged(program, &fixture,
+		AA_RESULT_INVALID_ARGUMENT,
+		AA_LEGACY_IMPORT_ISSUE_IDENTITY_MISMATCH);
+	fixture.count++;
+	fixture.lines[0].bound_instruction_id = ids[1];
+	assert_reconcile_rejected_unchanged(program, &fixture,
+		AA_RESULT_INVALID_ARGUMENT,
+		AA_LEGACY_IMPORT_ISSUE_IDENTITY_MISMATCH);
+	fixture.lines[0].bound_instruction_id = ids[0];
+	aa_legacy_line_snapshot_t swapped = fixture.lines[0];
+	fixture.lines[0] = fixture.lines[1];
+	fixture.lines[1] = swapped;
+	assert_reconcile_rejected_unchanged(program, &fixture,
+		AA_RESULT_INVALID_ARGUMENT,
+		AA_LEGACY_IMPORT_ISSUE_IDENTITY_MISMATCH);
+	fixture.lines[1] = fixture.lines[0];
+	fixture.lines[0] = swapped;
+	assert(duplicate_mov != first_mov && incomplete_jump->identity != NULL);
+	aa_program_destroy(program);
+}
+
 static void test_reader_failure_and_snapshot_immutability(void)
 {
 	legacy_fixture_t fixture = {0};
@@ -452,6 +571,7 @@ int main(void)
 	test_two_pass_jump_resolution_and_ids();
 	test_import_failures_are_atomic();
 	test_reader_failure_and_snapshot_immutability();
+	test_identity_bound_reconciliation();
 	puts("program adapter tests passed");
 	return 0;
 }

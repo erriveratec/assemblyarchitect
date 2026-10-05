@@ -34,6 +34,16 @@ static const int MISSING_OPERAND_WIDTH = 3;
 static List *code_list = NULL;
 static code_line_t *g_held_line;
 
+typedef struct cw_domain_binding {
+	code_line_t *legacy_line;
+	aa_instruction_id_t domain_id;
+} cw_domain_binding_t;
+
+static cw_domain_binding_t *g_domain_bindings;
+static size_t g_domain_binding_count;
+static size_t g_domain_binding_capacity;
+static bool g_domain_bindings_are_valid;
+
 
 static SDL_Rect g_code_box;
 static SDL_Rect g_scroll_box;
@@ -88,6 +98,7 @@ List *get_code_list();
 static operand_t *create_label_operand(code_line_t *line);
 static operand_t *create_saved_label_operand(int op1_id);
 static cw_repair_result_t repair_current_control_flow(bool reconstruct_saved_targets);
+static size_t domain_binding_position(const code_line_t *line);
 static code_line_t *get_clicked_label_code_line();
 static operand_t *create_saved_jump_operand(int op1_id);
 static SDL_Rect get_scroll_box();
@@ -707,6 +718,11 @@ error:
 	return clicked_label;
 }
 
+code_line_t *cw_get_released_label_code_line(void)
+{
+	return get_clicked_label_code_line();
+}
+
 
 
 /* Function: cw_ms_rel_in_label
@@ -1063,6 +1079,7 @@ void cw_add_saved_line(char *line)
 	new_line->state = COMPLETE;
 
 	List *code = get_code_list();
+	cw_clear_domain_bindings();
 	List_push(code, new_line);
 	
 	error:
@@ -1199,6 +1216,7 @@ int cw_get_code_list_size()
 void cw_create_code_list()
 {
 	assert(code_list == NULL && "The register list is not NULL");
+	cw_clear_domain_bindings();
 	code_list = List_create();
 	return;
 }
@@ -1423,6 +1441,7 @@ error:
 void cw_destroy_code_window_assets()
 {
 	g_held_line = NULL;
+	cw_clear_domain_bindings();
 	dw_free_texture(g_stage_name);
 	g_stage_name = NULL;
 	dw_free_texture_array(g_challenge_text);
@@ -2378,6 +2397,7 @@ static bool snapshot_line(const code_line_t *line,
 	}
 	aa_legacy_line_snapshot_t result = {
 		.identity = line,
+		.bound_instruction_id = AA_INSTRUCTION_ID_INVALID,
 		.opcode = line->ins->id,
 		.line_state = line->state
 	};
@@ -2392,6 +2412,11 @@ static bool snapshot_line(const code_line_t *line,
 	if (line->op2 != NULL) {
 		result.has_operand_2 = true;
 		result.operand_2 = line->op2->id;
+	}
+	size_t binding_position = domain_binding_position(line);
+	if (g_domain_bindings_are_valid && binding_position != SIZE_MAX) {
+		result.bound_instruction_id =
+			g_domain_bindings[binding_position].domain_id;
 	}
 	*snapshot = result;
 	return true;
@@ -2408,6 +2433,135 @@ static size_t code_line_position(const code_line_t *line)
 			return position;
 		}
 		position++;
+	}
+	return SIZE_MAX;
+}
+
+void cw_clear_domain_bindings(void)
+{
+	free(g_domain_bindings);
+	g_domain_bindings = NULL;
+	g_domain_binding_count = 0;
+	g_domain_binding_capacity = 0;
+	g_domain_bindings_are_valid = false;
+}
+
+static bool reserve_domain_bindings(size_t capacity)
+{
+	if (capacity <= g_domain_binding_capacity) {
+		return true;
+	}
+	if (capacity > SIZE_MAX / sizeof(*g_domain_bindings)) {
+		return false;
+	}
+	size_t new_capacity = g_domain_binding_capacity == 0 ? 8 :
+		g_domain_binding_capacity;
+	while (new_capacity < capacity) {
+		if (new_capacity > SIZE_MAX / 2) {
+			new_capacity = capacity;
+			break;
+		}
+		new_capacity *= 2;
+	}
+	cw_domain_binding_t *replacement = realloc(
+		g_domain_bindings, new_capacity * sizeof(*replacement));
+	if (replacement == NULL) {
+		return false;
+	}
+	g_domain_bindings = replacement;
+	g_domain_binding_capacity = new_capacity;
+	return true;
+}
+
+bool cw_rebuild_domain_bindings(const aa_program_t *program)
+{
+	size_t count = aa_program_count(program);
+	if (program == NULL || code_list == NULL || count != (size_t)code_list->count ||
+		count > SIZE_MAX / sizeof(cw_domain_binding_t)) {
+		return false;
+	}
+	cw_domain_binding_t *replacement = count == 0 ? NULL :
+		malloc(count * sizeof(*replacement));
+	if (count != 0 && replacement == NULL) {
+		return false;
+	}
+	bool valid = true;
+	size_t position = 0;
+	LIST_FOREACH(code_list, first, next, cur) {
+		code_line_t *line = cur->value;
+		const aa_instruction_t *instruction =
+			aa_program_instruction_at(program, position);
+		if (line == NULL || instruction == NULL ||
+			instruction->id == AA_INSTRUCTION_ID_INVALID ||
+			aa_program_find_by_id(program, instruction->id) != instruction) {
+			valid = false;
+			break;
+		}
+		for (size_t prior = 0; prior < position; prior++) {
+			if (replacement[prior].legacy_line == line ||
+				replacement[prior].domain_id == instruction->id) {
+				valid = false;
+				break;
+			}
+		}
+		if (!valid) {
+			break;
+		}
+		replacement[position++] = (cw_domain_binding_t){
+			.legacy_line = line,
+			.domain_id = instruction->id
+		};
+	}
+	if (!valid || position != count) {
+		free(replacement);
+		return false;
+	}
+	free(g_domain_bindings);
+	g_domain_bindings = replacement;
+	g_domain_binding_count = count;
+	g_domain_binding_capacity = count;
+	g_domain_bindings_are_valid = true;
+	return true;
+}
+
+bool cw_domain_bindings_valid(const aa_program_t *program)
+{
+	if (!g_domain_bindings_are_valid || program == NULL || code_list == NULL ||
+		g_domain_binding_count != aa_program_count(program) ||
+		g_domain_binding_count != (size_t)code_list->count) {
+		cw_clear_domain_bindings();
+		return false;
+	}
+	size_t position = 0;
+	LIST_FOREACH(code_list, first, next, cur) {
+		const aa_instruction_t *instruction =
+			aa_program_instruction_at(program, position);
+		if (position >= g_domain_binding_count ||
+			g_domain_bindings[position].legacy_line != cur->value ||
+			instruction == NULL || instruction->id == AA_INSTRUCTION_ID_INVALID ||
+			instruction->id != g_domain_bindings[position].domain_id ||
+			aa_program_find_by_id(program, instruction->id) != instruction) {
+			cw_clear_domain_bindings();
+			return false;
+		}
+		for (size_t prior = 0; prior < position; prior++) {
+			if (g_domain_bindings[prior].legacy_line == cur->value ||
+				g_domain_bindings[prior].domain_id == instruction->id) {
+				cw_clear_domain_bindings();
+				return false;
+			}
+		}
+		position++;
+	}
+	return position == g_domain_binding_count;
+}
+
+static size_t domain_binding_position(const code_line_t *line)
+{
+	for (size_t position = 0; position < g_domain_binding_count; position++) {
+		if (g_domain_bindings[position].legacy_line == line) {
+			return position;
+		}
 	}
 	return SIZE_MAX;
 }
@@ -2454,6 +2608,11 @@ cw_existing_edit_result_t cw_edit_existing_line_authoritatively(
 	ListNode *node = get_list_node_by_value(line);
 	if (node == NULL) {
 		return CW_EXISTING_EDIT_NOT_APPLICABLE;
+	}
+	if (!g_domain_bindings_are_valid ||
+		g_domain_binding_count != (size_t)code_list->count ||
+		domain_binding_position(line) != from) {
+		return CW_EXISTING_EDIT_FAILED;
 	}
 	cw_existing_edit_kind_t kind;
 	size_t to = from;
@@ -2512,6 +2671,9 @@ cw_existing_edit_result_t cw_edit_existing_line_authoritatively(
 		return CW_EXISTING_EDIT_FAILED;
 	}
 	if (kind == CW_EXISTING_EDIT_REMOVE) {
+		memmove(&g_domain_bindings[from], &g_domain_bindings[from + 1],
+			(g_domain_binding_count - from - 1) * sizeof(*g_domain_bindings));
+		g_domain_binding_count--;
 		List_remove(code_list, node);
 		g_held_line = NULL;
 		cw_commit_control_flow_repair(repair_plan);
@@ -2542,6 +2704,15 @@ cw_existing_edit_result_t cw_edit_existing_line_authoritatively(
 		}
 		destination->prev = node;
 	}
+	cw_domain_binding_t moved_binding = g_domain_bindings[from];
+	if (from < to) {
+		memmove(&g_domain_bindings[from], &g_domain_bindings[from + 1],
+			(to - from) * sizeof(*g_domain_bindings));
+	} else {
+		memmove(&g_domain_bindings[to + 1], &g_domain_bindings[to],
+			(from - to) * sizeof(*g_domain_bindings));
+	}
+	g_domain_bindings[to] = moved_binding;
 	g_held_line = NULL;
 	cw_commit_control_flow_repair(repair_plan);
 	cw_discard_control_flow_repair(repair_plan);
@@ -2595,6 +2766,9 @@ cw_append_result_t cw_append_new_line_authoritatively(
 		return CW_APPEND_NOT_APPLICABLE;
 	}
 	size_t count = (size_t)code_list->count;
+	if (!g_domain_bindings_are_valid || g_domain_binding_count != count) {
+		return CW_APPEND_FAILED;
+	}
 	if (count >= SIZE_MAX / sizeof(code_line_t *)) {
 		return CW_APPEND_FAILED;
 	}
@@ -2620,11 +2794,14 @@ cw_append_result_t cw_append_new_line_authoritatively(
 		return CW_APPEND_FAILED;
 	}
 	ListNode *node = calloc(1, sizeof(*node));
-	if (node == NULL) {
+	if (node == NULL || !reserve_domain_bindings(count + 1)) {
+		free(node);
 		cw_discard_control_flow_repair(repair_plan);
 		return CW_APPEND_FAILED;
 	}
-	if (!commit_domain(&snapshot, context)) {
+	aa_instruction_id_t created_id = AA_INSTRUCTION_ID_INVALID;
+	if (!commit_domain(&snapshot, &created_id, context) ||
+		created_id == AA_INSTRUCTION_ID_INVALID) {
 		free(node);
 		cw_discard_control_flow_repair(repair_plan);
 		return CW_APPEND_FAILED;
@@ -2638,6 +2815,11 @@ cw_append_result_t cw_append_new_line_authoritatively(
 	}
 	code_list->last = node;
 	code_list->count++;
+	g_domain_bindings[count] = (cw_domain_binding_t){
+		.legacy_line = line,
+		.domain_id = created_id
+	};
+	g_domain_binding_count++;
 	cw_commit_control_flow_repair(repair_plan);
 	cw_discard_control_flow_repair(repair_plan);
 	return CW_APPEND_COMMITTED;
@@ -2769,6 +2951,7 @@ void cw_clear_code_list()
 {
 	List *code = get_code_list();
 	g_held_line = NULL;
+	cw_clear_domain_bindings();
 
 	while (cw_get_code_list_size() > 0){
 		code_line_t *line = cw_get_code_line_at_pos(0);
@@ -2805,13 +2988,16 @@ bool cw_player_holding_instruction(code_line_t *line, bool arng, bool del)
 		if (cw_check_if_in_code_list(line) == true){
 			if (chk_sel_line_in_pos(line) == false && arng == true){
 				ListNode *node = get_list_node_by_value(line);
+				cw_clear_domain_bindings();
 				List_remove(code, node);
 			}
 		} 
 		if (cw_check_if_in_code_list(line) == false && arng == true){
+			cw_clear_domain_bindings();
 			add_code_line(line);
 			repair_succeeded = cw_refresh_label_and_jump_presentation();
 		} else if (cw_check_if_in_code_list(line) == false && arng == false){
+			cw_clear_domain_bindings();
 			add_code_line_last_pos(line);
 			repair_succeeded = cw_refresh_label_and_jump_presentation();
 		}
@@ -2843,10 +3029,12 @@ bool cw_player_holding_instruction(code_line_t *line, bool arng, bool del)
 					}
 				}
 				ListNode *node = get_list_node_by_value(addr);
+				cw_clear_domain_bindings();
 				cl_destroy_code_line(addr);
 				List_remove(code, node);
 			}
 			ListNode *node = get_list_node_by_value(line);
+			cw_clear_domain_bindings();
 			List_remove(code, node);
 			repair_succeeded = cw_refresh_label_and_jump_presentation();
 		}

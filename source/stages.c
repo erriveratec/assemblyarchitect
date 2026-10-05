@@ -61,8 +61,10 @@ static void         destroy_level(level_flags_t *flags);
 static void         init_stage_assets();
 static void         code_updated_actions(int level_id, aa_program_t *program);
 static bool         refresh_program_snapshot(aa_program_t *program);
+static bool         reconcile_program_snapshot(aa_program_t *program);
 static bool         append_domain_instruction(
 	const aa_legacy_line_snapshot_t *snapshot,
+	aa_instruction_id_t *created_id,
 	void *context);
 static bool         edit_domain_instruction(
 	cw_existing_edit_kind_t kind,
@@ -73,6 +75,7 @@ static bool         edit_domain_instruction(
 static bool         domain_edit_context_allowed(const aa_program_t *program,
 												 const code_line_t *line);
 static bool         pending_jump_allows_instruction_click(void);
+static bool         pending_jump_label_selected(void);
 static void         save_and_update_code(int level_id);
 static void         cancel_edit_interaction(void);
 static void         set_code_editable();
@@ -368,11 +371,14 @@ static void flag_handler(level_flags_t *flags, int clicked_button)
  * Return:
  *	Void.
  */
+/* Structural or unbound legacy changes use full import, then rebuild bindings
+ * positionally from the resulting domain program. */
 static bool refresh_program_snapshot(aa_program_t *program)
 {
 	aa_legacy_program_reader_t reader;
 	aa_legacy_import_report_t report;
 	g_program_snapshot_valid = false;
+	cw_clear_domain_bindings();
 	if (program == NULL) {
 		return false;
 	}
@@ -388,18 +394,58 @@ static bool refresh_program_snapshot(aa_program_t *program)
 				report.position, report.operand_position);
 		return false;
 	}
+	if (!cw_rebuild_domain_bindings(program)) {
+		fprintf(stderr, "Could not rebuild legacy/domain instruction bindings\n");
+		return false;
+	}
 	g_program_snapshot_valid = true;
 	return true;
 }
 
+/* Bound same-count semantic edits reconcile against the live line identities. */
+static bool reconcile_program_snapshot(aa_program_t *program)
+{
+	aa_legacy_program_reader_t reader;
+	aa_legacy_import_report_t report;
+	if (!g_program_snapshot_valid || !cw_domain_bindings_valid(program) ||
+		!cw_get_legacy_program_reader(&reader)) {
+		g_program_snapshot_valid = false;
+		cw_clear_domain_bindings();
+		fprintf(stderr, "Legacy/domain identity reconciliation is unavailable\n");
+		return false;
+	}
+	aa_result_t result = aa_legacy_program_reconcile(program, &reader, &report);
+	if (result != AA_RESULT_OK) {
+		g_program_snapshot_valid = false;
+		cw_clear_domain_bindings();
+		fprintf(stderr, "Could not reconcile legacy program edit "
+				"(result=%d, issue=%d, position=%zu, operand=%zu)\n",
+				(int)result, (int)report.issue,
+				report.position, report.operand_position);
+		return false;
+	}
+	return true;
+}
+
+bool stages_refresh_program_snapshot(aa_program_t *program)
+{
+	return refresh_program_snapshot(program);
+}
+
+bool stages_reconcile_program_snapshot(aa_program_t *program)
+{
+	return reconcile_program_snapshot(program);
+}
+
 static bool append_domain_instruction(
 	const aa_legacy_line_snapshot_t *snapshot,
+	aa_instruction_id_t *created_id,
 	void *context)
 {
 	aa_program_t *program = context;
 	aa_instruction_t instruction;
 	aa_legacy_import_report_t report;
-	if (snapshot == NULL ||
+	if (snapshot == NULL || created_id == NULL ||
 		!domain_edit_context_allowed(program,
 									(const code_line_t *)snapshot->identity) ||
 		aa_legacy_instruction_from_snapshot(
@@ -414,13 +460,14 @@ static bool append_domain_instruction(
 		aa_program_reserve(program, count + 1) != AA_RESULT_OK) {
 		return false;
 	}
-	return aa_program_append(program, &instruction, NULL) == AA_RESULT_OK;
+	return aa_program_append(program, &instruction, created_id) == AA_RESULT_OK;
 }
 
 static bool domain_edit_context_allowed(const aa_program_t *program,
 											 const code_line_t *line)
 {
-	return g_program_snapshot_valid && program != NULL && line != NULL &&
+	return g_program_snapshot_valid && cw_domain_bindings_valid(program) &&
+		program != NULL && line != NULL &&
 		g_edit_line == line && !mc_is_executing() &&
 		!g_domain_step_execution_active && !g_domain_teardown_active &&
 		aa_program_count(program) == (size_t)cw_get_code_list_size() &&
@@ -436,6 +483,14 @@ static bool pending_jump_allows_instruction_click(void)
 	return pending_line != NULL && pending_line->ins != NULL &&
 		pending_line->state == MISSING_OP1 &&
 		cl_is_ins_jmp_type(pending_line->ins->id);
+}
+
+static bool pending_jump_label_selected(void)
+{
+	code_line_t *pending_line = cw_get_code_line_pending_operand();
+	return pending_line != NULL && pending_line->ins != NULL &&
+		pending_line->state == MISSING_OP1 &&
+		cl_is_ins_jmp_type(pending_line->ins->id) && cw_ms_rel_in_label();
 }
 
 static bool edit_domain_instruction(
@@ -529,6 +584,8 @@ static void cancel_edit_interaction(void)
 void stages_cancel_pending_edit(void)
 {
 	cancel_edit_interaction();
+	g_program_snapshot_valid = false;
+	cw_clear_domain_bindings();
 }
 
 static void code_updated_actions(int level_id, aa_program_t *program)
@@ -565,12 +622,18 @@ static code_line_t *pending_operand_handler(bool *semantic_changed)
 	cw_highlight_code_pending_operand();
 
 	if (cl_is_ins_jmp_type(l->ins->id) == true && l->state == MISSING_OP1) {
-		r = cw_create_label_code_line();
-		if (!cw_player_holding_instruction(r, false, true)) {
-			g_control_flow_repair_failed = true;
-			g_program_snapshot_valid = false;
+		code_line_t *target = NULL;
+		if (label_sel) {
+			target = cw_get_released_label_code_line();
+		} else {
+			r = cw_create_label_code_line();
+			target = r;
+			if (!cw_player_holding_instruction(r, false, true)) {
+				g_control_flow_repair_failed = true;
+				g_program_snapshot_valid = false;
+			}
 		}
-		operand_t *a = cw_create_jmp_op(r);
+		operand_t *a = cw_create_jmp_op(target);
 		if (a != NULL) {
 			cw_assign_op_to_line(a, l);
 			*semantic_changed = true;
@@ -651,16 +714,27 @@ static code_line_t *edit_code(int level_id,
 	}
 
 	if (cw_is_operand_pending() == true && g_edit_line == NULL &&
-	    cw_check_code_sorted() == true && cw_chk_click_code() == false &&
-	    cw_chk_click_code_op() == false &&
+	    cw_check_code_sorted() == true &&
+	    ((cw_chk_click_code() == false && cw_chk_click_code_op() == false) ||
+		 pending_jump_label_selected()) &&
 	    !pending_jump_allows_instruction_click()) {
 		bool semantic_changed = false;
+		int line_count_before = cw_get_code_list_size();
 		g_edit_line = pending_operand_handler(&semantic_changed);
-		if (cw_is_operand_pending() == false &&
-			!g_control_flow_repair_failed) {
+		if (semantic_changed && !g_control_flow_repair_failed) {
+			if (line_count_before == cw_get_code_list_size()) {
+				if (reconcile_program_snapshot(program) &&
+					cw_is_operand_pending() == false) {
+					save_and_update_code(level_id);
+				}
+			} else if (cw_is_operand_pending() == false) {
+				code_updated_actions(level_id, program);
+			} else {
+				refresh_program_snapshot(program);
+			}
+		} else if (cw_is_operand_pending() == false &&
+				   !g_control_flow_repair_failed) {
 			code_updated_actions(level_id, program);
-		} else if (semantic_changed && !g_control_flow_repair_failed) {
-			refresh_program_snapshot(program);
 		}
 		if (g_edit_line != NULL) {
 			g_edit_hold_line = true;

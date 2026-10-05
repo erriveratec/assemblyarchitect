@@ -165,6 +165,107 @@ static void test_failed_edits_are_atomic(void)
 	aa_program_destroy(program);
 }
 
+static void test_identity_preserving_reconciliation(void)
+{
+	aa_program_t *program = aa_program_create();
+	assert(program != NULL);
+	aa_instruction_id_t label_id = append_instruction(program, AA_OPCODE_LABEL);
+	aa_instruction_id_t jump_id = append_instruction(program, AA_OPCODE_JMP);
+	aa_instruction_id_t first_mov_id = append_instruction(program, AA_OPCODE_MOV);
+	aa_instruction_id_t duplicate_mov_id = append_instruction(program,
+		AA_OPCODE_MOV);
+	assert(aa_program_set_operand(program, jump_id, 0,
+								  aa_operand_label_reference(label_id)) == AA_RESULT_OK);
+	aa_instruction_t candidate[4] = {
+		{.id = label_id, .opcode = AA_OPCODE_LABEL, .operand_count = 0},
+		{.id = jump_id, .opcode = AA_OPCODE_JMP, .operand_count = 1,
+		 .operands = {{.kind = AA_OPERAND_LABEL_REFERENCE,
+					   .value.label_instruction_id = label_id}}},
+		{.id = first_mov_id, .opcode = AA_OPCODE_MOV, .operand_count = 2},
+		{.id = duplicate_mov_id, .opcode = AA_OPCODE_MOV, .operand_count = 2}
+	};
+	uint64_t revision = aa_program_revision(program);
+	assert(aa_program_reconcile(program, candidate, 4) == AA_RESULT_OK);
+	assert(aa_program_revision(program) == revision);
+	assert(aa_program_instruction_at(program, 0)->id == label_id);
+	assert(aa_program_instruction_at(program, 1)->id == jump_id);
+	assert(aa_program_instruction_at(program, 2)->id == first_mov_id);
+	assert(aa_program_instruction_at(program, 3)->id == duplicate_mov_id);
+	assert(aa_program_instruction_at(program, 1)->operands[0].value.
+		label_instruction_id == label_id);
+	assert(aa_program_instruction_at(program, 2)->operands[0].kind ==
+		AA_OPERAND_NONE);
+	const aa_instruction_t *borrowed_program =
+		aa_program_instruction_at(program, 0);
+	assert(aa_program_reconcile(program, borrowed_program,
+							   aa_program_count(program)) == AA_RESULT_OK);
+	assert(aa_program_revision(program) == revision);
+
+	candidate[2].operands[0] = aa_operand_register(AA_REGISTER_RAX);
+	candidate[2].operands[1] = aa_operand_buffer(AA_BUFFER_INPUT);
+	revision = aa_program_revision(program);
+	assert(aa_program_reconcile(program, candidate, 4) == AA_RESULT_OK);
+	assert(aa_program_revision(program) == revision + 1);
+	assert(aa_program_instruction_at(program, 2)->id == first_mov_id);
+	assert(aa_program_instruction_at(program, 3)->id == duplicate_mov_id);
+	assert(aa_program_instruction_at(program, 2)->operands[0].value.reg ==
+		AA_REGISTER_RAX);
+	assert(aa_program_instruction_at(program, 3)->operands[0].kind ==
+		AA_OPERAND_NONE);
+
+	aa_instruction_t appended = aa_instruction_create(AA_OPCODE_CMP);
+	aa_instruction_id_t appended_id = AA_INSTRUCTION_ID_INVALID;
+	assert(aa_program_append(program, &appended, &appended_id) == AA_RESULT_OK);
+	assert(appended_id == duplicate_mov_id + 1);
+
+	aa_instruction_t high_ids[3] = {candidate[0], candidate[1], candidate[2]};
+	high_ids[2].id = 20;
+	revision = aa_program_revision(program);
+	assert(aa_program_reconcile(program, high_ids, 3) == AA_RESULT_OK);
+	assert(aa_program_revision(program) == revision + 1);
+	aa_instruction_t lower_ids[3] = {candidate[0], candidate[1], candidate[2]};
+	lower_ids[2].id = 3;
+	assert(aa_program_reconcile(program, lower_ids, 3) == AA_RESULT_OK);
+	aa_instruction_id_t after_lower_ids = AA_INSTRUCTION_ID_INVALID;
+	assert(aa_program_append(program, &appended, &after_lower_ids) == AA_RESULT_OK);
+	assert(after_lower_ids == 21);
+
+	aa_instruction_t before[4];
+	for (size_t position = 0; position < aa_program_count(program); position++) {
+		before[position] = *aa_program_instruction_at(program, position);
+	}
+	revision = aa_program_revision(program);
+	aa_instruction_t invalid[3] = {lower_ids[0], lower_ids[1], lower_ids[2]};
+	invalid[0].id = AA_INSTRUCTION_ID_INVALID;
+	assert(aa_program_reconcile(program, invalid, 3) == AA_RESULT_INVALID_ARGUMENT);
+	invalid[0] = lower_ids[0];
+	invalid[2].id = invalid[1].id;
+	assert(aa_program_reconcile(program, invalid, 3) == AA_RESULT_INVALID_ARGUMENT);
+	invalid[2] = lower_ids[2];
+	invalid[1].operands[0] = aa_operand_label_reference(999);
+	assert(aa_program_reconcile(program, invalid, 3) ==
+		AA_RESULT_UNRESOLVED_SYMBOL);
+	invalid[1].operands[0] = aa_operand_label_reference(lower_ids[2].id);
+	assert(aa_program_reconcile(program, invalid, 3) ==
+		AA_RESULT_UNRESOLVED_SYMBOL);
+	assert(aa_program_revision(program) == revision);
+	assert(aa_program_count(program) == 4);
+	for (size_t position = 0; position < aa_program_count(program); position++) {
+		const aa_instruction_t *current = aa_program_instruction_at(program,
+																position);
+		assert(current->id == before[position].id);
+		assert(current->opcode == before[position].opcode);
+		assert(current->operands[0].kind == before[position].operands[0].kind);
+		assert(current->operands[1].kind == before[position].operands[1].kind);
+	}
+
+	invalid[0] = lower_ids[0];
+	invalid[0].id = UINT32_MAX;
+	assert(aa_program_reconcile(program, invalid, 1) == AA_RESULT_ID_EXHAUSTED);
+	assert(aa_program_revision(program) == revision);
+	aa_program_destroy(program);
+}
+
 int main(void)
 {
 	test_program_editing_and_identity();
@@ -173,6 +274,7 @@ int main(void)
 	test_insert_from_borrowed_instruction();
 	test_instruction_limit();
 	test_failed_edits_are_atomic();
+	test_identity_preserving_reconciliation();
 	puts("program domain tests passed");
 	return 0;
 }
