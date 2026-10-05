@@ -28,6 +28,11 @@ char *P3_LORETEXT = "Zero-Flag Handler";
 
 
 static const Uint32 PLAYER_BLOCK_W = 8;
+static const int PLAYER_NAME_OFFSET = 80;
+static const int PLAYER_NAME_HEIGHT = 50;
+static const int PLAYER_LORE_OFFSET = 22;
+static const int PLAYER_LORE_HEIGHT = 40;
+static const int PLAYER_DARK_PLATE_OFFSET = 6;
 
 static SDL_Rect get_p1_button_box();
 static SDL_Rect get_p2_button_box();
@@ -156,8 +161,8 @@ static void draw_player_texts(texture_t **player_text, texture_t **lore)
 	SDL_Rect p2_box = get_p2_button_box();
 	SDL_Rect p3_box = get_p3_button_box();
 
-	int box_ofs = dm_get_ofs_player_name();
-	int player_h = dm_get_h_player_name();
+	int box_ofs = dm_scale_to_res(PLAYER_NAME_OFFSET);
+	int player_h = dm_scale_to_res(PLAYER_NAME_HEIGHT);
 	p1_box.y += (p1_box.h + box_ofs);
 	p1_box.h = player_h;
 	p2_box.y += (p2_box.h + box_ofs);
@@ -169,8 +174,8 @@ static void draw_player_texts(texture_t **player_text, texture_t **lore)
 	dw_draw_texture_center_fit_h(p2_box, player_text[1]);
 	dw_draw_texture_center_fit_h(p3_box, player_text[2]);
 	
-	int lore_ofs = dm_get_ofs_player_lore();
-	int lore_h = dm_get_h_stage_subsubtitle();
+	int lore_ofs = dm_scale_to_res(PLAYER_LORE_OFFSET);
+	int lore_h = dm_scale_to_res(PLAYER_LORE_HEIGHT);
 	p1_box.y += (p1_box.h + lore_ofs);
 	p1_box.h = lore_h;
 	p2_box.y += (p2_box.h + lore_ofs);
@@ -350,7 +355,7 @@ int sp_stage_select_player()
     anim_prev_ms = cur_time;
     t += dt;
  
-	SDL_Rect b = dm_get_upper_title_box(SELECT_PLAYER_TEXT);
+	SDL_Rect b = sc_get_selection_title_bounds(SELECT_PLAYER_TEXT);
 	bool title_done = sc_typewriter_update(&title, 
 										 cur_time, 
 										 b, 
@@ -360,7 +365,7 @@ int sp_stage_select_player()
 		dw_draw_texture_fit_h(b, title.texture);
 	}
   
-   int plate_ofs = dm_get_ofs_player_dark_plate();
+	int plate_ofs = dm_scale_to_res(PLAYER_DARK_PLATE_OFFSET);
    SDL_Rect dark_plate_1 = ax_pad_rectangle(p1_box, plate_ofs, false);
    SDL_Rect dark_plate_2 = ax_pad_rectangle(p2_box, plate_ofs, false);
    SDL_Rect dark_plate_3 = ax_pad_rectangle(p3_box, plate_ofs, false);

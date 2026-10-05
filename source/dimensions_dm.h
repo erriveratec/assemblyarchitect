@@ -29,20 +29,10 @@ int dm_get_w_stage_rail();
 int dm_get_w_stage_rail_end();
 int dm_get_w_borders();
 int dm_get_w_miss_op();
-int dm_get_h_player_name();
-int dm_get_h_stage_subsubtitle();
 
-SDL_Rect dm_get_studio_name_msg_box();
-SDL_Rect dm_get_game_title_box(char *title);
-SDL_Rect dm_get_press_space_box(char *msg);
-SDL_Rect dm_get_upper_title_box(char *msg);
 
 
 SDL_Rect dm_get_code_button_wh();
-SDL_Rect dm_get_value_box_wh();
-SDL_Rect dm_get_value_box_val_wh();
-SDL_Rect dm_get_imm_cell_wh();
-SDL_Rect dm_get_avatar_wh();
 
 
 SDL_Rect dm_get_stage_reg_box();
@@ -50,9 +40,9 @@ SDL_Rect dm_get_stage_ibox();
 SDL_Rect dm_get_stage_obox();
 SDL_Rect dm_get_stage_zfbox();
 SDL_Rect dm_get_stage_instruction_box();
-SDL_Rect dm_get_stage_input_buffer_box();
-SDL_Rect dm_get_stage_output_buffer_box();
-SDL_Rect dm_get_stage_ib_text_box();
+SDL_Rect bf_get_input_buffer_bounds();
+SDL_Rect bf_get_output_buffer_bounds();
+SDL_Rect bf_get_input_label_bounds();
 SDL_Rect dm_get_stage_ob_text_box();
 SDL_Rect dm_get_stage_imm_up();
 
@@ -67,9 +57,6 @@ int dm_get_ofs_buffer_value_box();
 int dm_get_ofs_between_value_box();
 int dm_get_ofs_reg_value_box();
 int dm_get_ofs_bet_regs();
-int dm_get_ofs_player_name();
-int dm_get_ofs_player_lore();
-int dm_get_ofs_player_dark_plate();
 int dm_get_ofs_res_box();
 
 

@@ -54,9 +54,9 @@ static SDL_Rect get_sector_separator()
 
 	SDL_Rect r = get_sector_btn_box();	
 	SDL_Rect b;
-	b.w = dm_get_upper_title_box(SELECT_SECTOR).w;
+	b.w = sc_get_selection_title_bounds(SELECT_SECTOR).w;
 	b.h = dm_scale_to_res(SMALL_SEPARATOR_H);
-	b.x = dm_get_upper_title_box(SELECT_SECTOR).x;	
+	b.x = sc_get_selection_title_bounds(SELECT_SECTOR).x;
 	b.y = r.y + r.h + get_sector_btn_spacing()/2;
 	
 	return b;
@@ -92,7 +92,7 @@ static SDL_Rect get_upper_separator()
 	int screen_width = dm_get_screen_width();
 	int screen_height = dm_get_screen_height();
 
-	SDL_Rect r = dm_get_upper_title_box(SELECT_SECTOR);
+	SDL_Rect r = sc_get_selection_title_bounds(SELECT_SECTOR);
 	SDL_Rect b;
 	b.w = screen_width*3/4;
 	b.h = dm_scale_to_res(BIG_SEPARATOR_H);
@@ -119,7 +119,7 @@ static SDL_Rect get_sector_btn_box()
 	SDL_Rect b;
 	b.w = screen_width*2/3;
 	b.h = dm_get_h_stage_subtitle();
-	b.x = dm_get_upper_title_box(SELECT_SECTOR).x;	
+	b.x = sc_get_selection_title_bounds(SELECT_SECTOR).x;
 	b.y = get_upper_separator().y + get_sector_btn_spacing() 
 	     + get_fst_btn_ofs(); 
 	return b;
@@ -161,7 +161,7 @@ static void create_sector_btns(btn_t **btns, bool *levels)
 	btns[0] = bt_create_btn(get_sector_btn_box(), 
 			  				dw_create_text_tex(SECTOR_0, C_WHITE));
 	btns[0]->r.w = ax_get_texture_w_fit_h(btns[0]->r.h, btns[0]->t);
-	int x_ofs = (dm_get_upper_title_box(SELECT_SECTOR).w - btns[0]->r.w)/2;
+	int x_ofs = (sc_get_selection_title_bounds(SELECT_SECTOR).w - btns[0]->r.w)/2;
 	btns[0]->r.x += x_ofs;
 	
 	btns[1] = bt_create_btn(get_sector_btn_box(), 
@@ -235,7 +235,7 @@ int stage_select_sector_ss()
 
 	sc_fx_update_render(&fx_state, cur_time);
 
-	SDL_Rect b = dm_get_upper_title_box(SELECT_SECTOR);
+	SDL_Rect b = sc_get_selection_title_bounds(SELECT_SECTOR);
 	bool title_done = sc_typewriter_update(&title, 
 										 cur_time, 
 										 b, 

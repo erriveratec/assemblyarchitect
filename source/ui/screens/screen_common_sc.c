@@ -2,9 +2,22 @@
 #include "sdl_config.h"
 #include "dimensions_dm.h"
 #include "text_tx.h"
+#include "aux.h"
 
 
 static const Uint32 TYPE_DELAY_MS = 90; 
+static const int SELECTION_TITLE_H = 110;
+static const int SELECTION_TITLE_Y = 155;
+
+SDL_Rect sc_get_selection_title_bounds(const char *text)
+{
+    SDL_Rect bounds;
+    bounds.h = dm_scale_to_res(SELECTION_TITLE_H);
+    bounds.w = get_text_width_fits_height(bounds.h, (char *)text);
+    bounds.x = (dm_get_screen_width() - bounds.w) / 2;
+    bounds.y = dm_scale_to_res(SELECTION_TITLE_Y);
+    return bounds;
+}
 
 void sc_fx_init(sc_fx_t *fx, Uint64 cur_time)
 {

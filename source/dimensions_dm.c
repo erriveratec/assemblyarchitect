@@ -18,17 +18,11 @@
 
 // This is a new version of the dimensions set by a ration of the resolution
 
-#define VALUE_BOX_H 40
-#define VALUE_BOX_W 50
-#define IMM_CELL_H 50
-#define IMM_CELL_W 60
 #define VAL_BOX_XOFS 10
 #define REG_BOX_OFS 25
 #define BET_REG_OFS 5
 
 
-#define AVATAR_W 50
-#define AVATAR_H 50
 
 #define TEXT_H_BIG 50
 #define TEXT_H_MSG 35
@@ -40,12 +34,7 @@
 
 #define TEXT_H_STAGE_TITLE 110
 #define TEXT_H_STAGE_SUBTITLE 55
-#define TEXT_H_STAGE_SUBSUBTITLE_H 40
 
-#define P_NAME_OFS 80
-#define P_NAME_H 50
-#define P_LORE_OFS 22
-#define P_DARK_PLATE_OFS 6
 
 #define CODE_BUTTON_W 90
 #define CODE_BUTTON_H 40
@@ -72,16 +61,6 @@
 #define BORDERS_WIDTH 5 //Used for the interface boxes
 
 // Intro screens
-#define TITLE_H	140
-#define TITLE_Y	140
-
-#define SEL_PLAYER_Y 155
-
-#define PRESS_H 60
-#define PRESS_Y 870
-
-#define STUDIO_W 600
-#define STUDIO_H 600
 
 #define INS_BOX_X 0
 #define INS_BOX_W 170
@@ -108,9 +87,9 @@
 
 
 
-int g_res_id;
-int g_screen_width;
-int g_screen_height;
+static int g_res_id;
+static int g_screen_width;
+static int g_screen_height;
 
 static int dm_get_ofs_val_box_x();
 // dm_get_box_msg_wh TODO remove  dw_get_ofs_iface_filled_border(
@@ -268,7 +247,7 @@ int dm_get_screen_width()
  */
 int dm_get_ofs_reg_value_box()
 {
-	SDL_Rect vbox = dm_get_value_box_wh();
+	SDL_Rect vbox = ax_get_value_box_size();
 	return vbox.h/4;
 }
 
@@ -300,8 +279,8 @@ int dm_get_ofs_between_value_box()
  */
 int dm_get_ofs_buffer_value_box()
 {
-	SDL_Rect vbox =  dm_get_value_box_wh();
-	SDL_Rect ib = dm_get_stage_input_buffer_box();
+	SDL_Rect vbox =  ax_get_value_box_size();
+	SDL_Rect ib = bf_get_input_buffer_bounds();
 	int ofs = (ib.h - vbox.h)/2;
 	return ofs;
 }
@@ -584,70 +563,16 @@ int dm_get_w_stage_rail_end()
 	return w;
 	
 }
-/* Function: dm_get_value_box_val_wh
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object. 
- * 
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_value_box_val_wh()
-{
-	SDL_Rect vb = dm_get_value_box_wh();
-	SDL_Rect b;
-	b.w = vb.w;
-	b.h = vb.h - vb.h/10;
-	b.x = 0;
-	b.y = 0;
-	return b;
-}
-/* Function: dm_get_value_box_wh
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object. 
- * 
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object
- */
-SDL_Rect dm_get_value_box_wh()
-{
-	SDL_Rect b;
-	b.w = dm_scale_to_res(VALUE_BOX_W);
-	b.h = dm_scale_to_res(VALUE_BOX_H);
-	b.x = 0;
-	b.y = 0;
-	return b;
-}
-
-SDL_Rect dm_get_imm_cell_wh()
-{
-	SDL_Rect b;
-	b.w = dm_scale_to_res(IMM_CELL_W);
-	b.h = dm_scale_to_res(IMM_CELL_H);
-	b.x = 0;
-	b.y = 0;
-	return b;
-}
-
-
-
 SDL_Rect dm_get_modal_button_wh()
 {
 	SDL_Rect button = {
-		.w = dm_scale_to_res(MODAL_BUTTON_W),
-		.h = dm_scale_to_res(MODAL_BUTTON_H),
 		.x = 0,
-		.y = 0
+		.y = 0,
+		.w = dm_scale_to_res(MODAL_BUTTON_W),
+		.h = dm_scale_to_res(MODAL_BUTTON_H)
 	};
 	return button;
 }
-
-
 
 /* Function: dm_get_box_msg_wh
  * -----------------------------------------------------------------------------
@@ -724,7 +649,7 @@ SDL_Rect dm_get_text_box_stagebutton()
 
 
 
-/* Function: dm_get_stage_ib_text_box
+/* Function: bf_get_input_label_bounds
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object
  *
@@ -734,9 +659,9 @@ SDL_Rect dm_get_text_box_stagebutton()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-SDL_Rect dm_get_stage_ib_text_box()
+SDL_Rect bf_get_input_label_bounds()
 {
-	SDL_Rect ib = dm_get_stage_input_buffer_box();
+	SDL_Rect ib = bf_get_input_buffer_bounds();
 	SDL_Rect b;
 	b.w = 0;
 	b.h = dm_get_h_code_text();
@@ -757,7 +682,7 @@ SDL_Rect dm_get_stage_ib_text_box()
  */
 SDL_Rect dm_get_stage_ob_text_box()
 {
-	SDL_Rect ob = dm_get_stage_output_buffer_box();
+	SDL_Rect ob = bf_get_output_buffer_bounds();
 	SDL_Rect b;
 	b.w = 0;
 	b.h = dm_get_h_code_text();
@@ -766,7 +691,7 @@ SDL_Rect dm_get_stage_ob_text_box()
 	return b;
 }
 
-/* Function: dm_get_stage_input_buffer_box
+/* Function: bf_get_input_buffer_bounds
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object, x and y are initialize at 0
  *
@@ -776,7 +701,7 @@ SDL_Rect dm_get_stage_ob_text_box()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-SDL_Rect dm_get_stage_input_buffer_box()
+SDL_Rect bf_get_input_buffer_bounds()
 {
 	SDL_Rect b;
 	b.w = dm_scale_to_res(BUF_W);
@@ -787,7 +712,7 @@ SDL_Rect dm_get_stage_input_buffer_box()
 	return b;
 }
 
-/* Function: dm_get_stage_output_buffer_box
+/* Function: bf_get_output_buffer_bounds
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object, x and y are initialize at 0
  *
@@ -797,9 +722,9 @@ SDL_Rect dm_get_stage_input_buffer_box()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-SDL_Rect dm_get_stage_output_buffer_box()
+SDL_Rect bf_get_output_buffer_bounds()
 {
-	SDL_Rect ib = dm_get_stage_ib_text_box();
+	SDL_Rect ib = bf_get_input_label_bounds();
 	SDL_Rect b;
 	b.w = dm_scale_to_res(BUF_W);
 	b.h = dm_scale_to_res(BUF_H);
@@ -843,7 +768,7 @@ SDL_Rect dm_get_stage_instruction_box()
  */
 SDL_Rect dm_get_stage_ibox()
 {
-	SDL_Rect vb = dm_get_value_box_wh();
+	SDL_Rect vb = ax_get_value_box_size();
 	SDL_Rect rb = rg_get_register_box();
 	SDL_Rect rbi = dm_get_stage_reg_box();
 	SDL_Rect b;
@@ -866,7 +791,7 @@ SDL_Rect dm_get_stage_ibox()
  */
 SDL_Rect dm_get_stage_obox()
 {
-	SDL_Rect vb = dm_get_value_box_wh();
+	SDL_Rect vb = ax_get_value_box_size();
 	SDL_Rect rb = rg_get_register_box();
 	SDL_Rect rbi = dm_get_stage_reg_box();
 	SDL_Rect b;
@@ -889,7 +814,7 @@ SDL_Rect dm_get_stage_obox()
  */
 SDL_Rect dm_get_stage_zfbox()
 {
-	SDL_Rect vb = dm_get_value_box_wh();
+	SDL_Rect vb = ax_get_value_box_size();
 	SDL_Rect rbi = dm_get_stage_reg_box();
 	SDL_Rect b;
 	b.w = vb.w;
@@ -970,27 +895,6 @@ int dm_get_h_big_text()
 
 
 
-/* Function: dm_get_upper_title_box
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object.
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object.
- */
-SDL_Rect dm_get_upper_title_box(char *msg)
-{
-	SDL_Rect b;
-	b.h = dm_scale_to_res(TEXT_H_STAGE_TITLE);
-	b.w = get_text_width_fits_height(b.h, msg);
-	b.x = g_screen_width/2 - b.w/2;
-	b.y = dm_scale_to_res(SEL_PLAYER_Y);
-
-	return b;
-}
-
 /* Function: dm_get_avatar_wh
  * -----------------------------------------------------------------------------
  * Returns the box dimensions for the object, x and y are initialize at 0
@@ -1001,15 +905,6 @@ SDL_Rect dm_get_upper_title_box(char *msg)
  * Return:
  *	SDL_Rect with the positions of the object
  */
-SDL_Rect dm_get_avatar_wh()
-{
-	SDL_Rect b;
-	b.w = dm_scale_to_res(AVATAR_W);
-	b.h = dm_scale_to_res(AVATAR_H);
-	b.x = 0;
-	b.y = 0;
-	return b;
-}
 
 
 
@@ -1027,7 +922,7 @@ SDL_Rect dm_get_stage_imm_up()
 {
 	SDL_Rect b;
 	SDL_Rect cb = cw_get_stage_code_box();
-	SDL_Rect vb = dm_get_value_box_wh();
+	SDL_Rect vb = ax_get_value_box_size();
 	b.w = 0;
 	b.h = dm_get_h_stage_elements_titles();
 	b.x = dm_get_stage_ibox().x;
@@ -1068,10 +963,6 @@ SDL_Rect dm_get_code_button_wh()
  * Return:
  *	int with the offset value.
  */
-int dm_get_ofs_player_name()
-{
-	return dm_scale_to_res(P_NAME_OFS);
-}
 
 /* Function: dm_get_ofs_player_lore
  * -----------------------------------------------------------------------------
@@ -1083,10 +974,6 @@ int dm_get_ofs_player_name()
  * Return:
  *	int with the offset value.
  */
-int dm_get_ofs_player_lore()
-{
-	return dm_scale_to_res(P_LORE_OFS);
-}
 
 /* Function: dm_get_ofs_player_dark_plate
  * -----------------------------------------------------------------------------
@@ -1098,10 +985,6 @@ int dm_get_ofs_player_lore()
  * Return:
  *	int with the offset value.
  */
-int dm_get_ofs_player_dark_plate()
-{
-	return dm_scale_to_res(P_DARK_PLATE_OFS);
-}
 
 
 /* Function: dm_get_h_player_name
@@ -1114,10 +997,6 @@ int dm_get_ofs_player_dark_plate()
  * Return:
  *	int with the height of the player name.
  */
-int dm_get_h_player_name()
-{
-	return dm_scale_to_res(P_NAME_H);
-}
 
 /* Function: dm_get_h_stage_subsubtitle
  * -----------------------------------------------------------------------------
@@ -1129,73 +1008,6 @@ int dm_get_h_player_name()
  * Return:
  *	int with the height of the player name.
  */
-int dm_get_h_stage_subsubtitle()
-{
-	return dm_scale_to_res(TEXT_H_STAGE_SUBSUBTITLE_H);
-}
-/* Function: dm_get_press_space_box
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object.
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object.
- */
-SDL_Rect dm_get_press_space_box(char *msg)
-{
-	SDL_Rect b;
-	b.h = dm_scale_to_res(PRESS_H);
-	b.w = get_text_width_fits_height(b.h, msg);
-	b.x = g_screen_width/2 - b.w/2;
-	b.y = dm_scale_to_res(PRESS_Y);
-	return b;
-}
-
-/* Function: dm_get_studio_name_msg_box
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object.
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object.
- */
-SDL_Rect dm_get_studio_name_msg_box()
-{
-	SDL_Rect b;
-	b.w = dm_scale_to_res(STUDIO_W);
-	b.h = dm_scale_to_res(STUDIO_H);
-	b.x = 0;
-	b.y = (g_screen_height - b.h)/2;
-	return b;
-}
-
-
-
-/* Function: dm_get_game_title_box
- * -----------------------------------------------------------------------------
- * Returns the box dimensions for the object.
- *
- * Arguments:
- *	Void.
- *
- * Return:
- *	SDL_Rect with the positions of the object.
- */
-SDL_Rect dm_get_game_title_box(char *title)
-{
-	SDL_Rect b;
-	b.h = dm_scale_to_res(TITLE_H);
-	b.w =get_text_width_fits_height(b.h, title);
-	b.x = (g_screen_width - b.w)/2;
-	b.y = dm_scale_to_res(TITLE_Y);
-
-	return b;
-}
-
 /* Function: set_screen_resolution
  * -----------------------------------------------------------------------------
  * Sets the screen resolution that will be used in the game
@@ -1248,6 +1060,7 @@ int dm_scale_to_res(int dim)
 {
 	int scaled_dim;
 
+	/* Both supported resolutions currently use the same layout scale. */
 	switch(g_res_id){
 		case R1920X1080:
 			scaled_dim = dim*1;

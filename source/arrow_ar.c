@@ -286,7 +286,7 @@ static void initialize_imm_up_arrow()
 {
 	SDL_Rect a = ar_get_arrow_wh();
 	SDL_Rect imm_box = dm_get_stage_imm_up();
-	SDL_Rect vb = dm_get_value_box_wh();
+	SDL_Rect vb = ax_get_value_box_size();
 	int text_h = dm_get_h_stage_elements_titles();
 	int text_w = get_text_width_fits_height(text_h, IMM_TXT);
 	int x = imm_box.x + (11*vb.w)/2;
@@ -658,7 +658,7 @@ static void initialize_challenge_arrow()
  */
 static void initialize_ib_arrow()
 { 	
-	SDL_Rect b =  dm_get_stage_input_buffer_box();
+	SDL_Rect b =  bf_get_input_buffer_bounds();
 	SDL_Rect dim = ar_get_arrow_wh();
 	g_arrow_ib.box.x = b.x - 2*dim.w;
 	g_arrow_ib.box.y = b.y + b.h/2 - dim.h/2;
@@ -688,7 +688,7 @@ static void initialize_ib_arrow()
  */
 static void initialize_ob_arrow()
 { 	
-	SDL_Rect b =  dm_get_stage_output_buffer_box();
+	SDL_Rect b =  bf_get_output_buffer_bounds();
 	SDL_Rect dim = ar_get_arrow_wh();
 	g_arrow_ob.box.x = b.x - 2*dim.w;
 	g_arrow_ob.box.y = b.y + b.h/2 - dim.h/2;

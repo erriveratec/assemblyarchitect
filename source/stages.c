@@ -86,13 +86,13 @@ static void init_stage_assets()
 {
 	sb_init_stage_btns();
 
-	SDL_Rect r0 = dm_get_stage_input_buffer_box();
+	SDL_Rect r0 = bf_get_input_buffer_bounds();
 	bf_set_input_box(r0);
 
-	SDL_Rect r1 = dm_get_stage_output_buffer_box();
+	SDL_Rect r1 = bf_get_output_buffer_bounds();
 	bf_set_output_box(r1);
 
-	SDL_Rect ib = dm_get_stage_ib_text_box();
+	SDL_Rect ib = bf_get_input_label_bounds();
 	SDL_Rect r2 = {.x = r0.x, .y = ib.y, .w = r0.w, .h = ib.h + r0.h};
 	bf_set_input_buffer_button(r2);
 

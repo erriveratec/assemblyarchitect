@@ -15,6 +15,8 @@
 #define IMM_SECOND_ROW_COLUMN_OFFSET 1
 #define IMM_CELL_BORDER_WIDTH 5
 #define IMM_LABEL_HIGHLIGHT_ENABLED 0
+static const int IMM_CELL_WIDTH = 60;
+static const int IMM_CELL_HEIGHT = 50;
 
 
 texture_t *g_imm_txt = NULL;
@@ -49,6 +51,17 @@ static bool rects_overlap_vertically(SDL_Rect first, SDL_Rect second);
 static bool rects_overlap_horizontally(SDL_Rect first, SDL_Rect second);
 
 imm_t g_up_imm[TOTAL_IMM];
+
+SDL_Rect im_get_cell_size(void)
+{
+	SDL_Rect size = {
+		.x = 0,
+		.y = 0,
+		.w = dm_scale_to_res(IMM_CELL_WIDTH),
+		.h = dm_scale_to_res(IMM_CELL_HEIGHT)
+	};
+	return size;
+}
 
 /* Function: im_get_buffer_value_box_x_coord_by_id
  *------------------------------------------------------------------------------
@@ -223,7 +236,7 @@ void im_init_imm_assets()
 	init_imm_texture();
 
 	int start_x = dm_get_stage_imm_up().x;
-	SDL_Rect cell = dm_get_imm_cell_wh();
+	SDL_Rect cell = im_get_cell_size();
 	for (int i = 0; i < TOTAL_IMM; i++){
 		bool first_row = i < IMM_FIRST_ROW_COUNT;
 		int column = first_row ? i :
@@ -336,7 +349,7 @@ void im_draw_imm()
 static void draw_imm_txt_up(float pulse)
 {
 	SDL_Rect imm_box = dm_get_stage_imm_up();
-	SDL_Rect cell = dm_get_imm_cell_wh();
+	SDL_Rect cell = im_get_cell_size();
 	int text_h = dm_get_h_stage_elements_titles();
 	int text_w = get_text_width_fits_height(text_h, IMM_TXT);
 	int x = imm_box.x + (11 * cell.w - text_w) / 2;
@@ -392,7 +405,7 @@ static void draw_imm_value(const value_box_t *value, float pulse,
 	if (value->t == NULL) {
 		return;
 	}
-	int text_h = dm_get_value_box_val_wh().h;
+	int text_h = ax_get_value_text_size().h;
 	int text_w = ax_get_texture_w_fit_h(text_h, value->t);
 	SDL_Rect text = {
 		.x = value->box.x + (value->box.w - text_w) / 2,

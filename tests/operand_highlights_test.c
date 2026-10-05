@@ -217,8 +217,8 @@ static void test_tutorial_highlight_parsing(void)
 static void test_immediate_grid_geometry(void)
 {
 	im_init_imm_assets();
-	SDL_Rect cell_size = dm_get_imm_cell_wh();
-	SDL_Rect value_size = dm_get_value_box_wh();
+	SDL_Rect cell_size = im_get_cell_size();
+	SDL_Rect value_size = ax_get_value_box_size();
 	assert(cell_size.w > value_size.w);
 	assert(cell_size.h > value_size.h);
 

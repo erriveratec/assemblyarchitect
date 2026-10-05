@@ -344,18 +344,36 @@ void ax_copy_vbox(value_box_t *dst, value_box_t src, bool pos)
  * Return:
  *	Void.
  */
+SDL_Rect ax_get_value_box_size(void)
+{
+	SDL_Rect size = {
+		.x = 0,
+		.y = 0,
+		.w = dm_scale_to_res(50),
+		.h = dm_scale_to_res(40)
+	};
+	return size;
+}
+
+SDL_Rect ax_get_value_text_size(void)
+{
+	SDL_Rect size = ax_get_value_box_size();
+	size.h -= size.h / 10;
+	return size;
+}
+
 void ax_draw_value_box(value_box_t *box, SDL_Color color)
 {
 	int text_w = 0;
 
-	SDL_Rect val = dm_get_value_box_val_wh();
+	SDL_Rect val = ax_get_value_text_size();
 	if (box->t != NULL) {
 		text_w = ax_get_texture_w_fit_h(val.h, box->t);
 	}
 
 	dw_draw_filled_rectangle(box->box, C_BLACK, color);
 
-	SDL_Rect vb       = dm_get_value_box_val_wh();
+	SDL_Rect vb       = ax_get_value_text_size();
 	int      x_offset = (vb.w - text_w) / 2;
 	int      y_offset = ((vb.h - val.h) / 2) + (val.h / 5) / 2;
 

@@ -66,6 +66,8 @@ float get_scale_fit_width(int w, texture_t *texture);
 int get_text_width_fits_height(int h, char *text);
 int ax_get_text_h_fit_w(int w, char *text);
 void ax_draw_value_box(value_box_t *box, SDL_Color color);
+SDL_Rect ax_get_value_box_size(void);
+SDL_Rect ax_get_value_text_size(void);
 void ax_copy_vbox(value_box_t *dst, value_box_t src, bool pos);
 char *ax_create_string_append_hex(char *s,  int n);
 char *ax_number_to_string_two_digits(int number);

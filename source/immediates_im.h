@@ -8,6 +8,8 @@
 #include "aux.h"
 #include "gameplay/ui_highlight_source.h"
 
+SDL_Rect im_get_cell_size(void);
+
 void im_set_imm_up_avail(bool state);
 bool im_are_imm_up_available(void);
 void im_set_highlight_source(ui_highlight_source_t source, bool enabled);

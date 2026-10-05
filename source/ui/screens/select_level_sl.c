@@ -32,6 +32,7 @@ static const Uint32 BIG_SEPARATOR_H        = 6;
 static const Uint32 SECTOR_TITLE_SEPARATOR = 24;
 static const Uint32 SECTOR_BTN_SPACING     = 60;
 static const Uint32 FIRST_BTN_OFS          = 3;
+static const int LEVEL_DESCRIPTION_TEXT_H = 40;
 
 static void create_select_level_buttons(iface_btn_t **buttons, bool *levels);
 static SDL_Rect get_level_button_box();
@@ -111,7 +112,9 @@ static void draw_sector_hover_description(iface_btn_t **buttons,
 
 	SDL_Rect box = get_sector_0_lower_separator();
 	box.y += box.h + dm_scale_to_res(SECTOR_TITLE_SEPARATOR);
-	dw_draw_wrapped_texture_by_h(box, dm_get_h_stage_subsubtitle(), texture);
+	dw_draw_wrapped_texture_by_h(box,
+	                             dm_scale_to_res(LEVEL_DESCRIPTION_TEXT_H),
+	                             texture);
 }
 
 /* Function: get_fst_btn_ofs
@@ -180,7 +183,7 @@ static SDL_Rect get_sector_subtitle_box(char *msg)
 	int screen_width  = dm_get_screen_width();
 	int screen_height = dm_get_screen_height();
 
-	SDL_Rect r = dm_get_upper_title_box(SELECT_LEVEL_TEXT);
+	SDL_Rect r = sc_get_selection_title_bounds(SELECT_LEVEL_TEXT);
 	SDL_Rect b;
 	b.h = dm_get_h_stage_subtitle();
 	b.w = get_text_width_fits_height(b.h, msg);
@@ -362,7 +365,7 @@ int sl_select_level_sector_1()
 	}
 
 	sc_fx_update_render(&fx_state, cur_time);
-	SDL_Rect b = dm_get_upper_title_box(SECTOR_1_TITLE);
+	SDL_Rect b = sc_get_selection_title_bounds(SECTOR_1_TITLE);
 	bool     title_done =
 	    sc_typewriter_update(&title, cur_time, b, SECTOR_1_TITLE, C_SILVERGREY);
 	if (title.texture != NULL) {
@@ -487,7 +490,7 @@ int sl_select_level_sector_0()
 	}
 
 	sc_fx_update_render(&fx_state, cur_time);
-	SDL_Rect b = dm_get_upper_title_box(SECTOR_0_TITLE);
+	SDL_Rect b = sc_get_selection_title_bounds(SECTOR_0_TITLE);
 	bool     title_done =
 	    sc_typewriter_update(&title, cur_time, b, SECTOR_0_TITLE, C_SILVERGREY);
 	if (title.texture != NULL) {

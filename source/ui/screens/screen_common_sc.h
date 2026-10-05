@@ -6,6 +6,8 @@
 #include "electron_fx.h"
 #include "draw_dw.h"
 
+SDL_Rect sc_get_selection_title_bounds(const char *text);
+
 
 typedef struct sc_fx_t {
     fx_electron_t *electron;

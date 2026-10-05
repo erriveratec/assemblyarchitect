@@ -118,7 +118,7 @@ void bf_init_buffer_assets()
 {
 	input_text = dw_create_text_tex(INPUT_BUFFER_TEXT, C_WHITE);
 	output_text = dw_create_text_tex(OUTPUT_BUFFER_TEXT, C_WHITE);
-	SDL_Rect ib = dm_get_stage_input_buffer_box();
+	SDL_Rect ib = bf_get_input_buffer_bounds();
 	int ofs = dm_get_ofs_buffer_value_box();
 	g_output_list_x_pos = ib.x + ofs;
 	g_input_list_x_pos = dm_get_screen_width();
@@ -430,10 +430,10 @@ void bf_add_output_to_list()
 
 	new_output->value = NO_VALUE;
 	new_output->type = NOT_ASSIGNED;
-	SDL_Rect ib = dm_get_stage_input_buffer_box();
+	SDL_Rect ib = bf_get_input_buffer_bounds();
 	int ofs = dm_get_ofs_buffer_value_box();
 	new_output->box.x = ib.x + ofs;
-	SDL_Rect vb = dm_get_value_box_wh();
+	SDL_Rect vb = ax_get_value_box_size();
 	int y_offset = (output_box.h - vb.h)/2;
 	new_output->box.y = output_box.y + y_offset;
 	new_output->box.w = vb.w;
@@ -469,7 +469,7 @@ void add_input_to_list(int value, int type)
 	new_input->value = value;
 	new_input->type = type;
 	new_input->box.x = screen_width;
-	SDL_Rect vb = dm_get_value_box_wh();
+	SDL_Rect vb = ax_get_value_box_size();
 	int y_offset = (input_box.h - vb.h)/2;
 	new_input->box.y = input_box.y + y_offset;
 	new_input->box.w = vb.w;
@@ -827,8 +827,8 @@ static void draw_buffer_value_box(value_box_t *value, SDL_Color color,
 		return;
 	}
 
-	SDL_Rect value_size = dm_get_value_box_wh();
-	SDL_Rect text_size = dm_get_value_box_val_wh();
+	SDL_Rect value_size = ax_get_value_box_size();
+	SDL_Rect text_size = ax_get_value_text_size();
 	int text_width = ax_get_texture_w_fit_h(text_size.h, value->t);
 	SDL_Rect text_box = {
 		.x = value->box.x + (value_size.w - text_width) / 2,
@@ -860,7 +860,7 @@ void draw_output_buffer()
 	int x;
 	int ofs = dm_get_ofs_buffer_value_box();
 	int ofsval = dm_get_ofs_between_value_box();
-	SDL_Rect val =  dm_get_value_box_wh();
+	SDL_Rect val =  ax_get_value_box_size();
 	SDL_Rect output_label = {.x = output_box.x,
 						 .y = output_box.y + output_box.h,
 						 .w = 0,
@@ -924,7 +924,7 @@ bool check_if_output_buffer_position_set()
 
 	int ofs = dm_get_ofs_buffer_value_box();
 	int ofsval = dm_get_ofs_between_value_box();
-	SDL_Rect val =  dm_get_value_box_wh();
+	SDL_Rect val =  ax_get_value_box_size();
 	int x = output_box.x + ofs + (list_size-1)*(val.w + ofsval);
 
 	value_box_t *first = outputs->first->value;	
@@ -951,8 +951,8 @@ void draw_input_buffer()
 	List *inputs = get_input_list();
 	int ofs = dm_get_ofs_buffer_value_box();
 	int ofsval = dm_get_ofs_between_value_box();
-	SDL_Rect val =  dm_get_value_box_wh();
-	SDL_Rect input_label = dm_get_stage_ib_text_box();
+	SDL_Rect val =  ax_get_value_box_size();
+	SDL_Rect input_label = bf_get_input_label_bounds();
 	buffer_animation_t animation = get_buffer_animation(
 	    &input_label, input_text, g_input_buffer_highlight);
 	SDL_FRect animated_input_box = animation.boxes_active ?
@@ -1092,7 +1092,7 @@ value_box_t bf_get_input_buffer_value_box()
 
 	int ofs = dm_get_ofs_buffer_value_box();
 	int ofsval = dm_get_ofs_between_value_box();
-	SDL_Rect val =  dm_get_value_box_wh();
+	SDL_Rect val =  ax_get_value_box_size();
 	value_box_t *first = List_shift(input_list);
 	g_input_list_x_pos += val.w + ofsval;
 
@@ -1182,7 +1182,7 @@ void bf_reset_output_list()
 {
 	destroy_output_list();
 	bf_create_output_list();
-	SDL_Rect ib = dm_get_stage_input_buffer_box();
+	SDL_Rect ib = bf_get_input_buffer_bounds();
 	int ofs = dm_get_ofs_buffer_value_box();
 	g_output_list_x_pos = ib.x + ofs;
 }

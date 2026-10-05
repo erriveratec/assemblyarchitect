@@ -106,7 +106,7 @@ static SDL_Rect get_text_box_upper_right()
 	SDL_Rect b;
 	b.w = d.w;
 	b.h = d.h;
-	b.x = dm_get_stage_imm_up().x + 12 * dm_get_value_box_wh().w;
+	b.x = dm_get_stage_imm_up().x + 12 * ax_get_value_box_size().w;
 	b.y = dw_get_ofs_iface_filled_border();
 	return b;
 

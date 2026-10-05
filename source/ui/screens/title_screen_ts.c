@@ -22,11 +22,20 @@ static const Uint32 CHIP_FADE_MS = 1000;   // ~1s fade
 static const Uint32 TITLE_IMG_H = 480;
 static const Uint32 TITLE_IMG_W = 480;
 static const Uint32 TITLE_IMG_Y = 325;
+static const Uint32 GAME_TITLE_H = 140;
+static const Uint32 GAME_TITLE_Y = 140;
+static const Uint32 PRESS_SPACE_H = 60;
+static const Uint32 PRESS_SPACE_Y = 870;
+static const Uint32 STUDIO_BOX_W = 600;
+static const Uint32 STUDIO_BOX_H = 600;
 
 static const Uint32 FADE_MS = 1250;
 static const Uint32 STUDIO_SCREEN_DELAY_MS = 2500; 
 
 static SDL_Rect get_game_title_img_box();
+static SDL_Rect get_game_title_box(const char *title);
+static SDL_Rect get_press_space_box(const char *message);
+static SDL_Rect get_studio_name_box(void);
 
 /* Function: get_game_title_img_box
  * -----------------------------------------------------------------------------
@@ -47,6 +56,36 @@ static SDL_Rect get_game_title_img_box()
 	b.x = (screen_width - b.w)/2;
 	b.y = dm_scale_to_res(TITLE_IMG_Y);
 	return b;
+}
+
+static SDL_Rect get_game_title_box(const char *title)
+{
+	SDL_Rect box;
+	box.h = dm_scale_to_res(GAME_TITLE_H);
+	box.w = get_text_width_fits_height(box.h, (char *)title);
+	box.x = (dm_get_screen_width() - box.w) / 2;
+	box.y = dm_scale_to_res(GAME_TITLE_Y);
+	return box;
+}
+
+static SDL_Rect get_press_space_box(const char *message)
+{
+	SDL_Rect box;
+	box.h = dm_scale_to_res(PRESS_SPACE_H);
+	box.w = get_text_width_fits_height(box.h, (char *)message);
+	box.x = (dm_get_screen_width() - box.w) / 2;
+	box.y = dm_scale_to_res(PRESS_SPACE_Y);
+	return box;
+}
+
+static SDL_Rect get_studio_name_box(void)
+{
+	SDL_Rect box;
+	box.w = dm_scale_to_res(STUDIO_BOX_W);
+	box.h = dm_scale_to_res(STUDIO_BOX_H);
+	box.x = 0;
+	box.y = (dm_get_screen_height() - box.h) / 2;
+	return box;
 }
 
 /* Function: ts_stage_title
@@ -91,7 +130,7 @@ int ts_stage_title(const Uint8 *keystate)
 	
 	bool title_done = sc_typewriter_update(&title, 
 										 cur_time, 
-										 dm_get_game_title_box(GAME_TITLE), 
+										 get_game_title_box(GAME_TITLE), 
 										 GAME_TITLE, 
 										 C_SILVERGREY);
 	if (title_done == true && chip_start_ms == 0) {
@@ -118,7 +157,7 @@ int ts_stage_title(const Uint8 *keystate)
         }
 
 	if (title.texture != NULL){
-		dw_draw_texture_fit_h(dm_get_game_title_box(GAME_TITLE), title.texture);
+		dw_draw_texture_fit_h(get_game_title_box(GAME_TITLE), title.texture);
 	}
 
 	float blink_phase = fmodf((float)(cur_time - start_time), blink_period_ms) 
@@ -132,7 +171,7 @@ int ts_stage_title(const Uint8 *keystate)
 	img = ax_scale_rect_proportion(img, chip_scale);
 	dw_draw_texture_fit_h(img, chip);
 
-	SDL_Rect s = dm_get_press_space_box(PRESS_SPACE);
+	SDL_Rect s = get_press_space_box(PRESS_SPACE);
 	dw_draw_texture_fit_h(s, press_space);
 
 	if (keystate[SDL_SCANCODE_SPACE]){
@@ -178,7 +217,7 @@ int ts_stage_studio(Uint64 start_time, Uint64 cur_time, bool key_pressed)
 		}
 	}
 	
-	SDL_Rect b = dm_get_studio_name_msg_box();
+	SDL_Rect b = get_studio_name_box();
 	int w = ax_get_texture_w_fit_h(b.h, g_logo);
 	b.x = (dm_get_screen_width() - w)/2;
 	b.w = w;

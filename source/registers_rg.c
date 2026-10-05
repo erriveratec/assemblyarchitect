@@ -313,7 +313,7 @@ void rg_draw_flag_boxes()
 	text.h = dm_get_code_button_wh().h;
 	int w = get_text_width_fits_height(text.h, ZF_TEXT);
 	text.y += text.h;
-	text.x += (dm_get_value_box_wh().w - w)/2;
+	text.x += (ax_get_value_box_size().w - w)/2;
 	dw_draw_texture_fit_h(text, g_zf_text);
 	
 	return;
@@ -564,7 +564,7 @@ reg_t *create_register(int id, btn_t *b)
 	reg_t *op = malloc(sizeof(reg_t));	
 	check_mem(op);
 
-	SDL_Rect vb = dm_get_value_box_wh();
+	SDL_Rect vb = ax_get_value_box_size();
 	SDL_Rect cb = dm_get_code_button_wh();
 	op->b = b;
 	op->id = id;
@@ -761,8 +761,8 @@ static void draw_register_value_highlight(value_box_t *value, btn_t *button)
 		return;
 	}
 
-	SDL_Rect value_size = dm_get_value_box_wh();
-	SDL_Rect text_size = dm_get_value_box_val_wh();
+	SDL_Rect value_size = ax_get_value_box_size();
+	SDL_Rect text_size = ax_get_value_text_size();
 	int text_width = ax_get_texture_w_fit_h(text_size.h, value->t);
 	SDL_Rect text = {
 		.x = value->box.x + (value_size.w - text_width) / 2,

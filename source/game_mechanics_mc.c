@@ -14,6 +14,19 @@
 #include "media/audio_au.h"
 #include "gameplay/win_condition_wc.h"
 
+static const int AVATAR_WIDTH = 50;
+static const int AVATAR_HEIGHT = 50;
+
+static SDL_Rect get_avatar_size(void)
+{
+	SDL_Rect size = {
+		.x = 0,
+		.y = 0,
+		.w = dm_scale_to_res(AVATAR_WIDTH),
+		.h = dm_scale_to_res(AVATAR_HEIGHT)
+	};
+	return size;
+}
 
 static bool g_play;
 static bool run_ended;
@@ -187,9 +200,9 @@ void mc_destroy_avatar_textures()
  */
 void mc_init_avatar()
 {
-	SDL_Rect avatar =  dm_get_avatar_wh();
-	SDL_Rect ib = dm_get_stage_input_buffer_box();
-	SDL_Rect vb = dm_get_value_box_wh();
+	SDL_Rect avatar = get_avatar_size();
+	SDL_Rect ib = bf_get_input_buffer_bounds();
+	SDL_Rect vb = ax_get_value_box_size();
 	g_iavatar.id = IAVATAR;
 	g_iavatar.box.x = bf_get_buffer_value_box_x_coord_by_id(IB);	
 	g_iavatar.box.y = ib.y + ib.h + avatar.h;
@@ -220,7 +233,7 @@ void mc_init_avatar()
 	g_iavatar.secval.t = dw_create_text_tex(ax_char_dash, C_WHITE);
 	g_iavatar.color = C_MAGENTA;
 
-	SDL_Rect ob = dm_get_stage_output_buffer_box();
+	SDL_Rect ob = bf_get_output_buffer_bounds();
 	g_oavatar.id = OAVATAR;
 	g_oavatar.box.x = bf_get_buffer_value_box_x_coord_by_id(OB);	
 	g_oavatar.box.y = ob.y - 2*avatar.h;
@@ -321,7 +334,7 @@ void mc_reset_avatar()
  */
 void reset_avatar_no_pos()
 {
-	SDL_Rect avatar =  dm_get_avatar_wh();
+	SDL_Rect avatar = get_avatar_size();
 	g_iavatar.mainval.visible_box = false;
 	g_iavatar.secval.visible_box = false;
 	g_iavatar.in_place = false;
@@ -411,7 +424,7 @@ static void draw_iavatar()
 				  .w= g_iavatar.box.w, .h = g_iavatar.box.h};
 	dw_draw_filled_rectangle(r0, g_iavatar.color, g_iavatar.color);
 
-	SDL_Rect bf = dm_get_stage_input_buffer_box();
+	SDL_Rect bf = bf_get_input_buffer_bounds();
 	int bf_y_lower = bf.y + bf.h;
 	SDL_Rect rb = rg_get_register_box();
 	int medium = (rb.y - bf_y_lower)/2;
@@ -482,7 +495,7 @@ static void draw_oavatar()
 				  .w = g_oavatar.box.w, .h = g_oavatar.box.h};
 	dw_draw_filled_rectangle(r0, g_oavatar.color, g_oavatar.color);
 
-	SDL_Rect bf = dm_get_stage_output_buffer_box();
+	SDL_Rect bf = bf_get_output_buffer_bounds();
 	int bf_y_upper = bf.y;
 	SDL_Rect rb = rg_get_register_box();
 	int medium = (bf_y_upper - (rb.y + rb.h))/2;
@@ -672,7 +685,7 @@ static int get_operand_y_dest(int op_id)
 		y = bf_get_buffer_value_box_y_coord_by_id(op_id);	
 	} else if (op_id > IMM_MIN && op_id < IMM_MAX){
 		y = im_get_imm_value_box_y_coord_by_id(op_id) 
-		    +  dm_get_avatar_wh().h;
+					+  get_avatar_size().h;
 	} else if (op_id == IBOX){
 		y = rg_get_ibox_y();
 	} else if (op_id == OBOX){
@@ -719,7 +732,7 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 	assert(op_id > REG_MIN && op_id < RGBOX_MAX &&
 		   "Invalid operand");
 
-	SDL_Rect avtr = dm_get_avatar_wh();
+	SDL_Rect avtr = get_avatar_size();
 	bool mov = false;
 	int x;
 	int y;
@@ -732,7 +745,7 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 		x = get_operand_x_dest(op_id);
 	}
 
-	SDL_Rect vb = dm_get_value_box_wh();
+	SDL_Rect vb = ax_get_value_box_size();
 	int vbox_offset = dm_get_ofs_reg_value_box();
 	if (op_id > REG_MIN && op_id < REG_MAX){
 		y = get_operand_y_dest(op_id);
@@ -1092,7 +1105,7 @@ static bool deliver_operand(avatar_t *avatar, int op_id)
  */
 static bool retrieve_operand(avatar_t *avatar)
 {
-	SDL_Rect avtr = dm_get_avatar_wh();
+	SDL_Rect avtr = get_avatar_size();
 	int x = avatar->box.x;
 	int y = avatar->box.y - avtr.h;	
 
