@@ -55,6 +55,9 @@ code_end
 [level 06]
 unlocked = true
 code_begin
+MOV rax, [ib]
+ADD rax, rax
+MOV [ob], rax
 code_end
 
 [level 07]
@@ -67,7 +70,6 @@ unlocked = true
 code_begin
 line 01
 MOV rax, [ib]
-MOV rax, rax
 MOV [ob], rax
 JMP 00
 code_end
