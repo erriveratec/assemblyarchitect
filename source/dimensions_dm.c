@@ -20,6 +20,8 @@
 
 #define VALUE_BOX_H 40
 #define VALUE_BOX_W 50
+#define IMM_CELL_H 50
+#define IMM_CELL_W 60
 #define VAL_BOX_XOFS 10
 #define REG_BOX_OFS 25
 #define BET_REG_OFS 5
@@ -617,6 +619,16 @@ SDL_Rect dm_get_value_box_wh()
 	SDL_Rect b;
 	b.w = dm_scale_to_res(VALUE_BOX_W);
 	b.h = dm_scale_to_res(VALUE_BOX_H);
+	b.x = 0;
+	b.y = 0;
+	return b;
+}
+
+SDL_Rect dm_get_imm_cell_wh()
+{
+	SDL_Rect b;
+	b.w = dm_scale_to_res(IMM_CELL_W);
+	b.h = dm_scale_to_res(IMM_CELL_H);
 	b.x = 0;
 	b.y = 0;
 	return b;

@@ -11,6 +11,7 @@
 #include "ui/button_bt.h"
 
 #define TOTAL_IMM 20
+#define IMM_CELL_BORDER_WIDTH 5
 
 
 texture_t *g_imm_txt = NULL;
@@ -23,6 +24,7 @@ static dw_pulse_t g_imm_pulse;
 
 static void init_imm_texture();
 static void draw_imm_txt_up(float pulse);
+static void draw_imm_cell(int index);
 
 typedef struct imm_t{
 	btn_t *b;
@@ -200,13 +202,13 @@ void im_init_imm_assets()
 
 	int x = dm_get_stage_imm_up().x;
 	int y = 0; 
-	SDL_Rect vb = dm_get_value_box_wh();
+	SDL_Rect cell = dm_get_imm_cell_wh();
 	int val = 0;
 	for (int i = 0; i < TOTAL_IMM; i++){
 		g_up_imm[i].val.box.x = x;
 		g_up_imm[i].val.box.y = y;
-		g_up_imm[i].val.box.w = vb.w;
-		g_up_imm[i].val.box.h = vb.h;
+		g_up_imm[i].val.box.w = cell.w;
+		g_up_imm[i].val.box.h = cell.h;
 		g_up_imm[i].val.visible_box = true;
 		
 		g_up_imm[i].val.value = val;
@@ -219,14 +221,14 @@ void im_init_imm_assets()
 
 		if (i <= 9){
 			val++;
-			x += vb.w;
+			x += cell.w;
 		} else if (i == 10){
-			y += vb.h;
-			x = dm_get_stage_imm_up().x + vb.w;
+			y += cell.h;
+			x = dm_get_stage_imm_up().x + cell.w;
 			val = -1;
 		} else {
 			val --;
-			x += vb.w;
+			x += cell.w;
 		}
 	}
 }
@@ -294,7 +296,7 @@ void im_draw_imm()
 		    dw_pulse_value(&g_imm_pulse, anim_limit) : 0.0f;
 		draw_imm_txt_up(pulse);
 		for (int i = 0; i < TOTAL_IMM; i++){
-			ax_draw_value_box(&g_up_imm[i].val, C_WHITE);
+			draw_imm_cell(i);
 		}
 		if (highlighted) {
 			dw_pulse_advance(&g_imm_pulse, anim_limit);
@@ -318,11 +320,11 @@ void im_draw_imm()
 static void draw_imm_txt_up(float pulse)
 {
 	SDL_Rect imm_box = dm_get_stage_imm_up();
-	SDL_Rect vb = dm_get_value_box_wh();
+	SDL_Rect cell = dm_get_imm_cell_wh();
 	int text_h = dm_get_h_stage_elements_titles();
 	int text_w = get_text_width_fits_height(text_h, IMM_TXT);
-	int x = imm_box.x + (11*vb.w - text_w)/2;
-	int y = 2*vb.h;
+	int x = imm_box.x + (11 * cell.w - text_w) / 2;
+	int y = 2 * cell.h;
 
 	if (g_imm_highlight) {
 		SDL_FRect label = {
@@ -339,6 +341,40 @@ static void draw_imm_txt_up(float pulse)
 	} else {
 		SDL_Rect label = {.x = x, .y = y, .h = text_h};
 		dw_draw_texture_fit_h(label, g_imm_txt);
+	}
+}
+
+static void draw_imm_cell(int index)
+{
+	value_box_t *box = &g_up_imm[index].val;
+	int border = dm_scale_to_res(IMM_CELL_BORDER_WIDTH);
+	int shared_leading_border = border / 2;
+	int shared_trailing_border = border - shared_leading_border;
+	bool has_left = (index > 0 && index <= 10) || index >= 12;
+	bool has_right = index < 10 || (index >= 11 && index < TOTAL_IMM - 1);
+	bool has_top = index >= 11;
+	bool has_bottom = index >= 1 && index <= 9;
+	int text_h = dm_get_value_box_val_wh().h;
+	int text_w = box->t != NULL ? ax_get_texture_w_fit_h(text_h, box->t) : 0;
+	SDL_Rect text = {
+		.x = box->box.x + (box->box.w - text_w) / 2,
+		.y = box->box.y + (box->box.h - text_h) / 2,
+		.h = text_h
+	};
+	SDL_Rect inner = box->box;
+	int left_border = has_left ? shared_leading_border : border;
+	int right_border = has_right ? shared_trailing_border : border;
+	int top_border = has_top ? shared_leading_border : border;
+	int bottom_border = has_bottom ? shared_trailing_border : border;
+
+	dw_draw_filled_rectangle(box->box, C_GREY, C_GREY);
+	inner.x += left_border;
+	inner.y += top_border;
+	inner.w -= left_border + right_border;
+	inner.h -= top_border + bottom_border;
+	dw_draw_filled_rectangle(inner, C_BLACK, C_BLACK);
+	if (box->t != NULL) {
+		dw_draw_texture_fit_h(text, box->t);
 	}
 }
 

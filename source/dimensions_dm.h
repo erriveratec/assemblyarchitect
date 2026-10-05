@@ -41,6 +41,7 @@ SDL_Rect dm_get_upper_title_box(char *msg);
 SDL_Rect dm_get_code_button_wh();
 SDL_Rect dm_get_value_box_wh();
 SDL_Rect dm_get_value_box_val_wh();
+SDL_Rect dm_get_imm_cell_wh();
 SDL_Rect dm_get_avatar_wh();
 
 
