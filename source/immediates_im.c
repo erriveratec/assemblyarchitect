@@ -19,6 +19,7 @@
 #define IMM_LABEL_HIGHLIGHT_ENABLED 0
 static const int IMM_CELL_WIDTH = 60;
 static const int IMM_CELL_HEIGHT = 50;
+static const int IMM_LABEL_X = 650;
 static const int IMM_LABEL_Y = 0;
 
 
@@ -29,6 +30,7 @@ static unsigned int g_imm_highlight_sources;
 static bool g_imm_highlight;
 static bool g_imm_highlight_rendered;
 static dw_pulse_t g_imm_pulse;
+static bool g_imm_assets_initialized;
 
 typedef struct imm_cell_borders_t {
 	bool left;
@@ -52,16 +54,35 @@ static void draw_imm_value(const vb_value_box_t *value, float pulse,
 static imm_cell_borders_t get_imm_cell_borders(int index);
 static bool rects_overlap_vertically(SDL_Rect first, SDL_Rect second);
 static bool rects_overlap_horizontally(SDL_Rect first, SDL_Rect second);
+static bool is_valid_imm_id(int id);
+static SDL_Point get_grid_origin(void);
+static SDL_Rect get_cell_bounds_by_index(int index);
 
-imm_t g_up_imm[TOTAL_IMM];
+static imm_t g_up_imm[TOTAL_IMM];
 
-SDL_Rect im_get_upper_label_anchor(void)
+SDL_Rect im_get_grid_bounds(void)
 {
+	SDL_Point origin = get_grid_origin();
+	SDL_Rect cell = im_get_cell_size();
 	SDL_Rect bounds = {
-		.x = rg_get_input_value_box_bounds().x,
-		.y = dm_scale_to_res(IMM_LABEL_Y),
-		.w = 0,
-		.h = ty_stage_label_height()
+		.x = origin.x,
+		.y = origin.y,
+		.w = IMM_FIRST_ROW_COUNT * cell.w,
+		.h = 2 * cell.h
+	};
+	return bounds;
+}
+
+SDL_Rect im_get_label_bounds(void)
+{
+	SDL_Rect grid = im_get_grid_bounds();
+	int text_h = ty_stage_label_height();
+	int text_w = get_text_width_fits_height(text_h, IMM_TXT);
+	SDL_Rect bounds = {
+		.x = grid.x + (grid.w - text_w) / 2,
+		.y = grid.y + grid.h,
+		.w = text_w,
+		.h = text_h
 	};
 	return bounds;
 }
@@ -77,6 +98,42 @@ SDL_Rect im_get_cell_size(void)
 	return size;
 }
 
+static bool is_valid_imm_id(int id)
+{
+	return id > IMM_MIN && id < IMM_MAX;
+}
+
+static SDL_Point get_grid_origin(void)
+{
+	SDL_Rect input_bounds = rg_get_initial_input_value_box_bounds();
+	SDL_Point origin = {
+		.x = dm_scale_to_res(IMM_LABEL_X),
+		.y = dm_scale_to_res(IMM_LABEL_Y)
+	};
+	return origin;
+}
+
+static SDL_Rect get_cell_bounds_by_index(int index)
+{
+	assert(index >= 0 && index < TOTAL_IMM);
+	if (index < 0 || index >= TOTAL_IMM) {
+		return (SDL_Rect){0};
+	}
+	SDL_Point origin = get_grid_origin();
+	SDL_Rect cell = im_get_cell_size();
+	bool first_row = index < IMM_FIRST_ROW_COUNT;
+	int column = first_row ? index :
+	             index - IMM_FIRST_ROW_COUNT + IMM_SECOND_ROW_COLUMN_OFFSET;
+	int row = first_row ? 0 : 1;
+	SDL_Rect bounds = {
+		.x = origin.x + column * cell.w,
+		.y = origin.y + row * cell.h,
+		.w = cell.w,
+		.h = cell.h
+	};
+	return bounds;
+}
+
 /* Function: im_get_buffer_value_box_x_coord_by_id
  *------------------------------------------------------------------------------
  * Arguments:
@@ -87,7 +144,10 @@ SDL_Rect im_get_cell_size(void)
  */
 int im_get_imm_value_box_x_coord_by_id(int id)
 {
-	assert(id > IMM_MIN && id < IMM_MAX && "Invalid buffer id");
+	assert(is_valid_imm_id(id) && "Invalid immediate id");
+	if (!is_valid_imm_id(id)) {
+		return 0;
+	}
 	
 	int index = id - IMMUP0;
 
@@ -104,7 +164,10 @@ int im_get_imm_value_box_x_coord_by_id(int id)
  */
 int im_get_imm_value_box_y_coord_by_id(int id)
 {
-	assert(id > IMM_MIN && id < IMM_MAX && "Invalid buffer id");
+	assert(is_valid_imm_id(id) && "Invalid immediate id");
+	if (!is_valid_imm_id(id)) {
+		return 0;
+	}
 	
 	int index = id - IMMUP0;
 
@@ -124,7 +187,10 @@ int im_get_imm_value_box_y_coord_by_id(int id)
 */
 operand_t *im_create_imm_op_by_id(int op_id)
 {
-	assert(op_id > IMM_MIN && op_id < IMM_MAX && "Invalid op_id");
+	assert(is_valid_imm_id(op_id) && "Invalid immediate id");
+	if (!is_valid_imm_id(op_id)) {
+		return NULL;
+	}
 	operand_t *o = NULL;
 	for (int i = IMMUP0; i < IMM_MAX; i++){
 		if (i == op_id){
@@ -159,7 +225,10 @@ operand_t *im_create_imm_op_by_id(int op_id)
 */
 vb_value_box_t im_get_imm_value_box_by_id(int id)
 {
-	assert(id > IMM_MIN && id < IMM_MAX && "Invalid imm id");
+	assert(is_valid_imm_id(id) && "Invalid immediate id");
+	if (!is_valid_imm_id(id)) {
+		return (vb_value_box_t){0};
+	}
 	int index = id - IMMUP0;
 
 	vb_value_box_t val = g_up_imm[index].val;
@@ -179,7 +248,7 @@ vb_value_box_t im_get_imm_value_box_by_id(int id)
 *	The pointer to the created imm operand
 *
 */
-operand_t *im_create_sel_imm_op()
+operand_t *im_create_sel_imm_op(void)
 {
 	operand_t *o = NULL;
 	int imm_id = IMMUP0;
@@ -245,35 +314,61 @@ bool im_are_immediates_highlighted(void)
  * Return:
  *	Void.
  */
-void im_init_imm_assets()
+void im_init_imm_assets(void)
 {
+	if (g_imm_assets_initialized) {
+		return;
+	}
 	init_imm_texture();
-
-	int start_x = im_get_upper_label_anchor().x;
-	SDL_Rect cell = im_get_cell_size();
 	for (int i = 0; i < TOTAL_IMM; i++){
-		bool first_row = i < IMM_FIRST_ROW_COUNT;
-		int column = first_row ? i :
-		             i - IMM_FIRST_ROW_COUNT + IMM_SECOND_ROW_COLUMN_OFFSET;
-		int row = first_row ? 0 : 1;
-		int value = first_row ? i : -(i - IMM_FIRST_ROW_COUNT + 1);
-		g_up_imm[i].val.box.x = start_x + column * cell.w;
-		g_up_imm[i].val.box.y = row * cell.h;
-		g_up_imm[i].val.box.w = cell.w;
-		g_up_imm[i].val.box.h = cell.h;
+		int value = i < IMM_FIRST_ROW_COUNT ? i :
+		            -(i - IMM_FIRST_ROW_COUNT + 1);
 		g_up_imm[i].val.visible_box = true;
-		
 		g_up_imm[i].val.value = value;
 		char *num = ax_number_to_string(value);
 		g_up_imm[i].val.t = dw_create_text_tex(num, C_WHITE);
 		free(num);
-		g_up_imm[i].b = malloc(sizeof(btn_t));
-		g_up_imm[i].b->r = g_up_imm[i].val.box;
+		g_up_imm[i].b = calloc(1, sizeof(btn_t));
+		assert(g_up_imm[i].b != NULL);
 		g_up_imm[i].b->enabled = true;
 	}
-	for (int i = 0; i < TOTAL_IMM; i++) {
-		g_up_imm[i].borders = get_imm_cell_borders(i);
+	g_imm_assets_initialized = true;
+	im_layout_grid();
+}
+
+void im_layout_grid(void)
+{
+	assert(g_imm_assets_initialized && "Immediate assets must be initialized");
+	if (!g_imm_assets_initialized) {
+		return;
 	}
+	SDL_Rect grid = im_get_grid_bounds();
+	assert(grid.w > 0 && grid.h > 0);
+	for (int index = 0; index < TOTAL_IMM; index++) {
+		SDL_Rect bounds = get_cell_bounds_by_index(index);
+		assert(g_up_imm[index].b != NULL);
+		if (g_up_imm[index].b == NULL) {
+			return;
+		}
+		g_up_imm[index].val.box = bounds;
+		g_up_imm[index].b->r = bounds;
+	}
+	for (int index = 0; index < TOTAL_IMM; index++) {
+		g_up_imm[index].borders = get_imm_cell_borders(index);
+	}
+}
+
+void im_destroy_imm_assets(void)
+{
+	for (int index = 0; index < TOTAL_IMM; index++) {
+		dw_free_texture(g_up_imm[index].val.t);
+		g_up_imm[index].val.t = NULL;
+		free(g_up_imm[index].b);
+		g_up_imm[index].b = NULL;
+	}
+	dw_free_texture(g_imm_txt);
+	g_imm_txt = NULL;
+	g_imm_assets_initialized = false;
 }
 
 /* Function: im_click_up_imm
@@ -286,8 +381,11 @@ void im_init_imm_assets()
  * Return:
  *	True if any of the upper immediates was clicked.
  */
-bool im_ms_rel_in_upimm()
+bool im_ms_rel_in_upimm(void)
 {
+	if (!g_imm_assets_initialized) {
+		return false;
+	}
  	bool rel = false;
 
 	for (int i = 0; i < TOTAL_IMM; i++){
@@ -361,28 +459,22 @@ void im_draw_imm(float animation_limit)
  */
 static void draw_imm_txt_up(float pulse)
 {
-	SDL_Rect imm_box = im_get_upper_label_anchor();
-	SDL_Rect cell = im_get_cell_size();
-	int text_h = ty_stage_label_height();
-	int text_w = get_text_width_fits_height(text_h, IMM_TXT);
-	int x = imm_box.x + (11 * cell.w - text_w) / 2;
-	int y = 2 * cell.h;
+	SDL_Rect label_bounds = im_get_label_bounds();
 
 	if (IMM_LABEL_HIGHLIGHT_ENABLED && g_imm_highlight) {
-		SDL_FRect label = {
-			.x = x,
-			.y = y,
-			.w = get_text_width_fits_height(text_h, IMM_TXT),
-			.h = text_h
+		SDL_FRect highlight_bounds = {
+			.x = label_bounds.x,
+			.y = label_bounds.y,
+			.w = label_bounds.w,
+			.h = label_bounds.h
 		};
-		label = dw_grow_rect_height(
-		    label, pulse * DW_TEXT_HIGHLIGHT_GROWTH_FACTOR);
+		highlight_bounds = dw_grow_rect_height(
+		    highlight_bounds, pulse * DW_TEXT_HIGHLIGHT_GROWTH_FACTOR);
 		dw_set_texture_color_mod(g_imm_txt, C_LIGHTGREY);
-		dw_draw_texture_fit_h_f(label, g_imm_txt);
+		dw_draw_texture_fit_h_f(highlight_bounds, g_imm_txt);
 		dw_set_texture_color_mod(g_imm_txt, C_AMBER);
 	} else {
-		SDL_Rect label = {.x = x, .y = y, .h = text_h};
-		dw_draw_texture_fit_h(label, g_imm_txt);
+		dw_draw_texture_fit_h(label_bounds, g_imm_txt);
 	}
 }
 

@@ -122,6 +122,9 @@ int main(int argc, char *args[])
 						if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){
 							g_width = event.window.data1;
 							g_height = event.window.data2;
+							dm_set_screen_dimensions(g_width, g_height);
+							sb_handle_screen_resize();
+							im_layout_grid();
 						}
 						break;
 				case SDL_KEYDOWN:
@@ -212,5 +215,6 @@ int main(int argc, char *args[])
 		}
 	}
 	rr_destroy();
+	im_destroy_imm_assets();
 }
 

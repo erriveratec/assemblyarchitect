@@ -139,10 +139,12 @@ SDL_Rect tx_get_text_box_wh()
 static SDL_Rect get_text_box_upper_right()
 {
 	SDL_Rect d = tx_get_text_box_wh();
+	SDL_Rect grid = im_get_grid_bounds();
+	SDL_Rect cell = im_get_cell_size();
 	SDL_Rect b;
 	b.w = d.w;
 	b.h = d.h;
-	b.x = im_get_upper_label_anchor().x + 12 * vb_get_size().w;
+	b.x = grid.x + grid.w - cell.w;
 	b.y = dw_get_ofs_iface_filled_border();
 	return b;
 

@@ -292,15 +292,13 @@ static void initialize_zf_arrow()
 static void initialize_imm_up_arrow()
 {
 	SDL_Rect a = ar_get_arrow_wh();
-	SDL_Rect imm_box = im_get_upper_label_anchor();
+	SDL_Rect label_bounds = im_get_label_bounds();
+	SDL_Rect grid_bounds = im_get_grid_bounds();
 	SDL_Rect vb = vb_get_size();
-	int text_h = ty_stage_label_height();
-	int text_w = get_text_width_fits_height(text_h, IMM_TXT);
-	int x = imm_box.x + (11*vb.w)/2;
-	int y = 2*vb.h;
+	int x = label_bounds.x + label_bounds.w / 2;
 
 	g_arrow_imm_up.box.x = x - a.w/2;
-	g_arrow_imm_up.box.y = imm_box.y + text_h + 2*vb.h + a.h;
+	g_arrow_imm_up.box.y = grid_bounds.y + label_bounds.h + 2*vb.h + a.h;
 	g_arrow_imm_up.box.w = a.w;
 	g_arrow_imm_up.box.h = a.h;
 	g_arrow_imm_up.travel = a.w;

@@ -5,6 +5,7 @@
 #include <SDL_ttf.h>
 
 #include "buffers_bf.h"
+#include "arrow_ar.h"
 #include "draw_dw.h"
 #include "ui/value_box_vb.h"
 #include "code_window_cw.h"
@@ -255,6 +256,22 @@ static void test_layout_invariants(void)
 	assert(register_size.x == 0 && register_size.y == 0);
 	assert(register_size.w == 250 && register_size.h == 400);
 	SDL_Rect code_box = cw_get_stage_code_box();
+	SDL_Rect initial_input_bounds = rg_get_initial_input_value_box_bounds();
+	assert(initial_input_bounds.x == code_box.x + code_box.w + 190);
+	assert(rg_get_input_value_box_bounds().x == -60);
+	im_init_imm_assets();
+	SDL_Rect initial_grid = im_get_grid_bounds();
+	assert(initial_grid.x == initial_input_bounds.x);
+	assert(initial_grid.y == 0);
+	assert(initial_grid.w == 660 && initial_grid.h == 100);
+	assert(im_get_imm_value_box_by_id(IMMUP0).box.x == initial_grid.x);
+	dm_set_screen_resolution(DM_RESOLUTION_1600X900);
+	im_layout_grid();
+	assert(im_get_grid_bounds().x == initial_grid.x);
+	assert(im_get_grid_bounds().x + im_get_grid_bounds().w <=
+	       dm_get_screen_width());
+	dm_set_screen_resolution(DM_RESOLUTION_1920X1080);
+	im_layout_grid();
 	rg_set_register_box((SDL_Rect){
 		.x = code_box.x + code_box.w,
 		.y = 0,
@@ -287,6 +304,7 @@ static void test_layout_invariants(void)
 static void test_immediate_grid_geometry(void)
 {
 	im_init_imm_assets();
+	im_layout_grid();
 	SDL_Rect cell_size = im_get_cell_size();
 	SDL_Rect value_size = vb_get_size();
 	assert(cell_size.w > value_size.w);
@@ -311,6 +329,61 @@ static void test_immediate_grid_geometry(void)
 	}
 	assert(cells[11].box.x == cells[0].box.x + cell_size.w);
 	assert(cells[11].box.y == cells[0].box.y + cell_size.h);
+	assert(cells[0].box.x == 710 && cells[0].box.y == 0);
+	assert(cells[10].box.x == 1310 && cells[10].box.y == 0);
+	assert(cells[11].box.x == 770 && cells[11].box.y == 50);
+	assert(cells[19].box.x == 1250 && cells[19].box.y == 50);
+	SDL_Rect grid = im_get_grid_bounds();
+	SDL_Rect label = im_get_label_bounds();
+	assert(grid.x == 710 && grid.y == 0 && grid.w == 660 && grid.h == 100);
+	assert(abs(2 * label.x + label.w - (2 * grid.x + grid.w)) <= 1);
+	assert(label.y == grid.y + grid.h && label.h == ty_stage_label_height());
+	assert(label.w > 0 && label.x >= grid.x && label.x + label.w <= grid.x + grid.w);
+	assert(grid.x + grid.w <= dm_get_screen_width());
+	assert(grid.x + grid.w - cell_size.w == 1310);
+	SDL_Rect arrow_size = ar_get_arrow_wh();
+	SDL_Rect arrow_bounds = {
+		.x = label.x + label.w / 2 - arrow_size.w / 2,
+		.y = grid.y + label.h + 2 * value_size.h + arrow_size.h,
+		.w = arrow_size.w,
+		.h = arrow_size.h
+	};
+	assert(arrow_bounds.x + arrow_bounds.w / 2 == label.x + label.w / 2);
+	printf("immediate geometry: grid=(%d,%d,%d,%d), 0=(%d,%d,%d,%d), "
+	       "10=(%d,%d,%d,%d), -1=(%d,%d,%d,%d), -9=(%d,%d,%d,%d), "
+	       "label=(%d,%d,%d,%d), arrow=(%d,%d,%d,%d), message-x=%d\n",
+	       grid.x, grid.y, grid.w, grid.h,
+	       cells[0].box.x, cells[0].box.y, cells[0].box.w, cells[0].box.h,
+	       cells[10].box.x, cells[10].box.y, cells[10].box.w, cells[10].box.h,
+	       cells[11].box.x, cells[11].box.y, cells[11].box.w, cells[11].box.h,
+	       cells[19].box.x, cells[19].box.y, cells[19].box.w, cells[19].box.h,
+	       label.x, label.y, label.w, label.h,
+	       arrow_bounds.x, arrow_bounds.y, arrow_bounds.w, arrow_bounds.h,
+	       grid.x + grid.w - cell_size.w);
+	for (int index = 0; index < 20; index++) {
+		SDL_Event release = {0};
+		release.button.x = cells[index].box.x + cells[index].box.w / 2;
+		release.button.y = cells[index].box.y + cells[index].box.h / 2;
+		release.button.button = SDL_BUTTON_LEFT;
+		release.button.state = SDL_RELEASED;
+		ms_init_mouse();
+		ms_mouse_button_handler(release);
+		assert(im_ms_rel_in_upimm());
+		operand_t *selected = im_create_sel_imm_op();
+		assert(selected != NULL && selected->id == IMMUP0 + index);
+		cl_destroy_operand(selected);
+	}
+	SDL_Event stale_release = {0};
+	stale_release.button.x = -30;
+	stale_release.button.y = 25;
+	stale_release.button.button = SDL_BUTTON_LEFT;
+	stale_release.button.state = SDL_RELEASED;
+	ms_init_mouse();
+	ms_mouse_button_handler(stale_release);
+	assert(!im_ms_rel_in_upimm());
+	im_destroy_imm_assets();
+	im_init_imm_assets();
+	assert(im_get_imm_value_box_by_id(IMMUP0).box.x == 710);
 	SDL_Rect cell_rects[20];
 	SDL_Rect normal_bounds[20];
 	SDL_Rect repeated_normal_bounds[20];
@@ -395,6 +468,7 @@ int main(void)
 	test_layout_invariants();
 	test_immediate_grid_geometry();
 	TTF_CloseFont(g_font);
+	im_destroy_imm_assets();
 	SDL_DestroyRenderer(g_renderer);
 	SDL_FreeSurface(g_screen);
 	TTF_Quit();

@@ -52,6 +52,7 @@ void rg_destroy_value_boxes();
 void rg_init_reg_texture();
 SDL_Rect rg_get_register_box();
 SDL_Rect rg_get_panel_size(void);
+SDL_Rect rg_get_initial_input_value_box_bounds(void);
 SDL_Rect rg_get_input_value_box_bounds(void);
 SDL_Rect rg_get_output_value_box_bounds(void);
 SDL_Rect rg_get_zero_flag_bounds(void);

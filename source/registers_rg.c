@@ -9,6 +9,7 @@
 #include "draw_dw.h"
 #include "aux.h"
 #include "code_line_cl.h"
+#include "code_window_cw.h"
 #include "dimensions_dm.h"
 #include "stage_buttons_sb.h"
 #include "ui/ui_metrics_um.h"
@@ -70,6 +71,21 @@ SDL_Rect rg_get_input_value_box_bounds(void)
 	SDL_Rect bounds = {
 		.x = panel.x + panel.w - value_size.w - value_size.w / 5,
 		.y = register_bounds.y - value_size.h - value_size.h / 4,
+		.w = value_size.w,
+		.h = value_size.h
+	};
+	return bounds;
+}
+
+SDL_Rect rg_get_initial_input_value_box_bounds(void)
+{
+	SDL_Rect code_box = cw_get_stage_code_box();
+	SDL_Rect panel_size = rg_get_panel_size();
+	SDL_Rect value_size = vb_get_size();
+	SDL_Rect bounds = {
+		.x = code_box.x + code_box.w + panel_size.w - value_size.w -
+		     value_size.w / 5,
+		.y = -value_size.h - value_size.h / 4,
 		.w = value_size.w,
 		.h = value_size.h
 	};
