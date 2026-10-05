@@ -29,6 +29,7 @@ static const int CODE_COMMA_OFFSET = 15;
 static const int MISSING_OPERAND_WIDTH = 3;
 
 static List *code_list = NULL;
+static code_line_t *g_held_line;
 
 
 static SDL_Rect g_code_box;
@@ -68,6 +69,8 @@ static operand_t *create_updated_jump_operand(code_line_t *jmp_addr);
 static code_line_t *get_clicked_label_code_line();
 static operand_t *create_saved_jump_operand(int op1_id);
 static SDL_Rect get_scroll_box();
+static bool snapshot_line(const code_line_t *line,
+						  aa_legacy_line_snapshot_t *snapshot);
 
 int cw_get_code_line_spacing(void)
 {
@@ -337,6 +340,12 @@ static void update_jump_instructions()
 	}
 error:
 	return;
+}
+
+void cw_refresh_label_and_jump_presentation(void)
+{
+	update_label_instructions();
+	update_jump_instructions();
 }
 
 /* Function: cw_create_jmp_op
@@ -971,6 +980,53 @@ List *get_code_list()
 	return code_list;
 }
 
+static size_t code_list_reader_count(const void *context)
+{
+	const List *code = context;
+	if (code == NULL || code->count < 0) {
+		return 0;
+	}
+	return (size_t)code->count;
+}
+
+static bool code_list_reader_read(const void *context, size_t position,
+								  aa_legacy_line_snapshot_t *snapshot)
+{
+	const List *code = context;
+	if (code == NULL || snapshot == NULL || code->count < 0 ||
+		position >= (size_t)code->count) {
+		return false;
+	}
+	const ListNode *node = code->first;
+	for (size_t index = 0; index < position; index++) {
+		if (node == NULL) {
+			return false;
+		}
+		node = node->next;
+	}
+	if (node == NULL) {
+		return false;
+	}
+	const code_line_t *line = node->value;
+	if (line == NULL || line->ins == NULL) {
+		return false;
+	}
+	return snapshot_line(line, snapshot);
+}
+
+bool cw_get_legacy_program_reader(aa_legacy_program_reader_t *reader)
+{
+	if (reader == NULL || code_list == NULL) {
+		return false;
+	}
+	*reader = (aa_legacy_program_reader_t){
+		.count = code_list_reader_count,
+		.read_line = code_list_reader_read,
+		.context = code_list
+	};
+	return true;
+}
+
 /* Function: cw_get_clicked_code
  *------------------------------------------------------------------------------
  * This function returns a pointer to the selected code line
@@ -1127,6 +1183,7 @@ error:
  */
 void cw_destroy_code_window_assets()
 {
+	g_held_line = NULL;
 	dw_free_texture(g_stage_name);
 	dw_free_texture_array(g_challenge_text);
 	List *code = get_code_list();
@@ -1724,6 +1781,9 @@ static void display_player_code()
 	int number_ofs = um_padding_horizontal_with_border();
 	LIST_FOREACH(code, first, next, cur){
 		code_line_t *line = cur->value;	
+		if (line == g_held_line) {
+			continue;
+		}
 		bt_draw_btn(line->ins->b, sb_chk_rst_esc_menu_active(), false);
 		
 		if (line->op1 != NULL){
@@ -2069,6 +2129,206 @@ int get_code_line_position(int y)
  * Return:
  *	Void.
  */
+static bool snapshot_line(const code_line_t *line,
+						  aa_legacy_line_snapshot_t *snapshot)
+{
+	if (line == NULL || line->ins == NULL || snapshot == NULL) {
+		return false;
+	}
+	aa_legacy_line_snapshot_t result = {
+		.identity = line,
+		.opcode = line->ins->id,
+		.line_state = line->state
+	};
+	if (line->op1 != NULL) {
+		result.has_operand_1 = true;
+		result.operand_1 = line->op1->id;
+		if (line->ins->id == JMP || line->ins->id == JE ||
+			line->ins->id == JNE) {
+			result.jump_target_identity = line->op1->jptr;
+		}
+	}
+	if (line->op2 != NULL) {
+		result.has_operand_2 = true;
+		result.operand_2 = line->op2->id;
+	}
+	*snapshot = result;
+	return true;
+}
+
+static size_t code_line_position(const code_line_t *line)
+{
+	if (code_list == NULL || line == NULL) {
+		return SIZE_MAX;
+	}
+	size_t position = 0;
+	LIST_FOREACH(code_list, first, next, cur) {
+		if (cur->value == line) {
+			return position;
+		}
+		position++;
+	}
+	return SIZE_MAX;
+}
+
+static void unlink_node_without_free(List *code, ListNode *node)
+{
+	if (node->prev != NULL) {
+		node->prev->next = node->next;
+	} else {
+		code->first = node->next;
+	}
+	if (node->next != NULL) {
+		node->next->prev = node->prev;
+	} else {
+		code->last = node->prev;
+	}
+}
+
+cw_existing_edit_result_t cw_edit_existing_line_authoritatively(
+	code_line_t *line,
+	bool arrange,
+	bool delete_enabled,
+	bool program_has_control_flow,
+	cw_existing_edit_authority_fn commit_domain,
+	void *context)
+{
+	if (line == NULL || line->ins == NULL || code_list == NULL ||
+		commit_domain == NULL || code_list->count < 0 ||
+		program_has_control_flow ||
+		(line->ins->id != MOV && line->ins->id != ADD &&
+		 line->ins->id != CMP)) {
+		return CW_EXISTING_EDIT_NOT_APPLICABLE;
+	}
+	size_t from = code_line_position(line);
+	if (from == SIZE_MAX) {
+		return CW_EXISTING_EDIT_NOT_APPLICABLE;
+	}
+	cw_existing_edit_kind_t kind;
+	size_t to = from;
+	if (!in_code_window() && delete_enabled) {
+		kind = CW_EXISTING_EDIT_REMOVE;
+	} else if (arrange) {
+		kind = CW_EXISTING_EDIT_MOVE;
+		size_t remaining_count = (size_t)List_count(code_list) - 1;
+		int row = (ms_get_mouse_y() - cw_get_code_line_y(0)) /
+			cw_get_code_line_spacing();
+		if (row < 0) {
+			to = 0;
+		} else if ((size_t)row > remaining_count) {
+			to = remaining_count;
+		} else {
+			to = (size_t)row;
+		}
+		if (to == from) {
+			return CW_EXISTING_EDIT_NO_CHANGE;
+		}
+	} else {
+		return CW_EXISTING_EDIT_NO_CHANGE;
+	}
+	aa_legacy_line_snapshot_t snapshot;
+	if (!snapshot_line(line, &snapshot) ||
+		!commit_domain(kind, from, to, &snapshot, context)) {
+		return CW_EXISTING_EDIT_FAILED;
+	}
+	ListNode *node = get_list_node_by_value(line);
+	if (kind == CW_EXISTING_EDIT_REMOVE) {
+		List_remove(code_list, node);
+		g_held_line = NULL;
+		return CW_EXISTING_EDIT_COMMITTED;
+	}
+	unlink_node_without_free(code_list, node);
+	ListNode *destination = code_list->first;
+	for (size_t position = 0; position < to && destination != NULL; position++) {
+		destination = destination->next;
+	}
+	if (destination == NULL) {
+		node->prev = code_list->last;
+		node->next = NULL;
+		if (code_list->last != NULL) {
+			code_list->last->next = node;
+		} else {
+			code_list->first = node;
+		}
+		code_list->last = node;
+	} else {
+		node->next = destination;
+		node->prev = destination->prev;
+		if (destination->prev != NULL) {
+			destination->prev->next = node;
+		} else {
+			code_list->first = node;
+		}
+		destination->prev = node;
+	}
+	g_held_line = NULL;
+	return CW_EXISTING_EDIT_COMMITTED;
+}
+
+static size_t get_drop_position(void)
+{
+	List *code = get_code_list();
+	size_t count = (size_t)List_count(code);
+	if (count == 0) {
+		return 0;
+	}
+	code_line_t *first = code->first->value;
+	code_line_t *last = code->last->value;
+	int mouse_y = ms_get_mouse_y();
+	if (mouse_y < first->ins->b->r.y) {
+		return 0;
+	}
+	if (mouse_y >= last->ins->b->r.y + last->ins->b->r.h) {
+		return count;
+	}
+	int position = get_code_line_position(mouse_y);
+	return position == NOT_FOUND ? count : (size_t)position;
+}
+
+cw_append_result_t cw_append_new_line_authoritatively(
+	code_line_t *line,
+	bool arrange,
+	bool delete_enabled,
+	cw_append_authority_fn commit_domain,
+	void *context)
+{
+	if (line == NULL || line->ins == NULL || commit_domain == NULL ||
+		code_list == NULL || code_list->count < 0 ||
+		cw_check_if_in_code_list(line)) {
+		return CW_APPEND_NOT_APPLICABLE;
+	}
+	int opcode = line->ins->id;
+	if ((opcode != MOV && opcode != ADD && opcode != CMP) ||
+		(!in_code_window() && delete_enabled)) {
+		return CW_APPEND_NOT_APPLICABLE;
+	}
+	if (arrange && get_drop_position() != (size_t)List_count(code_list)) {
+		return CW_APPEND_NOT_APPLICABLE;
+	}
+	aa_legacy_line_snapshot_t snapshot;
+	if (!snapshot_line(line, &snapshot)) {
+		return CW_APPEND_FAILED;
+	}
+	ListNode *node = calloc(1, sizeof(*node));
+	if (node == NULL) {
+		return CW_APPEND_FAILED;
+	}
+	if (!commit_domain(&snapshot, context)) {
+		free(node);
+		return CW_APPEND_FAILED;
+	}
+	node->value = line;
+	node->prev = code_list->last;
+	if (code_list->last != NULL) {
+		code_list->last->next = node;
+	} else {
+		code_list->first = node;
+	}
+	code_list->last = node;
+	code_list->count++;
+	return CW_APPEND_COMMITTED;
+}
+
 static void add_code_line_last_pos(code_line_t *line)
 {
 	List *code = get_code_list();
@@ -2194,6 +2454,7 @@ static bool chk_sel_line_in_pos(code_line_t *line)
 void cw_clear_code_list()
 {
 	List *code = get_code_list();
+	g_held_line = NULL;
 
 	while (cw_get_code_list_size() > 0){
 		code_line_t *line = cw_get_code_line_at_pos(0);
@@ -2266,6 +2527,14 @@ void cw_player_holding_instruction(code_line_t *line, bool arng, bool del)
 		}
 	}
 
+	cw_draw_held_instruction(line);
+	return;
+}
+
+void cw_draw_held_instruction(code_line_t *line)
+{
+	assert(line != NULL && "The code line object is NULL");
+	g_held_line = line;
 	line->ins->b->r.x = ms_get_mouse_x() - line->ins->b->r.w/2;
 	line->ins->b->r.y = ms_get_mouse_y() - line->ins->b->r.h/2;
 	int op1_ofs = cw_get_operand1_offset();
@@ -2282,6 +2551,11 @@ void cw_player_holding_instruction(code_line_t *line, bool arng, bool del)
 		bt_draw_btn(line->op2->b, em_get_escape_state(), false);
 	}
 	bt_draw_btn(line->ins->b, em_get_escape_state(), false);
+}
+
+void cw_clear_held_instruction(void)
+{
+	g_held_line = NULL;
 }
 
 /* Function: cw_is_operand_1_pending

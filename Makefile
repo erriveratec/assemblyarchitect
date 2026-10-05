@@ -19,6 +19,14 @@ OPERAND_TEST_EXEC = operand_highlights_test
 OPERAND_TEST_SOURCE = tests/operand_highlights_test.c
 LEVEL_CONFIG_HOVER_TEST_EXEC = level_config_hover_test
 LEVEL_CONFIG_HOVER_TEST_SOURCE = tests/level_config_hover_test.c
+PROGRAM_CHARACTERIZATION_TEST_EXEC = program_characterization_test
+PROGRAM_CHARACTERIZATION_TEST_SOURCE = tests/program_characterization_test.c
+PROGRAM_DOMAIN_TEST_EXEC = program_domain_test
+PROGRAM_DOMAIN_TEST_SOURCE = tests/program_domain_test.c
+PROGRAM_ADAPTER_TEST_EXEC = program_adapter_test
+PROGRAM_ADAPTER_TEST_SOURCE = tests/program_adapter_test.c
+PROGRAM_EDITOR_SYNC_TEST_EXEC = program_editor_sync_test
+PROGRAM_EDITOR_SYNC_TEST_SOURCE = tests/program_editor_sync_test.c
 
  
 ############################
@@ -77,7 +85,7 @@ build:
 run: build
 	./$(EXEC)
 
-test: test-level-config-hover test-operand-highlights
+test: test-level-config-hover test-operand-highlights test-program-characterization test-program-domain
 	$(CC) $(CFLAGS) $(TEST_SOURCE) $(TEST_SOURCES) -o $(TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(TEST_EXEC)
@@ -91,6 +99,29 @@ test-level-config-hover:
 	$(CC) $(CFLAGS) $(LEVEL_CONFIG_HOVER_TEST_SOURCE) $(TEST_SOURCES) -o $(LEVEL_CONFIG_HOVER_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(LEVEL_CONFIG_HOVER_TEST_EXEC)
+
+test-program-characterization:
+	$(CC) $(CFLAGS) $(PROGRAM_CHARACTERIZATION_TEST_SOURCE) $(TEST_SOURCES) -o $(PROGRAM_CHARACTERIZATION_TEST_EXEC) \
+	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
+	./$(PROGRAM_CHARACTERIZATION_TEST_EXEC)
+
+test-program-domain:
+	$(CC) $(CFLAGS) $(PROGRAM_DOMAIN_TEST_SOURCE) source/domain/program.c -o $(PROGRAM_DOMAIN_TEST_EXEC)
+	./$(PROGRAM_DOMAIN_TEST_EXEC)
+
+test-program-adapter:
+	$(CC) $(CFLAGS) -Wall -Wextra -Werror $(PROGRAM_ADAPTER_TEST_SOURCE) \
+	    source/migration/legacy_program_adapter.c source/domain/program.c \
+	    -o $(PROGRAM_ADAPTER_TEST_EXEC)
+	./$(PROGRAM_ADAPTER_TEST_EXEC)
+
+test-program-editor-sync:
+	$(CC) -std=c11 -Wall -Wextra -Werror -Isource -fsyntax-only \
+	    source/domain/program.c source/migration/legacy_program_adapter.c
+	$(CC) $(CFLAGS) $(PROGRAM_EDITOR_SYNC_TEST_SOURCE) \
+	    $(TEST_SOURCES) -o $(PROGRAM_EDITOR_SYNC_TEST_EXEC) \
+	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
+	./$(PROGRAM_EDITOR_SYNC_TEST_EXEC)
 
 ############################
 # App bundle target
@@ -176,7 +207,7 @@ app: build
 ############################
 
 clean:
-	rm -rf $(EXEC) $(APP_BUNDLE) $(TEST_EXEC) $(LEVEL_CONFIG_HOVER_TEST_EXEC)
+	rm -rf $(EXEC) $(APP_BUNDLE) $(TEST_EXEC) $(LEVEL_CONFIG_HOVER_TEST_EXEC) $(PROGRAM_CHARACTERIZATION_TEST_EXEC) $(PROGRAM_DOMAIN_TEST_EXEC) $(PROGRAM_ADAPTER_TEST_EXEC) $(PROGRAM_EDITOR_SYNC_TEST_EXEC)
 	find . -type d -name '*.dSYM' -prune -exec rm -rf {} +
 	rm -rf assemblyArchitect*
 	rm -f source/.*.swp

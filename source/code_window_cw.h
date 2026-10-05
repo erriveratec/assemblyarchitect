@@ -3,6 +3,7 @@
 
 #include <SDL.h>
 #include "code_line_cl.h"
+#include "migration/legacy_program_adapter.h"
 
 #define CW_EMPTY 0
 #define MAX_CODE_LINES 99
@@ -19,6 +20,35 @@ enum code_line_element{
 	CW_LABEL
 };
 
+typedef enum cw_append_result {
+	CW_APPEND_NOT_APPLICABLE = 0,
+	CW_APPEND_COMMITTED,
+	CW_APPEND_FAILED
+} cw_append_result_t;
+
+typedef bool (*cw_append_authority_fn)(
+	const aa_legacy_line_snapshot_t *snapshot,
+	void *context);
+
+typedef enum cw_existing_edit_kind {
+	CW_EXISTING_EDIT_REMOVE,
+	CW_EXISTING_EDIT_MOVE
+} cw_existing_edit_kind_t;
+
+typedef enum cw_existing_edit_result {
+	CW_EXISTING_EDIT_NOT_APPLICABLE = 0,
+	CW_EXISTING_EDIT_NO_CHANGE,
+	CW_EXISTING_EDIT_COMMITTED,
+	CW_EXISTING_EDIT_FAILED
+} cw_existing_edit_result_t;
+
+typedef bool (*cw_existing_edit_authority_fn)(
+	cw_existing_edit_kind_t kind,
+	size_t from,
+	size_t to,
+	const aa_legacy_line_snapshot_t *snapshot,
+	void *context);
+
 void cw_draw_code_window();
 void cw_create_code_list();
 void cw_set_scroll_box(SDL_Rect r);
@@ -28,6 +58,22 @@ void cw_set_challenge_highlight(bool enabled);
 void cw_set_code_box_highlight(bool enabled);
 void cw_set_stage_name(char *text);
 void cw_player_holding_instruction(code_line_t *line, bool arng, bool del);
+void cw_draw_held_instruction(code_line_t *line);
+void cw_clear_held_instruction(void);
+void cw_refresh_label_and_jump_presentation(void);
+cw_append_result_t cw_append_new_line_authoritatively(
+	code_line_t *line,
+	bool arrange,
+	bool delete_enabled,
+	cw_append_authority_fn commit_domain,
+	void *context);
+cw_existing_edit_result_t cw_edit_existing_line_authoritatively(
+	code_line_t *line,
+	bool arrange,
+	bool delete_enabled,
+	bool program_has_control_flow,
+	cw_existing_edit_authority_fn commit_domain,
+	void *context);
 bool cw_check_if_in_code_list(code_line_t *instruction);
 bool cw_chk_click_code();
 bool cw_chk_rclick_code();
@@ -47,6 +93,7 @@ bool cw_chk_click_code_op2(int code_line_pos);
 
 void cw_change_clicked_code_line_state();
 int cw_get_code_list_size();
+bool cw_get_legacy_program_reader(aa_legacy_program_reader_t *reader);
 int cw_get_instruction_at_code_pos(int position);
 int cw_get_instruction_operand(int position, int operand_number);
 code_line_t *cw_get_code_line_at_pos(int pos);

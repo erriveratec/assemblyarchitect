@@ -485,6 +485,9 @@ void bt_draw_iface_btn_nopad(iface_btn_t *b)
 btn_t *bt_create_btn(SDL_Rect r, texture_t *t)
 {
 	btn_t *new_button = malloc(sizeof(btn_t));
+	if (new_button == NULL) {
+		return NULL;
+	}
 	new_button->r = r;
 	new_button->t = t;
 	new_button->animated = false;

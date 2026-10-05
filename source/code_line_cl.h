@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include "ui/button_bt.h"
+#include "legacy_code_ids.h"
 
 typedef struct code_line_t code_line_t;
 
@@ -25,98 +26,6 @@ struct code_line_t{
 };
 
 SDL_Rect cl_get_code_button_size(void);
-
-enum instructions{
-	INVALID_INSTRUCTION,
-	INSTRUCTION_MIN,
-	MOV,
-	ADD,
-	LABEL,
-	JMP,
-	CMP,
-	JE,
-	JNE,
-	INSTRUCTION_MAX
-};
-
-enum instruction_operand_quantity{
-	ZERO_OPERANDS,
-	ONE_OPERAND,
-	TWO_OPERANDS
-};
-
-enum operands{
-	INVALID_OPERAND,
-	OP1,
-	OP2,
-	BOTH_OPERANDS,
-	NO_OPERAND,
-	REG_MIN,
-	RAX,
-	RBX,
-	RCX,
-	RDX,
-	RDI,
-	REG_MAX,
-	FLAG_MIN,
-	ZF,
-	FLAG_MAX,
-	MEMORY_MIN,
-	MEMORY_MAX,
-	BUF_MIN,
-	IB,
-	OB,
-	BUF_MAX,
-	IMM_MIN,
-	IMMUP0,
-	IMMUP1,
-	IMMUP2,
-	IMMUP3,
-	IMMUP4,
-	IMMUP5, 
-	IMMUP6, 
-	IMMUP7,
-	IMMUP8,
-	IMMUP9,
-	IMMUP10,
-	IMMUP_1,
-	IMMUP_2,
-	IMMUP_3,
-	IMMUP_4,
-	IMMUP_5, 
-	IMMUP_6, 
-	IMMUP_7,
-	IMMUP_8,
-	IMMUP_9,
-	IMMDO0,
-	IMMDO1,
-	IMMDO2,
-	IMMDO3,
-	IMMDO4,
-	IMMDO5, 
-	IMMDO6, 
-	IMMDO7,
-	IMMDO8,
-	IMMDO9,
-	IMM_MAX,
-	RGBOX_MIN,
-	IBOX,
-	OBOX,
-	RGBOX_MAX,
-};
-
-enum line_state{
-	STATE_MIN,
-	MISSING_BOTH,
-	MISSING_OP1,
-	MISSING_OP2,
-	CHANGING_OP1,
-	CHANGING_OP2,
-	COMPLETE,
-	IN_EXECUTION,
-	EXECUTED,
-	STATE_MAX
-	};
 
 extern char *add_text;
 extern char *mov_text;

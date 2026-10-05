@@ -1,5 +1,7 @@
 #include <stdbool.h>
 #include <assert.h>
+#include <stdio.h>
+#include "domain/program.h"
 #include "mouse_ms.h"
 #include "sdl_config.h"
 #include "aux.h"
@@ -60,12 +62,19 @@ static bool initialize_game_assets()
 
 int main(int argc, char *args[])
 {
+	/* The app owns this mirror; its current-level contents are cleared on exit. */
+	aa_program_t *program = aa_program_create();
+	if (program == NULL) {
+		fputs("Could not create application program model\n", stderr);
+		return FAIL;
+	}
 	dm_set_screen_resolution(DM_RESOLUTION_1920X1080);
 	int screen_width = dm_get_screen_width();
 	int screen_height = dm_get_screen_height();
 
 	if (init_sdl(screen_width, screen_height, argc, args) == FAIL){
 		printf("SDL could not be initialized");
+		aa_program_destroy(program);
 		return FAIL;
 	}
 	SDL_PixelFormat *format = g_screen->format;
@@ -77,6 +86,7 @@ int main(int argc, char *args[])
 	load_media();
 	sv_save_init_default();
 	if (!initialize_game_assets()) {
+		aa_program_destroy(program);
 		return FAIL;
 	}
 
@@ -179,11 +189,11 @@ int main(int argc, char *args[])
 				}
 				break;
 			case LV_INITIALIZE_LEVEL:
-				init_level(level);
+				init_level(level, program);
 				state = LV_PLAY_LEVEL;
 				break;
 			case LV_PLAY_LEVEL:
-				state = stage_level(level);
+				state = stage_level(level, program);
 				break;
 		}
 		em_render_escape_menu(em_get_escape_state());
@@ -211,6 +221,8 @@ int main(int argc, char *args[])
 			SDL_Delay(sleep);
 		}
 	}
+	stages_cancel_pending_edit();
+	aa_program_destroy(program);
 	rr_destroy();
 }
 

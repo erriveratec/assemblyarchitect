@@ -4,10 +4,13 @@
 #include <SDL.h>
 #include <SDL_mixer.h>
 #include <stdbool.h>
+#include "domain/program.h"
 
 extern bool g_quit;
 extern int g_player;
 
-int stage_level(int level);
+void init_level(int level, aa_program_t *program);
+int stage_level(int level, aa_program_t *program);
+void stages_cancel_pending_edit(void);
 
 #endif
