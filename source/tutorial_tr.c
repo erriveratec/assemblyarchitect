@@ -16,6 +16,7 @@
 #include "registers_rg.h"
 #include "text_tx.h"
 #include "tutorial_tr.h"
+#include "tutorial_tr_internal.h"
 #include "game_mechanics_mc.h"
 
 #define TUTORIAL_PATH_FORMAT "data/levels/%02d/tutorial.cfg"
@@ -153,7 +154,9 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 	rg_set_register_highlight_source(
 	    UI_HIGHLIGHT_SOURCE_TUTORIAL,
 	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_REGISTERS) != 0);
-	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
+	im_set_highlight_source(
+	    UI_HIGHLIGHT_SOURCE_TUTORIAL,
+	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_IMMEDIATES) != 0);
 	iw_set_highlight_instructions(step->highlight_instruction_mask);
 
 	if (step != g_current_step) {
@@ -207,7 +210,7 @@ static bool parse_effect_bool(const char *text, int *result)
 	return false;
 }
 
-static bool parse_highlights(char *text, int *targets)
+bool tr_parse_highlights(char *text, int *targets)
 {
 	if (text == NULL || targets == NULL) {
 		return false;
@@ -231,6 +234,8 @@ static bool parse_highlights(char *text, int *targets)
 			*targets |= TUTORIAL_HIGHLIGHT_OUTPUT_BUFFER;
 		} else if (strcmp(highlight, "register") == 0) {
 			*targets |= TUTORIAL_HIGHLIGHT_REGISTERS;
+		} else if (strcmp(highlight, "immediate") == 0) {
+			*targets |= TUTORIAL_HIGHLIGHT_IMMEDIATES;
 		} else {
 			return false;
 		}
@@ -990,7 +995,7 @@ bool tr_load_level(int level_id)
 			}
 		}
 		if (strcmp(key, "highlight") == 0 &&
-		    !parse_highlights(value, &step->highlight_targets)) {
+		    !tr_parse_highlights(value, &step->highlight_targets)) {
 			goto invalid;
 		}
 		if (strcmp(key, "highlight_instruction") == 0 &&

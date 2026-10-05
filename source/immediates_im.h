@@ -11,6 +11,7 @@
 void im_set_imm_up_avail(bool state);
 bool im_are_imm_up_available(void);
 void im_set_highlight_source(ui_highlight_source_t source, bool enabled);
+bool im_are_immediates_highlighted(void);
 void im_draw_imm();
 void im_init_imm_assets();
 bool im_ms_rel_in_upimm();

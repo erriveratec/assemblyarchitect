@@ -1,5 +1,0 @@
----
-triple:          'arm64-apple-darwin'
-binary-path:     operand_highlights_test
-relocations:     []
-...

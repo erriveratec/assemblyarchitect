@@ -12,6 +12,7 @@
 
 #define TOTAL_IMM 20
 #define IMM_CELL_BORDER_WIDTH 5
+#define IMM_LABEL_HIGHLIGHT_ENABLED 0
 
 
 texture_t *g_imm_txt = NULL;
@@ -24,7 +25,7 @@ static dw_pulse_t g_imm_pulse;
 
 static void init_imm_texture();
 static void draw_imm_txt_up(float pulse);
-static void draw_imm_cell(int index);
+static void draw_imm_cell(int index, float pulse, bool highlighted);
 
 typedef struct imm_t{
 	btn_t *b;
@@ -186,6 +187,11 @@ void im_set_highlight_source(ui_highlight_source_t source, bool enabled)
 	g_imm_highlight = g_imm_highlight_sources != 0;
 }
 
+bool im_are_immediates_highlighted(void)
+{
+	return g_imm_highlight;
+}
+
 /* Function: im_init_imm_assets
  *------------------------------------------------------------------------------
  * Initializes the assets of the immediates of the level
@@ -296,7 +302,7 @@ void im_draw_imm()
 		    dw_pulse_value(&g_imm_pulse, anim_limit) : 0.0f;
 		draw_imm_txt_up(pulse);
 		for (int i = 0; i < TOTAL_IMM; i++){
-			draw_imm_cell(i);
+			draw_imm_cell(i, pulse, highlighted);
 		}
 		if (highlighted) {
 			dw_pulse_advance(&g_imm_pulse, anim_limit);
@@ -326,7 +332,7 @@ static void draw_imm_txt_up(float pulse)
 	int x = imm_box.x + (11 * cell.w - text_w) / 2;
 	int y = 2 * cell.h;
 
-	if (g_imm_highlight) {
+	if (IMM_LABEL_HIGHLIGHT_ENABLED && g_imm_highlight) {
 		SDL_FRect label = {
 			.x = x,
 			.y = y,
@@ -344,7 +350,7 @@ static void draw_imm_txt_up(float pulse)
 	}
 }
 
-static void draw_imm_cell(int index)
+static void draw_imm_cell(int index, float pulse, bool highlighted)
 {
 	value_box_t *box = &g_up_imm[index].val;
 	int border = dm_scale_to_res(IMM_CELL_BORDER_WIDTH);
@@ -374,7 +380,21 @@ static void draw_imm_cell(int index)
 	inner.h -= top_border + bottom_border;
 	dw_draw_filled_rectangle(inner, C_BLACK, C_BLACK);
 	if (box->t != NULL) {
-		dw_draw_texture_fit_h(text, box->t);
+		if (highlighted) {
+			SDL_FRect animated_text = {
+				.x = text.x,
+				.y = text.y,
+				.w = text_w,
+				.h = text_h
+			};
+			animated_text = dw_grow_rect_height(
+			    animated_text, pulse * DW_TEXT_HIGHLIGHT_GROWTH_FACTOR);
+			dw_set_texture_color_mod(box->t, C_LIGHTGREY);
+			dw_draw_texture_fit_h_f(animated_text, box->t);
+			dw_set_texture_color_mod(box->t, C_WHITE);
+		} else {
+			dw_draw_texture_fit_h(text, box->t);
+		}
 	}
 }
 

@@ -170,6 +170,7 @@ app: build
 
 clean:
 	rm -rf $(EXEC) $(APP_BUNDLE) $(TEST_EXEC)
+	find . -type d -name '*.dSYM' -prune -exec rm -rf {} +
 	rm -rf assemblyArchitect*
 	rm -f source/.*.swp
 	rm -f data/.*.swp
