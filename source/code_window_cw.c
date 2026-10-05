@@ -2430,19 +2430,29 @@ cw_existing_edit_result_t cw_edit_existing_line_authoritatively(
 	code_line_t *line,
 	bool arrange,
 	bool delete_enabled,
-	bool program_has_control_flow,
+	bool authority_allowed,
 	cw_existing_edit_authority_fn commit_domain,
 	void *context)
 {
 	if (line == NULL || line->ins == NULL || code_list == NULL ||
-		commit_domain == NULL || code_list->count < 0 ||
-		program_has_control_flow ||
-		(line->ins->id != MOV && line->ins->id != ADD &&
-		 line->ins->id != CMP)) {
+		commit_domain == NULL || code_list->count < 0) {
+		return CW_EXISTING_EDIT_NOT_APPLICABLE;
+	}
+	if (!authority_allowed ||
+		(g_held_line != NULL && g_held_line != line) ||
+		line->state == CHANGING_OP1 || line->state == CHANGING_OP2) {
+		return CW_EXISTING_EDIT_FAILED;
+	}
+	if (line->ins->id != MOV && line->ins->id != ADD &&
+		line->ins->id != CMP) {
 		return CW_EXISTING_EDIT_NOT_APPLICABLE;
 	}
 	size_t from = code_line_position(line);
 	if (from == SIZE_MAX) {
+		return CW_EXISTING_EDIT_NOT_APPLICABLE;
+	}
+	ListNode *node = get_list_node_by_value(line);
+	if (node == NULL) {
 		return CW_EXISTING_EDIT_NOT_APPLICABLE;
 	}
 	cw_existing_edit_kind_t kind;
@@ -2467,15 +2477,45 @@ cw_existing_edit_result_t cw_edit_existing_line_authoritatively(
 	} else {
 		return CW_EXISTING_EDIT_NO_CHANGE;
 	}
+	size_t count = (size_t)code_list->count;
+	size_t proposed_count = kind == CW_EXISTING_EDIT_REMOVE ? count - 1 : count;
+	if (proposed_count > SIZE_MAX / sizeof(code_line_t *)) {
+		return CW_EXISTING_EDIT_FAILED;
+	}
+	code_line_t **order = proposed_count == 0 ? NULL :
+		malloc(proposed_count * sizeof(*order));
+	if (proposed_count > 0 && order == NULL) {
+		return CW_EXISTING_EDIT_FAILED;
+	}
+	size_t position = 0;
+	LIST_FOREACH(code_list, first, next, cur) {
+		if (cur->value != line) {
+			order[position++] = cur->value;
+		}
+	}
+	if (kind == CW_EXISTING_EDIT_MOVE) {
+		memmove(&order[to + 1], &order[to],
+			(count - 1 - to) * sizeof(*order));
+		order[to] = line;
+	}
+	cw_control_flow_repair_plan_t *repair_plan = NULL;
+	if (cw_prepare_control_flow_repair(order, proposed_count, false,
+									   &repair_plan) != CW_REPAIR_OK) {
+		free(order);
+		return CW_EXISTING_EDIT_FAILED;
+	}
+	free(order);
 	aa_legacy_line_snapshot_t snapshot;
 	if (!snapshot_line(line, &snapshot) ||
 		!commit_domain(kind, from, to, &snapshot, context)) {
+		cw_discard_control_flow_repair(repair_plan);
 		return CW_EXISTING_EDIT_FAILED;
 	}
-	ListNode *node = get_list_node_by_value(line);
 	if (kind == CW_EXISTING_EDIT_REMOVE) {
 		List_remove(code_list, node);
 		g_held_line = NULL;
+		cw_commit_control_flow_repair(repair_plan);
+		cw_discard_control_flow_repair(repair_plan);
 		return CW_EXISTING_EDIT_COMMITTED;
 	}
 	unlink_node_without_free(code_list, node);
@@ -2503,6 +2543,8 @@ cw_existing_edit_result_t cw_edit_existing_line_authoritatively(
 		destination->prev = node;
 	}
 	g_held_line = NULL;
+	cw_commit_control_flow_repair(repair_plan);
+	cw_discard_control_flow_repair(repair_plan);
 	return CW_EXISTING_EDIT_COMMITTED;
 }
 
@@ -2530,12 +2572,18 @@ cw_append_result_t cw_append_new_line_authoritatively(
 	code_line_t *line,
 	bool arrange,
 	bool delete_enabled,
+	bool authority_allowed,
 	cw_append_authority_fn commit_domain,
 	void *context)
 {
 	if (line == NULL || line->ins == NULL || commit_domain == NULL ||
-		code_list == NULL || code_list->count < 0 ||
-		cw_check_if_in_code_list(line)) {
+		code_list == NULL || code_list->count < 0) {
+		return CW_APPEND_NOT_APPLICABLE;
+	}
+	if (!authority_allowed || (g_held_line != NULL && g_held_line != line)) {
+		return CW_APPEND_FAILED;
+	}
+	if (cw_check_if_in_code_list(line)) {
 		return CW_APPEND_NOT_APPLICABLE;
 	}
 	int opcode = line->ins->id;
@@ -2546,16 +2594,39 @@ cw_append_result_t cw_append_new_line_authoritatively(
 	if (arrange && get_drop_position() != (size_t)List_count(code_list)) {
 		return CW_APPEND_NOT_APPLICABLE;
 	}
+	size_t count = (size_t)code_list->count;
+	if (count >= SIZE_MAX / sizeof(code_line_t *)) {
+		return CW_APPEND_FAILED;
+	}
+	code_line_t **order = malloc((count + 1) * sizeof(*order));
+	if (order == NULL) {
+		return CW_APPEND_FAILED;
+	}
+	size_t position = 0;
+	LIST_FOREACH(code_list, first, next, cur) {
+		order[position++] = cur->value;
+	}
+	order[count] = line;
+	cw_control_flow_repair_plan_t *repair_plan = NULL;
+	cw_repair_result_t repair_result = cw_prepare_control_flow_repair(
+		order, count + 1, false, &repair_plan);
+	free(order);
+	if (repair_result != CW_REPAIR_OK) {
+		return CW_APPEND_FAILED;
+	}
 	aa_legacy_line_snapshot_t snapshot;
 	if (!snapshot_line(line, &snapshot)) {
+		cw_discard_control_flow_repair(repair_plan);
 		return CW_APPEND_FAILED;
 	}
 	ListNode *node = calloc(1, sizeof(*node));
 	if (node == NULL) {
+		cw_discard_control_flow_repair(repair_plan);
 		return CW_APPEND_FAILED;
 	}
 	if (!commit_domain(&snapshot, context)) {
 		free(node);
+		cw_discard_control_flow_repair(repair_plan);
 		return CW_APPEND_FAILED;
 	}
 	node->value = line;
@@ -2567,6 +2638,8 @@ cw_append_result_t cw_append_new_line_authoritatively(
 	}
 	code_list->last = node;
 	code_list->count++;
+	cw_commit_control_flow_repair(repair_plan);
+	cw_discard_control_flow_repair(repair_plan);
 	return CW_APPEND_COMMITTED;
 }
 

@@ -43,6 +43,8 @@ int g_player = FL_NO_PLAYER;
 static code_line_t *g_edit_line;
 static code_line_t *g_stage_hold_line;
 static bool g_edit_hold_line;
+static bool g_domain_step_execution_active;
+static bool g_domain_teardown_active;
 static bool g_domain_append_candidate;
 static bool g_domain_existing_candidate;
 static bool g_program_snapshot_valid;
@@ -51,7 +53,9 @@ static bool g_control_flow_repair_failed;
 void                stage_drawings(int level, int operation_id);
 static code_line_t *pending_operand_handler(bool *semantic_changed);
 static void         flag_handler(level_flags_t *flags, int clicked_button);
-static code_line_t *edit_code(int level_id, aa_program_t *program);
+static code_line_t *edit_code(int level_id, aa_program_t *program,
+							  bool step_execution_active,
+							  bool teardown_active);
 static void         reset_level(int level_id, level_flags_t *flags);
 static void         destroy_level(level_flags_t *flags);
 static void         init_stage_assets();
@@ -66,7 +70,9 @@ static bool         edit_domain_instruction(
 	size_t to,
 	const aa_legacy_line_snapshot_t *snapshot,
 	void *context);
-static bool         program_has_control_flow(const aa_program_t *program);
+static bool         domain_edit_context_allowed(const aa_program_t *program,
+												 const code_line_t *line);
+static bool         pending_jump_allows_instruction_click(void);
 static void         save_and_update_code(int level_id);
 static void         cancel_edit_interaction(void);
 static void         set_code_editable();
@@ -393,30 +399,43 @@ static bool append_domain_instruction(
 	aa_program_t *program = context;
 	aa_instruction_t instruction;
 	aa_legacy_import_report_t report;
-	if (!g_program_snapshot_valid || program == NULL ||
+	if (snapshot == NULL ||
+		!domain_edit_context_allowed(program,
+									(const code_line_t *)snapshot->identity) ||
 		aa_legacy_instruction_from_snapshot(
 			snapshot, &instruction, &report) != AA_RESULT_OK) {
 		return false;
 	}
-	if (aa_program_count(program) >= MAX_CODE_LINES) {
+	size_t count = aa_program_count(program);
+	if (count >= MAX_CODE_LINES ||
+		(instruction.opcode != AA_OPCODE_MOV &&
+		 instruction.opcode != AA_OPCODE_ADD &&
+		 instruction.opcode != AA_OPCODE_CMP) ||
+		aa_program_reserve(program, count + 1) != AA_RESULT_OK) {
 		return false;
 	}
 	return aa_program_append(program, &instruction, NULL) == AA_RESULT_OK;
 }
 
-static bool program_has_control_flow(const aa_program_t *program)
+static bool domain_edit_context_allowed(const aa_program_t *program,
+											 const code_line_t *line)
 {
-	for (size_t position = 0; position < aa_program_count(program); position++) {
-		const aa_instruction_t *instruction =
-			aa_program_instruction_at(program, position);
-		if (instruction->opcode == AA_OPCODE_LABEL ||
-			instruction->opcode == AA_OPCODE_JMP ||
-			instruction->opcode == AA_OPCODE_JE ||
-			instruction->opcode == AA_OPCODE_JNE) {
-			return true;
-		}
+	return g_program_snapshot_valid && program != NULL && line != NULL &&
+		g_edit_line == line && !mc_is_executing() &&
+		!g_domain_step_execution_active && !g_domain_teardown_active &&
+		aa_program_count(program) == (size_t)cw_get_code_list_size() &&
+		(g_stage_hold_line == NULL || g_stage_hold_line == line);
+}
+
+static bool pending_jump_allows_instruction_click(void)
+{
+	if (!iw_chk_click_ins()) {
+		return false;
 	}
-	return false;
+	code_line_t *pending_line = cw_get_code_line_pending_operand();
+	return pending_line != NULL && pending_line->ins != NULL &&
+		pending_line->state == MISSING_OP1 &&
+		cl_is_ins_jmp_type(pending_line->ins->id);
 }
 
 static bool edit_domain_instruction(
@@ -427,9 +446,11 @@ static bool edit_domain_instruction(
 	void *context)
 {
 	aa_program_t *program = context;
-	if (!g_program_snapshot_valid || program == NULL || snapshot == NULL ||
+	if (snapshot == NULL ||
+		!domain_edit_context_allowed(program,
+									(const code_line_t *)snapshot->identity) ||
 		aa_program_count(program) != (size_t)cw_get_code_list_size() ||
-		program_has_control_flow(program) || from >= aa_program_count(program)) {
+		from >= aa_program_count(program)) {
 		return false;
 	}
 	const aa_instruction_t *existing =
@@ -613,10 +634,15 @@ static code_line_t *pending_operand_handler(bool *semantic_changed)
  * Return:
  *	true if the player is holding a line, false if otherwise
  */
-static code_line_t *edit_code(int level_id, aa_program_t *program)
+static code_line_t *edit_code(int level_id,
+							  aa_program_t *program,
+							  bool step_execution_active,
+							  bool teardown_active)
 {
 	assert(level_id >= 0 && level_id <= LV_LEVEL_QUANTITY &&
 	       "Incorrect level_id value");
+	g_domain_step_execution_active = step_execution_active;
+	g_domain_teardown_active = teardown_active;
 
 	bool                left_pressed  = ms_left_pressed();
 	bool                left_released = ms_left_released();
@@ -626,7 +652,8 @@ static code_line_t *edit_code(int level_id, aa_program_t *program)
 
 	if (cw_is_operand_pending() == true && g_edit_line == NULL &&
 	    cw_check_code_sorted() == true && cw_chk_click_code() == false &&
-	    cw_chk_click_code_op() == false) {
+	    cw_chk_click_code_op() == false &&
+	    !pending_jump_allows_instruction_click()) {
 		bool semantic_changed = false;
 		g_edit_line = pending_operand_handler(&semantic_changed);
 		if (cw_is_operand_pending() == false &&
@@ -644,13 +671,9 @@ static code_line_t *edit_code(int level_id, aa_program_t *program)
 	} else if (iw_chk_click_ins() == true && g_edit_line == NULL &&
 	           lv_is_code_editable() == true) {
 		g_edit_line = cl_new_code_line(iw_get_clicked_instruction());
-		/* Ordinary append/move/removal are domain-authoritative only when the
-		 * program has no control-flow instructions. Clone and control-flow edits
-		 * retain the legacy path until presentation repair is transactional.
-		 */
+		/* Only ordinary append/move/removal use domain authority here. */
 		g_domain_append_candidate = g_edit_line != NULL &&
 			g_program_snapshot_valid &&
-			!program_has_control_flow(program) &&
 			(g_edit_line->ins->id == MOV || g_edit_line->ins->id == ADD ||
 			 g_edit_line->ins->id == CMP);
 	} else if (cw_chk_click_code() == true && g_edit_line == NULL &&
@@ -658,7 +681,6 @@ static code_line_t *edit_code(int level_id, aa_program_t *program)
 		g_edit_line = cw_get_clicked_code();
 		g_domain_existing_candidate = g_edit_line != NULL &&
 			g_program_snapshot_valid &&
-			!program_has_control_flow(program) &&
 			(g_edit_line->ins->id == MOV || g_edit_line->ins->id == ADD ||
 			 g_edit_line->ins->id == CMP);
 	} else if (cw_chk_rclick_code() == true && g_edit_line == NULL) {
@@ -690,7 +712,7 @@ static code_line_t *edit_code(int level_id, aa_program_t *program)
 			cw_existing_edit_result_t edit_result =
 				cw_edit_existing_line_authoritatively(
 					g_edit_line, lv_is_arrange_enabled(), lv_is_del_enabled(),
-					program_has_control_flow(program),
+					domain_edit_context_allowed(program, g_edit_line),
 					edit_domain_instruction, program);
 			if (edit_result == CW_EXISTING_EDIT_COMMITTED) {
 				domain_existing_committed = true;
@@ -710,12 +732,9 @@ static code_line_t *edit_code(int level_id, aa_program_t *program)
 			cw_append_result_t append_result =
 				cw_append_new_line_authoritatively(
 					g_edit_line, lv_is_arrange_enabled(), lv_is_del_enabled(),
+					domain_edit_context_allowed(program, g_edit_line),
 					append_domain_instruction, program);
 			if (append_result == CW_APPEND_COMMITTED) {
-				if (!cw_refresh_label_and_jump_presentation()) {
-					g_control_flow_repair_failed = true;
-					g_program_snapshot_valid = false;
-				}
 				domain_append_committed = true;
 				save_and_update_code(level_id);
 			} else if (append_result == CW_APPEND_FAILED) {
@@ -926,7 +945,8 @@ int stage_level(int level_id, aa_program_t *program)
 	if (flags.stop == true && flags.stop_enabled == true) {
 		reset_level(level_id, &flags);
 	} else if (flags.non_stop == false || cw_is_operand_pending() == true) {
-		g_stage_hold_line = edit_code(level_id, program);
+			g_stage_hold_line = edit_code(level_id, program, flags.step,
+									  back_to_level_selection);
 		lv_set_hold_line(g_stage_hold_line);
 	} else if (flags.play == true && cw_is_operand_pending() == false) {
 		mc_run_code();

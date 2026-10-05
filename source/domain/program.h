@@ -100,6 +100,13 @@ typedef struct aa_validation_report {
 aa_program_t *aa_program_create(void);
 void aa_program_destroy(aa_program_t *program);
 void aa_program_clear(aa_program_t *program);
+/*
+ * Reserves capacity without changing program contents, IDs, or revision.
+ * A successful reserve may invalidate borrowed instruction pointers. A NULL
+ * program returns AA_RESULT_INVALID_ARGUMENT; unrepresentable or unavailable
+ * capacity returns AA_RESULT_ALLOCATION_FAILED without changing the program.
+ */
+aa_result_t aa_program_reserve(aa_program_t *program, size_t capacity);
 size_t aa_program_count(const aa_program_t *program);
 const aa_instruction_t *aa_program_instruction_at(const aa_program_t *program,
 												 size_t position);

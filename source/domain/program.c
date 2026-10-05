@@ -105,24 +105,44 @@ static aa_instruction_t *find_mutable_by_id(aa_program_t *program,
 	return NULL;
 }
 
+aa_result_t aa_program_reserve(aa_program_t *program, size_t capacity)
+{
+	if (program == NULL) {
+		return AA_RESULT_INVALID_ARGUMENT;
+	}
+	if (capacity <= program->capacity) {
+		return AA_RESULT_OK;
+	}
+	size_t new_capacity = program->capacity == 0 ? 8 : program->capacity;
+	while (new_capacity < capacity) {
+		if (new_capacity > SIZE_MAX / 2) {
+			new_capacity = capacity;
+			break;
+		}
+		new_capacity *= 2;
+	}
+	if (new_capacity > SIZE_MAX / sizeof(*program->instructions)) {
+		return AA_RESULT_ALLOCATION_FAILED;
+	}
+	aa_instruction_t *instructions = realloc(program->instructions,
+											new_capacity * sizeof(*instructions));
+	if (instructions == NULL) {
+		return AA_RESULT_ALLOCATION_FAILED;
+	}
+	program->instructions = instructions;
+	program->capacity = new_capacity;
+	return AA_RESULT_OK;
+}
+
 static aa_result_t reserve_instruction(aa_program_t *program)
 {
 	if (program->count < program->capacity) {
 		return AA_RESULT_OK;
 	}
-	size_t capacity = program->capacity == 0 ? 8 : program->capacity * 2;
-	if (capacity < program->capacity ||
-		capacity > SIZE_MAX / sizeof(*program->instructions)) {
+	if (program->count == SIZE_MAX) {
 		return AA_RESULT_ALLOCATION_FAILED;
 	}
-	aa_instruction_t *instructions = realloc(program->instructions,
-											capacity * sizeof(*instructions));
-	if (instructions == NULL) {
-		return AA_RESULT_ALLOCATION_FAILED;
-	}
-	program->instructions = instructions;
-	program->capacity = capacity;
-	return AA_RESULT_OK;
+	return aa_program_reserve(program, program->count + 1);
 }
 
 aa_program_t *aa_program_create(void)

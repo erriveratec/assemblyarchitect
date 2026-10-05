@@ -65,13 +65,14 @@ cw_append_result_t cw_append_new_line_authoritatively(
 	code_line_t *line,
 	bool arrange,
 	bool delete_enabled,
+	bool authority_allowed,
 	cw_append_authority_fn commit_domain,
 	void *context);
 cw_existing_edit_result_t cw_edit_existing_line_authoritatively(
 	code_line_t *line,
 	bool arrange,
 	bool delete_enabled,
-	bool program_has_control_flow,
+	bool authority_allowed,
 	cw_existing_edit_authority_fn commit_domain,
 	void *context);
 bool cw_check_if_in_code_list(code_line_t *instruction);
