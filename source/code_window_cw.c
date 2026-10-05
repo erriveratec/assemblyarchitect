@@ -62,6 +62,8 @@ typedef struct cw_operand_repair_entry {
 	operand_t **destination;
 	operand_t *old_operand;
 	operand_t *prepared_operand;
+	int *state_destination;
+	int prepared_state;
 } cw_operand_repair_entry_t;
 
 struct cw_control_flow_repair_plan {
@@ -470,9 +472,6 @@ cw_repair_result_t cw_prepare_control_flow_repair(
 			}
 		}
 		if (line->ins->id == LABEL) {
-			if (line->op1 == NULL) {
-				continue;
-			}
 			int label_number;
 			if (!repair_label_number(order, count, position, &label_number)) {
 				cw_discard_control_flow_repair(plan);
@@ -496,7 +495,9 @@ cw_repair_result_t cw_prepare_control_flow_repair(
 			plan->entries[plan->count++] = (cw_operand_repair_entry_t){
 				.destination = &line->op1,
 				.old_operand = line->op1,
-				.prepared_operand = replacement
+				.prepared_operand = replacement,
+				.state_destination = line->op1 == NULL ? &line->state : NULL,
+				.prepared_state = COMPLETE
 			};
 		} else if (cl_is_ins_jmp_type(line->ins->id)) {
 			if (line->op1 == NULL) {
@@ -584,6 +585,9 @@ void cw_commit_control_flow_repair(cw_control_flow_repair_plan_t *plan)
 		entry->old_operand = *entry->destination;
 		*entry->destination = entry->prepared_operand;
 		entry->prepared_operand = NULL;
+		if (entry->state_destination != NULL) {
+			*entry->state_destination = entry->prepared_state;
+		}
 	}
 	plan->committed = true;
 }
@@ -2566,6 +2570,21 @@ static size_t domain_binding_position(const code_line_t *line)
 	return SIZE_MAX;
 }
 
+bool cw_get_domain_instruction_id(const code_line_t *line,
+								 aa_instruction_id_t *instruction_id)
+{
+	if (line == NULL || instruction_id == NULL ||
+		!g_domain_bindings_are_valid) {
+		return false;
+	}
+	size_t position = domain_binding_position(line);
+	if (position == SIZE_MAX || position >= g_domain_binding_count) {
+		return false;
+	}
+	*instruction_id = g_domain_bindings[position].domain_id;
+	return true;
+}
+
 static void unlink_node_without_free(List *code, ListNode *node)
 {
 	if (node->prev != NULL) {
@@ -2592,14 +2611,24 @@ cw_existing_edit_result_t cw_edit_existing_line_authoritatively(
 		commit_domain == NULL || code_list->count < 0) {
 		return CW_EXISTING_EDIT_NOT_APPLICABLE;
 	}
+	int opcode = line->ins->id;
+	bool ordinary = opcode == MOV || opcode == ADD || opcode == CMP;
+	bool control_flow = opcode == LABEL || cl_is_ins_jmp_type(opcode);
+	if (!ordinary && !control_flow) {
+		return CW_EXISTING_EDIT_NOT_APPLICABLE;
+	}
+	if (control_flow && !in_code_window() && delete_enabled) {
+		return CW_EXISTING_EDIT_NOT_APPLICABLE;
+	}
+	if ((opcode == LABEL && (line->op1 == NULL || line->op2 != NULL ||
+		line->state != COMPLETE)) ||
+		(cl_is_ins_jmp_type(opcode) && line->op2 != NULL)) {
+		return CW_EXISTING_EDIT_FAILED;
+	}
 	if (!authority_allowed ||
 		(g_held_line != NULL && g_held_line != line) ||
 		line->state == CHANGING_OP1 || line->state == CHANGING_OP2) {
 		return CW_EXISTING_EDIT_FAILED;
-	}
-	if (line->ins->id != MOV && line->ins->id != ADD &&
-		line->ins->id != CMP) {
-		return CW_EXISTING_EDIT_NOT_APPLICABLE;
 	}
 	size_t from = code_line_position(line);
 	if (from == SIZE_MAX) {
@@ -2617,9 +2646,16 @@ cw_existing_edit_result_t cw_edit_existing_line_authoritatively(
 	cw_existing_edit_kind_t kind;
 	size_t to = from;
 	if (!in_code_window() && delete_enabled) {
+		if (!ordinary) {
+			return CW_EXISTING_EDIT_NOT_APPLICABLE;
+		}
 		kind = CW_EXISTING_EDIT_REMOVE;
 	} else if (arrange) {
 		kind = CW_EXISTING_EDIT_MOVE;
+		if (cl_is_ins_jmp_type(opcode) &&
+			cw_get_code_line_pending_operand() == line) {
+			return CW_EXISTING_EDIT_FAILED;
+		}
 		size_t remaining_count = (size_t)List_count(code_list) - 1;
 		int row = (ms_get_mouse_y() - cw_get_code_line_y(0)) /
 			cw_get_code_line_spacing();
@@ -2745,9 +2781,11 @@ cw_append_result_t cw_append_new_line_authoritatively(
 	bool delete_enabled,
 	bool authority_allowed,
 	cw_append_authority_fn commit_domain,
+	cw_append_prepare_fn prepare_domain,
 	void *context)
 {
 	if (line == NULL || line->ins == NULL || commit_domain == NULL ||
+		prepare_domain == NULL ||
 		code_list == NULL || code_list->count < 0) {
 		return CW_APPEND_NOT_APPLICABLE;
 	}
@@ -2758,9 +2796,18 @@ cw_append_result_t cw_append_new_line_authoritatively(
 		return CW_APPEND_NOT_APPLICABLE;
 	}
 	int opcode = line->ins->id;
-	if ((opcode != MOV && opcode != ADD && opcode != CMP) ||
-		(!in_code_window() && delete_enabled)) {
+	bool ordinary = opcode == MOV || opcode == ADD || opcode == CMP;
+	bool label = opcode == LABEL;
+	bool jump = cl_is_ins_jmp_type(opcode);
+	if (!ordinary && !label && !jump) {
 		return CW_APPEND_NOT_APPLICABLE;
+	}
+	if ((label && (line->op1 != NULL || line->op2 != NULL ||
+		line->state != MISSING_OP1)) ||
+		(jump && (line->op1 != NULL || line->op2 != NULL ||
+		line->state != MISSING_OP1)) ||
+		(!in_code_window() && delete_enabled)) {
+		return CW_APPEND_FAILED;
 	}
 	if (arrange && get_drop_position() != (size_t)List_count(code_list)) {
 		return CW_APPEND_NOT_APPLICABLE;
@@ -2772,8 +2819,18 @@ cw_append_result_t cw_append_new_line_authoritatively(
 	if (count >= SIZE_MAX / sizeof(code_line_t *)) {
 		return CW_APPEND_FAILED;
 	}
+	ListNode *node = calloc(1, sizeof(*node));
+	if (node == NULL || !prepare_domain(count + 1, context)) {
+		free(node);
+		return CW_APPEND_FAILED;
+	}
+	if (!reserve_domain_bindings(count + 1)) {
+		free(node);
+		return CW_APPEND_FAILED;
+	}
 	code_line_t **order = malloc((count + 1) * sizeof(*order));
 	if (order == NULL) {
+		free(node);
 		return CW_APPEND_FAILED;
 	}
 	size_t position = 0;
@@ -2786,15 +2843,11 @@ cw_append_result_t cw_append_new_line_authoritatively(
 		order, count + 1, false, &repair_plan);
 	free(order);
 	if (repair_result != CW_REPAIR_OK) {
+		free(node);
 		return CW_APPEND_FAILED;
 	}
 	aa_legacy_line_snapshot_t snapshot;
 	if (!snapshot_line(line, &snapshot)) {
-		cw_discard_control_flow_repair(repair_plan);
-		return CW_APPEND_FAILED;
-	}
-	ListNode *node = calloc(1, sizeof(*node));
-	if (node == NULL || !reserve_domain_bindings(count + 1)) {
 		free(node);
 		cw_discard_control_flow_repair(repair_plan);
 		return CW_APPEND_FAILED;

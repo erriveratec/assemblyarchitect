@@ -66,6 +66,7 @@ static bool         append_domain_instruction(
 	const aa_legacy_line_snapshot_t *snapshot,
 	aa_instruction_id_t *created_id,
 	void *context);
+static bool         prepare_domain_append(size_t required_count, void *context);
 static bool         edit_domain_instruction(
 	cw_existing_edit_kind_t kind,
 	size_t from,
@@ -448,25 +449,46 @@ static bool append_domain_instruction(
 	if (snapshot == NULL || created_id == NULL ||
 		!domain_edit_context_allowed(program,
 									(const code_line_t *)snapshot->identity) ||
-		aa_legacy_instruction_from_snapshot(
-			snapshot, &instruction, &report) != AA_RESULT_OK) {
+		snapshot->bound_instruction_id != AA_INSTRUCTION_ID_INVALID) {
 		return false;
 	}
-	size_t count = aa_program_count(program);
-	if (count >= MAX_CODE_LINES ||
-		(instruction.opcode != AA_OPCODE_MOV &&
-		 instruction.opcode != AA_OPCODE_ADD &&
-		 instruction.opcode != AA_OPCODE_CMP) ||
-		aa_program_reserve(program, count + 1) != AA_RESULT_OK) {
+	if (snapshot->opcode == LABEL) {
+		if (snapshot->has_operand_1 || snapshot->has_operand_2 ||
+			snapshot->jump_target_identity != NULL ||
+			snapshot->line_state != MISSING_OP1) {
+			return false;
+		}
+		instruction = aa_instruction_create(AA_OPCODE_LABEL);
+	} else if (cl_is_ins_jmp_type(snapshot->opcode)) {
+		if (snapshot->has_operand_1 || snapshot->has_operand_2 ||
+			snapshot->jump_target_identity != NULL ||
+			snapshot->line_state != MISSING_OP1) {
+			return false;
+		}
+		aa_opcode_t opcode = snapshot->opcode == JMP ? AA_OPCODE_JMP :
+			snapshot->opcode == JE ? AA_OPCODE_JE : AA_OPCODE_JNE;
+		instruction = aa_instruction_create(opcode);
+	} else if (aa_legacy_instruction_from_snapshot(
+			snapshot, &instruction, &report) != AA_RESULT_OK) {
 		return false;
 	}
 	return aa_program_append(program, &instruction, created_id) == AA_RESULT_OK;
 }
 
+static bool prepare_domain_append(size_t required_count, void *context)
+{
+	aa_program_t *program = context;
+	return required_count <= MAX_CODE_LINES &&
+		aa_program_count(program) + 1 == required_count &&
+		g_program_snapshot_valid && cw_domain_bindings_valid(program) &&
+		aa_program_reserve(program, required_count) == AA_RESULT_OK;
+}
+
 static bool domain_edit_context_allowed(const aa_program_t *program,
 											 const code_line_t *line)
 {
-	return g_program_snapshot_valid && cw_domain_bindings_valid(program) &&
+	return g_program_snapshot_valid && lv_is_code_editable() &&
+		cw_domain_bindings_valid(program) &&
 		program != NULL && line != NULL &&
 		g_edit_line == line && !mc_is_executing() &&
 		!g_domain_step_execution_active && !g_domain_teardown_active &&
@@ -493,6 +515,38 @@ static bool pending_jump_label_selected(void)
 		cl_is_ins_jmp_type(pending_line->ins->id) && cw_ms_rel_in_label();
 }
 
+static bool domain_append_opcode(int opcode)
+{
+	switch (opcode) {
+	case MOV:
+	case ADD:
+	case CMP:
+	case LABEL:
+	case JMP:
+	case JE:
+	case JNE:
+		return true;
+	default:
+		return false;
+	}
+}
+
+static bool domain_move_opcode(int opcode)
+{
+	switch (opcode) {
+	case MOV:
+	case ADD:
+	case CMP:
+	case LABEL:
+	case JMP:
+	case JE:
+	case JNE:
+		return true;
+	default:
+		return false;
+	}
+}
+
 static bool edit_domain_instruction(
 	cw_existing_edit_kind_t kind,
 	size_t from,
@@ -504,55 +558,108 @@ static bool edit_domain_instruction(
 	if (snapshot == NULL ||
 		!domain_edit_context_allowed(program,
 									(const code_line_t *)snapshot->identity) ||
+		(kind == CW_EXISTING_EDIT_MOVE && !lv_is_arrange_enabled()) ||
 		aa_program_count(program) != (size_t)cw_get_code_list_size() ||
-		from >= aa_program_count(program)) {
+		from >= aa_program_count(program) ||
+		snapshot->bound_instruction_id == AA_INSTRUCTION_ID_INVALID) {
 		return false;
 	}
 	const aa_instruction_t *existing =
 		aa_program_instruction_at(program, from);
-	aa_instruction_t legacy;
-	aa_legacy_import_report_t report;
-	if (existing == NULL ||
-		aa_legacy_instruction_from_snapshot(snapshot, &legacy, &report) !=
-		AA_RESULT_OK || existing->opcode != legacy.opcode ||
-		existing->operand_count != legacy.operand_count) {
+	if (existing == NULL || existing->id != snapshot->bound_instruction_id) {
 		return false;
 	}
-	for (size_t operand_position = 0;
-		 operand_position < existing->operand_count; operand_position++) {
-		const aa_operand_t *domain_operand =
-			&existing->operands[operand_position];
-		const aa_operand_t *legacy_operand =
-			&legacy.operands[operand_position];
-		if (domain_operand->kind != legacy_operand->kind) {
+	bool control_flow = snapshot->opcode == LABEL ||
+		cl_is_ins_jmp_type(snapshot->opcode);
+	if (control_flow) {
+		if (kind != CW_EXISTING_EDIT_MOVE || snapshot->has_operand_2) {
 			return false;
 		}
-		switch (domain_operand->kind) {
-		case AA_OPERAND_NONE:
-			break;
-		case AA_OPERAND_REGISTER:
-			if (domain_operand->value.reg != legacy_operand->value.reg) {
+		if (snapshot->opcode == LABEL) {
+			if (existing->opcode != AA_OPCODE_LABEL ||
+				existing->operand_count != 0 || !snapshot->has_operand_1 ||
+			snapshot->line_state != COMPLETE ||
+			snapshot->jump_target_identity != NULL) {
 				return false;
 			}
-			break;
-		case AA_OPERAND_BUFFER:
-			if (domain_operand->value.buffer != legacy_operand->value.buffer) {
+		} else {
+			aa_opcode_t expected_opcode = snapshot->opcode == JMP ? AA_OPCODE_JMP :
+				snapshot->opcode == JE ? AA_OPCODE_JE : AA_OPCODE_JNE;
+			if (existing->opcode != expected_opcode ||
+				existing->operand_count != 1) {
 				return false;
 			}
-			break;
-		case AA_OPERAND_IMMEDIATE:
-			if (domain_operand->value.immediate !=
-				legacy_operand->value.immediate) {
+			if (!snapshot->has_operand_1) {
+				if (snapshot->line_state != MISSING_OP1 ||
+					snapshot->jump_target_identity != NULL ||
+					existing->operands[0].kind != AA_OPERAND_NONE) {
+					return false;
+				}
+			} else {
+				aa_instruction_id_t target_id;
+				code_line_t *target = (code_line_t *)
+					snapshot->jump_target_identity;
+				const aa_instruction_t *domain_target;
+				if (snapshot->line_state != COMPLETE || target == NULL ||
+					!cw_get_domain_instruction_id(target, &target_id) ||
+					existing->operands[0].kind != AA_OPERAND_LABEL_REFERENCE ||
+					existing->operands[0].value.label_instruction_id != target_id) {
+					return false;
+				}
+				domain_target = aa_program_find_by_id(program, target_id);
+				if (domain_target == NULL ||
+					domain_target->opcode != AA_OPCODE_LABEL) {
+					return false;
+				}
+			}
+		}
+	} else {
+		aa_instruction_t legacy;
+		aa_legacy_import_report_t report;
+		if (aa_legacy_instruction_from_snapshot(snapshot, &legacy, &report) !=
+			AA_RESULT_OK || existing->opcode != legacy.opcode ||
+			existing->operand_count != legacy.operand_count) {
 				return false;
 			}
-			break;
-		case AA_OPERAND_LABEL_REFERENCE:
-			return false;
-		default:
-			return false;
+		for (size_t operand_position = 0;
+			 operand_position < existing->operand_count; operand_position++) {
+			const aa_operand_t *domain_operand =
+				&existing->operands[operand_position];
+			const aa_operand_t *legacy_operand =
+				&legacy.operands[operand_position];
+			if (domain_operand->kind != legacy_operand->kind) {
+				return false;
+			}
+			switch (domain_operand->kind) {
+			case AA_OPERAND_NONE:
+				break;
+			case AA_OPERAND_REGISTER:
+				if (domain_operand->value.reg != legacy_operand->value.reg) {
+					return false;
+				}
+				break;
+			case AA_OPERAND_BUFFER:
+				if (domain_operand->value.buffer != legacy_operand->value.buffer) {
+					return false;
+				}
+				break;
+			case AA_OPERAND_IMMEDIATE:
+				if (domain_operand->value.immediate !=
+					legacy_operand->value.immediate) {
+					return false;
+				}
+				break;
+			case AA_OPERAND_LABEL_REFERENCE:
+				return false;
+			default:
+				return false;
+			}
 		}
 	}
 	if (kind == CW_EXISTING_EDIT_REMOVE) {
+		if (control_flow) {
+			return false;
+		}
 		return aa_program_remove(program, from) == AA_RESULT_OK;
 	}
 	if (kind == CW_EXISTING_EDIT_MOVE) {
@@ -745,18 +852,17 @@ static code_line_t *edit_code(int level_id,
 	} else if (iw_chk_click_ins() == true && g_edit_line == NULL &&
 	           lv_is_code_editable() == true) {
 		g_edit_line = cl_new_code_line(iw_get_clicked_instruction());
-		/* Only ordinary append/move/removal use domain authority here. */
+		/* Control-flow append is authoritative only in its initial incomplete form. */
 		g_domain_append_candidate = g_edit_line != NULL &&
-			g_program_snapshot_valid &&
-			(g_edit_line->ins->id == MOV || g_edit_line->ins->id == ADD ||
-			 g_edit_line->ins->id == CMP);
+			domain_append_opcode(g_edit_line->ins->id) &&
+			(!cl_is_ins_jmp_type(g_edit_line->ins->id) ||
+			 (g_edit_line->op1 == NULL &&
+			  g_edit_line->state == MISSING_OP1));
 	} else if (cw_chk_click_code() == true && g_edit_line == NULL &&
 	           lv_is_code_editable() == true) {
 		g_edit_line = cw_get_clicked_code();
 		g_domain_existing_candidate = g_edit_line != NULL &&
-			g_program_snapshot_valid &&
-			(g_edit_line->ins->id == MOV || g_edit_line->ins->id == ADD ||
-			 g_edit_line->ins->id == CMP);
+			domain_move_opcode(g_edit_line->ins->id);
 	} else if (cw_chk_rclick_code() == true && g_edit_line == NULL) {
 		g_edit_line = cw_clone_rclicked_line(cw_get_rclicked_code());
 		g_edit_hold_line = true;
@@ -799,6 +905,14 @@ static code_line_t *edit_code(int level_id,
 			} else if (edit_result == CW_EXISTING_EDIT_FAILED) {
 				log_err("Domain-authoritative code edit failed");
 				domain_existing_failed = true;
+			} else if (edit_result == CW_EXISTING_EDIT_NOT_APPLICABLE &&
+				(cl_is_ins_jmp_type(g_edit_line->ins->id) ||
+				 g_edit_line->ins->id == LABEL)) {
+				if (!cw_player_holding_instruction(
+						g_edit_line, lv_is_arrange_enabled(), lv_is_del_enabled())) {
+					g_control_flow_repair_failed = true;
+					g_program_snapshot_valid = false;
+				}
 			}
 		}
 		if (g_edit_line != NULL && g_domain_append_candidate &&
@@ -807,7 +921,7 @@ static code_line_t *edit_code(int level_id,
 				cw_append_new_line_authoritatively(
 					g_edit_line, lv_is_arrange_enabled(), lv_is_del_enabled(),
 					domain_edit_context_allowed(program, g_edit_line),
-					append_domain_instruction, program);
+					append_domain_instruction, prepare_domain_append, program);
 			if (append_result == CW_APPEND_COMMITTED) {
 				domain_append_committed = true;
 				save_and_update_code(level_id);

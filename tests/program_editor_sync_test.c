@@ -106,6 +106,48 @@ static bool reject_domain_append(const aa_legacy_line_snapshot_t *snapshot,
 	return false;
 }
 
+static bool append_control_flow_from_snapshot(
+	const aa_legacy_line_snapshot_t *snapshot,
+	aa_instruction_id_t *created_id,
+	void *context)
+{
+	aa_program_t *program = context;
+	if (snapshot == NULL || created_id == NULL ||
+		snapshot->bound_instruction_id != AA_INSTRUCTION_ID_INVALID) {
+		return false;
+	}
+	aa_instruction_t instruction;
+	if (snapshot->opcode == LABEL) {
+		if (snapshot->has_operand_1 || snapshot->has_operand_2 ||
+			snapshot->line_state != MISSING_OP1) {
+			return false;
+		}
+		instruction = aa_instruction_create(AA_OPCODE_LABEL);
+	} else if (cl_is_ins_jmp_type(snapshot->opcode)) {
+		if (snapshot->has_operand_1 || snapshot->has_operand_2 ||
+			snapshot->jump_target_identity != NULL ||
+			snapshot->line_state != MISSING_OP1) {
+			return false;
+		}
+		aa_opcode_t opcode = snapshot->opcode == JMP ? AA_OPCODE_JMP :
+			snapshot->opcode == JE ? AA_OPCODE_JE : AA_OPCODE_JNE;
+		instruction = aa_instruction_create(opcode);
+	} else {
+		aa_legacy_import_report_t report;
+		if (aa_legacy_instruction_from_snapshot(snapshot, &instruction,
+				&report) != AA_RESULT_OK) {
+			return false;
+		}
+	}
+	return aa_program_append(program, &instruction, created_id) == AA_RESULT_OK;
+}
+
+static bool reserve_test_domain_append(size_t required_count, void *context)
+{
+	aa_program_t *program = context;
+	return aa_program_reserve(program, required_count) == AA_RESULT_OK;
+}
+
 static code_line_t *create_line(int opcode)
 {
 	texture_t *texture = cl_create_instruction_texture(opcode);
@@ -491,16 +533,45 @@ static bool edit_domain_from_window(cw_existing_edit_kind_t kind,
 {
 	aa_program_t *program = context;
 	if (program == NULL || snapshot == NULL ||
-		from >= aa_program_count(program)) {
+		from >= aa_program_count(program) ||
+		snapshot->bound_instruction_id == AA_INSTRUCTION_ID_INVALID) {
 		return false;
 	}
-	aa_instruction_t converted;
-	aa_legacy_import_report_t report;
 	const aa_instruction_t *current = aa_program_instruction_at(program, from);
-	if (current == NULL ||
-		aa_legacy_instruction_from_snapshot(snapshot, &converted, &report) !=
-		AA_RESULT_OK || current->opcode != converted.opcode) {
+	if (current == NULL || current->id != snapshot->bound_instruction_id) {
 		return false;
+	}
+	if (kind == CW_EXISTING_EDIT_MOVE && snapshot->opcode == LABEL) {
+		if (current->opcode != AA_OPCODE_LABEL || current->operand_count != 0 ||
+			!snapshot->has_operand_1) {
+			return false;
+		}
+	} else if (kind == CW_EXISTING_EDIT_MOVE &&
+		cl_is_ins_jmp_type(snapshot->opcode)) {
+		const aa_operand_t *operand = &current->operands[0];
+		if (!snapshot->has_operand_1) {
+			if (snapshot->line_state != MISSING_OP1 ||
+				snapshot->jump_target_identity != NULL ||
+				operand->kind != AA_OPERAND_NONE) {
+				return false;
+			}
+		} else {
+			aa_instruction_id_t target_id;
+			if (snapshot->line_state != COMPLETE ||
+				!cw_get_domain_instruction_id(
+					(code_line_t *)snapshot->jump_target_identity, &target_id) ||
+				operand->kind != AA_OPERAND_LABEL_REFERENCE ||
+				operand->value.label_instruction_id != target_id) {
+				return false;
+			}
+		}
+	} else {
+		aa_instruction_t converted;
+		aa_legacy_import_report_t report;
+		if (aa_legacy_instruction_from_snapshot(snapshot, &converted, &report) !=
+			AA_RESULT_OK || current->opcode != converted.opcode) {
+			return false;
+		}
 	}
 	if (kind == CW_EXISTING_EDIT_REMOVE) {
 		return aa_program_remove(program, from) == AA_RESULT_OK;
@@ -646,6 +717,43 @@ static cw_existing_edit_result_t move_ordinary_line_to(
 		line, true, false, true, edit_domain_from_window, program);
 }
 
+static cw_existing_edit_result_t move_line_to(code_line_t *line,
+										  size_t position,
+										  aa_program_t *program)
+{
+	set_mouse_position(100, cw_get_code_line_y(0) +
+		(int)position * cw_get_code_line_spacing());
+	return cw_edit_existing_line_authoritatively(
+		line, true, false, true, edit_domain_from_window, program);
+}
+
+static size_t expected_line_position(code_line_t *const *order,
+									size_t count,
+									code_line_t *line)
+{
+	for (size_t position = 0; position < count; position++) {
+		if (order[position] == line) {
+			return position;
+		}
+	}
+	return SIZE_MAX;
+}
+
+static void record_expected_move(code_line_t **order, size_t count,
+								code_line_t *line, size_t destination)
+{
+	size_t source = expected_line_position(order, count, line);
+	assert(source < count && destination < count);
+	if (source < destination) {
+		memmove(&order[source], &order[source + 1],
+			(destination - source) * sizeof(*order));
+	} else if (source > destination) {
+		memmove(&order[destination + 1], &order[destination],
+			(source - destination) * sizeof(*order));
+	}
+	order[destination] = line;
+}
+
 static void test_domain_authoritative_control_flow_transactions(void)
 {
 	cw_set_challenge_text("control flow transaction test");
@@ -703,23 +811,120 @@ static void test_domain_authoritative_control_flow_transactions(void)
 		tracked_jumps, original_targets,
 		sizeof(tracked_jumps) / sizeof(tracked_jumps[0]));
 
+	int label_state = label_a->state;
+	label_a->state = MISSING_OP1;
+	uint64_t malformed_revision = aa_program_revision(program);
+	assert(move_line_to(label_a, 0, program) == CW_EXISTING_EDIT_FAILED);
+	assert(aa_program_revision(program) == malformed_revision);
+	assert(label_a->state == MISSING_OP1 && cw_domain_bindings_valid(program));
+	label_a->state = label_state;
+
+	code_line_t *stable_label_line = label_a;
+	operand_t *stable_label_operand = label_a->op1;
+	for (size_t index = 0; index < 4; index++) {
+		code_line_t *line = index < 2 ? label_a : label_c;
+		size_t destination = index == 0 ? expected_count - 1 :
+			index == 1 ? 0 : expected_line_position(expected_order,
+				expected_count, label_d);
+		uint64_t move_revision = aa_program_revision(program);
+		assert(move_line_to(line, destination, program) ==
+			CW_EXISTING_EDIT_COMMITTED);
+		assert(aa_program_revision(program) == move_revision + 1);
+		record_expected_move(expected_order, expected_count, line, destination);
+		assert_control_flow_transaction_state(program, expected_order,
+			expected_count, tracked_lines, tracked_ids, tracked_count,
+			tracked_jumps, original_targets,
+			sizeof(tracked_jumps) / sizeof(tracked_jumps[0]));
+	}
+	assert(label_a == stable_label_line && label_a->op1 != stable_label_operand);
+	assert(aa_program_find_by_id(program, tracked_ids[2]) != NULL);
+
+	code_line_t *target_crossing_jumps[] = {forward, backward, jne_a};
+	for (size_t index = 0;
+		 index < sizeof(target_crossing_jumps) / sizeof(target_crossing_jumps[0]);
+		 index++) {
+		code_line_t *jump = target_crossing_jumps[index];
+		code_line_t *target = original_targets[index];
+		size_t target_position = expected_line_position(expected_order,
+			expected_count, target);
+		size_t destination = expected_line_position(expected_order,
+			expected_count, jump) < target_position ?
+			expected_count - 1 : 0;
+		for (size_t direction = 0; direction < 2; direction++) {
+			uint64_t move_revision = aa_program_revision(program);
+			assert(move_line_to(jump, destination, program) ==
+				CW_EXISTING_EDIT_COMMITTED);
+			assert(aa_program_revision(program) == move_revision + 1);
+			record_expected_move(expected_order, expected_count, jump, destination);
+			assert_control_flow_transaction_state(program, expected_order,
+				expected_count, tracked_lines, tracked_ids, tracked_count,
+				tracked_jumps, original_targets,
+				sizeof(tracked_jumps) / sizeof(tracked_jumps[0]));
+			destination = expected_line_position(expected_order, expected_count,
+				jump) < expected_line_position(expected_order, expected_count,
+					target) ? expected_count - 1 : 0;
+		}
+	}
+
 	code_line_t *candidate = create_line(MOV);
 	candidate->state = MISSING_BOTH;
 	uint64_t revision = aa_program_revision(program);
 	assert(cw_append_new_line_authoritatively(candidate, false, false, false,
-		append_from_legacy_snapshot, program) == CW_APPEND_FAILED);
+			append_from_legacy_snapshot, reserve_test_domain_append, program) ==
+		CW_APPEND_FAILED);
 	assert(aa_program_revision(program) == revision);
 	cw_repair_fail_for_test(CW_REPAIR_TEST_TEXTURE, LABEL, 0);
 	assert(cw_append_new_line_authoritatively(candidate, false, false, true,
-		append_from_legacy_snapshot, program) == CW_APPEND_FAILED);
+			append_from_legacy_snapshot, reserve_test_domain_append, program) ==
+		CW_APPEND_FAILED);
 	assert(aa_program_revision(program) == revision);
 	assert(cw_append_new_line_authoritatively(candidate, false, false, true,
-		reject_domain_append, program) == CW_APPEND_FAILED);
+			reject_domain_append, reserve_test_domain_append, program) ==
+		CW_APPEND_FAILED);
 	assert(aa_program_revision(program) == revision);
 	assert_control_flow_transaction_state(program, expected_order,
 		expected_count, tracked_lines, tracked_ids, tracked_count,
 		tracked_jumps, original_targets,
 		sizeof(tracked_jumps) / sizeof(tracked_jumps[0]));
+
+	code_line_t *failed_label = create_line(LABEL);
+	revision = aa_program_revision(program);
+	cw_repair_fail_for_test(CW_REPAIR_TEST_TEXTURE, LABEL, 4);
+	assert(cw_append_new_line_authoritatively(failed_label, false, false, true,
+		append_control_flow_from_snapshot, reserve_test_domain_append, program) ==
+		CW_APPEND_FAILED);
+	assert(aa_program_revision(program) == revision);
+	assert(failed_label->op1 == NULL && failed_label->state == MISSING_OP1);
+	assert_control_flow_transaction_state(program, expected_order,
+		expected_count, tracked_lines, tracked_ids, tracked_count,
+		tracked_jumps, original_targets,
+		sizeof(tracked_jumps) / sizeof(tracked_jumps[0]));
+	cl_destroy_code_line(failed_label);
+
+	code_line_t *malformed_jump = create_jump_line(JMP, "", 0, NULL);
+	malformed_jump->op2 = create_repair_test_operand("RAX", RAX, NULL, false);
+	revision = aa_program_revision(program);
+	assert(cw_append_new_line_authoritatively(malformed_jump, false, false, true,
+		append_control_flow_from_snapshot, reserve_test_domain_append, program) ==
+		CW_APPEND_FAILED);
+	assert(aa_program_revision(program) == revision);
+	assert_control_flow_transaction_state(program, expected_order,
+		expected_count, tracked_lines, tracked_ids, tracked_count,
+		tracked_jumps, original_targets,
+		sizeof(tracked_jumps) / sizeof(tracked_jumps[0]));
+	cl_destroy_code_line(malformed_jump);
+
+	code_line_t *invalid_binding_line = create_complete_ordinary_line(MOV);
+	cw_clear_domain_bindings();
+	revision = aa_program_revision(program);
+	assert(cw_append_new_line_authoritatively(invalid_binding_line, false,
+		false, true, append_from_legacy_snapshot,
+		reserve_test_domain_append, program) == CW_APPEND_FAILED);
+	assert(cw_edit_existing_line_authoritatively(mov, true, false, true,
+		edit_domain_from_window, program) == CW_EXISTING_EDIT_FAILED);
+	assert(aa_program_revision(program) == revision);
+	assert(cw_rebuild_domain_bindings(program));
+	cl_destroy_code_line(invalid_binding_line);
 
 	const int append_opcodes[] = {MOV, ADD, CMP};
 	for (size_t index = 0; index < sizeof(append_opcodes) / sizeof(append_opcodes[0]);
@@ -729,7 +934,8 @@ static void test_domain_authoritative_control_flow_transactions(void)
 		candidate->ins->id = append_opcodes[index];
 		revision = aa_program_revision(program);
 		assert(cw_append_new_line_authoritatively(candidate, false, false, true,
-			append_from_legacy_snapshot, program) == CW_APPEND_COMMITTED);
+				append_from_legacy_snapshot, reserve_test_domain_append, program) ==
+			CW_APPEND_COMMITTED);
 		assert(aa_program_revision(program) == revision + 1);
 		tracked_lines[tracked_count] = candidate;
 		tracked_ids[tracked_count] =
@@ -742,27 +948,53 @@ static void test_domain_authoritative_control_flow_transactions(void)
 			sizeof(tracked_jumps) / sizeof(tracked_jumps[0]));
 	}
 
-	code_line_t *rejected_lines[] = {
-		create_label_line("00:", 0),
+	code_line_t *control_flow_appends[] = {
+		create_line(LABEL),
 		create_jump_line(JMP, "", 0, NULL),
 		create_jump_line(JE, "", 0, NULL),
 		create_jump_line(JNE, "", 0, NULL)
 	};
-	for (size_t index = 0; index < sizeof(rejected_lines) / sizeof(rejected_lines[0]);
+	for (size_t index = 0;
+		 index < sizeof(control_flow_appends) / sizeof(control_flow_appends[0]);
 		 index++) {
-		assert(cw_append_new_line_authoritatively(rejected_lines[index], false,
-			false, true, append_from_legacy_snapshot, program) ==
-			CW_APPEND_NOT_APPLICABLE);
-		assert(cw_edit_existing_line_authoritatively(rejected_lines[index], true,
-			false, true, edit_domain_from_window, program) ==
-			CW_EXISTING_EDIT_NOT_APPLICABLE);
-		cl_destroy_code_line(rejected_lines[index]);
+		uint64_t append_revision = aa_program_revision(program);
+		assert(cw_append_new_line_authoritatively(control_flow_appends[index],
+				false, false, true, append_control_flow_from_snapshot,
+				reserve_test_domain_append, program) ==
+			CW_APPEND_COMMITTED);
+		assert(aa_program_revision(program) == append_revision + 1);
+		tracked_lines[tracked_count] = control_flow_appends[index];
+		tracked_ids[tracked_count] =
+			aa_program_instruction_at(program, expected_count)->id;
+		expected_order[expected_count++] = control_flow_appends[index];
+		tracked_count++;
+		if (cl_is_ins_jmp_type(control_flow_appends[index]->ins->id)) {
+			assert(control_flow_appends[index]->op1 == NULL);
+			assert(control_flow_appends[index]->state == MISSING_OP1);
+			assert(aa_program_instruction_at(program, expected_count - 1)->
+				operands[0].kind == AA_OPERAND_NONE);
+			revision = aa_program_revision(program);
+			assert(move_line_to(control_flow_appends[index], expected_count - 2,
+				program) == CW_EXISTING_EDIT_COMMITTED);
+			assert(aa_program_revision(program) == revision + 1);
+			record_expected_move(expected_order, expected_count,
+				control_flow_appends[index], expected_count - 2);
+			assert(control_flow_appends[index]->op1 == NULL &&
+				control_flow_appends[index]->state == MISSING_OP1);
+		}
+		assert_control_flow_transaction_state(program, expected_order,
+			expected_count, tracked_lines, tracked_ids, tracked_count,
+			tracked_jumps, original_targets,
+			sizeof(tracked_jumps) / sizeof(tracked_jumps[0]));
 	}
-	code_line_t *live_control_flow[] = {label_a, forward, backward, jne_a};
+	code_line_t *live_control_flow[] = {label_a, forward, backward, jne_a,
+		control_flow_appends[0], control_flow_appends[1],
+		control_flow_appends[2], control_flow_appends[3]};
+	set_mouse_position(0, 0);
 	for (size_t index = 0;
 		 index < sizeof(live_control_flow) / sizeof(live_control_flow[0]); index++) {
 		assert(cw_edit_existing_line_authoritatively(live_control_flow[index],
-			true, false, true, edit_domain_from_window, program) ==
+			false, true, true, edit_domain_from_window, program) ==
 			CW_EXISTING_EDIT_NOT_APPLICABLE);
 	}
 	assert(cw_edit_existing_line_authoritatively(mov, true, false, false,
@@ -775,7 +1007,10 @@ static void test_domain_authoritative_control_flow_transactions(void)
 	operand_t *old_forward_operand = forward->op1;
 	revision = aa_program_revision(program);
 	cw_repair_fail_for_test(CW_REPAIR_TEST_TEXTURE, LABEL, 0);
-	assert(move_ordinary_line_to(mov, 3, program) == CW_EXISTING_EDIT_FAILED);
+	size_t mov_position = expected_line_position(expected_order, expected_count,
+		mov);
+	assert(move_ordinary_line_to(mov, mov_position + 1, program) ==
+		CW_EXISTING_EDIT_FAILED);
 	assert(aa_program_revision(program) == revision);
 	assert(label_a->op1 == old_label_operand && forward->op1 == old_forward_operand);
 	assert_control_flow_transaction_state(program, expected_order,
@@ -795,75 +1030,69 @@ static void test_domain_authoritative_control_flow_transactions(void)
 		sizeof(tracked_jumps) / sizeof(tracked_jumps[0]));
 
 	code_line_t *moving = mov;
-	size_t from = 1;
-	size_t to = 2;
+	size_t from = expected_line_position(expected_order, expected_count, moving);
+	size_t to = from + 1;
 	revision = aa_program_revision(program);
 	assert(move_ordinary_line_to(moving, to, program) ==
 		CW_EXISTING_EDIT_COMMITTED);
 	assert(aa_program_revision(program) == revision + 1);
-	memmove(&expected_order[from], &expected_order[from + 1],
-		(to - from) * sizeof(*expected_order));
-	expected_order[to] = moving;
+	record_expected_move(expected_order, expected_count, moving, to);
 	assert_control_flow_transaction_state(program, expected_order,
 		expected_count, tracked_lines, tracked_ids, tracked_count,
 		tracked_jumps, original_targets,
 		sizeof(tracked_jumps) / sizeof(tracked_jumps[0]));
 
 	moving = add;
-	from = 3;
+	from = expected_line_position(expected_order, expected_count, moving);
+	assert(from > 1);
 	to = 1;
 	revision = aa_program_revision(program);
 	assert(move_ordinary_line_to(moving, to, program) ==
 		CW_EXISTING_EDIT_COMMITTED);
 	assert(aa_program_revision(program) == revision + 1);
-	memmove(&expected_order[to + 1], &expected_order[to],
-		(from - to) * sizeof(*expected_order));
-	expected_order[to] = moving;
+	record_expected_move(expected_order, expected_count, moving, to);
 	assert_control_flow_transaction_state(program, expected_order,
 		expected_count, tracked_lines, tracked_ids, tracked_count,
 		tracked_jumps, original_targets,
 		sizeof(tracked_jumps) / sizeof(tracked_jumps[0]));
 
 	moving = cmp;
-	from = 6;
+	from = expected_line_position(expected_order, expected_count, moving);
+	assert(from < expected_count);
 	to = 0;
 	revision = aa_program_revision(program);
 	assert(move_ordinary_line_to(moving, to, program) ==
 		CW_EXISTING_EDIT_COMMITTED);
 	assert(aa_program_revision(program) == revision + 1);
-	memmove(&expected_order[to + 1], &expected_order[to],
-		(from - to) * sizeof(*expected_order));
-	expected_order[to] = moving;
+	record_expected_move(expected_order, expected_count, moving, to);
 	assert_control_flow_transaction_state(program, expected_order,
 		expected_count, tracked_lines, tracked_ids, tracked_count,
 		tracked_jumps, original_targets,
 		sizeof(tracked_jumps) / sizeof(tracked_jumps[0]));
 
 	moving = tracked_lines[tracked_count - 3];
-	from = 12;
+	from = expected_line_position(expected_order, expected_count, moving);
+	assert(from < expected_count);
 	to = 2;
 	revision = aa_program_revision(program);
 	assert(move_ordinary_line_to(moving, to, program) ==
 		CW_EXISTING_EDIT_COMMITTED);
 	assert(aa_program_revision(program) == revision + 1);
-	memmove(&expected_order[to + 1], &expected_order[to],
-		(from - to) * sizeof(*expected_order));
-	expected_order[to] = moving;
+	record_expected_move(expected_order, expected_count, moving, to);
 	assert_control_flow_transaction_state(program, expected_order,
 		expected_count, tracked_lines, tracked_ids, tracked_count,
 		tracked_jumps, original_targets,
 		sizeof(tracked_jumps) / sizeof(tracked_jumps[0]));
 
 	moving = tracked_lines[tracked_count - 2];
-	from = 13;
-	to = 7;
+	from = expected_line_position(expected_order, expected_count, moving);
+	assert(from < expected_count);
+	to = from + 1 < expected_count ? from + 1 : from - 1;
 	revision = aa_program_revision(program);
 	assert(move_ordinary_line_to(moving, to, program) ==
 		CW_EXISTING_EDIT_COMMITTED);
 	assert(aa_program_revision(program) == revision + 1);
-	memmove(&expected_order[to + 1], &expected_order[to],
-		(from - to) * sizeof(*expected_order));
-	expected_order[to] = moving;
+	record_expected_move(expected_order, expected_count, moving, to);
 	assert_control_flow_transaction_state(program, expected_order,
 		expected_count, tracked_lines, tracked_ids, tracked_count,
 		tracked_jumps, original_targets,
@@ -876,9 +1105,7 @@ static void test_domain_authoritative_control_flow_transactions(void)
 	assert(move_ordinary_line_to(moving, to, program) ==
 		CW_EXISTING_EDIT_COMMITTED);
 	assert(aa_program_revision(program) == revision + 1);
-	memmove(&expected_order[to + 1], &expected_order[to],
-		from * sizeof(*expected_order));
-	expected_order[to] = moving;
+	record_expected_move(expected_order, expected_count, moving, to);
 	assert_control_flow_transaction_state(program, expected_order,
 		expected_count, tracked_lines, tracked_ids, tracked_count,
 		tracked_jumps, original_targets,
@@ -888,32 +1115,55 @@ static void test_domain_authoritative_control_flow_transactions(void)
 	to = expected_count - 1;
 	revision = aa_program_revision(program);
 	assert(move_ordinary_line_to(moving, to, program) ==
+		CW_EXISTING_EDIT_FAILED);
+	assert(aa_program_revision(program) == revision);
+	assert_control_flow_transaction_state(program, expected_order,
+		expected_count, tracked_lines, tracked_ids, tracked_count,
+		tracked_jumps, original_targets,
+		sizeof(tracked_jumps) / sizeof(tracked_jumps[0]));
+
+	moving = incomplete;
+	from = expected_line_position(expected_order, expected_count, moving);
+	to = expected_count - 1;
+	assert(from < expected_count);
+	revision = aa_program_revision(program);
+	assert(move_ordinary_line_to(moving, to, program) ==
 		CW_EXISTING_EDIT_COMMITTED);
 	assert(aa_program_revision(program) == revision + 1);
-	memmove(&expected_order[from], &expected_order[from + 1],
-		(to - from) * sizeof(*expected_order));
-	expected_order[to] = moving;
+	record_expected_move(expected_order, expected_count, moving, to);
+	assert_control_flow_transaction_state(program, expected_order,
+		expected_count, tracked_lines, tracked_ids, tracked_count,
+		tracked_jumps, original_targets,
+		sizeof(tracked_jumps) / sizeof(tracked_jumps[0]));
+
+	moving = control_flow_appends[2];
+	from = expected_line_position(expected_order, expected_count, moving);
+	to = 1;
+	assert(from < expected_count);
+	revision = aa_program_revision(program);
+	assert(move_line_to(moving, to, program) == CW_EXISTING_EDIT_COMMITTED);
+	assert(aa_program_revision(program) == revision + 1);
+	record_expected_move(expected_order, expected_count, moving, to);
 	assert_control_flow_transaction_state(program, expected_order,
 		expected_count, tracked_lines, tracked_ids, tracked_count,
 		tracked_jumps, original_targets,
 		sizeof(tracked_jumps) / sizeof(tracked_jumps[0]));
 
 	moving = mov;
-	from = 5;
-	to = 4;
+	from = expected_line_position(expected_order, expected_count, moving);
+	assert(from > 0 && from < expected_count);
+	to = from - 1;
 	revision = aa_program_revision(program);
 	assert(move_ordinary_line_to(moving, to, program) ==
 		CW_EXISTING_EDIT_COMMITTED);
 	assert(aa_program_revision(program) == revision + 1);
-	memmove(&expected_order[to + 1], &expected_order[to],
-		(from - to) * sizeof(*expected_order));
-	expected_order[to] = moving;
+	record_expected_move(expected_order, expected_count, moving, to);
 	assert_control_flow_transaction_state(program, expected_order,
 		expected_count, tracked_lines, tracked_ids, tracked_count,
 		tracked_jumps, original_targets,
 		sizeof(tracked_jumps) / sizeof(tracked_jumps[0]));
 
-	code_line_t *remove_lines[] = {mov, add, tracked_lines[tracked_count - 1]};
+	code_line_t *remove_lines[] = {mov, add, tracked_lines[12]};
 	for (size_t removal = 0; removal < sizeof(remove_lines) / sizeof(remove_lines[0]);
 		 removal++) {
 		code_line_t *removed = remove_lines[removal];
@@ -980,12 +1230,14 @@ static void test_code_window_transactions(void)
 	code_line_t *first = create_line(MOV);
 	uint64_t revision = aa_program_revision(program);
 	assert(cw_append_new_line_authoritatively(
-		first, false, false, true, reject_domain_append, program) == CW_APPEND_FAILED);
+		first, false, false, true, reject_domain_append,
+		reserve_test_domain_append, program) == CW_APPEND_FAILED);
 	assert(aa_program_count(program) == 0);
 	assert(aa_program_revision(program) == revision);
 	assert(cw_get_code_list_size() == 0);
 	assert(cw_append_new_line_authoritatively(
-		first, false, false, true, append_from_legacy_snapshot, program) ==
+			first, false, false, true, append_from_legacy_snapshot,
+			reserve_test_domain_append, program) ==
 		CW_APPEND_COMMITTED);
 	assert(aa_program_count(program) == 1);
 	assert(aa_program_revision(program) == revision + 1);
@@ -997,7 +1249,8 @@ static void test_code_window_transactions(void)
 	code_line_t *second = create_line(ADD);
 	revision = aa_program_revision(program);
 	assert(cw_append_new_line_authoritatively(
-		second, false, false, true, append_from_legacy_snapshot, program) ==
+			second, false, false, true, append_from_legacy_snapshot,
+			reserve_test_domain_append, program) ==
 		CW_APPEND_COMMITTED);
 	assert(aa_program_count(program) == 2);
 	assert(aa_program_revision(program) == revision + 1);
@@ -1252,21 +1505,26 @@ static void test_bound_jump_target_completion_reconciliation(void)
 	aa_program_t *program = aa_program_create();
 	assert(program != NULL);
 	cw_create_code_list();
-	code_line_t *jump = create_jump_line(JMP, "", 0, NULL);
 	code_line_t *unrelated = create_complete_ordinary_line(MOV);
 	code_line_t *label = create_label_line("00:", 0);
-	assert(cw_player_holding_instruction(jump, false, false));
-	cw_clear_held_instruction();
 	assert(cw_player_holding_instruction(unrelated, false, false));
 	cw_clear_held_instruction();
 	assert(cw_player_holding_instruction(label, false, false));
 	cw_clear_held_instruction();
 	assert(stages_refresh_program_snapshot(program));
 	assert(cw_domain_bindings_valid(program));
-	assert(aa_program_count(program) == 3);
-	aa_instruction_id_t jump_id = aa_program_instruction_at(program, 0)->id;
-	aa_instruction_id_t unrelated_id = aa_program_instruction_at(program, 1)->id;
-	aa_instruction_id_t label_id = aa_program_instruction_at(program, 2)->id;
+	assert(aa_program_count(program) == 2);
+	code_line_t *jump = create_jump_line(JMP, "", 0, NULL);
+	uint64_t append_revision = aa_program_revision(program);
+	assert(cw_append_new_line_authoritatively(jump, false, false, true,
+		append_control_flow_from_snapshot, reserve_test_domain_append, program) ==
+		CW_APPEND_COMMITTED);
+	assert(aa_program_revision(program) == append_revision + 1);
+	assert(jump->op1 == NULL && jump->state == MISSING_OP1);
+	assert(cw_domain_bindings_valid(program));
+	aa_instruction_id_t unrelated_id = aa_program_instruction_at(program, 0)->id;
+	aa_instruction_id_t label_id = aa_program_instruction_at(program, 1)->id;
+	aa_instruction_id_t jump_id = aa_program_instruction_at(program, 2)->id;
 	uint64_t revision = aa_program_revision(program);
 
 	operand_t *target = cw_create_jmp_op(label);
@@ -1275,9 +1533,9 @@ static void test_bound_jump_target_completion_reconciliation(void)
 	assert(jump->state == COMPLETE);
 	assert(stages_reconcile_program_snapshot(program));
 	assert(aa_program_revision(program) == revision + 1);
-	assert(aa_program_instruction_at(program, 0)->id == jump_id);
-	assert(aa_program_instruction_at(program, 1)->id == unrelated_id);
-	assert(aa_program_instruction_at(program, 2)->id == label_id);
+	assert(aa_program_instruction_at(program, 0)->id == unrelated_id);
+	assert(aa_program_instruction_at(program, 1)->id == label_id);
+	assert(aa_program_instruction_at(program, 2)->id == jump_id);
 	assert(aa_program_find_by_id(program, unrelated_id)->opcode == AA_OPCODE_MOV);
 	const aa_instruction_t *domain_jump = aa_program_find_by_id(program, jump_id);
 	assert(domain_jump != NULL && domain_jump->operands[0].kind ==
@@ -1289,6 +1547,21 @@ static void test_bound_jump_target_completion_reconciliation(void)
 	assert(aa_program_revision(program) == revision + 1);
 	assert(aa_program_find_by_id(program, jump_id) == domain_jump);
 	assert(cw_domain_bindings_valid(program));
+
+	code_line_t *auto_label = create_line(LABEL);
+	assert(cw_player_holding_instruction(auto_label, false, false));
+	cw_clear_held_instruction();
+	assert(stages_refresh_program_snapshot(program));
+	assert(cw_domain_bindings_valid(program));
+	assert(aa_program_count(program) == 4);
+	for (size_t position = 0; position < aa_program_count(program); position++) {
+		const aa_instruction_t *instruction =
+			aa_program_instruction_at(program, position);
+		assert(instruction->id != AA_INSTRUCTION_ID_INVALID);
+	}
+	label_id = aa_program_instruction_at(program, 1)->id;
+	jump_id = aa_program_instruction_at(program, 2)->id;
+	domain_jump = aa_program_find_by_id(program, jump_id);
 
 	code_line_t *external_label = create_label_line("00:", 0);
 	cl_destroy_operand(jump->op1);
@@ -1304,6 +1577,33 @@ static void test_bound_jump_target_completion_reconciliation(void)
 	cw_clear_code_list();
 	cw_destroy_code_window_assets();
 	cw_clear_domain_bindings();
+	aa_program_destroy(program);
+}
+
+static void test_authoritative_label_append_to_ordinary_program(void)
+{
+	aa_program_t *program = aa_program_create();
+	assert(program != NULL);
+	cw_create_code_list();
+	assert(cw_rebuild_domain_bindings(program));
+	code_line_t *ordinary = create_complete_ordinary_line(MOV);
+	assert(cw_append_new_line_authoritatively(ordinary, false, false, true,
+		append_from_legacy_snapshot, reserve_test_domain_append, program) ==
+		CW_APPEND_COMMITTED);
+	aa_instruction_id_t ordinary_id = aa_program_instruction_at(program, 0)->id;
+	uint64_t revision = aa_program_revision(program);
+	code_line_t *label = create_line(LABEL);
+	assert(label->op1 == NULL && label->state == MISSING_OP1);
+	assert(cw_append_new_line_authoritatively(label, false, false, true,
+		append_control_flow_from_snapshot, reserve_test_domain_append, program) ==
+		CW_APPEND_COMMITTED);
+	assert(aa_program_revision(program) == revision + 1);
+	assert(label->op1 != NULL && label->state == COMPLETE);
+	assert(label->op1->id == 2);
+	assert(aa_program_instruction_at(program, 0)->id == ordinary_id);
+	assert(aa_program_instruction_at(program, 1)->opcode == AA_OPCODE_LABEL);
+	assert(cw_domain_bindings_valid(program));
+	cw_destroy_code_window_assets();
 	aa_program_destroy(program);
 }
 
@@ -1364,6 +1664,7 @@ int main(void)
 	test_program_lifecycle_reuse();
 	test_move_remove_revision_and_rollback();
 	test_code_window_transactions();
+	test_authoritative_label_append_to_ordinary_program();
 	test_bound_jump_target_completion_reconciliation();
 	test_domain_authoritative_control_flow_transactions();
 	test_program_reserve_contract();

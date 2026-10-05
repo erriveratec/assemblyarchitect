@@ -31,6 +31,8 @@ typedef bool (*cw_append_authority_fn)(
 	aa_instruction_id_t *created_id,
 	void *context);
 
+typedef bool (*cw_append_prepare_fn)(size_t required_count, void *context);
+
 typedef enum cw_existing_edit_kind {
 	CW_EXISTING_EDIT_REMOVE,
 	CW_EXISTING_EDIT_MOVE
@@ -64,6 +66,8 @@ void cw_clear_held_instruction(void);
 bool cw_refresh_label_and_jump_presentation(void);
 bool cw_rebuild_domain_bindings(const aa_program_t *program);
 bool cw_domain_bindings_valid(const aa_program_t *program);
+bool cw_get_domain_instruction_id(const code_line_t *line,
+								 aa_instruction_id_t *instruction_id);
 void cw_clear_domain_bindings(void);
 cw_append_result_t cw_append_new_line_authoritatively(
 	code_line_t *line,
@@ -71,6 +75,7 @@ cw_append_result_t cw_append_new_line_authoritatively(
 	bool delete_enabled,
 	bool authority_allowed,
 	cw_append_authority_fn commit_domain,
+	cw_append_prepare_fn prepare_domain,
 	void *context);
 cw_existing_edit_result_t cw_edit_existing_line_authoritatively(
 	code_line_t *line,
