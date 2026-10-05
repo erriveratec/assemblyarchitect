@@ -17,6 +17,8 @@ TEST_SOURCE = tests/tutorial_text_test.c
 TEST_SOURCES := $(filter-out $(S_DIR)/main.c,$(S_FILES))
 OPERAND_TEST_EXEC = operand_highlights_test
 OPERAND_TEST_SOURCE = tests/operand_highlights_test.c
+LEVEL_CONFIG_HOVER_TEST_EXEC = level_config_hover_test
+LEVEL_CONFIG_HOVER_TEST_SOURCE = tests/level_config_hover_test.c
 
  
 ############################
@@ -75,7 +77,7 @@ build:
 run: build
 	./$(EXEC)
 
-test: test-operand-highlights
+test: test-level-config-hover test-operand-highlights
 	$(CC) $(CFLAGS) $(TEST_SOURCE) $(TEST_SOURCES) -o $(TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(TEST_EXEC)
@@ -84,6 +86,11 @@ test-operand-highlights:
 	$(CC) $(CFLAGS) $(OPERAND_TEST_SOURCE) $(TEST_SOURCES) -o $(OPERAND_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(OPERAND_TEST_EXEC)
+
+test-level-config-hover:
+	$(CC) $(CFLAGS) $(LEVEL_CONFIG_HOVER_TEST_SOURCE) $(TEST_SOURCES) -o $(LEVEL_CONFIG_HOVER_TEST_EXEC) \
+	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
+	./$(LEVEL_CONFIG_HOVER_TEST_EXEC)
 
 ############################
 # App bundle target
@@ -169,7 +176,7 @@ app: build
 ############################
 
 clean:
-	rm -rf $(EXEC) $(APP_BUNDLE) $(TEST_EXEC)
+	rm -rf $(EXEC) $(APP_BUNDLE) $(TEST_EXEC) $(LEVEL_CONFIG_HOVER_TEST_EXEC)
 	find . -type d -name '*.dSYM' -prune -exec rm -rf {} +
 	rm -rf assemblyArchitect*
 	rm -f source/.*.swp

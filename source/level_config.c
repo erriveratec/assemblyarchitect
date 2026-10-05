@@ -21,6 +21,7 @@
 
 typedef struct level_config_t {
 	char challenge[LINE_SIZE];
+	char hover_message[LINE_SIZE];
 	char instructions[128];
 	char registers[128];
 	char input_type[32];
@@ -297,8 +298,85 @@ static void apply_level(int level_id, level_config_t *config)
 	iw_update_ins_box_size();
 }
 
-int lc_load_level(int level_id)
+static void parse_level_config_property(level_config_t *config, char *key,
+                                        char *value)
 {
+	if (strcmp(key, "challenge") == 0)
+		snprintf(config->challenge, sizeof(config->challenge), "%s", value);
+	else if (strcmp(key, "hover_message") == 0)
+		snprintf(config->hover_message, sizeof(config->hover_message), "%s",
+		         value);
+	else if (strcmp(key, "instructions") == 0)
+		snprintf(config->instructions, sizeof(config->instructions), "%s", value);
+	else if (strcmp(key, "registers") == 0)
+		snprintf(config->registers, sizeof(config->registers), "%s", value);
+	else if (strcmp(key, "input.type") == 0)
+		snprintf(config->input_type, sizeof(config->input_type), "%s", value);
+	else if (strcmp(key, "input.modifier") == 0)
+		snprintf(config->input_modifier, sizeof(config->input_modifier), "%s",
+		         value);
+	else if (strcmp(key, "input.count") == 0)
+		config->input_count = atoi(value);
+	else if (strcmp(key, "input.arg1") == 0)
+		config->input_arg1 = atoi(value);
+	else if (strcmp(key, "input.arg2") == 0)
+		config->input_arg2 = atoi(value);
+	else if (strcmp(key, "input.arg3") == 0)
+		config->input_arg3 = atoi(value);
+	else if (strcmp(key, "instruction_limit") == 0)
+		config->instruction_limit = atoi(value);
+	else if (strcmp(key, "ui.step_controls_enabled") == 0) {
+		config->step_controls_enabled     = parse_bool(value);
+		config->step_controls_enabled_set = true;
+	} else if (strcmp(key, "ui.immediates_visible") == 0) {
+		config->immediates_visible     = parse_bool(value);
+		config->immediates_visible_set = true;
+	} else if (strcmp(key, "ui.register_hints_arrow_enabled") == 0) {
+		config->register_hints_enabled     = parse_bool(value);
+		config->register_hints_enabled_set = true;
+	} else if (strcmp(key, "ui.buffer_hints_arrow_enabled") == 0) {
+		config->buffer_hints_enabled     = parse_bool(value);
+		config->buffer_hints_enabled_set = true;
+	} else if (strcmp(key, "ui.immediate_hints_arrow_enabled") == 0) {
+		config->immediate_hints_enabled     = parse_bool(value);
+		config->immediate_hints_enabled_set = true;
+	} else if (strcmp(key, "ui.flag_boxes_visible") == 0) {
+		config->flag_boxes_visible     = parse_bool(value);
+		config->flag_boxes_visible_set = true;
+	} else if (strcmp(key, "ui.operand_highlights_enabled") == 0) {
+		config->operand_highlights_enabled = parse_bool(value);
+	} else if (strcmp(key, "win.type") == 0)
+		snprintf(config->win_type, sizeof(config->win_type), "%s", value);
+	else if (strcmp(key, "win.repeat_1") == 0 ||
+	         strcmp(key, "win.group_size_1") == 0 ||
+	         strcmp(key, "win.filter_enabled_1") == 0 ||
+	         strcmp(key, "win.count_value_1") == 0 ||
+	         strcmp(key, "win.starting_offset_1") == 0) {
+		config->win_arg1     = atoi(value);
+		config->win_arg1_set = true;
+	} else if (strcmp(key, "win.multiplier_2") == 0 ||
+	           strcmp(key, "win.inserted_value_3") == 0 ||
+	           strcmp(key, "win.filter_value_2") == 0 ||
+	           strcmp(key, "win.stop_value_2") == 0) {
+		config->win_arg2     = atoi(value);
+		config->win_arg2_set = true;
+	} else if (strcmp(key, "win.addend_3") == 0 ||
+	           strcmp(key, "win.stop_value_3") == 0) {
+		config->win_arg3     = atoi(value);
+		config->win_arg3_set = true;
+	} else if (strcmp(key, "win.reverse_4") == 0 ||
+	           strcmp(key, "win.insert_between_2") == 0) {
+		config->win_flag     = parse_bool(value);
+		config->win_flag_set = true;
+	}
+}
+
+static int parse_level_config(int level_id, level_config_t *out_config)
+{
+	if (out_config == NULL || level_id < 0 || level_id >= LV_LEVEL_QUANTITY)
+		return FAIL;
+
+	memset(out_config, 0, sizeof(*out_config));
 	char relative_path[64];
 	char path[512];
 	snprintf(relative_path, sizeof(relative_path), LEVEL_CONFIG_PATH_FORMAT,
@@ -308,8 +386,6 @@ int lc_load_level(int level_id)
 	if (file == NULL)
 		return FAIL;
 
-	/* The optional availability flag intentionally defaults to false. */
-	level_config_t config = {0};
 	char           line[LINE_SIZE];
 	bool           selected = false;
 	bool           found    = false;
@@ -335,79 +411,44 @@ int lc_load_level(int level_id)
 		*equals     = '\0';
 		char *key   = trim(text);
 		char *value = trim(equals + 1);
-		if (strcmp(key, "challenge") == 0)
-			snprintf(config.challenge, sizeof(config.challenge), "%s", value);
-		else if (strcmp(key, "instructions") == 0)
-			snprintf(config.instructions, sizeof(config.instructions), "%s",
-			         value);
-		else if (strcmp(key, "registers") == 0)
-			snprintf(config.registers, sizeof(config.registers), "%s", value);
-		else if (strcmp(key, "input.type") == 0)
-			snprintf(config.input_type, sizeof(config.input_type), "%s", value);
-		else if (strcmp(key, "input.modifier") == 0)
-			snprintf(config.input_modifier, sizeof(config.input_modifier), "%s",
-			         value);
-		else if (strcmp(key, "input.count") == 0)
-			config.input_count = atoi(value);
-		else if (strcmp(key, "input.arg1") == 0)
-			config.input_arg1 = atoi(value);
-		else if (strcmp(key, "input.arg2") == 0)
-			config.input_arg2 = atoi(value);
-		else if (strcmp(key, "input.arg3") == 0)
-			config.input_arg3 = atoi(value);
-		else if (strcmp(key, "instruction_limit") == 0)
-			config.instruction_limit = atoi(value);
-		else if (strcmp(key, "ui.step_controls_enabled") == 0) {
-			config.step_controls_enabled     = parse_bool(value);
-			config.step_controls_enabled_set = true;
-		} else if (strcmp(key, "ui.immediates_visible") == 0) {
-			config.immediates_visible     = parse_bool(value);
-			config.immediates_visible_set = true;
-		} else if (strcmp(key, "ui.register_hints_arrow_enabled") == 0) {
-			config.register_hints_enabled = parse_bool(value);
-
-			config.register_hints_enabled_set = true;
-		} else if (strcmp(key, "ui.buffer_hints_arrow_enabled") == 0) {
-			config.buffer_hints_enabled = parse_bool(value);
-
-			config.buffer_hints_enabled_set = true;
-		} else if (strcmp(key, "ui.immediate_hints_arrow_enabled") == 0) {
-			config.immediate_hints_enabled = parse_bool(value);
-
-			config.immediate_hints_enabled_set = true;
-		} else if (strcmp(key, "ui.flag_boxes_visible") == 0) {
-			config.flag_boxes_visible = parse_bool(value);
-
-			config.flag_boxes_visible_set = true;
-		} else if (strcmp(key, "ui.operand_highlights_enabled") == 0) {
-			config.operand_highlights_enabled = parse_bool(value);
-		} else if (strcmp(key, "win.type") == 0)
-			snprintf(config.win_type, sizeof(config.win_type), "%s", value);
-		else if (strcmp(key, "win.repeat_1") == 0 ||
-		         strcmp(key, "win.group_size_1") == 0 ||
-		         strcmp(key, "win.filter_enabled_1") == 0 ||
-		         strcmp(key, "win.count_value_1") == 0 ||
-		         strcmp(key, "win.starting_offset_1") == 0) {
-			config.win_arg1     = atoi(value);
-			config.win_arg1_set = true;
-		} else if (strcmp(key, "win.multiplier_2") == 0 ||
-		           strcmp(key, "win.inserted_value_3") == 0 ||
-		           strcmp(key, "win.filter_value_2") == 0 ||
-		           strcmp(key, "win.stop_value_2") == 0) {
-			config.win_arg2     = atoi(value);
-			config.win_arg2_set = true;
-		} else if (strcmp(key, "win.addend_3") == 0 ||
-		           strcmp(key, "win.stop_value_3") == 0) {
-			config.win_arg3     = atoi(value);
-			config.win_arg3_set = true;
-		} else if (strcmp(key, "win.reverse_4") == 0 ||
-		           strcmp(key, "win.insert_between_2") == 0) {
-			config.win_flag     = parse_bool(value);
-			config.win_flag_set = true;
-		}
+		parse_level_config_property(out_config, key, value);
 	}
 	fclose(file);
-	if (!found || config.input_count <= 0 || config.instructions[0] == '\0' ||
+	if (!found) {
+		fprintf(stderr, "level.cfg: level %d section not found\n", level_id);
+		return FAIL;
+	}
+	return SUCCESS;
+}
+
+int lc_load_hover_message(int level_id, char *buffer, size_t buffer_size)
+{
+	if (buffer != NULL && buffer_size > 0)
+		buffer[0] = '\0';
+	if (buffer == NULL || buffer_size == 0 || level_id < 0 ||
+	    level_id >= LV_LEVEL_QUANTITY)
+		return FAIL;
+
+	level_config_t config;
+	if (parse_level_config(level_id, &config) != SUCCESS)
+		return FAIL;
+	if (config.hover_message[0] == '\0') {
+		fprintf(stderr, "level.cfg: level %d is missing hover_message\n",
+		        level_id);
+		return FAIL;
+	}
+
+	snprintf(buffer, buffer_size, "%s", config.hover_message);
+	return SUCCESS;
+}
+
+int lc_load_level(int level_id)
+{
+	level_config_t config;
+	if (parse_level_config(level_id, &config) != SUCCESS)
+		return FAIL;
+
+	if (config.input_count <= 0 || config.instructions[0] == '\0' ||
 	    config.registers[0] == '\0' || config.win_type[0] == '\0')
 		return FAIL;
 	if (!validate_ui_properties(level_id, &config)) {

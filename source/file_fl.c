@@ -24,7 +24,6 @@
 #define SAVE_FILE_PATH "data/save.dat"
 #define SAVE_FILE_PATH_TEMP "data/save.dattemp"
 #define TUTORIAL_PATH_FORMAT "data/levels/%02d/tutorial.cfg"
-#define HOVER_MSGS_FILE_PATH "data/hover_lvl_msgs.dat"
 
 // Text for the save file creation
 #define STR_LEVEL_ACTIVE "LEVEL ACTIVE"
@@ -485,52 +484,6 @@ error:
 	return;
 }
 
-static void parse_single_line_message(FILE *file, int message_position,
-                                      const char *end_marker)
-{
-	char   *line                = NULL;
-	size_t  capacity            = 0;
-	ssize_t read                = 0;
-	char    message[MSG_LENGTH] = "";
-	bool    has_text            = false;
-
-	while ((read = getline(&line, &capacity, file)) != READ_ERROR) {
-		if (strstr(line, end_marker) != NULL) {
-			break;
-		}
-
-		line[strcspn(line, "\r\n")] = '\0';
-
-		if (line[0] == '\0') {
-			continue;
-		}
-
-		size_t used      = strlen(message);
-		size_t remaining = sizeof(message) - used;
-
-		if (has_text && remaining > 1) {
-			strncat(message, " ", remaining - 1);
-
-			used      = strlen(message);
-			remaining = sizeof(message) - used;
-		}
-
-		if (remaining > 1) {
-			strncat(message, line, remaining - 1);
-		}
-
-		has_text = true;
-	}
-
-	if (has_text) {
-		tx_set_single_line_message(message_position, message);
-	} else {
-		fprintf(stderr, "hover message %d is empty\n", message_position);
-	}
-
-	free(line);
-}
-
 /* Function: parse_message
  *------------------------------------------------------------------------------
  * This function processes a message of a level
@@ -566,63 +519,6 @@ static void parse_message(FILE *fp, int msg_pos, int w, int h,
 		i++;
 	}
 	free(line);
-	return;
-}
-
-/* Function: fl_load_hover_level_msgs
- *------------------------------------------------------------------------------
- * Loads the hover descriptions displayed in the level-selection UI.
- *
- * Arguments:
- *	None.
- *
- * Return:
- *	void.
- *
- */
-void fl_load_hover_level_msgs(void)
-{
-	char   *line = NULL;
-	size_t  len  = 0;
-	ssize_t read;
-	int     message_count = 0;
-	int     message_index = 0;
-
-	char relative_path[64];
-	char path[512];
-
-	snprintf(relative_path, sizeof(relative_path), "%s", HOVER_MSGS_FILE_PATH);
-	ax_get_resource_path(path, sizeof(path), relative_path);
-
-	FILE *file = fopen(path, "r");
-	check_mem(file);
-
-	while ((read = getline(&line, &len, file)) != READ_ERROR) {
-		if (strncmp(line, "MSG ", 4) == 0) {
-			message_count++;
-		}
-	}
-
-	if (message_count == 0) {
-		fprintf(stderr, "hover_lvl_msgs.dat has no hover messages\n");
-		goto error;
-	}
-
-	tx_set_and_allocate_msgs_array(message_count);
-	rewind(file);
-
-	while ((read = getline(&line, &len, file)) != READ_ERROR) {
-		if (strncmp(line, "MSG ", 4) == 0) {
-			parse_single_line_message(file, message_index, "MSG_END");
-			message_index++;
-		}
-	}
-
-error:
-	free(line);
-	if (file != NULL) {
-		fclose(file);
-	}
 	return;
 }
 

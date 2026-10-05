@@ -298,7 +298,12 @@ static int get_h_bottom_msg()
  * Return:
  * 	texture_array_t pointer of the requested texture
  */
-texture_array_t *tx_get_message_texture(int pos) { return g_msgs[pos]; }
+texture_array_t *tx_get_message_texture(int pos)
+{
+	if (g_msgs == NULL || pos < 0 || pos >= g_msgs_size)
+		return NULL;
+	return g_msgs[pos];
+}
 
 /* Function: tx_draw_create_typewriter_text
  * -----------------------------------------------------------------------------
@@ -350,9 +355,16 @@ bool tx_draw_create_typewriter_text(texture_t **t, SDL_Rect r, const char *text,
  */
 void tx_set_and_allocate_msgs_array(int size)
 {
-	assert(size > 0 && "Negative size");
+	tx_free_level_text_textures();
+	if (size <= 0)
+		return;
+
+	g_msgs = calloc((size_t)size, sizeof(texture_array_t *));
+	if (g_msgs == NULL) {
+		fprintf(stderr, "tx_set_and_allocate_msgs_array: allocation failed\n");
+		return;
+	}
 	g_msgs_size = size;
-	g_msgs      = calloc(size, sizeof(texture_array_t *));
 }
 
 /* Function: tx_set_message_in_array
@@ -384,7 +396,7 @@ void tx_set_message_in_array(int pos, char *msg, int w, int h)
 
 void tx_set_single_line_message(int position, const char *message)
 {
-	if (position < 0 || position >= g_msgs_size) {
+	if (g_msgs == NULL || position < 0 || position >= g_msgs_size) {
 		fprintf(stderr,
 		        "tx_set_single_line_message: "
 		        "invalid position %d\n",
@@ -481,8 +493,11 @@ void tx_init_global_msgs()
  */
 void tx_free_level_text_textures()
 {
-	for (int i = 0; i < g_msgs_size; i++) {
-		dw_free_texture_array(g_msgs[i]);
+	if (g_msgs != NULL) {
+		for (int i = 0; i < g_msgs_size; i++) {
+			if (g_msgs[i] != NULL)
+				dw_free_texture_array(g_msgs[i]);
+		}
 	}
 	free(g_msgs);
 	g_msgs      = NULL;

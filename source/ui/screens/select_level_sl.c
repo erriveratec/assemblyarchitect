@@ -10,6 +10,7 @@
 #include "stages.h"
 #include "storage/save_sv.h"
 #include "text_tx.h"
+#include "level_config.h"
 #include "ui/escape_menu_em.h"
 #include "media/audio_au.h"
 #include "ui/screens/screen_common_sc.h"
@@ -42,6 +43,76 @@ static void     create_sector_lvl_btns(iface_btn_t **btns, bool *levels,
 static SDL_Rect get_sector_0_lower_separator();
 static int      get_fst_btn_ofs();
 static int      get_level_btn_spacing();
+
+typedef struct level_hover_state_t {
+	texture_array_t *texture;
+	Uint64           changed_at_ms;
+	int              previous_button_index;
+} level_hover_state_t;
+
+enum { LEVEL_HOVER_MESSAGE_CAPACITY = 512 };
+
+static void load_sector_hover_messages(int first_level_id)
+{
+	tx_set_and_allocate_msgs_array(LV_LEVEL_QUANTITY);
+	int end_level_id = first_level_id + LV_SECTOR_LV_QTY;
+	if (end_level_id > LV_LEVEL_QUANTITY)
+		end_level_id = LV_LEVEL_QUANTITY;
+	for (int level_id = first_level_id; level_id < end_level_id; level_id++) {
+		char message[LEVEL_HOVER_MESSAGE_CAPACITY];
+		if (lc_load_hover_message(level_id, message, sizeof(message)) == SUCCESS)
+			tx_set_single_line_message(level_id, message);
+	}
+}
+
+static void reset_level_hover_state(level_hover_state_t *state)
+{
+	state->texture               = NULL;
+	state->changed_at_ms         = 0;
+	state->previous_button_index = -1;
+}
+
+static void draw_sector_hover_description(iface_btn_t **buttons,
+                                          int first_level_id,
+                                          level_hover_state_t *state,
+                                          Uint64 current_time)
+{
+	int current_button_index = -1;
+	for (int index = 0; index < LV_SECTOR_LV_QTY; index++) {
+		int hover_state =
+		    bt_draw_iface_btn(buttons[index], em_get_escape_state(), NULL);
+		if (hover_state == BTN_HOVER || hover_state == BTN_CLICKPRESS)
+			current_button_index = index;
+	}
+
+	if (current_button_index != state->previous_button_index) {
+		state->previous_button_index = current_button_index;
+		state->changed_at_ms         = current_time;
+		state->texture = current_button_index >= 0
+		                     ? tx_get_message_texture(first_level_id +
+		                                              current_button_index)
+		                     : NULL;
+	}
+
+	texture_array_t *texture = state->texture;
+	if (texture == NULL || texture->size <= 0 || texture->t == NULL ||
+	    texture->t[0] == NULL)
+		return;
+
+	dw_set_array_texture_color_mod(texture, C_GREY);
+	Uint64 elapsed = current_time - state->changed_at_ms;
+	float  fade    = (float)elapsed / (float)DESCRIPTION_FADE_MS;
+	if (fade < 0.0f)
+		fade = 0.0f;
+	if (fade > 1.0f)
+		fade = 1.0f;
+	Uint8 alpha = (Uint8)(fade * 255.0f);
+	SDL_SetTextureAlphaMod(texture->t[0]->texture, alpha);
+
+	SDL_Rect box = get_sector_0_lower_separator();
+	box.y += box.h + dm_scale_to_res(SECTOR_TITLE_SEPARATOR);
+	dw_draw_wrapped_texture_by_h(box, dm_get_h_stage_subsubtitle(), texture);
+}
 
 /* Function: get_fst_btn_ofs
  * -----------------------------------------------------------------------------
@@ -268,6 +339,7 @@ int sl_select_level_sector_1()
 
 	static Uint64 anim_prev_ms;
 	static Uint64 sub_start_ms;
+	static level_hover_state_t hover_state = {.previous_button_index = -1};
 	Uint64        cur_time     = SDL_GetTicks64();
 	bool          change_stage = false;
 
@@ -276,7 +348,8 @@ int sl_select_level_sector_1()
 	Uint8             sub_alpha = 0;
 
 	if (level_initialized == false) {
-		fl_load_hover_level_msgs();
+		load_sector_hover_messages(LV_SECTOR_1_START);
+		reset_level_hover_state(&hover_state);
 		sv_load_architect(g_player, player_levels);
 		level_initialized = true;
 		levels            = malloc(sizeof(iface_btn_t *) * LV_SECTOR_LV_QTY);
@@ -323,53 +396,8 @@ int sl_select_level_sector_1()
 	                         C_SHADOWGREY);
 	sb_draw_ret_btn();
 
-	static texture_array_t *hover = NULL;
-	static Uint64           level_sub_start_ms;
-	static int              previous_hover_index = -1;
-	Uint8                   level_alpha          = 0;
-	int                     current_hover_index  = -1;
-
-	for (int i = 0; i < LV_SECTOR_LV_QTY; i++) {
-		int hover_state =
-		    bt_draw_iface_btn(levels[i], em_get_escape_state(), NULL);
-
-		if (hover_state == BTN_HOVER || hover_state == BTN_CLICKPRESS) {
-			current_hover_index = i;
-		}
-	}
-
-	if (current_hover_index != previous_hover_index) {
-		previous_hover_index = current_hover_index;
-
-		level_sub_start_ms = cur_time;
-
-		if (current_hover_index >= 0) {
-			hover =
-			    tx_get_message_texture(LV_SECTOR_1_START + current_hover_index);
-		} else {
-			hover = NULL;
-		}
-	}
-
-	SDL_Rect sep = get_sector_0_lower_separator();
-	sep.y += sep.h + dm_scale_to_res(SECTOR_TITLE_SEPARATOR);
-
-	if (hover != NULL) {
-		dw_set_array_texture_color_mod(hover, C_GREY);
-		Uint64 elapsed = cur_time - level_sub_start_ms;
-		if (elapsed < DESCRIPTION_FADE_MS) {
-			float t = (float)elapsed / (float)DESCRIPTION_FADE_MS;
-			if (t < 0.0f)
-				t = 0.0f;
-			if (t > 1.0f)
-				t = 1.0f;
-			level_alpha = (Uint8)(t * 255.0f);
-		} else {
-			level_alpha = 255;
-		}
-		SDL_SetTextureAlphaMod(hover->t[0]->texture, level_alpha);
-		dw_draw_wrapped_texture_by_h(sep, dm_get_h_stage_subsubtitle(), hover);
-	}
+	draw_sector_hover_description(levels, LV_SECTOR_1_START, &hover_state,
+	                              cur_time);
 
 	if (bt_chk_rel_iface_btn(levels[0], g_sfx_select)) {
 		ret_val      = LV_LEVEL_8;
@@ -404,6 +432,7 @@ int sl_select_level_sector_1()
 	}
 	if (change_stage == true) {
 		level_initialized = false;
+		reset_level_hover_state(&hover_state);
 		sc_fx_destroy(&fx_state);
 		sc_typewriter_free(&title);
 		tx_free_level_text_textures();
@@ -435,6 +464,7 @@ int sl_select_level_sector_0()
 
 	static Uint64 anim_prev_ms;
 	static Uint64 sub_start_ms;
+	static level_hover_state_t hover_state = {.previous_button_index = -1};
 	Uint64        cur_time     = SDL_GetTicks64();
 	bool          change_stage = false;
 
@@ -443,7 +473,8 @@ int sl_select_level_sector_0()
 	Uint8             sub_alpha = 0;
 
 	if (level_initialized == false) {
-		fl_load_hover_level_msgs();
+		load_sector_hover_messages(0);
+		reset_level_hover_state(&hover_state);
 		sv_load_architect(g_player, player_levels);
 		level_initialized = true;
 		levels            = malloc(sizeof(iface_btn_t *) * LV_SECTOR_LV_QTY);
@@ -490,52 +521,7 @@ int sl_select_level_sector_0()
 	                         C_SHADOWGREY);
 	sb_draw_ret_btn();
 
-	static texture_array_t *hover = NULL;
-	static Uint64           level_sub_start_ms;
-	static int              previous_hover_index = -1;
-	Uint8                   level_alpha          = 0;
-	int                     current_hover_index  = -1;
-
-	for (int i = 0; i < LV_SECTOR_LV_QTY; i++) {
-		int hover_state =
-		    bt_draw_iface_btn(levels[i], em_get_escape_state(), NULL);
-
-		if (hover_state == BTN_HOVER || hover_state == BTN_CLICKPRESS) {
-			current_hover_index = i;
-		}
-	}
-
-	if (current_hover_index != previous_hover_index) {
-		previous_hover_index = current_hover_index;
-
-		level_sub_start_ms = cur_time;
-
-		if (current_hover_index >= 0) {
-			hover = tx_get_message_texture(current_hover_index);
-		} else {
-			hover = NULL;
-		}
-	}
-
-	SDL_Rect sep = get_sector_0_lower_separator();
-	sep.y += sep.h + dm_scale_to_res(SECTOR_TITLE_SEPARATOR);
-
-	if (hover != NULL) {
-		dw_set_array_texture_color_mod(hover, C_GREY);
-		Uint64 elapsed = cur_time - level_sub_start_ms;
-		if (elapsed < DESCRIPTION_FADE_MS) {
-			float t = (float)elapsed / (float)DESCRIPTION_FADE_MS;
-			if (t < 0.0f)
-				t = 0.0f;
-			if (t > 1.0f)
-				t = 1.0f;
-			level_alpha = (Uint8)(t * 255.0f);
-		} else {
-			level_alpha = 255;
-		}
-		SDL_SetTextureAlphaMod(hover->t[0]->texture, level_alpha);
-		dw_draw_wrapped_texture_by_h(sep, dm_get_h_stage_subsubtitle(), hover);
-	}
+	draw_sector_hover_description(levels, 0, &hover_state, cur_time);
 
 	if (bt_chk_rel_iface_btn(levels[0], g_sfx_select)) {
 		ret_val      = LV_LEVEL_0;
@@ -575,6 +561,7 @@ int sl_select_level_sector_0()
 	}
 	if (change_stage == true) {
 		level_initialized = false;
+		reset_level_hover_state(&hover_state);
 		sc_fx_destroy(&fx_state);
 		sc_typewriter_free(&title);
 
