@@ -1,15 +1,18 @@
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <SDL.h>
 #include <SDL_ttf.h>
 
 #include "code_window_cw.h"
+#include "code_window_cw_internal.h"
 #include "dimensions_dm.h"
 #include "draw_dw.h"
 #include "domain/program.h"
 #include "legacy_code_ids.h"
 #include "migration/legacy_program_adapter.h"
+#include "list.h"
 #include "mouse_ms.h"
 #include "sdl_config.h"
 #include "ui/button_bt.h"
@@ -109,6 +112,369 @@ static code_line_t *create_line(int opcode)
 	return line;
 }
 
+static operand_t *create_repair_test_operand(const char *text,
+											 int id,
+											 code_line_t *target,
+											 bool label)
+{
+	char mutable_text[64];
+	assert(strlen(text) < sizeof(mutable_text));
+	strcpy(mutable_text, text);
+	texture_t *texture = dw_create_text_tex(mutable_text, C_WHITE);
+	assert(texture != NULL);
+	SDL_Rect bounds = cl_get_code_button_size();
+	if (!label) {
+		bounds.w *= 2;
+	}
+	btn_t *button = bt_create_btn(bounds, texture);
+	assert(button != NULL);
+	operand_t *operand = malloc(sizeof(*operand));
+	assert(operand != NULL);
+	operand->b = button;
+	operand->id = id;
+	operand->jptr = target;
+	return operand;
+}
+
+static code_line_t *create_label_line(const char *text, int id)
+{
+	code_line_t *line = create_line(LABEL);
+	line->op1 = create_repair_test_operand(text, id, NULL, true);
+	line->state = COMPLETE;
+	return line;
+}
+
+static code_line_t *create_jump_line(int opcode,
+									 const char *text,
+									 int id,
+									 code_line_t *target)
+{
+	code_line_t *line = create_line(opcode);
+	if (target != NULL) {
+		line->op1 = create_repair_test_operand(text, id, target, false);
+		line->state = COMPLETE;
+	} else {
+		line->state = MISSING_OP1;
+	}
+	return line;
+}
+
+static void assert_repair_snapshot_unchanged(code_line_t *const *lines,
+											 size_t count,
+											 operand_t *const *operands,
+											 const int *ids,
+											 code_line_t *const *targets,
+											 const int *states)
+{
+	for (size_t index = 0; index < count; index++) {
+		assert(lines[index]->op1 == operands[index]);
+		assert(lines[index]->state == states[index]);
+		if (operands[index] != NULL) {
+			assert(operands[index]->id == ids[index]);
+			assert(operands[index]->jptr == targets[index]);
+		}
+	}
+}
+
+static void test_control_flow_repair_empty_and_ordinary(void)
+{
+	cw_control_flow_repair_plan_t *plan = NULL;
+	assert(cw_prepare_control_flow_repair(NULL, 0, false, &plan) ==
+		CW_REPAIR_OK);
+	cw_commit_control_flow_repair(plan);
+	cw_discard_control_flow_repair(plan);
+
+	code_line_t *ordinary = create_line(MOV);
+	code_line_t *order[] = {ordinary};
+	assert(cw_prepare_control_flow_repair(order, 1, false, &plan) ==
+		CW_REPAIR_OK);
+	cw_commit_control_flow_repair(plan);
+	cw_discard_control_flow_repair(plan);
+	cl_destroy_code_line(ordinary);
+}
+
+static void test_control_flow_repair_positions_and_identity(void)
+{
+	code_line_t *jump_forward = create_jump_line(JMP, "line 00", 0, NULL);
+	code_line_t *label_a = create_label_line("01:", 1);
+	code_line_t *ordinary = create_line(MOV);
+	code_line_t *label_b = create_label_line("02:", 2);
+	code_line_t *jump_backward = create_jump_line(JE, "line 01", 1, label_a);
+	code_line_t *jump_same_target = create_jump_line(JMP, "line 00", 0, NULL);
+	code_line_t *jump_same_target_2 = create_jump_line(JNE, "line 00", 0, NULL);
+	code_line_t *incomplete = create_jump_line(JMP, "", 0, NULL);
+	jump_forward->op1 = create_repair_test_operand("line 03", 0, label_b, false);
+	jump_forward->state = COMPLETE;
+	jump_same_target->op1 = create_repair_test_operand("line 03", 0,
+														 label_b, false);
+	jump_same_target->state = COMPLETE;
+	jump_same_target_2->op1 = create_repair_test_operand("line 03", 0,
+														 label_b, false);
+	jump_same_target_2->state = COMPLETE;
+	code_line_t *order[] = {jump_forward, label_a, ordinary, label_b,
+		jump_backward, jump_same_target, jump_same_target_2, incomplete};
+	operand_t *old_operands[] = {
+		jump_forward->op1, label_a->op1, NULL, label_b->op1,
+		jump_backward->op1, jump_same_target->op1,
+		jump_same_target_2->op1, NULL
+	};
+	int old_ids[] = {0, 1, 0, 2, 1, 0, 0, 0};
+	code_line_t *old_targets[] = {
+		label_b, NULL, NULL, NULL, label_a, label_b, label_b, NULL
+	};
+	int old_states[] = {
+		COMPLETE, COMPLETE, MISSING_BOTH, COMPLETE,
+		COMPLETE, COMPLETE, COMPLETE, MISSING_OP1
+	};
+	cw_control_flow_repair_plan_t *plan = NULL;
+	assert(cw_prepare_control_flow_repair(order, 8, false, &plan) ==
+		CW_REPAIR_OK);
+	assert_repair_snapshot_unchanged(order, 8, old_operands, old_ids,
+										 old_targets, old_states);
+	cw_commit_control_flow_repair(plan);
+	operand_t *committed_label_operand = label_a->op1;
+	cw_commit_control_flow_repair(plan);
+	assert(label_a->op1 == committed_label_operand);
+	cw_discard_control_flow_repair(plan);
+
+	assert(label_a->op1->id == 2);
+	assert(label_b->op1->id == 3);
+	assert(jump_forward->op1->id == 3);
+	assert(jump_backward->op1->id == 1);
+	assert(jump_same_target->op1->id == 3);
+	assert(jump_same_target_2->op1->id == 3);
+	assert(jump_forward->op1->jptr == label_b);
+	assert(jump_backward->op1->jptr == label_a);
+	assert(jump_same_target->op1->jptr == label_b);
+	assert(jump_same_target_2->op1->jptr == label_b);
+	assert(incomplete->op1 == NULL && incomplete->state == MISSING_OP1);
+	assert(order[1] == label_a && order[3] == label_b);
+
+	for (int iteration = 0; iteration < 5; iteration++) {
+		assert(cw_prepare_control_flow_repair(order, 8, false, &plan) ==
+			CW_REPAIR_OK);
+		cw_commit_control_flow_repair(plan);
+		cw_discard_control_flow_repair(plan);
+	}
+	cl_destroy_code_line(jump_forward);
+	cl_destroy_code_line(label_a);
+	cl_destroy_code_line(ordinary);
+	cl_destroy_code_line(label_b);
+	cl_destroy_code_line(jump_backward);
+	cl_destroy_code_line(jump_same_target);
+	cl_destroy_code_line(jump_same_target_2);
+	cl_destroy_code_line(incomplete);
+}
+
+static void test_control_flow_repair_consecutive_labels(void)
+{
+	code_line_t *label_a = create_label_line("00:", 0);
+	code_line_t *label_b = create_label_line("00:", 0);
+	code_line_t *jump = create_jump_line(JMP, "line 00", 0, label_b);
+	code_line_t *order[] = {label_a, label_b, jump};
+	cw_control_flow_repair_plan_t *plan = NULL;
+	assert(cw_prepare_control_flow_repair(order, 3, false, &plan) ==
+		CW_REPAIR_OK);
+	cw_commit_control_flow_repair(plan);
+	cw_discard_control_flow_repair(plan);
+	assert(label_a->op1->id == 1);
+	assert(label_b->op1->id == 1);
+	assert(jump->op1->id == 1);
+	assert(jump->op1->jptr == label_b);
+	cl_destroy_code_line(label_a);
+	cl_destroy_code_line(label_b);
+	cl_destroy_code_line(jump);
+}
+
+static void test_proposed_order_repair(void)
+{
+	code_line_t *jump = create_jump_line(JMP, "line 00", 0, NULL);
+	code_line_t *label_a = create_label_line("00:", 0);
+	code_line_t *ordinary = create_line(MOV);
+	code_line_t *label_b = create_label_line("00:", 0);
+	code_line_t *target_jump = create_jump_line(JNE, "line 00", 0, label_b);
+	jump->op1 = create_repair_test_operand("line 00", 0, label_b, false);
+	jump->state = COMPLETE;
+	cw_control_flow_repair_plan_t *plan = NULL;
+
+	code_line_t *appended = create_line(CMP);
+	code_line_t *append_order[] = {jump, label_a, ordinary, label_b,
+		target_jump, appended};
+	operand_t *label_a_before = label_a->op1;
+	operand_t *label_b_before = label_b->op1;
+	operand_t *jump_before = jump->op1;
+	assert(cw_prepare_control_flow_repair(append_order, 6, false, &plan) ==
+		CW_REPAIR_OK);
+	assert(label_a->op1 == label_a_before && label_b->op1 == label_b_before);
+	assert(jump->op1 == jump_before);
+	cw_commit_control_flow_repair(plan);
+	cw_discard_control_flow_repair(plan);
+	assert(label_a->op1->id == 2 && label_b->op1->id == 3);
+	assert(jump->op1->id == 3 && jump->op1->jptr == label_b);
+
+	code_line_t *move_order[] = {jump, label_a, label_b, ordinary, target_jump};
+	assert(cw_prepare_control_flow_repair(move_order, 5, false, &plan) ==
+		CW_REPAIR_OK);
+	cw_commit_control_flow_repair(plan);
+	cw_discard_control_flow_repair(plan);
+	assert(label_b->op1->id == 2 && jump->op1->id == 2);
+	assert(jump->op1->jptr == label_b);
+
+	code_line_t *remove_order[] = {jump, label_a, label_b, target_jump};
+	assert(cw_prepare_control_flow_repair(remove_order, 4, false, &plan) ==
+		CW_REPAIR_OK);
+	cw_commit_control_flow_repair(plan);
+	cw_discard_control_flow_repair(plan);
+	assert(label_b->op1->id == 2 && jump->op1->id == 2);
+	assert(jump->op1->jptr == label_b);
+
+	cl_destroy_code_line(jump);
+	cl_destroy_code_line(label_a);
+	cl_destroy_code_line(ordinary);
+	cl_destroy_code_line(label_b);
+	cl_destroy_code_line(target_jump);
+	cl_destroy_code_line(appended);
+}
+
+static void test_control_flow_repair_rejects_invalid_targets(void)
+{
+	code_line_t *label = create_label_line("00:", 0);
+	code_line_t *other = create_line(MOV);
+	code_line_t *jump = create_jump_line(JMP, "line 00", 0, label);
+	code_line_t *without_target[] = {jump};
+	operand_t *old_operand = jump->op1;
+	cw_control_flow_repair_plan_t *plan = NULL;
+	assert(cw_prepare_control_flow_repair(without_target, 1, false, &plan) ==
+		CW_REPAIR_INVALID_TARGET);
+	assert(plan == NULL && jump->op1 == old_operand && jump->op1->jptr == label);
+
+	code_line_t *non_label_target[] = {other, jump};
+	jump->op1->jptr = other;
+	assert(cw_prepare_control_flow_repair(non_label_target, 2, false, &plan) ==
+		CW_REPAIR_TARGET_NOT_LABEL);
+	assert(plan == NULL && jump->op1 == old_operand && jump->op1->jptr == other);
+	jump->op1->jptr = label;
+
+	code_line_t *saved_jump = create_jump_line(JMP, "01", 1, NULL);
+	saved_jump->op1 = create_repair_test_operand("01", 1, NULL, false);
+	saved_jump->state = COMPLETE;
+	code_line_t *null_saved_target[] = {saved_jump, NULL};
+	operand_t *saved_operand = saved_jump->op1;
+	assert(cw_prepare_control_flow_repair(null_saved_target, 2, true, &plan) ==
+		CW_REPAIR_INVALID_TARGET);
+	assert(plan == NULL && saved_jump->op1 == saved_operand &&
+		saved_jump->op1->jptr == NULL && saved_jump->op1->id == 1);
+	cl_destroy_code_line(saved_jump);
+	cl_destroy_code_line(label);
+	cl_destroy_code_line(other);
+	cl_destroy_code_line(jump);
+}
+
+static void test_saved_jump_reconstruction_is_atomic(void)
+{
+	cw_create_code_list();
+	char saved_label_a[] = "line 00";
+	char saved_label_b[] = "line 00";
+	char saved_forward_jump[] = "JMP 01";
+	cw_add_saved_line(saved_label_a);
+	cw_add_saved_line(saved_label_b);
+	cw_add_saved_line(saved_forward_jump);
+	code_line_t *label_a = cw_get_code_line_at_pos(0);
+	code_line_t *label_b = cw_get_code_line_at_pos(1);
+	code_line_t *saved_jump = cw_get_code_line_at_pos(2);
+	operand_t *saved_placeholder = saved_jump->op1;
+	assert(cw_update_saved_jump_instructions());
+	assert(saved_jump->op1 != saved_placeholder);
+	assert(label_a->op1->id == 1 && label_b->op1->id == 1);
+	assert(saved_jump->op1->id == 1);
+	assert(saved_jump->op1->jptr == label_b);
+	cw_destroy_code_window_assets();
+
+	cw_create_code_list();
+	char invalid_label[] = "line 00";
+	char invalid_jump[] = "JMP 01";
+	cw_add_saved_line(invalid_label);
+	cw_add_saved_line(invalid_jump);
+	label_a = cw_get_code_line_at_pos(0);
+	saved_jump = cw_get_code_line_at_pos(1);
+	operand_t *invalid_placeholder = saved_jump->op1;
+	operand_t *old_label_operand = label_a->op1;
+	assert(!cw_update_saved_jump_instructions());
+	assert(saved_jump->op1 == invalid_placeholder);
+	assert(saved_jump->op1->jptr == NULL && saved_jump->op1->id == 1);
+	assert(label_a->op1 == old_label_operand && label_a->op1->id == 0);
+	cw_destroy_code_window_assets();
+}
+
+static void test_live_repair_rejects_malformed_incomplete_jump(void)
+{
+	cw_create_code_list();
+	char saved_jump[] = "JMP 00";
+	cw_add_saved_line(saved_jump);
+	code_line_t *jump = cw_get_code_line_at_pos(0);
+	cl_destroy_operand(jump->op1);
+	jump->op1 = NULL;
+	jump->state = COMPLETE;
+	assert(!cw_refresh_label_and_jump_presentation());
+	assert(jump->op1 == NULL && jump->state == COMPLETE);
+
+	jump->state = MISSING_OP1;
+	assert(cw_refresh_label_and_jump_presentation());
+	assert(jump->op1 == NULL && jump->state == MISSING_OP1);
+	cw_destroy_code_window_assets();
+}
+
+static void test_control_flow_repair_failure_atomicity(void)
+{
+	code_line_t *label_a = create_label_line("00:", 0);
+	code_line_t *jump_a = create_jump_line(JMP, "line 00", 0, label_a);
+	code_line_t *label_b = create_label_line("00:", 0);
+	code_line_t *jump_b = create_jump_line(JE, "line 00", 0, label_b);
+	code_line_t *jump_c = create_jump_line(JNE, "line 00", 0, label_a);
+	code_line_t *order[] = {label_a, jump_a, label_b, jump_b, jump_c};
+	operand_t *operands[] = {label_a->op1, jump_a->op1, label_b->op1,
+		jump_b->op1, jump_c->op1};
+	int ids[] = {0, 0, 0, 0, 0};
+	code_line_t *targets[] = {NULL, label_a, NULL, label_b, label_a};
+	int states[] = {COMPLETE, COMPLETE, COMPLETE, COMPLETE, COMPLETE};
+	struct failure_case {
+		cw_repair_test_stage_t stage;
+		int opcode;
+		size_t skip;
+	} cases[] = {
+		{CW_REPAIR_TEST_BEFORE_ENTRY, INVALID_INSTRUCTION, 0},
+		{CW_REPAIR_TEST_BEFORE_ENTRY, INVALID_INSTRUCTION, 1},
+		{CW_REPAIR_TEST_BEFORE_ENTRY, INVALID_INSTRUCTION, 3},
+		{CW_REPAIR_TEST_TEXTURE, LABEL, 0},
+		{CW_REPAIR_TEST_BUTTON, LABEL, 0},
+		{CW_REPAIR_TEST_OPERAND, LABEL, 0},
+		{CW_REPAIR_TEST_TEXTURE, JMP, 0},
+		{CW_REPAIR_TEST_BUTTON, JMP, 0},
+		{CW_REPAIR_TEST_OPERAND, JMP, 0}
+	};
+	for (size_t index = 0; index < sizeof(cases) / sizeof(cases[0]); index++) {
+		cw_control_flow_repair_plan_t *plan = NULL;
+		cw_repair_fail_for_test(cases[index].stage, cases[index].opcode,
+							cases[index].skip);
+		assert(cw_prepare_control_flow_repair(order, 5, false, &plan) !=
+			CW_REPAIR_OK);
+		assert(plan == NULL);
+		assert_repair_snapshot_unchanged(order, 5, operands, ids, targets,
+										 states);
+	}
+	for (int iteration = 0; iteration < 10; iteration++) {
+		cw_control_flow_repair_plan_t *plan = NULL;
+		assert(cw_prepare_control_flow_repair(order, 5, false, &plan) ==
+			CW_REPAIR_OK);
+		cw_discard_control_flow_repair(plan);
+	}
+	cl_destroy_code_line(label_a);
+	cl_destroy_code_line(jump_a);
+	cl_destroy_code_line(label_b);
+	cl_destroy_code_line(jump_b);
+	cl_destroy_code_line(jump_c);
+}
+
 static bool edit_domain_from_window(cw_existing_edit_kind_t kind,
 									size_t from,
 									size_t to,
@@ -177,6 +543,7 @@ static void init_test_graphics(void)
 	assert(test_font != NULL);
 	g_font = test_font;
 	ms_init_mouse();
+	cw_init_code_window_texture();
 }
 
 static void test_code_window_transactions(void)
@@ -439,6 +806,14 @@ int main(void)
 	test_program_lifecycle_reuse();
 	test_move_remove_revision_and_rollback();
 	test_code_window_transactions();
+	test_control_flow_repair_empty_and_ordinary();
+	test_control_flow_repair_positions_and_identity();
+	test_control_flow_repair_consecutive_labels();
+	test_proposed_order_repair();
+	test_control_flow_repair_rejects_invalid_targets();
+	test_saved_jump_reconstruction_is_atomic();
+	test_live_repair_rejects_malformed_incomplete_jump();
+	test_control_flow_repair_failure_atomicity();
 	TTF_CloseFont(test_font);
 	SDL_DestroyRenderer(test_renderer);
 	SDL_FreeSurface(test_surface);

@@ -46,6 +46,7 @@ static bool g_edit_hold_line;
 static bool g_domain_append_candidate;
 static bool g_domain_existing_candidate;
 static bool g_program_snapshot_valid;
+static bool g_control_flow_repair_failed;
 
 void                stage_drawings(int level, int operation_id);
 static code_line_t *pending_operand_handler(bool *semantic_changed);
@@ -544,10 +545,18 @@ static code_line_t *pending_operand_handler(bool *semantic_changed)
 
 	if (cl_is_ins_jmp_type(l->ins->id) == true && l->state == MISSING_OP1) {
 		r = cw_create_label_code_line();
-		cw_player_holding_instruction(r, false, true);
+		if (!cw_player_holding_instruction(r, false, true)) {
+			g_control_flow_repair_failed = true;
+			g_program_snapshot_valid = false;
+		}
 		operand_t *a = cw_create_jmp_op(r);
-		cw_assign_op_to_line(a, l);
-		*semantic_changed = true;
+		if (a != NULL) {
+			cw_assign_op_to_line(a, l);
+			*semantic_changed = true;
+		} else {
+			g_control_flow_repair_failed = true;
+			g_program_snapshot_valid = false;
+		}
 	} else if (reg_sel == true && lv_is_reg_selectable() == true) {
 		operand_t *r = rg_create_sel_reg_op();
 		cw_assign_op_to_line(r, l);
@@ -611,15 +620,19 @@ static code_line_t *edit_code(int level_id, aa_program_t *program)
 
 	bool                left_pressed  = ms_left_pressed();
 	bool                left_released = ms_left_released();
+	if (g_edit_line == NULL && left_pressed) {
+		g_control_flow_repair_failed = false;
+	}
 
 	if (cw_is_operand_pending() == true && g_edit_line == NULL &&
 	    cw_check_code_sorted() == true && cw_chk_click_code() == false &&
 	    cw_chk_click_code_op() == false) {
 		bool semantic_changed = false;
 		g_edit_line = pending_operand_handler(&semantic_changed);
-		if (cw_is_operand_pending() == false) {
+		if (cw_is_operand_pending() == false &&
+			!g_control_flow_repair_failed) {
 			code_updated_actions(level_id, program);
-		} else if (semantic_changed) {
+		} else if (semantic_changed && !g_control_flow_repair_failed) {
 			refresh_program_snapshot(program);
 		}
 		if (g_edit_line != NULL) {
@@ -661,7 +674,10 @@ static code_line_t *edit_code(int level_id, aa_program_t *program)
 		} else {
 			bool arrange = lv_is_arrange_enabled();
 			bool delete  = lv_is_del_enabled();
-			cw_player_holding_instruction(g_edit_line, arrange, delete);
+			if (!cw_player_holding_instruction(g_edit_line, arrange, delete)) {
+				g_control_flow_repair_failed = true;
+				g_program_snapshot_valid = false;
+			}
 		}
 		g_edit_hold_line = (left_released == true) ? false : true;
 	} else if (left_pressed == false && g_edit_line != NULL) {
@@ -696,34 +712,47 @@ static code_line_t *edit_code(int level_id, aa_program_t *program)
 					g_edit_line, lv_is_arrange_enabled(), lv_is_del_enabled(),
 					append_domain_instruction, program);
 			if (append_result == CW_APPEND_COMMITTED) {
-				cw_refresh_label_and_jump_presentation();
+				if (!cw_refresh_label_and_jump_presentation()) {
+					g_control_flow_repair_failed = true;
+					g_program_snapshot_valid = false;
+				}
 				domain_append_committed = true;
 				save_and_update_code(level_id);
 			} else if (append_result == CW_APPEND_FAILED) {
 				log_err("Domain-authoritative instruction append failed");
 				domain_append_failed = true;
 			} else {
-				cw_player_holding_instruction(
-					g_edit_line, lv_is_arrange_enabled(), lv_is_del_enabled());
+				if (!cw_player_holding_instruction(
+						g_edit_line, lv_is_arrange_enabled(), lv_is_del_enabled())) {
+					g_control_flow_repair_failed = true;
+					g_program_snapshot_valid = false;
+				}
 			}
 		}
 		if (g_edit_line != NULL && !g_domain_append_candidate &&
 			!g_domain_existing_candidate &&
 			!cw_check_if_in_code_list(g_edit_line)) {
-			cw_player_holding_instruction(
-				g_edit_line, lv_is_arrange_enabled(), lv_is_del_enabled());
+			if (!cw_player_holding_instruction(
+					g_edit_line, lv_is_arrange_enabled(), lv_is_del_enabled())) {
+				g_control_flow_repair_failed = true;
+				g_program_snapshot_valid = false;
+			}
 		}
 		if (g_edit_line != NULL && !cw_check_if_in_code_list(g_edit_line)) {
 			cl_destroy_code_line(g_edit_line);
 		}
 		cw_clear_held_instruction();
-		if (!domain_append_committed && !domain_append_failed &&
+		if (!g_control_flow_repair_failed &&
+			!domain_append_committed && !domain_append_failed &&
 			!domain_existing_committed && !domain_existing_failed &&
 			cw_is_operand_pending() == false) {
 			code_updated_actions(level_id, program);
-		} else if (!domain_append_committed && !domain_append_failed &&
+		} else if (!g_control_flow_repair_failed &&
+			   !domain_append_committed && !domain_append_failed &&
 			   !domain_existing_committed && !domain_existing_failed) {
 			refresh_program_snapshot(program);
+		} else if (g_control_flow_repair_failed) {
+			g_program_snapshot_valid = false;
 		}
 		g_edit_line = NULL;
 		g_edit_hold_line = false;

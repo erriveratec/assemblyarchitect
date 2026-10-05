@@ -57,10 +57,10 @@ void cw_set_challenge_text(char *text);
 void cw_set_challenge_highlight(bool enabled);
 void cw_set_code_box_highlight(bool enabled);
 void cw_set_stage_name(char *text);
-void cw_player_holding_instruction(code_line_t *line, bool arng, bool del);
+bool cw_player_holding_instruction(code_line_t *line, bool arng, bool del);
 void cw_draw_held_instruction(code_line_t *line);
 void cw_clear_held_instruction(void);
-void cw_refresh_label_and_jump_presentation(void);
+bool cw_refresh_label_and_jump_presentation(void);
 cw_append_result_t cw_append_new_line_authoritatively(
 	code_line_t *line,
 	bool arrange,
@@ -105,7 +105,7 @@ int cw_get_code_line_x(int instruction_id);
 int cw_get_code_line_y(int pos);
 bool cw_ms_rel_in_label();
 operand_t *cw_create_jmp_op(code_line_t *addr);
-void cw_update_saved_jump_instructions();
+bool cw_update_saved_jump_instructions(void);
 void cw_operate_jump_instruction(code_line_t *line);
 SDL_Rect cw_get_text_box_rect();
 float cw_get_challenge_highlight_limit();

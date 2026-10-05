@@ -118,7 +118,7 @@ test-program-adapter:
 test-program-editor-sync:
 	$(CC) -std=c11 -Wall -Wextra -Werror -Isource -fsyntax-only \
 	    source/domain/program.c source/migration/legacy_program_adapter.c
-	$(CC) $(CFLAGS) $(PROGRAM_EDITOR_SYNC_TEST_SOURCE) \
+	$(CC) $(CFLAGS) -DCW_REPAIR_TESTING $(PROGRAM_EDITOR_SYNC_TEST_SOURCE) \
 	    $(TEST_SOURCES) -o $(PROGRAM_EDITOR_SYNC_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(PROGRAM_EDITOR_SYNC_TEST_EXEC)

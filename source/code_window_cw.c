@@ -1,9 +1,12 @@
 #include "code_window_cw.h"
+#include "code_window_cw_internal.h"
 #include "aux.h"
 
 #include <SDL.h>
 #include <assert.h>
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "instruction_layout_il.h"
 #include "list.h"
@@ -45,6 +48,28 @@ texture_t *g_stage_name;
 texture_t *g_comma_tex;
 texture_t **g_numbers;
 
+typedef struct cw_operand_repair_entry {
+	operand_t **destination;
+	operand_t *old_operand;
+	operand_t *prepared_operand;
+} cw_operand_repair_entry_t;
+
+struct cw_control_flow_repair_plan {
+	cw_operand_repair_entry_t *entries;
+	size_t count;
+	size_t capacity;
+	bool committed;
+};
+
+#ifdef CW_REPAIR_TESTING
+static struct {
+	bool enabled;
+	cw_repair_test_stage_t stage;
+	int opcode;
+	size_t matching_entries_to_skip;
+} g_repair_test_failure;
+#endif
+
 void display_line_number();
 int get_code_line_position(int y);
 ListNode *get_list_node_by_value(code_line_t *line);
@@ -62,10 +87,7 @@ static int get_label_operand_value(code_line_t *line);
 List *get_code_list();
 static operand_t *create_label_operand(code_line_t *line);
 static operand_t *create_saved_label_operand(int op1_id);
-static int label_counter_up_to_index(int index);
-static void update_label_instructions();
-static void update_jump_instructions();
-static operand_t *create_updated_jump_operand(code_line_t *jmp_addr);
+static cw_repair_result_t repair_current_control_flow(bool reconstruct_saved_targets);
 static code_line_t *get_clicked_label_code_line();
 static operand_t *create_saved_jump_operand(int op1_id);
 static SDL_Rect get_scroll_box();
@@ -204,28 +226,9 @@ error:
  * Return:
  * 	void.
  */
-void cw_update_saved_jump_instructions()
+bool cw_update_saved_jump_instructions(void)
 {
-	List *code = get_code_list();
-	check_mem(code);
-
-	int op1_ofs = cw_get_operand1_offset();
-	code_line_t *c;
-	LIST_FOREACH(code, first, next, cur){ 
-		c = cur->value;
-		if (cl_is_ins_jmp_type(c->ins->id) == true){
-			assert(c->op1 != NULL && "op1 should't be NULL");
-			code_line_t  *jmp_addr = cw_get_code_line_at_pos(c->op1->id);
-			cl_destroy_operand(c->op1);	
-			assert(cw_check_if_in_code_list(jmp_addr) == true && "Instruction"
-				   "not present in code list");
-			c->op1 = create_updated_jump_operand(jmp_addr);
-			c->op1->b->r.x = c->ins->b->r.x + op1_ofs;
-			c->op1->b->r.y = c->ins->b->r.y;
-		}
-	}
-error:
-	return;
+	return repair_current_control_flow(true) == CW_REPAIR_OK;
 }
 
 /* Function: create_saved_jump_operand
@@ -241,23 +244,31 @@ error:
 */
 static operand_t *create_saved_jump_operand(int op1_id)
 {
-   	operand_t *b = NULL;
-	b = malloc(sizeof(operand_t));
-
-	SDL_Rect cb = cl_get_code_button_size();
-
-	char *line_text = ax_number_to_string_two_digits(op1_id);
-	char *op_text = malloc(sizeof(char)*(strlen(line_text)+1));
-	strcpy(op_text, line_text);
-	texture_t *t = dw_create_text_tex(op_text, C_WHITE);
-
-	SDL_Rect r = {.x = 0, .y = 0, .w = 2*cb.w, .h = cb.h};
-	b->b = bt_create_btn(r, t);
-
-	b->id = op1_id;
-	free(line_text);
-	free(op_text);
-	return b;
+	char text[32];
+	int written = snprintf(text, sizeof(text), "%02d", op1_id);
+	if (written < 0 || (size_t)written >= sizeof(text)) {
+		return NULL;
+	}
+	texture_t *texture = dw_create_text_tex(text, C_WHITE);
+	if (texture == NULL) {
+		return NULL;
+	}
+	SDL_Rect bounds = cl_get_code_button_size();
+	bounds.w *= 2;
+	btn_t *button = bt_create_btn(bounds, texture);
+	if (button == NULL) {
+		dw_free_texture(texture);
+		return NULL;
+	}
+	operand_t *operand = malloc(sizeof(*operand));
+	if (operand == NULL) {
+		bt_destroy_button(button);
+		return NULL;
+	}
+	operand->b = button;
+	operand->id = op1_id;
+	operand->jptr = NULL;
+	return operand;
 }
 
 /* Function: create_updated_jump_operand
@@ -272,80 +283,368 @@ static operand_t *create_saved_jump_operand(int op1_id)
 *	Pointer to the newly created operand
 *
 */
-static operand_t *create_updated_jump_operand(code_line_t *jmp_addr)
+static size_t repair_order_position(code_line_t *const *order,
+									 size_t count,
+									 const code_line_t *line)
 {
-	assert(cw_check_if_in_code_list(jmp_addr) == true && "The code line is not"
-	"in the list and is probably destroyed");
-
-   	operand_t *op = NULL;
-	op = malloc(sizeof(operand_t));
-
-	int addr_label_id = jmp_addr->op1->id;
-	char *line_text = ax_number_to_string_two_digits(addr_label_id);
-	char *op_text = malloc(sizeof(char)*(strlen(label_text) + 
-						   strlen(ax_char_space)+ strlen(line_text)));
-	
-	strcpy(op_text, label_text);
-	strcat(op_text, ax_char_space);
-	strcat(op_text, line_text);
-	texture_t *t = dw_create_text_tex(op_text, C_WHITE);
-
-	SDL_Rect cb = cl_get_code_button_size();
-	SDL_Rect r = {.x = 0, .y = 0, .w = 2*cb.w, .h = cb.h};
-	op->b = bt_create_btn(r, t);
-	op->id = cw_get_code_line_pos_by_ptr(jmp_addr);
-	op->jptr = jmp_addr;
-
-	free(line_text);
-	free(op_text);
-
-error:
-	return op;
+	for (size_t position = 0; position < count; position++) {
+		if (order[position] == line) {
+			return position;
+		}
+	}
+	return SIZE_MAX;
 }
 
-/* Function: update_jump_instructions
- * -----------------------------------------------------------------------------
- * Traverses the whole code list and updates all the jump instructions
- * to match the labels correctly
- * 
- * Arguments:
- *  void.
- *
- * Return:
- * 	void.
- */
-static void update_jump_instructions()
+static bool repair_label_number(code_line_t *const *order,
+								size_t count,
+								size_t label_position,
+								int *label_number)
 {
-	List *code = get_code_list();
-	check_mem(code);
+	if (label_position >= count || order[label_position] == NULL ||
+		order[label_position]->ins == NULL ||
+		order[label_position]->ins->id != LABEL || label_number == NULL) {
+		return false;
+	}
+	if (label_position == 0) {
+		*label_number = 1;
+		return true;
+	}
+	size_t labels_through_position = 0;
+	for (size_t position = 0; position <= label_position; position++) {
+		if (order[position] == NULL || order[position]->ins == NULL) {
+			return false;
+		}
+		if (order[position]->ins->id == LABEL) {
+			labels_through_position++;
+		}
+	}
+	*label_number = (int)(label_position - labels_through_position + 2);
+	return true;
+}
 
-	int op1_ofs = cw_get_operand1_offset();
-	code_line_t *c;
-	LIST_FOREACH(code, first, next, cur){ 
-		c = cur->value;
-		if (cl_is_ins_jmp_type(c->ins->id) == true){
-			if (c->op1 != NULL){
-				code_line_t *jmp_addr = c->op1->jptr;
-				cl_destroy_operand(c->op1);	
-				if (cw_check_if_in_code_list(jmp_addr) == true){
-					c->op1 = create_updated_jump_operand(jmp_addr);
-					c->op1->b->r.x = c->ins->b->r.x + op1_ofs;
-					c->op1->b->r.y = c->ins->b->r.y;
+#ifdef CW_REPAIR_TESTING
+void cw_repair_fail_for_test(cw_repair_test_stage_t stage,
+							 int opcode,
+							 size_t matching_entries_to_skip)
+{
+	g_repair_test_failure.enabled = true;
+	g_repair_test_failure.stage = stage;
+	g_repair_test_failure.opcode = opcode;
+	g_repair_test_failure.matching_entries_to_skip =
+		matching_entries_to_skip;
+}
+
+static bool repair_test_should_fail(cw_repair_test_stage_t stage, int opcode)
+{
+	if (!g_repair_test_failure.enabled || g_repair_test_failure.stage != stage ||
+		(g_repair_test_failure.opcode != INVALID_INSTRUCTION &&
+		 g_repair_test_failure.opcode != opcode)) {
+		return false;
+	}
+	if (g_repair_test_failure.matching_entries_to_skip > 0) {
+		g_repair_test_failure.matching_entries_to_skip--;
+		return false;
+	}
+	g_repair_test_failure.enabled = false;
+	return true;
+}
+#else
+static bool repair_test_should_fail(cw_repair_test_stage_t stage, int opcode)
+{
+	(void)stage;
+	(void)opcode;
+	return false;
+}
+#endif
+
+static operand_t *create_repair_operand(code_line_t *line,
+										int opcode,
+									int operand_id,
+									code_line_t *target,
+									int label_number,
+									cw_repair_result_t *result)
+{
+	char text[64];
+	int text_length;
+	if (opcode == LABEL) {
+		text_length = snprintf(text, sizeof(text), "%02d:", label_number);
+	} else {
+		text_length = snprintf(text, sizeof(text), "%s %02d", label_text,
+							   label_number);
+	}
+	if (text_length < 0 || (size_t)text_length >= sizeof(text)) {
+		*result = CW_REPAIR_INVALID_ARGUMENT;
+		return NULL;
+	}
+	if (repair_test_should_fail(CW_REPAIR_TEST_TEXTURE, opcode)) {
+		*result = CW_REPAIR_TEXTURE_FAILED;
+		return NULL;
+	}
+	texture_t *texture = dw_create_text_tex(text, C_WHITE);
+	if (texture == NULL) {
+		*result = CW_REPAIR_TEXTURE_FAILED;
+		return NULL;
+	}
+	SDL_Rect button_bounds = cl_get_code_button_size();
+	if (opcode != LABEL) {
+		button_bounds.w *= 2;
+	}
+	button_bounds.x = line->ins->b->r.x + cw_get_operand1_offset();
+	button_bounds.y = line->ins->b->r.y;
+	if (repair_test_should_fail(CW_REPAIR_TEST_BUTTON, opcode)) {
+		dw_free_texture(texture);
+		*result = CW_REPAIR_ALLOCATION_FAILED;
+		return NULL;
+	}
+	btn_t *button = bt_create_btn(button_bounds, texture);
+	if (button == NULL) {
+		dw_free_texture(texture);
+		*result = CW_REPAIR_ALLOCATION_FAILED;
+		return NULL;
+	}
+	if (repair_test_should_fail(CW_REPAIR_TEST_OPERAND, opcode)) {
+		bt_destroy_button(button);
+		*result = CW_REPAIR_ALLOCATION_FAILED;
+		return NULL;
+	}
+	operand_t *operand = malloc(sizeof(*operand));
+	if (operand == NULL) {
+		bt_destroy_button(button);
+		*result = CW_REPAIR_ALLOCATION_FAILED;
+		return NULL;
+	}
+	operand->b = button;
+	operand->id = operand_id;
+	operand->jptr = target;
+	*result = CW_REPAIR_OK;
+	return operand;
+}
+
+cw_repair_result_t cw_prepare_control_flow_repair(
+	code_line_t *const *order,
+	size_t count,
+	bool reconstruct_saved_targets,
+	cw_control_flow_repair_plan_t **plan_out)
+{
+	if (plan_out == NULL || (count > 0 && order == NULL) ||
+		count > SIZE_MAX / sizeof(cw_operand_repair_entry_t)) {
+		return CW_REPAIR_INVALID_ARGUMENT;
+	}
+	*plan_out = NULL;
+	cw_control_flow_repair_plan_t *plan = calloc(1, sizeof(*plan));
+	if (plan == NULL) {
+		return CW_REPAIR_ALLOCATION_FAILED;
+	}
+	if (count > 0) {
+		plan->entries = calloc(count, sizeof(*plan->entries));
+		if (plan->entries == NULL) {
+			free(plan);
+			return CW_REPAIR_ALLOCATION_FAILED;
+		}
+	}
+	plan->capacity = count;
+	*plan_out = plan;
+	for (size_t position = 0; position < count; position++) {
+		code_line_t *line = order[position];
+		if (line == NULL || line->ins == NULL) {
+			cw_discard_control_flow_repair(plan);
+			*plan_out = NULL;
+			return CW_REPAIR_INVALID_ARGUMENT;
+		}
+		for (size_t previous = 0; previous < position; previous++) {
+			if (order[previous] == line) {
+				cw_discard_control_flow_repair(plan);
+				*plan_out = NULL;
+				return CW_REPAIR_INVALID_ARGUMENT;
+			}
+		}
+		if (line->ins->id == LABEL) {
+			if (line->op1 == NULL) {
+				continue;
+			}
+			int label_number;
+			if (!repair_label_number(order, count, position, &label_number)) {
+				cw_discard_control_flow_repair(plan);
+				*plan_out = NULL;
+				return CW_REPAIR_INVALID_ARGUMENT;
+			}
+			if (repair_test_should_fail(CW_REPAIR_TEST_BEFORE_ENTRY,
+									line->ins->id)) {
+				cw_discard_control_flow_repair(plan);
+				*plan_out = NULL;
+				return CW_REPAIR_ALLOCATION_FAILED;
+			}
+			cw_repair_result_t result;
+			operand_t *replacement = create_repair_operand(
+				line, LABEL, label_number, NULL, label_number, &result);
+			if (replacement == NULL) {
+				cw_discard_control_flow_repair(plan);
+				*plan_out = NULL;
+				return result;
+			}
+			plan->entries[plan->count++] = (cw_operand_repair_entry_t){
+				.destination = &line->op1,
+				.old_operand = line->op1,
+				.prepared_operand = replacement
+			};
+		} else if (cl_is_ins_jmp_type(line->ins->id)) {
+			if (line->op1 == NULL) {
+				if (line->state == MISSING_OP1) {
+					continue;
+				}
+				cw_discard_control_flow_repair(plan);
+				*plan_out = NULL;
+				return CW_REPAIR_INVALID_ARGUMENT;
+			}
+			if (line->state != COMPLETE && line->state != CHANGING_OP1) {
+				cw_discard_control_flow_repair(plan);
+				*plan_out = NULL;
+				return CW_REPAIR_INVALID_ARGUMENT;
+			}
+			code_line_t *target = line->op1->jptr;
+			if (reconstruct_saved_targets) {
+				if (line->op1->id < 0 || (size_t)line->op1->id >= count) {
+					cw_discard_control_flow_repair(plan);
+					*plan_out = NULL;
+					return CW_REPAIR_INVALID_TARGET;
+				}
+				target = order[line->op1->id];
+			} else if (target == NULL) {
+				cw_discard_control_flow_repair(plan);
+				*plan_out = NULL;
+				return CW_REPAIR_INVALID_TARGET;
+			}
+			if (target == NULL) {
+				cw_discard_control_flow_repair(plan);
+				*plan_out = NULL;
+				return CW_REPAIR_INVALID_TARGET;
+			}
+			size_t target_position = repair_order_position(order, count, target);
+			if (target_position == SIZE_MAX) {
+				cw_discard_control_flow_repair(plan);
+				*plan_out = NULL;
+				return CW_REPAIR_INVALID_TARGET;
+			}
+			if (target->ins == NULL || target->ins->id != LABEL ||
+				target->op1 == NULL) {
+				cw_discard_control_flow_repair(plan);
+				*plan_out = NULL;
+				return CW_REPAIR_TARGET_NOT_LABEL;
+			}
+			int label_number;
+			if (!repair_label_number(order, count, target_position,
+								 &label_number)) {
+				cw_discard_control_flow_repair(plan);
+				*plan_out = NULL;
+				return CW_REPAIR_INVALID_TARGET;
+			}
+			if (repair_test_should_fail(CW_REPAIR_TEST_BEFORE_ENTRY,
+									line->ins->id)) {
+				cw_discard_control_flow_repair(plan);
+				*plan_out = NULL;
+				return CW_REPAIR_ALLOCATION_FAILED;
+			}
+			cw_repair_result_t result;
+			operand_t *replacement = create_repair_operand(
+				line, line->ins->id, (int)target_position, target,
+				label_number, &result);
+			if (replacement == NULL) {
+				cw_discard_control_flow_repair(plan);
+				*plan_out = NULL;
+				return result;
+			}
+			plan->entries[plan->count++] = (cw_operand_repair_entry_t){
+				.destination = &line->op1,
+				.old_operand = line->op1,
+				.prepared_operand = replacement
+			};
+		}
+	}
+	return CW_REPAIR_OK;
+}
+
+void cw_commit_control_flow_repair(cw_control_flow_repair_plan_t *plan)
+{
+	if (plan == NULL || plan->committed) {
+		return;
+	}
+	for (size_t index = 0; index < plan->count; index++) {
+		cw_operand_repair_entry_t *entry = &plan->entries[index];
+		entry->old_operand = *entry->destination;
+		*entry->destination = entry->prepared_operand;
+		entry->prepared_operand = NULL;
+	}
+	plan->committed = true;
+}
+
+void cw_discard_control_flow_repair(cw_control_flow_repair_plan_t *plan)
+{
+	if (plan == NULL) {
+		return;
+	}
+	for (size_t index = 0; index < plan->count; index++) {
+		cw_operand_repair_entry_t *entry = &plan->entries[index];
+		operand_t *owned_operand = plan->committed ? entry->old_operand :
+			entry->prepared_operand;
+		if (owned_operand != NULL) {
+			cl_destroy_operand(owned_operand);
+		}
+	}
+	free(plan->entries);
+	free(plan);
+}
+
+static cw_repair_result_t repair_current_control_flow(bool reconstruct_saved_targets)
+{
+	if (code_list == NULL || code_list->count < 0) {
+		return CW_REPAIR_INVALID_ARGUMENT;
+	}
+	size_t count = (size_t)code_list->count;
+	if (!reconstruct_saved_targets) {
+		bool has_presented_control_flow = false;
+		LIST_FOREACH(code_list, first, next, cur) {
+			code_line_t *line = cur->value;
+			if (line->ins->id == LABEL) {
+				has_presented_control_flow = true;
+			} else if (cl_is_ins_jmp_type(line->ins->id)) {
+				if (line->op1 == NULL) {
+					if (line->state != MISSING_OP1) {
+						return CW_REPAIR_INVALID_ARGUMENT;
+					}
 				} else {
-					c->op1 = NULL;
-					c->state = MISSING_OP1;
+					has_presented_control_flow = true;
 				}
 			}
 		}
+		if (!has_presented_control_flow) {
+			return CW_REPAIR_OK;
+		}
 	}
-error:
-	return;
+	if (count > SIZE_MAX / sizeof(code_line_t *)) {
+		return CW_REPAIR_ALLOCATION_FAILED;
+	}
+	code_line_t **order = count == 0 ? NULL : malloc(count * sizeof(*order));
+	if (count > 0 && order == NULL) {
+		return CW_REPAIR_ALLOCATION_FAILED;
+	}
+	size_t position = 0;
+	LIST_FOREACH(code_list, first, next, cur) {
+		order[position++] = cur->value;
+	}
+	cw_control_flow_repair_plan_t *plan = NULL;
+	cw_repair_result_t result = cw_prepare_control_flow_repair(
+		order, count, reconstruct_saved_targets, &plan);
+	free(order);
+	if (result == CW_REPAIR_OK) {
+		cw_commit_control_flow_repair(plan);
+		cw_discard_control_flow_repair(plan);
+	}
+	return result;
 }
 
-void cw_refresh_label_and_jump_presentation(void)
+bool cw_refresh_label_and_jump_presentation(void)
 {
-	update_label_instructions();
-	update_jump_instructions();
+	return repair_current_control_flow(false) == CW_REPAIR_OK;
 }
 
 /* Function: cw_create_jmp_op
@@ -362,34 +661,17 @@ void cw_refresh_label_and_jump_presentation(void)
 */
 operand_t *cw_create_jmp_op(code_line_t *addr)
 {
-   	operand_t *op = NULL;
-
-	op = malloc(sizeof(operand_t));
-
-	//code_line_t *addr = get_clicked_label_code_line();
-	check_mem(addr);
-
-	int addr_label_id = addr->op1->id;
-	char *line_text = ax_number_to_string_two_digits(addr_label_id);
-	char *op_text = malloc(sizeof(char)*(strlen(label_text) + 
-						   strlen(ax_char_space)+ strlen(line_text)));
-	
-	strcpy(op_text, label_text);
-	strcat(op_text, ax_char_space);
-	strcat(op_text, line_text);
-	texture_t *t = dw_create_text_tex(op_text, C_WHITE);
-
-	SDL_Rect cb = cl_get_code_button_size();
-	SDL_Rect r = {.x = 0, .y = 0, .w = 2*cb.w, .h = cb.h};
-	op->b = bt_create_btn(r, t);
-	op->id = cw_get_code_line_pos_by_ptr(addr);
-	op->jptr = addr;
-
-	free(line_text);
-	free(op_text);
-
-error:
-	return op;
+	if (addr == NULL || addr->ins == NULL || addr->ins->id != LABEL ||
+		addr->op1 == NULL || !cw_check_if_in_code_list(addr)) {
+		return NULL;
+	}
+	int target_position = cw_get_code_line_pos_by_ptr(addr);
+	if (target_position < 0) {
+		return NULL;
+	}
+	cw_repair_result_t result;
+	return create_repair_operand(addr, JMP, target_position, addr,
+								 addr->op1->id, &result);
 } 
 
 /* Function: get_clicked_label_code_line
@@ -460,39 +742,6 @@ error:
 	return selected;
 }
 
-/* Function: update_label_instructions
- * -----------------------------------------------------------------------------
- * Traverses the whole code list and updates all the label instructions
- * 
- * Arguments:
- *  void.
- *
- * Return:
- * 	void.
- */
-static void update_label_instructions()
-{
-	List *code = get_code_list();
-	check_mem(code);
-	
-	int op1_ofs = cw_get_operand1_offset();
-	code_line_t *c;
-	LIST_FOREACH(code, first, next, cur){ 
-		c = cur->value;
-		if (c->ins->id == LABEL){
-			if (c->op1 != NULL){
-				cl_destroy_operand(c->op1);	
-				c->op1 = create_label_operand(c);
-				c->op1->b->r.x = c->ins->b->r.x + op1_ofs;
-				c->op1->b->r.y = c->ins->b->r.y;
-			}
-
-		}
-	}
-error:
-	return;
-}
-
 /* Function: create_saved_label_operand
 *------------------------------------------------------------------------------
 * Creates the label operand with the corresponding number that will be shown
@@ -507,25 +756,29 @@ error:
 */
 static operand_t *create_saved_label_operand(int op1_id)
 {
-   	operand_t *b = NULL;
-
-	b = malloc(sizeof(operand_t));
-
-	char *line_text = ax_number_to_string_two_digits(op1_id);
-	char *op_text = malloc(sizeof(char)*(strlen(line_text)+1));
-	strcpy(op_text, line_text);
-	strcat(op_text, ax_char_colon);
-	texture_t *t = dw_create_text_tex(op_text, C_WHITE);
-
-	SDL_Rect r = cl_get_code_button_size();
-	b->b = bt_create_btn(r, t);
-
-	b->id = op1_id;
-
-	free(line_text);
-	free(op_text);
-
-	return b;
+	char text[32];
+	int written = snprintf(text, sizeof(text), "%02d:", op1_id);
+	if (written < 0 || (size_t)written >= sizeof(text)) {
+		return NULL;
+	}
+	texture_t *texture = dw_create_text_tex(text, C_WHITE);
+	if (texture == NULL) {
+		return NULL;
+	}
+	btn_t *button = bt_create_btn(cl_get_code_button_size(), texture);
+	if (button == NULL) {
+		dw_free_texture(texture);
+		return NULL;
+	}
+	operand_t *operand = malloc(sizeof(*operand));
+	if (operand == NULL) {
+		bt_destroy_button(button);
+		return NULL;
+	}
+	operand->b = button;
+	operand->id = op1_id;
+	operand->jptr = NULL;
+	return operand;
 }
 
 /* Function: create_label_operand
@@ -542,27 +795,9 @@ static operand_t *create_saved_label_operand(int op1_id)
 */
 static operand_t *create_label_operand(code_line_t *line)
 {
-   	operand_t *b = NULL;
-
-	b = malloc(sizeof(operand_t));
-
 	int label = get_label_operand_value(line);
-
-	char *line_text = ax_number_to_string_two_digits(label);
-	char *op_text = malloc(sizeof(char)*(strlen(line_text)+1));
-	strcpy(op_text, line_text);
-	strcat(op_text, ":");
-	texture_t *t = dw_create_text_tex(op_text, C_WHITE);
-
-	SDL_Rect r = cl_get_code_button_size();
-	b->b = bt_create_btn(r, t);
-
-	b->id = label;
-
-	free(line_text);
-	free(op_text);
-
-	return b;
+	cw_repair_result_t result;
+	return create_repair_operand(line, LABEL, label, NULL, label, &result);
 }
 
 /* Function: cw_get_code_line_pos_by_ptr 
@@ -806,6 +1041,10 @@ void cw_add_saved_line(char *line)
 			op1 = rg_create_register_operand_by_id(op1_id);
 		} else if (op1_id > BUF_MIN && op1_id < BUF_MAX){
 			op1 = bf_create_buffer_operand_by_id(op1_id);
+		}
+		if (op1 == NULL) {
+			cl_destroy_code_line(new_line);
+			return;
 		}
 		cw_assign_op_to_line(op1, new_line);
 	}
@@ -1185,7 +1424,9 @@ void cw_destroy_code_window_assets()
 {
 	g_held_line = NULL;
 	dw_free_texture(g_stage_name);
+	g_stage_name = NULL;
 	dw_free_texture_array(g_challenge_text);
+	g_challenge_text = NULL;
 	List *code = get_code_list();
 	LIST_FOREACH(code, first, next, cur){
 		code_line_t *line = cur->value;	
@@ -2480,11 +2721,12 @@ void cw_clear_code_list()
  * Return:
  *	Void.
  */
-void cw_player_holding_instruction(code_line_t *line, bool arng, bool del)
+bool cw_player_holding_instruction(code_line_t *line, bool arng, bool del)
 {
 	List *code = get_code_list();
 	assert(code != NULL &&  "Code list is NULL");
 	assert(line != NULL &&  "The code line object is NULL");
+	bool repair_succeeded = true;
 	
 	if (in_code_window() == true || line->ins->id == LABEL || del == false){
 		if (cw_check_if_in_code_list(line) == true){
@@ -2495,40 +2737,54 @@ void cw_player_holding_instruction(code_line_t *line, bool arng, bool del)
 		} 
 		if (cw_check_if_in_code_list(line) == false && arng == true){
 			add_code_line(line);
-			update_label_instructions();
-			update_jump_instructions();
+			repair_succeeded = cw_refresh_label_and_jump_presentation();
 		} else if (cw_check_if_in_code_list(line) == false && arng == false){
 			add_code_line_last_pos(line);
-			update_label_instructions();
-			update_jump_instructions();
+			repair_succeeded = cw_refresh_label_and_jump_presentation();
 		}
 		if (line->ins->id == LABEL){
 			if (line->op1 == NULL){
 				line->op1 = create_label_operand(line);
-				line->state = COMPLETE;
-			} else {
-				cl_destroy_operand(line->op1);	
-				line->op1 = create_label_operand(line);
-				line->state = COMPLETE;
+				if (line->op1 == NULL) {
+					repair_succeeded = false;
+				} else {
+					line->state = COMPLETE;
+				}
 			}
 		}
 	} else {
 		if (cw_check_if_in_code_list(line) == true){
 			if (cl_is_ins_jmp_type(line->ins->id) == true && line->op1 != NULL){
 				code_line_t *addr = line->op1->jptr;
+				if (addr == NULL || !cw_check_if_in_code_list(addr) ||
+					addr->ins == NULL || addr->ins->id != LABEL) {
+					repair_succeeded = false;
+					goto draw_held;
+				}
+				LIST_FOREACH(code, first, next, cur) {
+					code_line_t *other = cur->value;
+					if (other != line && cl_is_ins_jmp_type(other->ins->id) &&
+						other->op1 != NULL && other->op1->jptr == addr) {
+						repair_succeeded = false;
+						goto draw_held;
+					}
+				}
 				ListNode *node = get_list_node_by_value(addr);
 				cl_destroy_code_line(addr);
 				List_remove(code, node);
 			}
 			ListNode *node = get_list_node_by_value(line);
 			List_remove(code, node);
-			update_label_instructions();
-			update_jump_instructions();
+			repair_succeeded = cw_refresh_label_and_jump_presentation();
 		}
 	}
 
+	draw_held:
+	if (!repair_succeeded) {
+		fprintf(stderr, "Could not repair legacy label/jump presentation\n");
+	}
 	cw_draw_held_instruction(line);
-	return;
+	return repair_succeeded;
 }
 
 void cw_draw_held_instruction(code_line_t *line)

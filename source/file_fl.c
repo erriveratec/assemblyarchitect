@@ -291,7 +291,9 @@ static void parse_saved_code(FILE *fp)
 	while ((read = getline(&line, &len, fp)) != READ_ERROR) {
 		text = strtok_r(line, ax_char_newline, &saveptr1);
 		if (strstr(STR_CODE_ENDS, line) != NULL) {
-			cw_update_saved_jump_instructions();
+			if (!cw_update_saved_jump_instructions()) {
+				fprintf(stderr, "Could not repair saved jump targets\n");
+			}
 			break;
 		} else if (strcmp(line, ax_char_newline) != STRING_EQUAL) {
 			cw_add_saved_line(text);

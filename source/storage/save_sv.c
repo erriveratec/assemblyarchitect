@@ -141,7 +141,9 @@ void sv_load_level_code(int player_id, int level_id)
 		}
 	}
 	fclose(file);
-	cw_update_saved_jump_instructions();
+	if (!cw_update_saved_jump_instructions()) {
+		fprintf(stderr, "Could not repair saved jump targets\n");
+	}
 }
 
 void sv_save_level_code(int player_id, int level_id)

@@ -5,7 +5,6 @@ id = 1
 [level 00]
 unlocked = true
 code_begin
-MOV rax, [ib]
 code_end
 
 [level 01]
