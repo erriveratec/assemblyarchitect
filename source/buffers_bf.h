@@ -5,6 +5,7 @@
 #include "code_line_cl.h"
 #include "list.h"
 #include "aux.h"
+#include "gameplay/ui_highlight_source.h"
 
 enum input_list_type{
 	NOT_ASSIGNED,
@@ -38,7 +39,9 @@ void bf_set_input_box(SDL_Rect r);
 void bf_set_output_box(SDL_Rect r);
 void bf_set_input_buffer_button(SDL_Rect r);
 void bf_set_output_buffer_button(SDL_Rect r);
-void bf_set_buffer_highlights(bool input_enabled, bool output_enabled);
+void bf_set_buffer_highlight_source(ui_highlight_source_t source,
+									bool input_enabled,
+									bool output_enabled);
 bool bf_get_input_buffer_highlight_progress(float *progress);
 bool bf_get_output_buffer_highlight_progress(float *progress);
 

@@ -7,12 +7,14 @@ void lp_configure(
     bool register_hints_enabled,
     bool buffer_hints_enabled,
     bool immediate_hints_enabled,
-    bool flag_boxes_visible
+    bool flag_boxes_visible,
+    bool operand_highlights_enabled
 );
 
 bool lp_are_register_hints_enabled(void);
 bool lp_are_buffer_hints_enabled(void);
 bool lp_are_immediate_hints_enabled(void);
 bool lp_are_flag_boxes_visible(void);
+bool lp_are_operand_highlights_enabled(void);
 
 #endif

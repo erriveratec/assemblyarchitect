@@ -10,6 +10,7 @@
 #include "code_line_cl.h"
 #include "code_window_cw.h"
 #include "gameplay/interaction_rules_ir.h"
+#include "immediates_im.h"
 #include "instruction_window_iw.h"
 #include "mouse_ms.h"
 #include "registers_rg.h"
@@ -111,10 +112,7 @@ static void tr_process_state_dismissals(const cs_context_t *context)
 	}
 }
 
-/*
- * Renders the first active tutorial step that matches
- * the current gameplay state.
- */
+/* Updates the first matching tutorial step and applies its interaction effects. */
 const tutorial_step_t *tr_update(const cs_context_t *context)
 {
 	ir_restore_base_rules();
@@ -122,8 +120,10 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 	if (context == NULL) {
 		cw_set_challenge_highlight(false);
 		cw_set_code_box_highlight(false);
-		bf_set_buffer_highlights(false, false);
-		rg_set_register_highlight(false);
+		bf_set_buffer_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL,
+		                               false, false);
+		rg_set_register_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
+		im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 		iw_set_highlight_instructions(0);
 		g_current_step = NULL;
 		return NULL;
@@ -134,8 +134,10 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 	if (step == NULL) {
 		cw_set_challenge_highlight(false);
 		cw_set_code_box_highlight(false);
-		bf_set_buffer_highlights(false, false);
-		rg_set_register_highlight(false);
+		bf_set_buffer_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL,
+		                               false, false);
+		rg_set_register_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
+		im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 		iw_set_highlight_instructions(0);
 		g_current_step = NULL;
 		return NULL;
@@ -144,11 +146,14 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_CHALLENGE) != 0);
 	cw_set_code_box_highlight(
 	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_CODE_BOX) != 0);
-	bf_set_buffer_highlights(
+	bf_set_buffer_highlight_source(
+	    UI_HIGHLIGHT_SOURCE_TUTORIAL,
 	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_INPUT_BUFFER) != 0,
 	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_OUTPUT_BUFFER) != 0);
-	rg_set_register_highlight(
+	rg_set_register_highlight_source(
+	    UI_HIGHLIGHT_SOURCE_TUTORIAL,
 	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_REGISTERS) != 0);
+	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 	iw_set_highlight_instructions(step->highlight_instruction_mask);
 
 	if (step != g_current_step) {
@@ -158,9 +163,14 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 
 	tr_apply_step_effects(step, context);
 
-	tr_render_step(step->name);
-
 	return step;
+}
+
+void tr_render_current(void)
+{
+	if (g_current_step != NULL) {
+		tr_render_step(g_current_step->name);
+	}
 }
 
 static char *trim(char *text)
@@ -533,8 +543,9 @@ void tr_clear(void)
 {
 	cw_set_challenge_highlight(false);
 	cw_set_code_box_highlight(false);
-	bf_set_buffer_highlights(false, false);
-	rg_set_register_highlight(false);
+	bf_set_buffer_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false, false);
+	rg_set_register_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
+	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 	iw_set_highlight_instructions(0);
 	for (int index = 0; index < g_step_count; index++) {
 		tx_free_styled_text(g_steps[index].text_message);

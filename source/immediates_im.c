@@ -6,6 +6,7 @@
 #include "code_line_cl.h"
 #include "dimensions_dm.h"
 #include "draw_dw.h"
+#include "code_window_cw.h"
 #include "aux.h"
 #include "ui/button_bt.h"
 
@@ -15,9 +16,13 @@
 texture_t *g_imm_txt = NULL;
 
 static bool g_imm_up = false;
+static unsigned int g_imm_highlight_sources;
+static bool g_imm_highlight;
+static bool g_imm_highlight_rendered;
+static dw_pulse_t g_imm_pulse;
 
 static void init_imm_texture();
-static void draw_imm_txt_up();
+static void draw_imm_txt_up(float pulse);
 
 typedef struct imm_t{
 	btn_t *b;
@@ -167,6 +172,18 @@ void im_set_imm_up_avail(bool state)
 	g_imm_up = state;
 }
 
+bool im_are_imm_up_available(void)
+{
+	return g_imm_up;
+}
+
+void im_set_highlight_source(ui_highlight_source_t source, bool enabled)
+{
+	g_imm_highlight_sources = ui_highlight_source_set_enabled(
+	    g_imm_highlight_sources, source, enabled);
+	g_imm_highlight = g_imm_highlight_sources != 0;
+}
+
 /* Function: im_init_imm_assets
  *------------------------------------------------------------------------------
  * Initializes the assets of the immediates of the level
@@ -266,10 +283,21 @@ static void init_imm_texture()
  */
 void im_draw_imm()
 {
+	bool highlighted = g_imm_up && g_imm_highlight;
+	if (highlighted != g_imm_highlight_rendered) {
+		dw_pulse_reset(&g_imm_pulse);
+		g_imm_highlight_rendered = highlighted;
+	}
 	if (g_imm_up == true){
-		draw_imm_txt_up();
+		float anim_limit = cw_get_challenge_highlight_limit();
+		float pulse = highlighted ?
+		    dw_pulse_value(&g_imm_pulse, anim_limit) : 0.0f;
+		draw_imm_txt_up(pulse);
 		for (int i = 0; i < TOTAL_IMM; i++){
 			ax_draw_value_box(&g_up_imm[i].val, C_WHITE);
+		}
+		if (highlighted) {
+			dw_pulse_advance(&g_imm_pulse, anim_limit);
 		}
 	}	
 	
@@ -287,7 +315,7 @@ void im_draw_imm()
  *	Void.
  *
  */
-static void draw_imm_txt_up()
+static void draw_imm_txt_up(float pulse)
 {
 	SDL_Rect imm_box = dm_get_stage_imm_up();
 	SDL_Rect vb = dm_get_value_box_wh();
@@ -296,8 +324,22 @@ static void draw_imm_txt_up()
 	int x = imm_box.x + (11*vb.w - text_w)/2;
 	int y = 2*vb.h;
 
-	SDL_Rect r = {.x = x, .y = y, .h = text_h};
-	dw_draw_texture_fit_h(r, g_imm_txt);
+	if (g_imm_highlight) {
+		SDL_FRect label = {
+			.x = x,
+			.y = y,
+			.w = get_text_width_fits_height(text_h, IMM_TXT),
+			.h = text_h
+		};
+		label = dw_grow_rect_height(
+		    label, pulse * DW_TEXT_HIGHLIGHT_GROWTH_FACTOR);
+		dw_set_texture_color_mod(g_imm_txt, C_LIGHTGREY);
+		dw_draw_texture_fit_h_f(label, g_imm_txt);
+		dw_set_texture_color_mod(g_imm_txt, C_AMBER);
+	} else {
+		SDL_Rect label = {.x = x, .y = y, .h = text_h};
+		dw_draw_texture_fit_h(label, g_imm_txt);
+	}
 }
 
 

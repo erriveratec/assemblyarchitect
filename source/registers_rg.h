@@ -7,6 +7,7 @@
 #include "list.h"
 #include "code_line_cl.h"
 #include "aux.h"
+#include "gameplay/ui_highlight_source.h"
 
 typedef struct reg_t{
 	btn_t *b;
@@ -20,7 +21,8 @@ void rg_set_register_box(SDL_Rect r);
 int rg_get_registers_text_width(int h);
 void rg_add_register_to_list(int id);
 void rg_draw_registers();
-void rg_set_register_highlight(bool enabled);
+void rg_set_register_highlight_source(ui_highlight_source_t source,
+									  bool enabled);
 bool rg_get_register_highlight_progress(float *progress);
 void rg_draw_flag_boxes();
 bool rg_chk_rel_in_reg();

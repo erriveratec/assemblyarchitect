@@ -15,6 +15,8 @@ S_FILES := $(shell find $(S_DIR) -type f -name '*.c')
 TEST_EXEC = tutorial_text_test
 TEST_SOURCE = tests/tutorial_text_test.c
 TEST_SOURCES := $(filter-out $(S_DIR)/main.c,$(S_FILES))
+OPERAND_TEST_EXEC = operand_highlights_test
+OPERAND_TEST_SOURCE = tests/operand_highlights_test.c
 
  
 ############################
@@ -73,10 +75,15 @@ build:
 run: build
 	./$(EXEC)
 
-test:
+test: test-operand-highlights
 	$(CC) $(CFLAGS) $(TEST_SOURCE) $(TEST_SOURCES) -o $(TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(TEST_EXEC)
+
+test-operand-highlights:
+	$(CC) $(CFLAGS) $(OPERAND_TEST_SOURCE) $(TEST_SOURCES) -o $(OPERAND_TEST_EXEC) \
+	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
+	./$(OPERAND_TEST_EXEC)
 
 ############################
 # App bundle target

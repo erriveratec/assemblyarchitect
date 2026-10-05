@@ -6,6 +6,7 @@ id = 1
 unlocked = true
 code_begin
 MOV rax, [ib]
+MOV [ob], rax
 code_end
 
 [level 01]
@@ -27,12 +28,23 @@ code_end
 [level 03]
 unlocked = true
 code_begin
+MOV rax, [ib]
+MOV [ob], rax
+MOV rax, [ib]
+MOV [ob], rax
+MOV rax, [ib]
+MOV [ob], rax
 code_end
 
 [level 04]
 unlocked = true
 code_begin
 MOV rax, [ib]
+MOV rbx, [ib]
+MOV rcx, [ib]
+MOV [ob], rcx
+MOV [ob], rbx
+MOV [ob], rax
 code_end
 
 [level 05]

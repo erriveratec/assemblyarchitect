@@ -127,6 +127,7 @@ const tutorial_step_t *tr_get_matching_step(
 const tutorial_step_t *tr_update(
     const cs_context_t *context
 );
+void tr_render_current(void);
 
 
 #endif

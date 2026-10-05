@@ -47,6 +47,7 @@ typedef struct level_config_t {
 	bool buffer_hints_enabled;
 	bool immediate_hints_enabled;
 	bool flag_boxes_visible;
+	bool operand_highlights_enabled; /* Zero-initialized: optional, default false. */
 
 	bool register_hints_enabled_set;
 	bool buffer_hints_enabled_set;
@@ -256,7 +257,8 @@ static void apply_level(int level_id, level_config_t *config)
 	ir_set_base_rules(&rules);
 
 	lp_configure(config->register_hints_enabled, config->buffer_hints_enabled,
-	             config->immediate_hints_enabled, config->flag_boxes_visible);
+	             config->immediate_hints_enabled, config->flag_boxes_visible,
+	             config->operand_highlights_enabled);
 
 	char title[32];
 	char win_condition[64];
@@ -306,6 +308,7 @@ int lc_load_level(int level_id)
 	if (file == NULL)
 		return FAIL;
 
+	/* The optional availability flag intentionally defaults to false. */
 	level_config_t config = {0};
 	char           line[LINE_SIZE];
 	bool           selected = false;
@@ -376,6 +379,8 @@ int lc_load_level(int level_id)
 			config.flag_boxes_visible = parse_bool(value);
 
 			config.flag_boxes_visible_set = true;
+		} else if (strcmp(key, "ui.operand_highlights_enabled") == 0) {
+			config.operand_highlights_enabled = parse_bool(value);
 		} else if (strcmp(key, "win.type") == 0)
 			snprintf(config.win_type, sizeof(config.win_type), "%s", value);
 		else if (strcmp(key, "win.repeat_1") == 0 ||

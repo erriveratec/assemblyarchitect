@@ -89,6 +89,7 @@ void lv_upd_level_assets(int level);
 void lv_init_level_assets(int level);
 bool wc_is_satisfied();
 void lv_level_drawings(int level);
+void lv_prepare_level_frame(int level, int operation_id);
 void init_level(int level_id);
 bool lv_is_code_editable();
 bool lv_is_buf_selectable();

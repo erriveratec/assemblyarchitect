@@ -50,6 +50,9 @@ static List *input_list = NULL;
 static List *output_list = NULL;
 static bool g_input_buffer_highlight;
 static bool g_output_buffer_highlight;
+static unsigned int g_input_buffer_highlight_sources;
+static unsigned int g_output_buffer_highlight_sources;
+static bool g_buffer_highlight_rendered;
 static dw_pulse_t g_buffer_pulse;
 static float g_buffer_highlight_value;
 
@@ -369,14 +372,16 @@ void bf_set_output_buffer_button(SDL_Rect r)
 
 }
 
-void bf_set_buffer_highlights(bool input_enabled, bool output_enabled)
+void bf_set_buffer_highlight_source(ui_highlight_source_t source,
+									bool input_enabled,
+									bool output_enabled)
 {
-	if (input_enabled != g_input_buffer_highlight ||
-	    output_enabled != g_output_buffer_highlight) {
-		dw_pulse_reset(&g_buffer_pulse);
-	}
-	g_input_buffer_highlight = input_enabled;
-	g_output_buffer_highlight = output_enabled;
+	g_input_buffer_highlight_sources = ui_highlight_source_set_enabled(
+	    g_input_buffer_highlight_sources, source, input_enabled);
+	g_output_buffer_highlight_sources = ui_highlight_source_set_enabled(
+	    g_output_buffer_highlight_sources, source, output_enabled);
+	g_input_buffer_highlight = g_input_buffer_highlight_sources != 0;
+	g_output_buffer_highlight = g_output_buffer_highlight_sources != 0;
 }
 
 /* Function: get_input_list
@@ -678,6 +683,10 @@ void bf_set_output_box(SDL_Rect r)
 void bf_draw_buffers()
 {
 	bool highlighted = g_input_buffer_highlight || g_output_buffer_highlight;
+	if (highlighted != g_buffer_highlight_rendered) {
+		dw_pulse_reset(&g_buffer_pulse);
+		g_buffer_highlight_rendered = highlighted;
+	}
 	float anim_limit = cw_get_challenge_highlight_limit();
 	g_buffer_highlight_value = highlighted ?
 	    dw_pulse_value(&g_buffer_pulse, anim_limit) : 0.0f;

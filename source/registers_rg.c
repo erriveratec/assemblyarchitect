@@ -22,6 +22,8 @@
 static List *register_list = NULL;
 static SDL_Rect register_box;
 static bool g_register_highlight;
+static unsigned int g_register_highlight_sources;
+static bool g_register_highlight_rendered;
 static dw_pulse_t g_register_pulse;
 static float g_register_highlight_value;
 
@@ -679,6 +681,10 @@ void rg_draw_registers()
 	List *registers = rg_get_register_list();
 	
 	assert(registers != NULL && "Invalid pointer");
+	if (g_register_highlight != g_register_highlight_rendered) {
+		dw_pulse_reset(&g_register_pulse);
+		g_register_highlight_rendered = g_register_highlight;
+	}
 
 	draw_register_box();
 	draw_register_text();
@@ -711,12 +717,12 @@ void rg_draw_registers()
 	}
 }
 
-void rg_set_register_highlight(bool enabled)
+void rg_set_register_highlight_source(ui_highlight_source_t source,
+									  bool enabled)
 {
-	if (enabled != g_register_highlight) {
-		dw_pulse_reset(&g_register_pulse);
-	}
-	g_register_highlight = enabled;
+	g_register_highlight_sources = ui_highlight_source_set_enabled(
+	    g_register_highlight_sources, source, enabled);
+	g_register_highlight = g_register_highlight_sources != 0;
 }
 
 bool rg_get_register_highlight_progress(float *progress)

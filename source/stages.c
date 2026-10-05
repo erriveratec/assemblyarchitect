@@ -23,6 +23,7 @@
 #include "electron_fx.h"
 #include "text_tx.h"
 #include "gameplay/win_condition_wc.h"
+#include "gameplay/operand_highlights_oh.h"
 
 typedef struct level_flags_t {
 	bool play;
@@ -163,6 +164,7 @@ void init_level(int level_id)
  */
 static void destroy_level(level_flags_t *flags)
 {
+	oh_clear();
 	bf_destroy_buffer_lists();
 	wc_destroy_expected_output();
 	cw_destroy_code_window_assets();
@@ -516,6 +518,7 @@ static void rst_btn_hdl(int level_id, level_flags_t *flags)
  */
 static void reset_level(int level_id, level_flags_t *flags)
 {
+	oh_clear();
 	mc_reset_avatar();
 	reset_level_flags(flags);
 	rg_reset_register_values();
@@ -609,6 +612,7 @@ int stage_level(int level_id)
 		back_to_level_selection = true;
 	}
 	operation_id = mc_get_operation_flag();
+	lv_prepare_level_frame(level_id, operation_id);
 	if (result_action != RUN_RESULT_ACTION_CONTINUE) {
 		stage_drawings(level_id, operation_id);
 	}

@@ -16,6 +16,7 @@
 #include "tutorial_tr.h"
 #include "gameplay/code_state_cs.h"
 #include "gameplay/level_presentation_lp.h"
+#include "gameplay/operand_highlights_oh.h"
 
 // Exceptions of the selection of the code
 #define NO_EXCEPTION IR_NO_EXCEPTION
@@ -240,10 +241,26 @@ static void level_16()
 static void level_generic(void)
 {
 	draw_contextual_features();
+	tr_render_current();
+}
+
+void lv_prepare_level_frame(int level, int operation_id)
+{
+	if (sb_chk_rst_esc_menu_active()) {
+		oh_clear();
+		return;
+	}
 
 	cs_context_t context = cs_capture_context();
+	if (level >= LV_LEVEL_0 && level <= LV_LEVEL_15) {
+		/* Tutorial effects must be active before availability is derived. */
+		tr_update(&context);
+	}
 
-	tr_update(&context);
+	bool selection_possible = operation_id == NO_OPERATION &&
+	                          cw_check_code_sorted() &&
+	                          !context.holding_instruction && !context.playing;
+	oh_update(lp_are_operand_highlights_enabled(), selection_possible);
 }
 
 static void draw_contextual_features(void)
