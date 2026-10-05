@@ -210,7 +210,7 @@ static bool rr_get_layout_for_size(run_result_box_size_t size,
 			"content rectangle is outside the box or has no usable area";
 		return false;
 	}
-	SDL_Rect button_size = dm_get_modal_button_wh();
+	SDL_Rect button_size = bt_get_modal_button_size();
 	int gap = dm_scale_to_res(g_run_result_layout_config.button_gap);
 	int message_gap = dm_scale_to_res(
 		g_run_result_layout_config.message_button_gap);

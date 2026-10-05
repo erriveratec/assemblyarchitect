@@ -7,12 +7,16 @@
 #include <string.h>
 #include <SDL_mixer.h>
 #include "text_tx.h"
+#include "instruction_layout_il.h"
 #include "draw_dw.h"
 #include "sdl_config.h"
 #include "code_window_cw.h"
 #include "dimensions_dm.h"
 #include "media/audio_au.h"
+#include "ui/ui_metrics_um.h"
+#include "immediates_im.h"
 #include "aux.h"
+#include "arrow_ar.h"
 
 #define MSG_CLICKANY "Click Anywhere"
 #define MSG_PRESSPLAY "Press the Play Button"
@@ -26,6 +30,8 @@ static const Uint32 LARGE_TEXT_BOX_H  = 440;
 static const Uint32 LARGE_TEXT_BOX_W  = 600;
 
 static const Uint32 BORDER_OFS = 10;
+static const int MESSAGE_BOX_WIDTH = 270;
+static const int MESSAGE_BOX_HEIGHT = 270;
 
 char *SYSTEM_MESSAGE = "SYSTEM MESSAGE";
 char *SYSTEM_NOTICE  = "SYSTEM NOTICE";
@@ -57,6 +63,33 @@ static SDL_Rect get_text_box_ins();
 static SDL_Rect get_text_box_code();
 static SDL_Rect get_text_box_upper_right();
 static SDL_Rect get_text_box_center_right();
+static SDL_Rect get_error_box_bounds(void);
+static SDL_Rect get_stagebutton_box_bounds(void);
+
+static SDL_Rect get_error_box_bounds(void)
+{
+	SDL_Rect lower_box = dw_get_iface_big_lower_box();
+	SDL_Rect arrow_size = ar_get_arrow_wh();
+	SDL_Rect bounds = {
+		.x = lower_box.x + (lower_box.w / 3) / 2,
+		.y = lower_box.y + lower_box.h + 2 * arrow_size.h,
+		.w = lower_box.w * 2 / 3,
+		.h = dm_scale_to_res(MESSAGE_BOX_HEIGHT)
+	};
+	return bounds;
+}
+
+static SDL_Rect get_stagebutton_box_bounds(void)
+{
+	SDL_Rect code_box = cw_get_stage_code_box();
+	SDL_Rect bounds = {
+		.x = code_box.x + (code_box.w - dm_scale_to_res(MESSAGE_BOX_WIDTH)) / 2,
+		.y = code_box.y + code_box.h - dm_scale_to_res(MESSAGE_BOX_HEIGHT) / 2,
+		.w = dm_scale_to_res(MESSAGE_BOX_WIDTH),
+		.h = dm_scale_to_res(MESSAGE_BOX_HEIGHT)
+	};
+	return bounds;
+}
 
 /* Function: get_border_ofs
  * -----------------------------------------------------------------------------
@@ -106,7 +139,7 @@ static SDL_Rect get_text_box_upper_right()
 	SDL_Rect b;
 	b.w = d.w;
 	b.h = d.h;
-	b.x = dm_get_stage_imm_up().x + 12 * ax_get_value_box_size().w;
+	b.x = im_get_upper_label_bounds().x + 12 * ax_get_value_box_size().w;
 	b.y = dw_get_ofs_iface_filled_border();
 	return b;
 
@@ -147,13 +180,13 @@ static SDL_Rect get_text_box_code()
 static SDL_Rect get_text_box_ins()
 {
 
-	SDL_Rect ib = dm_get_stage_instruction_box();
+	SDL_Rect ib = il_get_instruction_box_bounds();
 	SDL_Rect d  = tx_get_text_box_wh();
 	SDL_Rect b;
 	b.w = d.w;
 	b.h = d.h;
 	b.x = ib.x;
-	b.y = ib.y + ib.h + dm_get_w_borders();
+	b.y = ib.y + ib.h + um_border_width();
 	return b;
 }
 
@@ -388,9 +421,6 @@ void tx_set_message_in_array(int pos, char *msg, int w, int h)
 
 	// pos--; // THIS WILL EXPLODE LATER
 
-	// int h = (pos == 0) ? dm_get_h_big_text() : dm_get_h_msg();
-	// int h = dm_get_h_msg();
-	//	int w = dm_get_w_msg(dm_get_box_msg_wh());
 	g_msgs[pos] = dw_create_text_tex_array_by_h(w, h, C_WHITE, msg);
 }
 
@@ -561,16 +591,16 @@ void tx_bottom_msg(const tx_text_box_options_t *options, int msg_id)
 	int              text_h = get_h_bottom_msg();
 	texture_array_t *a = g_gbl_msgs[msg_id];
 	if (options->position == TX_ERROR_BOX) {
-		b      = dm_get_text_box_error();
-		b.y    = dm_get_text_box_error().y + dm_get_text_box_error().h * 4 / 6;
-		b.h    = dm_get_text_box_error().h / 6;
+		b      = get_error_box_bounds();
+		b.y    = get_error_box_bounds().y + get_error_box_bounds().h * 4 / 6;
+		b.h    = get_error_box_bounds().h / 6;
 	} else {
 		if (!tx_get_text_box_rects(options, &b, &content,
 	                           &layout_text_height)) {
 			return;
 		}
 		if (options->position == TX_STAGEBUTTON_BOX) {
-			text_h = dm_get_h_msg();
+			text_h = um_message_text_height();
 		}
 		b.y += b.h / 2 - 2 * text_h;
 	}
@@ -592,52 +622,52 @@ bool tx_get_text_box_rects(
 	switch (position) {
 	case TX_INS_BOX:
 		resolved_box = get_text_box_ins();
-		resolved_text_height = dm_get_h_msg();
+		resolved_text_height = um_message_text_height();
 		break;
 
 	case TX_UPPER_BOX:
 		resolved_box = get_text_box_upper();
-		resolved_text_height = dm_get_h_msg();
+		resolved_text_height = um_message_text_height();
 		break;
 
 	case TX_UPPER_RIGHT_BOX:
 		resolved_box = get_text_box_upper_right();
-		resolved_text_height = dm_get_h_msg();
+		resolved_text_height = um_message_text_height();
 		break;
 
 	case TX_CENTER_BOX:
 		resolved_box = get_text_box_center();
-		resolved_text_height = dm_get_h_msg();
+		resolved_text_height = um_message_text_height();
 		break;
 
 	case TX_CENTER_RIGHT_BOX:
 		resolved_box = get_text_box_center_right();
-		resolved_text_height = dm_get_h_msg();
+		resolved_text_height = um_message_text_height();
 		break;
 
 	case TX_LOWER_BOX:
 		resolved_box = get_text_box_lower();
-		resolved_text_height = dm_get_h_msg();
+		resolved_text_height = um_message_text_height();
 		break;
 
 	case TX_CODE_BOX:
 		resolved_box = get_text_box_code();
-		resolved_text_height = dm_get_h_msg();
+		resolved_text_height = um_message_text_height();
 		break;
 
 	case TX_STAGEBUTTON_BOX:
-		resolved_box = dm_get_text_box_stagebutton();
-		resolved_text_height = dm_get_h_msg();
+		resolved_box = get_stagebutton_box_bounds();
+		resolved_text_height = um_message_text_height();
 		break;
 
 	case TX_CENTER_UP_BOX:
 		resolved_box = get_text_box_center_up();
-		resolved_text_height = dm_get_h_msg();
+		resolved_text_height = um_message_text_height();
 		break;
 
 	case TX_ERROR_BOX:
-		resolved_box = dm_get_text_box_error();
-		resolved_text_height = dm_get_h_big_text();
+		resolved_box = get_error_box_bounds();
+		resolved_text_height = um_emphasis_text_height();
 		break;
 
 	default:
@@ -677,7 +707,7 @@ bool tx_get_text_box_rects(
 		}
 	}
 	if (options->large_text) {
-		resolved_text_height = dm_get_h_big_text();
+		resolved_text_height = um_emphasis_text_height();
 	}
 
 	SDL_Rect resolved_content = dw_get_iface_content_box(resolved_box);

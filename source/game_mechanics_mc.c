@@ -16,6 +16,8 @@
 
 static const int AVATAR_WIDTH = 50;
 static const int AVATAR_HEIGHT = 50;
+static const int STAGE_RAIL_WIDTH = 4;
+static const int STAGE_RAIL_END_WIDTH = 16;
 
 static SDL_Rect get_avatar_size(void)
 {
@@ -263,7 +265,7 @@ void mc_init_avatar()
 	g_oavatar.secval.t = dw_create_text_tex(ax_char_dash, C_WHITE);
 	g_oavatar.color = C_CYAN;
 
-	int ofs = dm_get_ofs_stage_reg_box();
+	int ofs = rg_get_panel_value_offset();
 	SDL_Rect rb = rg_get_register_box();
 	
 	g_ravatar.id = RAVATAR;
@@ -429,10 +431,10 @@ static void draw_iavatar()
 	SDL_Rect rb = rg_get_register_box();
 	int medium = (rb.y - bf_y_lower)/2;
 
-	SDL_Rect ibox = dm_get_stage_ibox();
-	int rail_w = dm_get_w_stage_rail();
+	SDL_Rect ibox = rg_get_input_value_box_bounds();
+	int rail_w = dm_scale_to_res(STAGE_RAIL_WIDTH);
 
-	int offset = dm_get_ofs_buffer_value_box();
+	int offset = bf_get_value_box_spacing();
 	int x = ibox.x + ibox.w/2 - rail_w/2;
 	int y = rb.y - medium - rail_w/2;
 	int w = bf.x + ibox.w/2 - x + offset + rail_w/2;
@@ -441,7 +443,7 @@ static void draw_iavatar()
 	SDL_Rect r1 = {.x = x, .y = y, .w = w, .h = h};
 	dw_draw_filled_rectangle(r1, C_MAGENTA, C_MAGENTA);
 
-	int rail_end_w = dm_get_w_stage_rail_end();
+	int rail_end_w = dm_scale_to_res(STAGE_RAIL_END_WIDTH);
 
 	int rail_end_x = x - (rail_end_w - rail_w)/2;
 	int rail_end_y = y - (rail_end_w - rail_w)/2;
@@ -500,9 +502,9 @@ static void draw_oavatar()
 	SDL_Rect rb = rg_get_register_box();
 	int medium = (bf_y_upper - (rb.y + rb.h))/2;
 
-	SDL_Rect obox = dm_get_stage_obox();
-	int rail_w = dm_get_w_stage_rail();
-	int offset = dm_get_ofs_buffer_value_box();
+	SDL_Rect obox = rg_get_output_value_box_bounds();
+	int rail_w = dm_scale_to_res(STAGE_RAIL_WIDTH);
+	int offset = bf_get_value_box_spacing();
 
 	int x = obox.x + obox.w/2 - rail_w/2;
 	int y = bf.y - medium - rail_w/2;
@@ -512,7 +514,7 @@ static void draw_oavatar()
 	SDL_Rect r1 = {.x = x, .y = y, .w = w, .h = h};
 	dw_draw_filled_rectangle(r1, C_CYAN, C_CYAN);
 
-	int rail_end_w = dm_get_w_stage_rail_end();
+	int rail_end_w = dm_scale_to_res(STAGE_RAIL_END_WIDTH);
 
 	int rail_end_x = x - (rail_end_w - rail_w)/2;
 	int rail_end_y = y - (rail_end_w - rail_w)/2;
@@ -567,10 +569,10 @@ void draw_ravatar()
 				   .w = g_ravatar.box.w, .h = g_ravatar.box.h};
 	dw_draw_filled_rectangle(r0, g_ravatar.color, g_ravatar.color);
 
-	SDL_Rect ibox = dm_get_stage_ibox();
+	SDL_Rect ibox = rg_get_input_value_box_bounds();
 	SDL_Rect rb = rg_get_register_box();
-	int reg_ofs =  dm_get_ofs_stage_reg_box();
-	int rail_w = dm_get_w_stage_rail();
+	int reg_ofs =  rg_get_panel_value_offset();
+	int rail_w = dm_scale_to_res(STAGE_RAIL_WIDTH);
 
 	int rx = ibox.x + ibox.w/2;
 	int ry = rb.y + reg_ofs;
@@ -595,7 +597,7 @@ void draw_ravatar()
 	SDL_Rect r2 = {.x = xf, .y = yc, .w = wf, .h = hf};
 	dw_draw_filled_rectangle(r2, C_YELLOW, C_YELLOW);
 
-	int rail_end_w = dm_get_w_stage_rail_end();
+	int rail_end_w = dm_scale_to_res(STAGE_RAIL_END_WIDTH);
 
 	int rail_end_x = rx - (rail_end_w - rail_w)/2;
 	int rail_end_y = ry - (rail_end_w - rail_w)/2;
@@ -746,7 +748,7 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 	}
 
 	SDL_Rect vb = ax_get_value_box_size();
-	int vbox_offset = dm_get_ofs_reg_value_box();
+	int vbox_offset = ax_get_value_box_vertical_offset();
 	if (op_id > REG_MIN && op_id < REG_MAX){
 		y = get_operand_y_dest(op_id);
 	} else if (op_id > FLAG_MIN && op_id < FLAG_MAX){

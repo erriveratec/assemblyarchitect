@@ -7,6 +7,8 @@
 #include "draw_dw.h"
 #include <SDL_mixer.h>
 
+SDL_Rect bt_get_modal_button_size(void);
+
 typedef struct btn_t{
 	SDL_Rect r;
 	texture_t *t;

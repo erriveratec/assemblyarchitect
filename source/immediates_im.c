@@ -9,6 +9,8 @@
 #include "code_window_cw.h"
 #include "aux.h"
 #include "ui/button_bt.h"
+#include "registers_rg.h"
+#include "ui/ui_metrics_um.h"
 
 #define TOTAL_IMM 20
 #define IMM_FIRST_ROW_COUNT 11
@@ -17,6 +19,7 @@
 #define IMM_LABEL_HIGHLIGHT_ENABLED 0
 static const int IMM_CELL_WIDTH = 60;
 static const int IMM_CELL_HEIGHT = 50;
+static const int IMM_LABEL_Y = 0;
 
 
 texture_t *g_imm_txt = NULL;
@@ -51,6 +54,17 @@ static bool rects_overlap_vertically(SDL_Rect first, SDL_Rect second);
 static bool rects_overlap_horizontally(SDL_Rect first, SDL_Rect second);
 
 imm_t g_up_imm[TOTAL_IMM];
+
+SDL_Rect im_get_upper_label_bounds(void)
+{
+	SDL_Rect bounds = {
+		.x = rg_get_input_value_box_bounds().x,
+		.y = dm_scale_to_res(IMM_LABEL_Y),
+		.w = 0,
+		.h = um_stage_label_height()
+	};
+	return bounds;
+}
 
 SDL_Rect im_get_cell_size(void)
 {
@@ -122,7 +136,7 @@ operand_t *im_create_imm_op_by_id(int op_id)
 			}	
 			texture_t *t = dw_create_text_tex(num, C_WHITE);
 			free(num);
-			SDL_Rect cb = dm_get_code_button_wh();
+			SDL_Rect cb = cw_get_code_button_size();
 			SDL_Rect r = {.x = 0, .y = 0, .w = cb.w, .h = cb.h};
 			btn_t *b = bt_create_btn(r, t);
 			o = malloc(sizeof(operand_t));
@@ -174,7 +188,7 @@ operand_t *im_create_sel_imm_op()
 	   		char *num = ax_number_to_string(g_up_imm[i].val.value);
 			texture_t *t = dw_create_text_tex(num, C_WHITE);
 			free(num);
-			SDL_Rect cb = dm_get_code_button_wh();
+			SDL_Rect cb = cw_get_code_button_size();
 			SDL_Rect r = {.x = 0, .y = 0, .w = cb.w, .h = cb.h};
 			btn_t *b = bt_create_btn(r, t);
 			o = malloc(sizeof(operand_t));
@@ -235,7 +249,7 @@ void im_init_imm_assets()
 {
 	init_imm_texture();
 
-	int start_x = dm_get_stage_imm_up().x;
+	int start_x = im_get_upper_label_bounds().x;
 	SDL_Rect cell = im_get_cell_size();
 	for (int i = 0; i < TOTAL_IMM; i++){
 		bool first_row = i < IMM_FIRST_ROW_COUNT;
@@ -348,9 +362,9 @@ void im_draw_imm()
  */
 static void draw_imm_txt_up(float pulse)
 {
-	SDL_Rect imm_box = dm_get_stage_imm_up();
+	SDL_Rect imm_box = im_get_upper_label_bounds();
 	SDL_Rect cell = im_get_cell_size();
-	int text_h = dm_get_h_stage_elements_titles();
+	int text_h = um_stage_label_height();
 	int text_w = get_text_width_fits_height(text_h, IMM_TXT);
 	int x = imm_box.x + (11 * cell.w - text_w) / 2;
 	int y = 2 * cell.h;

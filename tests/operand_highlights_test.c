@@ -20,7 +20,14 @@ static void init_test_graphics(void)
 {
 	assert(SDL_Init(0) == 0);
 	assert(TTF_Init() == 0);
+	dm_set_screen_resolution(R1600X900);
+	assert(dm_get_screen_width() == 1600);
+	assert(dm_get_screen_height() == 900);
+	assert(dm_scale_to_res(173) == 173);
 	dm_set_screen_resolution(R1920X1080);
+	assert(dm_get_screen_width() == 1920);
+	assert(dm_get_screen_height() == 1080);
+	assert(dm_scale_to_res(173) == 173);
 	g_screen = SDL_CreateRGBSurfaceWithFormat(
 	    0, dm_get_screen_width(), dm_get_screen_height(), 32,
 	    SDL_PIXELFORMAT_RGBA32);

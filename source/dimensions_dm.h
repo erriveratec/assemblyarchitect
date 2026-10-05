@@ -1,73 +1,14 @@
 #ifndef DIMENSIONS_DM_H
 #define DIMENSIONS_DM_H
 
-#include<stdio.h>
-#include<stdlib.h>
-#include <SDL.h>
-
-enum resolutions{
+enum resolutions {
 	R1920X1080,
-	R1600X900	
+	R1600X900
 };
 
 void dm_set_screen_resolution(int resolution_id);
 void dm_set_screen_dimensions(int width, int height);
-
-int dm_get_h_between_code();
-int dm_get_h_big_text();
-int dm_get_h_msg();
-int dm_get_h_stage_elements_titles();
-int dm_get_h_stage_titles();
-int dm_get_h_stage_subtitle();
-int dm_get_h_code_text();
-int dm_get_w_code_box_text();
-int dm_get_w_border_padding();
-int dm_get_h_padding();
-int dm_get_w_padding();
-int dm_get_h_border_padding();
-int dm_get_w_stage_rail();
-int dm_get_w_stage_rail_end();
-int dm_get_w_borders();
-int dm_get_w_miss_op();
-
-
-
-SDL_Rect dm_get_code_button_wh();
-
-
-SDL_Rect dm_get_stage_reg_box();
-SDL_Rect dm_get_stage_ibox();
-SDL_Rect dm_get_stage_obox();
-SDL_Rect dm_get_stage_zfbox();
-SDL_Rect dm_get_stage_instruction_box();
-SDL_Rect bf_get_input_buffer_bounds();
-SDL_Rect bf_get_output_buffer_bounds();
-SDL_Rect bf_get_input_label_bounds();
-SDL_Rect dm_get_stage_ob_text_box();
-SDL_Rect dm_get_stage_imm_up();
-
-int dm_get_screen_width();
-int dm_get_screen_height();
-int dm_get_y_hidden_stage_buttons();
-int dm_get_ofs_stage_reg_box();
-int dm_get_ofs_code_op1();
-int dm_get_ofs_code_op2();
-int dm_get_ofs_code_comma();
-int dm_get_ofs_buffer_value_box();
-int dm_get_ofs_between_value_box();
-int dm_get_ofs_reg_value_box();
-int dm_get_ofs_bet_regs();
-int dm_get_ofs_res_box();
-
-
-//CHECK THE USAGE
-SDL_Rect dm_get_text_box_error();
-SDL_Rect dm_get_text_box_stagebutton();
-SDL_Rect dm_get_modal_button_wh();
-
-int dm_get_btn_anim_max();
-int dm_get_btn_anim_delta();
-int dm_get_btn_anim_speed();
-
-int dm_scale_to_res(int dim);
+int dm_get_screen_width(void);
+int dm_get_screen_height(void);
+int dm_scale_to_res(int dimension);
 #endif

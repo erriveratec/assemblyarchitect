@@ -8,6 +8,18 @@
 static const Uint32 TYPE_DELAY_MS = 90; 
 static const int SELECTION_TITLE_H = 110;
 static const int SELECTION_TITLE_Y = 155;
+static const int SELECTION_SUBTITLE_HEIGHT = 55;
+static const int SELECTION_DESCRIPTION_TEXT_HEIGHT = 40;
+
+int sc_get_selection_subtitle_height(void)
+{
+    return dm_scale_to_res(SELECTION_SUBTITLE_HEIGHT);
+}
+
+int sc_get_selection_description_text_height(void)
+{
+    return dm_scale_to_res(SELECTION_DESCRIPTION_TEXT_HEIGHT);
+}
 
 SDL_Rect sc_get_selection_title_bounds(const char *text)
 {

@@ -12,6 +12,8 @@
 #include"registers_rg.h"
 #include "dimensions_dm.h"
 #include "ui/run_result_rr_internal.h"
+#include "immediates_im.h"
+#include "ui/ui_metrics_um.h"
 
 static const Uint32 ARROW_H = 45;
 static const Uint32 ARROW_W = 45;
@@ -99,7 +101,7 @@ static void display_arrow_registers()
 {
 	List *registers = rg_get_register_list();
 	assert(registers != NULL && "Invalid pointer");
-	SDL_Rect cb = dm_get_code_button_wh();
+	SDL_Rect cb = cw_get_code_button_size();
 	int i = 0;
 	LIST_FOREACH(registers, first, next, cur){ 
 		reg_t *c = cur->value;
@@ -227,7 +229,7 @@ static void initialize_regs_arrow()
 {
 	SDL_Rect rb = rg_get_register_box();
 	SDL_Rect a = ar_get_arrow_wh();
-	int text_h = dm_get_h_stage_elements_titles();
+	int text_h = um_stage_label_height();
 	int text_w = get_text_width_fits_height(text_h, AX_REG_TEXT);
 	
 	g_arrow_regs.box.x = rb.x + text_w/2 - a.w/2;
@@ -285,9 +287,9 @@ static void initialize_zf_arrow()
 static void initialize_imm_up_arrow()
 {
 	SDL_Rect a = ar_get_arrow_wh();
-	SDL_Rect imm_box = dm_get_stage_imm_up();
+	SDL_Rect imm_box = im_get_upper_label_bounds();
 	SDL_Rect vb = ax_get_value_box_size();
-	int text_h = dm_get_h_stage_elements_titles();
+	int text_h = um_stage_label_height();
 	int text_w = get_text_width_fits_height(text_h, IMM_TXT);
 	int x = imm_box.x + (11*vb.w)/2;
 	int y = 2*vb.h;
@@ -321,9 +323,9 @@ static void initialize_ins_arrow()
 	int size = iw_get_instruction_list_size();
 	SDL_Rect ir = iw_get_instruction_rect_by_pos(size - 1);
 	SDL_Rect a = ar_get_arrow_wh();
-	SDL_Rect code_button = dm_get_code_button_wh();
+	SDL_Rect code_button = cw_get_code_button_size();
 	float max_scale = 1.0f +
-	                  (float)dm_get_btn_anim_max() / code_button.h;
+	                  (float)um_button_animation_max() / code_button.h;
 	int max_instruction_right = ir.x + ir.w / 2 +
 	                             (int)(ir.w * max_scale / 2.0f);
 	int arrow_gap = a.w / 16;

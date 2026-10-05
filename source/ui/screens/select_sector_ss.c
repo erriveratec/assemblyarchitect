@@ -118,7 +118,7 @@ static SDL_Rect get_sector_btn_box()
 
 	SDL_Rect b;
 	b.w = screen_width*2/3;
-	b.h = dm_get_h_stage_subtitle();
+	b.h = sc_get_selection_subtitle_height();
 	b.x = sc_get_selection_title_bounds(SELECT_SECTOR).x;
 	b.y = get_upper_separator().y + get_sector_btn_spacing() 
 	     + get_fst_btn_ofs(); 

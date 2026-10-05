@@ -7,6 +7,8 @@
 #include "draw_dw.h"
 
 SDL_Rect sc_get_selection_title_bounds(const char *text);
+int sc_get_selection_subtitle_height(void);
+int sc_get_selection_description_text_height(void);
 
 
 typedef struct sc_fx_t {

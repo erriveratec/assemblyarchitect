@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include "draw_dw.h"
 
+
 enum text_box_positions {
 	TX_BOX_MIN,
 	TX_INS_BOX,

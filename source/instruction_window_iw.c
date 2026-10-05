@@ -10,6 +10,8 @@
 #include "stage_buttons_sb.h"
 #include "aux.h"
 #include "code_window_cw.h"
+#include "ui/ui_metrics_um.h"
+#include "instruction_layout_il.h"
 
 
 #define INSTRUCTIONS_TEXT "Instructions"
@@ -39,7 +41,7 @@ static void draw_highlighted_instruction(btn_t *button);
 void iw_init_ins_box()
 {
 	instructions_text = dw_create_text_tex(INSTRUCTIONS_TEXT, C_AMBER);
-	g_instruction_box = dm_get_stage_instruction_box();
+	g_instruction_box = il_get_instruction_box_bounds();
 }
 
 /* Function: iw_get_instruction_box_by_pos
@@ -112,11 +114,11 @@ int iw_get_instruction_y_by_id(int id)
  */
 static void draw_instruction_text()
 {
-	SDL_Rect ib = dm_get_stage_instruction_box();
+	SDL_Rect ib = il_get_instruction_box_bounds();
 	int x = ib.x;
 	int h = ax_get_text_h_fit_w(ib.w, INSTRUCTIONS_TEXT);
 	int y = ib.y - h;
-	int text_h = dm_get_h_stage_elements_titles();
+	int text_h = um_stage_label_height();
 	SDL_Rect r = {.x = x, .y = y, .w = ib.w, .h = text_h};
 	dw_draw_texture_fit_h(r, instructions_text);
 }
@@ -279,20 +281,20 @@ void iw_add_instruction_to_list(int id)
 	texture_t *instruction_text = dw_create_text_tex(text, 
 								  C_WHITE);
 	
-	SDL_Rect cb = dm_get_code_button_wh();
+	SDL_Rect cb = cw_get_code_button_size();
 	int list_size = List_count(instructions);
 	
-	SDL_Rect ib = dm_get_stage_instruction_box();
+	SDL_Rect ib = il_get_instruction_box_bounds();
 	
-	int x = ib.x + dm_get_w_border_padding()+ dm_get_w_padding();
+	int x = ib.x + um_padding_horizontal_with_border()+ um_padding_horizontal();
 	int y;
 	if (list_size == 0){
-		y = ib.y + dm_get_h_border_padding() + dm_get_h_padding(); 
+		 y = ib.y + um_padding_vertical_with_border() + um_padding_vertical();
 	} else {
-		y = ib.y + dm_get_h_border_padding()+ dm_get_h_padding()
-		    + list_size*dm_get_h_between_code();
+		y = ib.y + um_padding_vertical_with_border()+ um_padding_vertical()
+		    + list_size*cw_get_code_line_spacing();
 	}
-	SDL_Rect r = dm_get_code_button_wh();
+	SDL_Rect r = cw_get_code_button_size();
 	
 	r.x = x;
 	r.y = y;
@@ -322,10 +324,10 @@ void iw_update_ins_box_size()
 {
  	int size = iw_get_instruction_list_size();
 
-	g_instruction_box.h = dm_get_stage_instruction_box().h;
+	g_instruction_box.h = il_get_instruction_box_bounds().h;
 	if (size > 4){
 		int increase_factor = size - 4;
-		g_instruction_box.h += increase_factor*dm_get_h_between_code();
+		g_instruction_box.h += increase_factor*cw_get_code_line_spacing();
 	}
 }
 
@@ -347,7 +349,7 @@ void iw_draw_ins_box()
 
 	draw_instruction_text();
 	
-	dw_draw_thick_rect(g_instruction_box, dm_get_w_borders(), C_GREY);
+	dw_draw_thick_rect(g_instruction_box, um_border_width(), C_GREY);
 	float anim_limit = cw_get_challenge_highlight_limit();
 	g_instruction_highlight_value = g_highlight_instruction_mask != 0 ?
 	    dw_pulse_value(&g_instruction_pulse, anim_limit) : 0.0f;

@@ -6,6 +6,7 @@
 #include "dimensions_dm.h"
 #include "ui/reset_menu_rm.h"
 #include "ui/escape_menu_em.h"
+#include "ui/ui_metrics_um.h"
 #include "media/audio_au.h"
 
 
@@ -16,6 +17,7 @@ static char *SYSTEM_ALERT = "SYSTEM ALERT";
 
 static Uint32 RST_MENU_BTNS_W = 100;
 static Uint32 RST_MENU_BTNS_H = 60;
+static const int RESUME_DIALOG_INSET = 35;
 
 bool g_rst_menu = false;
 	
@@ -86,7 +88,7 @@ void rm_set_rst_menu(bool state)
 	g_rst_menu = state;
 }
 
-/* Function: dm_get_rst_b1_box
+/* Function: get_rst_b1_box
  * -----------------------------------------------------------------------------
  * Box position of the button 1 of the reset menu
  *
@@ -99,7 +101,7 @@ void rm_set_rst_menu(bool state)
 static SDL_Rect get_rst_b1_box()
 {
 	int cont_w = dm_scale_to_res(RST_MENU_BTNS_W);
-	int offset = dm_get_ofs_res_box();
+	int offset = dm_scale_to_res(RESUME_DIALOG_INSET);
 	SDL_Rect rb = dw_get_iface_big_center_box();
 	SDL_Rect cb = dw_get_iface_content_box(rb);
 	SDL_Rect b;
@@ -111,7 +113,7 @@ static SDL_Rect get_rst_b1_box()
 
 }
 
-/* Function: dm_get_rst_b2_box
+/* Function: get_rst_b2_box
  * -----------------------------------------------------------------------------
  * Box position of the button 2 of the reset menu
  *
@@ -125,7 +127,7 @@ static SDL_Rect get_rst_b2_box()
 {
 	int back_w = dm_scale_to_res(RST_MENU_BTNS_W);
 	int cont_w = dm_scale_to_res(RST_MENU_BTNS_W);
-	int offset = dm_get_ofs_res_box();
+	int offset = dm_scale_to_res(RESUME_DIALOG_INSET);
 	SDL_Rect rb = dw_get_iface_big_center_box();
 	SDL_Rect cb = dw_get_iface_content_box(rb);
 	SDL_Rect b;
@@ -160,7 +162,7 @@ void rm_init_rst_menu()
 	r = get_rst_b2_box();
 	g_rst_b2 = bt_create_iface_btn(r, g_rst_b2_texture, true);
 
-	int h = dm_get_h_msg();
+	int h = um_message_text_height();
 	int w = dw_get_iface_content_box(dw_get_iface_big_center_box()).w;
 	g_rst_menu_text = dw_create_text_tex_array_by_h(w, 
 													h, 
@@ -189,7 +191,7 @@ void rm_render_rst_menu(bool show_menu)
 		SDL_Rect text_box = dw_get_iface_content_box(r);
 		text_box.h -= get_rst_b1_box().h;
 
-		int text_h = dm_get_h_msg();		
+		int text_h = um_message_text_height();
 		dw_draw_wrapped_texture_by_h(text_box, text_h, g_rst_menu_text);
 
 		bt_draw_iface_btn(g_rst_b1, em_get_escape_state(), g_sfx_iface_hover);

@@ -6,16 +6,30 @@
 #include "mouse_ms.h"
 #include "dimensions_dm.h"
 #include "aux.h"
+#include "ui/ui_metrics_um.h"
 #include <SDL_mixer.h>
 
 static const Uint32 BUTTON_LIFT = 4;
 static const float HOVER_SCALE = 0.06f;
 static const Uint32 BUTTON_SHADOW_OFS = 5; // The shadow of iface buttons
+static const int MODAL_BUTTON_WIDTH = 155;
+static const int MODAL_BUTTON_HEIGHT = 60;
 
 static const Uint32 IFACE_BUTTON_SPACE_W = 7; // Used for the button inner bord
 static const Uint32 IFACE_BUTTON_OUTER_W = 3; //Outer width of the iface button
 
 static bool g_btns_blocked = false;
+
+SDL_Rect bt_get_modal_button_size(void)
+{
+	SDL_Rect size = {
+		.x = 0,
+		.y = 0,
+		.w = dm_scale_to_res(MODAL_BUTTON_WIDTH),
+		.h = dm_scale_to_res(MODAL_BUTTON_HEIGHT)
+	};
+	return size;
+}
 
 bool bt_chk_hover_iface_btn(iface_btn_t *btn);
 static void draw_btn_scaled_texture(SDL_Rect box, iface_btn_t *b);
@@ -24,7 +38,7 @@ static int get_w_iface_outer_border();
 static int get_w_button_padding();
 static int get_h_button_padding();
 
-/* Function: dm_get_w_button_padding
+/* Function: get_w_button_padding
  * -----------------------------------------------------------------------------
  *	Returns the scale value for the horizontal padding
  *
@@ -36,11 +50,11 @@ static int get_h_button_padding();
  */
 static int get_w_button_padding()
 {
-	return dm_get_w_padding() + 
+	return um_padding_horizontal() +
 		   dm_scale_to_res(IFACE_BUTTON_SPACE_W);
 }
 
-/* Function: dm_get_h_but_padding
+/* Function: get_h_button_padding
  * -----------------------------------------------------------------------------
  *	Returns the scale value for the vertical padding
  *
@@ -52,13 +66,13 @@ static int get_w_button_padding()
  */
 static int get_h_button_padding()
 {
-	return dm_get_h_padding() + 
+	return um_padding_vertical() +
 		   dm_scale_to_res(IFACE_BUTTON_SPACE_W);
 }
 
 
 
-/* Function: dm_get_ofs_iface_border
+/* Function: get_w_iface_space_border
  * -----------------------------------------------------------------------------
  *	Returns the interfacer border space that will be use for interface buttons
  *
@@ -73,7 +87,7 @@ static int get_w_iface_space_border()
 	return dm_scale_to_res(IFACE_BUTTON_SPACE_W);
 }
 
-/* Function: dm_get_ofs_outer_border
+/* Function: get_w_iface_outer_border
  * -----------------------------------------------------------------------------
  *	Returns the interfacer border space that will be use for interface buttons
  *
@@ -88,7 +102,7 @@ static int get_w_iface_outer_border()
 	return dm_scale_to_res(IFACE_BUTTON_OUTER_W);
 }
 
-/* Function: dm_get_ofs_button_shadow
+/* Function: bt_get_ofs_button_shadow
  * -----------------------------------------------------------------------------
  *	Returns the shadow offset for the buttons
  *
@@ -545,8 +559,8 @@ void bt_draw_btn(btn_t *b, bool blk, bool hv)
 						  .h = b->r.h + b->anim_state};
 			dw_draw_texture_fit_h(r, b->t);
 		}
-		int anim_max = dm_get_btn_anim_max();
-		int anim_delta = dm_get_btn_anim_delta();
+		int anim_max = um_button_animation_max();
+		int anim_delta = um_button_animation_delta();
 		if (b->anim_dir == false && b->anim_state == anim_max){
 			b->anim_dir = true;
 		} else if (b->anim_dir == true && b->anim_state == 0){

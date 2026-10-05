@@ -10,6 +10,7 @@
 #include "stages.h"
 #include "code_window_cw.h"
 #include "instruction_window_iw.h"
+#include "instruction_layout_il.h"
 #include "buffers_bf.h"
 #include "registers_rg.h"
 #include "file_fl.h"
@@ -96,7 +97,7 @@ static void init_stage_assets()
 	SDL_Rect r2 = {.x = r0.x, .y = ib.y, .w = r0.w, .h = ib.h + r0.h};
 	bf_set_input_buffer_button(r2);
 
-	SDL_Rect ob = dm_get_stage_ob_text_box();
+	SDL_Rect ob = bf_get_output_label_bounds();
 	SDL_Rect r3 = {.x = r1.x, .y = r1.y, .w = r1.w, .h = ob.h + r1.h};
 	bf_set_output_buffer_button(r3);
 
@@ -128,7 +129,7 @@ void init_level(int level_id)
 	lv_init_level_assets(level_id);
 
 	// goes before the load level
-	SDL_Rect r0 = dm_get_stage_reg_box();
+	SDL_Rect r0 = rg_get_panel_initial_bounds();
 	rg_set_register_box(r0);
 
 	fl_file_initialize_level(level_id);
@@ -140,7 +141,7 @@ void init_level(int level_id)
 	cw_set_scroll_box(r1);
 	cw_set_code_box(r1);
 
-	SDL_Rect r2 = dm_get_stage_instruction_box();
+	SDL_Rect r2 = il_get_instruction_box_bounds();
 	// iw_set_instruction_box(r2);
 
 	cw_create_code_list();

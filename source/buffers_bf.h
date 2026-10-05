@@ -5,6 +5,13 @@
 #include "code_line_cl.h"
 #include "list.h"
 #include "aux.h"
+
+SDL_Rect bf_get_input_buffer_bounds(void);
+SDL_Rect bf_get_output_buffer_bounds(void);
+SDL_Rect bf_get_input_label_bounds(void);
+SDL_Rect bf_get_output_label_bounds(void);
+int bf_get_value_box_spacing(void);
+int bf_get_value_box_secondary_spacing(void);
 #include "gameplay/ui_highlight_source.h"
 
 enum input_list_type{

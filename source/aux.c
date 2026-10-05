@@ -344,13 +344,16 @@ void ax_copy_vbox(value_box_t *dst, value_box_t src, bool pos)
  * Return:
  *	Void.
  */
+static const int VALUE_BOX_WIDTH = 50;
+static const int VALUE_BOX_HEIGHT = 40;
+
 SDL_Rect ax_get_value_box_size(void)
 {
 	SDL_Rect size = {
 		.x = 0,
 		.y = 0,
-		.w = dm_scale_to_res(50),
-		.h = dm_scale_to_res(40)
+		.w = dm_scale_to_res(VALUE_BOX_WIDTH),
+		.h = dm_scale_to_res(VALUE_BOX_HEIGHT)
 	};
 	return size;
 }
@@ -360,6 +363,11 @@ SDL_Rect ax_get_value_text_size(void)
 	SDL_Rect size = ax_get_value_box_size();
 	size.h -= size.h / 10;
 	return size;
+}
+
+int ax_get_value_box_vertical_offset(void)
+{
+	return ax_get_value_box_size().h / 4;
 }
 
 void ax_draw_value_box(value_box_t *box, SDL_Color color)

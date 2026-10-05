@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "stage_buttons_sb.h"
+#include "instruction_layout_il.h"
 #include "ui/button_bt.h"
 #include "ui/escape_menu_em.h"
 #include "ui/reset_menu_rm.h"
@@ -21,6 +22,10 @@ static Uint32 STAGE_BUTTON_H = 60;
 static Uint32 STAGE_BUTTON_Y = 820;
 
 static Uint32 SCREEN_BORDERS_OFS = 5;
+static int get_hidden_stage_buttons_y(void)
+{
+	return dm_get_screen_height() + 150;
+}
 
 bool g_step_btns_avail = true;
 static bool g_stage_buttons_visible = false;
@@ -61,7 +66,7 @@ bool sb_chk_rst_esc_menu_active()
 	return active;
 }
 
-/* Function: dm_get_ofs_space_stage_buttons
+/* Function: get_ofs_space_stage_buttons
  * -----------------------------------------------------------------------------
  *	Return the offset value of the contents of the buffer. 
  *
@@ -90,7 +95,7 @@ static int get_ofs_space_stage_buttons()
 SDL_Rect sb_get_stage_btns()
 {
 	SDL_Rect b;
-	SDL_Rect ib = dm_get_stage_instruction_box();
+	SDL_Rect ib = il_get_instruction_box_bounds();
 	int sh = dm_get_screen_height();
 	int shadow = bt_get_ofs_button_shadow();
 	b.w = dm_scale_to_res(STAGE_BUTTON_W);
@@ -100,7 +105,7 @@ SDL_Rect sb_get_stage_btns()
 	return b;
 }
 
-/* Function: dm_get_rst_btn_box
+/* Function: get_rst_btn_box
  * -----------------------------------------------------------------------------
  * Returns the box of the reset button of the stage
  *
@@ -235,7 +240,7 @@ static bool sb_check_released_in_stage_button(); // not used
  */
 void adjust_stage_buttons_position(int code_size)
 {
-	int hidden_y = dm_get_y_hidden_stage_buttons();
+	int hidden_y = get_hidden_stage_buttons_y();
 	SDL_Rect sb = sb_get_stage_btns();
 	int y_final;
 	if (code_size == CW_EMPTY){
@@ -278,7 +283,7 @@ void sb_handle_screen_resize()
 	SDL_Rect sb = sb_get_stage_btns();
 	int space = get_ofs_space_stage_buttons();
 	int y = g_stage_buttons_visible ? sb.y :
-			dm_get_y_hidden_stage_buttons();
+					get_hidden_stage_buttons_y();
 
 	stop->r = (SDL_Rect){.x = sb.x, .y = y, .w = sb.w, .h = sb.h};
 	step->r = (SDL_Rect){.x = sb.x + sb.w + space,
@@ -434,7 +439,7 @@ void sb_init_ret_btn()
 void sb_init_stage_btns()
 {
 	SDL_Rect sb = sb_get_stage_btns();
-	int hidden_y = dm_get_y_hidden_stage_buttons();
+	int hidden_y = get_hidden_stage_buttons_y();
 	SDL_Rect r0 = {.x = sb.x, .y = hidden_y, .w = sb.w, .h = sb.h};
 	
 	stop = malloc(sizeof(iface_btn_t));

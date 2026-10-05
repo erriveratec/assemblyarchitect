@@ -7,6 +7,7 @@
 #include <SDL_ttf.h>
 
 #include "dimensions_dm.h"
+#include "ui/ui_metrics_um.h"
 #include "draw_dw.h"
 #include "aux.h"
 #include "sdl_config.h"
@@ -30,7 +31,7 @@ static bool fragment_has_color(const tx_text_fragment_t *fragment,
 							   SDL_Color expected)
 {
 	texture_t *texture = fragment->texture;
-	int text_height = dm_get_h_msg();
+	int text_height = um_message_text_height();
 	int width = (int)((int64_t)texture->w * text_height / texture->h);
 	SDL_Rect destination = {.x = 4, .y = 4, .w = width, .h = text_height};
 	Uint32 *pixels = malloc((size_t)g_screen->pitch * g_screen->h);

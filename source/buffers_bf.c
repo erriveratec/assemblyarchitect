@@ -14,6 +14,7 @@
 #include "ui/button_bt.h"
 #include "code_line_cl.h"
 #include "stage_buttons_sb.h"
+#include "ui/ui_metrics_um.h"
 
 // The posible types of input values
 #define WHOLE 0
@@ -33,6 +34,66 @@
 #define INPUT_BUFFER_TEXT "Input Buffer [ib]"
 #define OUTPUT_BUFFER_TEXT "Output Buffer [ob]"
 #define OUTPUT_BUFFER_WIN_X 10000
+static const int BUFFER_X = 1400;
+static const int BUFFER_WIDTH = 1000;
+static const int BUFFER_HEIGHT = 75;
+static const int CODE_TEXT_HEIGHT = 40;
+
+SDL_Rect bf_get_input_buffer_bounds(void)
+{
+	SDL_Rect bounds = {
+		.x = dm_scale_to_res(BUFFER_X),
+		.y = dm_scale_to_res(CODE_TEXT_HEIGHT),
+		.w = dm_scale_to_res(BUFFER_WIDTH),
+		.h = dm_scale_to_res(BUFFER_HEIGHT)
+	};
+	return bounds;
+}
+
+SDL_Rect bf_get_input_label_bounds(void)
+{
+	SDL_Rect bounds = {
+		.x = bf_get_input_buffer_bounds().x,
+		.y = 0,
+		.w = 0,
+		.h = dm_scale_to_res(CODE_TEXT_HEIGHT)
+	};
+	return bounds;
+}
+
+SDL_Rect bf_get_output_buffer_bounds(void)
+{
+	SDL_Rect input_label = bf_get_input_label_bounds();
+	SDL_Rect bounds = {
+		.x = dm_scale_to_res(BUFFER_X),
+		.y = dm_get_screen_height() - input_label.h - dm_scale_to_res(BUFFER_HEIGHT),
+		.w = dm_scale_to_res(BUFFER_WIDTH),
+		.h = dm_scale_to_res(BUFFER_HEIGHT)
+	};
+	return bounds;
+}
+
+SDL_Rect bf_get_output_label_bounds(void)
+{
+	SDL_Rect bounds = {
+		.x = bf_get_output_buffer_bounds().x,
+		.y = dm_get_screen_height() - dm_scale_to_res(CODE_TEXT_HEIGHT),
+		.w = 0,
+		.h = dm_scale_to_res(CODE_TEXT_HEIGHT)
+	};
+	return bounds;
+}
+
+int bf_get_value_box_spacing(void)
+{
+	SDL_Rect value_box = ax_get_value_box_size();
+	return (dm_scale_to_res(BUFFER_HEIGHT) - value_box.h) / 2;
+}
+
+int bf_get_value_box_secondary_spacing(void)
+{
+	return bf_get_value_box_spacing() * 3 / 2;
+}
 
 
 input_properties_t g_ip;
@@ -119,7 +180,7 @@ void bf_init_buffer_assets()
 	input_text = dw_create_text_tex(INPUT_BUFFER_TEXT, C_WHITE);
 	output_text = dw_create_text_tex(OUTPUT_BUFFER_TEXT, C_WHITE);
 	SDL_Rect ib = bf_get_input_buffer_bounds();
-	int ofs = dm_get_ofs_buffer_value_box();
+	int ofs = bf_get_value_box_spacing();
 	g_output_list_x_pos = ib.x + ofs;
 	g_input_list_x_pos = dm_get_screen_width();
 }
@@ -315,7 +376,7 @@ operand_t *bf_create_sel_buf_op()
  */
 void bf_init_buf_ops()
 {
-	SDL_Rect r = dm_get_code_button_wh();
+	SDL_Rect r = cw_get_code_button_size();
 	
 	texture_t *ib = dw_create_text_tex(ib_text, C_WHITE);
 	check_mem(ib);
@@ -431,7 +492,7 @@ void bf_add_output_to_list()
 	new_output->value = NO_VALUE;
 	new_output->type = NOT_ASSIGNED;
 	SDL_Rect ib = bf_get_input_buffer_bounds();
-	int ofs = dm_get_ofs_buffer_value_box();
+	int ofs = bf_get_value_box_spacing();
 	new_output->box.x = ib.x + ofs;
 	SDL_Rect vb = ax_get_value_box_size();
 	int y_offset = (output_box.h - vb.h)/2;
@@ -858,13 +919,13 @@ void draw_output_buffer()
 	int	list_size = List_count(outputs);
 
 	int x;
-	int ofs = dm_get_ofs_buffer_value_box();
-	int ofsval = dm_get_ofs_between_value_box();
+	int ofs = bf_get_value_box_spacing();
+	int ofsval = bf_get_value_box_secondary_spacing();
 	SDL_Rect val =  ax_get_value_box_size();
 	SDL_Rect output_label = {.x = output_box.x,
 						 .y = output_box.y + output_box.h,
 						 .w = 0,
-						 .h = dm_get_h_code_text()};
+						 .h = um_code_text_height()};
 	buffer_animation_t animation = get_buffer_animation(
 	    &output_label, output_text, g_output_buffer_highlight);
 	SDL_FRect animated_output_box = animation.boxes_active ?
@@ -922,8 +983,8 @@ bool check_if_output_buffer_position_set()
 		list_size = List_count(outputs);
 	}
 
-	int ofs = dm_get_ofs_buffer_value_box();
-	int ofsval = dm_get_ofs_between_value_box();
+	int ofs = bf_get_value_box_spacing();
+	int ofsval = bf_get_value_box_secondary_spacing();
 	SDL_Rect val =  ax_get_value_box_size();
 	int x = output_box.x + ofs + (list_size-1)*(val.w + ofsval);
 
@@ -949,8 +1010,8 @@ void draw_input_buffer()
 {
 	int list_size = 0;
 	List *inputs = get_input_list();
-	int ofs = dm_get_ofs_buffer_value_box();
-	int ofsval = dm_get_ofs_between_value_box();
+	int ofs = bf_get_value_box_spacing();
+	int ofsval = bf_get_value_box_secondary_spacing();
 	SDL_Rect val =  ax_get_value_box_size();
 	SDL_Rect input_label = bf_get_input_label_bounds();
 	buffer_animation_t animation = get_buffer_animation(
@@ -1004,7 +1065,7 @@ int bf_get_buffer_value_box_x_coord_by_id(int id)
 	
 	List *input_list = get_input_list();
 	int x;
-	int ofs = dm_get_ofs_buffer_value_box();
+	int ofs = bf_get_value_box_spacing();
 	if (id == IB){
 		x = input_box.x + ofs;
 	} else if (id == OB){
@@ -1028,7 +1089,7 @@ int bf_get_buffer_value_box_y_coord_by_id(int id)
 	
 	List *input_list = get_input_list();
 	int y;
-	int ofs = dm_get_ofs_buffer_value_box();
+	int ofs = bf_get_value_box_spacing();
 	if (id == IB){
 		y = input_box.y + ofs;	
 	} else if (id == OB){
@@ -1090,8 +1151,8 @@ value_box_t bf_get_input_buffer_value_box()
 	int list_size = List_count(input_list);
 	assert(list_size > 0 && "No elements in the list");
 
-	int ofs = dm_get_ofs_buffer_value_box();
-	int ofsval = dm_get_ofs_between_value_box();
+	int ofs = bf_get_value_box_spacing();
+	int ofsval = bf_get_value_box_secondary_spacing();
 	SDL_Rect val =  ax_get_value_box_size();
 	value_box_t *first = List_shift(input_list);
 	g_input_list_x_pos += val.w + ofsval;
@@ -1183,7 +1244,7 @@ void bf_reset_output_list()
 	destroy_output_list();
 	bf_create_output_list();
 	SDL_Rect ib = bf_get_input_buffer_bounds();
-	int ofs = dm_get_ofs_buffer_value_box();
+	int ofs = bf_get_value_box_spacing();
 	g_output_list_x_pos = ib.x + ofs;
 }
 

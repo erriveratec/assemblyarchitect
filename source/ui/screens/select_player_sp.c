@@ -31,7 +31,6 @@ static const Uint32 PLAYER_BLOCK_W = 8;
 static const int PLAYER_NAME_OFFSET = 80;
 static const int PLAYER_NAME_HEIGHT = 50;
 static const int PLAYER_LORE_OFFSET = 22;
-static const int PLAYER_LORE_HEIGHT = 40;
 static const int PLAYER_DARK_PLATE_OFFSET = 6;
 
 static SDL_Rect get_p1_button_box();
@@ -175,7 +174,7 @@ static void draw_player_texts(texture_t **player_text, texture_t **lore)
 	dw_draw_texture_center_fit_h(p3_box, player_text[2]);
 	
 	int lore_ofs = dm_scale_to_res(PLAYER_LORE_OFFSET);
-	int lore_h = dm_scale_to_res(PLAYER_LORE_HEIGHT);
+	int lore_h = sc_get_selection_description_text_height();
 	p1_box.y += (p1_box.h + lore_ofs);
 	p1_box.h = lore_h;
 	p2_box.y += (p2_box.h + lore_ofs);

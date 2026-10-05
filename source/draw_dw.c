@@ -8,6 +8,7 @@
 #include "sdl_config.h"
 #include "aux.h"
 #include "dimensions_dm.h"
+#include "ui/ui_metrics_um.h"
 
 SDL_Color C_BLACK         = {0, 0, 0, 255};
 SDL_Color C_RED           = {255, 0, 0, 255};
@@ -127,7 +128,7 @@ static SDL_Rect get_iface_header_box(SDL_Rect b)
 	return header_box;
 }
 
-/* Function: dm_get_ofs_iface_filled_border
+/* Function: dw_get_ofs_iface_filled_border
  * -----------------------------------------------------------------------------
  *	Returns the interface filled border used for messages.
  *
@@ -1011,12 +1012,12 @@ float dw_pulse_progress(float value, float limit)
 void dw_pulse_advance(dw_pulse_t *pulse, float limit)
 {
 	assert(pulse != NULL);
-	int operand_max = dm_get_btn_anim_max();
+	int operand_max = um_button_animation_max();
 	if (limit <= 0.0f || operand_max <= 0) {
 		dw_pulse_reset(pulse);
 		return;
 	}
-	float delta = (float)dm_get_btn_anim_delta() * limit / operand_max;
+	float delta = (float)um_button_animation_delta() * limit / operand_max;
 
 	if (!pulse->descending && pulse->value >= limit) {
 		pulse->descending = true;

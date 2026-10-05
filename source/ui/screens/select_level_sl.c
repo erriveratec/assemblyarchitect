@@ -32,7 +32,6 @@ static const Uint32 BIG_SEPARATOR_H        = 6;
 static const Uint32 SECTOR_TITLE_SEPARATOR = 24;
 static const Uint32 SECTOR_BTN_SPACING     = 60;
 static const Uint32 FIRST_BTN_OFS          = 3;
-static const int LEVEL_DESCRIPTION_TEXT_H = 40;
 
 static void create_select_level_buttons(iface_btn_t **buttons, bool *levels);
 static SDL_Rect get_level_button_box();
@@ -113,7 +112,7 @@ static void draw_sector_hover_description(iface_btn_t **buttons,
 	SDL_Rect box = get_sector_0_lower_separator();
 	box.y += box.h + dm_scale_to_res(SECTOR_TITLE_SEPARATOR);
 	dw_draw_wrapped_texture_by_h(box,
-	                             dm_scale_to_res(LEVEL_DESCRIPTION_TEXT_H),
+	                             sc_get_selection_description_text_height(),
 	                             texture);
 }
 
@@ -185,7 +184,7 @@ static SDL_Rect get_sector_subtitle_box(char *msg)
 
 	SDL_Rect r = sc_get_selection_title_bounds(SELECT_LEVEL_TEXT);
 	SDL_Rect b;
-	b.h = dm_get_h_stage_subtitle();
+	b.h = sc_get_selection_subtitle_height();
 	b.w = get_text_width_fits_height(b.h, msg);
 	b.x = dm_get_screen_width() / 2 - b.w / 2;
 	b.y = r.y + r.h;
@@ -218,7 +217,7 @@ static SDL_Rect get_sector_0_lower_separator()
 	return b;
 }
 
-/* Function: dm_get_sel_level_offset_y
+/* Function: get_sel_level_offset_y
  * -----------------------------------------------------------------------------
  * Returns the offset for the sel level buttons
  *

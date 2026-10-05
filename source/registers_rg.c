@@ -11,11 +11,19 @@
 #include "code_window_cw.h"
 #include "dimensions_dm.h"
 #include "stage_buttons_sb.h"
+#include "ui/ui_metrics_um.h"
 
 #define DEFAULT_OPERAND RAX
 #define RG_HIGHLIGHT_REGISTER_VALUES 0
 
 #define ZF_TEXT "ZF"
+
+static const int REGISTER_PANEL_WIDTH = 250;
+static const int REGISTER_PANEL_HEIGHT = 400;
+static const int REGISTER_PANEL_Y = 0;
+static const int REGISTER_PANEL_VALUE_OFFSET = 25;
+static const int REGISTER_SPACING = 5;
+static const int ZERO_FLAG_OFFSET = 10;
 
 
 
@@ -42,6 +50,69 @@ value_box_t g_ibox;
 value_box_t g_obox;
 
 value_box_t g_zf;
+
+SDL_Rect rg_get_panel_initial_bounds(void)
+{
+	SDL_Rect code_box = cw_get_stage_code_box();
+	SDL_Rect bounds = {
+		.x = code_box.x + code_box.w,
+		.y = dm_scale_to_res(REGISTER_PANEL_Y),
+		.w = dm_scale_to_res(REGISTER_PANEL_WIDTH),
+		.h = dm_scale_to_res(REGISTER_PANEL_HEIGHT)
+	};
+	return bounds;
+}
+
+SDL_Rect rg_get_input_value_box_bounds(void)
+{
+	SDL_Rect value_size = ax_get_value_box_size();
+	SDL_Rect panel = rg_get_panel_initial_bounds();
+	SDL_Rect register_bounds = rg_get_register_box();
+	SDL_Rect bounds = {
+		.x = panel.x + panel.w - value_size.w - value_size.w / 5,
+		.y = register_bounds.y - value_size.h - value_size.h / 4,
+		.w = value_size.w,
+		.h = value_size.h
+	};
+	return bounds;
+}
+
+SDL_Rect rg_get_output_value_box_bounds(void)
+{
+	SDL_Rect value_size = ax_get_value_box_size();
+	SDL_Rect panel = rg_get_panel_initial_bounds();
+	SDL_Rect register_bounds = rg_get_register_box();
+	SDL_Rect bounds = {
+		.x = panel.x + panel.w - value_size.w - value_size.w / 5,
+		.y = register_bounds.y + register_bounds.h + value_size.h / 4,
+		.w = value_size.w,
+		.h = value_size.h
+	};
+	return bounds;
+}
+
+SDL_Rect rg_get_zero_flag_bounds(void)
+{
+	SDL_Rect value_size = ax_get_value_box_size();
+	SDL_Rect panel = rg_get_panel_initial_bounds();
+	SDL_Rect bounds = {
+		.x = panel.x + panel.w + dm_scale_to_res(ZERO_FLAG_OFFSET),
+		.y = rg_get_reg_box_y_pos(0),
+		.w = value_size.w,
+		.h = value_size.h
+	};
+	return bounds;
+}
+
+int rg_get_panel_value_offset(void)
+{
+	return dm_scale_to_res(REGISTER_PANEL_VALUE_OFFSET);
+}
+
+int rg_get_register_spacing(void)
+{
+	return dm_scale_to_res(REGISTER_SPACING);
+}
 
 texture_t *g_reg_text = NULL;
 texture_t *g_zf_text = NULL;
@@ -240,17 +311,17 @@ int rg_get_obox_y()
  */
 void rg_init_flag_and_vboxes()
 {
-	g_ibox.box = dm_get_stage_ibox();	
+	g_ibox.box = rg_get_input_value_box_bounds();
 	g_ibox.value = NO_VALUE;
 	g_ibox.visible_box = true;
 	g_ibox.t = dw_create_text_tex(ax_char_dash, C_WHITE);
 	
-	g_obox.box = dm_get_stage_obox();
+	g_obox.box = rg_get_output_value_box_bounds();
 	g_obox.value = NO_VALUE;
 	g_obox.visible_box = true;
 	g_obox.t = dw_create_text_tex(ax_char_dash, C_WHITE);
 
-	g_zf.box = dm_get_stage_zfbox();
+	g_zf.box = rg_get_zero_flag_bounds();
 	g_zf.value = NO_VALUE;
 	g_zf.visible_box = true;
 	g_zf.t = dw_create_text_tex(ax_char_dash, C_GREY);
@@ -310,7 +381,7 @@ void rg_draw_flag_boxes()
 {
 	ax_draw_value_box(&g_zf, C_GREY);
 	SDL_Rect text = g_zf.box;
-	text.h = dm_get_code_button_wh().h;
+	text.h = cw_get_code_button_size().h;
 	int w = get_text_width_fits_height(text.h, ZF_TEXT);
 	text.y += text.h;
 	text.x += (ax_get_value_box_size().w - w)/2;
@@ -330,10 +401,10 @@ void rg_draw_flag_boxes()
  */
 int rg_get_reg_box_y_pos(int pos)
 {
-	SDL_Rect cb = dm_get_code_button_wh();
-	int text_h = dm_get_h_stage_elements_titles();
-	int ofs = dm_get_ofs_stage_reg_box();
-	int bet_reg = dm_get_ofs_bet_regs();
+	SDL_Rect cb = cw_get_code_button_size();
+	int text_h = um_stage_label_height();
+	int ofs = rg_get_panel_value_offset();
+	int bet_reg = rg_get_register_spacing();
 	int y = register_box.y + ofs + pos*2*(cb.h + bet_reg);
 
 	return y;
@@ -365,9 +436,9 @@ void rg_update_register_box_position()
 	
 	set_register_box_member(y, MEMBER_Y);
 
-	SDL_Rect cb = dm_get_code_button_wh();
-	int ofs = dm_get_ofs_stage_reg_box();
-	int bet_reg = dm_get_ofs_bet_regs();
+	SDL_Rect cb = cw_get_code_button_size();
+	int ofs = rg_get_panel_value_offset();
+	int bet_reg = rg_get_register_spacing();
 	int i = 0;
 	LIST_FOREACH(registers, first, next, cur){ 
 		reg_t *c = cur->value;
@@ -565,7 +636,7 @@ reg_t *create_register(int id, btn_t *b)
 	check_mem(op);
 
 	SDL_Rect vb = ax_get_value_box_size();
-	SDL_Rect cb = dm_get_code_button_wh();
+	SDL_Rect cb = cw_get_code_button_size();
 	op->b = b;
 	op->id = id;
 	op->value.box.x = b->r.x + (b->r.w - vb.w)/2;	
@@ -595,8 +666,8 @@ operand_t *rg_create_register_operand_by_id(int id)
 	texture_t *reg_text = cl_create_operand_texture(id);
 	check_mem(reg_text);
 	
-	SDL_Rect cb = dm_get_code_button_wh();
-	int text_h = dm_get_h_stage_elements_titles();
+	SDL_Rect cb = cw_get_code_button_size();
+	int text_h = um_stage_label_height();
 	int register_text_w = get_text_width_fits_height(text_h, AX_REG_TEXT);
 	int x = 0;
 	int y = 0;
@@ -634,8 +705,8 @@ void rg_add_register_to_list(int id)
 	
 	int list_size = List_count(registers);
 	
-	SDL_Rect cb = dm_get_code_button_wh();
-	int ofs = dm_get_ofs_stage_reg_box();
+	SDL_Rect cb = cw_get_code_button_size();
+	int ofs = rg_get_panel_value_offset();
 	
 	if (list_size == 0){
 		set_register_box_member(ofs + (list_size + 1)*2*cb.h + ofs, MEMBER_H);
@@ -647,7 +718,7 @@ void rg_add_register_to_list(int id)
 	texture_t *reg_text = cl_create_operand_texture(id);
 	check_mem(reg_text);
 
-	int text_h = dm_get_h_stage_elements_titles();
+	int text_h = um_stage_label_height();
 	int register_text_w = get_text_width_fits_height(text_h, AX_REG_TEXT);
 	int x = register_box.x + ofs;
 
@@ -852,7 +923,7 @@ static void draw_register_box()
 {
 	dw_draw_filled_rectangle(register_box, C_GREY, C_GREY);
 	
-	int w = dm_get_w_borders();
+	int w = um_border_width();
 	SDL_Rect b = {.x = register_box.x + w, .y = register_box.y + w,
 				  .w = register_box.w - 2*w, .h = register_box.h - 2*w};
 	dw_draw_filled_rectangle(b, C_BLACK, C_BLACK);
@@ -875,7 +946,7 @@ static void draw_register_box()
  */
 static void draw_register_text()
 {
-	int text_h = dm_get_h_stage_elements_titles();
+	int text_h = um_stage_label_height();
 	int x = register_box.x;
 	int y = register_box.y - text_h;
 
