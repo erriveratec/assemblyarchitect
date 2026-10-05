@@ -1,10 +1,12 @@
 
+#include "ui/screens/title_screen_ts.h"
+
 #include <stdbool.h>
+#include <math.h>
 #include <SDL.h>
 #include <SDL_mixer.h>
 #include "dimensions_dm.h"
 #include "aux.h"
-#include "draw_dw.h"
 #include "media/audio_au.h"
 #include "levels_lv.h"
 #include "draw_dw.h"

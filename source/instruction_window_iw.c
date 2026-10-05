@@ -1,7 +1,8 @@
+#include "instruction_window_iw.h"
+
 #include <assert.h>
 #include <stdbool.h>
 #include <SDL.h>
-#include "instruction_window_iw.h"
 #include "list.h"
 #include "ui/button_bt.h"
 #include "code_line_cl.h"
@@ -12,6 +13,7 @@
 #include "code_window_cw.h"
 #include "ui/ui_metrics_um.h"
 #include "instruction_layout_il.h"
+#include "ui/typography_ty.h"
 
 
 #define INSTRUCTIONS_TEXT "Instructions"
@@ -41,7 +43,7 @@ static void draw_highlighted_instruction(btn_t *button);
 void iw_init_ins_box()
 {
 	instructions_text = dw_create_text_tex(INSTRUCTIONS_TEXT, C_AMBER);
-	g_instruction_box = il_get_instruction_box_bounds();
+	g_instruction_box = il_get_initial_instruction_bounds();
 }
 
 /* Function: iw_get_instruction_box_by_pos
@@ -114,11 +116,11 @@ int iw_get_instruction_y_by_id(int id)
  */
 static void draw_instruction_text()
 {
-	SDL_Rect ib = il_get_instruction_box_bounds();
+	SDL_Rect ib = il_get_initial_instruction_bounds();
 	int x = ib.x;
 	int h = ax_get_text_h_fit_w(ib.w, INSTRUCTIONS_TEXT);
 	int y = ib.y - h;
-	int text_h = um_stage_label_height();
+	int text_h = ty_stage_label_height();
 	SDL_Rect r = {.x = x, .y = y, .w = ib.w, .h = text_h};
 	dw_draw_texture_fit_h(r, instructions_text);
 }
@@ -281,10 +283,10 @@ void iw_add_instruction_to_list(int id)
 	texture_t *instruction_text = dw_create_text_tex(text, 
 								  C_WHITE);
 	
-	SDL_Rect cb = cw_get_code_button_size();
+	SDL_Rect cb = cl_get_code_button_size();
 	int list_size = List_count(instructions);
 	
-	SDL_Rect ib = il_get_instruction_box_bounds();
+	SDL_Rect ib = il_get_initial_instruction_bounds();
 	
 	int x = ib.x + um_padding_horizontal_with_border()+ um_padding_horizontal();
 	int y;
@@ -294,7 +296,7 @@ void iw_add_instruction_to_list(int id)
 		y = ib.y + um_padding_vertical_with_border()+ um_padding_vertical()
 		    + list_size*cw_get_code_line_spacing();
 	}
-	SDL_Rect r = cw_get_code_button_size();
+	SDL_Rect r = cl_get_code_button_size();
 	
 	r.x = x;
 	r.y = y;
@@ -324,7 +326,7 @@ void iw_update_ins_box_size()
 {
  	int size = iw_get_instruction_list_size();
 
-	g_instruction_box.h = il_get_instruction_box_bounds().h;
+	g_instruction_box.h = il_get_initial_instruction_bounds().h;
 	if (size > 4){
 		int increase_factor = size - 4;
 		g_instruction_box.h += increase_factor*cw_get_code_line_spacing();

@@ -47,8 +47,7 @@ enum arrow_id{
 
 void ar_init_arrow(int arrow_id);
 void ar_initialize_arrows();
-void ar_display_arrow(int arrow_id);
-void ar_animate_arrow(arrow_t *arrow);
+void ar_display_arrow(int arrow_id, float animation_limit);
 void ar_hide_execution_arrow();
 void ar_reset_execution_arrow();
 bool ar_move_execution_arrow(int instruction_number);

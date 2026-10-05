@@ -760,7 +760,8 @@ void tr_render_step(const char *name)
 	}
 
 	for (int index = 0; index < step->arrow_count; index++) {
-		ar_display_arrow(step->arrow_ids[index]);
+			ar_display_arrow(step->arrow_ids[index],
+			                 cw_get_challenge_highlight_limit());
 	}
 
 	if ((step->dismiss == TUTORIAL_DISMISS_MOUSE_PRESS && ms_left_pressed()) ||

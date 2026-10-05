@@ -1,14 +1,29 @@
+#include "draw_dw.h"
+
 #include <assert.h>
 #include <string.h>
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <stdbool.h>
-#include "draw_dw.h"
 #include "sdl_config.h"
 #include "aux.h"
 #include "dimensions_dm.h"
 #include "ui/ui_metrics_um.h"
+
+/* Shared pixel-space range for renderer and UI animation effects. */
+static const int ANIMATION_LIMIT = 15;
+static const int ANIMATION_STEP = 1;
+
+int dw_get_animation_limit(void)
+{
+	return dm_scale_to_res(ANIMATION_LIMIT);
+}
+
+int dw_get_animation_step(void)
+{
+	return dm_scale_to_res(ANIMATION_STEP);
+}
 
 SDL_Color C_BLACK         = {0, 0, 0, 255};
 SDL_Color C_RED           = {255, 0, 0, 255};
@@ -1012,12 +1027,12 @@ float dw_pulse_progress(float value, float limit)
 void dw_pulse_advance(dw_pulse_t *pulse, float limit)
 {
 	assert(pulse != NULL);
-	int operand_max = um_button_animation_max();
+	int operand_max = dw_get_animation_limit();
 	if (limit <= 0.0f || operand_max <= 0) {
 		dw_pulse_reset(pulse);
 		return;
 	}
-	float delta = (float)um_button_animation_delta() * limit / operand_max;
+	float delta = (float)dw_get_animation_step() * limit / operand_max;
 
 	if (!pulse->descending && pulse->value >= limit) {
 		pulse->descending = true;

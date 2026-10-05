@@ -1,12 +1,12 @@
+#include "stage_buttons_sb.h"
+
 #include <stdlib.h>
 #include <stdio.h>
-#include "stage_buttons_sb.h"
 #include "instruction_layout_il.h"
 #include "ui/button_bt.h"
 #include "ui/escape_menu_em.h"
 #include "ui/reset_menu_rm.h"
 #include "dimensions_dm.h"
-#include "code_window_cw.h"
 #include "assert.h"
 #include "media/audio_au.h"
 #include "aux.h"
@@ -95,7 +95,7 @@ static int get_ofs_space_stage_buttons()
 SDL_Rect sb_get_stage_btns()
 {
 	SDL_Rect b;
-	SDL_Rect ib = il_get_instruction_box_bounds();
+	SDL_Rect ib = il_get_initial_instruction_bounds();
 	int sh = dm_get_screen_height();
 	int shadow = bt_get_ofs_button_shadow();
 	b.w = dm_scale_to_res(STAGE_BUTTON_W);
@@ -243,7 +243,7 @@ void adjust_stage_buttons_position(int code_size)
 	int hidden_y = get_hidden_stage_buttons_y();
 	SDL_Rect sb = sb_get_stage_btns();
 	int y_final;
-	if (code_size == CW_EMPTY){
+	if (code_size <= 0){
 		g_stage_buttons_visible = false;
 		y_final = hidden_y;
 	} else {

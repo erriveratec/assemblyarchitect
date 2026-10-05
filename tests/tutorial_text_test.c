@@ -8,6 +8,7 @@
 
 #include "dimensions_dm.h"
 #include "ui/ui_metrics_um.h"
+#include "ui/typography_ty.h"
 #include "draw_dw.h"
 #include "aux.h"
 #include "sdl_config.h"
@@ -31,7 +32,7 @@ static bool fragment_has_color(const tx_text_fragment_t *fragment,
 							   SDL_Color expected)
 {
 	texture_t *texture = fragment->texture;
-	int text_height = um_message_text_height();
+	int text_height = ty_message_height();
 	int width = (int)((int64_t)texture->w * text_height / texture->h);
 	SDL_Rect destination = {.x = 4, .y = 4, .w = width, .h = text_height};
 	Uint32 *pixels = malloc((size_t)g_screen->pitch * g_screen->h);
@@ -273,7 +274,7 @@ int main(void)
 {
 	assert(SDL_Init(0) == 0);
 	assert(TTF_Init() == 0);
-	dm_set_screen_resolution(R1920X1080);
+	dm_set_screen_resolution(DM_RESOLUTION_1920X1080);
 	g_screen = SDL_CreateRGBSurfaceWithFormat(
 	    0, dm_get_screen_width(), dm_get_screen_height(), 32,
 	    SDL_PIXELFORMAT_RGBA32);

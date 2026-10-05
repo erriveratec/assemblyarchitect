@@ -46,14 +46,6 @@ enum box_member {
 	MEMBER_H, 
 	MEMBER_MAX};
 
-typedef struct value_box_t{
-	int value;
-	int type;
-	bool visible_box;
-	SDL_Rect box;
-	texture_t *t;
-} value_box_t;
-
 void ax_get_resource_path(char *out, size_t out_size, const char *relative);
 char *ax_number_to_string(int number);
 bool check_text_fits_width_by_height(char *t, int h, int w);
@@ -65,11 +57,6 @@ float get_scale_fit_height(int h, texture_t *texture);
 float get_scale_fit_width(int w, texture_t *texture);
 int get_text_width_fits_height(int h, char *text);
 int ax_get_text_h_fit_w(int w, char *text);
-void ax_draw_value_box(value_box_t *box, SDL_Color color);
-SDL_Rect ax_get_value_box_size(void);
-SDL_Rect ax_get_value_text_size(void);
-int ax_get_value_box_vertical_offset(void);
-void ax_copy_vbox(value_box_t *dst, value_box_t src, bool pos);
 char *ax_create_string_append_hex(char *s,  int n);
 char *ax_number_to_string_two_digits(int number);
 int ax_get_texture_w_fit_h(int h, texture_t *t);

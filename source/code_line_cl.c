@@ -1,10 +1,27 @@
 #include <assert.h>
 #include <stdbool.h>
 #include "code_line_cl.h"
+
+#include <SDL.h>
+
 #include "dbg.h"
 #include "aux.h"
+#include "dimensions_dm.h"
 
 #define INSTRUCTION_STRING_LENGTH 20
+static const int CODE_BUTTON_WIDTH = 90;
+static const int CODE_BUTTON_HEIGHT = 40;
+
+SDL_Rect cl_get_code_button_size(void)
+{
+	SDL_Rect size = {
+		.x = 0,
+		.y = 0,
+		.w = dm_scale_to_res(CODE_BUTTON_WIDTH),
+		.h = dm_scale_to_res(CODE_BUTTON_HEIGHT)
+	};
+	return size;
+}
 
 //static operand_t *copy_operand(operand_t *op);
 bool check_valid_operand(int id);

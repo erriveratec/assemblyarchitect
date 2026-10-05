@@ -93,11 +93,11 @@ static void init_stage_assets()
 	SDL_Rect r1 = bf_get_output_buffer_bounds();
 	bf_set_output_box(r1);
 
-	SDL_Rect ib = bf_get_input_label_bounds();
+	SDL_Rect ib = bf_get_input_label_anchor();
 	SDL_Rect r2 = {.x = r0.x, .y = ib.y, .w = r0.w, .h = ib.h + r0.h};
 	bf_set_input_buffer_button(r2);
 
-	SDL_Rect ob = bf_get_output_label_bounds();
+	SDL_Rect ob = bf_get_output_label_anchor();
 	SDL_Rect r3 = {.x = r1.x, .y = r1.y, .w = r1.w, .h = ob.h + r1.h};
 	bf_set_output_buffer_button(r3);
 
@@ -129,8 +129,15 @@ void init_level(int level_id)
 	lv_init_level_assets(level_id);
 
 	// goes before the load level
-	SDL_Rect r0 = rg_get_panel_initial_bounds();
-	rg_set_register_box(r0);
+	SDL_Rect code_box = cw_get_stage_code_box();
+	SDL_Rect register_size = rg_get_panel_size();
+	SDL_Rect register_bounds = {
+		.x = code_box.x + code_box.w,
+		.y = register_size.y,
+		.w = register_size.w,
+		.h = register_size.h
+	};
+	rg_set_register_box(register_bounds);
 
 	fl_file_initialize_level(level_id);
 
@@ -140,9 +147,6 @@ void init_level(int level_id)
 	SDL_Rect r1 = cw_get_stage_code_box();
 	cw_set_scroll_box(r1);
 	cw_set_code_box(r1);
-
-	SDL_Rect r2 = il_get_instruction_box_bounds();
-	// iw_set_instruction_box(r2);
 
 	cw_create_code_list();
 	fl_load_save_file(g_player, level_id);
@@ -193,11 +197,12 @@ void stage_drawings(int level, int operation_id)
 {
 	iw_draw_ins_box();
 	cw_draw_code_window();
+	float animation_limit = cw_get_challenge_highlight_limit();
 	sb_draw_stage_btns(cw_get_code_list_size());
-	im_draw_imm();
-	ar_display_arrow(AR_EXEC);
-	bf_draw_buffers();
-	rg_draw_registers();
+	im_draw_imm(animation_limit);
+	ar_display_arrow(AR_EXEC, animation_limit);
+	bf_draw_buffers(animation_limit);
+	rg_draw_registers(animation_limit);
 	mc_draw_avatar();
 	sb_draw_ret_btn();
 	sb_draw_rst_btn();

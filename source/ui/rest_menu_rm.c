@@ -1,12 +1,13 @@
+#include "ui/reset_menu_rm.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include "draw_dw.h"
 #include "ui/button_bt.h"
 #include "dimensions_dm.h"
-#include "ui/reset_menu_rm.h"
 #include "ui/escape_menu_em.h"
-#include "ui/ui_metrics_um.h"
+#include "ui/typography_ty.h"
 #include "media/audio_au.h"
 
 
@@ -162,7 +163,7 @@ void rm_init_rst_menu()
 	r = get_rst_b2_box();
 	g_rst_b2 = bt_create_iface_btn(r, g_rst_b2_texture, true);
 
-	int h = um_message_text_height();
+	int h = ty_message_height();
 	int w = dw_get_iface_content_box(dw_get_iface_big_center_box()).w;
 	g_rst_menu_text = dw_create_text_tex_array_by_h(w, 
 													h, 
@@ -191,7 +192,7 @@ void rm_render_rst_menu(bool show_menu)
 		SDL_Rect text_box = dw_get_iface_content_box(r);
 		text_box.h -= get_rst_b1_box().h;
 
-		int text_h = um_message_text_height();
+		int text_h = ty_message_height();
 		dw_draw_wrapped_texture_by_h(text_box, text_h, g_rst_menu_text);
 
 		bt_draw_iface_btn(g_rst_b1, em_get_escape_state(), g_sfx_iface_hover);

@@ -3,6 +3,6 @@
 
 #include <SDL.h>
 
-SDL_Rect il_get_instruction_box_bounds(void);
+SDL_Rect il_get_initial_instruction_bounds(void);
 
 #endif

@@ -24,6 +24,8 @@ struct code_line_t{
 	int state;
 };
 
+SDL_Rect cl_get_code_button_size(void);
+
 enum instructions{
 	INVALID_INSTRUCTION,
 	INSTRUCTION_MIN,

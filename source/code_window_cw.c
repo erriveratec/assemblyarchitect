@@ -1,8 +1,10 @@
+#include "code_window_cw.h"
+#include "aux.h"
+
 #include <SDL.h>
 #include <assert.h>
 #include <math.h>
 #include <string.h>
-#include "code_window_cw.h"
 #include "instruction_layout_il.h"
 #include "list.h"
 #include "mouse_ms.h"
@@ -15,6 +17,7 @@
 #include "stage_buttons_sb.h"
 #include "ui/escape_menu_em.h"
 #include "ui/ui_metrics_um.h"
+#include "ui/typography_ty.h"
 
 
 #define NOT_FOUND -1
@@ -22,8 +25,6 @@
 #define CODE_BOX_HIGHLIGHT_GROWTH_MULTIPLIER 12.0f
 static Uint32 CODE_BOX_W = 350;
 static Uint32 CODE_BOX_Y = 50;
-static const int CODE_BUTTON_WIDTH = 90;
-static const int CODE_BUTTON_HEIGHT = 40;
 static const int CODE_COMMA_OFFSET = 15;
 static const int MISSING_OPERAND_WIDTH = 3;
 
@@ -68,43 +69,32 @@ static code_line_t *get_clicked_label_code_line();
 static operand_t *create_saved_jump_operand(int op1_id);
 static SDL_Rect get_scroll_box();
 
-SDL_Rect cw_get_code_button_size(void)
-{
-	SDL_Rect size = {
-		.x = 0,
-		.y = 0,
-		.w = dm_scale_to_res(CODE_BUTTON_WIDTH),
-		.h = dm_scale_to_res(CODE_BUTTON_HEIGHT)
-	};
-	return size;
-}
-
 int cw_get_code_line_spacing(void)
 {
-	return cw_get_code_button_size().h + um_padding_vertical();
+	return cl_get_code_button_size().h + um_padding_vertical();
 }
 
-int cw_get_code_text_width(void)
+static int cw_get_code_text_width(void)
 {
 	return cw_get_stage_code_box().w - 2 * um_padding_horizontal_with_border();
 }
 
-int cw_get_operand1_offset(void)
+static int cw_get_operand1_offset(void)
 {
-	return cw_get_code_button_size().w;
+	return cl_get_code_button_size().w;
 }
 
-int cw_get_operand2_offset(void)
+static int cw_get_operand2_offset(void)
 {
-	return 2 * cw_get_code_button_size().w + um_padding_horizontal();
+	return 2 * cl_get_code_button_size().w + um_padding_horizontal();
 }
 
-int cw_get_comma_offset(void)
+static int cw_get_comma_offset(void)
 {
 	return cw_get_operand2_offset() - dm_scale_to_res(CODE_COMMA_OFFSET);
 }
 
-int cw_get_missing_operand_width(void)
+static int cw_get_missing_operand_width(void)
 {
 	return dm_scale_to_res(MISSING_OPERAND_WIDTH);
 }
@@ -121,7 +111,7 @@ int cw_get_missing_operand_width(void)
  */
 SDL_Rect cw_get_stage_code_box()
 {
-	SDL_Rect ib = il_get_instruction_box_bounds();
+	SDL_Rect ib = il_get_initial_instruction_bounds();
 	SDL_Rect sb = sb_get_stage_btns();
 	SDL_Rect b;
 	
@@ -251,7 +241,7 @@ static operand_t *create_saved_jump_operand(int op1_id)
    	operand_t *b = NULL;
 	b = malloc(sizeof(operand_t));
 
-	SDL_Rect cb = cw_get_code_button_size();
+	SDL_Rect cb = cl_get_code_button_size();
 
 	char *line_text = ax_number_to_string_two_digits(op1_id);
 	char *op_text = malloc(sizeof(char)*(strlen(line_text)+1));
@@ -297,7 +287,7 @@ static operand_t *create_updated_jump_operand(code_line_t *jmp_addr)
 	strcat(op_text, line_text);
 	texture_t *t = dw_create_text_tex(op_text, C_WHITE);
 
-	SDL_Rect cb = cw_get_code_button_size();
+	SDL_Rect cb = cl_get_code_button_size();
 	SDL_Rect r = {.x = 0, .y = 0, .w = 2*cb.w, .h = cb.h};
 	op->b = bt_create_btn(r, t);
 	op->id = cw_get_code_line_pos_by_ptr(jmp_addr);
@@ -380,7 +370,7 @@ operand_t *cw_create_jmp_op(code_line_t *addr)
 	strcat(op_text, line_text);
 	texture_t *t = dw_create_text_tex(op_text, C_WHITE);
 
-	SDL_Rect cb = cw_get_code_button_size();
+	SDL_Rect cb = cl_get_code_button_size();
 	SDL_Rect r = {.x = 0, .y = 0, .w = 2*cb.w, .h = cb.h};
 	op->b = bt_create_btn(r, t);
 	op->id = cw_get_code_line_pos_by_ptr(addr);
@@ -518,7 +508,7 @@ static operand_t *create_saved_label_operand(int op1_id)
 	strcat(op_text, ax_char_colon);
 	texture_t *t = dw_create_text_tex(op_text, C_WHITE);
 
-	SDL_Rect r = cw_get_code_button_size();
+	SDL_Rect r = cl_get_code_button_size();
 	b->b = bt_create_btn(r, t);
 
 	b->id = op1_id;
@@ -555,7 +545,7 @@ static operand_t *create_label_operand(code_line_t *line)
 	strcat(op_text, ":");
 	texture_t *t = dw_create_text_tex(op_text, C_WHITE);
 
-	SDL_Rect r = cw_get_code_button_size();
+	SDL_Rect r = cl_get_code_button_size();
 	b->b = bt_create_btn(r, t);
 
 	b->id = label;
@@ -784,12 +774,12 @@ void cw_add_saved_line(char *line)
 	int x = cw_get_code_line_x(ins_id);
 	int y = cw_get_code_line_y(0);
 
-	SDL_Rect cb = cw_get_code_button_size();
+	SDL_Rect cb = cl_get_code_button_size();
 	for (int i = 0; i <= list_size; i++){
 		y += cw_get_code_line_spacing();
 	}
 	
-	SDL_Rect r = cw_get_code_button_size();
+	SDL_Rect r = cl_get_code_button_size();
 	r.x = x;
 	r.y = y;
 	btn_t *b = bt_create_btn(r, instruction_tex);
@@ -1255,12 +1245,12 @@ SDL_Rect cw_get_text_box_rect()
 
 float cw_get_challenge_highlight_limit()
 {
-	int h = um_message_text_height();
+	int h = ty_message_height();
 	if (g_text_box.w <= 0 || g_text_box.h <= 0) {
-		return (float)um_button_animation_max();
+		return (float)dw_get_animation_limit();
 	}
 
-	float anim_limit = (float)um_button_animation_max();
+	float anim_limit = (float)dw_get_animation_limit();
 	float left_space = g_text_box.x - g_code_box.x;
 	float right_space = g_code_box.x + g_code_box.w -
 	                    g_text_box.x - g_text_box.w;
@@ -1320,7 +1310,7 @@ static bool in_code_window(){
 void cw_set_challenge_text(char *text)
 {
 	int w = cw_get_code_text_width();
-	int h = um_message_text_height();
+	int h = ty_message_height();
 	assert(NULL != text && "The text pointer is NULL");
 	g_challenge_text = dw_create_text_tex_array_by_h(w, h, C_SILVERGREY, text);
 }
@@ -1384,9 +1374,9 @@ void cw_set_scroll_box(SDL_Rect r)
 	g_scroll_box.h = r.h;
 
 	int w = cw_get_code_text_width();
-	int h = um_message_text_height();
+	int h = ty_message_height();
 
-	int text_h = um_emphasis_text_height();
+	int text_h = ty_emphasis_height();
 	int border_ofs = um_padding_horizontal_with_border();
 	int text_box_height = g_challenge_text->size * h;
 	set_text_box(r.x + border_ofs, 
@@ -1434,7 +1424,7 @@ int cw_get_code_line_x(int instruction_id)
 	int x;  
 	int number_ofs = um_padding_horizontal_with_border();
 	SDL_Rect sb = cw_get_stage_code_box();
-	int number_h = um_code_text_height();
+	int number_h = ty_code_height();
 	int number_w = ax_get_texture_w_fit_h(number_h, g_numbers[0]);
 	if (instruction_id == LABEL){
 		x = sb.x;
@@ -1453,7 +1443,7 @@ static void code_box_height_adjust()
 
 	int list_size = List_count(code);
 
-	SDL_Rect cbut = cw_get_code_button_size();
+	SDL_Rect cbut = cl_get_code_button_size();
 	SDL_Rect codbox = get_code_box();
 	SDL_Rect ogcodbox = cw_get_stage_code_box();
 	if (CODE_LINES_SIZE < list_size){
@@ -1495,7 +1485,7 @@ static void code_box_height_adjust()
 
 	int list_size = List_count(code);
 
-	SDL_Rect cbut = cw_get_code_button_size();
+	SDL_Rect cbut = cl_get_code_button_size();
 	SDL_Rect codbox = get_scroll_box();
 	SDL_Rect ogcodbox = cw_get_stage_code_box();
 	
@@ -1644,7 +1634,7 @@ void cw_draw_code_window()
 	display_player_code();
 	display_line_number();
 
-	int h = um_message_text_height();
+	int h = ty_message_height();
 	if (!g_challenge_highlight) {
 		dw_draw_wrapped_texture_by_h(g_text_box, h, g_challenge_text);
 		dw_draw_rectangle(g_text_box, C_GREY);
@@ -1689,7 +1679,7 @@ void cw_draw_code_window()
 	// Text of the level
 
 	int border_ofs = um_padding_horizontal_with_border();
-	int text_h = um_emphasis_text_height();
+	int text_h = ty_emphasis_height();
 	int w = ax_get_texture_w_fit_h(text_h, g_stage_name);
 	SDL_Rect b = {.x = g_scroll_box.x + border_ofs, 
 				  .y = g_scroll_box.y + border_ofs,
@@ -1730,7 +1720,7 @@ static void display_player_code()
 	if (list_size == 0){
 		return;
 	}
-	SDL_Rect cb = cw_get_code_button_size();
+	SDL_Rect cb = cl_get_code_button_size();
 	int number_ofs = um_padding_horizontal_with_border();
 	LIST_FOREACH(code, first, next, cur){
 		code_line_t *line = cur->value;	
@@ -1812,12 +1802,12 @@ void display_line_number()
 		return;
 	}
 
-	SDL_Rect cb = cw_get_code_button_size();
+	SDL_Rect cb = cl_get_code_button_size();
 	int number_ofs = um_padding_horizontal_with_border();
 	SDL_Rect sb = cw_get_stage_code_box();
 	int x = sb.x + number_ofs;
 	int y = cw_get_code_line_y(0);
-	int h = um_code_text_height();
+	int h = ty_code_height();
 	char *number = NULL;
 	
 	int line_number = 1;
@@ -1856,7 +1846,7 @@ int cw_get_code_line_y(int pos)
 		return y;
 	}
 	
-	SDL_Rect cb = cw_get_code_button_size();
+	SDL_Rect cb = cl_get_code_button_size();
 	for(int i = 0; i < list_size; i++){
 		y += cw_get_code_line_spacing();
 		if (pos == i){
@@ -1880,14 +1870,14 @@ int cw_get_code_line_y(int pos)
  */
 SDL_Rect cw_get_code_line_coord_at_pos(int code_line_element, int pos)
 {
-	SDL_Rect cb = cw_get_code_button_size();
+	SDL_Rect cb = cl_get_code_button_size();
 	int op1_ofs = cw_get_operand1_offset();
 	int op2_ofs = cw_get_operand2_offset();
 	
 	int x = cw_get_code_line_x(MOV);
 	int y = cw_get_code_line_y(0);
 	
-	SDL_Rect bwh = cw_get_code_button_size();
+	SDL_Rect bwh = cl_get_code_button_size();
 	SDL_Rect cl = {.x = x, .y = y, .w = bwh.w, .h = bwh.h};
 
 	int list_size = cw_get_code_list_size();
@@ -1938,7 +1928,7 @@ void cw_sort_code()
 		return;
 	}
 	
-	SDL_Rect cb = cw_get_code_button_size();
+	SDL_Rect cb = cl_get_code_button_size();
 	int op1_ofs = cw_get_operand1_offset();
 	int op2_ofs = cw_get_operand2_offset();
 	
@@ -2055,7 +2045,7 @@ int get_code_line_position(int y)
 	List *code = get_code_list();
 	int first_y = cw_get_code_line_y(0);
 
-	SDL_Rect cb = cw_get_code_button_size();
+	SDL_Rect cb = cl_get_code_button_size();
 	int h = cw_get_code_line_spacing();
 	int list_size = List_count(code);
 
@@ -2174,7 +2164,7 @@ static bool chk_sel_line_in_pos(code_line_t *line)
 
 	int mouse_y = ms_get_mouse_y();
 	bool ret = false;
-	SDL_Rect cb = cw_get_code_button_size();
+	SDL_Rect cb = cl_get_code_button_size();
 	int h = cb.h;
 	if (mouse_y < y || mouse_y >= y + list_size*h){
 		ret = false;
@@ -2427,8 +2417,8 @@ void cw_highlight_code_pending_operand()
 	int op1_ofs = cw_get_operand1_offset();
 	int op2_ofs = cw_get_operand2_offset();
 	int w = cw_get_missing_operand_width();
-	int anim_max = um_button_animation_max();
-	int anim_delta = um_button_animation_delta();
+	int anim_max = dw_get_animation_limit();
+	int anim_delta = dw_get_animation_step();
 
 	static bool anim_dir = false;
 	static int anim_state = 0;
@@ -2498,7 +2488,7 @@ bool cw_check_code_sorted()
 		return true;
 	}
 	
-	SDL_Rect cb = cw_get_code_button_size();
+	SDL_Rect cb = cl_get_code_button_size();
 	int h = cb.h;
 	int y = cw_get_code_line_y(0);
 
@@ -2754,7 +2744,7 @@ code_line_t *cw_create_label_code_line()
 {
 	char *text = cl_get_instruction_text(LABEL);
 	texture_t *t = dw_create_text_tex(text, C_WHITE);
-	SDL_Rect r = cw_get_code_button_size();
+	SDL_Rect r = cl_get_code_button_size();
 	r.x = ms_get_mouse_x() - r.w/2;
 	r.y = ms_get_mouse_y() - r.h/2;
 

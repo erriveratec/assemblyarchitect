@@ -1,16 +1,16 @@
+#include "immediates_im.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <assert.h>
-#include "immediates_im.h"
 #include "code_line_cl.h"
 #include "dimensions_dm.h"
 #include "draw_dw.h"
-#include "code_window_cw.h"
 #include "aux.h"
 #include "ui/button_bt.h"
 #include "registers_rg.h"
-#include "ui/ui_metrics_um.h"
+#include "ui/typography_ty.h"
 
 #define TOTAL_IMM 20
 #define IMM_FIRST_ROW_COUNT 11
@@ -39,7 +39,7 @@ typedef struct imm_cell_borders_t {
 
 typedef struct imm_t {
 	btn_t *b;
-	value_box_t val;
+	vb_value_box_t val;
 	imm_cell_borders_t borders;
 } imm_t;
 
@@ -47,7 +47,7 @@ static void init_imm_texture();
 static void draw_imm_txt_up(float pulse);
 static void draw_imm_cell(const imm_t *imm, float pulse, bool highlighted);
 static void draw_imm_cell_frame(const imm_t *imm);
-static void draw_imm_value(const value_box_t *value, float pulse,
+static void draw_imm_value(const vb_value_box_t *value, float pulse,
 						   bool highlighted);
 static imm_cell_borders_t get_imm_cell_borders(int index);
 static bool rects_overlap_vertically(SDL_Rect first, SDL_Rect second);
@@ -55,13 +55,13 @@ static bool rects_overlap_horizontally(SDL_Rect first, SDL_Rect second);
 
 imm_t g_up_imm[TOTAL_IMM];
 
-SDL_Rect im_get_upper_label_bounds(void)
+SDL_Rect im_get_upper_label_anchor(void)
 {
 	SDL_Rect bounds = {
 		.x = rg_get_input_value_box_bounds().x,
 		.y = dm_scale_to_res(IMM_LABEL_Y),
 		.w = 0,
-		.h = um_stage_label_height()
+		.h = ty_stage_label_height()
 	};
 	return bounds;
 }
@@ -136,7 +136,7 @@ operand_t *im_create_imm_op_by_id(int op_id)
 			}	
 			texture_t *t = dw_create_text_tex(num, C_WHITE);
 			free(num);
-			SDL_Rect cb = cw_get_code_button_size();
+			SDL_Rect cb = cl_get_code_button_size();
 			SDL_Rect r = {.x = 0, .y = 0, .w = cb.w, .h = cb.h};
 			btn_t *b = bt_create_btn(r, t);
 			o = malloc(sizeof(operand_t));
@@ -157,12 +157,12 @@ operand_t *im_create_imm_op_by_id(int op_id)
 * Return:
 *	The value box
 */
-value_box_t im_get_imm_value_box_by_id(int id)
+vb_value_box_t im_get_imm_value_box_by_id(int id)
 {
 	assert(id > IMM_MIN && id < IMM_MAX && "Invalid imm id");
 	int index = id - IMMUP0;
 
-	value_box_t val = g_up_imm[index].val;
+	vb_value_box_t val = g_up_imm[index].val;
 
    return val;
 }
@@ -188,7 +188,7 @@ operand_t *im_create_sel_imm_op()
 	   		char *num = ax_number_to_string(g_up_imm[i].val.value);
 			texture_t *t = dw_create_text_tex(num, C_WHITE);
 			free(num);
-			SDL_Rect cb = cw_get_code_button_size();
+			SDL_Rect cb = cl_get_code_button_size();
 			SDL_Rect r = {.x = 0, .y = 0, .w = cb.w, .h = cb.h};
 			btn_t *b = bt_create_btn(r, t);
 			o = malloc(sizeof(operand_t));
@@ -249,7 +249,7 @@ void im_init_imm_assets()
 {
 	init_imm_texture();
 
-	int start_x = im_get_upper_label_bounds().x;
+	int start_x = im_get_upper_label_anchor().x;
 	SDL_Rect cell = im_get_cell_size();
 	for (int i = 0; i < TOTAL_IMM; i++){
 		bool first_row = i < IMM_FIRST_ROW_COUNT;
@@ -326,7 +326,7 @@ static void init_imm_texture()
  * Return:
  *	Void.
  */
-void im_draw_imm()
+void im_draw_imm(float animation_limit)
 {
 	bool highlighted = g_imm_up && g_imm_highlight;
 	if (highlighted != g_imm_highlight_rendered) {
@@ -334,15 +334,14 @@ void im_draw_imm()
 		g_imm_highlight_rendered = highlighted;
 	}
 	if (g_imm_up == true){
-		float anim_limit = cw_get_challenge_highlight_limit();
 		float pulse = highlighted ?
-		    dw_pulse_value(&g_imm_pulse, anim_limit) : 0.0f;
+			dw_pulse_value(&g_imm_pulse, animation_limit) : 0.0f;
 		draw_imm_txt_up(pulse);
 		for (int i = 0; i < TOTAL_IMM; i++){
 			draw_imm_cell(&g_up_imm[i], pulse, highlighted);
 		}
 		if (highlighted) {
-			dw_pulse_advance(&g_imm_pulse, anim_limit);
+			dw_pulse_advance(&g_imm_pulse, animation_limit);
 		}
 	}	
 	
@@ -362,9 +361,9 @@ void im_draw_imm()
  */
 static void draw_imm_txt_up(float pulse)
 {
-	SDL_Rect imm_box = im_get_upper_label_bounds();
+	SDL_Rect imm_box = im_get_upper_label_anchor();
 	SDL_Rect cell = im_get_cell_size();
-	int text_h = um_stage_label_height();
+	int text_h = ty_stage_label_height();
 	int text_w = get_text_width_fits_height(text_h, IMM_TXT);
 	int x = imm_box.x + (11 * cell.w - text_w) / 2;
 	int y = 2 * cell.h;
@@ -413,13 +412,13 @@ static void draw_imm_cell_frame(const imm_t *imm)
 	dw_draw_filled_rectangle(inner, C_BLACK, C_BLACK);
 	}
 
-static void draw_imm_value(const value_box_t *value, float pulse,
+static void draw_imm_value(const vb_value_box_t *value, float pulse,
 						   bool highlighted)
 {
 	if (value->t == NULL) {
 		return;
 	}
-	int text_h = ax_get_value_text_size().h;
+	int text_h = vb_get_text_size().h;
 	int text_w = ax_get_texture_w_fit_h(text_h, value->t);
 	SDL_Rect text = {
 		.x = value->box.x + (value->box.w - text_w) / 2,

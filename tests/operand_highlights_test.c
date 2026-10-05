@@ -5,26 +5,33 @@
 #include <SDL_ttf.h>
 
 #include "buffers_bf.h"
+#include "draw_dw.h"
+#include "ui/value_box_vb.h"
+#include "code_window_cw.h"
+#include "code_window_cw.h"
 #include "dimensions_dm.h"
 #include "gameplay/level_presentation_lp.h"
 #include "gameplay/operand_highlights_oh.h"
 #include "gameplay/ui_highlight_source.h"
 #include "immediates_im.h"
+#include "instruction_layout_il.h"
 #include "mouse_ms.h"
 #include "registers_rg.h"
+#include "ui/button_bt.h"
 #include "sdl_config.h"
 #include "tutorial_tr.h"
 #include "tutorial_tr_internal.h"
+#include "ui/typography_ty.h"
 
 static void init_test_graphics(void)
 {
 	assert(SDL_Init(0) == 0);
 	assert(TTF_Init() == 0);
-	dm_set_screen_resolution(R1600X900);
+	dm_set_screen_resolution(DM_RESOLUTION_1600X900);
 	assert(dm_get_screen_width() == 1600);
 	assert(dm_get_screen_height() == 900);
 	assert(dm_scale_to_res(173) == 173);
-	dm_set_screen_resolution(R1920X1080);
+	dm_set_screen_resolution(DM_RESOLUTION_1920X1080);
 	assert(dm_get_screen_width() == 1920);
 	assert(dm_get_screen_height() == 1080);
 	assert(dm_scale_to_res(173) == 173);
@@ -177,19 +184,20 @@ static void test_highlight_source_composition(void)
 static void test_disabled_highlighting_clears_availability(void)
 {
 	float progress = 0.0f;
+	float animation_limit = (float)dw_get_animation_limit();
 	rg_set_register_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, true);
 	bf_set_buffer_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, true, true);
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, true);
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, true);
-	assert(rg_get_register_highlight_progress(&progress));
-	assert(bf_get_input_buffer_highlight_progress(&progress));
-	assert(bf_get_output_buffer_highlight_progress(&progress));
+	assert(rg_get_register_highlight_progress(&progress, animation_limit));
+	assert(bf_get_input_buffer_highlight_progress(&progress, animation_limit));
+	assert(bf_get_output_buffer_highlight_progress(&progress, animation_limit));
 	assert(im_are_immediates_highlighted());
 
 	oh_update(false, true);
-	assert(!rg_get_register_highlight_progress(&progress));
-	assert(!bf_get_input_buffer_highlight_progress(&progress));
-	assert(!bf_get_output_buffer_highlight_progress(&progress));
+	assert(!rg_get_register_highlight_progress(&progress, animation_limit));
+	assert(!bf_get_input_buffer_highlight_progress(&progress, animation_limit));
+	assert(!bf_get_output_buffer_highlight_progress(&progress, animation_limit));
 	assert(im_are_immediates_highlighted());
 
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
@@ -221,15 +229,70 @@ static void test_tutorial_highlight_parsing(void)
 	tr_clear();
 }
 
+static void test_layout_invariants(void)
+{
+	SDL_Rect value_size = vb_get_size();
+	SDL_Rect value_text_size = vb_get_text_size();
+	assert(value_size.x == 0 && value_size.y == 0);
+	assert(value_size.w == 50 && value_size.h == 40);
+	assert(value_text_size.x == 0 && value_text_size.y == 0);
+	assert(value_text_size.w == 50 && value_text_size.h == 36);
+	assert(vb_get_vertical_offset() == 10);
+	SDL_Rect code_button_size = cl_get_code_button_size();
+	assert(code_button_size.x == 0 && code_button_size.y == 0);
+	assert(code_button_size.w == 90 && code_button_size.h == 40);
+	SDL_Rect immediate_cell_size = im_get_cell_size();
+	assert(immediate_cell_size.x == 0 && immediate_cell_size.y == 0);
+	assert(immediate_cell_size.w == 60 && immediate_cell_size.h == 50);
+	SDL_Rect modal_button_size = bt_get_modal_button_size();
+	assert(modal_button_size.x == 0 && modal_button_size.y == 0);
+	assert(modal_button_size.w == 155 && modal_button_size.h == 60);
+
+	SDL_Rect instruction_bounds = il_get_initial_instruction_bounds();
+	assert(instruction_bounds.x == 0 && instruction_bounds.y == 225);
+	assert(instruction_bounds.w == 170 && instruction_bounds.h == 225);
+	SDL_Rect register_size = rg_get_panel_size();
+	assert(register_size.x == 0 && register_size.y == 0);
+	assert(register_size.w == 250 && register_size.h == 400);
+	SDL_Rect code_box = cw_get_stage_code_box();
+	rg_set_register_box((SDL_Rect){
+		.x = code_box.x + code_box.w,
+		.y = 0,
+		.w = register_size.w,
+		.h = register_size.h
+	});
+
+	SDL_Rect input_bounds = bf_get_input_buffer_bounds();
+	SDL_Rect input_label = bf_get_input_label_anchor();
+	SDL_Rect output_bounds = bf_get_output_buffer_bounds();
+	SDL_Rect output_label = bf_get_output_label_anchor();
+	assert(input_bounds.x == 1400 && input_bounds.y == ty_code_height());
+	assert(input_bounds.w == 1000 && input_bounds.h == 75);
+	assert(input_label.x == input_bounds.x && input_label.y == 0);
+	assert(input_label.w == 0 && input_label.h == ty_code_height());
+	assert(output_bounds.x == 1400 && output_bounds.y == 965);
+	assert(output_bounds.w == 1000 && output_bounds.h == 75);
+	assert(output_label.x == output_bounds.x && output_label.y == 1040);
+	assert(output_label.w == 0 && output_label.h == ty_code_height());
+
+	dm_set_screen_dimensions(1600, 900);
+	assert(dm_get_screen_width() == 1600 && dm_get_screen_height() == 900);
+	assert(bf_get_output_buffer_bounds().y == 785);
+	assert(bf_get_output_label_anchor().y == 860);
+	dm_set_screen_dimensions(0, 900);
+	assert(dm_get_screen_width() == 1600 && dm_get_screen_height() == 900);
+	dm_set_screen_resolution(DM_RESOLUTION_1920X1080);
+}
+
 static void test_immediate_grid_geometry(void)
 {
 	im_init_imm_assets();
 	SDL_Rect cell_size = im_get_cell_size();
-	SDL_Rect value_size = ax_get_value_box_size();
+	SDL_Rect value_size = vb_get_size();
 	assert(cell_size.w > value_size.w);
 	assert(cell_size.h > value_size.h);
 
-	value_box_t cells[20];
+	vb_value_box_t cells[20];
 	for (int index = 0; index < 20; index++) {
 		cells[index] = im_get_imm_value_box_by_id(IMMUP0 + index);
 		assert(cells[index].box.w == cell_size.w);
@@ -268,10 +331,10 @@ static void test_immediate_grid_geometry(void)
 
 	im_set_imm_up_avail(true);
 	clear_test_renderer();
-	im_draw_imm();
+	im_draw_imm((float)dw_get_animation_limit());
 	capture_number_bounds(cell_rects, normal_bounds, C_WHITE);
 	clear_test_renderer();
-	im_draw_imm();
+	im_draw_imm((float)dw_get_animation_limit());
 	capture_number_bounds(cell_rects, repeated_normal_bounds, C_WHITE);
 	for (int index = 0; index < 20; index++) {
 		assert(normal_bounds[index].w == repeated_normal_bounds[index].w);
@@ -280,12 +343,12 @@ static void test_immediate_grid_geometry(void)
 
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, true);
 	clear_test_renderer();
-	im_draw_imm();
+	im_draw_imm((float)dw_get_animation_limit());
 	clear_test_renderer();
-	im_draw_imm();
+	im_draw_imm((float)dw_get_animation_limit());
 	capture_number_bounds(cell_rects, highlighted_bounds, C_LIGHTGREY);
 	for (int index = 0; index < 20; index++) {
-		value_box_t current = im_get_imm_value_box_by_id(IMMUP0 + index);
+		vb_value_box_t current = im_get_imm_value_box_by_id(IMMUP0 + index);
 		assert(current.box.x == cell_rects[index].x);
 		assert(current.box.y == cell_rects[index].y);
 		assert(current.box.w == cell_rects[index].w);
@@ -303,7 +366,7 @@ static void test_immediate_grid_geometry(void)
 
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 	clear_test_renderer();
-	im_draw_imm();
+	im_draw_imm((float)dw_get_animation_limit());
 	capture_number_bounds(cell_rects, restored_bounds, C_WHITE);
 	for (int index = 0; index < 20; index++) {
 		assert(restored_bounds[index].w == normal_bounds[index].w);
@@ -322,12 +385,14 @@ static void test_operand_highlight_configuration(void)
 
 int main(void)
 {
+	assert(dm_get_screen_width() == 1600 && dm_get_screen_height() == 900);
 	init_test_graphics();
 	test_operand_availability();
 	test_highlight_source_composition();
 	test_disabled_highlighting_clears_availability();
 	test_operand_highlight_configuration();
 	test_tutorial_highlight_parsing();
+	test_layout_invariants();
 	test_immediate_grid_geometry();
 	TTF_CloseFont(g_font);
 	SDL_DestroyRenderer(g_renderer);

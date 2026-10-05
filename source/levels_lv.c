@@ -328,10 +328,10 @@ static void draw_bufs_arrow(int buf_id)
 {
 	switch (buf_id) {
 	case IB:
-		ar_display_arrow(AR_IB);
+			ar_display_arrow(AR_IB, cw_get_challenge_highlight_limit());
 		break;
 	case OB:
-		ar_display_arrow(AR_OB);
+			ar_display_arrow(AR_OB, cw_get_challenge_highlight_limit());
 		break;
 	default:
 		break;
@@ -402,7 +402,7 @@ static bool chk_display_imm_up_arrow()
 static void draw_regs_arrow(bool show_arrows)
 {
 	if (show_arrows == true) {
-		ar_display_arrow(AR_REG);
+			ar_display_arrow(AR_REG, cw_get_challenge_highlight_limit());
 	}
 }
 
@@ -420,7 +420,7 @@ static void draw_regs_arrow(bool show_arrows)
 static void draw_im_up_arrow(bool show_arrows)
 {
 	if (show_arrows == true) {
-		ar_display_arrow(AR_IMM_UP);
+			ar_display_arrow(AR_IMM_UP, cw_get_challenge_highlight_limit());
 	}
 }
 

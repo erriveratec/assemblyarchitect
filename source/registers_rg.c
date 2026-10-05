@@ -1,17 +1,18 @@
+#include "registers_rg.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <SDL.h>
 #include <assert.h>
 #include <stdbool.h>
 #include "dbg.h"
-#include "registers_rg.h"
 #include "draw_dw.h"
 #include "aux.h"
 #include "code_line_cl.h"
-#include "code_window_cw.h"
 #include "dimensions_dm.h"
 #include "stage_buttons_sb.h"
 #include "ui/ui_metrics_um.h"
+#include "ui/typography_ty.h"
 
 #define DEFAULT_OPERAND RAX
 #define RG_HIGHLIGHT_REGISTER_VALUES 0
@@ -20,7 +21,6 @@
 
 static const int REGISTER_PANEL_WIDTH = 250;
 static const int REGISTER_PANEL_HEIGHT = 400;
-static const int REGISTER_PANEL_Y = 0;
 static const int REGISTER_PANEL_VALUE_OFFSET = 25;
 static const int REGISTER_SPACING = 5;
 static const int ZERO_FLAG_OFFSET = 10;
@@ -43,20 +43,19 @@ static void draw_register_box();
 static void draw_value_boxes();
 static void display_arrow_registers();
 static SDL_FRect grow_register_rect(SDL_Rect rect, float height_growth);
-static void draw_register_value_highlight(value_box_t *value, btn_t *button);
+static void draw_register_value_highlight(vb_value_box_t *value, btn_t *button);
 static void draw_register_button_highlight(btn_t *button, SDL_Rect hover_rect);
 
-value_box_t g_ibox;
-value_box_t g_obox;
+vb_value_box_t g_ibox;
+vb_value_box_t g_obox;
 
-value_box_t g_zf;
+vb_value_box_t g_zf;
 
-SDL_Rect rg_get_panel_initial_bounds(void)
+SDL_Rect rg_get_panel_size(void)
 {
-	SDL_Rect code_box = cw_get_stage_code_box();
 	SDL_Rect bounds = {
-		.x = code_box.x + code_box.w,
-		.y = dm_scale_to_res(REGISTER_PANEL_Y),
+		.x = 0,
+		.y = 0,
 		.w = dm_scale_to_res(REGISTER_PANEL_WIDTH),
 		.h = dm_scale_to_res(REGISTER_PANEL_HEIGHT)
 	};
@@ -65,8 +64,8 @@ SDL_Rect rg_get_panel_initial_bounds(void)
 
 SDL_Rect rg_get_input_value_box_bounds(void)
 {
-	SDL_Rect value_size = ax_get_value_box_size();
-	SDL_Rect panel = rg_get_panel_initial_bounds();
+	SDL_Rect value_size = vb_get_size();
+	SDL_Rect panel = rg_get_register_box();
 	SDL_Rect register_bounds = rg_get_register_box();
 	SDL_Rect bounds = {
 		.x = panel.x + panel.w - value_size.w - value_size.w / 5,
@@ -79,8 +78,8 @@ SDL_Rect rg_get_input_value_box_bounds(void)
 
 SDL_Rect rg_get_output_value_box_bounds(void)
 {
-	SDL_Rect value_size = ax_get_value_box_size();
-	SDL_Rect panel = rg_get_panel_initial_bounds();
+	SDL_Rect value_size = vb_get_size();
+	SDL_Rect panel = rg_get_register_box();
 	SDL_Rect register_bounds = rg_get_register_box();
 	SDL_Rect bounds = {
 		.x = panel.x + panel.w - value_size.w - value_size.w / 5,
@@ -93,8 +92,8 @@ SDL_Rect rg_get_output_value_box_bounds(void)
 
 SDL_Rect rg_get_zero_flag_bounds(void)
 {
-	SDL_Rect value_size = ax_get_value_box_size();
-	SDL_Rect panel = rg_get_panel_initial_bounds();
+	SDL_Rect value_size = vb_get_size();
+	SDL_Rect panel = rg_get_register_box();
 	SDL_Rect bounds = {
 		.x = panel.x + panel.w + dm_scale_to_res(ZERO_FLAG_OFFSET),
 		.y = rg_get_reg_box_y_pos(0),
@@ -109,7 +108,7 @@ int rg_get_panel_value_offset(void)
 	return dm_scale_to_res(REGISTER_PANEL_VALUE_OFFSET);
 }
 
-int rg_get_register_spacing(void)
+static int rg_get_register_spacing(void)
 {
 	return dm_scale_to_res(REGISTER_SPACING);
 }
@@ -182,7 +181,7 @@ void rg_reset_obox()
  *	Void.
  *
  */
-void rg_set_ibox_value_box(value_box_t value)
+void rg_set_ibox_value_box(vb_value_box_t value)
 {
 	g_ibox.value = value.value;
 	g_ibox.type = value.type;
@@ -205,7 +204,7 @@ void rg_set_ibox_value_box(value_box_t value)
  *	Void.
  *
  */
-void rg_set_obox_value_box(value_box_t value)
+void rg_set_obox_value_box(vb_value_box_t value)
 {
 	g_obox.value = value.value;
 	g_obox.type = value.type;
@@ -227,7 +226,7 @@ void rg_set_obox_value_box(value_box_t value)
  *	ibox value box
  *
  */
-value_box_t rg_get_ibox_value_box()
+vb_value_box_t rg_get_ibox_value_box()
 {
 	return g_ibox;
 }
@@ -243,7 +242,7 @@ value_box_t rg_get_ibox_value_box()
  *	ibox value box
  *
  */
-value_box_t rg_get_obox_value_box()
+vb_value_box_t rg_get_obox_value_box()
 {
 	return g_obox;
 }
@@ -361,8 +360,8 @@ void rg_destroy_value_boxes()
  */
 static void draw_value_boxes()
 {
-	ax_draw_value_box(&g_ibox, C_MAGENTA);
-	ax_draw_value_box(&g_obox, C_CYAN);
+	vb_draw(&g_ibox, C_MAGENTA);
+	vb_draw(&g_obox, C_CYAN);
 	return;
 }
 
@@ -379,12 +378,12 @@ static void draw_value_boxes()
  */
 void rg_draw_flag_boxes()
 {
-	ax_draw_value_box(&g_zf, C_GREY);
+	vb_draw(&g_zf, C_GREY);
 	SDL_Rect text = g_zf.box;
-	text.h = cw_get_code_button_size().h;
+	text.h = cl_get_code_button_size().h;
 	int w = get_text_width_fits_height(text.h, ZF_TEXT);
 	text.y += text.h;
-	text.x += (ax_get_value_box_size().w - w)/2;
+	text.x += (vb_get_size().w - w)/2;
 	dw_draw_texture_fit_h(text, g_zf_text);
 	
 	return;
@@ -401,8 +400,7 @@ void rg_draw_flag_boxes()
  */
 int rg_get_reg_box_y_pos(int pos)
 {
-	SDL_Rect cb = cw_get_code_button_size();
-	int text_h = um_stage_label_height();
+	SDL_Rect cb = cl_get_code_button_size();
 	int ofs = rg_get_panel_value_offset();
 	int bet_reg = rg_get_register_spacing();
 	int y = register_box.y + ofs + pos*2*(cb.h + bet_reg);
@@ -436,7 +434,7 @@ void rg_update_register_box_position()
 	
 	set_register_box_member(y, MEMBER_Y);
 
-	SDL_Rect cb = cw_get_code_button_size();
+	SDL_Rect cb = cl_get_code_button_size();
 	int ofs = rg_get_panel_value_offset();
 	int bet_reg = rg_get_register_spacing();
 	int i = 0;
@@ -635,8 +633,8 @@ reg_t *create_register(int id, btn_t *b)
 	reg_t *op = malloc(sizeof(reg_t));	
 	check_mem(op);
 
-	SDL_Rect vb = ax_get_value_box_size();
-	SDL_Rect cb = cw_get_code_button_size();
+	SDL_Rect vb = vb_get_size();
+	SDL_Rect cb = cl_get_code_button_size();
 	op->b = b;
 	op->id = id;
 	op->value.box.x = b->r.x + (b->r.w - vb.w)/2;	
@@ -666,8 +664,8 @@ operand_t *rg_create_register_operand_by_id(int id)
 	texture_t *reg_text = cl_create_operand_texture(id);
 	check_mem(reg_text);
 	
-	SDL_Rect cb = cw_get_code_button_size();
-	int text_h = um_stage_label_height();
+	SDL_Rect cb = cl_get_code_button_size();
+	int text_h = ty_stage_label_height();
 	int register_text_w = get_text_width_fits_height(text_h, AX_REG_TEXT);
 	int x = 0;
 	int y = 0;
@@ -705,7 +703,7 @@ void rg_add_register_to_list(int id)
 	
 	int list_size = List_count(registers);
 	
-	SDL_Rect cb = cw_get_code_button_size();
+	SDL_Rect cb = cl_get_code_button_size();
 	int ofs = rg_get_panel_value_offset();
 	
 	if (list_size == 0){
@@ -718,7 +716,7 @@ void rg_add_register_to_list(int id)
 	texture_t *reg_text = cl_create_operand_texture(id);
 	check_mem(reg_text);
 
-	int text_h = um_stage_label_height();
+	int text_h = ty_stage_label_height();
 	int register_text_w = get_text_width_fits_height(text_h, AX_REG_TEXT);
 	int x = register_box.x + ofs;
 
@@ -747,7 +745,7 @@ error:
  *	void
  *
  */
-void rg_draw_registers()
+void rg_draw_registers(float animation_limit)
 {
 	List *registers = rg_get_register_list();
 	
@@ -760,9 +758,8 @@ void rg_draw_registers()
 	draw_register_box();
 	draw_register_text();
 	draw_value_boxes();
-	float anim_limit = cw_get_challenge_highlight_limit();
 	g_register_highlight_value = g_register_highlight ?
-	    dw_pulse_value(&g_register_pulse, anim_limit) : 0.0f;
+		dw_pulse_value(&g_register_pulse, animation_limit) : 0.0f;
 	
 	LIST_FOREACH(registers, first, next, cur){
 		reg_t *reg = cur->value;
@@ -774,17 +771,17 @@ void rg_draw_registers()
 #if RG_HIGHLIGHT_REGISTER_VALUES
 			draw_register_value_highlight(&reg->value, button);
 #else
-			ax_draw_value_box(&reg->value, C_WHITE);
+			vb_draw(&reg->value, C_WHITE);
 #endif
 		} else {
 			bool hover = ax_chk_mouse_hover_rect(hover_rect);
 			bt_draw_btn(button, sb_chk_rst_esc_menu_active(), hover);
-			ax_draw_value_box(&reg->value, C_WHITE);
+			vb_draw(&reg->value, C_WHITE);
 		}
 	}
 
 	if (g_register_highlight) {
-		dw_pulse_advance(&g_register_pulse, anim_limit);
+		dw_pulse_advance(&g_register_pulse, animation_limit);
 	}
 }
 
@@ -796,16 +793,16 @@ void rg_set_register_highlight_source(ui_highlight_source_t source,
 	g_register_highlight = g_register_highlight_sources != 0;
 }
 
-bool rg_get_register_highlight_progress(float *progress)
+bool rg_get_register_highlight_progress(float *progress,
+										float animation_limit)
 {
 	if (progress == NULL || !g_register_highlight) {
 		return false;
 	}
-	float anim_limit = cw_get_challenge_highlight_limit();
-	if (anim_limit <= 0.0f) {
+	if (animation_limit <= 0.0f) {
 		return false;
 	}
-	*progress = dw_pulse_progress(g_register_highlight_value, anim_limit);
+	*progress = dw_pulse_progress(g_register_highlight_value, animation_limit);
 	return true;
 }
 
@@ -820,7 +817,7 @@ static SDL_FRect grow_register_rect(SDL_Rect rect, float height_growth)
 	return dw_grow_rect_height(base, height_growth);
 }
 
-static void draw_register_value_highlight(value_box_t *value, btn_t *button)
+static void draw_register_value_highlight(vb_value_box_t *value, btn_t *button)
 {
 	float pulse = g_register_highlight_value;
 	SDL_FRect animated_button = grow_register_rect(button->r, pulse);
@@ -832,8 +829,8 @@ static void draw_register_value_highlight(value_box_t *value, btn_t *button)
 		return;
 	}
 
-	SDL_Rect value_size = ax_get_value_box_size();
-	SDL_Rect text_size = ax_get_value_text_size();
+	SDL_Rect value_size = vb_get_size();
+	SDL_Rect text_size = vb_get_text_size();
 	int text_width = ax_get_texture_w_fit_h(text_size.h, value->t);
 	SDL_Rect text = {
 		.x = value->box.x + (value_size.w - text_width) / 2,
@@ -946,7 +943,7 @@ static void draw_register_box()
  */
 static void draw_register_text()
 {
-	int text_h = um_stage_label_height();
+	int text_h = ty_stage_label_height();
 	int x = register_box.x;
 	int y = register_box.y - text_h;
 
@@ -1083,11 +1080,11 @@ int rg_get_register_value_box_y_coord_by_id(int id)
 * Return:
 *	Copy to the requested value box
 */
-value_box_t rg_get_flag_value_box_by_id(int id)
+vb_value_box_t rg_get_flag_value_box_by_id(int id)
 {
 	assert(id > FLAG_MIN && id < FLAG_MAX && "Invalid flag id");
 	
-	value_box_t value;
+	vb_value_box_t value;
 	switch (id){
 		case ZF:
 			value = g_zf;
@@ -1107,7 +1104,7 @@ value_box_t rg_get_flag_value_box_by_id(int id)
 * Return:
 *	Copy to the requested value box
 */
-value_box_t rg_get_register_value_box_by_id(int id)
+vb_value_box_t rg_get_register_value_box_by_id(int id)
 {
 	assert(id > REG_MIN && id < REG_MAX && 
 		   "Invalid register id");
@@ -1155,13 +1152,13 @@ void rg_reset_rflags()
  * Return:
  *	void.
  */
-void rg_set_flag_value_box(int id, value_box_t val)
+void rg_set_flag_value_box(int id, vb_value_box_t val)
 {
 	assert(id > FLAG_MIN && id < FLAG_MAX && "Invalid flag id");
 	
 	switch(id){
 		case ZF:
-			ax_copy_vbox(&g_zf, val, true);
+			vb_copy(&g_zf, val, true);
 			break;
 		default:
 			break;
@@ -1180,7 +1177,7 @@ void rg_set_flag_value_box(int id, value_box_t val)
  * Return:
  *	void.
  */
-void rg_set_register_value_box(int id, value_box_t val)
+void rg_set_register_value_box(int id, vb_value_box_t val)
 {
 	assert(id > REG_MIN && id < REG_MAX && 
 		   "Invalid register id");

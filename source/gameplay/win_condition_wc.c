@@ -7,6 +7,7 @@
 #include <string.h>
 #include "list.h"
 #include "win_condition_wc.h"
+#include "ui/value_box_vb.h"
 #include "aux.h"
 #include "buffers_bf.h"
 
@@ -302,7 +303,7 @@ static bool wc_add_expected_value(
     assert(g_expected_output != NULL &&
            "Expected-output list is NULL");
 
-    value_box_t *expected = malloc(sizeof(*expected));
+    vb_value_box_t *expected = malloc(sizeof(*expected));
 
     if (expected == NULL) {
         return false;
@@ -484,10 +485,10 @@ bool wc_matches_expected_prefix(void)
         assert(expected_node != NULL &&
                "Expected-output node is NULL");
 
-        const value_box_t *actual =
+        const vb_value_box_t *actual =
             output_node->value;
 
-        const value_box_t *expected =
+        const vb_value_box_t *expected =
             expected_node->value;
 
         assert(actual != NULL &&
@@ -553,7 +554,7 @@ static bool wc_build_transformed_copy(
         : WC_INSERT_BACK;
 
     LIST_FOREACH(input, first, next, node) {
-        const value_box_t *input_value = node->value;
+        const vb_value_box_t *input_value = node->value;
 
         assert(input_value != NULL &&
                "Input value is NULL");
@@ -606,7 +607,7 @@ static bool wc_build_until_stop(
            "Expected-output list is not empty");
 
     LIST_FOREACH(input, first, next, node) {
-        const value_box_t *input_value = node->value;
+        const vb_value_box_t *input_value = node->value;
 
         assert(input_value != NULL &&
                "Input value is NULL");
@@ -661,7 +662,7 @@ static bool wc_build_count_until_stop(
     int count = 0;
 
     LIST_FOREACH(input, first, next, node) {
-        const value_box_t *input_value = node->value;
+        const vb_value_box_t *input_value = node->value;
 
         assert(input_value != NULL &&
                "Input value is NULL");
@@ -717,7 +718,7 @@ static bool wc_build_decreasing_offset(int initial_offset)
     int offset = initial_offset;
 
     LIST_FOREACH(input, first, next, node) {
-        const value_box_t *input_value = node->value;
+        const vb_value_box_t *input_value = node->value;
 
         assert(input_value != NULL &&
                "Input value is NULL");
@@ -778,7 +779,7 @@ static bool wc_build_group_sums(
     int value_index = 0;
 
     LIST_FOREACH(input, first, next, node) {
-        const value_box_t *input_value = node->value;
+        const vb_value_box_t *input_value = node->value;
 
         assert(input_value != NULL &&
                "Input value is NULL");
@@ -837,7 +838,7 @@ void wc_print_expected_output(void)
         next,
         node
     ) {
-        const value_box_t *expected = node->value;
+        const vb_value_box_t *expected = node->value;
 
         if (expected == NULL) {
             printf("Expected value: NULL\n");
@@ -949,10 +950,10 @@ bool wc_is_satisfied(void)
         assert(expected_node != NULL &&
                "Expected-output node is NULL");
 
-        const value_box_t *actual =
+        const vb_value_box_t *actual =
             output_node->value;
 
-        const value_box_t *expected =
+        const vb_value_box_t *expected =
             expected_node->value;
 
         assert(actual != NULL &&

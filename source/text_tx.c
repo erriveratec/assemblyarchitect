@@ -1,3 +1,5 @@
+#include "text_tx.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -6,7 +8,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <SDL_mixer.h>
-#include "text_tx.h"
+#include "ui/value_box_vb.h"
 #include "instruction_layout_il.h"
 #include "draw_dw.h"
 #include "sdl_config.h"
@@ -14,6 +16,7 @@
 #include "dimensions_dm.h"
 #include "media/audio_au.h"
 #include "ui/ui_metrics_um.h"
+#include "ui/typography_ty.h"
 #include "immediates_im.h"
 #include "aux.h"
 #include "arrow_ar.h"
@@ -139,7 +142,7 @@ static SDL_Rect get_text_box_upper_right()
 	SDL_Rect b;
 	b.w = d.w;
 	b.h = d.h;
-	b.x = im_get_upper_label_bounds().x + 12 * ax_get_value_box_size().w;
+	b.x = im_get_upper_label_anchor().x + 12 * vb_get_size().w;
 	b.y = dw_get_ofs_iface_filled_border();
 	return b;
 
@@ -180,7 +183,7 @@ static SDL_Rect get_text_box_code()
 static SDL_Rect get_text_box_ins()
 {
 
-	SDL_Rect ib = il_get_instruction_box_bounds();
+	SDL_Rect ib = il_get_initial_instruction_bounds();
 	SDL_Rect d  = tx_get_text_box_wh();
 	SDL_Rect b;
 	b.w = d.w;
@@ -600,7 +603,7 @@ void tx_bottom_msg(const tx_text_box_options_t *options, int msg_id)
 			return;
 		}
 		if (options->position == TX_STAGEBUTTON_BOX) {
-			text_h = um_message_text_height();
+			text_h = ty_message_height();
 		}
 		b.y += b.h / 2 - 2 * text_h;
 	}
@@ -622,52 +625,52 @@ bool tx_get_text_box_rects(
 	switch (position) {
 	case TX_INS_BOX:
 		resolved_box = get_text_box_ins();
-		resolved_text_height = um_message_text_height();
+		resolved_text_height = ty_message_height();
 		break;
 
 	case TX_UPPER_BOX:
 		resolved_box = get_text_box_upper();
-		resolved_text_height = um_message_text_height();
+		resolved_text_height = ty_message_height();
 		break;
 
 	case TX_UPPER_RIGHT_BOX:
 		resolved_box = get_text_box_upper_right();
-		resolved_text_height = um_message_text_height();
+		resolved_text_height = ty_message_height();
 		break;
 
 	case TX_CENTER_BOX:
 		resolved_box = get_text_box_center();
-		resolved_text_height = um_message_text_height();
+		resolved_text_height = ty_message_height();
 		break;
 
 	case TX_CENTER_RIGHT_BOX:
 		resolved_box = get_text_box_center_right();
-		resolved_text_height = um_message_text_height();
+		resolved_text_height = ty_message_height();
 		break;
 
 	case TX_LOWER_BOX:
 		resolved_box = get_text_box_lower();
-		resolved_text_height = um_message_text_height();
+		resolved_text_height = ty_message_height();
 		break;
 
 	case TX_CODE_BOX:
 		resolved_box = get_text_box_code();
-		resolved_text_height = um_message_text_height();
+		resolved_text_height = ty_message_height();
 		break;
 
 	case TX_STAGEBUTTON_BOX:
 		resolved_box = get_stagebutton_box_bounds();
-		resolved_text_height = um_message_text_height();
+		resolved_text_height = ty_message_height();
 		break;
 
 	case TX_CENTER_UP_BOX:
 		resolved_box = get_text_box_center_up();
-		resolved_text_height = um_message_text_height();
+		resolved_text_height = ty_message_height();
 		break;
 
 	case TX_ERROR_BOX:
 		resolved_box = get_error_box_bounds();
-		resolved_text_height = um_emphasis_text_height();
+		resolved_text_height = ty_emphasis_height();
 		break;
 
 	default:
@@ -707,7 +710,7 @@ bool tx_get_text_box_rects(
 		}
 	}
 	if (options->large_text) {
-		resolved_text_height = um_emphasis_text_height();
+		resolved_text_height = ty_emphasis_height();
 	}
 
 	SDL_Rect resolved_content = dw_get_iface_content_box(resolved_box);

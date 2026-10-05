@@ -1,9 +1,11 @@
+#include "aux.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <assert.h>
 #include <stdbool.h>
-#include "aux.h"
+
 #include "dbg.h"
 #include "draw_dw.h"
 #include "dimensions_dm.h"
@@ -64,92 +66,36 @@ void ax_get_resource_path(char *out, size_t out_size, const char *relative)
 	SDL_free(base);
 }
 
-/* Function: ax_chk_mouse_hover_rect
- *------------------------------------------------------------------------------
- * This function verifies is the mouse hovered a rectangle area.
- *
- * Arguments:
- * 	r: The rectangle to be verified
- *
- * Return:
- *	true if the mouse hovered the rectangle
- *	false if otherwise
- *
- */
-bool ax_chk_mouse_hover_rect(SDL_Rect r)
+bool ax_chk_mouse_hover_rect(SDL_Rect rect)
 {
 	int mouse_x = ms_get_mouse_x();
 	int mouse_y = ms_get_mouse_y();
-
-	bool hover;
-	if (mouse_x > r.x && mouse_x < (r.x + r.w) && mouse_y > r.y &&
-	    mouse_y < (r.y + r.h)) {
-		hover = true;
-	} else {
-		hover = false;
-	}
-	return hover;
+	return mouse_x > rect.x && mouse_x < rect.x + rect.w &&
+	       mouse_y > rect.y && mouse_y < rect.y + rect.h;
 }
-/* Function: ax_set_arrow_mdelta
- *------------------------------------------------------------------------------
- * Sets the fast and slow values for the arrow delta
- *
- * Arguments:
- *	true if fast, false if slow
- *
- * Return:
- *	void
- */
+
 void ax_set_arrow_mdelta(bool fast)
 {
-	if (fast == true) {
+	if (fast) {
 		arrow_mdelta = dm_scale_to_res(ARROW_MDELTA_FAST);
-	} else if (fast == false) {
+	} else {
 		arrow_mdelta = dm_scale_to_res(ARROW_MDELTA_SLOW);
 	}
 }
 
-/* Function: ax_get_arrow_move_delta
- *------------------------------------------------------------------------------
- * Returns the move delta for the arrow
- *
- * Arguments:
- *	Void
- *
- * Return:
- *	Arrow move delta
- */
-int ax_get_arrow_move_delta() { return arrow_mdelta; }
+int ax_get_arrow_move_delta(void)
+{
+	return arrow_mdelta;
+}
 
-/* Function: ax_get_cw_move_delta
- *------------------------------------------------------------------------------
- * Returns the move delta for the code window elements
- *
- * Arguments:
- *	Void
- *
- * Return:
- *	Code windows move delta
- */
-int ax_get_cw_move_delta() { return dm_scale_to_res(CW_MDELTA); }
+int ax_get_cw_move_delta(void)
+{
+	return dm_scale_to_res(CW_MDELTA);
+}
 
-/* Function: ax_set_fast_move_delta
- *------------------------------------------------------------------------------
- * Sets the move delta variable to delta.
- *
- * Arguments:
- *	state: true if fast enabled, false if otherwise.
- *
- * Return:
- *	Void.
- */
 void ax_set_fast_move_delta(bool state)
 {
-	if (state == true) {
-		move_delta = dm_scale_to_res(FAST_MOVE_DELTA);
-	} else if (state == false) {
-		move_delta = dm_scale_to_res(MOVE_DELTA);
-	}
+	move_delta = dm_scale_to_res(state ? FAST_MOVE_DELTA : MOVE_DELTA);
 }
 
 /* Function: ax_get_move_delta
@@ -307,89 +253,6 @@ char *ax_create_string_append_hex(char *s, int n)
 
 error:
 	return string;
-}
-
-/* Function: ax_copy_vbox
- *------------------------------------------------------------------------------
- * Assigns all the values to a box, it frees the old texture for an updated one
- *
- *
- * Arguments:
- *	*vb: A pointer to the value box that will be modified.
- * 	val: The value that will be assigned
- *	pos: Determines if the position of the box will be copied
- *
- * Return:
- *	Void.
- */
-void ax_copy_vbox(value_box_t *dst, value_box_t src, bool pos)
-{
-	dst->value       = src.value;
-	dst->type        = src.type;
-	dst->visible_box = src.visible_box;
-	if (pos == true) {
-		dst->box = src.box;
-	}
-	dw_free_texture(dst->t);
-	char *number = ax_number_to_string(src.value);
-	dst->t       = dw_create_text_tex(number, C_WHITE);
-	free(number);
-}
-
-/* Function: ax_draw_value_box
- *------------------------------------------------------------------------------
- * Arguments:
- *	None.
- *
- * Return:
- *	Void.
- */
-static const int VALUE_BOX_WIDTH = 50;
-static const int VALUE_BOX_HEIGHT = 40;
-
-SDL_Rect ax_get_value_box_size(void)
-{
-	SDL_Rect size = {
-		.x = 0,
-		.y = 0,
-		.w = dm_scale_to_res(VALUE_BOX_WIDTH),
-		.h = dm_scale_to_res(VALUE_BOX_HEIGHT)
-	};
-	return size;
-}
-
-SDL_Rect ax_get_value_text_size(void)
-{
-	SDL_Rect size = ax_get_value_box_size();
-	size.h -= size.h / 10;
-	return size;
-}
-
-int ax_get_value_box_vertical_offset(void)
-{
-	return ax_get_value_box_size().h / 4;
-}
-
-void ax_draw_value_box(value_box_t *box, SDL_Color color)
-{
-	int text_w = 0;
-
-	SDL_Rect val = ax_get_value_text_size();
-	if (box->t != NULL) {
-		text_w = ax_get_texture_w_fit_h(val.h, box->t);
-	}
-
-	dw_draw_filled_rectangle(box->box, C_BLACK, color);
-
-	SDL_Rect vb       = ax_get_value_text_size();
-	int      x_offset = (vb.w - text_w) / 2;
-	int      y_offset = ((vb.h - val.h) / 2) + (val.h / 5) / 2;
-
-	SDL_Rect r = {
-	    .x = box->box.x + x_offset, .y = box->box.y + y_offset, .h = val.h};
-	if (box->t != NULL) {
-		dw_draw_texture_fit_h(r, box->t);
-	}
 }
 
 /* Function: ax_get_text_h_fit_w

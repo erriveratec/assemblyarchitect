@@ -6,13 +6,13 @@
 #include <stdbool.h>
 #include "list.h"
 #include "code_line_cl.h"
-#include "aux.h"
+#include "ui/value_box_vb.h"
 #include "gameplay/ui_highlight_source.h"
 
 typedef struct reg_t{
 	btn_t *b;
 	int id;
-	value_box_t value;
+	vb_value_box_t value;
 } reg_t;
 
 
@@ -20,10 +20,11 @@ void create_register_list();
 void rg_set_register_box(SDL_Rect r);
 int rg_get_registers_text_width(int h);
 void rg_add_register_to_list(int id);
-void rg_draw_registers();
+void rg_draw_registers(float animation_limit);
 void rg_set_register_highlight_source(ui_highlight_source_t source,
 									  bool enabled);
-bool rg_get_register_highlight_progress(float *progress);
+bool rg_get_register_highlight_progress(float *progress,
+										float animation_limit);
 void rg_draw_flag_boxes();
 bool rg_chk_rel_in_reg();
 operand_t *rg_get_default_operand_register();
@@ -31,8 +32,8 @@ operand_t *rg_create_sel_reg_op();
 operand_t *rg_create_register_operand_by_id(int id);
 int rg_get_register_value_box_x_coord_by_id(int id);
 int rg_get_register_value_box_y_coord_by_id(int id);
-value_box_t rg_get_register_value_box_by_id(int id);
-void rg_set_register_value_box(int id, value_box_t val);
+vb_value_box_t rg_get_register_value_box_by_id(int id);
+void rg_set_register_value_box(int id, vb_value_box_t val);
 void rg_reset_register_values();
 void rg_destroy_register_list();
 void rg_update_register_box_position();
@@ -40,24 +41,23 @@ void rg_init_flag_and_vboxes();
 int rg_get_ibox_x();
 int rg_get_ibox_y();
 int rg_get_obox_y();
-value_box_t rg_get_ibox_value_box();
-value_box_t rg_get_obox_value_box();
-void rg_set_ibox_value_box(value_box_t value);	
-void rg_set_obox_value_box(value_box_t value);	
+vb_value_box_t rg_get_ibox_value_box();
+vb_value_box_t rg_get_obox_value_box();
+void rg_set_ibox_value_box(vb_value_box_t value);
+void rg_set_obox_value_box(vb_value_box_t value);
 void rg_reset_ibox();
 void rg_reset_obox();
 void rg_reset_rflags();
 void rg_destroy_value_boxes();
 void rg_init_reg_texture();
 SDL_Rect rg_get_register_box();
-SDL_Rect rg_get_panel_initial_bounds(void);
+SDL_Rect rg_get_panel_size(void);
 SDL_Rect rg_get_input_value_box_bounds(void);
 SDL_Rect rg_get_output_value_box_bounds(void);
 SDL_Rect rg_get_zero_flag_bounds(void);
 int rg_get_panel_value_offset(void);
-int rg_get_register_spacing(void);
 List *rg_get_register_list();
 int rg_get_reg_box_y_pos(int pos);
-value_box_t rg_get_flag_value_box_by_id(int id);
-void rg_set_flag_value_box(int id, value_box_t val);
+vb_value_box_t rg_get_flag_value_box_by_id(int id);
+void rg_set_flag_value_box(int id, vb_value_box_t val);
 #endif

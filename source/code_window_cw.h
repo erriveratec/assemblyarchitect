@@ -70,11 +70,5 @@ void cw_clear_code_list();
 void cw_assign_op_to_line(operand_t *op, code_line_t *line);
 void cw_highlight_code_pending_operand();
 SDL_Rect cw_get_stage_code_box();
-SDL_Rect cw_get_code_button_size(void);
 int cw_get_code_line_spacing(void);
-int cw_get_code_text_width(void);
-int cw_get_operand1_offset(void);
-int cw_get_operand2_offset(void);
-int cw_get_comma_offset(void);
-int cw_get_missing_operand_width(void);
 #endif

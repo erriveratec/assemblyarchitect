@@ -1,6 +1,8 @@
+#include "game_mechanics_mc.h"
+
 #include <SDL.h>
 #include <assert.h>
-#include "game_mechanics_mc.h"
+#include "ui/value_box_vb.h"
 #include "aux.h"
 #include "draw_dw.h"
 #include "code_window_cw.h"
@@ -52,8 +54,8 @@ typedef struct avatar_t{
 	bool op_delivered;
 	bool flag1;
 	bool valop;
-	value_box_t mainval;
-	value_box_t secval;
+	vb_value_box_t mainval;
+	vb_value_box_t secval;
 	SDL_Color color;
 } avatar_t;
 
@@ -73,9 +75,9 @@ static void execute_instruction(code_line_t *line, int line_pos);
 static bool move_avatar_to_operand(avatar_t *avatar, int op_id);
 static int get_operand_x_dest(int op_id);
 static int get_operand_y_dest(int op_id);
-static value_box_t get_operand_value_box(int op_id);
-bool set_operand_value_box(int op_id, value_box_t val);
-void operate_instruction(code_line_t *line, value_box_t value);
+static vb_value_box_t get_operand_value_box(int op_id);
+bool set_operand_value_box(int op_id, vb_value_box_t val);
+void operate_instruction(code_line_t *line, vb_value_box_t value);
 void reset_avatar_no_pos();
 static int handle_source_operand(code_line_t *line);
 static void handle_destiny_operand(code_line_t *line, int avatar_id);
@@ -92,7 +94,7 @@ static bool check_avatar_has_value(avatar_t *avatar);
 static void draw_iavatar();
 static void draw_oavatar();
 static void draw_ravatar();
-bool cmp_substract(int op_id, value_box_t val);
+bool cmp_substract(int op_id, vb_value_box_t val);
 static bool handle_ravatar_cmp(int op_id);
 static void rflag_generator(avatar_t *avatar, int id);
 /* Function: mc_is_executing
@@ -204,7 +206,7 @@ void mc_init_avatar()
 {
 	SDL_Rect avatar = get_avatar_size();
 	SDL_Rect ib = bf_get_input_buffer_bounds();
-	SDL_Rect vb = ax_get_value_box_size();
+	SDL_Rect vb = vb_get_size();
 	g_iavatar.id = IAVATAR;
 	g_iavatar.box.x = bf_get_buffer_value_box_x_coord_by_id(IB);	
 	g_iavatar.box.y = ib.y + ib.h + avatar.h;
@@ -473,10 +475,10 @@ static void draw_iavatar()
 	dw_draw_filled_rectangle(r4, C_MAGENTA, C_MAGENTA);
 
 	if (g_iavatar.mainval.visible_box == true){
-		ax_draw_value_box(&g_iavatar.mainval, g_iavatar.color);
+		vb_draw(&g_iavatar.mainval, g_iavatar.color);
 	}
 	if (g_iavatar.secval.visible_box == true){
-		ax_draw_value_box(&g_iavatar.secval, g_iavatar.color);
+		vb_draw(&g_iavatar.secval, g_iavatar.color);
 	}
 }
 
@@ -544,10 +546,10 @@ static void draw_oavatar()
 	dw_draw_filled_rectangle(r4, C_CYAN, C_CYAN);
 
 	if (g_oavatar.mainval.visible_box == true){
-		ax_draw_value_box(&g_oavatar.mainval, g_oavatar.color);
+		vb_draw(&g_oavatar.mainval, g_oavatar.color);
 	}
 	if (g_oavatar.secval.visible_box == true){
-		ax_draw_value_box(&g_oavatar.secval, g_oavatar.color);
+		vb_draw(&g_oavatar.secval, g_oavatar.color);
 	}
 }
 
@@ -612,10 +614,10 @@ void draw_ravatar()
 	dw_draw_filled_rectangle(r4, C_YELLOW, C_YELLOW);
 
 	if (g_ravatar.mainval.visible_box == true){
-		ax_draw_value_box(&g_ravatar.mainval, g_ravatar.color);
+		vb_draw(&g_ravatar.mainval, g_ravatar.color);
 	}
 	if (g_ravatar.secval.visible_box == true){
-		ax_draw_value_box(&g_ravatar.secval, g_ravatar.color);
+		vb_draw(&g_ravatar.secval, g_ravatar.color);
 	}
 }
 
@@ -747,8 +749,8 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 		x = get_operand_x_dest(op_id);
 	}
 
-	SDL_Rect vb = ax_get_value_box_size();
-	int vbox_offset = ax_get_value_box_vertical_offset();
+	SDL_Rect vb = vb_get_size();
+	int vbox_offset = vb_get_vertical_offset();
 	if (op_id > REG_MIN && op_id < REG_MAX){
 		y = get_operand_y_dest(op_id);
 	} else if (op_id > FLAG_MIN && op_id < FLAG_MAX){
@@ -824,7 +826,7 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
  * Return:
  *	bool indicating if part of the retriving is pending
  */
-static value_box_t get_operand_value_box(int op_id)		
+static vb_value_box_t get_operand_value_box(int op_id)
 {
 	assert((op_id > REG_MIN && op_id < REG_MAX) 
 		   || (op_id > FLAG_MIN &&  op_id < FLAG_MAX)
@@ -833,7 +835,7 @@ static value_box_t get_operand_value_box(int op_id)
 		   || (op_id > IMM_MIN &&  op_id < IMM_MAX) 
 		   && "The operand id is invalid");
 	
-	value_box_t op_value_box;
+	vb_value_box_t op_value_box;
 
 	if (op_id > REG_MIN && op_id < REG_MAX){
 		op_value_box = rg_get_register_value_box_by_id(op_id);	
@@ -892,7 +894,7 @@ static bool check_operand_has_value(int op_id)
 		   || (op_id > RGBOX_MIN &&  op_id < RGBOX_MAX) && 
 		   "The operand id is invalid");
 
-	value_box_t op_value_box;
+	vb_value_box_t op_value_box;
 
 	if (op_id > REG_MIN && op_id < REG_MAX){
 		op_value_box = rg_get_register_value_box_by_id(op_id);	
@@ -926,7 +928,7 @@ static bool check_operand_has_value(int op_id)
  * Return:
  *	bool indicating if the operation performed was valid
  */
-bool set_operand_value_box(int op_id, value_box_t val)
+bool set_operand_value_box(int op_id, vb_value_box_t val)
 {
 	assert(((op_id > REG_MIN && op_id < REG_MAX) 
 			|| (op_id > FLAG_MIN && op_id < FLAG_MAX) 
@@ -963,7 +965,7 @@ bool set_operand_value_box(int op_id, value_box_t val)
  * Return:
  *	bool indicating if part of the retriving is pending
  */
-bool cmp_substract(int op_id, value_box_t val)
+bool cmp_substract(int op_id, vb_value_box_t val)
 { 
 	assert(op_id > REG_MIN && op_id < BUF_MAX && 
 		   "The operand id is invalid");
@@ -971,12 +973,12 @@ bool cmp_substract(int op_id, value_box_t val)
 	bool operation_valid = true;
 
 	if (op_id > REG_MIN && op_id < REG_MAX){
-		value_box_t cur_val = rg_get_register_value_box_by_id(op_id);
+		vb_value_box_t cur_val = rg_get_register_value_box_by_id(op_id);
 		if (cur_val.value == NO_VALUE){
 			operation_valid = false;	
 		} else {
 			cur_val.value -= val.value;
-			ax_copy_vbox(&g_ravatar.mainval, cur_val, false);
+			vb_copy(&g_ravatar.mainval, cur_val, false);
 			g_ravatar.mainval.visible_box = true;
 		}
 	} 	
@@ -995,7 +997,7 @@ bool cmp_substract(int op_id, value_box_t val)
  * Return:
  *	bool indicating if part of the retriving is pending
  */
-bool add_operand_value_box(int op_id, value_box_t val)
+bool add_operand_value_box(int op_id, vb_value_box_t val)
 { 
 	assert(op_id > REG_MIN && op_id < BUF_MAX && 
 		   "The operand id is invalid");
@@ -1003,7 +1005,7 @@ bool add_operand_value_box(int op_id, value_box_t val)
 	bool operation_valid = true;
 
 	if (op_id > REG_MIN && op_id < REG_MAX){
-		value_box_t cur_val = rg_get_register_value_box_by_id(op_id);
+		vb_value_box_t cur_val = rg_get_register_value_box_by_id(op_id);
 		if (cur_val.value == NO_VALUE){
 			operation_valid = false;	
 		} else {
@@ -1023,7 +1025,7 @@ bool add_operand_value_box(int op_id, value_box_t val)
  * Return:
  *	bool indicating if part of the retriving is pending
  */
-void operate_instruction(code_line_t *line, value_box_t value)
+void operate_instruction(code_line_t *line, vb_value_box_t value)
 {
 	bool op_status;
 	switch (line->ins->id){
@@ -1065,7 +1067,7 @@ void operate_instruction(code_line_t *line, value_box_t value)
  */
 static bool deliver_operand(avatar_t *avatar, int op_id)
 {
-	value_box_t v = get_operand_value_box(op_id);
+	vb_value_box_t v = get_operand_value_box(op_id);
 
 	int x = v.box.x;
 	int y = v.box.y;	
@@ -1175,18 +1177,18 @@ static bool handle_iavatar_source_operand(int op_id)
 		&& g_iavatar.op2_retrieved == false){
 		g_iavatar.in_place = true;
 		if (op_id == IB && is_operand_retrievable(op_id) == true){
-			value_box_t b = get_operand_value_box(op_id);
-			ax_copy_vbox(&g_iavatar.mainval, b, false);
+			vb_value_box_t b = get_operand_value_box(op_id);
+			vb_copy(&g_iavatar.mainval, b, false);
 			g_iavatar.mainval.visible_box = false;
-			ax_copy_vbox(&g_iavatar.secval, b, true);
+			vb_copy(&g_iavatar.secval, b, true);
 			g_iavatar.secval.visible_box = true;
 		} else if (op_id > IMM_MIN 
 				   && op_id < IMM_MAX 
 				   && is_operand_retrievable(op_id) == true){
-			value_box_t b = get_operand_value_box(op_id);
-			ax_copy_vbox(&g_iavatar.mainval, b, false);
+			vb_value_box_t b = get_operand_value_box(op_id);
+			vb_copy(&g_iavatar.mainval, b, false);
 			g_iavatar.mainval.visible_box = false;
-			ax_copy_vbox(&g_iavatar.secval, b, true);
+			vb_copy(&g_iavatar.secval, b, true);
 			g_iavatar.secval.visible_box = true;
 		}
 		else if (op_id == IB && is_operand_retrievable(op_id) == false){
@@ -1217,10 +1219,10 @@ static bool handle_ravatar_source_operand(int op_id)
 	//	&& g_ravatar.op2_retrieved == false){
 		g_ravatar.in_place = true;
 		if (check_operand_has_value(op_id) == true){
-			value_box_t b = get_operand_value_box(op_id);
-			ax_copy_vbox(&g_ravatar.mainval, b, false);
+			vb_value_box_t b = get_operand_value_box(op_id);
+			vb_copy(&g_ravatar.mainval, b, false);
 			g_ravatar.mainval.visible_box = false;
-			ax_copy_vbox(&g_ravatar.secval, b, true);
+			vb_copy(&g_ravatar.secval, b, true);
 			g_ravatar.secval.visible_box = true;
 
 			rg_reset_ibox();
@@ -1256,8 +1258,8 @@ static bool handle_ravatar_cmp_source(int op_id)
 		&& g_ravatar.op1_retrieved == false){
 		g_ravatar.in_place = true;
 		if (check_operand_has_value(op_id) == true){
-			value_box_t b = get_operand_value_box(op_id);
-			ax_copy_vbox(&g_ravatar.secval, b, true);
+			vb_value_box_t b = get_operand_value_box(op_id);
+			vb_copy(&g_ravatar.secval, b, true);
 			g_ravatar.secval.visible_box = true;
 		}
 		else {
@@ -1291,10 +1293,10 @@ static bool handle_oavatar_source_operand(int op_id)
 
 		g_oavatar.in_place = true;
 		if (check_operand_has_value(op_id) == true){
-			value_box_t b = get_operand_value_box(op_id);
-			ax_copy_vbox(&g_oavatar.mainval, b, false);
+			vb_value_box_t b = get_operand_value_box(op_id);
+			vb_copy(&g_oavatar.mainval, b, false);
 			g_oavatar.mainval.visible_box = false;
-			ax_copy_vbox(&g_oavatar.secval, b, true);
+			vb_copy(&g_oavatar.secval, b, true);
 			g_oavatar.secval.visible_box = true;
 			rg_reset_obox();
 		}
@@ -1448,17 +1450,17 @@ static int handle_source_operand(code_line_t *line)
  */
 static void rflag_generator(avatar_t *avatar, int id)
 {
-	value_box_t flag;
+	vb_value_box_t flag;
 	switch(id){
 		case ZF:
 			if (avatar->mainval.value == 0){
 				flag = avatar->mainval;
 				flag.value = 1;
-				ax_copy_vbox(&g_ravatar.secval, flag, true);
+				vb_copy(&g_ravatar.secval, flag, true);
 			} else if (avatar->mainval.value != 0){
 				flag = avatar->mainval;
 				flag.value = 0;
-				ax_copy_vbox(&g_ravatar.secval, flag, true);
+				vb_copy(&g_ravatar.secval, flag, true);
 			}
 			break;
 	}	

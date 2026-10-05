@@ -1,20 +1,20 @@
+#include "buffers_bf.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <SDL.h>
 #include <time.h>
 #include <assert.h>
 #include <stdbool.h>
-#include "buffers_bf.h"
 #include "draw_dw.h"
 #include "list.h"
 #include "dbg.h"
 #include "aux.h"
-#include "code_window_cw.h"
 #include "dimensions_dm.h"
 #include "ui/button_bt.h"
 #include "code_line_cl.h"
 #include "stage_buttons_sb.h"
-#include "ui/ui_metrics_um.h"
+#include "ui/typography_ty.h"
 
 // The posible types of input values
 #define WHOLE 0
@@ -37,33 +37,32 @@
 static const int BUFFER_X = 1400;
 static const int BUFFER_WIDTH = 1000;
 static const int BUFFER_HEIGHT = 75;
-static const int CODE_TEXT_HEIGHT = 40;
 
 SDL_Rect bf_get_input_buffer_bounds(void)
 {
 	SDL_Rect bounds = {
 		.x = dm_scale_to_res(BUFFER_X),
-		.y = dm_scale_to_res(CODE_TEXT_HEIGHT),
+		.y = ty_code_height(),
 		.w = dm_scale_to_res(BUFFER_WIDTH),
 		.h = dm_scale_to_res(BUFFER_HEIGHT)
 	};
 	return bounds;
 }
 
-SDL_Rect bf_get_input_label_bounds(void)
+SDL_Rect bf_get_input_label_anchor(void)
 {
 	SDL_Rect bounds = {
 		.x = bf_get_input_buffer_bounds().x,
 		.y = 0,
 		.w = 0,
-		.h = dm_scale_to_res(CODE_TEXT_HEIGHT)
+		.h = ty_code_height()
 	};
 	return bounds;
 }
 
 SDL_Rect bf_get_output_buffer_bounds(void)
 {
-	SDL_Rect input_label = bf_get_input_label_bounds();
+	SDL_Rect input_label = bf_get_input_label_anchor();
 	SDL_Rect bounds = {
 		.x = dm_scale_to_res(BUFFER_X),
 		.y = dm_get_screen_height() - input_label.h - dm_scale_to_res(BUFFER_HEIGHT),
@@ -73,24 +72,24 @@ SDL_Rect bf_get_output_buffer_bounds(void)
 	return bounds;
 }
 
-SDL_Rect bf_get_output_label_bounds(void)
+SDL_Rect bf_get_output_label_anchor(void)
 {
 	SDL_Rect bounds = {
 		.x = bf_get_output_buffer_bounds().x,
-		.y = dm_get_screen_height() - dm_scale_to_res(CODE_TEXT_HEIGHT),
+		.y = dm_get_screen_height() - ty_code_height(),
 		.w = 0,
-		.h = dm_scale_to_res(CODE_TEXT_HEIGHT)
+		.h = ty_code_height()
 	};
 	return bounds;
 }
 
 int bf_get_value_box_spacing(void)
 {
-	SDL_Rect value_box = ax_get_value_box_size();
+	SDL_Rect value_box = vb_get_size();
 	return (dm_scale_to_res(BUFFER_HEIGHT) - value_box.h) / 2;
 }
 
-int bf_get_value_box_secondary_spacing(void)
+static int bf_get_value_box_secondary_spacing(void)
 {
 	return bf_get_value_box_spacing() * 3 / 2;
 }
@@ -143,7 +142,8 @@ static void destroy_output_list();
 static void bf_create_natural_input_list(int size);
 static void bf_create_natural_force_input_list();
 static void bf_create_natural_increase_input_list();
-static bool get_buffer_highlight_progress(bool highlighted, float *progress);
+static bool get_buffer_highlight_progress(bool highlighted, float *progress,
+										  float animation_limit);
 static buffer_animation_t get_buffer_animation(SDL_Rect *label_box,
 										 texture_t *label,
 										 bool highlighted);
@@ -159,7 +159,7 @@ static SDL_FRect transform_buffer_content_rect(SDL_Rect rect,
 static void draw_buffer_label(SDL_Rect label_box, texture_t *label,
 							 SDL_Rect hit_box,
 							 buffer_animation_t animation);
-static void draw_buffer_value_box(value_box_t *value, SDL_Color color,
+static void draw_buffer_value_box(vb_value_box_t *value, SDL_Color color,
 								 SDL_Rect body_box,
 								 SDL_FRect animated_body,
 								 buffer_animation_t animation);
@@ -376,7 +376,7 @@ operand_t *bf_create_sel_buf_op()
  */
 void bf_init_buf_ops()
 {
-	SDL_Rect r = cw_get_code_button_size();
+	SDL_Rect r = cl_get_code_button_size();
 	
 	texture_t *ib = dw_create_text_tex(ib_text, C_WHITE);
 	check_mem(ib);
@@ -486,7 +486,7 @@ void bf_add_output_to_list()
 
 	assert(outputs != NULL && "Input pointer is NULL");
 	
-	value_box_t *new_output = malloc(sizeof(value_box_t));
+	vb_value_box_t *new_output = malloc(sizeof(vb_value_box_t));
 	check_mem(new_output);
 
 	new_output->value = NO_VALUE;
@@ -494,7 +494,7 @@ void bf_add_output_to_list()
 	SDL_Rect ib = bf_get_input_buffer_bounds();
 	int ofs = bf_get_value_box_spacing();
 	new_output->box.x = ib.x + ofs;
-	SDL_Rect vb = ax_get_value_box_size();
+	SDL_Rect vb = vb_get_size();
 	int y_offset = (output_box.h - vb.h)/2;
 	new_output->box.y = output_box.y + y_offset;
 	new_output->box.w = vb.w;
@@ -522,7 +522,7 @@ void add_input_to_list(int value, int type)
 
 	assert(inputs != NULL && "Input pointer is NULL");
 	
-	value_box_t *new_input = malloc(sizeof(value_box_t));
+	vb_value_box_t *new_input = malloc(sizeof(vb_value_box_t));
 	check_mem(new_input);
 
 	int screen_width = dm_get_screen_width();
@@ -530,7 +530,7 @@ void add_input_to_list(int value, int type)
 	new_input->value = value;
 	new_input->type = type;
 	new_input->box.x = screen_width;
-	SDL_Rect vb = ax_get_value_box_size();
+	SDL_Rect vb = vb_get_size();
 	int y_offset = (input_box.h - vb.h)/2;
 	new_input->box.y = input_box.y + y_offset;
 	new_input->box.w = vb.w;
@@ -741,43 +741,46 @@ void bf_set_output_box(SDL_Rect r)
  * Return:
  *	Void.
  */
-void bf_draw_buffers()
+void bf_draw_buffers(float animation_limit)
 {
 	bool highlighted = g_input_buffer_highlight || g_output_buffer_highlight;
 	if (highlighted != g_buffer_highlight_rendered) {
 		dw_pulse_reset(&g_buffer_pulse);
 		g_buffer_highlight_rendered = highlighted;
 	}
-	float anim_limit = cw_get_challenge_highlight_limit();
 	g_buffer_highlight_value = highlighted ?
-	    dw_pulse_value(&g_buffer_pulse, anim_limit) : 0.0f;
+		dw_pulse_value(&g_buffer_pulse, animation_limit) : 0.0f;
 	draw_input_buffer();
 	draw_output_buffer();
 	if (highlighted) {
-		dw_pulse_advance(&g_buffer_pulse, anim_limit);
+		dw_pulse_advance(&g_buffer_pulse, animation_limit);
 	}
 }
 
-bool bf_get_input_buffer_highlight_progress(float *progress)
+bool bf_get_input_buffer_highlight_progress(float *progress,
+											float animation_limit)
 {
-	return get_buffer_highlight_progress(g_input_buffer_highlight, progress);
+	return get_buffer_highlight_progress(g_input_buffer_highlight, progress,
+	                                    animation_limit);
 }
 
-bool bf_get_output_buffer_highlight_progress(float *progress)
+bool bf_get_output_buffer_highlight_progress(float *progress,
+											 float animation_limit)
 {
-	return get_buffer_highlight_progress(g_output_buffer_highlight, progress);
+	return get_buffer_highlight_progress(g_output_buffer_highlight, progress,
+	                                    animation_limit);
 }
 
-static bool get_buffer_highlight_progress(bool highlighted, float *progress)
+static bool get_buffer_highlight_progress(bool highlighted, float *progress,
+										  float animation_limit)
 {
 	if (progress == NULL || !highlighted) {
 		return false;
 	}
-	float anim_limit = cw_get_challenge_highlight_limit();
-	if (anim_limit <= 0.0f) {
+	if (animation_limit <= 0.0f) {
 		return false;
 	}
-	*progress = dw_pulse_progress(g_buffer_highlight_value, anim_limit);
+	*progress = dw_pulse_progress(g_buffer_highlight_value, animation_limit);
 	return true;
 }
 
@@ -871,13 +874,13 @@ static void draw_buffer_label(SDL_Rect label_box, texture_t *label,
 	dw_set_texture_color_mod(label, C_WHITE);
 }
 
-static void draw_buffer_value_box(value_box_t *value, SDL_Color color,
+static void draw_buffer_value_box(vb_value_box_t *value, SDL_Color color,
 								 SDL_Rect body_box,
 								 SDL_FRect animated_body,
 								 buffer_animation_t animation)
 {
 	if (!animation.boxes_active) {
-		ax_draw_value_box(value, color);
+		vb_draw(value, color);
 		return;
 	}
 
@@ -888,8 +891,8 @@ static void draw_buffer_value_box(value_box_t *value, SDL_Color color,
 		return;
 	}
 
-	SDL_Rect value_size = ax_get_value_box_size();
-	SDL_Rect text_size = ax_get_value_text_size();
+	SDL_Rect value_size = vb_get_size();
+	SDL_Rect text_size = vb_get_text_size();
 	int text_width = ax_get_texture_w_fit_h(text_size.h, value->t);
 	SDL_Rect text_box = {
 		.x = value->box.x + (value_size.w - text_width) / 2,
@@ -921,11 +924,11 @@ void draw_output_buffer()
 	int x;
 	int ofs = bf_get_value_box_spacing();
 	int ofsval = bf_get_value_box_secondary_spacing();
-	SDL_Rect val =  ax_get_value_box_size();
+	SDL_Rect val =  vb_get_size();
 	SDL_Rect output_label = {.x = output_box.x,
 						 .y = output_box.y + output_box.h,
 						 .w = 0,
-						 .h = um_code_text_height()};
+						 .h = ty_code_height()};
 	buffer_animation_t animation = get_buffer_animation(
 	    &output_label, output_text, g_output_buffer_highlight);
 	SDL_FRect animated_output_box = animation.boxes_active ?
@@ -941,7 +944,7 @@ void draw_output_buffer()
 	if (outputs != NULL && list_size > 0){
 		int draw_x = g_output_list_x_pos;
 		LIST_FOREACH(outputs, first, next, cur){
-			value_box_t *cur_output = cur->value;
+			vb_value_box_t *cur_output = cur->value;
 			cur_output->box.x = draw_x;
 
 			if (cur_output->visible_box != false){
@@ -985,10 +988,10 @@ bool check_if_output_buffer_position_set()
 
 	int ofs = bf_get_value_box_spacing();
 	int ofsval = bf_get_value_box_secondary_spacing();
-	SDL_Rect val =  ax_get_value_box_size();
+	SDL_Rect val =  vb_get_size();
 	int x = output_box.x + ofs + (list_size-1)*(val.w + ofsval);
 
-	value_box_t *first = outputs->first->value;	
+	vb_value_box_t *first = outputs->first->value;
 
 	if (first->box.x !=x){
 		in_pos = false;
@@ -1012,8 +1015,8 @@ void draw_input_buffer()
 	List *inputs = get_input_list();
 	int ofs = bf_get_value_box_spacing();
 	int ofsval = bf_get_value_box_secondary_spacing();
-	SDL_Rect val =  ax_get_value_box_size();
-	SDL_Rect input_label = bf_get_input_label_bounds();
+	SDL_Rect val =  vb_get_size();
+	SDL_Rect input_label = bf_get_input_label_anchor();
 	buffer_animation_t animation = get_buffer_animation(
 	    &input_label, input_text, g_input_buffer_highlight);
 	SDL_FRect animated_input_box = animation.boxes_active ?
@@ -1030,7 +1033,7 @@ void draw_input_buffer()
 	if (inputs != NULL && list_size > 0){
 		int draw_x = g_input_list_x_pos;
 		LIST_FOREACH(inputs, first, next, cur){
-			value_box_t *cur_input = cur->value;
+			vb_value_box_t *cur_input = cur->value;
 			cur_input->box.x = draw_x;
 			draw_buffer_value_box(cur_input, C_WHITE, input_box,
 			                      animated_input_box, animation);
@@ -1107,10 +1110,10 @@ int bf_get_buffer_value_box_y_coord_by_id(int id)
  * Return:
  *	value_box
  */
-void bf_set_output_buffer_value_box(value_box_t val)
+void bf_set_output_buffer_value_box(vb_value_box_t val)
 {
 	List *outputs = bf_get_output_list();
-	value_box_t *last = outputs->last->value;
+	vb_value_box_t *last = outputs->last->value;
    	
    last->value = val.value;
    last->type = val.type;
@@ -1129,10 +1132,10 @@ void bf_set_output_buffer_value_box(value_box_t val)
  * Return:
  *	value_box
  */
-value_box_t bf_get_output_buffer_value_box()
+vb_value_box_t bf_get_output_buffer_value_box()
 {
 	List *output_list = bf_get_output_list();
-	value_box_t *last = output_list->last->value;
+	vb_value_box_t *last = output_list->last->value;
 
 	return *last;	
 }
@@ -1145,7 +1148,7 @@ value_box_t bf_get_output_buffer_value_box()
  * Return:
  *	value_box
  */
-value_box_t bf_get_input_buffer_value_box()
+vb_value_box_t bf_get_input_buffer_value_box()
 {
 	List *input_list = get_input_list();
 	int list_size = List_count(input_list);
@@ -1153,13 +1156,13 @@ value_box_t bf_get_input_buffer_value_box()
 
 	int ofs = bf_get_value_box_spacing();
 	int ofsval = bf_get_value_box_secondary_spacing();
-	SDL_Rect val =  ax_get_value_box_size();
-	value_box_t *first = List_shift(input_list);
+	SDL_Rect val =  vb_get_size();
+	vb_value_box_t *first = List_shift(input_list);
 	g_input_list_x_pos += val.w + ofsval;
 
 	dw_free_texture(first->t);
 	first->t = NULL;
-	value_box_t ret = *first;
+	vb_value_box_t ret = *first;
 	free(first);
 	return ret;	
 
@@ -1190,7 +1193,7 @@ void bf_reset_input_list_x_pos()
 static void destroy_input_list()
 {
 	LIST_FOREACH(input_list, first, next, cur){
-		value_box_t *v = cur->value;
+		vb_value_box_t *v = cur->value;
 		dw_free_texture(v->t);
     }
 	List_clear_destroy(input_list);
@@ -1208,7 +1211,7 @@ static void destroy_input_list()
 static void destroy_output_list()
 {
 	LIST_FOREACH(output_list, first, next, cur){
-		value_box_t *v = cur->value;
+		vb_value_box_t *v = cur->value;
 		dw_free_texture(v->t);
     }
 	List_clear_destroy(output_list);
@@ -1283,7 +1286,7 @@ void print_input_list()
 	printf("The size of the input list is %d\n", input_list_size);	
 
 	LIST_FOREACH(input_list, first, next, cur){
-		value_box_t *cur_input = cur->value;
+		vb_value_box_t *cur_input = cur->value;
 		printf("List value: %d\n", cur_input->value);
 	}
 }
@@ -1307,7 +1310,7 @@ void print_output_list()
 	printf("The size of the list is %d\n", output_list_size);	
 
 	LIST_FOREACH(output_list, first, next, cur){
-		value_box_t *cur_input = cur->value;
+		vb_value_box_t *cur_input = cur->value;
 		printf("List value: %d\n", cur_input->value);
 	}
 }

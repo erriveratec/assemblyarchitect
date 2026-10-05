@@ -1,8 +1,9 @@
 
+#include "ui/button_bt.h"
+
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "ui/button_bt.h"
 #include "mouse_ms.h"
 #include "dimensions_dm.h"
 #include "aux.h"
@@ -559,8 +560,8 @@ void bt_draw_btn(btn_t *b, bool blk, bool hv)
 						  .h = b->r.h + b->anim_state};
 			dw_draw_texture_fit_h(r, b->t);
 		}
-		int anim_max = um_button_animation_max();
-		int anim_delta = um_button_animation_delta();
+		int anim_max = dw_get_animation_limit();
+		int anim_delta = dw_get_animation_step();
 		if (b->anim_dir == false && b->anim_state == anim_max){
 			b->anim_dir = true;
 		} else if (b->anim_dir == true && b->anim_state == 0){

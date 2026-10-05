@@ -1,17 +1,17 @@
 #ifndef BUFFERS_BF_H
 #define BUFFERS_BF_H
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "code_line_cl.h"
 #include "list.h"
-#include "aux.h"
+#include "ui/value_box_vb.h"
 
 SDL_Rect bf_get_input_buffer_bounds(void);
 SDL_Rect bf_get_output_buffer_bounds(void);
-SDL_Rect bf_get_input_label_bounds(void);
-SDL_Rect bf_get_output_label_bounds(void);
+SDL_Rect bf_get_input_label_anchor(void);
+SDL_Rect bf_get_output_label_anchor(void);
 int bf_get_value_box_spacing(void);
-int bf_get_value_box_secondary_spacing(void);
 #include "gameplay/ui_highlight_source.h"
 
 enum input_list_type{
@@ -49,22 +49,24 @@ void bf_set_output_buffer_button(SDL_Rect r);
 void bf_set_buffer_highlight_source(ui_highlight_source_t source,
 									bool input_enabled,
 									bool output_enabled);
-bool bf_get_input_buffer_highlight_progress(float *progress);
-bool bf_get_output_buffer_highlight_progress(float *progress);
+bool bf_get_input_buffer_highlight_progress(float *progress,
+										   float animation_limit);
+bool bf_get_output_buffer_highlight_progress(float *progress,
+										float animation_limit);
 
 void bf_create_input_list();
 void bf_create_output_list();
 void bf_destroy_buffer_lists();
 void bf_init_buf_ops();
-void bf_draw_buffers();
+void bf_draw_buffers(float animation_limit);
 int bf_get_buffer_value_box_x_coord_by_id(int op_id);
 int bf_get_buffer_value_box_y_coord_by_id(int op_id);
-value_box_t bf_get_input_buffer_value_box();
-value_box_t bf_get_output_buffer_value_box();
+vb_value_box_t bf_get_input_buffer_value_box();
+vb_value_box_t bf_get_output_buffer_value_box();
 void bf_reset_input_list();
 void bf_reset_output_list();
 void bf_add_output_to_list();
-void bf_set_output_buffer_value_box(value_box_t val);
+void bf_set_output_buffer_value_box(vb_value_box_t val);
 
 bool check_if_output_buffer_position_set();
 int get_input_buffer_list_size();
