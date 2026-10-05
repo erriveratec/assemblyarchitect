@@ -56,13 +56,13 @@ int init_sdl(int width, int height, int argc, char *args[])
 		if (strcmp(args[i], "-f")){
 			SDL_CreateWindowAndRenderer(width,
 										height,
-										SDL_WINDOW_SHOWN,
+										SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE,
 										&g_window,
 										&g_renderer);
 		} else {
 			SDL_CreateWindowAndRenderer(width,
 										height,
-										SDL_WINDOW_FULLSCREEN_DESKTOP,
+										SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_RESIZABLE,
 										&g_window,
 										&g_renderer);
 		}
