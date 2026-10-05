@@ -27,6 +27,8 @@ PROGRAM_ADAPTER_TEST_EXEC = program_adapter_test
 PROGRAM_ADAPTER_TEST_SOURCE = tests/program_adapter_test.c
 PROGRAM_EDITOR_SYNC_TEST_EXEC = program_editor_sync_test
 PROGRAM_EDITOR_SYNC_TEST_SOURCE = tests/program_editor_sync_test.c
+LEVEL1_APPEND_TEST_EXEC = level1_append_test
+LEVEL1_APPEND_TEST_SOURCE = tests/level1_append_test.c
 
  
 ############################
@@ -85,7 +87,7 @@ build:
 run: build
 	./$(EXEC)
 
-test: test-level-config-hover test-operand-highlights test-program-characterization test-program-domain
+test: test-level-config-hover test-operand-highlights test-program-characterization test-program-domain test-level1-append
 	$(CC) $(CFLAGS) $(TEST_SOURCE) $(TEST_SOURCES) -o $(TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(TEST_EXEC)
@@ -122,6 +124,23 @@ test-program-editor-sync:
 	    $(TEST_SOURCES) -o $(PROGRAM_EDITOR_SYNC_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(PROGRAM_EDITOR_SYNC_TEST_EXEC)
+
+test-level1-append:
+	$(CC) $(CFLAGS) -DSTAGES_EDIT_TESTING $(LEVEL1_APPEND_TEST_SOURCE) $(TEST_SOURCES) \
+	    -o $(LEVEL1_APPEND_TEST_EXEC) $(SDL_INCLUDES) $(SDL_LINK) \
+	    -Wl,-rpath,/Library/Frameworks
+	@save_before=$$(shasum -a 256 "$(CURDIR)"/data/saves/player_*.sav) && \
+	    test_root=$$(mktemp -d /tmp/assemblygame-level1.XXXXXX) && \
+	    cp -R data img fonts "$$test_root/" && \
+	    cp $(abspath $(LEVEL1_APPEND_TEST_EXEC)) "$$test_root/level1_append_test" && \
+	    cd "$$test_root" && { \
+	        ./level1_append_test; exit_code=$$?; \
+	        save_after=$$(shasum -a 256 "$(CURDIR)"/data/saves/player_*.sav); \
+	        test "$$save_before" = "$$save_after" || { \
+	            printf '%s\n' 'Player saves outside the fixture changed'; exit 1; \
+	        }; \
+	        exit $$exit_code; \
+	    }
 
 ############################
 # App bundle target
@@ -207,7 +226,7 @@ app: build
 ############################
 
 clean:
-	rm -rf $(EXEC) $(APP_BUNDLE) $(TEST_EXEC) $(LEVEL_CONFIG_HOVER_TEST_EXEC) $(PROGRAM_CHARACTERIZATION_TEST_EXEC) $(PROGRAM_DOMAIN_TEST_EXEC) $(PROGRAM_ADAPTER_TEST_EXEC) $(PROGRAM_EDITOR_SYNC_TEST_EXEC)
+	rm -rf $(EXEC) $(APP_BUNDLE) $(TEST_EXEC) $(LEVEL_CONFIG_HOVER_TEST_EXEC) $(PROGRAM_CHARACTERIZATION_TEST_EXEC) $(PROGRAM_DOMAIN_TEST_EXEC) $(PROGRAM_ADAPTER_TEST_EXEC) $(PROGRAM_EDITOR_SYNC_TEST_EXEC) $(LEVEL1_APPEND_TEST_EXEC)
 	find . -type d -name '*.dSYM' -prune -exec rm -rf {} +
 	rm -rf assemblyArchitect*
 	rm -f source/.*.swp

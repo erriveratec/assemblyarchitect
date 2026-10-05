@@ -1003,12 +1003,12 @@ void cw_add_saved_line(char *line)
 	assert(line != NULL && "The line value cannot be NULL");
 	char *saveptr1;
 	char *ins_text;
-	char *op1_text;
-	char *op2_text;
-	char *delim = ax_char_space;
+	char *op1_text = NULL;
+	char *op2_text = NULL;
+	char *delim = " ,\t\r\n";
 	int ins_id;
-	int op1_id;
-	int op2_id;
+	int op1_id = NO_OPERAND;
+	int op2_id = NO_OPERAND;
 
 	ins_text = strtok_r(line, delim, &saveptr1);
 	ins_id = cl_text_to_instruction_id(ins_text);
@@ -1018,16 +1018,22 @@ void cw_add_saved_line(char *line)
 	if (operand_quantity == ONE_OPERAND || operand_quantity == TWO_OPERANDS){
 		if (ins_id == LABEL || cl_is_ins_jmp_type(ins_id) == true){
 			op1_text =  strtok_r(NULL, delim, &saveptr1);
-			op1_id = atoi(op1_text);
+			if (op1_text != NULL && strcmp(op1_text, "_") != 0) {
+				op1_id = atoi(op1_text);
+			}
 		} else {
 			op1_text =  strtok_r(NULL, delim, &saveptr1);
-			op1_id = cl_text_to_operand_id(op1_text);
+			if (op1_text != NULL && strcmp(op1_text, "_") != 0) {
+				op1_id = cl_text_to_operand_id(op1_text);
+			}
 		}
 	}
 	
 	if (operand_quantity == TWO_OPERANDS){
 		op2_text =  strtok_r(NULL, delim, &saveptr1);
-		op2_id = cl_text_to_operand_id(op2_text);
+		if (op2_text != NULL && strcmp(op2_text, "_") != 0) {
+			op2_id = cl_text_to_operand_id(op2_text);
+		}
 	}
 	
 	int list_size = cw_get_code_list_size();
@@ -1051,7 +1057,8 @@ void cw_add_saved_line(char *line)
 	instruction_t *new_ins = cl_create_instruction(ins_id, b);
 	code_line_t *new_line = cl_create_code_line(new_ins);
 	
-	if (operand_quantity == ONE_OPERAND || operand_quantity == TWO_OPERANDS){
+	if ((operand_quantity == ONE_OPERAND || operand_quantity == TWO_OPERANDS) &&
+		op1_id != NO_OPERAND){
 		operand_t *op1;
 		if (cl_is_ins_jmp_type(ins_id) == true){
 			op1 = create_saved_jump_operand(op1_id);
@@ -1068,7 +1075,7 @@ void cw_add_saved_line(char *line)
 		}
 		cw_assign_op_to_line(op1, new_line);
 	}
-	if (operand_quantity == TWO_OPERANDS){
+	if (operand_quantity == TWO_OPERANDS && op2_id != NO_OPERAND){
 		operand_t *op2;
 		if (op2_id > REG_MIN && op2_id < REG_MAX){
 			op2 = rg_create_register_operand_by_id(op2_id);
@@ -1077,10 +1084,16 @@ void cw_add_saved_line(char *line)
 		} else if (op2_id > IMM_MIN && op2_id < IMM_MAX){
 			op2 = im_create_imm_op_by_id(op2_id);
 		}
-		cw_assign_op_to_line(op2, new_line);
+		if (op1_id == NO_OPERAND) {
+			new_line->op2 = op2;
+			new_line->op2->b->r.x = new_line->ins->b->r.x +
+				cw_get_operand2_offset();
+			new_line->op2->b->r.y = new_line->ins->b->r.y;
+			new_line->state = MISSING_OP1;
+		} else {
+			cw_assign_op_to_line(op2, new_line);
+		}
 	}
-
-	new_line->state = COMPLETE;
 
 	List *code = get_code_list();
 	cw_clear_domain_bindings();
@@ -1135,7 +1148,7 @@ int cw_get_instruction_operand(int position, int operand_pos)
 	assert(operand_pos >= ZERO_OPERANDS && 
 		   operand_pos <= TWO_OPERANDS && "The operand position is invalid");
 
-	int operand;
+	int operand = NO_OPERAND;
 	List *code = get_code_list();
 	code_line_t *c;
 	
@@ -1155,9 +1168,13 @@ int cw_get_instruction_operand(int position, int operand_pos)
 		operand = NO_OPERAND;
 	} else if (operand_quantity == ONE_OPERAND && operand_pos == FIRST_OP ||
 			   operand_quantity == TWO_OPERANDS && operand_pos == FIRST_OP){
-		operand = c->op1->id;
+		if (c->op1 != NULL) {
+			operand = c->op1->id;
+		}
 	} else if (operand_quantity == TWO_OPERANDS && operand_pos == SECOND_OP){
-		operand = c->op2->id;
+		if (c->op2 != NULL) {
+			operand = c->op2->id;
+		}
 	}
 	return operand;
 }

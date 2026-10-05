@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include "code_line_cl.h"
+#include "stages.h"
 
 #include <SDL.h>
 
@@ -679,7 +680,8 @@ char *cl_create_code_line_text(int ins_id, int op1_id, int op2_id)
 		   && "The instruction id is invalid");
 	
 	if (cl_is_ins_jmp_type(ins_id) == true || ins_id == LABEL){
-		assert(op1_id >=0 && "Label destitny is negative");
+		assert((op1_id == NO_OPERAND || op1_id >= 0) &&
+			   "Label destination is negative");
 	} else {
 		assert(op1_id >= NO_OPERAND && op1_id < IMM_MAX && "Invalid OP1");
 		assert(op2_id >= NO_OPERAND && op2_id < IMM_MAX && "Invalid OP2");
@@ -690,21 +692,33 @@ char *cl_create_code_line_text(int ins_id, int op1_id, int op2_id)
 	strcpy(line_text, instruction);
 	
 	if (ins_id == LABEL || cl_is_ins_jmp_type(ins_id) == true ){
-		char *op1 = NULL;
-		op1 = ax_number_to_string_two_digits(op1_id);
 		strcat(line_text, ax_char_space);
-		strcat(line_text, op1);
-	} else if (op1_id != NO_OPERAND){
-		char *op1 = NULL;
-		op1 = get_operand_text(op1_id);
-		strcat(line_text, ax_char_space);
-		strcat(line_text, op1);
-	}
-	if (op2_id != NO_OPERAND){
-		char *op2 = get_operand_text(op2_id);
-		strcat(line_text, ax_char_comma);
-		strcat(line_text, ax_char_space);
-		strcat(line_text, op2);
+		if (op1_id == NO_OPERAND) {
+			strcat(line_text, "_");
+		} else {
+			char *op1 = ax_number_to_string_two_digits(op1_id);
+			strcat(line_text, op1);
+		}
+	} else {
+		int operand_quantity = cl_get_instruction_operand_quantity(ins_id);
+		if (op1_id != NO_OPERAND) {
+			char *op1 = get_operand_text(op1_id);
+			strcat(line_text, ax_char_space);
+			strcat(line_text, op1);
+		} else if (operand_quantity == TWO_OPERANDS) {
+			strcat(line_text, ax_char_space);
+			strcat(line_text, "_");
+		}
+		if (operand_quantity == TWO_OPERANDS) {
+			strcat(line_text, ax_char_comma);
+			strcat(line_text, ax_char_space);
+			if (op2_id == NO_OPERAND) {
+				strcat(line_text, "_");
+			} else {
+				char *op2 = get_operand_text(op2_id);
+				strcat(line_text, op2);
+			}
+		}
 	}
 	strcat(line_text, ax_char_newline);
 	return line_text;
@@ -786,6 +800,7 @@ error:
  */
 void cl_destroy_code_line(code_line_t *line)
 {
+	stages_forget_destroyed_line(line);
 	bt_destroy_button(line->ins->b);
 	free(line->ins);
 

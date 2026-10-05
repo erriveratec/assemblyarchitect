@@ -48,6 +48,26 @@ static bool g_domain_teardown_active;
 static bool g_domain_append_candidate;
 static bool g_domain_existing_candidate;
 static bool g_program_snapshot_valid;
+static aa_instruction_id_t g_edit_authorized_id = AA_INSTRUCTION_ID_INVALID;
+static bool g_edit_pickup_authorized;
+static bool g_edit_may_move;
+static bool g_edit_may_delete;
+#ifdef STAGES_EDIT_TESTING
+void (*stages_before_edit_for_test)(void);
+static int g_edit_test_result = -1;
+static unsigned g_edit_test_legacy_fallbacks;
+
+stages_edit_test_state_t stages_edit_state_for_test(void)
+{
+	return (stages_edit_test_state_t){
+		.line = g_edit_line,
+		.authorized = g_edit_pickup_authorized,
+		.snapshot_valid = g_program_snapshot_valid,
+		.result = g_edit_test_result,
+		.legacy_fallbacks = g_edit_test_legacy_fallbacks
+	};
+}
+#endif
 static bool g_control_flow_repair_failed;
 
 void                stage_drawings(int level, int operation_id);
@@ -487,7 +507,16 @@ static bool prepare_domain_append(size_t required_count, void *context)
 static bool domain_edit_context_allowed(const aa_program_t *program,
 											 const code_line_t *line)
 {
-	return g_program_snapshot_valid && lv_is_code_editable() &&
+	aa_instruction_id_t bound_id = AA_INSTRUCTION_ID_INVALID;
+	bool authorized = g_domain_existing_candidate ?
+		g_edit_pickup_authorized &&
+		g_edit_authorized_id != AA_INSTRUCTION_ID_INVALID &&
+		cw_check_if_in_code_list((code_line_t *)line) &&
+		cw_get_domain_instruction_id(line, &bound_id) &&
+		bound_id == g_edit_authorized_id :
+		g_domain_append_candidate ? g_edit_pickup_authorized :
+		lv_is_code_editable();
+	return g_program_snapshot_valid && authorized &&
 		cw_domain_bindings_valid(program) &&
 		program != NULL && line != NULL &&
 		g_edit_line == line && !mc_is_executing() &&
@@ -495,6 +524,20 @@ static bool domain_edit_context_allowed(const aa_program_t *program,
 		aa_program_count(program) == (size_t)cw_get_code_list_size() &&
 		(g_stage_hold_line == NULL || g_stage_hold_line == line);
 }
+
+#ifdef STAGES_EDIT_TESTING
+static void trace_edit_context(const char *phase, aa_program_t *program)
+{
+	cs_context_t context = cs_capture_context();
+	const tutorial_step_t *step = tr_get_matching_step(&context);
+	fprintf(stderr, "drag %s step=%s editable=%d arrange=%d line=%p candidate=%d hold=%d stage_hold=%p allowed=%d revision=%llu\n",
+		phase, step == NULL ? "none" : step->name, lv_is_code_editable(),
+		lv_is_arrange_enabled(), (void *)g_edit_line,
+		g_domain_existing_candidate, g_edit_hold_line,
+		(void *)g_stage_hold_line, domain_edit_context_allowed(program, g_edit_line),
+		(unsigned long long)aa_program_revision(program));
+}
+#endif
 
 static bool pending_jump_allows_instruction_click(void)
 {
@@ -558,7 +601,10 @@ static bool edit_domain_instruction(
 	if (snapshot == NULL ||
 		!domain_edit_context_allowed(program,
 									(const code_line_t *)snapshot->identity) ||
-		(kind == CW_EXISTING_EDIT_MOVE && !lv_is_arrange_enabled()) ||
+		(kind == CW_EXISTING_EDIT_MOVE &&
+		 (!g_edit_may_move || !lv_is_arrange_enabled())) ||
+		(kind == CW_EXISTING_EDIT_REMOVE &&
+		 (!g_edit_may_delete || !lv_is_del_enabled())) ||
 		aa_program_count(program) != (size_t)cw_get_code_list_size() ||
 		from >= aa_program_count(program) ||
 		snapshot->bound_instruction_id == AA_INSTRUCTION_ID_INVALID) {
@@ -676,6 +722,10 @@ static void save_and_update_code(int level_id)
 
 static void cancel_edit_interaction(void)
 {
+	g_edit_pickup_authorized = false;
+	g_edit_authorized_id = AA_INSTRUCTION_ID_INVALID;
+	g_edit_may_move = false;
+	g_edit_may_delete = false;
 	if (g_edit_line != NULL && !cw_check_if_in_code_list(g_edit_line)) {
 		cl_destroy_code_line(g_edit_line);
 	}
@@ -686,6 +736,20 @@ static void cancel_edit_interaction(void)
 	g_domain_existing_candidate = false;
 	cw_clear_held_instruction();
 	lv_set_hold_line(NULL);
+}
+
+void stages_forget_destroyed_line(const code_line_t *line)
+{
+	if (line != g_edit_line) {
+		return;
+	}
+	g_edit_line = NULL;
+	cancel_edit_interaction();
+}
+
+void stages_cancel_edit_interaction(void)
+{
+	cancel_edit_interaction();
 }
 
 void stages_cancel_pending_edit(void)
@@ -813,6 +877,22 @@ static code_line_t *edit_code(int level_id,
 	       "Incorrect level_id value");
 	g_domain_step_execution_active = step_execution_active;
 	g_domain_teardown_active = teardown_active;
+#ifdef STAGES_EDIT_TESTING
+	if (stages_before_edit_for_test != NULL) {
+		stages_before_edit_for_test();
+	}
+#endif
+	if (g_domain_existing_candidate) {
+		g_edit_may_move = g_edit_may_move && lv_is_arrange_enabled();
+		g_edit_may_delete = g_edit_may_delete && lv_is_del_enabled();
+	}
+	if (mc_is_executing() || step_execution_active || teardown_active ||
+		rm_chk_rst_menu_state() || em_get_escape_state() ||
+		(g_domain_existing_candidate &&
+		 (!g_edit_may_move && !g_edit_may_delete))) {
+		cancel_edit_interaction();
+		return NULL;
+	}
 
 	bool                left_pressed  = ms_left_pressed();
 	bool                left_released = ms_left_released();
@@ -858,11 +938,23 @@ static code_line_t *edit_code(int level_id,
 			(!cl_is_ins_jmp_type(g_edit_line->ins->id) ||
 			 (g_edit_line->op1 == NULL &&
 			  g_edit_line->state == MISSING_OP1));
+		g_edit_pickup_authorized = g_domain_append_candidate;
 	} else if (cw_chk_click_code() == true && g_edit_line == NULL &&
 	           lv_is_code_editable() == true) {
 		g_edit_line = cw_get_clicked_code();
 		g_domain_existing_candidate = g_edit_line != NULL &&
 			domain_move_opcode(g_edit_line->ins->id);
+		if (g_domain_existing_candidate &&
+			cw_get_domain_instruction_id(g_edit_line, &g_edit_authorized_id)) {
+			g_edit_pickup_authorized = true;
+			g_edit_may_move = lv_is_arrange_enabled();
+			g_edit_may_delete = lv_is_del_enabled();
+		}
+#ifdef STAGES_EDIT_TESTING
+		g_edit_test_result = -1;
+		g_edit_test_legacy_fallbacks = 0;
+		trace_edit_context("pickup", program);
+#endif
 	} else if (cw_chk_rclick_code() == true && g_edit_line == NULL) {
 		g_edit_line = cw_clone_rclicked_line(cw_get_rclicked_code());
 		g_edit_hold_line = true;
@@ -889,11 +981,20 @@ static code_line_t *edit_code(int level_id,
 		bool domain_existing_failed = false;
 		if (g_domain_existing_candidate &&
 			cw_check_if_in_code_list(g_edit_line)) {
+#ifdef STAGES_EDIT_TESTING
+			trace_edit_context("release", program);
+#endif
 			cw_existing_edit_result_t edit_result =
 				cw_edit_existing_line_authoritatively(
-					g_edit_line, lv_is_arrange_enabled(), lv_is_del_enabled(),
+					g_edit_line, g_edit_may_move && lv_is_arrange_enabled(),
+					g_edit_may_delete && lv_is_del_enabled(),
 					domain_edit_context_allowed(program, g_edit_line),
 					edit_domain_instruction, program);
+#ifdef STAGES_EDIT_TESTING
+			g_edit_test_result = edit_result;
+			fprintf(stderr, "drag authoritative result=%d revision=%llu\n",
+				edit_result, (unsigned long long)aa_program_revision(program));
+#endif
 			if (edit_result == CW_EXISTING_EDIT_COMMITTED) {
 				domain_existing_committed = true;
 				if (!cw_check_if_in_code_list(g_edit_line)) {
@@ -906,13 +1007,20 @@ static code_line_t *edit_code(int level_id,
 				log_err("Domain-authoritative code edit failed");
 				domain_existing_failed = true;
 			} else if (edit_result == CW_EXISTING_EDIT_NOT_APPLICABLE &&
+				g_edit_may_delete && lv_is_del_enabled() &&
+				domain_edit_context_allowed(program, g_edit_line) &&
 				(cl_is_ins_jmp_type(g_edit_line->ins->id) ||
 				 g_edit_line->ins->id == LABEL)) {
+#ifdef STAGES_EDIT_TESTING
+				g_edit_test_legacy_fallbacks++;
+#endif
 				if (!cw_player_holding_instruction(
 						g_edit_line, lv_is_arrange_enabled(), lv_is_del_enabled())) {
 					g_control_flow_repair_failed = true;
 					g_program_snapshot_valid = false;
 				}
+			} else {
+				domain_existing_failed = true;
 			}
 		}
 		if (g_edit_line != NULL && g_domain_append_candidate &&
@@ -965,6 +1073,10 @@ static code_line_t *edit_code(int level_id,
 		g_edit_hold_line = false;
 		g_domain_append_candidate = false;
 		g_domain_existing_candidate = false;
+		g_edit_authorized_id = AA_INSTRUCTION_ID_INVALID;
+		g_edit_pickup_authorized = false;
+		g_edit_may_move = false;
+		g_edit_may_delete = false;
 	}
 	return g_edit_line;
 }
@@ -1129,6 +1241,10 @@ int stage_level(int level_id, aa_program_t *program)
 	}
 
 	mc_start_execution(flags.play);
+	if (flags.play || flags.step || back_to_level_selection ||
+		rm_chk_rst_menu_state() || em_get_escape_state()) {
+		cancel_edit_interaction();
+	}
 
 	if (flags.stop == true && flags.stop_enabled == true) {
 		reset_level(level_id, &flags);

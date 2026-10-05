@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "mouse_ms.h"
+#include "stages.h"
 #include <assert.h>
 #include <stdbool.h>
 #include <SDL.h>
@@ -376,6 +377,7 @@ void ms_consume_left_release(void)
  */
 void ms_reset_mouse_values()
 {
+	stages_cancel_edit_interaction();
 	set_mouse_x(0);
 	set_mouse_y(0);
 	set_mouse_scroll_x(0);

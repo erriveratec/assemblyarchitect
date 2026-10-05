@@ -16,6 +16,7 @@
 #include "registers_rg.h"
 #include "text_tx.h"
 #include "tutorial_tr.h"
+#include "stages.h"
 #include "tutorial_tr_internal.h"
 #include "game_mechanics_mc.h"
 
@@ -546,6 +547,7 @@ static tutorial_step_t *find_step(const char *name)
 
 void tr_clear(void)
 {
+	stages_cancel_edit_interaction();
 	cw_set_challenge_highlight(false);
 	cw_set_code_box_highlight(false);
 	bf_set_buffer_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false, false);
