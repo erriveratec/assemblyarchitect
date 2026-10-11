@@ -12,13 +12,16 @@ DATA_DIRS = sound fonts data img
 APP_ICON = icon.icns
 
 S_FILES := $(shell find $(S_DIR) -type f -name '*.c')
-TEST_EXEC = tutorial_text_test
-TEST_SOURCE = tests/tutorial_text_test.c
+# Tests: tests/<feature>_test.c, executable <feature>_test, target test-<feature-with-hyphens>.
+TUTORIAL_TEXT_TEST_EXEC = tutorial_text_test
+TUTORIAL_TEXT_TEST_SOURCE = tests/tutorial_text_test.c
 TEST_SOURCES := $(filter-out $(S_DIR)/main.c,$(S_FILES))
-OPERAND_TEST_EXEC = operand_highlights_test
-OPERAND_TEST_SOURCE = tests/operand_highlights_test.c
+OPERAND_HIGHLIGHTS_TEST_EXEC = operand_highlights_test
+OPERAND_HIGHLIGHTS_TEST_SOURCE = tests/operand_highlights_test.c
 LEVEL_CONFIG_HOVER_TEST_EXEC = level_config_hover_test
 LEVEL_CONFIG_HOVER_TEST_SOURCE = tests/level_config_hover_test.c
+OPERAND_CHANGE_SELECTION_TEST_EXEC = operand_change_selection_test
+OPERAND_CHANGE_SELECTION_TEST_SOURCE = tests/operand_change_selection_test.c
 
  
 ############################
@@ -77,21 +80,23 @@ build:
 run: build
 	./$(EXEC)
 
-test: test-level-config-hover test-operand-highlights test-operand-change-selection
-	$(CC) $(CFLAGS) $(TEST_SOURCE) $(TEST_SOURCES) -o $(TEST_EXEC) \
+test: test-level-config-hover test-operand-highlights test-operand-change-selection test-tutorial-text
+
+test-tutorial-text:
+	$(CC) $(CFLAGS) $(TUTORIAL_TEXT_TEST_SOURCE) $(TEST_SOURCES) -o $(TUTORIAL_TEXT_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
-	./$(TEST_EXEC)
+	./$(TUTORIAL_TEXT_TEST_EXEC)
 
 test-operand-change-selection:
-	$(CC) $(CFLAGS) tests/operand_change_selection_test.c \
-	    $(filter-out $(S_DIR)/stages.c,$(TEST_SOURCES)) -o operand_change_selection_test \
+	$(CC) $(CFLAGS) $(OPERAND_CHANGE_SELECTION_TEST_SOURCE) \
+	    $(filter-out $(S_DIR)/stages.c,$(TEST_SOURCES)) -o $(OPERAND_CHANGE_SELECTION_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
-	./operand_change_selection_test
+	./$(OPERAND_CHANGE_SELECTION_TEST_EXEC)
 
 test-operand-highlights:
-	$(CC) $(CFLAGS) $(OPERAND_TEST_SOURCE) $(TEST_SOURCES) -o $(OPERAND_TEST_EXEC) \
+	$(CC) $(CFLAGS) $(OPERAND_HIGHLIGHTS_TEST_SOURCE) $(TEST_SOURCES) -o $(OPERAND_HIGHLIGHTS_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
-	./$(OPERAND_TEST_EXEC)
+	./$(OPERAND_HIGHLIGHTS_TEST_EXEC)
 
 test-level-config-hover:
 	$(CC) $(CFLAGS) $(LEVEL_CONFIG_HOVER_TEST_SOURCE) $(TEST_SOURCES) -o $(LEVEL_CONFIG_HOVER_TEST_EXEC) \
@@ -182,7 +187,8 @@ app: build
 ############################
 
 clean:
-	rm -rf $(EXEC) $(APP_BUNDLE) $(TEST_EXEC) $(LEVEL_CONFIG_HOVER_TEST_EXEC) operand_change_selection_test
+	rm -rf $(EXEC) $(APP_BUNDLE) $(TUTORIAL_TEXT_TEST_EXEC) $(OPERAND_HIGHLIGHTS_TEST_EXEC) \
+	    $(LEVEL_CONFIG_HOVER_TEST_EXEC) $(OPERAND_CHANGE_SELECTION_TEST_EXEC)
 	find . -type d -name '*.dSYM' -prune -exec rm -rf {} +
 	rm -rf assemblyArchitect*
 	rm -f source/.*.swp

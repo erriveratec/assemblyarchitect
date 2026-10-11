@@ -1,1 +1,7 @@
 .cache/clangd/
+/assemblyArchitect
+/tutorial_text_test
+/operand_highlights_test
+/level_config_hover_test
+/operand_change_selection_test
+/*.dSYM/
