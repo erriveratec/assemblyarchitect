@@ -77,10 +77,16 @@ build:
 run: build
 	./$(EXEC)
 
-test: test-level-config-hover test-operand-highlights
+test: test-level-config-hover test-operand-highlights test-operand-change-selection
 	$(CC) $(CFLAGS) $(TEST_SOURCE) $(TEST_SOURCES) -o $(TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(TEST_EXEC)
+
+test-operand-change-selection:
+	$(CC) $(CFLAGS) tests/operand_change_selection_test.c \
+	    $(filter-out $(S_DIR)/stages.c,$(TEST_SOURCES)) -o operand_change_selection_test \
+	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
+	./operand_change_selection_test
 
 test-operand-highlights:
 	$(CC) $(CFLAGS) $(OPERAND_TEST_SOURCE) $(TEST_SOURCES) -o $(OPERAND_TEST_EXEC) \
@@ -176,7 +182,7 @@ app: build
 ############################
 
 clean:
-	rm -rf $(EXEC) $(APP_BUNDLE) $(TEST_EXEC) $(LEVEL_CONFIG_HOVER_TEST_EXEC)
+	rm -rf $(EXEC) $(APP_BUNDLE) $(TEST_EXEC) $(LEVEL_CONFIG_HOVER_TEST_EXEC) operand_change_selection_test
 	find . -type d -name '*.dSYM' -prune -exec rm -rf {} +
 	rm -rf assemblyArchitect*
 	rm -f source/.*.swp

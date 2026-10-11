@@ -2368,32 +2368,35 @@ bool cw_is_operand_pending()
 
 /* Function: get_line_pending_operand
  * -----------------------------------------------------------------------------
- * This returns a pointer to the first code line that has a missing operand
+ * Returns the first changing line, or the first missing line if none is changing.
  *
  * Arguments:
  * 	none.
  *	
  * Return:
- * 	pointer to the code line that has the missing operand, or NULL if line is
- *	not found (should not be the case).
+ * 	pointer to the active pending code line, or NULL if none is found.
  *
  */
 code_line_t *cw_get_code_line_pending_operand()
 {
 	List *code = get_code_list();
 	assert(NULL != code && "The code list cannot be NULL");
-	code_line_t *ret = NULL;
 
 	LIST_FOREACH(code, first, next, cur){
 		code_line_t *c = cur->value;
 		int s = c->state;
-		if (MISSING_BOTH == s || MISSING_OP1 == s || MISSING_OP2 == s ||
-			CHANGING_OP1 == s || CHANGING_OP2 == s){
-			ret = c;
-			break;
+		if (CHANGING_OP1 == s || CHANGING_OP2 == s){
+			return c;
 		}
 	}
-	return ret;
+	for (ListNode *current = code->first; current != NULL; current = current->next){
+		code_line_t *c = current->value;
+		int s = c->state;
+		if (MISSING_BOTH == s || MISSING_OP1 == s || MISSING_OP2 == s){
+			return c;
+		}
+	}
+	return NULL;
 }
 
 
@@ -2596,39 +2599,80 @@ void cw_change_clicked_code_line_state()
 {
 	List *code = get_code_list();
 	assert(NULL != code && "The code pointer cannot be NULL");
-	LIST_FOREACH(code, first, next, cur){ 
-		
+	code_line_t *selected_line = NULL;
+	int selected_operand = NO_OPERAND;
+	LIST_FOREACH(code, first, next, cur){
 		code_line_t *c = cur->value;
-		if (c->ins->id != LABEL && cl_is_ins_jmp_type(c->ins->id) == false){
-			if (c->op1 != NULL){
-				if (bt_chk_rel_btn(c->op1->b, NULL) == true){
-					c->state = CHANGING_OP1;
-					c->op1->b->animated = true;
-					c->op1->b->anim_dir = false;
-					break;
-				}
-			} 
-			if (c->op2 != NULL){
-				if (bt_chk_rel_btn(c->op2->b, NULL) == true){
-					c->state = CHANGING_OP2;
-					c->op2->b->animated = true;
-					c->op2->b->anim_dir = false;
-					break;
-				}
-			}
-		} 
-		else if (cl_is_ins_jmp_type(c->ins->id) == true){
-			if (c->op1 != NULL){
-				if (bt_chk_rel_btn(c->op1->b, NULL) == true){
-					c->state = CHANGING_OP1;
-					c->op1->b->animated = true;
-					c->op1->b->anim_dir = false;
-					c->op1->jptr->op1->b->animated = true;
-					c->op1->jptr->op1->b->anim_dir = false;
-					break;
-				}
-			}
+		if (c == NULL || c->ins == NULL || c->ins->id == LABEL){
+			continue;
 		}
+		if (c->op1 != NULL && c->op1->b != NULL &&
+			bt_chk_rel_btn(c->op1->b, NULL) == true){
+			selected_line = c;
+			selected_operand = OP1;
+			break;
+		}
+		if (cl_is_ins_jmp_type(c->ins->id) == false &&
+			c->op2 != NULL && c->op2->b != NULL &&
+			bt_chk_rel_btn(c->op2->b, NULL) == true){
+			selected_line = c;
+			selected_operand = OP2;
+			break;
+		}
+	}
+	if (selected_line == NULL){
+		return;
+	}
+
+	for (ListNode *current = code->first; current != NULL; current = current->next){
+		code_line_t *c = current->value;
+		if (c == NULL || c->ins == NULL ||
+			(c->state != CHANGING_OP1 && c->state != CHANGING_OP2)){
+			continue;
+		}
+		if (c->op1 != NULL && c->op1->b != NULL){
+			c->op1->b->animated = false;
+			c->op1->b->anim_dir = false;
+			c->op1->b->anim_state = 0;
+		}
+		if (c->op2 != NULL && c->op2->b != NULL){
+			c->op2->b->animated = false;
+			c->op2->b->anim_dir = false;
+			c->op2->b->anim_state = 0;
+		}
+		if (cl_is_ins_jmp_type(c->ins->id) == true && c->op1 != NULL &&
+			c->op1->jptr != NULL && c->op1->jptr->op1 != NULL &&
+			c->op1->jptr->op1->b != NULL){
+			c->op1->jptr->op1->b->animated = false;
+			c->op1->jptr->op1->b->anim_dir = false;
+			c->op1->jptr->op1->b->anim_state = 0;
+		}
+
+		int qty = cl_get_instruction_operand_quantity(c->ins->id);
+		if (qty == TWO_OPERANDS && c->op1 == NULL && c->op2 == NULL){
+			c->state = MISSING_BOTH;
+		} else if (qty != ZERO_OPERANDS && c->op1 == NULL){
+			c->state = MISSING_OP1;
+		} else if (qty == TWO_OPERANDS && c->op2 == NULL){
+			c->state = MISSING_OP2;
+		} else {
+			c->state = COMPLETE;
+		}
+	}
+
+	btn_t *selected_button = selected_operand == OP1 ?
+		selected_line->op1->b : selected_line->op2->b;
+	selected_line->state = selected_operand == OP1 ? CHANGING_OP1 : CHANGING_OP2;
+	selected_button->animated = true;
+	selected_button->anim_dir = false;
+	selected_button->anim_state = 0;
+	if (cl_is_ins_jmp_type(selected_line->ins->id) == true &&
+		selected_line->op1 != NULL && selected_line->op1->jptr != NULL &&
+		selected_line->op1->jptr->op1 != NULL &&
+		selected_line->op1->jptr->op1->b != NULL){
+		selected_line->op1->jptr->op1->b->animated = true;
+		selected_line->op1->jptr->op1->b->anim_dir = false;
+		selected_line->op1->jptr->op1->b->anim_state = 0;
 	}
 }
 
