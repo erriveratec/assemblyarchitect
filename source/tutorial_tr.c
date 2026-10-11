@@ -14,6 +14,7 @@
 #include "instruction_window_iw.h"
 #include "mouse_ms.h"
 #include "registers_rg.h"
+#include "stage_buttons_sb.h"
 #include "text_tx.h"
 #include "tutorial_tr.h"
 #include "tutorial_tr_internal.h"
@@ -125,6 +126,8 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 		                               false, false);
 		rg_set_register_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 		im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
+		sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, STEP, false);
+		sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, FAST, false);
 		iw_set_highlight_instructions(0);
 		g_current_step = NULL;
 		return NULL;
@@ -139,6 +142,8 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 		                               false, false);
 		rg_set_register_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 		im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
+		sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, STEP, false);
+		sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, FAST, false);
 		iw_set_highlight_instructions(0);
 		g_current_step = NULL;
 		return NULL;
@@ -157,6 +162,12 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 	im_set_highlight_source(
 	    UI_HIGHLIGHT_SOURCE_TUTORIAL,
 	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_IMMEDIATES) != 0);
+	sb_set_highlight_source(
+	    UI_HIGHLIGHT_SOURCE_TUTORIAL, STEP,
+	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_STEP) != 0);
+	sb_set_highlight_source(
+	    UI_HIGHLIGHT_SOURCE_TUTORIAL, FAST,
+	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_FAST) != 0);
 	iw_set_highlight_instructions(step->highlight_instruction_mask);
 
 	if (step != g_current_step) {
@@ -236,6 +247,10 @@ bool tr_parse_highlights(char *text, int *targets)
 			*targets |= TUTORIAL_HIGHLIGHT_REGISTERS;
 		} else if (strcmp(highlight, "immediate") == 0) {
 			*targets |= TUTORIAL_HIGHLIGHT_IMMEDIATES;
+		} else if (strcmp(highlight, "step") == 0) {
+			*targets |= TUTORIAL_HIGHLIGHT_STEP;
+		} else if (strcmp(highlight, "fast") == 0) {
+			*targets |= TUTORIAL_HIGHLIGHT_FAST;
 		} else {
 			return false;
 		}
@@ -551,6 +566,8 @@ void tr_clear(void)
 	bf_set_buffer_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false, false);
 	rg_set_register_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
+	sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, STEP, false);
+	sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, FAST, false);
 	iw_set_highlight_instructions(0);
 	for (int index = 0; index < g_step_count; index++) {
 		tx_free_styled_text(g_steps[index].text_message);

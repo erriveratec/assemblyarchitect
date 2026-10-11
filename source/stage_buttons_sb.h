@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "draw_dw.h"
+#include "gameplay/ui_highlight_source.h"
 
 enum stage_buttons_e {
 	INVALID,
@@ -25,8 +26,14 @@ void sb_draw_ret_btn();
 void sb_init_ret_btn();
 
 void sb_init_stage_btns();
-void sb_draw_stage_btns(int code_size);
+void sb_draw_stage_btns(int code_size, float animation_limit);
 void sb_handle_screen_resize();
+void sb_set_highlight_source(ui_highlight_source_t source,
+							int button_id,
+							bool enabled);
+bool sb_get_button_highlight_progress(int button_id,
+									  float *progress,
+									  float animation_limit);
 bool sb_chk_click_stage_btn();
 int identify_clicked_stage_button();
 bool sb_chck_rel_ret_btn();

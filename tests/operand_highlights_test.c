@@ -20,6 +20,7 @@
 #include "registers_rg.h"
 #include "ui/button_bt.h"
 #include "sdl_config.h"
+#include "stage_buttons_sb.h"
 #include "tutorial_tr.h"
 #include "tutorial_tr_internal.h"
 #include "ui/typography_ty.h"
@@ -203,6 +204,32 @@ static void test_disabled_highlighting_clears_availability(void)
 
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 	assert(!im_are_immediates_highlighted());
+}
+
+static void test_stage_button_highlight_sources(void)
+{
+	float progress = 0.0f;
+	float animation_limit = (float)dw_get_animation_limit();
+	sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, STEP, false);
+	sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, FAST, false);
+	sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, STEP, false);
+	sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, FAST, false);
+
+	sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, STEP, true);
+	assert(sb_get_button_highlight_progress(STEP, &progress, animation_limit));
+	assert(!sb_get_button_highlight_progress(FAST, &progress, animation_limit));
+
+	sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, FAST, true);
+	assert(sb_get_button_highlight_progress(STEP, &progress, animation_limit));
+	assert(sb_get_button_highlight_progress(FAST, &progress, animation_limit));
+
+	sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, FAST, true);
+	sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, STEP, false);
+	sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, FAST, false);
+	assert(!sb_get_button_highlight_progress(STEP, &progress, animation_limit));
+	assert(sb_get_button_highlight_progress(FAST, &progress, animation_limit));
+	sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, FAST, false);
+	assert(!sb_get_button_highlight_progress(FAST, &progress, animation_limit));
 }
 
 static void test_tutorial_highlight_parsing(void)
@@ -463,6 +490,7 @@ int main(void)
 	test_operand_availability();
 	test_highlight_source_composition();
 	test_disabled_highlighting_clears_availability();
+	test_stage_button_highlight_sources();
 	test_operand_highlight_configuration();
 	test_tutorial_highlight_parsing();
 	test_layout_invariants();

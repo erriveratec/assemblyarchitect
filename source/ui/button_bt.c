@@ -336,9 +336,17 @@ static void draw_btn_scaled_texture(SDL_Rect box, iface_btn_t *b)
 int bt_draw_iface_btn(iface_btn_t *b, bool blk, Mix_Chunk *hover_sound)
 {
 	assert(b != NULL && "The button pointer is NULL");
+	return bt_draw_iface_btn_at_rect(b, b->r, blk, hover_sound);
+}
+
+int bt_draw_iface_btn_at_rect(iface_btn_t *b,
+							  SDL_Rect draw_rect,
+							  bool blk,
+							  Mix_Chunk *hover_sound)
+{
+	assert(b != NULL && "The button pointer is NULL");
 	int status = BTN_NONE;	
-	
-	SDL_Rect box = b->r;
+	SDL_Rect box = draw_rect;
  	bool hover = bt_chk_hover_iface_btn(b);
 	bool clicked = bt_chk_mouse_click_iface_btn(b);
 	int offset = get_w_iface_space_border();
@@ -365,7 +373,7 @@ int bt_draw_iface_btn(iface_btn_t *b, bool blk, Mix_Chunk *hover_sound)
 
 	if (b->enabled == false){
 		dw_draw_filled_rectangle(box, C_BLACK, C_GREY);
-		SDL_Rect in = ax_pad_rectangle(b->r, offset, true);
+		SDL_Rect in = ax_pad_rectangle(box, offset, true);
 		dw_draw_rectangle(in, C_GREY);
 		draw_btn_scaled_texture(box, b);
 	} else if (clicked == true && blk == false){

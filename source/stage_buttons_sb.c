@@ -29,6 +29,12 @@ static int get_hidden_stage_buttons_y(void)
 
 bool g_step_btns_avail = true;
 static bool g_stage_buttons_visible = false;
+static unsigned int g_step_highlight_sources;
+static unsigned int g_fast_highlight_sources;
+static bool g_stage_button_highlight;
+static bool g_stage_button_highlight_rendered;
+static dw_pulse_t g_stage_button_pulse;
+static float g_stage_button_highlight_value;
 
 texture_t *stop_button = NULL;
 texture_t *fast_button = NULL;
@@ -49,6 +55,35 @@ static SDL_Rect get_rst_btn_box();
 static int get_ofs_space_stage_buttons();
 static SDL_Rect get_rst_b1_box();
 static SDL_Rect get_rst_b2_box();
+
+static SDL_Rect get_highlighted_button_rect(SDL_Rect rect)
+{
+	int growth = (int)(g_stage_button_highlight_value *
+	                   DW_TEXT_HIGHLIGHT_GROWTH_FACTOR);
+	SDL_Rect highlighted = {
+		.w = (int)(rect.w * (float)(rect.h + growth) / rect.h),
+		.h = rect.h + growth
+	};
+	highlighted.x = rect.x - (highlighted.w - rect.w) / 2;
+	highlighted.y = rect.y - (highlighted.h - rect.h) / 2;
+	return highlighted;
+}
+
+static void draw_stage_button(iface_btn_t *button,
+							  int button_id,
+							  bool blocked,
+							  Mix_Chunk *hover_sound)
+{
+	if ((button_id == STEP &&
+	     (g_step_highlight_sources != 0)) ||
+	    (button_id == FAST && g_fast_highlight_sources != 0)) {
+		bt_draw_iface_btn_at_rect(button,
+		                          get_highlighted_button_rect(button->r),
+		                          blocked, hover_sound);
+		return;
+	}
+	bt_draw_iface_btn(button, blocked, hover_sound);
+}
 
 /* Function: sb_get_escape_state
  * ----------------------------------------------------------------------------
@@ -302,15 +337,61 @@ void sb_handle_screen_resize()
  * Return:
  *	Void.
  */
-void sb_draw_stage_btns(int code_size)
+void sb_draw_stage_btns(int code_size, float animation_limit)
 {
 	adjust_stage_buttons_position(code_size);
+	g_stage_button_highlight = g_step_highlight_sources != 0 ||
+	                           g_fast_highlight_sources != 0;
+	if (g_stage_button_highlight != g_stage_button_highlight_rendered) {
+		dw_pulse_reset(&g_stage_button_pulse);
+		g_stage_button_highlight_rendered = g_stage_button_highlight;
+	}
+	g_stage_button_highlight_value = g_stage_button_highlight ?
+		dw_pulse_value(&g_stage_button_pulse, animation_limit) : 0.0f;
 	bt_draw_iface_btn(stop, sb_chk_rst_esc_menu_active(), g_sfx_iface_hover);
 	bt_draw_iface_btn(play, sb_chk_rst_esc_menu_active(), g_sfx_iface_hover);
 	if (g_step_btns_avail == true){
-		bt_draw_iface_btn(fast, sb_chk_rst_esc_menu_active(), g_sfx_iface_hover);
-		bt_draw_iface_btn(step, sb_chk_rst_esc_menu_active(), g_sfx_iface_hover);
+		draw_stage_button(fast, FAST, sb_chk_rst_esc_menu_active(),
+		                  g_sfx_iface_hover);
+		draw_stage_button(step, STEP, sb_chk_rst_esc_menu_active(),
+		                  g_sfx_iface_hover);
 	}
+	if (g_stage_button_highlight) {
+		dw_pulse_advance(&g_stage_button_pulse, animation_limit);
+	}
+}
+
+void sb_set_highlight_source(ui_highlight_source_t source,
+							int button_id,
+							bool enabled)
+{
+	switch (button_id) {
+	case STEP:
+		g_step_highlight_sources = ui_highlight_source_set_enabled(
+		    g_step_highlight_sources, source, enabled);
+		break;
+	case FAST:
+		g_fast_highlight_sources = ui_highlight_source_set_enabled(
+		    g_fast_highlight_sources, source, enabled);
+		break;
+	default:
+		break;
+	}
+}
+
+bool sb_get_button_highlight_progress(int button_id,
+									  float *progress,
+									  float animation_limit)
+{
+	bool highlighted = button_id == STEP ? g_step_highlight_sources != 0 :
+	                    button_id == FAST ? g_fast_highlight_sources != 0 :
+	                    false;
+	if (progress == NULL || !highlighted || animation_limit <= 0.0f) {
+		return false;
+	}
+	*progress = dw_pulse_progress(g_stage_button_highlight_value,
+	                              animation_limit);
+	return true;
 }
 
 /* Function: sb_draw_rst_btn

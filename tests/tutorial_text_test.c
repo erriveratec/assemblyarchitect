@@ -13,6 +13,8 @@
 #include "aux.h"
 #include "sdl_config.h"
 #include "text_tx.h"
+#include "tutorial_tr.h"
+#include "tutorial_tr_internal.h"
 
 static tx_text_box_options_t g_options = {
 	.position = TX_CENTER_BOX,
@@ -270,6 +272,48 @@ static void test_blank_wrap_and_overflow(void)
 	tx_free_styled_text(overflow);
 }
 
+static void test_execution_control_highlights(void)
+{
+	int targets = 0;
+	char step_highlight[] = "step";
+	assert(tr_parse_highlights(step_highlight, &targets));
+	assert(targets == TUTORIAL_HIGHLIGHT_STEP);
+
+	char fast_highlight[] = "fast";
+	assert(tr_parse_highlights(fast_highlight, &targets));
+	assert(targets == TUTORIAL_HIGHLIGHT_FAST);
+
+	char both_highlights[] = "step,fast";
+	assert(tr_parse_highlights(both_highlights, &targets));
+	assert(targets == (TUTORIAL_HIGHLIGHT_STEP | TUTORIAL_HIGHLIGHT_FAST));
+
+	char mixed_highlights[] = "register, step, fast";
+	assert(tr_parse_highlights(mixed_highlights, &targets));
+	assert(targets == (TUTORIAL_HIGHLIGHT_REGISTERS |
+	                   TUTORIAL_HIGHLIGHT_STEP |
+	                   TUTORIAL_HIGHLIGHT_FAST));
+
+	char unknown_step[] = "steps";
+	assert(!tr_parse_highlights(unknown_step, &targets));
+	char unknown_fast[] = "fas";
+	assert(!tr_parse_highlights(unknown_fast, &targets));
+
+	assert(tr_load_level(4));
+	const tutorial_step_t *step =
+	    tr_get_named_step("introduce_execution_controls");
+	assert(step != NULL);
+	assert(step->highlight_targets & TUTORIAL_HIGHLIGHT_STEP);
+	assert(step->highlight_targets & TUTORIAL_HIGHLIGHT_FAST);
+	assert(step->arrow_count == 0);
+	assert(step->box == TUTORIAL_BOX_CENTER);
+	assert(step->header == TUTORIAL_HEADER_SYSTEM_NOTICE);
+	assert(step->dismiss == TUTORIAL_DISMISS_MOUSE_PRESS);
+	assert(step->when_code_size == 1);
+	assert(step->when_operand_pending == 0);
+	assert(step->text_message != NULL);
+	tr_clear();
+}
+
 int main(void)
 {
 	assert(SDL_Init(0) == 0);
@@ -284,6 +328,7 @@ int main(void)
 	g_font = TTF_OpenFont("fonts/DOSVGA437.ttf", 130);
 	assert(g_font != NULL);
 
+	test_execution_control_highlights();
 	test_inline_styles();
 	test_token_boundaries();
 	test_blank_wrap_and_overflow();

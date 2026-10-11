@@ -46,6 +46,10 @@ void bt_destroy_button(btn_t *b);
 iface_btn_t *bt_create_iface_btn(SDL_Rect r, texture_t *t, bool enabled);
 
 int bt_draw_iface_btn(iface_btn_t *b, bool blk, Mix_Chunk *hover_sound);
+int bt_draw_iface_btn_at_rect(iface_btn_t *b,
+							  SDL_Rect draw_rect,
+							  bool blk,
+							  Mix_Chunk *hover_sound);
 void bt_draw_iface_btn_nopad(iface_btn_t *b);
 bool bt_chk_mouse_click_iface_btn(iface_btn_t *button);
 bool bt_chk_rel_iface_btn(iface_btn_t *button, Mix_Chunk *rel_sound);

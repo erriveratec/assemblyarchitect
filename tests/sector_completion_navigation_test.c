@@ -117,7 +117,7 @@ static void test_forbid_save(int player_id, int level_id);
 #define lv_set_hold_line(line) ((void)0)
 #define lv_prepare_level_frame(level_id, operation_id) ((void)0)
 #define lv_level_drawings(level_id) ((void)0)
-#define sb_draw_stage_btns(size) ((void)0)
+#define sb_draw_stage_btns(size, animation_limit) ((void)0)
 #define sb_draw_ret_btn() ((void)0)
 #define sb_draw_rst_btn() ((void)0)
 #define im_draw_imm(limit) ((void)0)

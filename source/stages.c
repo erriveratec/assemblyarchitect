@@ -198,7 +198,7 @@ void stage_drawings(int level, int operation_id)
 	iw_draw_ins_box();
 	cw_draw_code_window();
 	float animation_limit = cw_get_challenge_highlight_limit();
-	sb_draw_stage_btns(cw_get_code_list_size());
+	sb_draw_stage_btns(cw_get_code_list_size(), animation_limit);
 	im_draw_imm(animation_limit);
 	ar_display_arrow(AR_EXEC, animation_limit);
 	bf_draw_buffers(animation_limit);
