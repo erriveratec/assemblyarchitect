@@ -559,29 +559,45 @@ static void reset_level(int level_id, level_flags_t *flags)
 
 /* Function: get_sector_id
  * ----------------------------------------------------------------------------
- * Returns the sector select id based on which level the player is in
+ * Returns the sector selection state containing the level
  *
  * Arguments:
  * 	level_id: the level that the player is playing
  *
  * Return:
- *	void.
+ *	The LV_SECTOR_* screen/state containing level_id.
  */
 static int get_sector_id(int level_id)
 {
-	int ret_screen = LV_SELECT_SECTOR;
+	assert(level_id >= 0 && level_id < LV_LEVEL_MAX);
+
 	if (level_id < LV_SECTOR_1_START) {
-		ret_screen = LV_SECTOR_0;
-	} else if (level_id < LV_SECTOR_2_START && level_id >= LV_SECTOR_1_START) {
-		ret_screen = LV_SECTOR_1;
-	} else if (level_id < LV_SECTOR_2_START && level_id >= LV_SECTOR_1_START) {
-		ret_screen = LV_SECTOR_1;
-	} else if (level_id < LV_SECTOR_4_START && level_id >= LV_SECTOR_3_START) {
-		ret_screen = LV_SECTOR_3;
-	} else if (level_id >= LV_SECTOR_4_START) {
-		ret_screen = LV_SECTOR_4;
+		return LV_SECTOR_0;
 	}
-	return ret_screen;
+
+	if (level_id < LV_SECTOR_2_START) {
+		return LV_SECTOR_1;
+	}
+
+	if (level_id < LV_SECTOR_3_START) {
+		return LV_SECTOR_2;
+	}
+
+	if (level_id < LV_SECTOR_4_START) {
+		return LV_SECTOR_3;
+	}
+
+	return LV_SECTOR_4;
+}
+
+static int get_post_level_destination(int level_id, bool continued_after_win)
+{
+	if (continued_after_win &&
+	    (level_id == LV_LEVEL_MAX - 1 ||
+	     get_sector_id(level_id) != get_sector_id(level_id + 1))) {
+		return LV_SELECT_SECTOR;
+	}
+	return get_sector_id(level_id);
 }
 
 int stage_level(int level_id)
@@ -622,11 +638,12 @@ int stage_level(int level_id)
 	rst_btn_hdl(level_id, &flags);
 	int operation_id = mc_get_operation_flag();
 	run_result_action_t result_action = rr_update(operation_id);
+	bool continued_after_win =
+	    operation_id == MC_WIN && result_action == RUN_RESULT_ACTION_CONTINUE;
 	if (result_action == RUN_RESULT_ACTION_BACK) {
 		reset_level(level_id, &flags);
 		flags.play = false;
-	} else if (operation_id == MC_WIN &&
-	           result_action == RUN_RESULT_ACTION_CONTINUE) {
+	} else if (continued_after_win) {
 		rr_reset_state();
 		back_to_level_selection = true;
 	}
@@ -657,17 +674,20 @@ int stage_level(int level_id)
 	int op_flag = mc_get_operation_flag();
 	if (op_flag != NO_OPERATION && op_flag != MC_WIN) {
 		flags.play = false;
-	} else if (mc_get_run_ended() == true && flags.step_fst == true &&
+	} else if (op_flag == NO_OPERATION && mc_get_run_ended() == true &&
+	           flags.step_fst == true &&
 	           wc_is_satisfied() == true) {
 		mc_set_operation_flag(MC_WIN);
 		bf_set_win_condition();
 		flags.play          = false;
-		fl_enable_next_level(g_player, level_id + 1);
+		if (level_id + 1 < LV_LEVEL_MAX) {
+			fl_enable_next_level(g_player, level_id + 1);
+		}
 	}
 
 	if (back_to_level_selection == true) {
 		rr_reset_state();
-		ret_val = get_sector_id(level_id);
+		ret_val = get_post_level_destination(level_id, continued_after_win);
 		reset_level(level_id, &flags);
 		destroy_level(&flags);
 		electron_init = false;

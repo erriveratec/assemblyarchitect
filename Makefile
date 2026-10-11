@@ -22,6 +22,8 @@ LEVEL_CONFIG_HOVER_TEST_EXEC = level_config_hover_test
 LEVEL_CONFIG_HOVER_TEST_SOURCE = tests/level_config_hover_test.c
 OPERAND_CHANGE_SELECTION_TEST_EXEC = operand_change_selection_test
 OPERAND_CHANGE_SELECTION_TEST_SOURCE = tests/operand_change_selection_test.c
+SECTOR_COMPLETION_NAVIGATION_TEST_EXEC = sector_completion_navigation_test
+SECTOR_COMPLETION_NAVIGATION_TEST_SOURCE = tests/sector_completion_navigation_test.c
 
  
 ############################
@@ -80,7 +82,13 @@ build:
 run: build
 	./$(EXEC)
 
-test: test-level-config-hover test-operand-highlights test-operand-change-selection test-tutorial-text
+test: test-level-config-hover test-operand-highlights test-operand-change-selection test-tutorial-text test-sector-completion-navigation
+
+test-sector-completion-navigation:
+	$(CC) $(CFLAGS) $(SECTOR_COMPLETION_NAVIGATION_TEST_SOURCE) \
+	    $(filter-out $(S_DIR)/stages.c,$(TEST_SOURCES)) -o $(SECTOR_COMPLETION_NAVIGATION_TEST_EXEC) \
+	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
+	./$(SECTOR_COMPLETION_NAVIGATION_TEST_EXEC)
 
 test-tutorial-text:
 	$(CC) $(CFLAGS) $(TUTORIAL_TEXT_TEST_SOURCE) $(TEST_SOURCES) -o $(TUTORIAL_TEXT_TEST_EXEC) \
@@ -188,7 +196,8 @@ app: build
 
 clean:
 	rm -rf $(EXEC) $(APP_BUNDLE) $(TUTORIAL_TEXT_TEST_EXEC) $(OPERAND_HIGHLIGHTS_TEST_EXEC) \
-	    $(LEVEL_CONFIG_HOVER_TEST_EXEC) $(OPERAND_CHANGE_SELECTION_TEST_EXEC)
+	    $(LEVEL_CONFIG_HOVER_TEST_EXEC) $(OPERAND_CHANGE_SELECTION_TEST_EXEC) \
+	    $(SECTOR_COMPLETION_NAVIGATION_TEST_EXEC)
 	find . -type d -name '*.dSYM' -prune -exec rm -rf {} +
 	rm -rf assemblyArchitect*
 	rm -f source/.*.swp
