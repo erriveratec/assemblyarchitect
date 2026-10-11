@@ -5,71 +5,122 @@ id = 3
 [level 00]
 unlocked = true
 code_begin
+MOV rax, [ib]
+MOV [ob], rax
 code_end
 
 [level 01]
 unlocked = true
 code_begin
+MOV rax, [ib]
 MOV [ob], rax
-MOV rax, rax
-MOV rax, rax
 code_end
 
 [level 02]
 unlocked = true
 code_begin
+MOV rax, [ib]
+MOV [ob], rax
+MOV [ob], rax
+MOV [ob], rax
 code_end
 
 [level 03]
-unlocked = false
+unlocked = true
 code_begin
-code_end
-
-[level 04]
-unlocked = false
-code_begin
-code_end
-
-[level 05]
-unlocked = false
-code_begin
-code_end
-
-[level 06]
-unlocked = false
-code_begin
-code_end
-
-[level 07]
-unlocked = false
-code_begin
-code_end
-
-[level 08]
-unlocked = false
-code_begin
+MOV rax, [ib]
+MOV [ob], rax
+MOV rax, [ib]
+MOV [ob], rax
 MOV rax, [ib]
 MOV [ob], rax
 code_end
 
-[level 09]
-unlocked = false
+[level 04]
+unlocked = true
 code_begin
+MOV rax, [ib]
+MOV rbx, [ib]
+MOV rcx, [ib]
+MOV [ob], rcx
+MOV [ob], rbx
+MOV [ob], rax
+code_end
+
+[level 05]
+unlocked = true
+code_begin
+MOV rax, [ib]
+ADD rax, [ib]
+MOV [ob], rax
+MOV rax, [ib]
+ADD rax, [ib]
+MOV [ob], rax
+code_end
+
+[level 06]
+unlocked = true
+code_begin
+MOV rax, [ib]
+ADD rax, rax
+MOV [ob], rax
+code_end
+
+[level 07]
+unlocked = true
+code_begin
+MOV rax, [ib]
+ADD rax, rax
+ADD rax, rax
+MOV [ob], rax
+code_end
+
+[level 08]
+unlocked = true
+code_begin
+line 01
+MOV rax, [ib]
+MOV [ob], rax
+JMP 00
+code_end
+
+[level 09]
+unlocked = true
+code_begin
+line 01
+MOV rax, [ib]
+ADD rax, [ib]
+ADD rax, [ib]
+MOV [ob], rax
+JMP 00
 code_end
 
 [level 10]
-unlocked = false
+unlocked = true
 code_begin
+line 01
+MOV rax, [ib]
+ADD rax, IMMUP5
+MOV [ob], rax
+JMP 00
 code_end
 
 [level 11]
-unlocked = false
+unlocked = true
 code_begin
+line 01
+MOV rax, [ib]
+ADD rax, [ib]
+MOV [ob], rax
+MOV rbx, IMMUP0
+MOV [ob], rbx
+JMP 00
 code_end
 
 [level 12]
-unlocked = false
+unlocked = true
 code_begin
+MOV rax, [ib]
 code_end
 
 [level 13]
