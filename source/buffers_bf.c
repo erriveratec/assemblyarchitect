@@ -6,6 +6,7 @@
 #include <time.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "draw_dw.h"
 #include "list.h"
 #include "dbg.h"
@@ -16,6 +17,7 @@
 #include "stage_buttons_sb.h"
 #include "ui/typography_ty.h"
 
+/* Compile-time configuration and constants */
 // The posible types of input values
 #define WHOLE 0
 #define ASCII 1
@@ -34,10 +36,101 @@
 #define INPUT_BUFFER_TEXT "Input Buffer [ib]"
 #define OUTPUT_BUFFER_TEXT "Output Buffer [ob]"
 #define OUTPUT_BUFFER_WIN_X 10000
+
 static const int BUFFER_X = 1400;
 static const int BUFFER_WIDTH = 1000;
 static const int BUFFER_HEIGHT = 75;
 
+/* Private types */
+typedef struct buffer_animation_t {
+	bool active;
+	bool boxes_active;
+	float growth;
+} buffer_animation_t;
+
+typedef struct buffer_render_layout_t {
+	SDL_Rect body;
+	SDL_Rect label;
+	SDL_Rect hit_box;
+	SDL_FRect animated_body;
+	buffer_animation_t animation;
+} buffer_render_layout_t;
+
+/* Private module state */
+input_properties_t g_ip;
+
+int g_input_list_type = NOT_ASSIGNED;  
+int g_input_buffer_size = DEFAULT_BUFFER_SIZE;
+
+texture_t *input_text; 
+texture_t *output_text;
+
+SDL_Rect input_box;
+SDL_Rect output_box;
+
+static List *input_list = NULL;
+static List *output_list = NULL;
+static bool g_input_buffer_highlight;
+static bool g_output_buffer_highlight;
+static unsigned int g_input_buffer_highlight_sources;
+static unsigned int g_output_buffer_highlight_sources;
+static bool g_buffer_highlight_rendered;
+static dw_pulse_t g_buffer_pulse;
+static float g_buffer_highlight_value;
+
+btn_t input_buffer_button;
+btn_t output_buffer_button;
+
+operand_t *input_buffer = NULL;
+operand_t *output_buffer = NULL;
+
+static bool g_win_condition;
+
+
+static int g_input_list_x_pos;
+static int g_output_list_x_pos;
+
+/* Private function declarations */
+static void add_input_to_list(int value, int type);
+static void draw_output_buffer(void);
+static void draw_input_buffer(void);
+static bool check_win_condition(void);
+static void destroy_input_list(void);
+static void destroy_output_list(void);
+static void bf_create_natural_input_list(int size);
+static void bf_create_natural_force_input_list(void);
+static void bf_create_natural_increase_input_list(void);
+static bool get_buffer_highlight_progress(bool highlighted, float *progress,
+										  float animation_limit);
+static SDL_Rect get_visible_horizontal_rect(SDL_Rect rect);
+static void center_label_on_visible_buffer(SDL_Rect *label_box,
+										  SDL_Rect buffer_box);
+static buffer_animation_t get_buffer_animation(SDL_Rect *label_box,
+										 texture_t *label,
+										 bool highlighted);
+static buffer_render_layout_t prepare_buffer_render_layout(
+	SDL_Rect body, SDL_Rect label_anchor, SDL_Rect hit_box,
+	texture_t *label, bool highlighted);
+static SDL_FRect transform_buffer_rect(SDL_Rect rect,
+									  buffer_animation_t animation);
+static SDL_FRect transform_buffer_body_rect(SDL_Rect body_box,
+										   SDL_Rect label_box,
+										   buffer_animation_t animation);
+static SDL_FRect transform_buffer_content_rect(SDL_Rect rect,
+											  SDL_Rect body_box,
+											  SDL_FRect animated_body,
+											  buffer_animation_t animation);
+static void draw_buffer_label(SDL_Rect label_box, texture_t *label,
+							 SDL_Rect hit_box,
+							 buffer_animation_t animation);
+static void draw_buffer_value_box(vb_value_box_t *value, SDL_Color color,
+								 SDL_Rect body_box,
+								 SDL_FRect animated_body,
+								 buffer_animation_t animation);
+static void draw_buffer_border(SDL_Rect body_box, SDL_FRect animated_body,
+								   buffer_animation_t animation);
+
+/* Public geometry/layout functions */
 SDL_Rect bf_get_input_buffer_bounds(void)
 {
 	SDL_Rect bounds = {
@@ -94,78 +187,8 @@ static int bf_get_value_box_secondary_spacing(void)
 	return bf_get_value_box_spacing() * 3 / 2;
 }
 
-
-input_properties_t g_ip;
-
-int g_input_list_type = NOT_ASSIGNED;  
-int g_input_buffer_size = DEFAULT_BUFFER_SIZE;
-
-texture_t *input_text; 
-texture_t *output_text;
-
-SDL_Rect input_box;
-SDL_Rect output_box;
-
-static List *input_list = NULL;
-static List *output_list = NULL;
-static bool g_input_buffer_highlight;
-static bool g_output_buffer_highlight;
-static unsigned int g_input_buffer_highlight_sources;
-static unsigned int g_output_buffer_highlight_sources;
-static bool g_buffer_highlight_rendered;
-static dw_pulse_t g_buffer_pulse;
-static float g_buffer_highlight_value;
-
-typedef struct buffer_animation_t {
-	bool active;
-	bool boxes_active;
-	float growth;
-} buffer_animation_t;
-
-btn_t input_buffer_button;
-btn_t output_buffer_button;
-
-operand_t *input_buffer = NULL;
-operand_t *output_buffer = NULL;
-
-static bool g_win_condition;
-
-
-static int g_input_list_x_pos;
-static int g_output_list_x_pos;
-void add_input_to_list(int value, int type);
-void draw_output_buffer();
-void draw_input_buffer();
-static bool check_win_condition();
-static void destroy_input_list();
-static void destroy_output_list();
-static void bf_create_natural_input_list(int size);
-static void bf_create_natural_force_input_list();
-static void bf_create_natural_increase_input_list();
-static bool get_buffer_highlight_progress(bool highlighted, float *progress,
-										  float animation_limit);
-static buffer_animation_t get_buffer_animation(SDL_Rect *label_box,
-										 texture_t *label,
-										 bool highlighted);
-static SDL_FRect transform_buffer_rect(SDL_Rect rect,
-									  buffer_animation_t animation);
-static SDL_FRect transform_buffer_body_rect(SDL_Rect body_box,
-										   SDL_Rect label_box,
-										   buffer_animation_t animation);
-static SDL_FRect transform_buffer_content_rect(SDL_Rect rect,
-											  SDL_Rect body_box,
-											  SDL_FRect animated_body,
-											  buffer_animation_t animation);
-static void draw_buffer_label(SDL_Rect label_box, texture_t *label,
-							 SDL_Rect hit_box,
-							 buffer_animation_t animation);
-static void draw_buffer_value_box(vb_value_box_t *value, SDL_Color color,
-								 SDL_Rect body_box,
-								 SDL_FRect animated_body,
-								 buffer_animation_t animation);
-
-
-/* Function: iw_init_buf_texture
+/* Initialization */
+/* Function: bf_init_buffer_assets
  *------------------------------------------------------------------------------
  * Creates the instructions texture of the instruction box
  *
@@ -175,7 +198,7 @@ static void draw_buffer_value_box(vb_value_box_t *value, SDL_Color color,
  * Return:
  *	Void.
  */
-void bf_init_buffer_assets()
+void bf_init_buffer_assets(void)
 {
 	input_text = dw_create_text_tex(INPUT_BUFFER_TEXT, C_WHITE);
 	output_text = dw_create_text_tex(OUTPUT_BUFFER_TEXT, C_WHITE);
@@ -195,7 +218,7 @@ void bf_init_buffer_assets()
 * Return:
 *	Void.
 */
-void bf_set_win_condition()
+void bf_set_win_condition(void)
 {
 	g_win_condition = true;
 }
@@ -210,7 +233,7 @@ void bf_set_win_condition()
 * Return:
 *	Void.
 */
-void bf_reset_win_condition()
+void bf_reset_win_condition(void)
 {
 	g_win_condition = false;
 }
@@ -225,7 +248,7 @@ void bf_reset_win_condition()
 * Return:
 *	Void.
 */
-static bool check_win_condition()
+static bool check_win_condition(void)
 {
 	return g_win_condition;
 }
@@ -254,7 +277,7 @@ void bf_set_input_properties(input_properties_t ip)
 * Return:
 *	int with the size of the input buffer
 */
-int get_input_buffer_list_size()
+int get_input_buffer_list_size(void)
 {
 	List *list = get_input_list();
 	return List_count(list);
@@ -270,7 +293,7 @@ int get_input_buffer_list_size()
 * Return:
 *	int with the size of the output buffer
 */
-int get_output_buffer_list_size()
+int get_output_buffer_list_size(void)
 {
 	List *list = bf_get_output_list();
 	return List_count(list);
@@ -287,7 +310,7 @@ int get_output_buffer_list_size()
 *	true if the user clicked over an instructions, false if otherwise
 *
 */
-bool bf_ms_rel_in_buf()
+bool bf_ms_rel_in_buf(void)
 {
    	bool selected = false;
 
@@ -343,7 +366,7 @@ operand_t *bf_create_buffer_operand_by_id(int id)
 *	The pointer of the buffer that user selected.
 *
 */
-operand_t *bf_create_sel_buf_op()
+operand_t *bf_create_sel_buf_op(void)
 {
    	operand_t *b = NULL;
 
@@ -374,7 +397,7 @@ operand_t *bf_create_sel_buf_op()
  *	Void.
  *
  */
-void bf_init_buf_ops()
+void bf_init_buf_ops(void)
 {
 	SDL_Rect r = cl_get_code_button_size();
 	
@@ -433,6 +456,7 @@ void bf_set_output_buffer_button(SDL_Rect r)
 
 }
 
+/* Buffer/button configuration and highlight sources */
 void bf_set_buffer_highlight_source(ui_highlight_source_t source,
 									bool input_enabled,
 									bool output_enabled)
@@ -453,7 +477,8 @@ void bf_set_buffer_highlight_source(ui_highlight_source_t source,
  * Return:
  *	Pointer to input list.
  */
-List *get_input_list()
+/* Input/output list access and operations */
+List *get_input_list(void)
 {
 	return input_list;
 }
@@ -466,7 +491,7 @@ List *get_input_list()
  * Return:
  *	Pointer to input list.
  */
-List *bf_get_output_list()
+List *bf_get_output_list(void)
 {
 	return output_list;
 }
@@ -480,7 +505,7 @@ List *bf_get_output_list()
  * Return:
  *	void
  */
-void bf_add_output_to_list()
+void bf_add_output_to_list(void)
 {
 	List *outputs = bf_get_output_list();
 
@@ -516,7 +541,7 @@ error:
  * Return:
  *	void
  */
-void add_input_to_list(int value, int type)
+static void add_input_to_list(int value, int type)
 {
 	List *inputs = get_input_list();
 
@@ -554,7 +579,7 @@ error:
  * Return:
  *	void
  */
-void bf_generate_input_list()
+void bf_generate_input_list(void)
 {
 	if (g_ip.type == NATURAL && g_ip.mod == NONE){
 		bf_create_natural_input_list(g_ip.size);
@@ -575,7 +600,7 @@ void bf_generate_input_list()
  * Return:
  *	void
  */
-static void bf_create_natural_increase_input_list()
+static void bf_create_natural_increase_input_list(void)
 {
 	int list_half = g_ip.size/2;
 	int rng = (rand() % list_half) + NATURAL_NMIN - 2;//Always 2 el at IB
@@ -612,7 +637,7 @@ static void bf_create_natural_increase_input_list()
  * Return:
  *	void
  */
-static void bf_create_natural_force_input_list()
+static void bf_create_natural_force_input_list(void)
 {
 
 	int list_half = g_ip.size/2;
@@ -661,7 +686,7 @@ static void bf_create_natural_input_list(int size)
  *	Void.
  *
  */
-void bf_create_input_list()
+void bf_create_input_list(void)
 {
 	assert(input_list == NULL && "The register list is not NULL");
 	input_list = List_create();
@@ -680,7 +705,7 @@ error:
  *	Void.
  *
  */
-void bf_create_output_list()
+void bf_create_output_list(void)
 {
 	assert(output_list == NULL && "The register list is not NULL");
 	output_list = List_create();
@@ -702,6 +727,8 @@ error:
  * Return:
  *	Void.
  */
+/* Logical buffer geometry and interaction rectangles are configured separately
+ * from the visual label bounds used by rendering. */
 void bf_set_input_box(SDL_Rect r)
 {
 	assert(r.w > 0 && r.h > 0 && "Width and height must be > 0");
@@ -741,6 +768,7 @@ void bf_set_output_box(SDL_Rect r)
  * Return:
  *	Void.
  */
+/* Highlight state, animation, and shared rendering helpers */
 void bf_draw_buffers(float animation_limit)
 {
 	bool highlighted = g_input_buffer_highlight || g_output_buffer_highlight;
@@ -802,6 +830,34 @@ static buffer_animation_t get_buffer_animation(SDL_Rect *label_box,
 	return animation;
 }
 
+static SDL_Rect get_visible_horizontal_rect(SDL_Rect rect)
+{
+	int screen_width = dm_get_screen_width();
+	int64_t left = rect.x > 0 ? rect.x : 0;
+	int64_t right = (int64_t)rect.x + rect.w;
+	if (right > screen_width) {
+		right = screen_width;
+	}
+	if (screen_width <= 0 || rect.w <= 0 || right <= left) {
+		rect.w = 0;
+		return rect;
+	}
+
+	/* left and right are bounded by the screen width and SDL integer range. */
+	rect.x = (int)left;
+	rect.w = (int)(right - left);
+	return rect;
+}
+
+static void center_label_on_visible_buffer(SDL_Rect *label_box,
+										  SDL_Rect buffer_box)
+{
+	SDL_Rect visible_box = get_visible_horizontal_rect(buffer_box);
+	if (visible_box.w > 0) {
+		label_box->x = visible_box.x + (visible_box.w - label_box->w) / 2;
+	}
+}
+
 static SDL_FRect transform_buffer_rect(SDL_Rect rect,
 									  buffer_animation_t animation)
 {
@@ -833,11 +889,28 @@ static SDL_FRect transform_buffer_body_rect(SDL_Rect body_box,
 		y = label_rect.y - gap - height;
 	}
 	return (SDL_FRect){
-		.x = label_rect.x,
+		.x = body_box.x,
 		.y = y,
 		.w = width,
 		.h = height
 	};
+}
+
+static buffer_render_layout_t prepare_buffer_render_layout(
+	SDL_Rect body, SDL_Rect label_anchor, SDL_Rect hit_box,
+	texture_t *label, bool highlighted)
+{
+	buffer_render_layout_t layout = {
+		.body = body,
+		.label = label_anchor,
+		.hit_box = hit_box
+	};
+	layout.animation = get_buffer_animation(&layout.label, label, highlighted);
+	center_label_on_visible_buffer(&layout.label, body);
+	layout.animated_body = layout.animation.boxes_active ?
+		transform_buffer_body_rect(body, layout.label, layout.animation) :
+		(SDL_FRect){.x = body.x, .y = body.y, .w = body.w, .h = body.h};
+	return layout;
 }
 
 static SDL_FRect transform_buffer_content_rect(SDL_Rect rect,
@@ -905,6 +978,17 @@ static void draw_buffer_value_box(vb_value_box_t *value, SDL_Color color,
 	    text_box, body_box, animated_body, animation), value->t);
 }
 
+static void draw_buffer_border(SDL_Rect body_box, SDL_FRect animated_body,
+								   buffer_animation_t animation)
+{
+	if (animation.boxes_active) {
+		dw_draw_rectangle_f(animated_body, C_WHITE);
+	} else {
+		dw_draw_rectangle(body_box, C_WHITE);
+	}
+}
+
+/* Input/output rendering entry points */
 /* Function: draw_output_buffer
  *------------------------------------------------------------------------------
  * This function draws the corresponding to the output buffer
@@ -915,55 +999,46 @@ static void draw_buffer_value_box(vb_value_box_t *value, SDL_Color color,
  * Return:
  *	Void.
  */
-void draw_output_buffer()
+static void draw_output_buffer(void)
 {
 	List *outputs = bf_get_output_list();
 	check_mem(outputs);
-	int	list_size = List_count(outputs);
+	int output_count = List_count(outputs);
 
 	int x;
 	int ofs = bf_get_value_box_spacing();
 	int ofsval = bf_get_value_box_secondary_spacing();
-	SDL_Rect val =  vb_get_size();
-	SDL_Rect output_label = {.x = output_box.x,
-						 .y = output_box.y + output_box.h,
-						 .w = 0,
-						 .h = ty_code_height()};
-	buffer_animation_t animation = get_buffer_animation(
-	    &output_label, output_text, g_output_buffer_highlight);
-	SDL_FRect animated_output_box = animation.boxes_active ?
-	    transform_buffer_body_rect(output_box, output_label, animation) :
-	    (SDL_FRect){.x = output_box.x, .y = output_box.y,
-	                .w = output_box.w, .h = output_box.h};
+	SDL_Rect value_box_size = vb_get_size();
+	SDL_Rect output_label_anchor = bf_get_output_label_anchor();
+	buffer_render_layout_t layout = prepare_buffer_render_layout(
+		output_box, output_label_anchor, output_buffer_button.r, output_text,
+		g_output_buffer_highlight);
 	if (check_win_condition() == true){
 		x = OUTPUT_BUFFER_WIN_X;	
 	} else {
-		x = output_box.x + ofs + (list_size-1)*(val.w + ofsval);
+		x = output_box.x + ofs + (output_count - 1) *
+			(value_box_size.w + ofsval);
 	}
-	int y = output_box.y + ofs;
-	if (outputs != NULL && list_size > 0){
+	if (outputs != NULL && output_count > 0){
 		int draw_x = g_output_list_x_pos;
 		LIST_FOREACH(outputs, first, next, cur){
 			vb_value_box_t *cur_output = cur->value;
 			cur_output->box.x = draw_x;
 
 			if (cur_output->visible_box != false){
-				draw_buffer_value_box(cur_output, C_WHITE, output_box,
-				                      animated_output_box, animation);
+				draw_buffer_value_box(cur_output, C_WHITE, layout.body,
+				                      layout.animated_body, layout.animation);
 			}
-			draw_x -= val.w + ofsval;
+			draw_x -= value_box_size.w + ofsval;
 		}
 		if (g_output_list_x_pos < x){
 			g_output_list_x_pos += ax_get_movement_delta(x, g_output_list_x_pos, 
 								   						BUFFER_MOVEMENT_DELTA);
 		}
 	}
-	if (animation.boxes_active) {
-		dw_draw_rectangle_f(animated_output_box, C_WHITE);
-	} else {
-		dw_draw_rectangle(output_box, C_WHITE);
-	}
-	draw_buffer_label(output_label, output_text, output_buffer_button.r, animation);
+	draw_buffer_border(layout.body, layout.animated_body, layout.animation);
+	draw_buffer_label(layout.label, output_text, layout.hit_box,
+	                  layout.animation);
 
 error:
 	return;
@@ -977,7 +1052,7 @@ error:
  * Return:
  *	bool if buffer is in position
  */
-bool check_if_output_buffer_position_set()
+bool check_if_output_buffer_position_set(void)
 {
 	bool in_pos = false;
 	int list_size = 0;
@@ -1009,35 +1084,26 @@ bool check_if_output_buffer_position_set()
  * Return:
  *	Void.
  */
-void draw_input_buffer()
+static void draw_input_buffer(void)
 {
-	int list_size = 0;
 	List *inputs = get_input_list();
 	int ofs = bf_get_value_box_spacing();
 	int ofsval = bf_get_value_box_secondary_spacing();
-	SDL_Rect val =  vb_get_size();
-	SDL_Rect input_label = bf_get_input_label_anchor();
-	buffer_animation_t animation = get_buffer_animation(
-	    &input_label, input_text, g_input_buffer_highlight);
-	SDL_FRect animated_input_box = animation.boxes_active ?
-	    transform_buffer_body_rect(input_box, input_label, animation) :
-	    (SDL_FRect){.x = input_box.x, .y = input_box.y,
-	                .w = input_box.w, .h = input_box.h};
+	SDL_Rect value_box_size = vb_get_size();
+	int input_count = inputs != NULL ? List_count(inputs) : 0;
+	SDL_Rect input_label_anchor = bf_get_input_label_anchor();
+	buffer_render_layout_t layout = prepare_buffer_render_layout(
+		input_box, input_label_anchor, input_buffer_button.r, input_text,
+		g_input_buffer_highlight);
 	int x = input_box.x + ofs;
-	int y = input_box.y + ofs;
-
-
-	if (inputs != NULL){
-		list_size = List_count(inputs);
-	}
-	if (inputs != NULL && list_size > 0){
+	if (inputs != NULL && input_count > 0){
 		int draw_x = g_input_list_x_pos;
 		LIST_FOREACH(inputs, first, next, cur){
 			vb_value_box_t *cur_input = cur->value;
 			cur_input->box.x = draw_x;
-			draw_buffer_value_box(cur_input, C_WHITE, input_box,
-			                      animated_input_box, animation);
-			draw_x += val.w + ofsval;
+			draw_buffer_value_box(cur_input, C_WHITE, layout.body,
+			                      layout.animated_body, layout.animation);
+			draw_x += value_box_size.w + ofsval;
 		}
 		if (g_input_list_x_pos > x){
 			g_input_list_x_pos -= ax_get_movement_delta(x, 
@@ -1046,21 +1112,19 @@ void draw_input_buffer()
 		}
 	}
 
-	if (animation.boxes_active) {
-		dw_draw_rectangle_f(animated_input_box, C_WHITE);
-	} else {
-		dw_draw_rectangle(input_box, C_WHITE);
-	}
-	draw_buffer_label(input_label, input_text, input_buffer_button.r, animation);
+	draw_buffer_border(layout.body, layout.animated_body, layout.animation);
+	draw_buffer_label(layout.label, input_text, layout.hit_box,
+	                  layout.animation);
 }
 
+/* Operand integration */
 /* Function: bf_get_buffer_value_box_x_coord_by_id
  *------------------------------------------------------------------------------
  * Arguments:
- *	op_id: The id of the operand that the x value will get calculated
+	*id: The buffer operand id.
  *
  * Return:
- *	x coordinate of the first value box
+	*The x coordinate of the first value box.
  */
 int bf_get_buffer_value_box_x_coord_by_id(int id)
 {
@@ -1081,10 +1145,10 @@ int bf_get_buffer_value_box_x_coord_by_id(int id)
 /* Function: bf_get_buffer_value_box_y_coord_by_id
  *------------------------------------------------------------------------------
  * Arguments:
- *	op_id: The id of the operand that the x value will get calculated
+	*id: The buffer operand id.
  *
  * Return:
- *	x coordinate of the first value box
+	*The y coordinate of the first value box.
  */
 int bf_get_buffer_value_box_y_coord_by_id(int id)
 {
@@ -1132,7 +1196,7 @@ void bf_set_output_buffer_value_box(vb_value_box_t val)
  * Return:
  *	value_box
  */
-vb_value_box_t bf_get_output_buffer_value_box()
+vb_value_box_t bf_get_output_buffer_value_box(void)
 {
 	List *output_list = bf_get_output_list();
 	vb_value_box_t *last = output_list->last->value;
@@ -1148,7 +1212,7 @@ vb_value_box_t bf_get_output_buffer_value_box()
  * Return:
  *	value_box
  */
-vb_value_box_t bf_get_input_buffer_value_box()
+vb_value_box_t bf_get_input_buffer_value_box(void)
 {
 	List *input_list = get_input_list();
 	int list_size = List_count(input_list);
@@ -1176,7 +1240,7 @@ vb_value_box_t bf_get_input_buffer_value_box()
  * Return:
  *	void.
  */
-void bf_reset_input_list_x_pos()
+void bf_reset_input_list_x_pos(void)
 {
 	int screen_width = dm_get_screen_width();
 	g_input_list_x_pos = screen_width;
@@ -1190,7 +1254,8 @@ void bf_reset_input_list_x_pos()
  * Return:
  *	void.
  */
-static void destroy_input_list()
+/* List reset and destruction */
+static void destroy_input_list(void)
 {
 	LIST_FOREACH(input_list, first, next, cur){
 		vb_value_box_t *v = cur->value;
@@ -1208,7 +1273,7 @@ static void destroy_input_list()
  * Return:
  *	void.
  */
-static void destroy_output_list()
+static void destroy_output_list(void)
 {
 	LIST_FOREACH(output_list, first, next, cur){
 		vb_value_box_t *v = cur->value;
@@ -1226,7 +1291,7 @@ static void destroy_output_list()
  * Return:
  *	void.
  */
-void bf_reset_input_list()
+void bf_reset_input_list(void)
 {
 	destroy_input_list();
 	bf_create_input_list();
@@ -1242,7 +1307,7 @@ void bf_reset_input_list()
  * Return:
  *	void.
  */
-void bf_reset_output_list()
+void bf_reset_output_list(void)
 {
 	destroy_output_list();
 	bf_create_output_list();
@@ -1261,25 +1326,26 @@ void bf_reset_output_list()
  * Return:
  *	void.
  */
-void bf_destroy_buffer_lists()
+void bf_destroy_buffer_lists(void)
 {
 	destroy_input_list();
 	destroy_output_list();
 }
 
+/* Debug/printing helpers */
 /* Function: print_input_list
  *------------------------------------------------------------------------------
  * Arguments:
  *	None.
  *
  * Return:
- *	
+	*Void.
  */
-void print_input_list()
+void print_input_list(void)
 {
 	List *input_list = get_input_list();
 
-	assert(input_list != NULL && "Output list pointer is NULL");
+	assert(input_list != NULL && "Input list pointer is NULL");
 
 	int input_list_size = List_count(input_list);
 
@@ -1299,7 +1365,7 @@ void print_input_list()
  * Return:
  *	
  */
-void print_output_list()
+void print_output_list(void)
 {
 	List *output_list = bf_get_output_list();
 

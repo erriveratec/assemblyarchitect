@@ -1,20 +1,15 @@
 #ifndef BUFFERS_BF_H
 #define BUFFERS_BF_H
+
+#include <SDL.h>
 #include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
+
 #include "code_line_cl.h"
+#include "gameplay/ui_highlight_source.h"
 #include "list.h"
 #include "ui/value_box_vb.h"
 
-SDL_Rect bf_get_input_buffer_bounds(void);
-SDL_Rect bf_get_output_buffer_bounds(void);
-SDL_Rect bf_get_input_label_anchor(void);
-SDL_Rect bf_get_output_label_anchor(void);
-int bf_get_value_box_spacing(void);
-#include "gameplay/ui_highlight_source.h"
-
-enum input_list_type{
+enum input_list_type {
 	NOT_ASSIGNED,
 	NATURAL,
 	WHOLE,
@@ -28,7 +23,7 @@ enum InputMods {
 	INCREASE
 };
 
-typedef struct input_properties_t{
+typedef struct input_properties_t {
 	int type;
 	int size;
 	int mod;
@@ -37,11 +32,16 @@ typedef struct input_properties_t{
 	int mod_num3;
 } input_properties_t;
 
-
 extern int g_input_list_type;
 extern int g_input_buffer_size;
 
-bool bf_ms_rel_in_buf();
+SDL_Rect bf_get_input_buffer_bounds(void);
+SDL_Rect bf_get_output_buffer_bounds(void);
+SDL_Rect bf_get_input_label_anchor(void);
+SDL_Rect bf_get_output_label_anchor(void);
+int bf_get_value_box_spacing(void);
+
+bool bf_ms_rel_in_buf(void);
 void bf_set_input_box(SDL_Rect r);
 void bf_set_output_box(SDL_Rect r);
 void bf_set_input_buffer_button(SDL_Rect r);
@@ -54,34 +54,35 @@ bool bf_get_input_buffer_highlight_progress(float *progress,
 bool bf_get_output_buffer_highlight_progress(float *progress,
 										float animation_limit);
 
-void bf_create_input_list();
-void bf_create_output_list();
-void bf_destroy_buffer_lists();
-void bf_init_buf_ops();
+void bf_create_input_list(void);
+void bf_create_output_list(void);
+void bf_destroy_buffer_lists(void);
+void bf_init_buf_ops(void);
 void bf_draw_buffers(float animation_limit);
 int bf_get_buffer_value_box_x_coord_by_id(int op_id);
 int bf_get_buffer_value_box_y_coord_by_id(int op_id);
-vb_value_box_t bf_get_input_buffer_value_box();
-vb_value_box_t bf_get_output_buffer_value_box();
-void bf_reset_input_list();
-void bf_reset_output_list();
-void bf_add_output_to_list();
+vb_value_box_t bf_get_input_buffer_value_box(void);
+vb_value_box_t bf_get_output_buffer_value_box(void);
+void bf_reset_input_list(void);
+void bf_reset_output_list(void);
+void bf_add_output_to_list(void);
 void bf_set_output_buffer_value_box(vb_value_box_t val);
 
-bool check_if_output_buffer_position_set();
-int get_input_buffer_list_size();
-int get_output_buffer_list_size();
-List *get_input_list();
-List *bf_get_output_list();
-void print_output_list();
-void print_input_list();
+bool check_if_output_buffer_position_set(void);
+int get_input_buffer_list_size(void);
+int get_output_buffer_list_size(void);
+List *get_input_list(void);
+List *bf_get_output_list(void);
+void print_output_list(void);
+void print_input_list(void);
 
-operand_t *bf_create_sel_buf_op();
+operand_t *bf_create_sel_buf_op(void);
 operand_t *bf_create_buffer_operand_by_id(int id);
-void bf_reset_input_list_x_pos();
-void bf_set_win_condition();
-void bf_reset_win_condition();
-void bf_init_buffer_assets();
+void bf_reset_input_list_x_pos(void);
+void bf_set_win_condition(void);
+void bf_reset_win_condition(void);
+void bf_init_buffer_assets(void);
 void bf_set_input_properties(input_properties_t ip);
-void bf_generate_input_list();
+void bf_generate_input_list(void);
+
 #endif
