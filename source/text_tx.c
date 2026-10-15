@@ -139,15 +139,12 @@ SDL_Rect tx_get_text_box_wh()
 static SDL_Rect get_text_box_upper_right()
 {
 	SDL_Rect d = tx_get_text_box_wh();
-	SDL_Rect grid = im_get_grid_bounds();
-	SDL_Rect cell = im_get_cell_size();
+	int      margin = get_border_ofs();
 	SDL_Rect b;
 	b.w = d.w;
 	b.h = d.h;
-	b.x = grid.x + grid.w - cell.w;
-	b.y = dw_get_ofs_iface_filled_border();
-	return b;
-
+	b.x = dm_get_screen_width() - b.w - margin;
+	b.y = margin;
 	return b;
 }
 
@@ -689,6 +686,8 @@ bool tx_get_text_box_rects(
 		    position == TX_LOWER_BOX || position == TX_CODE_BOX ||
 		    position == TX_CENTER_UP_BOX) {
 			resolved_box.x -= extra_width / 2;
+		} else if (position == TX_UPPER_RIGHT_BOX) {
+			resolved_box.x -= extra_width;
 		}
 		if (position == TX_CENTER_BOX || position == TX_CENTER_RIGHT_BOX ||
 		    position == TX_STAGEBUTTON_BOX) {
