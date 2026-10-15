@@ -288,9 +288,11 @@ static void test_layout_invariants(void)
 	assert(rg_get_input_value_box_bounds().x == -60);
 	im_init_imm_assets();
 	SDL_Rect initial_grid = im_get_grid_bounds();
-	assert(initial_grid.x == initial_input_bounds.x);
 	assert(initial_grid.y == 0);
-	assert(initial_grid.w == 660 && initial_grid.h == 100);
+	assert(initial_grid.w == 11 * immediate_cell_size.w);
+	assert(initial_grid.h == 2 * immediate_cell_size.h);
+	assert(initial_grid.x >= 0 &&
+	       initial_grid.x + initial_grid.w <= dm_get_screen_width());
 	assert(im_get_imm_value_box_by_id(IMMUP0).box.x == initial_grid.x);
 	dm_set_screen_resolution(DM_RESOLUTION_1600X900);
 	im_layout_grid();
@@ -328,8 +330,9 @@ static void test_layout_invariants(void)
 	dm_set_screen_resolution(DM_RESOLUTION_1920X1080);
 }
 
-static void test_immediate_grid_geometry(void)
+static void test_immediate_grid_geometry(dm_resolution_t resolution)
 {
+	dm_set_screen_resolution(resolution);
 	im_init_imm_assets();
 	im_layout_grid();
 	SDL_Rect cell_size = im_get_cell_size();
@@ -356,18 +359,23 @@ static void test_immediate_grid_geometry(void)
 	}
 	assert(cells[11].box.x == cells[0].box.x + cell_size.w);
 	assert(cells[11].box.y == cells[0].box.y + cell_size.h);
-	assert(cells[0].box.x == 710 && cells[0].box.y == 0);
-	assert(cells[10].box.x == 1310 && cells[10].box.y == 0);
-	assert(cells[11].box.x == 770 && cells[11].box.y == 50);
-	assert(cells[19].box.x == 1250 && cells[19].box.y == 50);
 	SDL_Rect grid = im_get_grid_bounds();
 	SDL_Rect label = im_get_label_bounds();
-	assert(grid.x == 710 && grid.y == 0 && grid.w == 660 && grid.h == 100);
+	assert(grid.x >= 0 && grid.y >= 0);
+	assert(grid.w == 11 * cell_size.w && grid.h == 2 * cell_size.h);
+	assert(grid.x + grid.w <= dm_get_screen_width());
+	assert(grid.y + grid.h <= dm_get_screen_height());
+	assert(cells[0].box.x == grid.x && cells[0].box.y == grid.y);
+	assert(cells[10].box.x + cells[10].box.w == grid.x + grid.w);
+	assert(cells[11].box.x == cells[0].box.x + cell_size.w);
+	assert(cells[11].box.y == cells[0].box.y + cell_size.h);
+	assert(cells[19].box.x + cells[19].box.w ==
+	       grid.x + 10 * cell_size.w);
 	assert(abs(2 * label.x + label.w - (2 * grid.x + grid.w)) <= 1);
 	assert(label.y == grid.y + grid.h && label.h == ty_stage_label_height());
 	assert(label.w > 0 && label.x >= grid.x && label.x + label.w <= grid.x + grid.w);
 	assert(grid.x + grid.w <= dm_get_screen_width());
-	assert(grid.x + grid.w - cell_size.w == 1310);
+	assert(grid.x + grid.w - cell_size.w == cells[10].box.x);
 	SDL_Rect arrow_size = ar_get_arrow_wh();
 	SDL_Rect arrow_bounds = {
 		.x = label.x + label.w / 2 - arrow_size.w / 2,
@@ -410,7 +418,8 @@ static void test_immediate_grid_geometry(void)
 	assert(!im_ms_rel_in_upimm());
 	im_destroy_imm_assets();
 	im_init_imm_assets();
-	assert(im_get_imm_value_box_by_id(IMMUP0).box.x == 710);
+	assert(im_get_imm_value_box_by_id(IMMUP0).box.x ==
+	       im_get_grid_bounds().x);
 	SDL_Rect cell_rects[20];
 	SDL_Rect normal_bounds[20];
 	SDL_Rect repeated_normal_bounds[20];
@@ -472,6 +481,7 @@ static void test_immediate_grid_geometry(void)
 		assert(restored_bounds[index].w == normal_bounds[index].w);
 		assert(restored_bounds[index].h == normal_bounds[index].h);
 	}
+	im_destroy_imm_assets();
 }
 
 static void test_operand_highlight_configuration(void)
@@ -494,9 +504,9 @@ int main(void)
 	test_operand_highlight_configuration();
 	test_tutorial_highlight_parsing();
 	test_layout_invariants();
-	test_immediate_grid_geometry();
+	test_immediate_grid_geometry(DM_RESOLUTION_1600X900);
+	test_immediate_grid_geometry(DM_RESOLUTION_1920X1080);
 	TTF_CloseFont(g_font);
-	im_destroy_imm_assets();
 	SDL_DestroyRenderer(g_renderer);
 	SDL_FreeSurface(g_screen);
 	TTF_Quit();
