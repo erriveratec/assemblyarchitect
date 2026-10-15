@@ -26,6 +26,8 @@ SECTOR_COMPLETION_NAVIGATION_TEST_EXEC = sector_completion_navigation_test
 SECTOR_COMPLETION_NAVIGATION_TEST_SOURCE = tests/sector_completion_navigation_test.c
 BUFFER_LABEL_LAYOUT_TEST_EXEC = buffer_label_layout_test
 BUFFER_LABEL_LAYOUT_TEST_SOURCE = tests/buffer_label_layout_test.c
+EXECUTION_ARROW_GEOMETRY_TEST_EXEC = execution_arrow_geometry_test
+EXECUTION_ARROW_GEOMETRY_TEST_SOURCE = tests/execution_arrow_geometry_test.c
 
  
 ############################
@@ -84,7 +86,13 @@ build:
 run: build
 	./$(EXEC)
 
-test: test-level-config-hover test-operand-highlights test-operand-change-selection test-tutorial-text test-sector-completion-navigation test-buffer-label-layout
+test: test-level-config-hover test-operand-highlights test-operand-change-selection test-tutorial-text test-sector-completion-navigation test-buffer-label-layout test-execution-arrow-geometry
+
+test-execution-arrow-geometry:
+	$(CC) $(CFLAGS) $(EXECUTION_ARROW_GEOMETRY_TEST_SOURCE) \
+	    $(filter-out $(S_DIR)/arrow_ar.c,$(TEST_SOURCES)) -o $(EXECUTION_ARROW_GEOMETRY_TEST_EXEC) \
+	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
+	./$(EXECUTION_ARROW_GEOMETRY_TEST_EXEC)
 
 test-buffer-label-layout:
 	$(CC) $(CFLAGS) $(BUFFER_LABEL_LAYOUT_TEST_SOURCE) \
@@ -205,7 +213,8 @@ app: build
 clean:
 	rm -rf $(EXEC) $(APP_BUNDLE) $(TUTORIAL_TEXT_TEST_EXEC) $(OPERAND_HIGHLIGHTS_TEST_EXEC) \
 	    $(LEVEL_CONFIG_HOVER_TEST_EXEC) $(OPERAND_CHANGE_SELECTION_TEST_EXEC) \
-	    $(SECTOR_COMPLETION_NAVIGATION_TEST_EXEC) $(BUFFER_LABEL_LAYOUT_TEST_EXEC)
+	    $(SECTOR_COMPLETION_NAVIGATION_TEST_EXEC) $(BUFFER_LABEL_LAYOUT_TEST_EXEC) \
+	    $(EXECUTION_ARROW_GEOMETRY_TEST_EXEC)
 	find . -type d -name '*.dSYM' -prune -exec rm -rf {} +
 	rm -rf assemblyArchitect*
 	rm -f source/.*.swp

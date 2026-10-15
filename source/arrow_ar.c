@@ -119,6 +119,14 @@ static void display_arrow_registers()
 	animate_arrow(&g_arrow_regs, dw_get_animation_limit());
 }*/
 
+static int get_execution_arrow_target_y(int instruction_number)
+{
+	SDL_Rect arrow_size = ar_get_arrow_wh();
+	SDL_Rect code_button = cl_get_code_button_size();
+	int instruction_y = cw_get_instruction_y_coord(instruction_number);
+	return instruction_y + (code_button.h - arrow_size.h) / 2;
+}
+
 /* Function: ar_move_execution_arrow
  * -----------------------------------------------------------------------------
  * Arguments:
@@ -136,8 +144,7 @@ bool ar_move_execution_arrow(int instruction_number)
 	
 	bool in_final_position = false;
 
-	SDL_Rect a = ar_get_arrow_wh();
-	int y = cw_get_instruction_y_coord(instruction_number) + a.h/6;
+	int y = get_execution_arrow_target_y(instruction_number);
 	
 	int mdelta = ax_get_arrow_move_delta();
 	if (g_arrow_exec.box.y < y){
@@ -168,10 +175,7 @@ static void check_execution_arrow_in_place(int instruction_number)
 	assert(instruction_number <= code_size && 
 		   "Instruction number is incorrect");
 
-	SDL_Rect a = ar_get_arrow_wh();
-	bool in_final_position = false;
-	
-	int y = cw_get_instruction_y_coord(instruction_number) + a.h/6;
+	int y = get_execution_arrow_target_y(instruction_number);
 	
 	int mdelta = ax_get_arrow_move_delta();
 	if (g_arrow_exec.box.y == y){
@@ -193,7 +197,7 @@ void ar_reset_execution_arrow()
 	SDL_Rect a = ar_get_arrow_wh();
 	
 	g_arrow_exec.box.x = cb.x - a.w;
-	g_arrow_exec.box.y = cw_get_instruction_y_coord(0) + a.h/6;
+	g_arrow_exec.box.y = get_execution_arrow_target_y(0);
 	g_arrow_exec.box.w = a.w;
 	g_arrow_exec.box.h = a.h;
 	g_arrow_exec.texture = g_exec_arrow;
