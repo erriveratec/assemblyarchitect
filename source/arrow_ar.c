@@ -3,6 +3,7 @@
 #include "aux.h"
 
 #include <SDL2/SDL_stdinc.h>
+#include <math.h>
 #include<stdio.h>
 #include<stdlib.h>
 #include<assert.h>
@@ -46,6 +47,46 @@ static arrow_t g_arrow_regs;
 static arrow_t g_arrow_zf; 
 static arrow_t g_arrow_imm_up;
 
+typedef enum highlight_target_t {
+	HIGHLIGHT_NONE,
+	HIGHLIGHT_INSTRUCTION,
+	HIGHLIGHT_CODE_BOX,
+	HIGHLIGHT_CHALLENGE,
+	HIGHLIGHT_INPUT_BUFFER,
+	HIGHLIGHT_OUTPUT_BUFFER,
+	HIGHLIGHT_REGISTERS,
+	HIGHLIGHT_STEP,
+	HIGHLIGHT_FAST,
+	HIGHLIGHT_IMMEDIATES
+} highlight_target_t;
+
+/* Mapped arrows read their owner's current rendered progress and never advance
+ * a private competing pulse. HIGHLIGHT_NONE is only for arrows without an
+ * animated target.
+ */
+static const highlight_target_t g_arrow_highlight_targets[ARROW_ID_COUNT] = {
+	[AR_INS] = HIGHLIGHT_INSTRUCTION,
+	[AR_INS_MINUS] = HIGHLIGHT_INSTRUCTION,
+	[AR_DROP] = HIGHLIGHT_CODE_BOX,
+	[AR_PLAY] = HIGHLIGHT_NONE,
+	[AR_STEP] = HIGHLIGHT_STEP,
+	[AR_FAST] = HIGHLIGHT_FAST,
+	[AR_CODE] = HIGHLIGHT_CODE_BOX,
+	[AR_DEL] = HIGHLIGHT_CODE_BOX,
+	[AR_OP2] = HIGHLIGHT_CODE_BOX,
+	[AR_ERROR] = HIGHLIGHT_NONE,
+	[AR_CHALLENGE] = HIGHLIGHT_CHALLENGE,
+	[AR_IB] = HIGHLIGHT_INPUT_BUFFER,
+	[AR_OB] = HIGHLIGHT_OUTPUT_BUFFER,
+	[AR_EXEC] = HIGHLIGHT_NONE,
+	[AR_REG] = HIGHLIGHT_REGISTERS,
+	[AR_ZF] = HIGHLIGHT_NONE,
+	[AR_IMM_UP] = HIGHLIGHT_IMMEDIATES
+};
+_Static_assert(sizeof(g_arrow_highlight_targets) /
+	                   sizeof(g_arrow_highlight_targets[0]) == ARROW_ID_COUNT,
+	               "Arrow highlight mapping must cover every arrow ID");
+
 static void initialize_ins_arrow();
 static void initialize_drop_arrow();
 static void initialize_play_arrow();
@@ -65,6 +106,10 @@ SDL_Rect ar_get_arrow_wh();
 static arrow_t *get_arrow_by_id(int arrow_id);
 static bool get_highlight_progress(const arrow_t *arrow, float *progress,
 								  float animation_limit);
+static bool arrow_has_highlight_provider(int arrow_id);
+static bool get_stage_button_highlight_progress(int button_id,
+												float *progress,
+												float animation_limit);
 static void initialize_motion_pulse(arrow_t *arrow, float animation_limit);
 static float get_motion_progress(arrow_t *arrow, float animation_limit);
 static void position_arrow(arrow_t *arrow, float progress);
@@ -195,6 +240,7 @@ void ar_reset_execution_arrow()
 {
 	SDL_Rect cb = cw_get_stage_code_box();
 	SDL_Rect a = ar_get_arrow_wh();
+	g_arrow_exec.arrow_id = AR_EXEC;
 	
 	g_arrow_exec.box.x = cb.x - a.w;
 	g_arrow_exec.box.y = get_execution_arrow_target_y(0);
@@ -344,6 +390,7 @@ static void initialize_ins_arrow()
 	g_arrow_ins.startx = g_arrow_ins.box.x;
 	g_arrow_ins.starty = g_arrow_ins.box.y;
 	g_arrow_ins.dir = AR_LEFT;
+	g_arrow_ins.progress_from_positive_side = true;
 	g_arrow_ins.in_place = false;
 	g_arrow_ins.visible =  true;
 	g_arrow_ins.texture =  g_lv_arrow;
@@ -559,6 +606,7 @@ static void initialize_del_arrow()
 	g_arrow_del.starty = g_arrow_del.box.y;
 	g_arrow_del.travel = a.w;
 	g_arrow_del.dir = AR_RIGHT;
+	g_arrow_del.highlight_progress_inverted = true;
 	g_arrow_del.texture = g_lv_arrow;
 }
 
@@ -728,7 +776,7 @@ static void initialize_ob_arrow()
 void ar_initialize_arrows()
 {
 	SDL_SetTextureColorMod(g_lv_arrow->texture, 255, 0, 0);
-	for (int arrow_id = AR_INS; arrow_id <= AR_IMM_UP; arrow_id++) {
+	for (int arrow_id = AR_INS; arrow_id < ARROW_ID_COUNT; arrow_id++) {
 		if (arrow_id != AR_EXEC) {
 			ar_init_arrow(arrow_id);
 		}
@@ -846,6 +894,7 @@ void ar_init_arrow(int arrow_id)
 	}
 	arrow_t *arrow = get_arrow_by_id(arrow_id);
 	if (arrow != NULL) {
+		arrow->arrow_id = arrow_id;
 		arrow->motion_initialized = false;
 		dw_pulse_reset(&arrow->motion_pulse);
 	}
@@ -887,7 +936,17 @@ void ar_display_arrow(int arrow_id, float animation_limit)
 static void animate_arrow(arrow_t *arrow, float animation_limit)
 {
 	assert(arrow != NULL && "arrow object is NULL");
-	if (arrow->travel > 0) {
+	float progress;
+	if (get_highlight_progress(arrow, &progress, animation_limit)) {
+		if (arrow->highlight_progress_inverted) {
+			progress = 1.0f - progress;
+		}
+		position_arrow(arrow, progress);
+	} else if (arrow_has_highlight_provider(arrow->arrow_id)) {
+		arrow->box.x = arrow->startx;
+		arrow->box.y = arrow->starty;
+		return;
+	} else if (arrow->travel > 0) {
 		position_arrow(arrow, get_motion_progress(arrow, animation_limit));
 	}
 	draw_arrow(arrow);
@@ -897,19 +956,76 @@ static void animate_arrow(arrow_t *arrow, float animation_limit)
 static bool get_highlight_progress(const arrow_t *arrow, float *progress,
 								  float animation_limit)
 {
-	if (arrow == &g_arrow_ins) {
-		return iw_get_highlight_instruction_progress(progress);
+	if (arrow == NULL || progress == NULL) {
+		return false;
 	}
-	if (arrow == &g_arrow_regs) {
-		return rg_get_register_highlight_progress(progress, animation_limit);
+	if (arrow->arrow_id < 0 || arrow->arrow_id >= ARROW_ID_COUNT) {
+		return false;
 	}
-	if (arrow == &g_arrow_ib) {
-		return bf_get_input_buffer_highlight_progress(progress, animation_limit);
+	bool available = false;
+	switch (g_arrow_highlight_targets[arrow->arrow_id]) {
+	case HIGHLIGHT_INSTRUCTION:
+		available = iw_get_highlight_instruction_progress(progress);
+		break;
+	case HIGHLIGHT_CODE_BOX:
+		available = cw_get_code_box_highlight_progress(progress,
+		                                               animation_limit);
+		break;
+	case HIGHLIGHT_CHALLENGE:
+		available = cw_get_challenge_highlight_progress(progress,
+		                                               animation_limit);
+		break;
+	case HIGHLIGHT_INPUT_BUFFER:
+		available = bf_get_input_buffer_highlight_progress(progress,
+		                                                  animation_limit);
+		break;
+	case HIGHLIGHT_OUTPUT_BUFFER:
+		available = bf_get_output_buffer_highlight_progress(progress,
+		                                                   animation_limit);
+		break;
+	case HIGHLIGHT_REGISTERS:
+		available = rg_get_register_highlight_progress(progress,
+		                                              animation_limit);
+		break;
+	case HIGHLIGHT_STEP:
+		available = get_stage_button_highlight_progress(STEP, progress,
+		                                               animation_limit);
+		break;
+	case HIGHLIGHT_FAST:
+		available = get_stage_button_highlight_progress(FAST, progress,
+		                                               animation_limit);
+		break;
+	case HIGHLIGHT_IMMEDIATES:
+		available = im_get_highlight_progress(progress, animation_limit);
+		break;
+	case HIGHLIGHT_NONE:
+		break;
 	}
-	if (arrow == &g_arrow_ob) {
-		return bf_get_output_buffer_highlight_progress(progress, animation_limit);
+	if (!available) {
+		return false;
 	}
-	return false;
+	if (!isfinite(*progress)) {
+		*progress = 0.0f;
+	} else if (*progress < 0.0f) {
+		*progress = 0.0f;
+	} else if (*progress > 1.0f) {
+		*progress = 1.0f;
+	}
+	return true;
+}
+
+static bool arrow_has_highlight_provider(int arrow_id)
+{
+	return arrow_id >= 0 && arrow_id < ARROW_ID_COUNT &&
+	       g_arrow_highlight_targets[arrow_id] != HIGHLIGHT_NONE;
+}
+
+static bool get_stage_button_highlight_progress(int button_id,
+												float *progress,
+												float animation_limit)
+{
+	return sb_get_button_highlight_progress(button_id, progress,
+	                                        animation_limit);
 }
 
 static void initialize_motion_pulse(arrow_t *arrow, float animation_limit)
@@ -926,7 +1042,7 @@ static void initialize_motion_pulse(arrow_t *arrow, float animation_limit)
 			offset = arrow->box.x - arrow->startx;
 			break;
 		case AR_LEFT:
-			offset = arrow == &g_arrow_ins ?
+			offset = arrow->progress_from_positive_side ?
 			    arrow->travel - (arrow->box.x - arrow->startx) :
 			    arrow->startx - arrow->box.x;
 			break;
@@ -942,7 +1058,7 @@ static void initialize_motion_pulse(arrow_t *arrow, float animation_limit)
 	arrow->motion_pulse.value = dw_pulse_progress((float)offset,
 	                                             (float)arrow->travel)
 	                            * animation_limit;
-	arrow->motion_pulse.descending = arrow == &g_arrow_ins ?
+	arrow->motion_pulse.descending = arrow->progress_from_positive_side ?
 	    !arrow->in_place : arrow->in_place;
 	arrow->motion_initialized = true;
 }
@@ -964,6 +1080,11 @@ static float get_motion_progress(arrow_t *arrow, float animation_limit)
 
 static void position_arrow(arrow_t *arrow, float progress)
 {
+	if (!isfinite(progress) || progress < 0.0f) {
+		progress = 0.0f;
+	} else if (progress > 1.0f) {
+		progress = 1.0f;
+	}
 	int distance = (int)(arrow->travel * progress);
 	switch (arrow->dir) {
 		case AR_UP:
@@ -976,7 +1097,7 @@ static void position_arrow(arrow_t *arrow, float progress)
 			arrow->box.x = arrow->startx + distance;
 			break;
 		case AR_LEFT:
-			arrow->box.x = arrow == &g_arrow_ins ?
+			arrow->box.x = arrow->progress_from_positive_side ?
 			    arrow->startx + arrow->travel - distance :
 			    arrow->startx - distance;
 			break;

@@ -62,6 +62,10 @@ void cw_update_saved_jump_instructions();
 void cw_operate_jump_instruction(code_line_t *line);
 SDL_Rect cw_get_text_box_rect();
 float cw_get_challenge_highlight_limit();
+bool cw_get_code_box_highlight_progress(float *progress,
+										float animation_limit);
+bool cw_get_challenge_highlight_progress(float *progress,
+										float animation_limit);
 void cw_init_code_window_texture();
 SDL_Rect cw_get_code_line_coord_at_pos(int code_line_element, int pos);
 int cw_get_code_line_pos_by_ptr(code_line_t *line);

@@ -12,6 +12,7 @@ extern texture_t *g_reg_arrow;
 extern texture_t *g_imm_up_arrow;
 
 typedef struct arrow_t{
+	int arrow_id;
 	SDL_Rect box;
 	int startx;
 	int starty;
@@ -20,6 +21,8 @@ typedef struct arrow_t{
 	bool in_place;
 	bool visible;
 	bool motion_initialized;
+	bool progress_from_positive_side;
+	bool highlight_progress_inverted;
 	/* Standalone pulse in the same animation-limit range as UI highlights. */
 	dw_pulse_t motion_pulse;
 	texture_t *texture;
@@ -42,7 +45,8 @@ enum arrow_id{
 	AR_EXEC,
 	AR_REG,
 	AR_ZF,
-	AR_IMM_UP
+	AR_IMM_UP,
+	ARROW_ID_COUNT
 };
 
 void ar_init_arrow(int arrow_id);

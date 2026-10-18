@@ -30,6 +30,7 @@ static unsigned int g_imm_highlight_sources;
 static bool g_imm_highlight;
 static bool g_imm_highlight_rendered;
 static dw_pulse_t g_imm_pulse;
+static float g_imm_highlight_value;
 static bool g_imm_assets_initialized;
 
 typedef struct imm_cell_borders_t {
@@ -304,6 +305,16 @@ bool im_are_immediates_highlighted(void)
 	return g_imm_highlight;
 }
 
+bool im_get_highlight_progress(float *progress, float animation_limit)
+{
+	if (progress == NULL || !g_imm_up || !g_imm_highlight ||
+	    animation_limit <= 0.0f) {
+		return false;
+	}
+	*progress = dw_pulse_progress(g_imm_highlight_value, animation_limit);
+	return true;
+}
+
 /* Function: im_init_imm_assets
  *------------------------------------------------------------------------------
  * Initializes the assets of the immediates of the level
@@ -434,6 +445,7 @@ void im_draw_imm(float animation_limit)
 	if (g_imm_up == true){
 		float pulse = highlighted ?
 			dw_pulse_value(&g_imm_pulse, animation_limit) : 0.0f;
+		g_imm_highlight_value = pulse;
 		draw_imm_txt_up(pulse);
 		for (int i = 0; i < TOTAL_IMM; i++){
 			draw_imm_cell(&g_up_imm[i], pulse, highlighted);
@@ -441,7 +453,9 @@ void im_draw_imm(float animation_limit)
 		if (highlighted) {
 			dw_pulse_advance(&g_imm_pulse, animation_limit);
 		}
-	}	
+	} else {
+		g_imm_highlight_value = 0.0f;
+	}
 	
 
 }

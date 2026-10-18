@@ -232,6 +232,41 @@ static void test_stage_button_highlight_sources(void)
 	assert(!sb_get_button_highlight_progress(FAST, &progress, animation_limit));
 }
 
+static void test_code_window_highlight_progress_accessors(void)
+{
+	float code_progress = -1.0f;
+	float challenge_progress = -1.0f;
+	float animation_limit = (float)dw_get_animation_limit();
+	cw_set_code_box_highlight(false);
+	cw_set_challenge_highlight(false);
+	assert(!cw_get_code_box_highlight_progress(&code_progress,
+	                                         animation_limit));
+	assert(!cw_get_challenge_highlight_progress(&challenge_progress,
+	                                           animation_limit));
+	cw_set_code_box_highlight(true);
+	cw_set_challenge_highlight(true);
+	assert(!cw_get_code_box_highlight_progress(NULL, animation_limit));
+	assert(!cw_get_challenge_highlight_progress(NULL, animation_limit));
+	assert(cw_get_code_box_highlight_progress(&code_progress,
+	                                         animation_limit));
+	assert(cw_get_code_box_highlight_progress(&code_progress,
+	                                         animation_limit));
+	assert(cw_get_challenge_highlight_progress(&challenge_progress,
+	                                           animation_limit));
+	assert(cw_get_challenge_highlight_progress(&challenge_progress,
+	                                           animation_limit));
+	assert(code_progress >= 0.0f && code_progress <= 1.0f);
+	assert(challenge_progress >= 0.0f && challenge_progress <= 1.0f);
+	assert(!cw_get_code_box_highlight_progress(&code_progress, 0.0f));
+	assert(!cw_get_challenge_highlight_progress(&challenge_progress, -1.0f));
+	cw_set_code_box_highlight(false);
+	cw_set_challenge_highlight(false);
+	assert(!cw_get_code_box_highlight_progress(&code_progress,
+	                                         animation_limit));
+	assert(!cw_get_challenge_highlight_progress(&challenge_progress,
+	                                           animation_limit));
+}
+
 static void test_tutorial_highlight_parsing(void)
 {
 	int targets = 0;
@@ -453,8 +488,19 @@ static void test_immediate_grid_geometry(dm_resolution_t resolution)
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, true);
 	clear_test_renderer();
 	im_draw_imm((float)dw_get_animation_limit());
+	float immediate_progress = -1.0f;
+	float animation_limit = (float)dw_get_animation_limit();
+	assert(im_get_highlight_progress(&immediate_progress, animation_limit));
+	assert(fabsf(immediate_progress) < 0.00001f);
+	float repeated_progress = -1.0f;
+	assert(im_get_highlight_progress(&repeated_progress, animation_limit));
+	assert(fabsf(immediate_progress - repeated_progress) < 0.00001f);
 	clear_test_renderer();
 	im_draw_imm((float)dw_get_animation_limit());
+	assert(im_get_highlight_progress(&immediate_progress, animation_limit));
+	assert(fabsf(immediate_progress -
+	             dw_pulse_progress((float)dw_get_animation_step(),
+	                               animation_limit)) < 0.00001f);
 	capture_number_bounds(cell_rects, highlighted_bounds, C_LIGHTGREY);
 	for (int index = 0; index < 20; index++) {
 		vb_value_box_t current = im_get_imm_value_box_by_id(IMMUP0 + index);
@@ -474,6 +520,7 @@ static void test_immediate_grid_geometry(dm_resolution_t resolution)
 	}
 
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
+	assert(!im_get_highlight_progress(&immediate_progress, animation_limit));
 	clear_test_renderer();
 	im_draw_imm((float)dw_get_animation_limit());
 	capture_number_bounds(cell_rects, restored_bounds, C_WHITE);
@@ -501,6 +548,7 @@ int main(void)
 	test_highlight_source_composition();
 	test_disabled_highlighting_clears_availability();
 	test_stage_button_highlight_sources();
+		test_code_window_highlight_progress_accessors();
 	test_operand_highlight_configuration();
 	test_tutorial_highlight_parsing();
 	test_layout_invariants();

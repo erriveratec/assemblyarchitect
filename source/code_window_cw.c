@@ -38,6 +38,8 @@ static bool g_challenge_highlight;
 static bool g_code_box_highlight;
 static dw_pulse_t g_challenge_pulse;
 static dw_pulse_t g_code_box_pulse;
+static float g_challenge_highlight_value;
+static float g_code_box_highlight_value;
 
 texture_array_t *g_challenge_text;
 texture_t *g_stage_name;
@@ -1272,6 +1274,26 @@ float cw_get_challenge_highlight_limit()
 	return anim_limit;
 }
 
+bool cw_get_code_box_highlight_progress(float *progress,
+										float animation_limit)
+{
+	if (progress == NULL || !g_code_box_highlight || animation_limit <= 0.0f) {
+		return false;
+	}
+	*progress = dw_pulse_progress(g_code_box_highlight_value, animation_limit);
+	return true;
+}
+
+bool cw_get_challenge_highlight_progress(float *progress,
+										float animation_limit)
+{
+	if (progress == NULL || !g_challenge_highlight || animation_limit <= 0.0f) {
+		return false;
+	}
+	*progress = dw_pulse_progress(g_challenge_highlight_value, animation_limit);
+	return true;
+}
+
 /* Function: in_code_window
  * -----------------------------------------------------------------------------
  * This function verifies if the mouse coordinates are inside of one of the 
@@ -1587,11 +1609,12 @@ void cw_draw_code_window()
 	float code_box_frame_growth = 0.0f;
 	float code_box_top = g_code_box.y;
 	float code_box_bottom = g_code_box.y + g_code_box.h;
+	float anim_limit = cw_get_challenge_highlight_limit();
+	g_code_box_highlight_value = g_code_box_highlight ?
+		dw_pulse_value(&g_code_box_pulse, anim_limit) : 0.0f;
 	if (g_code_box_highlight) {
-		float anim_limit = cw_get_challenge_highlight_limit();
-		float pulse = dw_pulse_value(&g_code_box_pulse, anim_limit);
 		code_box_frame_growth =
-		    pulse * CODE_BOX_HIGHLIGHT_GROWTH_MULTIPLIER;
+		    g_code_box_highlight_value * CODE_BOX_HIGHLIGHT_GROWTH_MULTIPLIER;
 		code_box_top -= code_box_frame_growth / 2.0f;
 		code_box_bottom += code_box_frame_growth / 2.0f;
 	}
@@ -1624,7 +1647,6 @@ void cw_draw_code_window()
 		    dw_grow_rect_height(inner, code_box_frame_growth),
 		                          C_BLACK, C_BLACK);
 
-		float anim_limit = cw_get_challenge_highlight_limit();
 		dw_pulse_advance(&g_code_box_pulse, anim_limit);
 	} else {
 		dw_draw_thick_rect(g_code_box, um_border_width(), C_GREY);
@@ -1640,8 +1662,9 @@ void cw_draw_code_window()
 		dw_draw_rectangle(g_text_box, C_GREY);
 	} else {
 		int line_count = g_challenge_text->size;
-		float anim_limit = cw_get_challenge_highlight_limit();
-		float challenge_pulse = dw_pulse_value(&g_challenge_pulse, anim_limit);
+		g_challenge_highlight_value =
+			dw_pulse_value(&g_challenge_pulse, anim_limit);
+		float challenge_pulse = g_challenge_highlight_value;
 
 		float line_height = h + challenge_pulse;
 		SDL_FRect base_challenge_box = {
@@ -1673,6 +1696,9 @@ void cw_draw_code_window()
 		dw_draw_rectangle_f(challenge_box, C_GREY);
 
 		dw_pulse_advance(&g_challenge_pulse, anim_limit);
+	}
+	if (!g_challenge_highlight) {
+		g_challenge_highlight_value = 0.0f;
 	}
 	
 	
