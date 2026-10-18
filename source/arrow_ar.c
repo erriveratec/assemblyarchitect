@@ -21,6 +21,7 @@
 
 static const Uint32 ARROW_H = 45;
 static const Uint32 ARROW_W = 45;
+enum { OP2_ARROW_VERTICAL_CLEARANCE_DESIGN_PX = 8 };
 
 texture_t *g_lv_arrow;
 texture_t *g_ib_arrow;
@@ -622,13 +623,15 @@ static void initialize_del_arrow()
 static void initialize_op2_arrow()
 {
 	SDL_Rect a = ar_get_arrow_wh();
+	int clearance = dm_scale_to_res(
+		OP2_ARROW_VERTICAL_CLEARANCE_DESIGN_PX);
 	
 	int pos = 1;
 	int size  = cw_get_code_list_size();
 	if (pos <= (size-1)){
 		SDL_Rect cl = cw_get_code_line_coord_at_pos(CW_OP2, pos);
 		g_arrow_op2.box.x = cl.x + a.w/2;
-		g_arrow_op2.box.y = cl.y + cl.h/2;
+		g_arrow_op2.box.y = cl.y + cl.h/2 + clearance;
 	} else{
 		g_arrow_op2.box.x = 0;
 		g_arrow_op2.box.y = 0;
@@ -638,7 +641,7 @@ static void initialize_op2_arrow()
 	g_arrow_op2.in_place = false;
 	g_arrow_op2.visible = true;
 	g_arrow_op2.startx = g_arrow_op2.box.x;
-	g_arrow_op2.starty = g_arrow_op2.box.y;			
+	g_arrow_op2.starty = g_arrow_op2.box.y;
 	g_arrow_op2.travel = a.h;
 	g_arrow_op2.dir = AR_UP;
 	g_arrow_op2.texture = g_lv_arrow;

@@ -9,6 +9,8 @@ static void test_draw_rotated_texture(int x, int y, int height, double angle,
 									  texture_t *texture);
 #define iw_get_highlight_instruction_progress test_instruction_progress
 #define cw_get_code_box_highlight_progress test_code_box_progress
+#define cw_get_code_list_size test_code_list_size
+#define cw_get_code_line_coord_at_pos test_code_line_coord_at_pos
 #define cw_get_challenge_highlight_progress test_challenge_progress
 #define bf_get_input_buffer_highlight_progress test_input_progress
 #define bf_get_output_buffer_highlight_progress test_output_progress
@@ -26,12 +28,27 @@ static void test_draw_rotated_texture(int x, int y, int height, double angle,
 #undef bf_get_output_buffer_highlight_progress
 #undef bf_get_input_buffer_highlight_progress
 #undef cw_get_challenge_highlight_progress
+#undef cw_get_code_line_coord_at_pos
+#undef cw_get_code_list_size
 #undef cw_get_code_box_highlight_progress
 #undef iw_get_highlight_instruction_progress
 
 static float provider_progress[HIGHLIGHT_IMMEDIATES + 1];
 static bool provider_active[HIGHLIGHT_IMMEDIATES + 1];
 static int arrow_draw_count;
+static SDL_Rect op2_line_rect;
+
+int test_code_list_size(void)
+{
+	return 2;
+}
+
+SDL_Rect test_code_line_coord_at_pos(int element, int position)
+{
+	assert(position == 1);
+	(void)element;
+	return op2_line_rect;
+}
 
 static void test_draw_rotated_texture(int x, int y, int height, double angle,
 									  texture_t *texture)
@@ -414,6 +431,44 @@ static void test_level1_code_box_arrow_regression(void)
 	tr_clear();
 }
 
+static void test_op2_vertical_clearance(void)
+{
+	static const dm_resolution_t resolutions[] = {
+		DM_RESOLUTION_1600X900,
+		DM_RESOLUTION_1920X1080
+	};
+	static const float samples[] = {0.0f, 0.25f, 0.5f, 0.75f, 1.0f};
+	op2_line_rect = (SDL_Rect){.x = 423, .y = 504, .w = 90, .h = 40};
+
+	for (size_t resolution = 0;
+	     resolution < sizeof(resolutions) / sizeof(resolutions[0]);
+	     resolution++) {
+		dm_set_screen_resolution(resolutions[resolution]);
+		SDL_Rect arrow_size = ar_get_arrow_wh();
+		int original_y = op2_line_rect.y + op2_line_rect.h / 2;
+		int expected_clearance =
+			dm_scale_to_res(OP2_ARROW_VERTICAL_CLEARANCE_DESIGN_PX);
+		int expected_start_y = original_y + expected_clearance;
+
+		ar_init_arrow(AR_OP2);
+		assert(g_arrow_op2.starty == expected_start_y);
+		assert(g_arrow_op2.box.y == expected_start_y);
+		assert(g_arrow_op2.travel == arrow_size.h);
+		assert(g_arrow_op2.dir == AR_UP);
+		assert(g_arrow_op2.visible);
+		assert(!g_arrow_op2.highlight_progress_inverted);
+
+		for (size_t sample = 0;
+		     sample < sizeof(samples) / sizeof(samples[0]); sample++) {
+			int expected_original_y =
+				original_y - (int)(arrow_size.h * samples[sample]);
+			int expected_corrected_y = expected_original_y + expected_clearance;
+			position_arrow(&g_arrow_op2, samples[sample]);
+			assert(g_arrow_op2.box.y == expected_corrected_y);
+		}
+	}
+}
+
 static void test_challenge_arrow_highlight_configuration(void)
 {
 	assert(tr_load_level(13));
@@ -443,6 +498,7 @@ int main(void)
 	test_inactive_mapped_provider_lifecycle();
 	test_synchronized_arrow_positions();
 	test_level1_code_box_arrow_regression();
+	test_op2_vertical_clearance();
 	test_challenge_arrow_highlight_configuration();
 	test_resolution(DM_RESOLUTION_1600X900);
 	test_tutorial_reentry();
