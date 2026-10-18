@@ -25,6 +25,7 @@
 #include "text_tx.h"
 #include "gameplay/win_condition_wc.h"
 #include "gameplay/operand_highlights_oh.h"
+#include "gameplay/highlight_animation_ha.h"
 
 typedef struct level_flags_t {
 	bool play;
@@ -195,6 +196,7 @@ static void destroy_level(level_flags_t *flags)
  */
 void stage_drawings(int level, int operation_id)
 {
+	ha_begin_frame();
 	iw_draw_ins_box();
 	cw_draw_code_window();
 	float animation_limit = cw_get_challenge_highlight_limit();

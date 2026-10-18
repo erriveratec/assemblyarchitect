@@ -10,6 +10,8 @@
 #include "assert.h"
 #include "media/audio_au.h"
 #include "aux.h"
+#include <math.h>
+#include "gameplay/highlight_animation_ha.h"
 
 static Uint32 STAGE_BUTTONS_MOVEMENT_DELTA = 10;
 static Uint32 RET_BUTTON_W = 90;
@@ -32,8 +34,6 @@ static bool g_stage_buttons_visible = false;
 static unsigned int g_step_highlight_sources;
 static unsigned int g_fast_highlight_sources;
 static bool g_stage_button_highlight;
-static bool g_stage_button_highlight_rendered;
-static dw_pulse_t g_stage_button_pulse;
 static float g_stage_button_highlight_value;
 
 texture_t *stop_button = NULL;
@@ -342,12 +342,8 @@ void sb_draw_stage_btns(int code_size, float animation_limit)
 	adjust_stage_buttons_position(code_size);
 	g_stage_button_highlight = g_step_highlight_sources != 0 ||
 	                           g_fast_highlight_sources != 0;
-	if (g_stage_button_highlight != g_stage_button_highlight_rendered) {
-		dw_pulse_reset(&g_stage_button_pulse);
-		g_stage_button_highlight_rendered = g_stage_button_highlight;
-	}
 	g_stage_button_highlight_value = g_stage_button_highlight ?
-		dw_pulse_value(&g_stage_button_pulse, animation_limit) : 0.0f;
+		ha_get_value(animation_limit) : 0.0f;
 	bt_draw_iface_btn(stop, sb_chk_rst_esc_menu_active(), g_sfx_iface_hover);
 	bt_draw_iface_btn(play, sb_chk_rst_esc_menu_active(), g_sfx_iface_hover);
 	if (g_step_btns_avail == true){
@@ -355,9 +351,6 @@ void sb_draw_stage_btns(int code_size, float animation_limit)
 		                  g_sfx_iface_hover);
 		draw_stage_button(step, STEP, sb_chk_rst_esc_menu_active(),
 		                  g_sfx_iface_hover);
-	}
-	if (g_stage_button_highlight) {
-		dw_pulse_advance(&g_stage_button_pulse, animation_limit);
 	}
 }
 
@@ -386,11 +379,11 @@ bool sb_get_button_highlight_progress(int button_id,
 	bool highlighted = button_id == STEP ? g_step_highlight_sources != 0 :
 	                    button_id == FAST ? g_fast_highlight_sources != 0 :
 	                    false;
-	if (progress == NULL || !highlighted || animation_limit <= 0.0f) {
+	if (progress == NULL || !highlighted || !isfinite(animation_limit) ||
+	    animation_limit <= 0.0f) {
 		return false;
 	}
-	*progress = dw_pulse_progress(g_stage_button_highlight_value,
-	                              animation_limit);
+	*progress = ha_get_progress();
 	return true;
 }
 

@@ -7,7 +7,9 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <math.h>
 #include "draw_dw.h"
+#include "gameplay/highlight_animation_ha.h"
 #include "list.h"
 #include "dbg.h"
 #include "aux.h"
@@ -74,8 +76,6 @@ static bool g_input_buffer_highlight;
 static bool g_output_buffer_highlight;
 static unsigned int g_input_buffer_highlight_sources;
 static unsigned int g_output_buffer_highlight_sources;
-static bool g_buffer_highlight_rendered;
-static dw_pulse_t g_buffer_pulse;
 static float g_buffer_highlight_value;
 
 btn_t input_buffer_button;
@@ -772,17 +772,10 @@ void bf_set_output_box(SDL_Rect r)
 void bf_draw_buffers(float animation_limit)
 {
 	bool highlighted = g_input_buffer_highlight || g_output_buffer_highlight;
-	if (highlighted != g_buffer_highlight_rendered) {
-		dw_pulse_reset(&g_buffer_pulse);
-		g_buffer_highlight_rendered = highlighted;
-	}
 	g_buffer_highlight_value = highlighted ?
-		dw_pulse_value(&g_buffer_pulse, animation_limit) : 0.0f;
+		ha_get_value(animation_limit) : 0.0f;
 	draw_input_buffer();
 	draw_output_buffer();
-	if (highlighted) {
-		dw_pulse_advance(&g_buffer_pulse, animation_limit);
-	}
 }
 
 bool bf_get_input_buffer_highlight_progress(float *progress,
@@ -805,10 +798,10 @@ static bool get_buffer_highlight_progress(bool highlighted, float *progress,
 	if (progress == NULL || !highlighted) {
 		return false;
 	}
-	if (animation_limit <= 0.0f) {
+	if (!isfinite(animation_limit) || animation_limit <= 0.0f) {
 		return false;
 	}
-	*progress = dw_pulse_progress(g_buffer_highlight_value, animation_limit);
+	*progress = ha_get_progress();
 	return true;
 }
 

@@ -32,6 +32,8 @@ TEXT_BOX_LAYOUT_TEST_EXEC = text_box_layout_test
 TEXT_BOX_LAYOUT_TEST_SOURCE = tests/text_box_layout_test.c
 TUTORIAL_ARROW_ANIMATION_TEST_EXEC = tutorial_arrow_animation_test
 TUTORIAL_ARROW_ANIMATION_TEST_SOURCE = tests/tutorial_arrow_animation_test.c
+HIGHLIGHT_ANIMATION_SYNC_TEST_EXEC = highlight_animation_sync_test
+HIGHLIGHT_ANIMATION_SYNC_TEST_SOURCE = tests/highlight_animation_sync_test.c
 
  
 ############################
@@ -90,7 +92,12 @@ build:
 run: build
 	./$(EXEC)
 
-test: test-level-config-hover test-operand-highlights test-operand-change-selection test-tutorial-text test-sector-completion-navigation test-buffer-label-layout test-execution-arrow-geometry test-text-box-layout test-tutorial-arrow-animation
+test: test-level-config-hover test-operand-highlights test-operand-change-selection test-tutorial-text test-sector-completion-navigation test-buffer-label-layout test-execution-arrow-geometry test-text-box-layout test-tutorial-arrow-animation test-highlight-animation-sync
+
+test-highlight-animation-sync:
+	$(CC) $(CFLAGS) $(HIGHLIGHT_ANIMATION_SYNC_TEST_SOURCE) $(TEST_SOURCES) -o $(HIGHLIGHT_ANIMATION_SYNC_TEST_EXEC) \
+	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
+	./$(HIGHLIGHT_ANIMATION_SYNC_TEST_EXEC)
 
 test-tutorial-arrow-animation:
 	$(CC) $(CFLAGS) $(TUTORIAL_ARROW_ANIMATION_TEST_SOURCE) \

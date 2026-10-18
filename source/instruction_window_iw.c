@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdbool.h>
+#include <math.h>
 #include <SDL.h>
 #include "list.h"
 #include "ui/button_bt.h"
@@ -10,6 +11,7 @@
 #include "dimensions_dm.h"
 #include "stage_buttons_sb.h"
 #include "aux.h"
+#include "gameplay/highlight_animation_ha.h"
 #include "code_window_cw.h"
 #include "ui/ui_metrics_um.h"
 #include "instruction_layout_il.h"
@@ -23,7 +25,6 @@ texture_t *instructions_text;
 static List *instruction_list = NULL;
 SDL_Rect g_instruction_box;
 static int g_highlight_instruction_mask;
-static dw_pulse_t g_instruction_pulse;
 static float g_instruction_highlight_value;
 
 static List *get_instruction_list();
@@ -354,7 +355,7 @@ void iw_draw_ins_box()
 	dw_draw_thick_rect(g_instruction_box, um_border_width(), C_GREY);
 	float anim_limit = cw_get_challenge_highlight_limit();
 	g_instruction_highlight_value = g_highlight_instruction_mask != 0 ?
-	    dw_pulse_value(&g_instruction_pulse, anim_limit) : 0.0f;
+	    ha_get_value(anim_limit) : 0.0f;
 
 	LIST_FOREACH(instructions, first, next, cur){
 		instruction_t *c = cur->value;
@@ -364,17 +365,10 @@ void iw_draw_ins_box()
 			bt_draw_btn(c->b, sb_chk_rst_esc_menu_active(), false);
 		}
 	}
-
-	if (g_highlight_instruction_mask != 0) {
-		dw_pulse_advance(&g_instruction_pulse, anim_limit);
-	}
 }
 
 void iw_set_highlight_instructions(int instruction_mask)
 {
-	if (instruction_mask != g_highlight_instruction_mask) {
-		dw_pulse_reset(&g_instruction_pulse);
-	}
 	g_highlight_instruction_mask = instruction_mask;
 }
 
@@ -384,10 +378,10 @@ bool iw_get_highlight_instruction_progress(float *progress)
 		return false;
 	}
 	float anim_limit = cw_get_challenge_highlight_limit();
-	if (anim_limit <= 0.0f) {
+	if (!isfinite(anim_limit) || anim_limit <= 0.0f) {
 		return false;
 	}
-	*progress = dw_pulse_progress(g_instruction_highlight_value, anim_limit);
+	*progress = ha_get_progress();
 	return true;
 }
 

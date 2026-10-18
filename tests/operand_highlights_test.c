@@ -13,6 +13,7 @@
 #include "dimensions_dm.h"
 #include "gameplay/level_presentation_lp.h"
 #include "gameplay/operand_highlights_oh.h"
+#include "gameplay/highlight_animation_ha.h"
 #include "gameplay/ui_highlight_source.h"
 #include "immediates_im.h"
 #include "instruction_layout_il.h"
@@ -487,6 +488,8 @@ static void test_immediate_grid_geometry(dm_resolution_t resolution)
 
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, true);
 	clear_test_renderer();
+	ha_reset();
+	ha_begin_frame();
 	im_draw_imm((float)dw_get_animation_limit());
 	float immediate_progress = -1.0f;
 	float animation_limit = (float)dw_get_animation_limit();
@@ -496,6 +499,7 @@ static void test_immediate_grid_geometry(dm_resolution_t resolution)
 	assert(im_get_highlight_progress(&repeated_progress, animation_limit));
 	assert(fabsf(immediate_progress - repeated_progress) < 0.00001f);
 	clear_test_renderer();
+	ha_begin_frame();
 	im_draw_imm((float)dw_get_animation_limit());
 	assert(im_get_highlight_progress(&immediate_progress, animation_limit));
 	assert(fabsf(immediate_progress -

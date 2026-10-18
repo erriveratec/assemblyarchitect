@@ -5,8 +5,10 @@
 #include <SDL.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <math.h>
 #include "dbg.h"
 #include "draw_dw.h"
+#include "gameplay/highlight_animation_ha.h"
 #include "aux.h"
 #include "code_line_cl.h"
 #include "code_window_cw.h"
@@ -32,8 +34,6 @@ static List *register_list = NULL;
 static SDL_Rect register_box;
 static bool g_register_highlight;
 static unsigned int g_register_highlight_sources;
-static bool g_register_highlight_rendered;
-static dw_pulse_t g_register_pulse;
 static float g_register_highlight_value;
 
 static void set_register_box_member(int value, int member);
@@ -766,16 +766,12 @@ void rg_draw_registers(float animation_limit)
 	List *registers = rg_get_register_list();
 	
 	assert(registers != NULL && "Invalid pointer");
-	if (g_register_highlight != g_register_highlight_rendered) {
-		dw_pulse_reset(&g_register_pulse);
-		g_register_highlight_rendered = g_register_highlight;
-	}
 
 	draw_register_box();
 	draw_register_text();
 	draw_value_boxes();
 	g_register_highlight_value = g_register_highlight ?
-		dw_pulse_value(&g_register_pulse, animation_limit) : 0.0f;
+		ha_get_value(animation_limit) : 0.0f;
 	
 	LIST_FOREACH(registers, first, next, cur){
 		reg_t *reg = cur->value;
@@ -795,10 +791,6 @@ void rg_draw_registers(float animation_limit)
 			vb_draw(&reg->value, C_WHITE);
 		}
 	}
-
-	if (g_register_highlight) {
-		dw_pulse_advance(&g_register_pulse, animation_limit);
-	}
 }
 
 void rg_set_register_highlight_source(ui_highlight_source_t source,
@@ -815,10 +807,10 @@ bool rg_get_register_highlight_progress(float *progress,
 	if (progress == NULL || !g_register_highlight) {
 		return false;
 	}
-	if (animation_limit <= 0.0f) {
+	if (!isfinite(animation_limit) || animation_limit <= 0.0f) {
 		return false;
 	}
-	*progress = dw_pulse_progress(g_register_highlight_value, animation_limit);
+	*progress = ha_get_progress();
 	return true;
 }
 

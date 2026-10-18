@@ -13,6 +13,7 @@
 #include "buffers_bf.h"
 #include "registers_rg.h"
 #include "draw_dw.h"
+#include "gameplay/highlight_animation_ha.h"
 #include "immediates_im.h"
 #include "stage_buttons_sb.h"
 #include "ui/escape_menu_em.h"
@@ -36,8 +37,6 @@ static SDL_Rect g_scroll_box;
 static SDL_Rect g_text_box;
 static bool g_challenge_highlight;
 static bool g_code_box_highlight;
-static dw_pulse_t g_challenge_pulse;
-static dw_pulse_t g_code_box_pulse;
 static float g_challenge_highlight_value;
 static float g_code_box_highlight_value;
 
@@ -1277,20 +1276,22 @@ float cw_get_challenge_highlight_limit()
 bool cw_get_code_box_highlight_progress(float *progress,
 										float animation_limit)
 {
-	if (progress == NULL || !g_code_box_highlight || animation_limit <= 0.0f) {
+	if (progress == NULL || !g_code_box_highlight ||
+	    !isfinite(animation_limit) || animation_limit <= 0.0f) {
 		return false;
 	}
-	*progress = dw_pulse_progress(g_code_box_highlight_value, animation_limit);
+	*progress = ha_get_progress();
 	return true;
 }
 
 bool cw_get_challenge_highlight_progress(float *progress,
 										float animation_limit)
 {
-	if (progress == NULL || !g_challenge_highlight || animation_limit <= 0.0f) {
+	if (progress == NULL || !g_challenge_highlight ||
+	    !isfinite(animation_limit) || animation_limit <= 0.0f) {
 		return false;
 	}
-	*progress = dw_pulse_progress(g_challenge_highlight_value, animation_limit);
+	*progress = ha_get_progress();
 	return true;
 }
 
@@ -1339,17 +1340,11 @@ void cw_set_challenge_text(char *text)
 
 void cw_set_challenge_highlight(bool enabled)
 {
-	if (!enabled) {
-		dw_pulse_reset(&g_challenge_pulse);
-	}
 	g_challenge_highlight = enabled;
 }
 
 void cw_set_code_box_highlight(bool enabled)
 {
-	if (enabled != g_code_box_highlight) {
-		dw_pulse_reset(&g_code_box_pulse);
-	}
 	g_code_box_highlight = enabled;
 }
 
@@ -1611,7 +1606,7 @@ void cw_draw_code_window()
 	float code_box_bottom = g_code_box.y + g_code_box.h;
 	float anim_limit = cw_get_challenge_highlight_limit();
 	g_code_box_highlight_value = g_code_box_highlight ?
-		dw_pulse_value(&g_code_box_pulse, anim_limit) : 0.0f;
+		ha_get_value(anim_limit) : 0.0f;
 	if (g_code_box_highlight) {
 		code_box_frame_growth =
 		    g_code_box_highlight_value * CODE_BOX_HIGHLIGHT_GROWTH_MULTIPLIER;
@@ -1646,8 +1641,6 @@ void cw_draw_code_window()
 		dw_draw_filled_rectangle_f(
 		    dw_grow_rect_height(inner, code_box_frame_growth),
 		                          C_BLACK, C_BLACK);
-
-		dw_pulse_advance(&g_code_box_pulse, anim_limit);
 	} else {
 		dw_draw_thick_rect(g_code_box, um_border_width(), C_GREY);
 	}
@@ -1662,8 +1655,7 @@ void cw_draw_code_window()
 		dw_draw_rectangle(g_text_box, C_GREY);
 	} else {
 		int line_count = g_challenge_text->size;
-		g_challenge_highlight_value =
-			dw_pulse_value(&g_challenge_pulse, anim_limit);
+		g_challenge_highlight_value = ha_get_value(anim_limit);
 		float challenge_pulse = g_challenge_highlight_value;
 
 		float line_height = h + challenge_pulse;
@@ -1694,8 +1686,6 @@ void cw_draw_code_window()
 			y += line_height;
 		}
 		dw_draw_rectangle_f(challenge_box, C_GREY);
-
-		dw_pulse_advance(&g_challenge_pulse, anim_limit);
 	}
 	if (!g_challenge_highlight) {
 		g_challenge_highlight_value = 0.0f;
