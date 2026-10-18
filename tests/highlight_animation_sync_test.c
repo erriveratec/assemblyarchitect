@@ -21,6 +21,8 @@
 
 enum { TARGET_PROGRESS_COUNT = 9 };
 
+static texture_t g_test_input_arrow_texture;
+
 static int get_cycle_frame_budget(void)
 {
 	int limit = dw_get_animation_limit();
@@ -55,10 +57,80 @@ static void clear_highlight_targets(void)
 	iw_set_highlight_instructions(0);
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, false);
+	im_set_imm_up_avail(false);
 	sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, STEP, false);
 	sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, FAST, false);
 	sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, STEP, false);
 	sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, FAST, false);
+}
+
+static void initialize_test_graphics(void)
+{
+	assert(g_screen == NULL);
+	assert(g_renderer == NULL);
+	assert(g_font == NULL);
+	assert(g_ib_arrow == NULL);
+	assert(g_test_input_arrow_texture.texture == NULL);
+
+	int sdl_result = SDL_Init(0);
+	assert(sdl_result == 0);
+	(void)sdl_result;
+	int ttf_result = TTF_Init();
+	assert(ttf_result == 0);
+	(void)ttf_result;
+
+	g_screen = SDL_CreateRGBSurfaceWithFormat(
+	    0, 1600, 900, 32, SDL_PIXELFORMAT_RGBA32);
+	assert(g_screen != NULL);
+	g_renderer = SDL_CreateSoftwareRenderer(g_screen);
+	assert(g_renderer != NULL);
+	g_font = TTF_OpenFont("fonts/DOSVGA437.ttf", 130);
+	assert(g_font != NULL);
+	dm_set_screen_resolution(DM_RESOLUTION_1600X900);
+	g_test_input_arrow_texture = (texture_t){
+		.w = 45,
+		.h = 45,
+		.texture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_RGBA8888,
+		                             SDL_TEXTUREACCESS_STATIC, 45, 45)
+	};
+	assert(g_test_input_arrow_texture.texture != NULL);
+	g_ib_arrow = &g_test_input_arrow_texture;
+	assert(g_ib_arrow == &g_test_input_arrow_texture);
+}
+
+static void destroy_test_graphics(void)
+{
+	tr_clear();
+	clear_highlight_targets();
+	g_ib_arrow = NULL;
+	assert(g_ib_arrow == NULL);
+
+	if (g_test_input_arrow_texture.texture != NULL) {
+		SDL_DestroyTexture(g_test_input_arrow_texture.texture);
+		g_test_input_arrow_texture.texture = NULL;
+	}
+	assert(g_test_input_arrow_texture.texture == NULL);
+
+	if (g_font != NULL) {
+		TTF_CloseFont(g_font);
+		g_font = NULL;
+	}
+	assert(g_font == NULL);
+
+	if (g_renderer != NULL) {
+		SDL_DestroyRenderer(g_renderer);
+		g_renderer = NULL;
+	}
+	assert(g_renderer == NULL);
+
+	if (g_screen != NULL) {
+		SDL_FreeSurface(g_screen);
+		g_screen = NULL;
+	}
+	assert(g_screen == NULL);
+
+	TTF_Quit();
+	SDL_Quit();
 }
 
 static void enable_all_targets(void)
@@ -142,7 +214,9 @@ static void test_level0_tutorial_transition(void)
 {
 	ha_reset();
 	clear_highlight_targets();
-	assert(tr_load_level(0));
+	bool loaded = tr_load_level(0);
+	assert(loaded);
+	(void)loaded;
 
 	cs_context_t select_input_context = {
 		.code_size = 1,
@@ -162,6 +236,10 @@ static void test_level0_tutorial_transition(void)
 	    &input_progress, (float)dw_get_animation_limit()));
 	assert(input_progress == interior_phase);
 
+	/* This regression checks real tutorial activation and the shared normalized
+	 * phase. Component tests cover target geometry; amplitudes may differ while
+	 * all active targets reach normalized endpoints in the same frame.
+	 */
 	cs_context_t review_context = {
 		.code_size = 1,
 		.operation_flag = NO_OPERATION
@@ -178,6 +256,7 @@ static void test_level0_tutorial_transition(void)
 		assert_level0_review_progress(ha_get_progress());
 	}
 	tr_clear();
+	clear_highlight_targets();
 }
 
 static void test_peaks_directions_and_target_removal(void)
@@ -266,6 +345,7 @@ static void test_source_ownership_and_inactive_clock(void)
 static void test_getters_preserve_frame_snapshot(void)
 {
 	ha_reset();
+	clear_highlight_targets();
 	ha_begin_frame();
 	float snapshot = ha_get_progress();
 	float scaled_snapshot = ha_get_value(7.5f);
@@ -298,40 +378,19 @@ static void test_invalid_getter_inputs(void)
 	assert(ha_get_value(0.0f) == 0.0f);
 	assert(ha_get_value(-1.0f) == 0.0f);
 	assert(ha_get_value(INFINITY) == 0.0f);
+	clear_highlight_targets();
 }
 
 int main(void)
 {
-	assert(SDL_Init(0) == 0);
-	assert(TTF_Init() == 0);
-	g_screen = SDL_CreateRGBSurfaceWithFormat(
-	    0, 1600, 900, 32, SDL_PIXELFORMAT_RGBA32);
-	assert(g_screen != NULL);
-	g_renderer = SDL_CreateSoftwareRenderer(g_screen);
-	assert(g_renderer != NULL);
-	g_font = TTF_OpenFont("fonts/DOSVGA437.ttf", 130);
-	assert(g_font != NULL);
-	dm_set_screen_resolution(DM_RESOLUTION_1600X900);
-	texture_t input_arrow_texture = {
-		.w = 45,
-		.h = 45,
-		.texture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_RGBA8888,
-		                             SDL_TEXTUREACCESS_STATIC, 45, 45)
-	};
-	assert(input_arrow_texture.texture != NULL);
-	g_ib_arrow = &input_arrow_texture;
+	initialize_test_graphics();
 	test_transition_joins_shared_phase();
 	test_level0_tutorial_transition();
 	test_peaks_directions_and_target_removal();
 	test_source_ownership_and_inactive_clock();
 	test_getters_preserve_frame_snapshot();
 	test_invalid_getter_inputs();
+	destroy_test_graphics();
 	puts("highlight animation synchronization tests passed");
-	SDL_DestroyTexture(input_arrow_texture.texture);
-	TTF_CloseFont(g_font);
-	SDL_DestroyRenderer(g_renderer);
-	SDL_FreeSurface(g_screen);
-	TTF_Quit();
-	SDL_Quit();
 	return 0;
 }
