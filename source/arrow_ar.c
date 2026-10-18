@@ -65,7 +65,7 @@ SDL_Rect ar_get_arrow_wh();
 static arrow_t *get_arrow_by_id(int arrow_id);
 static bool get_highlight_progress(const arrow_t *arrow, float *progress,
 								  float animation_limit);
-static void initialize_motion_pulse(arrow_t *arrow);
+static void initialize_motion_pulse(arrow_t *arrow, float animation_limit);
 static float get_motion_progress(arrow_t *arrow, float animation_limit);
 static void position_arrow(arrow_t *arrow, float progress);
 static void draw_arrow(arrow_t *arrow);
@@ -614,15 +614,16 @@ static void initialize_error_arrow()
 		g_arrow_error.visible = false;
 		return;
 	}
-	g_arrow_error.box.x = back_button.x - a.w;
+	int target_x = back_button.x - a.w;
+	g_arrow_error.startx = target_x - a.w;
+	g_arrow_error.box.x = g_arrow_error.startx;
 	g_arrow_error.box.y = back_button.y + back_button.h / 2 - a.h / 2;
 	g_arrow_error.box.w = a.w;
 	g_arrow_error.box.h = a.h;
 	g_arrow_error.in_place = false;
 	g_arrow_error.visible = true;
-	g_arrow_error.startx = back_button.x - 2 * a.w;
 	g_arrow_error.starty = g_arrow_error.box.y;
-	g_arrow_error.travel = a.h;
+	g_arrow_error.travel = target_x - g_arrow_error.startx;
 	g_arrow_error.dir = AR_RIGHT;
 	g_arrow_error.texture = g_lv_arrow;
 }
@@ -911,7 +912,7 @@ static bool get_highlight_progress(const arrow_t *arrow, float *progress,
 	return false;
 }
 
-static void initialize_motion_pulse(arrow_t *arrow)
+static void initialize_motion_pulse(arrow_t *arrow, float animation_limit)
 {
 	int offset = 0;
 	switch (arrow->dir) {
@@ -938,7 +939,9 @@ static void initialize_motion_pulse(arrow_t *arrow)
 	} else if (offset > arrow->travel) {
 		offset = arrow->travel;
 	}
-	arrow->motion_pulse.value = (float)offset;
+	arrow->motion_pulse.value = dw_pulse_progress((float)offset,
+	                                             (float)arrow->travel)
+	                            * animation_limit;
 	arrow->motion_pulse.descending = arrow == &g_arrow_ins ?
 	    !arrow->in_place : arrow->in_place;
 	arrow->motion_initialized = true;
@@ -952,12 +955,11 @@ static float get_motion_progress(arrow_t *arrow, float animation_limit)
 	}
 
 	if (!arrow->motion_initialized) {
-		initialize_motion_pulse(arrow);
+		initialize_motion_pulse(arrow, animation_limit);
 	}
-	progress = dw_pulse_value(&arrow->motion_pulse,
-	                          (float)arrow->travel);
-	dw_pulse_advance(&arrow->motion_pulse, (float)arrow->travel);
-	return dw_pulse_progress(progress, (float)arrow->travel);
+	progress = dw_pulse_value(&arrow->motion_pulse, animation_limit);
+	dw_pulse_advance(&arrow->motion_pulse, animation_limit);
+	return dw_pulse_progress(progress, animation_limit);
 }
 
 static void position_arrow(arrow_t *arrow, float progress)
