@@ -43,6 +43,15 @@ static bool use_shared_output_provider;
 static int arrow_draw_count;
 static SDL_Rect op2_line_rect;
 
+static const float TEST_PROGRESS_EPSILON = 0.00001f;
+
+static void assert_progress_equal(float actual, float expected)
+{
+	assert(isfinite(actual));
+	assert(isfinite(expected));
+	assert(fabsf(actual - expected) <= TEST_PROGRESS_EPSILON);
+}
+
 int test_code_list_size(void)
 {
 	return 2;
@@ -152,6 +161,8 @@ static void assert_reset(void)
 	assert(g_arrow_error.box.x == g_arrow_error.startx);
 	assert(g_arrow_error.starty == back_button.y + back_button.h / 2 - size.h / 2);
 	assert(g_arrow_error.box.y == g_arrow_error.starty);
+	assert(g_arrow_error.box.w == size.w);
+	assert(g_arrow_error.box.h == size.h);
 	assert(!g_arrow_error.motion_initialized);
 	assert(g_arrow_error.motion_pulse.value == 0.0f);
 	assert(!g_arrow_error.motion_pulse.descending);
@@ -163,7 +174,7 @@ static void assert_error_position(float progress, float limit)
 	assert(test_failure_back_button_rect(&back_button));
 	float sampled = -1.0f;
 	assert(get_highlight_progress(&g_arrow_error, &sampled, limit));
-	assert(sampled == progress);
+	assert_progress_equal(sampled, progress);
 	int draws_before = arrow_draw_count;
 	ar_display_arrow(AR_ERROR, limit);
 	assert(arrow_draw_count == draws_before + 1);
@@ -182,15 +193,19 @@ static void assert_error_position(float progress, float limit)
 	}
 }
 
-static void assert_error_samples(float limit)
+static void test_error_arrow_tracks_output_highlight(void)
 {
 	static const float samples[] = {0.0f, 0.25f, 0.5f, 0.75f, 1.0f};
+	dm_set_screen_resolution(DM_RESOLUTION_1600X900);
+	const float limits[] = {dw_get_animation_limit(), 7.3f};
 	provider_active[HIGHLIGHT_OUTPUT_BUFFER] = true;
-	for (size_t sample = 0; sample < sizeof(samples) / sizeof(samples[0]); sample++) {
-		provider_progress[HIGHLIGHT_OUTPUT_BUFFER] = samples[sample];
+	for (size_t index = 0; index < sizeof(limits) / sizeof(limits[0]); index++) {
 		ar_init_arrow(AR_ERROR);
 		assert_reset();
-		assert_error_position(samples[sample], limit);
+		for (size_t sample = 0; sample < sizeof(samples) / sizeof(samples[0]); sample++) {
+			provider_progress[HIGHLIGHT_OUTPUT_BUFFER] = samples[sample];
+			assert_error_position(samples[sample], limits[index]);
+		}
 	}
 	provider_active[HIGHLIGHT_OUTPUT_BUFFER] = false;
 }
@@ -207,7 +222,7 @@ static void assert_cycles(float limit)
 		float actual = ha_get_progress();
 		float register_progress = -1.0f;
 		assert(rg_get_register_highlight_progress(&register_progress, limit));
-		assert(register_progress == actual);
+		assert_progress_equal(register_progress, actual);
 		assert_error_position(actual, limit);
 		if (actual == 1.0f && previous < 1.0f) {
 			upper_endpoints++;
@@ -226,11 +241,17 @@ static void test_resolution(dm_resolution_t resolution)
 {
 	dm_set_screen_resolution(resolution);
 	float limits[] = {dw_get_animation_limit(), 7.3f};
+	ar_init_arrow(AR_ERROR);
+	assert_reset();
+	provider_active[HIGHLIGHT_OUTPUT_BUFFER] = true;
+	provider_progress[HIGHLIGHT_OUTPUT_BUFFER] = 1.0f;
 	for (unsigned int index = 0; index < sizeof(limits) / sizeof(limits[0]); index++) {
-		assert_error_samples(limits[index]);
+		assert_error_position(1.0f, limits[index]);
 		g_arrow_error.visible = false;
 		float hidden_value = g_arrow_error.motion_pulse.value;
+		int draws_before = arrow_draw_count;
 		ar_display_arrow(AR_ERROR, limits[index]);
+		assert(arrow_draw_count == draws_before);
 		assert(g_arrow_error.motion_pulse.value == hidden_value);
 		ar_init_arrow(AR_ERROR);
 		assert_reset();
@@ -241,6 +262,7 @@ static void test_resolution(dm_resolution_t resolution)
 	assert(arrow_draw_count == draws_before);
 	assert(!g_arrow_error.motion_initialized);
 	assert(g_arrow_error.motion_pulse.value == 0.0f);
+	provider_active[HIGHLIGHT_OUTPUT_BUFFER] = false;
 	layout_available = false;
 	ar_init_arrow(AR_ERROR);
 	assert(!g_arrow_error.visible);
@@ -263,6 +285,8 @@ static void test_tutorial_reentry(void)
 	assert(failure_step->arrow_ids[0] == AR_ERROR);
 	assert(failure_step->highlight_targets & TUTORIAL_HIGHLIGHT_OUTPUT_BUFFER);
 	assert(failure_step->highlight_targets & TUTORIAL_HIGHLIGHT_REGISTERS);
+	assert(g_arrow_highlight_targets[failure_step->arrow_ids[0]] ==
+	       HIGHLIGHT_OUTPUT_BUFFER);
 	use_shared_output_provider = true;
 	ha_reset();
 	for (int opening = 0; opening < 3; opening++) {
@@ -564,11 +588,11 @@ int main(void)
 	test_level1_code_box_arrow_regression();
 	test_op2_vertical_clearance();
 	test_challenge_arrow_highlight_configuration();
+	test_error_arrow_tracks_output_highlight();
 	test_resolution(DM_RESOLUTION_1600X900);
 	test_tutorial_reentry();
 	test_resolution(DM_RESOLUTION_1920X1080);
 	test_tutorial_reentry();
-	test_resolution(DM_RESOLUTION_1600X900);
 	TTF_CloseFont(g_font);
 	SDL_DestroyRenderer(g_renderer);
 	SDL_FreeSurface(g_screen);

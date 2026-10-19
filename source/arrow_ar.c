@@ -61,11 +61,15 @@ typedef enum highlight_target_t {
 	HIGHLIGHT_IMMEDIATES
 } highlight_target_t;
 
-/* Mapped arrows read their owner's current rendered progress and never advance
- * a private competing pulse. HIGHLIGHT_NONE is only for arrows without an
- * animated target. The error tutorial step activates the output-buffer highlight,
- * which owns AR_ERROR synchronization; all active tutorial highlights sample
- * the same immutable frame snapshot.
+/* Mapped arrows sample their synchronization owner's rendered progress and
+ * never advance a competing private pulse, even when the provider is inactive.
+ * HIGHLIGHT_NONE is reserved for arrows without an animated target.
+ *
+ * AR_ERROR currently appears only in the missing-output tutorial, which activates
+ * HIGHLIGHT_OUTPUT_BUFFER. All active tutorial highlights sample the same immutable
+ * frame snapshot, so this owner aligns the arrow's nearest position with the
+ * maximum shared highlight phase. Future AR_ERROR uses must activate this provider
+ * or introduce explicit configurable synchronization ownership.
  */
 static const highlight_target_t g_arrow_highlight_targets[ARROW_ID_COUNT] = {
 	[AR_INS] = HIGHLIGHT_INSTRUCTION,
