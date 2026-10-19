@@ -1,4 +1,5 @@
 #include "code_window_cw.h"
+#include "code_window_cw_internal.h"
 #include "aux.h"
 
 #include <SDL.h>
@@ -2396,7 +2397,9 @@ bool cw_is_operand_pending()
 code_line_t *cw_get_code_line_pending_operand()
 {
 	List *code = get_code_list();
-	assert(NULL != code && "The code list cannot be NULL");
+	if (code == NULL) {
+		return NULL;
+	}
 
 	LIST_FOREACH(code, first, next, cur){
 		code_line_t *c = cur->value;
@@ -2415,77 +2418,67 @@ code_line_t *cw_get_code_line_pending_operand()
 	return NULL;
 }
 
+static bool get_pending_operand_slot_rect(const code_line_t *line,
+										 SDL_Rect *slot_rect)
+{
+	if (line == NULL || line->ins == NULL || line->ins->b == NULL ||
+	    slot_rect == NULL || line->ins->b->r.w <= 0 ||
+	    line->ins->b->r.h <= 0) {
+		return false;
+	}
+
+	int operand_offset;
+	switch (line->state) {
+	case MISSING_BOTH:
+	case MISSING_OP1:
+	case CHANGING_OP1:
+		operand_offset = cw_get_operand1_offset();
+		break;
+	case MISSING_OP2:
+	case CHANGING_OP2:
+		operand_offset = cw_get_operand2_offset();
+		break;
+	default:
+		return false;
+	}
+
+	*slot_rect = (SDL_Rect){
+		.x = line->ins->b->r.x + operand_offset,
+		.y = line->ins->b->r.y,
+		.w = line->ins->b->r.w,
+		.h = line->ins->b->r.h
+	};
+	return true;
+}
+
+static bool get_animated_pending_operand_rect(float normalized_progress,
+											 SDL_Rect *animated_operand_rect)
+{
+	SDL_Rect base_operand_rect;
+	if (!get_pending_operand_slot_rect(cw_get_code_line_pending_operand(),
+	                                  &base_operand_rect)) {
+		return false;
+	}
+	return cw_calculate_pending_operand_rect(
+		base_operand_rect, normalized_progress, dw_get_animation_limit(),
+		animated_operand_rect);
+}
+
 
 /* Function: cw_highlight_code_pending_operand
  * -----------------------------------------------------------------------------
- * This function is the handler that is called when a line is missing an 
- * operand.
- *
- * Arguments:
- * 	code: the list of code programmed by the player
- *	
- * Return:
- * 	Void.
+ * Draw the pending or replacing operand slot using the shared frame phase.
+ * The primary gameplay render path owns ha_begin_frame().
  *
  */
 void cw_highlight_code_pending_operand()
 {
-	code_line_t *line = cw_get_code_line_pending_operand();
-	check_mem(line);
-	
-	int op1_ofs = cw_get_operand1_offset();
-	int op2_ofs = cw_get_operand2_offset();
-	int w = cw_get_missing_operand_width();
-	int anim_max = dw_get_animation_limit();
-	int anim_delta = dw_get_animation_step();
-
-	static bool anim_dir = false;
-	static int anim_state = 0;
-
-	if (line->state == MISSING_BOTH || line->state == MISSING_OP1){
-		SDL_Rect r = {.x = line->ins->b->r.x + op1_ofs + anim_state/2, 
-					  .y = line->ins->b->r.y + anim_state/2, 
-					  .w = line->ins->b->r.w - anim_state, 
-					  .h = line->ins->b->r.h - anim_state};
-		dw_draw_thick_rect(r, w, C_WHITE);
-		if (anim_dir == false){
-			anim_state += anim_delta;
-		} else if (anim_dir == true){
-			anim_state -= anim_delta;
-		}
-
-		if (anim_state == anim_max){
-			anim_dir = true;
-		} else if (anim_state == 0){
-			anim_dir = false;
-		}
-
-	} else if (line->state == MISSING_OP2){
-		SDL_Rect r = {.x = line->ins->b->r.x + op2_ofs + anim_state/2, 
-					  .y = line->ins->b->r.y + anim_state/2, 
-					  .w = line->ins->b->r.w - anim_state, 
-					  .h = line->ins->b->r.h - anim_state};
-		dw_draw_thick_rect(r, w, C_WHITE);
-		if (anim_dir == false){
-			anim_state += anim_delta;
-		} else if (anim_dir == true){
-			anim_state -= anim_delta;
-		}
-
-		if (anim_state == anim_max){
-			anim_dir = true;
-		} else if (anim_state == 0){
-			anim_dir = false;
-		}
-	} else if (line->state == COMPLETE 
-			   || line->state == MISSING_OP1
-			   || line->state == MISSING_OP2){
-		anim_dir = false;
-		anim_state = 0;
+	SDL_Rect animated_operand_rect;
+	if (get_animated_pending_operand_rect(ha_get_progress(),
+	                                      &animated_operand_rect)) {
+		dw_draw_thick_rect(animated_operand_rect,
+		                   cw_get_missing_operand_width(), C_WHITE);
 	}
-	
-error:
-	return;
 }
 
 /* Function: cw_check_code_sorted

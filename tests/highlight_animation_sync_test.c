@@ -8,20 +8,31 @@
 #include "buffers_bf.h"
 #include "arrow_ar.h"
 #include "code_window_cw.h"
+#include "code_window_cw_internal.h"
 #include "draw_dw.h"
 #include "game_mechanics_mc.h"
 #include "dimensions_dm.h"
 #include "gameplay/highlight_animation_ha.h"
 #include "immediates_im.h"
 #include "instruction_window_iw.h"
+#include "list.h"
 #include "registers_rg.h"
 #include "sdl_config.h"
 #include "stage_buttons_sb.h"
 #include "tutorial_tr.h"
+#include "ui/ui_metrics_um.h"
 
 enum { TARGET_PROGRESS_COUNT = 9 };
 
 static texture_t g_test_input_arrow_texture;
+
+List *get_code_list(void);
+
+static struct {
+	instruction_t instruction;
+	btn_t instruction_button;
+	code_line_t line;
+} g_pending_fixture;
 
 static int get_cycle_frame_budget(void)
 {
@@ -96,6 +107,12 @@ static void initialize_test_graphics(void)
 	assert(g_test_input_arrow_texture.texture != NULL);
 	g_ib_arrow = &g_test_input_arrow_texture;
 	assert(g_ib_arrow == &g_test_input_arrow_texture);
+}
+
+static void clear_test_renderer(void)
+{
+	assert(SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255) == 0);
+	assert(SDL_RenderClear(g_renderer) == 0);
 }
 
 static void destroy_test_graphics(void)
@@ -381,6 +398,215 @@ static void test_invalid_getter_inputs(void)
 	clear_highlight_targets();
 }
 
+static void assert_rect_equal(SDL_Rect actual, SDL_Rect expected)
+{
+	assert(actual.x == expected.x && actual.y == expected.y);
+	assert(actual.w == expected.w && actual.h == expected.h);
+}
+
+static bool pixel_is_white(int x, int y)
+{
+	SDL_Rect pixel_rect = {.x = x, .y = y, .w = 1, .h = 1};
+	Uint32 pixel = 0;
+	assert(SDL_RenderReadPixels(g_renderer, &pixel_rect,
+	                            g_screen->format->format, &pixel,
+	                            sizeof(pixel)) == 0);
+	Uint8 red;
+	Uint8 green;
+	Uint8 blue;
+	Uint8 alpha;
+	SDL_GetRGBA(pixel, g_screen->format, &red, &green, &blue, &alpha);
+	return red == 255 && green == 255 && blue == 255 && alpha == 255;
+}
+
+static void assert_pending_draw_state(int state, int expected_offset)
+{
+	int op1_offset = cl_get_code_button_size().w;
+	int op2_offset = 2 * cl_get_code_button_size().w +
+	                  um_padding_horizontal();
+	SDL_Rect expected_base = g_pending_fixture.instruction_button.r;
+	expected_base.x += expected_offset;
+	SDL_Rect expected_rect;
+	assert(cw_calculate_pending_operand_rect(expected_base, ha_get_progress(),
+	                                       dw_get_animation_limit(),
+	                                       &expected_rect));
+
+	g_pending_fixture.line.state = state;
+	clear_test_renderer();
+	cw_highlight_code_pending_operand();
+	assert(pixel_is_white(expected_rect.x, expected_rect.y));
+}
+
+static void assert_no_pending_draw(int state)
+{
+	int offsets[] = {
+		cl_get_code_button_size().w,
+		2 * cl_get_code_button_size().w + um_padding_horizontal()
+	};
+	g_pending_fixture.line.state = state;
+	clear_test_renderer();
+	cw_highlight_code_pending_operand();
+	for (size_t index = 0; index < sizeof(offsets) / sizeof(offsets[0]); index++) {
+		SDL_Rect base_rect = g_pending_fixture.instruction_button.r;
+		SDL_Rect animated_rect;
+		base_rect.x += offsets[index];
+		assert(cw_calculate_pending_operand_rect(base_rect, ha_get_progress(),
+		                                       dw_get_animation_limit(),
+		                                       &animated_rect));
+		assert(!pixel_is_white(animated_rect.x, animated_rect.y));
+	}
+}
+
+static void test_pending_rect_geometry_helper(void)
+{
+	SDL_Rect base_rect = {.x = 30, .y = 40, .w = 120, .h = 80};
+	SDL_Rect minimum_rect;
+	SDL_Rect maximum_rect;
+	SDL_Rect clamped_low;
+	SDL_Rect clamped_high;
+	SDL_Rect fallback_zero;
+	SDL_Rect fallback_negative;
+	int animation_limit = dw_get_animation_limit();
+	assert(animation_limit > 0);
+	assert(cw_calculate_pending_operand_rect(base_rect, 0.0f,
+	                                       animation_limit, &minimum_rect));
+	assert(cw_calculate_pending_operand_rect(base_rect, 1.0f,
+	                                       animation_limit, &maximum_rect));
+	assert(minimum_rect.w == base_rect.w - animation_limit);
+	assert(minimum_rect.h == base_rect.h - animation_limit);
+	assert(maximum_rect.x == base_rect.x && maximum_rect.y == base_rect.y);
+	assert(maximum_rect.w == base_rect.w && maximum_rect.h == base_rect.h);
+	assert(minimum_rect.w > 0 && minimum_rect.h > 0);
+
+	assert(cw_calculate_pending_operand_rect(base_rect, -0.5f,
+	                                       animation_limit, &clamped_low));
+	assert(cw_calculate_pending_operand_rect(base_rect, 1.5f,
+	                                       animation_limit, &clamped_high));
+	assert_rect_equal(clamped_low, minimum_rect);
+	assert_rect_equal(clamped_high, maximum_rect);
+
+	assert(cw_calculate_pending_operand_rect(base_rect, 0.4f, 0,
+	                                       &fallback_zero));
+	assert(cw_calculate_pending_operand_rect(base_rect, 0.4f, -9,
+	                                       &fallback_negative));
+	assert_rect_equal(fallback_zero, base_rect);
+	assert_rect_equal(fallback_negative, base_rect);
+	assert(!cw_calculate_pending_operand_rect(base_rect, NAN, animation_limit,
+	                                        &maximum_rect));
+	assert(!cw_calculate_pending_operand_rect(base_rect, 0.5f, animation_limit,
+	                                        NULL));
+	SDL_Rect small_rect = {.x = 5, .y = 7, .w = 1, .h = 2};
+	assert(cw_calculate_pending_operand_rect(small_rect, 0.0f, 100,
+	                                       &minimum_rect));
+	assert(minimum_rect.w > 0 && minimum_rect.h > 0);
+}
+
+static void test_pending_operand_uses_shared_phase(void)
+{
+	cw_create_code_list();
+	memset(&g_pending_fixture, 0, sizeof(g_pending_fixture));
+	g_pending_fixture.instruction.id = MOV;
+	g_pending_fixture.instruction.b = &g_pending_fixture.instruction_button;
+	g_pending_fixture.instruction_button.r = (SDL_Rect){
+		.x = 100, .y = 180, .w = 180, .h = 100
+	};
+	g_pending_fixture.line.ins = &g_pending_fixture.instruction;
+	g_pending_fixture.line.state = COMPLETE;
+	List_push(get_code_list(), &g_pending_fixture.line);
+
+	ha_reset();
+	clear_highlight_targets();
+	float interior_phase = advance_until_interior_phase();
+	g_pending_fixture.line.state = MISSING_BOTH;
+	rg_set_register_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, true);
+	float register_progress = -1.0f;
+	assert(rg_get_register_highlight_progress(
+	    &register_progress, (float)dw_get_animation_limit()));
+	assert(register_progress == interior_phase);
+
+	float snapshot = ha_get_progress();
+	SDL_Rect base_rect = g_pending_fixture.instruction_button.r;
+	base_rect.x += cl_get_code_button_size().w;
+	SDL_Rect first_sample;
+	assert(cw_calculate_pending_operand_rect(base_rect, snapshot,
+	                                       dw_get_animation_limit(),
+	                                       &first_sample));
+	for (int sample = 0; sample < 8; sample++) {
+		SDL_Rect repeated_sample;
+		assert(cw_calculate_pending_operand_rect(base_rect, ha_get_progress(),
+		                                       dw_get_animation_limit(),
+		                                       &repeated_sample));
+		assert_rect_equal(first_sample, repeated_sample);
+		assert(ha_get_progress() == snapshot);
+	}
+
+	bool saw_minimum = false;
+	bool saw_maximum = false;
+	bool saw_descending = false;
+	bool saw_ascending = false;
+	for (int frame = 0; frame < 2 * get_cycle_frame_budget(); frame++) {
+		ha_begin_frame();
+		float progress = ha_get_progress();
+		assert(rg_get_register_highlight_progress(
+		    &register_progress, (float)dw_get_animation_limit()));
+		assert(register_progress == progress);
+		SDL_Rect animated_rect;
+		assert(cw_calculate_pending_operand_rect(base_rect, progress,
+		                                       dw_get_animation_limit(),
+		                                       &animated_rect));
+		assert(animated_rect.w > 0 && animated_rect.h > 0);
+		if (progress == 0.0f) saw_minimum = true;
+		if (progress == 1.0f) saw_maximum = true;
+		if (ha_is_descending()) saw_descending = true;
+		else saw_ascending = true;
+	}
+	assert(saw_minimum && saw_maximum);
+	assert(saw_descending && saw_ascending);
+
+	const float fractional_phases[] = {0.13f, 0.37f, 0.5f, 0.83f, 0.999f};
+	SDL_Rect previous_rect;
+	assert(cw_calculate_pending_operand_rect(base_rect, fractional_phases[0],
+	                                       dw_get_animation_limit(),
+	                                       &previous_rect));
+	for (size_t index = 0;
+	     index < sizeof(fractional_phases) / sizeof(fractional_phases[0]);
+	     index++) {
+		SDL_Rect current_rect;
+		assert(cw_calculate_pending_operand_rect(base_rect,
+		                                       fractional_phases[index],
+		                                       dw_get_animation_limit(),
+		                                       &current_rect));
+		assert(current_rect.w > 0 && current_rect.h > 0);
+		if (index > 0) assert(current_rect.w >= previous_rect.w);
+		previous_rect = current_rect;
+	}
+
+	int op1_offset = cl_get_code_button_size().w;
+	int op2_offset = 2 * cl_get_code_button_size().w +
+	                  um_padding_horizontal();
+	const struct {
+		int state;
+		int expected_offset;
+	} active_states[] = {
+		{MISSING_BOTH, op1_offset},
+		{MISSING_OP1, op1_offset},
+		{MISSING_OP2, op2_offset},
+		{CHANGING_OP1, op1_offset},
+		{CHANGING_OP2, op2_offset}
+	};
+	for (size_t index = 0;
+	     index < sizeof(active_states) / sizeof(active_states[0]); index++) {
+		assert_pending_draw_state(active_states[index].state,
+		                          active_states[index].expected_offset);
+	}
+	assert_no_pending_draw(COMPLETE);
+	assert_no_pending_draw(EXECUTED);
+
+	List_pop(get_code_list());
+	assert_no_pending_draw(MISSING_BOTH);
+	clear_highlight_targets();
+}
+
 int main(void)
 {
 	initialize_test_graphics();
@@ -390,6 +616,8 @@ int main(void)
 	test_source_ownership_and_inactive_clock();
 	test_getters_preserve_frame_snapshot();
 	test_invalid_getter_inputs();
+	test_pending_rect_geometry_helper();
+	test_pending_operand_uses_shared_phase();
 	destroy_test_graphics();
 	puts("highlight animation synchronization tests passed");
 	return 0;
