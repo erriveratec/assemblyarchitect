@@ -18,6 +18,7 @@
 #include "ui/run_result_rr_internal.h"
 #include "immediates_im.h"
 #include "ui/typography_ty.h"
+#include "gameplay/highlight_animation_ha.h"
 
 static const Uint32 ARROW_H = 45;
 static const Uint32 ARROW_W = 45;
@@ -63,6 +64,9 @@ typedef enum highlight_target_t {
 
 /* Mapped arrows sample their synchronization owner's rendered progress and
  * never advance a competing private pulse, even when the provider is inactive.
+ * AR_PLAY uses the code-box provider while it is active. When the provider is
+ * inactive, AR_PLAY reads the shared highlight frame phase directly. This keeps
+ * the arrow phase stable regardless of highlight visibility.
  * HIGHLIGHT_NONE is reserved for arrows without an animated target.
  *
  * AR_ERROR currently appears only in the missing-output tutorial, which activates
@@ -75,7 +79,7 @@ static const highlight_target_t g_arrow_highlight_targets[ARROW_ID_COUNT] = {
 	[AR_INS] = HIGHLIGHT_INSTRUCTION,
 	[AR_INS_MINUS] = HIGHLIGHT_INSTRUCTION,
 	[AR_DROP] = HIGHLIGHT_CODE_BOX,
-	[AR_PLAY] = HIGHLIGHT_NONE,
+	[AR_PLAY] = HIGHLIGHT_CODE_BOX,
 	[AR_STEP] = HIGHLIGHT_STEP,
 	[AR_FAST] = HIGHLIGHT_FAST,
 	[AR_CODE] = HIGHLIGHT_CODE_BOX,
@@ -118,7 +122,8 @@ static bool get_stage_button_highlight_progress(int button_id,
 												float *progress,
 												float animation_limit);
 static void initialize_motion_pulse(arrow_t *arrow, float animation_limit);
-static float get_motion_progress(arrow_t *arrow, float animation_limit);
+static float get_private_motion_progress(arrow_t *arrow,
+										 float animation_limit);
 static void position_arrow(arrow_t *arrow, float progress);
 static void draw_arrow(arrow_t *arrow);
 static void animate_arrow(arrow_t *arrow, float animation_limit);
@@ -947,16 +952,19 @@ static void animate_arrow(arrow_t *arrow, float animation_limit)
 	assert(arrow != NULL && "arrow object is NULL");
 	float progress;
 	if (get_highlight_progress(arrow, &progress, animation_limit)) {
-		if (arrow->highlight_progress_inverted) {
+		if (arrow->highlight_progress_inverted && arrow->arrow_id != AR_PLAY) {
 			progress = 1.0f - progress;
 		}
 		position_arrow(arrow, progress);
+	} else if (arrow->arrow_id == AR_PLAY) {
+		position_arrow(arrow, ha_get_progress());
 	} else if (arrow_has_highlight_provider(arrow->arrow_id)) {
 		arrow->box.x = arrow->startx;
 		arrow->box.y = arrow->starty;
 		return;
 	} else if (arrow->travel > 0) {
-		position_arrow(arrow, get_motion_progress(arrow, animation_limit));
+		position_arrow(arrow,
+		               get_private_motion_progress(arrow, animation_limit));
 	}
 	draw_arrow(arrow);
 }
@@ -1072,17 +1080,13 @@ static void initialize_motion_pulse(arrow_t *arrow, float animation_limit)
 	arrow->motion_initialized = true;
 }
 
-static float get_motion_progress(arrow_t *arrow, float animation_limit)
+static float get_private_motion_progress(arrow_t *arrow,
+										 float animation_limit)
 {
-	float progress;
-	if (get_highlight_progress(arrow, &progress, animation_limit)) {
-		return progress;
-	}
-
 	if (!arrow->motion_initialized) {
 		initialize_motion_pulse(arrow, animation_limit);
 	}
-	progress = dw_pulse_value(&arrow->motion_pulse, animation_limit);
+	float progress = dw_pulse_value(&arrow->motion_pulse, animation_limit);
 	dw_pulse_advance(&arrow->motion_pulse, animation_limit);
 	return dw_pulse_progress(progress, animation_limit);
 }
