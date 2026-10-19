@@ -75,9 +75,20 @@ static void release_at(int x, int y)
 	ms_mouse_button_handler(event);
 }
 
+static void assert_reset(btn_t *button)
+{
+	assert(!button->animated);
+	assert(!button->anim_dir);
+	assert(button->anim_state == 0);
+}
+
 static void select_operand(code_line_t *line, int position)
 {
 	btn_t *button = position == OP1 ? line->op1->b : line->op2->b;
+	SDL_Rect original_rect = button->r;
+	button->animated = true;
+	button->anim_dir = true;
+	button->anim_state = 8;
 	release_at(button->r.x + 5, button->r.y + 5);
 	cw_change_clicked_code_line_state();
 	int changing_count = 0;
@@ -90,17 +101,12 @@ static void select_operand(code_line_t *line, int position)
 	}
 	assert(changing_count == 1);
 	assert(line->state == (position == OP1 ? CHANGING_OP1 : CHANGING_OP2));
-	assert(button->animated);
+	assert_reset(button);
+	assert(button->r.x == original_rect.x && button->r.y == original_rect.y);
+	assert(button->r.w == original_rect.w && button->r.h == original_rect.h);
 }
 
-static void assert_reset(btn_t *button)
-{
-	assert(!button->animated);
-	assert(!button->anim_dir);
-	assert(button->anim_state == 0);
-}
-
-static void mark_changing(code_line_t *line, int state)
+static void mark_changing_with_stale_animation(code_line_t *line, int state)
 {
 	line->state = state;
 	operand_t *operands[] = {line->op1, line->op2};
@@ -131,7 +137,7 @@ static void test_transfer_and_reselection(void)
 	operand_t *original = first->op1;
 	select_operand(first, OP1);
 	assert(cw_chk_click_code_op());
-	mark_changing(first, CHANGING_OP1);
+	mark_changing_with_stale_animation(first, CHANGING_OP1);
 	select_operand(second, OP2);
 	assert(first->state == COMPLETE);
 	assert_reset(first->op1->b);
@@ -158,12 +164,12 @@ static void test_structural_restoration(void)
 	code_line_t *missing_jump = add_line(JMP, false, false);
 	code_line_t *selected = add_line(MOV, true, true);
 	select_operand(missing_second, OP1);
-	mark_changing(missing_first, CHANGING_OP2);
-	mark_changing(missing_both, CHANGING_OP1);
-	mark_changing(missing_jump, CHANGING_OP1);
+	mark_changing_with_stale_animation(missing_first, CHANGING_OP2);
+	mark_changing_with_stale_animation(missing_both, CHANGING_OP1);
+	mark_changing_with_stale_animation(missing_jump, CHANGING_OP1);
 	code_line_t *missing_button = add_line(MOV, true, true);
 	missing_button->op1->b = NULL;
-	mark_changing(missing_button, CHANGING_OP1);
+	mark_changing_with_stale_animation(missing_button, CHANGING_OP1);
 	select_operand(selected, OP2);
 	assert(missing_second->state == MISSING_OP2);
 	assert(missing_first->state == MISSING_OP1);
@@ -185,9 +191,12 @@ static void test_jumps_and_labels(void)
 		code_line_t *other = add_line(MOV, true, true);
 		jump->op1->jptr = label;
 		operand_t *original = jump->op1;
+		label->op1->b->animated = true;
+		label->op1->b->anim_dir = true;
+		label->op1->b->anim_state = 8;
 		select_operand(jump, OP1);
-		assert(label->op1->b->animated);
-		mark_changing(label, CHANGING_OP1);
+		assert_reset(label->op1->b);
+		mark_changing_with_stale_animation(label, CHANGING_OP1);
 		select_operand(other, OP2);
 		assert_reset(jump->op1->b);
 		assert_reset(label->op1->b);
@@ -351,8 +360,8 @@ static void test_defensive_jump_click_away(void)
 		if (original != NULL && original->b != NULL) {
 			select_operand(jump, OP1);
 		}
-		if (scenario == 5) assert(label->op1->b->animated);
-		mark_changing(jump, CHANGING_OP1);
+		if (scenario == 5) assert_reset(label->op1->b);
+		mark_changing_with_stale_animation(jump, CHANGING_OP1);
 		if (label->op1 != NULL && label->op1->b != NULL && target != NULL) {
 			label->op1->b->animated = true;
 			label->op1->b->anim_dir = true;
@@ -373,7 +382,7 @@ static void test_defensive_jump_click_away(void)
 	}
 	code_line_t *missing_button = add_line(MOV, true, true);
 	missing_button->op2->b = NULL;
-	mark_changing(missing_button, CHANGING_OP2);
+	mark_changing_with_stale_animation(missing_button, CHANGING_OP2);
 	release_at(0, 0);
 	assert(pending_operand_handler() == NULL);
 	assert(missing_button->state == COMPLETE);

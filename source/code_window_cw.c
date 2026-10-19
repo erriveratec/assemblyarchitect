@@ -2592,6 +2592,16 @@ bool cw_chk_click_code_op()
 	return clicked;
 }
 
+static void reset_button_animation(btn_t *button)
+{
+	if (button == NULL){
+		return;
+	}
+	button->animated = false;
+	button->anim_dir = false;
+	button->anim_state = 0;
+}
+
 /* Function: cw_change_clicked_line_status
  * -----------------------------------------------------------------------------
  * This function changes the status of a line whose operand has been clicked
@@ -2640,21 +2650,15 @@ void cw_change_clicked_code_line_state()
 			continue;
 		}
 		if (c->op1 != NULL && c->op1->b != NULL){
-			c->op1->b->animated = false;
-			c->op1->b->anim_dir = false;
-			c->op1->b->anim_state = 0;
+			reset_button_animation(c->op1->b);
 		}
 		if (c->op2 != NULL && c->op2->b != NULL){
-			c->op2->b->animated = false;
-			c->op2->b->anim_dir = false;
-			c->op2->b->anim_state = 0;
+			reset_button_animation(c->op2->b);
 		}
 		if (cl_is_ins_jmp_type(c->ins->id) == true && c->op1 != NULL &&
 			c->op1->jptr != NULL && c->op1->jptr->op1 != NULL &&
 			c->op1->jptr->op1->b != NULL){
-			c->op1->jptr->op1->b->animated = false;
-			c->op1->jptr->op1->b->anim_dir = false;
-			c->op1->jptr->op1->b->anim_state = 0;
+			reset_button_animation(c->op1->jptr->op1->b);
 		}
 
 		int qty = cl_get_instruction_operand_quantity(c->ins->id);
@@ -2672,16 +2676,12 @@ void cw_change_clicked_code_line_state()
 	btn_t *selected_button = selected_operand == OP1 ?
 		selected_line->op1->b : selected_line->op2->b;
 	selected_line->state = selected_operand == OP1 ? CHANGING_OP1 : CHANGING_OP2;
-	selected_button->animated = true;
-	selected_button->anim_dir = false;
-	selected_button->anim_state = 0;
+	reset_button_animation(selected_button);
 	if (cl_is_ins_jmp_type(selected_line->ins->id) == true &&
 		selected_line->op1 != NULL && selected_line->op1->jptr != NULL &&
 		selected_line->op1->jptr->op1 != NULL &&
 		selected_line->op1->jptr->op1->b != NULL){
-		selected_line->op1->jptr->op1->b->animated = true;
-		selected_line->op1->jptr->op1->b->anim_dir = false;
-		selected_line->op1->jptr->op1->b->anim_state = 0;
+		reset_button_animation(selected_line->op1->jptr->op1->b);
 	}
 }
 
@@ -2737,9 +2737,7 @@ void cw_assign_op_to_line(operand_t *op, code_line_t *line)
 			line->op1 = op;
 			line->op1->b->r.x = line->ins->b->r.x + op1_ofs;
 			line->op1->b->r.y = line->ins->b->r.y;
-			line->op1->b->animated = false;
-			line->op1->b->anim_dir = false;
-			line->op1->b->anim_state = 0;
+			reset_button_animation(line->op1->b);
 			line->state = (operand_quantity == TWO_OPERANDS &&
 							line->op2 == NULL) ? MISSING_OP2 : COMPLETE;
 			break;
@@ -2748,9 +2746,7 @@ void cw_assign_op_to_line(operand_t *op, code_line_t *line)
 			line->op2 = op;
 			line->op2->b->r.x = line->ins->b->r.x + op2_ofs;
 			line->op2->b->r.y = line->ins->b->r.y;
-			line->op2->b->animated = false;
-			line->op2->b->anim_dir = false;
-			line->op2->b->anim_state = 0;
+			reset_button_animation(line->op2->b);
 			line->state = COMPLETE;
 			break;
 		case COMPLETE:

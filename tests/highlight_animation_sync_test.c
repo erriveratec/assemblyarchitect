@@ -16,6 +16,7 @@
 #include "immediates_im.h"
 #include "instruction_window_iw.h"
 #include "list.h"
+#include "mouse_ms.h"
 #include "registers_rg.h"
 #include "sdl_config.h"
 #include "stage_buttons_sb.h"
@@ -598,6 +599,52 @@ static void test_pending_operand_uses_shared_phase(void)
 	     index < sizeof(active_states) / sizeof(active_states[0]); index++) {
 		assert_pending_draw_state(active_states[index].state,
 		                          active_states[index].expected_offset);
+	}
+	btn_t operand_buttons[2] = {0};
+	operand_t operands[2] = {0};
+	g_pending_fixture.line.op1 = &operands[0];
+	g_pending_fixture.line.op2 = &operands[1];
+	ms_init_mouse();
+	for (int position = 0; position < 2; position++) {
+		int offset = position == 0 ? op1_offset : op2_offset;
+		btn_t *button = &operand_buttons[position];
+		operands[position].b = button;
+		button->r = g_pending_fixture.instruction_button.r;
+		button->r.x += offset;
+		button->enabled = true;
+		button->animated = true;
+		button->anim_dir = true;
+		button->anim_state = 8;
+		SDL_Rect original_rect = button->r;
+		SDL_Event event = {0};
+		event.type = SDL_MOUSEBUTTONUP;
+		event.button.button = SDL_BUTTON_LEFT;
+		event.button.state = SDL_RELEASED;
+		event.button.x = button->r.x + button->r.w - 5;
+		event.button.y = button->r.y + 5;
+		ms_mouse_button_handler(event);
+		cw_change_clicked_code_line_state();
+		int expected_state = position == 0 ? CHANGING_OP1 : CHANGING_OP2;
+		assert(g_pending_fixture.line.state == expected_state);
+		ha_reset();
+		SDL_Rect first_rect;
+		assert(cw_calculate_pending_operand_rect(original_rect, ha_get_progress(),
+		                                       dw_get_animation_limit(), &first_rect));
+		bool geometry_changed = false;
+		for (int frame = 0; frame < get_cycle_frame_budget(); frame++) {
+			ha_begin_frame();
+			SDL_Rect current_rect;
+			assert(cw_calculate_pending_operand_rect(original_rect, ha_get_progress(),
+			                                       dw_get_animation_limit(), &current_rect));
+			if (current_rect.w != first_rect.w || current_rect.h != first_rect.h) {
+				geometry_changed = true;
+			}
+			assert_pending_draw_state(expected_state, offset);
+			assert(!button->animated && !button->anim_dir);
+			assert(button->anim_state == 0);
+			assert_rect_equal(button->r, original_rect);
+		}
+		assert(geometry_changed);
 	}
 	assert_no_pending_draw(COMPLETE);
 	assert_no_pending_draw(EXECUTED);
