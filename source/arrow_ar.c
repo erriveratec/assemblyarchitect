@@ -63,7 +63,9 @@ typedef enum highlight_target_t {
 
 /* Mapped arrows read their owner's current rendered progress and never advance
  * a private competing pulse. HIGHLIGHT_NONE is only for arrows without an
- * animated target.
+ * animated target. The error tutorial step activates the output-buffer highlight,
+ * which owns AR_ERROR synchronization; all active tutorial highlights sample
+ * the same immutable frame snapshot.
  */
 static const highlight_target_t g_arrow_highlight_targets[ARROW_ID_COUNT] = {
 	[AR_INS] = HIGHLIGHT_INSTRUCTION,
@@ -75,7 +77,7 @@ static const highlight_target_t g_arrow_highlight_targets[ARROW_ID_COUNT] = {
 	[AR_CODE] = HIGHLIGHT_CODE_BOX,
 	[AR_DEL] = HIGHLIGHT_CODE_BOX,
 	[AR_OP2] = HIGHLIGHT_CODE_BOX,
-	[AR_ERROR] = HIGHLIGHT_NONE,
+	[AR_ERROR] = HIGHLIGHT_OUTPUT_BUFFER,
 	[AR_CHALLENGE] = HIGHLIGHT_CHALLENGE,
 	[AR_IB] = HIGHLIGHT_INPUT_BUFFER,
 	[AR_OB] = HIGHLIGHT_OUTPUT_BUFFER,

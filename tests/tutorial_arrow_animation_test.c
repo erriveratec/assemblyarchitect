@@ -4,6 +4,7 @@
 #include "game_mechanics_mc.h"
 #include "sdl_config.h"
 #include "tutorial_tr.h"
+#include "gameplay/highlight_animation_ha.h"
 
 static void test_draw_rotated_texture(int x, int y, int height, double angle,
 									  texture_t *texture);
@@ -33,8 +34,12 @@ static void test_draw_rotated_texture(int x, int y, int height, double angle,
 #undef cw_get_code_box_highlight_progress
 #undef iw_get_highlight_instruction_progress
 
+bool bf_get_output_buffer_highlight_progress(float *progress, float animation_limit);
+bool rg_get_register_highlight_progress(float *progress, float animation_limit);
+
 static float provider_progress[HIGHLIGHT_IMMEDIATES + 1];
 static bool provider_active[HIGHLIGHT_IMMEDIATES + 1];
+static bool use_shared_output_provider;
 static int arrow_draw_count;
 static SDL_Rect op2_line_rect;
 
@@ -95,6 +100,9 @@ bool test_input_progress(float *progress, float animation_limit)
 
 bool test_output_progress(float *progress, float animation_limit)
 {
+	if (use_shared_output_provider) {
+		return bf_get_output_buffer_highlight_progress(progress, animation_limit);
+	}
 	return animation_limit > 0.0f &&
 	       test_progress(HIGHLIGHT_OUTPUT_BUFFER, progress);
 }
@@ -119,11 +127,13 @@ bool test_immediate_progress(float *progress, float animation_limit)
 }
 
 static bool layout_available = true;
+static int back_button_offset;
 
 bool test_failure_back_button_rect(SDL_Rect *button_rect)
 {
 	*button_rect = (SDL_Rect){
-		.x = dm_scale_to_res(800), .y = dm_scale_to_res(500),
+		.x = dm_scale_to_res(800 + back_button_offset),
+		.y = dm_scale_to_res(500 + back_button_offset),
 		.w = dm_scale_to_res(160), .h = dm_scale_to_res(60)
 	};
 	return layout_available;
@@ -136,6 +146,7 @@ static void assert_reset(void)
 	SDL_Rect size = ar_get_arrow_wh();
 	assert(g_arrow_error.visible);
 	assert(g_arrow_error.dir == AR_RIGHT);
+	assert(!g_arrow_error.highlight_progress_inverted);
 	assert(g_arrow_error.travel == size.w);
 	assert(g_arrow_error.startx + g_arrow_error.travel + size.w == back_button.x);
 	assert(g_arrow_error.box.x == g_arrow_error.startx);
@@ -146,35 +157,67 @@ static void assert_reset(void)
 	assert(!g_arrow_error.motion_pulse.descending);
 }
 
-static void assert_cycles(float limit, int travel)
+static void assert_error_position(float progress, float limit)
 {
-	dw_pulse_t highlight;
-	dw_pulse_reset(&highlight);
-	g_arrow_error.travel = travel;
+	SDL_Rect back_button;
+	assert(test_failure_back_button_rect(&back_button));
+	float sampled = -1.0f;
+	assert(get_highlight_progress(&g_arrow_error, &sampled, limit));
+	assert(sampled == progress);
+	int draws_before = arrow_draw_count;
+	ar_display_arrow(AR_ERROR, limit);
+	assert(arrow_draw_count == draws_before + 1);
+	assert(g_arrow_error.box.x ==
+	       g_arrow_error.startx + (int)(g_arrow_error.travel * progress));
+	assert(g_arrow_error.box.y ==
+	       back_button.y + back_button.h / 2 - g_arrow_error.box.h / 2);
+	assert(!g_arrow_error.highlight_progress_inverted);
+	assert(!g_arrow_error.motion_initialized);
+	assert(g_arrow_error.motion_pulse.value == 0.0f);
+	assert(!g_arrow_error.motion_pulse.descending);
+	if (progress == 0.0f) {
+		assert(g_arrow_error.box.x == g_arrow_error.startx);
+	} else if (progress == 1.0f) {
+		assert(g_arrow_error.box.x == back_button.x - g_arrow_error.box.w);
+	}
+}
+
+static void assert_error_samples(float limit)
+{
+	static const float samples[] = {0.0f, 0.25f, 0.5f, 0.75f, 1.0f};
+	provider_active[HIGHLIGHT_OUTPUT_BUFFER] = true;
+	for (size_t sample = 0; sample < sizeof(samples) / sizeof(samples[0]); sample++) {
+		provider_progress[HIGHLIGHT_OUTPUT_BUFFER] = samples[sample];
+		ar_init_arrow(AR_ERROR);
+		assert_reset();
+		assert_error_position(samples[sample], limit);
+	}
+	provider_active[HIGHLIGHT_OUTPUT_BUFFER] = false;
+}
+
+static void assert_cycles(float limit)
+{
 	int half_cycle = (dw_get_animation_limit() + dw_get_animation_step() - 1)
 		/ dw_get_animation_step();
 	int upper_endpoints = 0;
 	int lower_endpoints = 0;
 	float previous = 0.0f;
 	for (int frame = 0; frame <= 8 * (half_cycle + 1); frame++) {
-		float expected = dw_pulse_progress(dw_pulse_value(&highlight, limit), limit);
-		float actual = get_motion_progress(&g_arrow_error, limit);
-		assert(fabsf(actual - expected) < 0.000001f);
-		position_arrow(&g_arrow_error, actual);
-		assert(g_arrow_error.box.x >= g_arrow_error.startx);
-		assert(g_arrow_error.box.x <= g_arrow_error.startx + travel);
-		assert(g_arrow_error.box.y == g_arrow_error.starty);
+		ha_begin_frame();
+		float actual = ha_get_progress();
+		float register_progress = -1.0f;
+		assert(rg_get_register_highlight_progress(&register_progress, limit));
+		assert(register_progress == actual);
+		assert_error_position(actual, limit);
 		if (actual == 1.0f && previous < 1.0f) {
 			upper_endpoints++;
-			assert(g_arrow_error.box.x == g_arrow_error.startx + travel);
+			assert(g_arrow_error.box.x == g_arrow_error.startx + g_arrow_error.travel);
 		}
 		if (frame > 0 && actual == 0.0f && previous > 0.0f) {
 			lower_endpoints++;
 			assert(g_arrow_error.box.x == g_arrow_error.startx);
 		}
 		previous = actual;
-		dw_pulse_advance(&highlight, limit);
-		assert(g_arrow_error.motion_pulse.descending == highlight.descending);
 	}
 	assert(upper_endpoints >= 3 && lower_endpoints >= 3);
 }
@@ -184,20 +227,19 @@ static void test_resolution(dm_resolution_t resolution)
 	dm_set_screen_resolution(resolution);
 	float limits[] = {dw_get_animation_limit(), 7.3f};
 	for (unsigned int index = 0; index < sizeof(limits) / sizeof(limits[0]); index++) {
-		ar_init_arrow(AR_ERROR);
-		assert_reset();
-		assert_cycles(limits[index], g_arrow_error.travel);
+		assert_error_samples(limits[index]);
 		g_arrow_error.visible = false;
 		float hidden_value = g_arrow_error.motion_pulse.value;
 		ar_display_arrow(AR_ERROR, limits[index]);
 		assert(g_arrow_error.motion_pulse.value == hidden_value);
 		ar_init_arrow(AR_ERROR);
 		assert_reset();
-		assert_cycles(limits[index], dm_scale_to_res(73));
 	}
-	assert(get_motion_progress(&g_arrow_error, 0.0f) == 0.0f);
-	assert(g_arrow_error.motion_pulse.value == 0.0f);
-	assert(get_motion_progress(&g_arrow_error, -1.0f) == 0.0f);
+	int draws_before = arrow_draw_count;
+	ar_display_arrow(AR_ERROR, 0.0f);
+	ar_display_arrow(AR_ERROR, -1.0f);
+	assert(arrow_draw_count == draws_before);
+	assert(!g_arrow_error.motion_initialized);
 	assert(g_arrow_error.motion_pulse.value == 0.0f);
 	layout_available = false;
 	ar_init_arrow(AR_ERROR);
@@ -217,17 +259,38 @@ static void test_tutorial_reentry(void)
 	};
 	const tutorial_step_t *failure_step = tr_get_named_step("explain_missing_output");
 	assert(failure_step != NULL);
+	assert(failure_step->arrow_count == 1);
+	assert(failure_step->arrow_ids[0] == AR_ERROR);
+	assert(failure_step->highlight_targets & TUTORIAL_HIGHLIGHT_OUTPUT_BUFFER);
+	assert(failure_step->highlight_targets & TUTORIAL_HIGHLIGHT_REGISTERS);
+	use_shared_output_provider = true;
+	ha_reset();
 	for (int opening = 0; opening < 3; opening++) {
+		back_button_offset = opening * 31;
+		ha_begin_frame();
+		float entry_progress = ha_get_progress();
 		assert(tr_update(&context) == failure_step);
 		assert_reset();
 		float limit = dw_get_animation_limit();
-		assert_cycles(limit, g_arrow_error.travel);
-		float value = g_arrow_error.motion_pulse.value;
+		assert_error_position(entry_progress, limit);
+		assert_cycles(limit);
+		SDL_Rect before_update = g_arrow_error.box;
 		assert(tr_update(&context) == failure_step);
-		assert(g_arrow_error.motion_pulse.value == value);
+		assert_error_position(ha_get_progress(), limit);
+		assert(g_arrow_error.box.x == before_update.x);
+		assert(g_arrow_error.box.y == before_update.y);
 		assert(tr_update(NULL) == NULL);
+		float progress = -1.0f;
+		assert(!get_highlight_progress(&g_arrow_error, &progress, limit));
+		int draws_before = arrow_draw_count;
+		ar_display_arrow(AR_ERROR, limit);
+		assert(arrow_draw_count == draws_before);
+		assert_reset();
+		ha_begin_frame();
 	}
 	tr_clear();
+	use_shared_output_provider = false;
+	back_button_offset = 0;
 }
 
 static void test_arrow_highlight_mapping(void)
@@ -245,7 +308,7 @@ static void test_arrow_highlight_mapping(void)
 		{AR_CODE, HIGHLIGHT_CODE_BOX},
 		{AR_DEL, HIGHLIGHT_CODE_BOX},
 		{AR_OP2, HIGHLIGHT_CODE_BOX},
-		{AR_ERROR, HIGHLIGHT_NONE},
+		{AR_ERROR, HIGHLIGHT_OUTPUT_BUFFER},
 		{AR_CHALLENGE, HIGHLIGHT_CHALLENGE},
 		{AR_IB, HIGHLIGHT_INPUT_BUFFER},
 		{AR_OB, HIGHLIGHT_OUTPUT_BUFFER},
@@ -263,15 +326,15 @@ static void test_arrow_highlight_mapping(void)
 	}
 	/* These UI targets have no animated highlight owner in the current game. */
 	assert(g_arrow_highlight_targets[AR_PLAY] == HIGHLIGHT_NONE);
-	assert(g_arrow_highlight_targets[AR_ERROR] == HIGHLIGHT_NONE);
 	assert(g_arrow_highlight_targets[AR_ZF] == HIGHLIGHT_NONE);
 	assert(g_arrow_highlight_targets[AR_EXEC] == HIGHLIGHT_NONE);
 }
 
-static void test_inactive_mapped_provider_lifecycle(void)
+static void test_inactive_mapped_provider_lifecycle(int arrow_id,
+												  highlight_target_t target)
 {
 	arrow_t arrow = {
-		.arrow_id = AR_CODE,
+		.arrow_id = arrow_id,
 		.box = {.x = 900, .y = 800},
 		.startx = 120,
 		.starty = 240,
@@ -281,7 +344,7 @@ static void test_inactive_mapped_provider_lifecycle(void)
 		.motion_initialized = false,
 		.motion_pulse = {.value = 6.0f, .descending = true}
 	};
-	provider_active[HIGHLIGHT_CODE_BOX] = false;
+	provider_active[target] = false;
 	int draws_before = arrow_draw_count;
 	animate_arrow(&arrow, 15.0f);
 	assert(arrow_draw_count == draws_before);
@@ -291,8 +354,8 @@ static void test_inactive_mapped_provider_lifecycle(void)
 	assert(arrow.motion_pulse.value == 6.0f);
 	assert(arrow.motion_pulse.descending);
 
-	provider_active[HIGHLIGHT_CODE_BOX] = true;
-	provider_progress[HIGHLIGHT_CODE_BOX] = 0.75f;
+	provider_active[target] = true;
+	provider_progress[target] = 0.75f;
 	float same_frame_progress = -1.0f;
 	assert(get_highlight_progress(&arrow, &same_frame_progress, 15.0f));
 	animate_arrow(&arrow, 15.0f);
@@ -302,14 +365,14 @@ static void test_inactive_mapped_provider_lifecycle(void)
 	assert(!arrow.motion_initialized);
 	assert(arrow.motion_pulse.value == 6.0f);
 	assert(arrow.motion_pulse.descending);
-	provider_active[HIGHLIGHT_CODE_BOX] = false;
+	provider_active[target] = false;
 }
 
 static void test_synchronized_arrow_positions(void)
 {
 	static const int synchronized_arrows[] = {
 		AR_INS, AR_INS_MINUS, AR_DROP, AR_STEP, AR_FAST, AR_CODE, AR_DEL,
-		AR_OP2, AR_CHALLENGE, AR_IB, AR_OB, AR_REG, AR_IMM_UP
+		AR_OP2, AR_ERROR, AR_CHALLENGE, AR_IB, AR_OB, AR_REG, AR_IMM_UP
 	};
 	static const float samples[] = {0.0f, 0.25f, 0.5f, 0.75f, 1.0f};
 	static const int directions[] = {AR_UP, AR_DOWN, AR_LEFT, AR_RIGHT};
@@ -495,7 +558,8 @@ int main(void)
 	g_font = TTF_OpenFont("fonts/DOSVGA437.ttf", 130);
 	assert(g_font != NULL);
 	test_arrow_highlight_mapping();
-	test_inactive_mapped_provider_lifecycle();
+	test_inactive_mapped_provider_lifecycle(AR_CODE, HIGHLIGHT_CODE_BOX);
+	test_inactive_mapped_provider_lifecycle(AR_ERROR, HIGHLIGHT_OUTPUT_BUFFER);
 	test_synchronized_arrow_positions();
 	test_level1_code_box_arrow_regression();
 	test_op2_vertical_clearance();
