@@ -62,18 +62,12 @@ typedef enum highlight_target_t {
 	HIGHLIGHT_IMMEDIATES
 } highlight_target_t;
 
-/* Mapped arrows sample their synchronization owner's rendered progress and
- * never advance a competing private pulse, even when the provider is inactive.
- * AR_PLAY uses the code-box provider while it is active. When the provider is
- * inactive, AR_PLAY reads the shared highlight frame phase directly. This keeps
- * the arrow phase stable regardless of highlight visibility.
- * HIGHLIGHT_NONE is reserved for arrows without an animated target.
- *
- * AR_ERROR currently appears only in the missing-output tutorial, which activates
- * HIGHLIGHT_OUTPUT_BUFFER. All active tutorial highlights sample the same immutable
- * frame snapshot, so this owner aligns the arrow's nearest position with the
- * maximum shared highlight phase. Future AR_ERROR uses must activate this provider
- * or introduce explicit configurable synchronization ownership.
+/* Mapped arrows use their target's normalized highlight progress.
+ * AR_PLAY stays on the shared highlight clock when its code-box target is
+ * inactive, so highlight visibility cannot alter its phase. Other mapped
+ * arrows retain their required-provider behavior. HIGHLIGHT_NONE arrows use
+ * private motion where applicable.
+ * AR_ERROR maps to the output-buffer target used by its current presentation.
  */
 static const highlight_target_t g_arrow_highlight_targets[ARROW_ID_COUNT] = {
 	[AR_INS] = HIGHLIGHT_INSTRUCTION,
@@ -117,6 +111,10 @@ SDL_Rect ar_get_arrow_wh();
 static arrow_t *get_arrow_by_id(int arrow_id);
 static bool get_highlight_progress(const arrow_t *arrow, float *progress,
 								  float animation_limit);
+static bool get_arrow_animation_progress(arrow_t *arrow,
+										 float animation_limit,
+										 float *progress);
+static bool arrow_uses_shared_highlight_phase(int arrow_id);
 static bool arrow_has_highlight_provider(int arrow_id);
 static bool get_stage_button_highlight_progress(int button_id,
 												float *progress,
@@ -488,6 +486,7 @@ static void initialize_play_arrow()
 	SDL_Rect sb = sb_get_stage_btns();
 	SDL_Rect a = ar_get_arrow_wh();
 	SDL_Rect play_btn = sb_get_sb_rect(PLAY);
+	g_arrow_play.arrow_id = AR_PLAY;
 	g_arrow_play.box.w = a.w;	
 	g_arrow_play.box.h = a.h;
 	g_arrow_play.box.x = play_btn.x + (play_btn.w - a.w)/2;
@@ -498,6 +497,9 @@ static void initialize_play_arrow()
 	g_arrow_play.starty = g_arrow_play.box.y;	
 	g_arrow_play.travel = a.h;	
 	g_arrow_play.dir = AR_DOWN;
+	g_arrow_play.progress_from_positive_side = false;
+	g_arrow_play.highlight_progress_inverted = false;
+	g_arrow_play.motion_initialized = false;
 	g_arrow_play.texture = g_lv_arrow;
 }
 
@@ -951,24 +953,53 @@ static void animate_arrow(arrow_t *arrow, float animation_limit)
 {
 	assert(arrow != NULL && "arrow object is NULL");
 	float progress;
-	if (get_highlight_progress(arrow, &progress, animation_limit)) {
-		if (arrow->highlight_progress_inverted && arrow->arrow_id != AR_PLAY) {
-			progress = 1.0f - progress;
-		}
-		position_arrow(arrow, progress);
-	} else if (arrow->arrow_id == AR_PLAY) {
-		position_arrow(arrow, ha_get_progress());
-	} else if (arrow_has_highlight_provider(arrow->arrow_id)) {
+	if (!get_arrow_animation_progress(arrow, animation_limit, &progress)) {
 		arrow->box.x = arrow->startx;
 		arrow->box.y = arrow->starty;
 		return;
-	} else if (arrow->travel > 0) {
-		position_arrow(arrow,
-		               get_private_motion_progress(arrow, animation_limit));
+	}
+	if (arrow->travel > 0 || arrow_has_highlight_provider(arrow->arrow_id)) {
+		position_arrow(arrow, progress);
 	}
 	draw_arrow(arrow);
 }
 
+static bool get_arrow_animation_progress(arrow_t *arrow,
+										 float animation_limit,
+										 float *progress)
+{
+	if (arrow == NULL || progress == NULL || arrow->arrow_id < 0 ||
+	    arrow->arrow_id >= ARROW_ID_COUNT) {
+		return false;
+	}
+
+	if (get_highlight_progress(arrow, progress, animation_limit)) {
+		if (!arrow_uses_shared_highlight_phase(arrow->arrow_id) &&
+		    arrow->highlight_progress_inverted) {
+			*progress = 1.0f - *progress;
+		}
+		return true;
+	}
+
+	if (arrow_uses_shared_highlight_phase(arrow->arrow_id)) {
+		/* Progress 1 places the downward arrow nearest the Play control. */
+		*progress = ha_get_progress();
+		return true;
+	}
+
+	if (arrow_has_highlight_provider(arrow->arrow_id)) {
+		return false;
+	}
+
+	*progress = arrow->travel > 0 ?
+		get_private_motion_progress(arrow, animation_limit) : 0.0f;
+	return true;
+}
+
+static bool arrow_uses_shared_highlight_phase(int arrow_id)
+{
+	return arrow_id == AR_PLAY;
+}
 
 static bool get_highlight_progress(const arrow_t *arrow, float *progress,
 								  float animation_limit)

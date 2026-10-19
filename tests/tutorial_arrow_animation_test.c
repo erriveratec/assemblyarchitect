@@ -19,9 +19,13 @@ static void test_draw_rotated_texture(int x, int y, int height, double angle,
 #define sb_get_button_highlight_progress test_button_progress
 #define im_get_highlight_progress test_immediate_progress
 #define rr_get_failure_back_button_rect test_failure_back_button_rect
+#define sb_get_stage_btns test_stage_buttons_rect
+#define sb_get_sb_rect test_stage_button_rect
 #define dw_draw_rotated_texture_fits_h test_draw_rotated_texture
 #include "../source/arrow_ar.c"
 #undef dw_draw_rotated_texture_fits_h
+#undef sb_get_sb_rect
+#undef sb_get_stage_btns
 #undef rr_get_failure_back_button_rect
 #undef im_get_highlight_progress
 #undef sb_get_button_highlight_progress
@@ -43,6 +47,17 @@ static bool use_shared_output_provider;
 static int arrow_draw_count;
 static int code_box_provider_calls;
 static SDL_Rect op2_line_rect;
+
+SDL_Rect test_stage_buttons_rect(void)
+{
+	return (SDL_Rect){.x = 300, .y = 500, .w = 600, .h = 80};
+}
+
+SDL_Rect test_stage_button_rect(int member)
+{
+	assert(member == PLAY);
+	return (SDL_Rect){.x = 520, .y = 400, .w = 160, .h = 60};
+}
 
 static const float TEST_PROGRESS_EPSILON = 0.00001f;
 
@@ -319,7 +334,7 @@ static void test_tutorial_reentry(void)
 	back_button_offset = 0;
 }
 
-static void test_play_tutorial_steps_keep_existing_highlight_states(void)
+static void test_play_tutorial_steps_preserve_existing_highlight_configuration(void)
 {
 	assert(tr_load_level(0));
 	const tutorial_step_t *without_code_box =
@@ -371,15 +386,17 @@ static void test_arrow_highlight_mapping(void)
 		assert(arrow_has_highlight_provider(mappings[index].arrow_id) ==
 		       (mappings[index].target != HIGHLIGHT_NONE));
 	}
-	/* These UI targets have no animated highlight owner in the current game. */
+	/* These arrows remain intentionally independent of highlight providers. */
 	assert(g_arrow_highlight_targets[AR_PLAY] == HIGHLIGHT_CODE_BOX);
 	assert(arrow_has_highlight_provider(AR_PLAY));
 	assert(g_arrow_highlight_targets[AR_ZF] == HIGHLIGHT_NONE);
 	assert(g_arrow_highlight_targets[AR_EXEC] == HIGHLIGHT_NONE);
 }
 
-static void render_play_arrow_at_current_phase(bool highlight_active,
-													  SDL_Rect *result)
+static void render_play_arrow_at_progress(bool highlight_active,
+												  float provider_phase,
+												  float expected_phase,
+												  SDL_Rect *result)
 {
 	arrow_t arrow = {
 		.arrow_id = AR_PLAY,
@@ -389,11 +406,12 @@ static void render_play_arrow_at_current_phase(bool highlight_active,
 		.travel = 80,
 		.dir = AR_DOWN,
 		.visible = true,
+		.highlight_progress_inverted = true,
 		.motion_initialized = false,
 		.motion_pulse = {.value = 6.25f, .descending = true}
 	};
 	provider_active[HIGHLIGHT_CODE_BOX] = highlight_active;
-	provider_progress[HIGHLIGHT_CODE_BOX] = ha_get_progress();
+	provider_progress[HIGHLIGHT_CODE_BOX] = provider_phase;
 	int draws_before = arrow_draw_count;
 	code_box_provider_calls = 0;
 	animate_arrow(&arrow, 15.0f);
@@ -401,7 +419,7 @@ static void render_play_arrow_at_current_phase(bool highlight_active,
 	assert(code_box_provider_calls == 1);
 	assert(arrow.box.x == arrow.startx);
 	assert(arrow.box.y ==
-	       arrow.starty + (int)(arrow.travel * ha_get_progress()));
+	       arrow.starty + (int)(arrow.travel * expected_phase));
 	assert(!arrow.motion_initialized);
 	assert(arrow.motion_pulse.value == 6.25f);
 	assert(arrow.motion_pulse.descending);
@@ -410,7 +428,23 @@ static void render_play_arrow_at_current_phase(bool highlight_active,
 	}
 }
 
-static void test_play_arrow_always_uses_shared_phase(void)
+static void test_play_arrow_uses_shared_phase_with_active_provider(void)
+{
+	static const float samples[] = {0.0f, 0.25f, 0.5f, 0.75f, 1.0f};
+	for (size_t index = 0; index < sizeof(samples) / sizeof(samples[0]); index++) {
+		SDL_Rect rect;
+		render_play_arrow_at_progress(true, samples[index], samples[index],
+		                              &rect);
+		assert(rect.y == 240 + (int)(80 * samples[index]));
+		if (samples[index] == 0.0f) {
+			assert(rect.y == 240);
+		} else if (samples[index] == 1.0f) {
+			assert(rect.y == 240 + 80);
+		}
+	}
+}
+
+static void test_play_arrow_position_is_independent_of_highlight_visibility(void)
 {
 	ha_reset();
 	provider_active[HIGHLIGHT_CODE_BOX] = false;
@@ -427,8 +461,8 @@ static void test_play_arrow_always_uses_shared_phase(void)
 		float phase = ha_get_progress();
 		SDL_Rect active_rect;
 		SDL_Rect inactive_rect;
-		render_play_arrow_at_current_phase(true, &active_rect);
-		render_play_arrow_at_current_phase(false, &inactive_rect);
+		render_play_arrow_at_progress(true, phase, phase, &active_rect);
+		render_play_arrow_at_progress(false, phase, phase, &inactive_rect);
 		assert(active_rect.x == inactive_rect.x);
 		assert(active_rect.y == inactive_rect.y);
 		if (phase == 1.0f) {
@@ -456,23 +490,66 @@ static void test_play_arrow_always_uses_shared_phase(void)
 	assert(lower_endpoints > 0);
 	assert(saw_descending && saw_ascending_again);
 
-	/* Provider activation/deactivation within one snapshot must not move AR_PLAY. */
-	float phase = ha_get_progress();
-	SDL_Rect before_activation;
-	SDL_Rect after_activation;
-	render_play_arrow_at_current_phase(false, &before_activation);
-	render_play_arrow_at_current_phase(true, &after_activation);
-	assert(before_activation.y == after_activation.y);
-	SDL_Rect before_deactivation;
-	SDL_Rect after_deactivation;
-	render_play_arrow_at_current_phase(true, &before_deactivation);
-	render_play_arrow_at_current_phase(false, &after_deactivation);
-	assert(before_deactivation.y == after_deactivation.y);
-	assert(ha_get_progress() == phase);
 	provider_active[HIGHLIGHT_CODE_BOX] = false;
 }
 
-static void test_independent_arrow_keeps_private_motion(void)
+static void test_play_arrow_activation_transition_is_continuous(void)
+{
+	ha_reset();
+	ha_begin_frame();
+	ha_begin_frame();
+	float phase = ha_get_progress();
+	assert(phase > 0.0f && phase < 1.0f);
+	SDL_Rect inactive_rect;
+	SDL_Rect active_rect;
+	render_play_arrow_at_progress(false, phase, phase, &inactive_rect);
+	render_play_arrow_at_progress(true, phase, phase, &active_rect);
+	assert(inactive_rect.x == active_rect.x);
+	assert(inactive_rect.y == active_rect.y);
+	assert(ha_get_progress() == phase);
+}
+
+static void test_play_arrow_deactivation_transition_is_continuous(void)
+{
+	ha_reset();
+	ha_begin_frame();
+	ha_begin_frame();
+	float phase = ha_get_progress();
+	assert(phase > 0.0f && phase < 1.0f);
+	SDL_Rect active_rect;
+	SDL_Rect inactive_rect;
+	render_play_arrow_at_progress(true, phase, phase, &active_rect);
+	render_play_arrow_at_progress(false, phase, phase, &inactive_rect);
+	assert(active_rect.x == inactive_rect.x);
+	assert(active_rect.y == inactive_rect.y);
+	assert(ha_get_progress() == phase);
+}
+
+static void test_play_arrow_does_not_mutate_private_motion(void)
+{
+	static const bool provider_states[] = {true, false};
+	for (size_t index = 0;
+	     index < sizeof(provider_states) / sizeof(provider_states[0]); index++) {
+		float phase = provider_states[index] ? 0.625f : ha_get_progress();
+		SDL_Rect rect;
+		render_play_arrow_at_progress(provider_states[index], 0.625f, phase,
+		                              &rect);
+	}
+}
+
+static void test_play_arrow_initialization_policy(void)
+{
+	dm_set_screen_resolution(DM_RESOLUTION_1600X900);
+	ar_init_arrow(AR_PLAY);
+	assert(g_arrow_play.arrow_id == AR_PLAY);
+	assert(g_arrow_play.dir == AR_DOWN);
+	assert(g_arrow_play.travel > 0);
+	assert(!g_arrow_play.progress_from_positive_side);
+	assert(!g_arrow_play.highlight_progress_inverted);
+	assert(!g_arrow_play.motion_initialized);
+}
+
+static void test_independent_arrow_retains_private_motion(void)
 {
 	arrow_t arrow = {
 		.arrow_id = AR_EXEC,
@@ -492,8 +569,8 @@ static void test_independent_arrow_keeps_private_motion(void)
 	assert(arrow.motion_pulse.value > 0.0f);
 }
 
-static void test_inactive_mapped_provider_lifecycle(int arrow_id,
-												  highlight_target_t target)
+static void assert_mandatory_provider_behavior(int arrow_id,
+													  highlight_target_t target)
 {
 	arrow_t arrow = {
 		.arrow_id = arrow_id,
@@ -528,6 +605,12 @@ static void test_inactive_mapped_provider_lifecycle(int arrow_id,
 	assert(arrow.motion_pulse.value == 6.0f);
 	assert(arrow.motion_pulse.descending);
 	provider_active[target] = false;
+}
+
+static void test_mandatory_provider_arrow_retains_existing_behavior(void)
+{
+	assert_mandatory_provider_behavior(AR_CODE, HIGHLIGHT_CODE_BOX);
+	assert_mandatory_provider_behavior(AR_ERROR, HIGHLIGHT_OUTPUT_BUFFER);
 }
 
 static void test_synchronized_arrow_positions(void)
@@ -720,13 +803,17 @@ int main(void)
 	g_font = TTF_OpenFont("fonts/DOSVGA437.ttf", 130);
 	assert(g_font != NULL);
 	test_arrow_highlight_mapping();
-	test_play_arrow_always_uses_shared_phase();
-	test_independent_arrow_keeps_private_motion();
-	test_inactive_mapped_provider_lifecycle(AR_CODE, HIGHLIGHT_CODE_BOX);
-	test_inactive_mapped_provider_lifecycle(AR_ERROR, HIGHLIGHT_OUTPUT_BUFFER);
+	test_play_arrow_uses_shared_phase_with_active_provider();
+	test_play_arrow_position_is_independent_of_highlight_visibility();
+	test_play_arrow_activation_transition_is_continuous();
+	test_play_arrow_deactivation_transition_is_continuous();
+	test_play_arrow_does_not_mutate_private_motion();
+	test_play_arrow_initialization_policy();
+	test_independent_arrow_retains_private_motion();
+	test_mandatory_provider_arrow_retains_existing_behavior();
 	test_synchronized_arrow_positions();
 	test_level1_code_box_arrow_regression();
-	test_play_tutorial_steps_keep_existing_highlight_states();
+	test_play_tutorial_steps_preserve_existing_highlight_configuration();
 	test_op2_vertical_clearance();
 	test_challenge_arrow_highlight_configuration();
 	test_error_arrow_tracks_output_highlight();
