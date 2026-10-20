@@ -1,4 +1,5 @@
 .cache/clangd/
+/build/
 /assemblyArchitect
 /tutorial_text_test
 /operand_highlights_test

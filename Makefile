@@ -12,30 +12,46 @@ DATA_DIRS = sound fonts data img
 APP_ICON = icon.icns
 
 S_FILES := $(shell find $(S_DIR) -type f -name '*.c')
-# Tests: tests/<feature>_test.c, executable <feature>_test, target test-<feature-with-hyphens>.
-TUTORIAL_TEXT_TEST_EXEC = tutorial_text_test
+# Tests: tests/<feature>_test.c, executable build/tests/<feature>_test, target test-<feature-with-hyphens>.
+TEST_BUILD_DIR := build/tests
+TUTORIAL_TEXT_TEST_EXEC = $(TEST_BUILD_DIR)/tutorial_text_test
 TUTORIAL_TEXT_TEST_SOURCE = tests/tutorial_text_test.c
 TEST_SOURCES := $(filter-out $(S_DIR)/main.c,$(S_FILES))
-OPERAND_HIGHLIGHTS_TEST_EXEC = operand_highlights_test
+OPERAND_HIGHLIGHTS_TEST_EXEC = $(TEST_BUILD_DIR)/operand_highlights_test
 OPERAND_HIGHLIGHTS_TEST_SOURCE = tests/operand_highlights_test.c
-LEVEL_CONFIG_HOVER_TEST_EXEC = level_config_hover_test
+LEVEL_CONFIG_HOVER_TEST_EXEC = $(TEST_BUILD_DIR)/level_config_hover_test
 LEVEL_CONFIG_HOVER_TEST_SOURCE = tests/level_config_hover_test.c
-OPERAND_CHANGE_SELECTION_TEST_EXEC = operand_change_selection_test
+OPERAND_CHANGE_SELECTION_TEST_EXEC = $(TEST_BUILD_DIR)/operand_change_selection_test
 OPERAND_CHANGE_SELECTION_TEST_SOURCE = tests/operand_change_selection_test.c
-SECTOR_COMPLETION_NAVIGATION_TEST_EXEC = sector_completion_navigation_test
+SECTOR_COMPLETION_NAVIGATION_TEST_EXEC = $(TEST_BUILD_DIR)/sector_completion_navigation_test
 SECTOR_COMPLETION_NAVIGATION_TEST_SOURCE = tests/sector_completion_navigation_test.c
-BUFFER_LABEL_LAYOUT_TEST_EXEC = buffer_label_layout_test
+BUFFER_LABEL_LAYOUT_TEST_EXEC = $(TEST_BUILD_DIR)/buffer_label_layout_test
 BUFFER_LABEL_LAYOUT_TEST_SOURCE = tests/buffer_label_layout_test.c
-EXECUTION_ARROW_GEOMETRY_TEST_EXEC = execution_arrow_geometry_test
+EXECUTION_ARROW_GEOMETRY_TEST_EXEC = $(TEST_BUILD_DIR)/execution_arrow_geometry_test
 EXECUTION_ARROW_GEOMETRY_TEST_SOURCE = tests/execution_arrow_geometry_test.c
-TEXT_BOX_LAYOUT_TEST_EXEC = text_box_layout_test
+TEXT_BOX_LAYOUT_TEST_EXEC = $(TEST_BUILD_DIR)/text_box_layout_test
 TEXT_BOX_LAYOUT_TEST_SOURCE = tests/text_box_layout_test.c
-TUTORIAL_ARROW_ANIMATION_TEST_EXEC = tutorial_arrow_animation_test
+TUTORIAL_ARROW_ANIMATION_TEST_EXEC = $(TEST_BUILD_DIR)/tutorial_arrow_animation_test
 TUTORIAL_ARROW_ANIMATION_TEST_SOURCE = tests/tutorial_arrow_animation_test.c
-HIGHLIGHT_ANIMATION_SYNC_TEST_EXEC = highlight_animation_sync_test
+HIGHLIGHT_ANIMATION_SYNC_TEST_EXEC = $(TEST_BUILD_DIR)/highlight_animation_sync_test
 HIGHLIGHT_ANIMATION_SYNC_TEST_SOURCE = tests/highlight_animation_sync_test.c
-MODAL_POINTER_CAPTURE_TEST_EXEC = modal_pointer_capture_test
+MODAL_POINTER_CAPTURE_TEST_EXEC = $(TEST_BUILD_DIR)/modal_pointer_capture_test
 MODAL_POINTER_CAPTURE_TEST_SOURCE = tests/modal_pointer_capture_test.c
+TEST_EXECS := \
+	$(TUTORIAL_TEXT_TEST_EXEC) \
+	$(OPERAND_HIGHLIGHTS_TEST_EXEC) \
+	$(LEVEL_CONFIG_HOVER_TEST_EXEC) \
+	$(OPERAND_CHANGE_SELECTION_TEST_EXEC) \
+	$(SECTOR_COMPLETION_NAVIGATION_TEST_EXEC) \
+	$(BUFFER_LABEL_LAYOUT_TEST_EXEC) \
+	$(EXECUTION_ARROW_GEOMETRY_TEST_EXEC) \
+	$(TEXT_BOX_LAYOUT_TEST_EXEC) \
+	$(TUTORIAL_ARROW_ANIMATION_TEST_EXEC) \
+	$(HIGHLIGHT_ANIMATION_SYNC_TEST_EXEC) \
+	$(MODAL_POINTER_CAPTURE_TEST_EXEC)
+LEGACY_ROOT_TEST_EXECS := \
+	$(notdir $(TEST_EXECS)) \
+	highligh_animation_sync_test
 
  
 ############################
@@ -86,8 +102,10 @@ APP_RESOURCES = $(APP_CONTENTS)/Resources
 
 all: build
 
-build:
-	$(CC) $(CFLAGS) $(S_FILES) -o $(EXEC) \
+build: $(EXEC)
+
+$(EXEC): $(S_FILES)
+	$(CC) $(CFLAGS) $(S_FILES) -o $@ \
     $(SDL_INCLUDES) $(SDL_LINK) \
 	-Wl,-rpath,/Library/Frameworks
 
@@ -96,63 +114,72 @@ run: build
 
 test: test-level-config-hover test-operand-highlights test-operand-change-selection test-tutorial-text test-sector-completion-navigation test-buffer-label-layout test-execution-arrow-geometry test-text-box-layout test-tutorial-arrow-animation test-highlight-animation-sync test-modal-pointer-capture
 
-test-modal-pointer-capture:
+.PHONY: all build run app clean test test-level-config-hover test-operand-highlights test-operand-change-selection \
+	test-tutorial-text test-sector-completion-navigation test-buffer-label-layout \
+	test-execution-arrow-geometry test-text-box-layout test-tutorial-arrow-animation \
+	test-highlight-animation-sync test-modal-pointer-capture
+
+$(TEST_BUILD_DIR):
+	mkdir -p $@
+	for dir in $(DATA_DIRS); do ln -s ../../$$dir $@/$$dir; done
+
+test-modal-pointer-capture: | $(TEST_BUILD_DIR)
 	$(CC) $(CFLAGS) $(MODAL_POINTER_CAPTURE_TEST_SOURCE) $(TEST_SOURCES) -o $(MODAL_POINTER_CAPTURE_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(MODAL_POINTER_CAPTURE_TEST_EXEC)
 
-test-highlight-animation-sync:
+test-highlight-animation-sync: | $(TEST_BUILD_DIR)
 	$(CC) $(CFLAGS) $(HIGHLIGHT_ANIMATION_SYNC_TEST_SOURCE) $(TEST_SOURCES) -o $(HIGHLIGHT_ANIMATION_SYNC_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(HIGHLIGHT_ANIMATION_SYNC_TEST_EXEC)
 
-test-tutorial-arrow-animation:
+test-tutorial-arrow-animation: | $(TEST_BUILD_DIR)
 	$(CC) $(CFLAGS) $(TUTORIAL_ARROW_ANIMATION_TEST_SOURCE) \
 	    $(filter-out $(S_DIR)/arrow_ar.c,$(TEST_SOURCES)) -o $(TUTORIAL_ARROW_ANIMATION_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(TUTORIAL_ARROW_ANIMATION_TEST_EXEC)
 
-test-text-box-layout:
+test-text-box-layout: | $(TEST_BUILD_DIR)
 	$(CC) $(CFLAGS) $(TEXT_BOX_LAYOUT_TEST_SOURCE) \
 	    $(filter-out $(S_DIR)/text_tx.c $(S_DIR)/ui/run_result_rr.c,$(TEST_SOURCES)) -o $(TEXT_BOX_LAYOUT_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(TEXT_BOX_LAYOUT_TEST_EXEC)
 
-test-execution-arrow-geometry:
+test-execution-arrow-geometry: | $(TEST_BUILD_DIR)
 	$(CC) $(CFLAGS) $(EXECUTION_ARROW_GEOMETRY_TEST_SOURCE) \
 	    $(filter-out $(S_DIR)/arrow_ar.c,$(TEST_SOURCES)) -o $(EXECUTION_ARROW_GEOMETRY_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(EXECUTION_ARROW_GEOMETRY_TEST_EXEC)
 
-test-buffer-label-layout:
+test-buffer-label-layout: | $(TEST_BUILD_DIR)
 	$(CC) $(CFLAGS) $(BUFFER_LABEL_LAYOUT_TEST_SOURCE) \
 	    $(filter-out $(S_DIR)/main.c $(S_DIR)/buffers_bf.c,$(S_FILES)) -o $(BUFFER_LABEL_LAYOUT_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(BUFFER_LABEL_LAYOUT_TEST_EXEC)
 
-test-sector-completion-navigation:
+test-sector-completion-navigation: | $(TEST_BUILD_DIR)
 	$(CC) $(CFLAGS) $(SECTOR_COMPLETION_NAVIGATION_TEST_SOURCE) \
 	    $(filter-out $(S_DIR)/stages.c,$(TEST_SOURCES)) -o $(SECTOR_COMPLETION_NAVIGATION_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(SECTOR_COMPLETION_NAVIGATION_TEST_EXEC)
 
-test-tutorial-text:
+test-tutorial-text: | $(TEST_BUILD_DIR)
 	$(CC) $(CFLAGS) $(TUTORIAL_TEXT_TEST_SOURCE) $(TEST_SOURCES) -o $(TUTORIAL_TEXT_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(TUTORIAL_TEXT_TEST_EXEC)
 
-test-operand-change-selection:
+test-operand-change-selection: | $(TEST_BUILD_DIR)
 	$(CC) $(CFLAGS) $(OPERAND_CHANGE_SELECTION_TEST_SOURCE) \
 	    $(filter-out $(S_DIR)/stages.c,$(TEST_SOURCES)) -o $(OPERAND_CHANGE_SELECTION_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(OPERAND_CHANGE_SELECTION_TEST_EXEC)
 
-test-operand-highlights:
+test-operand-highlights: | $(TEST_BUILD_DIR)
 	$(CC) $(CFLAGS) $(OPERAND_HIGHLIGHTS_TEST_SOURCE) $(TEST_SOURCES) -o $(OPERAND_HIGHLIGHTS_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(OPERAND_HIGHLIGHTS_TEST_EXEC)
 
-test-level-config-hover:
+test-level-config-hover: | $(TEST_BUILD_DIR)
 	$(CC) $(CFLAGS) $(LEVEL_CONFIG_HOVER_TEST_SOURCE) $(TEST_SOURCES) -o $(LEVEL_CONFIG_HOVER_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(LEVEL_CONFIG_HOVER_TEST_EXEC)
@@ -241,11 +268,8 @@ app: build
 ############################
 
 clean:
-	rm -rf $(EXEC) $(APP_BUNDLE) $(TUTORIAL_TEXT_TEST_EXEC) $(OPERAND_HIGHLIGHTS_TEST_EXEC) \
-	    $(LEVEL_CONFIG_HOVER_TEST_EXEC) $(OPERAND_CHANGE_SELECTION_TEST_EXEC) \
-	    $(SECTOR_COMPLETION_NAVIGATION_TEST_EXEC) $(BUFFER_LABEL_LAYOUT_TEST_EXEC) \
-	    $(EXECUTION_ARROW_GEOMETRY_TEST_EXEC) $(TEXT_BOX_LAYOUT_TEST_EXEC) \
-	    $(TUTORIAL_ARROW_ANIMATION_TEST_EXEC)
+	rm -rf $(EXEC) $(APP_BUNDLE) $(TEST_BUILD_DIR)
+	rm -f $(LEGACY_ROOT_TEST_EXECS)
 	find . -type d -name '*.dSYM' -prune -exec rm -rf {} +
 	rm -rf assemblyArchitect*
 	rm -f source/.*.swp
