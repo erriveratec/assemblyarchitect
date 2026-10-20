@@ -17,6 +17,10 @@ typedef struct mouse_t{
 	bool right_released;
 	bool chord_pressed;
 	bool chord_released;
+	bool left_button_down;
+	bool right_button_down;
+	bool suppress_left_release;
+	bool suppress_right_release;
 } mouse_t;
 
 static mouse_t mouse;
@@ -163,12 +167,7 @@ bool ms_chord_released()
 
 void ms_init_mouse()
 {
-	set_mouse_x(0);
-	set_mouse_y(0);
-	set_mouse_left_pressed(false);
-	set_mouse_left_released(false);
-
-	return;
+	ms_reset_mouse_values();
 }
 
 /* Function: set_mouse_scroll_x
@@ -364,6 +363,24 @@ void ms_consume_left_release(void)
 	set_mouse_left_released(false);
 }
 
+void ms_consume_pointer_input(bool suppress_held_releases)
+{
+	if (suppress_held_releases && mouse.left_button_down) {
+		mouse.suppress_left_release = true;
+	}
+	if (suppress_held_releases && mouse.right_button_down) {
+		mouse.suppress_right_release = true;
+	}
+	set_mouse_left_pressed(false);
+	set_mouse_left_released(false);
+	set_mouse_right_pressed(false);
+	set_mouse_right_released(false);
+	set_mouse_chord_pressed(false);
+	set_mouse_chord_released(false);
+	set_mouse_scroll_x(0);
+	set_mouse_scroll_y(0);
+}
+
 /* Function: ms_reset_mouse_values
  * -----------------------------------------------------------------------------
  * This function is used for clearing the values not used in the mouse for next
@@ -386,6 +403,10 @@ void ms_reset_mouse_values()
 	set_mouse_right_released(false);
 	set_mouse_chord_pressed(false);
 	set_mouse_chord_released(false);
+	mouse.left_button_down = false;
+	mouse.right_button_down = false;
+	mouse.suppress_left_release = false;
+	mouse.suppress_right_release = false;
 	return;
 }
 
@@ -417,6 +438,13 @@ int ms_get_mouse_x()
 int ms_get_mouse_y()
 {
 	return mouse.y;
+}
+
+int ms_get_mouse_scroll_x()
+{
+	int cur_x = mouse.scroll_x;
+	set_mouse_scroll_x(0);
+	return cur_x;
 }
 
 /* Function: ms_get_mouse_scroll_y
@@ -457,20 +485,28 @@ void ms_mouse_button_handler(SDL_Event e)
 	switch (e.button.button){
 		case SDL_BUTTON_LEFT:
 			if (SDL_PRESSED == e.button.state){
+				mouse.left_button_down = true;
+				mouse.suppress_left_release = false;
 				set_mouse_left_pressed(true);
 				set_mouse_left_released(false);
 			} else if (SDL_RELEASED == e.button.state){
+				mouse.left_button_down = false;
 				set_mouse_left_pressed(false);
-				set_mouse_left_released(true);
+				set_mouse_left_released(!mouse.suppress_left_release);
+				mouse.suppress_left_release = false;
 			}
 			break;
 		case SDL_BUTTON_RIGHT:
 			if (SDL_PRESSED == e.button.state){
+				mouse.right_button_down = true;
+				mouse.suppress_right_release = false;
 				set_mouse_right_pressed(true);
 				set_mouse_right_released(false);
 			} else if (SDL_RELEASED == e.button.state){
+				mouse.right_button_down = false;
 				set_mouse_right_pressed(false);
-				set_mouse_right_released(true);
+				set_mouse_right_released(!mouse.suppress_right_release);
+				mouse.suppress_right_release = false;
 			}
 			break;
 		default:

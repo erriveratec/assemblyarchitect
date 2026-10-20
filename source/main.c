@@ -94,6 +94,7 @@ int main(int argc, char *args[])
 		
 		Uint64 next_game_tick = SDL_GetTicks64();
 		ms_clear_mouse_values();
+		bool escape_menu_was_active = em_get_escape_state();
 		
 		// Check for new events every frame
 		SDL_Event event;
@@ -128,9 +129,10 @@ int main(int argc, char *args[])
 						}
 						break;
 				case SDL_KEYDOWN:
-					key_pressed = true;
-					if (event.key.repeat == 0 && event.key.keysym.sym ==
-					    SDLK_ESCAPE){
+						if (event.key.keysym.sym != SDLK_ESCAPE) {
+							key_pressed = true;
+						}
+						if (event.key.repeat == 0 && event.key.keysym.sym == SDLK_ESCAPE){
 						em_toggle_escape_menu();
 					}
 					break;
@@ -138,15 +140,38 @@ int main(int argc, char *args[])
 					break;
 			}
 		}
+		bool escape_menu_active_after_events = em_get_escape_state();
+		bool escape_menu_owns_input = em_owns_frame_input(
+			escape_menu_was_active, escape_menu_active_after_events);
+		bool escape_menu_exit_requested = false;
+		if (escape_menu_active_after_events) {
+			escape_menu_exit_requested =
+				em_update_escape_menu(true) == ESC_MENU_EXIT;
+		}
+		bool escape_menu_active_after_update = em_get_escape_state();
+		bool escape_menu_closed_this_frame = escape_menu_owns_input &&
+			!escape_menu_active_after_update;
+		if (escape_menu_exit_requested) {
+			quit_game = true;
+		}
+		if (escape_menu_owns_input) {
+			ms_consume_pointer_input(escape_menu_closed_this_frame);
+			key_pressed = false;
+		}
 		// I/O handling
 		const Uint8 *keystate = SDL_GetKeyboardState(NULL);
+		static const Uint8 no_keys[SDL_NUM_SCANCODES] = {0};
+		if (escape_menu_owns_input) {
+			keystate = no_keys;
+		}
 		// Draw background
 		SDL_RenderClear(g_renderer);
 		// before color define as 0x000000FF
 		Uint32 color = SDL_MapRGBA(format, 0, 0, 0, 0); // black
 		SDL_FillRect(g_screen, NULL, color);
 		
-		switch (state){
+		if (!escape_menu_exit_requested) {
+			switch (state){
 			case LV_STUDIO_SCREEN:
 				state = ts_stage_studio(studio_screen_time, 
 									 SDL_GetTicks64(), 
@@ -188,12 +213,8 @@ int main(int argc, char *args[])
 			case LV_PLAY_LEVEL:
 				state = stage_level(level);
 				break;
+			}
 		}
-		em_render_escape_menu(em_get_escape_state());
-		if (em_update_escape_menu(em_get_escape_state()) == ESC_MENU_EXIT){
-			quit_game = true;
-		}
-
 		SDL_UpdateTexture(g_screen_texture,
 						  NULL,
 						  g_screen->pixels,
@@ -203,6 +224,7 @@ int main(int argc, char *args[])
 					   g_screen_texture,
 					   NULL, 
 					   NULL);
+		em_render_escape_menu(em_get_escape_state());
 
 		// draw to the display
 		SDL_RenderPresent(g_renderer);

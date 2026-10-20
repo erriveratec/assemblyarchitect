@@ -34,6 +34,8 @@ TUTORIAL_ARROW_ANIMATION_TEST_EXEC = tutorial_arrow_animation_test
 TUTORIAL_ARROW_ANIMATION_TEST_SOURCE = tests/tutorial_arrow_animation_test.c
 HIGHLIGHT_ANIMATION_SYNC_TEST_EXEC = highlight_animation_sync_test
 HIGHLIGHT_ANIMATION_SYNC_TEST_SOURCE = tests/highlight_animation_sync_test.c
+MODAL_POINTER_CAPTURE_TEST_EXEC = modal_pointer_capture_test
+MODAL_POINTER_CAPTURE_TEST_SOURCE = tests/modal_pointer_capture_test.c
 
  
 ############################
@@ -92,7 +94,12 @@ build:
 run: build
 	./$(EXEC)
 
-test: test-level-config-hover test-operand-highlights test-operand-change-selection test-tutorial-text test-sector-completion-navigation test-buffer-label-layout test-execution-arrow-geometry test-text-box-layout test-tutorial-arrow-animation test-highlight-animation-sync
+test: test-level-config-hover test-operand-highlights test-operand-change-selection test-tutorial-text test-sector-completion-navigation test-buffer-label-layout test-execution-arrow-geometry test-text-box-layout test-tutorial-arrow-animation test-highlight-animation-sync test-modal-pointer-capture
+
+test-modal-pointer-capture:
+	$(CC) $(CFLAGS) $(MODAL_POINTER_CAPTURE_TEST_SOURCE) $(TEST_SOURCES) -o $(MODAL_POINTER_CAPTURE_TEST_EXEC) \
+	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
+	./$(MODAL_POINTER_CAPTURE_TEST_EXEC)
 
 test-highlight-animation-sync:
 	$(CC) $(CFLAGS) $(HIGHLIGHT_ANIMATION_SYNC_TEST_SOURCE) $(TEST_SOURCES) -o $(HIGHLIGHT_ANIMATION_SYNC_TEST_EXEC) \

@@ -168,6 +168,11 @@ bool em_get_escape_state()
 	return g_escape_menu;
 }
 
+bool em_owns_frame_input(bool was_active, bool is_active)
+{
+	return was_active || is_active;
+}
+
 
 /* Function: em_init_escape_menu
  * ----------------------------------------------------------------------------
@@ -278,7 +283,7 @@ void em_render_escape_menu(bool show_menu)
  *	menu_variable_state: The state of the show menu variable.
  *
  * Return:
- *	void
+ *	EscapeMenuAction indicating the selected menu action.
  */
 int em_update_escape_menu(bool show_menu)
 {
