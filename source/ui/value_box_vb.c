@@ -1,5 +1,7 @@
 #include "ui/value_box_vb.h"
 
+#include <limits.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 #include "aux.h"
@@ -31,18 +33,54 @@ int vb_get_vertical_offset(void)
 	return vb_get_size().h / 4;
 }
 
+static void copy_value_contents(vb_value_box_t *dst, int value, int type,
+								bool visible_box)
+{
+	dst->value = value;
+	dst->type = type;
+	dst->visible_box = visible_box;
+	dw_free_texture(dst->t);
+	char *number = ax_number_to_string(value);
+	dst->t = dw_create_text_tex(number, C_WHITE);
+	free(number);
+}
+
 void vb_copy(vb_value_box_t *dst, vb_value_box_t src, bool copy_position)
 {
-	dst->value = src.value;
-	dst->type = src.type;
-	dst->visible_box = src.visible_box;
+	copy_value_contents(dst, src.value, src.type, src.visible_box);
 	if (copy_position) {
 		dst->box = src.box;
 	}
-	dw_free_texture(dst->t);
-	char *number = ax_number_to_string(src.value);
-	dst->t = dw_create_text_tex(number, C_WHITE);
-	free(number);
+}
+
+static int clamp_coordinate(int64_t coordinate)
+{
+	if (coordinate > INT_MAX) {
+		return INT_MAX;
+	}
+	if (coordinate < INT_MIN) {
+		return INT_MIN;
+	}
+	return (int)coordinate;
+}
+
+void vb_copy_for_transport(vb_value_box_t *dst, const vb_value_box_t *src)
+{
+	if (dst == NULL || src == NULL) {
+		return;
+	}
+
+	SDL_Rect source_box = src->box;
+	SDL_Rect standard_size = vb_get_size();
+	vb_copy(dst, *src, false);
+	dst->box = (SDL_Rect){
+		.x = clamp_coordinate((int64_t)source_box.x +
+			((int64_t)source_box.w - standard_size.w) / 2),
+		.y = clamp_coordinate((int64_t)source_box.y +
+			((int64_t)source_box.h - standard_size.h) / 2),
+		.w = standard_size.w,
+		.h = standard_size.h
+	};
 }
 
 void vb_draw(vb_value_box_t *box, SDL_Color color)

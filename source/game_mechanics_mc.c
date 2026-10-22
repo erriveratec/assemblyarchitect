@@ -1188,7 +1188,7 @@ static bool handle_iavatar_source_operand(int op_id)
 			vb_value_box_t b = get_operand_value_box(op_id);
 			vb_copy(&g_iavatar.mainval, b, false);
 			g_iavatar.mainval.visible_box = false;
-			vb_copy(&g_iavatar.secval, b, true);
+			vb_copy_for_transport(&g_iavatar.secval, &b);
 			g_iavatar.secval.visible_box = true;
 		}
 		else if (op_id == IB && is_operand_retrievable(op_id) == false){

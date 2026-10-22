@@ -37,6 +37,8 @@ HIGHLIGHT_ANIMATION_SYNC_TEST_EXEC = $(TEST_BUILD_DIR)/highlight_animation_sync_
 HIGHLIGHT_ANIMATION_SYNC_TEST_SOURCE = tests/highlight_animation_sync_test.c
 MODAL_POINTER_CAPTURE_TEST_EXEC = $(TEST_BUILD_DIR)/modal_pointer_capture_test
 MODAL_POINTER_CAPTURE_TEST_SOURCE = tests/modal_pointer_capture_test.c
+VALUE_BOX_TRANSPORT_TEST_EXEC = $(TEST_BUILD_DIR)/value_box_transport_test
+VALUE_BOX_TRANSPORT_TEST_SOURCE = tests/value_box_transport_test.c
 TEST_EXECS := \
 	$(TUTORIAL_TEXT_TEST_EXEC) \
 	$(OPERAND_HIGHLIGHTS_TEST_EXEC) \
@@ -112,12 +114,13 @@ $(EXEC): $(S_FILES)
 run: build
 	./$(EXEC)
 
-test: test-level-config-hover test-operand-highlights test-operand-change-selection test-tutorial-text test-sector-completion-navigation test-buffer-label-layout test-execution-arrow-geometry test-text-box-layout test-tutorial-arrow-animation test-highlight-animation-sync test-modal-pointer-capture
+test: test-level-config-hover test-operand-highlights test-operand-change-selection test-tutorial-text test-sector-completion-navigation test-buffer-label-layout test-execution-arrow-geometry test-text-box-layout test-tutorial-arrow-animation test-highlight-animation-sync test-modal-pointer-capture test-value-box-transport
 
 .PHONY: all build run app clean test test-level-config-hover test-operand-highlights test-operand-change-selection \
 	test-tutorial-text test-sector-completion-navigation test-buffer-label-layout \
 	test-execution-arrow-geometry test-text-box-layout test-tutorial-arrow-animation \
-	test-highlight-animation-sync test-modal-pointer-capture
+	test-highlight-animation-sync test-modal-pointer-capture \
+	test-value-box-transport
 
 $(TEST_BUILD_DIR):
 	mkdir -p $@
@@ -127,6 +130,12 @@ test-modal-pointer-capture: | $(TEST_BUILD_DIR)
 	$(CC) $(CFLAGS) $(MODAL_POINTER_CAPTURE_TEST_SOURCE) $(TEST_SOURCES) -o $(MODAL_POINTER_CAPTURE_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(MODAL_POINTER_CAPTURE_TEST_EXEC)
+
+test-value-box-transport: | $(TEST_BUILD_DIR)
+	$(CC) $(CFLAGS) $(VALUE_BOX_TRANSPORT_TEST_SOURCE) \
+	    $(S_DIR)/ui/value_box_vb.c $(S_DIR)/dimensions_dm.c -o $(VALUE_BOX_TRANSPORT_TEST_EXEC) \
+	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
+	./$(VALUE_BOX_TRANSPORT_TEST_EXEC)
 
 test-highlight-animation-sync: | $(TEST_BUILD_DIR)
 	$(CC) $(CFLAGS) $(HIGHLIGHT_ANIMATION_SYNC_TEST_SOURCE) $(TEST_SOURCES) -o $(HIGHLIGHT_ANIMATION_SYNC_TEST_EXEC) \
