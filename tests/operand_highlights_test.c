@@ -161,20 +161,30 @@ static void test_highlight_source_composition(void)
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, false);
 	assert(!im_are_immediates_highlighted());
+	assert(dw_get_render_style(im_are_immediates_highlighted()) ==
+	       DW_RENDER_STYLE_NORMAL);
 
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, true);
 	assert(im_are_immediates_highlighted());
+	assert(dw_get_render_style(im_are_immediates_highlighted()) ==
+	       DW_RENDER_STYLE_HIGHLIGHT_WHITE);
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 	assert(!im_are_immediates_highlighted());
 
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, true);
 	assert(im_are_immediates_highlighted());
+	assert(dw_get_render_style(im_are_immediates_highlighted()) ==
+	       DW_RENDER_STYLE_HIGHLIGHT_WHITE);
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, true);
 	assert(im_are_immediates_highlighted());
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 	assert(im_are_immediates_highlighted());
+	assert(dw_get_render_style(im_are_immediates_highlighted()) ==
+	       DW_RENDER_STYLE_HIGHLIGHT_WHITE);
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, false);
 	assert(!im_are_immediates_highlighted());
+	assert(dw_get_render_style(im_are_immediates_highlighted()) ==
+	       DW_RENDER_STYLE_NORMAL);
 
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, true);
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, true);
@@ -505,22 +515,17 @@ static void test_immediate_grid_geometry(dm_resolution_t resolution)
 	assert(fabsf(immediate_progress -
 	             dw_pulse_progress((float)dw_get_animation_step(),
 	                               animation_limit)) < 0.00001f);
-	capture_number_bounds(cell_rects, highlighted_bounds, C_LIGHTGREY);
+	capture_number_bounds(cell_rects, highlighted_bounds, C_WHITE);
 	for (int index = 0; index < 20; index++) {
 		vb_value_box_t current = im_get_imm_value_box_by_id(IMMUP0 + index);
 		assert(current.box.x == cell_rects[index].x);
 		assert(current.box.y == cell_rects[index].y);
 		assert(current.box.w == cell_rects[index].w);
 		assert(current.box.h == cell_rects[index].h);
-		assert(highlighted_bounds[index].h > normal_bounds[index].h);
-		int normal_center_x = 2 * normal_bounds[index].x + normal_bounds[index].w;
-		int highlighted_center_x =
-		    2 * highlighted_bounds[index].x + highlighted_bounds[index].w;
-		int normal_center_y = 2 * normal_bounds[index].y + normal_bounds[index].h;
-		int highlighted_center_y =
-		    2 * highlighted_bounds[index].y + highlighted_bounds[index].h;
-		assert(abs(normal_center_x - highlighted_center_x) <= 4);
-		assert(abs(normal_center_y - highlighted_center_y) <= 4);
+		assert(highlighted_bounds[index].x == cell_rects[index].x);
+		assert(highlighted_bounds[index].y == cell_rects[index].y);
+		assert(highlighted_bounds[index].w == cell_rects[index].w);
+		assert(highlighted_bounds[index].h == cell_rects[index].h);
 	}
 
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);

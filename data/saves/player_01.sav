@@ -76,8 +76,10 @@ code_end
 [level 08]
 unlocked = true
 code_begin
+line 01
 MOV rax, [ib]
 MOV [ob], rax
+JMP 00
 code_end
 
 [level 09]

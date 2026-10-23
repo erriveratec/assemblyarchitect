@@ -2,27 +2,28 @@
 #include <math.h>
 
 #define vb_draw test_vb_draw
+#define vb_draw_style test_vb_draw_style
 #define dw_draw_texture_fit_h test_draw_texture_fit_h
-#define dw_draw_texture_fit_h_f test_draw_texture_fit_h_f
-#define dw_set_texture_color_mod test_set_texture_color_mod
+#define dw_draw_texture_fit_h_style test_draw_texture_fit_h_style
+#define dw_draw_texture_fit_h_f_style test_draw_texture_fit_h_f_style
 #define dw_draw_filled_rectangle_f test_draw_filled_rectangle_f
 /* This narrow private-helper test follows the existing geometry test pattern. */
 #include "../source/registers_rg.c"
 #undef dw_draw_filled_rectangle_f
-#undef dw_set_texture_color_mod
-#undef dw_draw_texture_fit_h_f
+#undef dw_draw_texture_fit_h_f_style
+#undef dw_draw_texture_fit_h_style
 #undef dw_draw_texture_fit_h
+#undef vb_draw_style
 #undef vb_draw
 
 static int g_value_box_draw_count;
 static int g_static_label_draw_count;
 static int g_animated_label_draw_count;
 static int g_highlight_rectangle_draw_count;
-static int g_texture_modulation_count;
+static int g_white_style_draw_count;
 static SDL_Rect g_static_label_rect;
 static SDL_FRect g_animated_label_rect;
-static SDL_Color g_first_texture_modulation;
-static SDL_Color g_last_texture_modulation;
+static dw_render_style_t g_value_box_style;
 
 void test_vb_draw(vb_value_box_t *box, SDL_Color color)
 {
@@ -30,6 +31,25 @@ void test_vb_draw(vb_value_box_t *box, SDL_Color color)
 	assert(color.r == C_GREY.r && color.g == C_GREY.g &&
 	       color.b == C_GREY.b && color.a == C_GREY.a);
 	g_value_box_draw_count++;
+}
+
+void test_vb_draw_style(vb_value_box_t *box, SDL_Color color,
+						dw_render_style_t style)
+{
+	assert(box == &g_zf);
+	assert(color.r == C_GREY.r || color.r == C_WHITE.r);
+	g_value_box_style = style;
+	g_value_box_draw_count++;
+}
+
+int test_draw_texture_fit_h_style(SDL_Rect rect, texture_t *texture,
+								dw_render_style_t style)
+{
+	assert(texture == g_zf_text);
+	assert(style == DW_RENDER_STYLE_NORMAL);
+	g_static_label_rect = rect;
+	g_static_label_draw_count++;
+	return SUCCESS;
 }
 
 int test_draw_texture_fit_h(SDL_Rect rect, texture_t *texture)
@@ -40,22 +60,15 @@ int test_draw_texture_fit_h(SDL_Rect rect, texture_t *texture)
 	return SUCCESS;
 }
 
-int test_draw_texture_fit_h_f(SDL_FRect rect, texture_t *texture)
+int test_draw_texture_fit_h_f_style(SDL_FRect rect, texture_t *texture,
+								  dw_render_style_t style)
 {
 	assert(texture == g_zf_text);
+	assert(style == DW_RENDER_STYLE_HIGHLIGHT_WHITE);
 	g_animated_label_rect = rect;
 	g_animated_label_draw_count++;
+	g_white_style_draw_count++;
 	return SUCCESS;
-}
-
-void test_set_texture_color_mod(texture_t *texture, SDL_Color color)
-{
-	assert(texture == g_zf_text);
-	if (g_texture_modulation_count == 0) {
-		g_first_texture_modulation = color;
-	}
-	g_last_texture_modulation = color;
-	g_texture_modulation_count++;
 }
 
 void test_draw_filled_rectangle_f(SDL_FRect rect, SDL_Color in,
@@ -133,6 +146,7 @@ int main(void)
 	rg_set_zero_flag_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 	rg_draw_flag_boxes(maximum_pulse);
 	assert(g_value_box_draw_count == 1);
+	assert(g_value_box_style == DW_RENDER_STYLE_NORMAL);
 	assert(g_static_label_draw_count == 1);
 	assert(g_animated_label_draw_count == 0);
 	assert(g_static_label_rect.x ==
@@ -140,7 +154,6 @@ int main(void)
 	assert(g_static_label_rect.y == base_label_region.y);
 	assert(g_static_label_rect.w == base_label_width);
 	assert(g_static_label_rect.h == base_label_region.h);
-	assert(g_texture_modulation_count == 0);
 	assert(g_zf.box.x == original_box.x && g_zf.box.y == original_box.y &&
 	       g_zf.box.w == original_box.w && g_zf.box.h == original_box.h);
 
@@ -156,9 +169,8 @@ int main(void)
 	assert(g_static_label_draw_count == 0);
 	assert(g_animated_label_draw_count == 1);
 	assert(g_highlight_rectangle_draw_count == 0);
-	assert(g_texture_modulation_count == 2);
-	assert(g_first_texture_modulation.r == C_LIGHTGREY.r);
-	assert(g_last_texture_modulation.r == C_WHITE.r);
+	assert(g_value_box_style == DW_RENDER_STYLE_HIGHLIGHT_WHITE);
+	assert(g_white_style_draw_count == 1);
 	SDL_FRect expected_label = get_highlighted_label_rect(
 		base_label_region, g_zf_text, active_pulse);
 	assert_close(g_animated_label_rect.x, expected_label.x);
