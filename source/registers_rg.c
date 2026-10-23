@@ -57,7 +57,7 @@ static void draw_register_value_highlight(vb_value_box_t *value, btn_t *button);
 static void draw_value_box_highlight(const vb_value_box_t *value,
 									 SDL_FRect animated_box,
 									 float pulse);
-static void draw_register_button_highlight(btn_t *button, SDL_Rect hover_rect);
+static void draw_register_button_highlight(btn_t *button);
 
 vb_value_box_t g_ibox;
 vb_value_box_t g_obox;
@@ -352,7 +352,8 @@ void rg_init_flag_and_vboxes()
 	g_zf.value = NO_VALUE;
 	g_zf.visible_box = true;
 	g_zf.t = dw_create_text_tex(ax_char_dash, C_GREY);
-	g_zf_text = dw_create_text_tex(ZF_TEXT, C_GREY);
+	g_zf_text = dw_create_text_tex(ZF_TEXT, C_WHITE);
+	dw_set_texture_color_mod(g_zf_text, C_GREY);
 
 	return;
 }
@@ -413,7 +414,8 @@ void rg_draw_flag_boxes(float animation_limit)
 	text.w = vb_get_size().w;
 	if (g_zero_flag_highlight) {
 		float pulse = ha_get_value(animation_limit);
-		draw_text_label_highlight(g_zf_text, text, pulse, C_LIGHTGREY);
+		draw_text_label_highlight(g_zf_text, text, pulse, C_WHITE);
+		dw_set_texture_color_mod(g_zf_text, C_GREY);
 	} else {
 		int width = ax_get_texture_w_fit_h(text.h, g_zf_text);
 		text.x += (text.w - width) / 2;
@@ -798,7 +800,7 @@ void rg_draw_registers(float animation_limit)
 		SDL_Rect hover_rect = reg->value.box;
 		hover_rect.h += button->r.h;
 		if (g_register_highlight) {
-			draw_register_button_highlight(button, hover_rect);
+			draw_register_button_highlight(button);
 #if RG_HIGHLIGHT_REGISTER_VALUES
 			draw_register_value_highlight(&reg->value, button);
 #else
@@ -931,12 +933,10 @@ static void draw_value_box_highlight(const vb_value_box_t *value,
 	dw_draw_texture_fit_h_f(animated_text, value->t);
 }
 
-static void draw_register_button_highlight(btn_t *button, SDL_Rect hover_rect)
+static void draw_register_button_highlight(btn_t *button)
 {
-	bool hover = ax_chk_mouse_hover_rect(hover_rect) &&
-	             !sb_chk_rst_esc_menu_active();
 	draw_text_label_highlight(button->t, button->r, g_register_highlight_value,
-	                          hover ? C_WHITE : C_LIGHTGREY);
+	                          C_WHITE);
 }
 
 /* Function: rg_get_registers_text_width

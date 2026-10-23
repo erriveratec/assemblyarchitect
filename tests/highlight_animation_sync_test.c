@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <SDL.h>
 #include <SDL_ttf.h>
@@ -461,6 +462,133 @@ static bool pixel_is_white(int x, int y)
 	return red == 255 && green == 255 && blue == 255 && alpha == 255;
 }
 
+static void assert_region_contains_color(SDL_Rect region, SDL_Color expected)
+{
+	Uint32 *pixels = malloc(region.w * region.h * sizeof(*pixels));
+	assert(pixels != NULL);
+	assert(SDL_RenderReadPixels(g_renderer, &region, SDL_PIXELFORMAT_RGBA32,
+	                            pixels, region.w * sizeof(*pixels)) == 0);
+	bool found = false;
+	for (int index = 0; index < region.w * region.h; index++) {
+		Uint8 red, green, blue, alpha;
+		SDL_GetRGBA(pixels[index], g_screen->format,
+		            &red, &green, &blue, &alpha);
+		if (red == expected.r && green == expected.g &&
+		    blue == expected.b && alpha == expected.a) {
+			found = true;
+			break;
+		}
+	}
+	free(pixels);
+	assert(found);
+}
+
+static void test_button_foreground_override(void)
+{
+	texture_t *texture = dw_create_text_tex("rax", C_WHITE);
+	assert(texture != NULL);
+	btn_t button = {
+		.r = {.x = 100, .y = 100, .w = 180, .h = 60},
+		.t = texture,
+		.enabled = true
+	};
+	SDL_Rect original = button.r;
+	ms_init_mouse();
+	for (int blocked = 0; blocked < 2; blocked++) {
+		for (int hover = 0; hover < 2; hover++) {
+			clear_test_renderer();
+			bt_draw_btn_with_text_color(&button, blocked, hover, C_WHITE);
+			assert_region_contains_color(button.r, C_WHITE);
+			assert_rect_equal(button.r, original);
+			Uint8 red, green, blue;
+			assert(SDL_GetTextureColorMod(texture->texture, &red, &green, &blue) == 0);
+			assert(red == C_WHITE.r && green == C_WHITE.g && blue == C_WHITE.b);
+		}
+	}
+	clear_test_renderer();
+	bt_draw_btn(&button, false, false);
+	assert_region_contains_color(button.r, C_LIGHTGREY);
+	dw_free_texture(texture);
+}
+
+static void assert_tinted_label_colors(SDL_Color immediate_color,
+	                                  SDL_Color flag_color)
+{
+	float animation_limit = (float)dw_get_animation_limit();
+	clear_test_renderer();
+	im_draw_imm(animation_limit);
+	assert_region_contains_color(im_get_label_bounds(), immediate_color);
+	for (int index = 0; index < 20; index++) {
+		vb_value_box_t value = im_get_imm_value_box_by_id(IMMUP0 + index);
+		SDL_Rect text_region = value.box;
+		text_region.x += text_region.w / 4;
+		text_region.y += text_region.h / 4;
+		text_region.w /= 2;
+		text_region.h /= 2;
+		assert_region_contains_color(text_region, C_WHITE);
+		Uint8 red, green, blue;
+		assert(SDL_GetTextureColorMod(value.t->texture, &red, &green, &blue) == 0);
+		assert(red == C_WHITE.r && green == C_WHITE.g && blue == C_WHITE.b);
+	}
+	clear_test_renderer();
+	rg_draw_flag_boxes(animation_limit);
+	SDL_Rect label = rg_get_zero_flag_bounds();
+	label.h = cl_get_code_button_size().h;
+	label.y += label.h;
+	label.w = vb_get_size().w;
+	assert_region_contains_color(label, flag_color);
+}
+
+static void test_highlight_foregrounds_and_normal_tints(void)
+{
+	clear_highlight_targets();
+	rg_init_flag_and_vboxes();
+	im_init_imm_assets();
+	im_set_imm_up_avail(true);
+	assert_tinted_label_colors(C_AMBER, C_GREY);
+
+	const ui_highlight_source_t sources[] = {
+		UI_HIGHLIGHT_SOURCE_TUTORIAL, UI_HIGHLIGHT_SOURCE_AVAILABILITY
+	};
+	for (size_t index = 0; index < sizeof(sources) / sizeof(sources[0]); index++) {
+		ui_highlight_source_t source = sources[index];
+		ui_highlight_source_t other = sources[1 - index];
+		bf_set_buffer_highlight_source(source, true, true);
+		bf_set_buffer_highlight_source(other, true, true);
+		bf_set_buffer_highlight_source(other, false, false);
+		im_set_highlight_source(source, true);
+		rg_set_zero_flag_highlight_source(source, true);
+		im_set_highlight_source(other, true);
+		rg_set_zero_flag_highlight_source(other, true);
+		im_set_highlight_source(other, false);
+		rg_set_zero_flag_highlight_source(other, false);
+		ha_reset();
+		for (int frame = 0; frame < get_cycle_frame_budget(); frame++) {
+			ha_begin_frame();
+			float phase = ha_get_progress();
+			assert_tinted_label_colors(C_WHITE, C_WHITE);
+			assert(ha_get_progress() == phase);
+			float buffer_phase = -1.0f;
+			float animation_limit = (float)dw_get_animation_limit();
+			assert(bf_get_input_buffer_highlight_progress(&buffer_phase, animation_limit));
+			assert(buffer_phase == phase);
+			assert(bf_get_output_buffer_highlight_progress(&buffer_phase, animation_limit));
+			assert(buffer_phase == phase);
+		}
+		bf_set_buffer_highlight_source(source, false, false);
+		float buffer_phase = -1.0f;
+		float animation_limit = (float)dw_get_animation_limit();
+		assert(!bf_get_input_buffer_highlight_progress(&buffer_phase, animation_limit));
+		assert(!bf_get_output_buffer_highlight_progress(&buffer_phase, animation_limit));
+		im_set_highlight_source(source, false);
+		rg_set_zero_flag_highlight_source(source, false);
+		assert_tinted_label_colors(C_AMBER, C_GREY);
+	}
+	im_destroy_imm_assets();
+	rg_destroy_value_boxes();
+	clear_highlight_targets();
+}
+
 static void assert_pending_draw_state(int state, int expected_offset)
 {
 	int op1_offset = cl_get_code_button_size().w;
@@ -705,6 +833,8 @@ int main(void)
 	test_zero_flag_source_ownership_and_progress();
 	test_getters_preserve_frame_snapshot();
 	test_invalid_getter_inputs();
+	test_button_foreground_override();
+	test_highlight_foregrounds_and_normal_tints();
 	test_pending_rect_geometry_helper();
 	test_pending_operand_uses_shared_phase();
 	destroy_test_graphics();

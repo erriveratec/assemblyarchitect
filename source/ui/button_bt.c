@@ -38,6 +38,8 @@ static int get_w_iface_space_border();
 static int get_w_iface_outer_border();
 static int get_w_button_padding();
 static int get_h_button_padding();
+static void draw_button(btn_t *button, bool blk, bool hv,
+	                    const SDL_Color *text_color);
 
 /* Function: get_w_button_padding
  * -----------------------------------------------------------------------------
@@ -520,6 +522,18 @@ btn_t *bt_create_btn(SDL_Rect r, texture_t *t)
  */
 void bt_draw_btn(btn_t *b, bool blk, bool hv)
 {
+	draw_button(b, blk, hv, NULL);
+}
+
+void bt_draw_btn_with_text_color(btn_t *button, bool blk, bool hv,
+	                            SDL_Color text_color)
+{
+	draw_button(button, blk, hv, &text_color);
+}
+
+static void draw_button(btn_t *b, bool blk, bool hv,
+	                    const SDL_Color *text_color)
+{
 	assert(b != NULL && "The button pointer is NULL");
 	
 	if (b->rect == true){
@@ -538,6 +552,9 @@ void bt_draw_btn(btn_t *b, bool blk, bool hv)
 		dw_set_texture_color_mod(b->t, C_WHITE);
 	} else if (b->enabled == false){
 		dw_set_texture_color_mod(b->t, C_GREY);
+	}
+	if (text_color != NULL) {
+		dw_set_texture_color_mod(b->t, *text_color);
 	}
 
 	float scale_w = (float)b->r.w/b->t->w;

@@ -36,6 +36,8 @@ enum btn_states{
 
 btn_t *bt_create_btn(SDL_Rect b, texture_t *t);
 void bt_draw_btn(btn_t *button, bool blk, bool hv);
+void bt_draw_btn_with_text_color(btn_t *button, bool blk, bool hv,
+	                            SDL_Color text_color);
 bool bt_btn_clicked(btn_t *button);
 bool bt_btn_rclicked(btn_t *button);
 

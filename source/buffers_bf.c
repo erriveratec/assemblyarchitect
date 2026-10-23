@@ -933,9 +933,7 @@ static void draw_buffer_label(SDL_Rect label_box, texture_t *label,
 	}
 
 	SDL_FRect label_rect = transform_buffer_rect(label_box, animation);
-	bool hover = ax_chk_mouse_hover_rect(hit_box) &&
-	             !sb_chk_rst_esc_menu_active();
-	dw_set_texture_color_mod(label, hover ? C_WHITE : C_LIGHTGREY);
+	dw_set_texture_color_mod(label, C_WHITE);
 	dw_draw_texture_fit_h_f(label_rect, label);
 	dw_set_texture_color_mod(label, C_WHITE);
 }

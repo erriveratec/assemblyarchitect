@@ -401,9 +401,7 @@ static void draw_highlighted_instruction(btn_t *button)
 	};
 	SDL_FRect text = dw_grow_rect_height(
 	    base_text, cycle_pulse * DW_TEXT_HIGHLIGHT_GROWTH_FACTOR);
-	bool hover = ax_chk_mouse_hover_rect(button->r) &&
-	             !sb_chk_rst_esc_menu_active();
-	dw_set_texture_color_mod(button->t, hover ? C_WHITE : C_LIGHTGREY);
+	dw_set_texture_color_mod(button->t, C_WHITE);
 	dw_draw_texture_fit_h_f(text, button->t);
 	dw_set_texture_color_mod(button->t, C_WHITE);
 }

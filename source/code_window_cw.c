@@ -1717,6 +1717,17 @@ void cw_draw_code_window()
 
 }
 
+static void draw_operand_button(code_line_t *line, operand_t *operand,
+	                            int changing_state, bool blocked)
+{
+	if (line->state == changing_state &&
+	    line == cw_get_code_line_pending_operand()) {
+		bt_draw_btn_with_text_color(operand->b, blocked, false, C_WHITE);
+	} else {
+		bt_draw_btn(operand->b, blocked, false);
+	}
+}
+
 /* Function: display_player_code
  * -----------------------------------------------------------------------------
  * This function displays the code that is contained in the list of code
@@ -1744,10 +1755,12 @@ static void display_player_code()
 		bt_draw_btn(line->ins->b, sb_chk_rst_esc_menu_active(), false);
 		
 		if (line->op1 != NULL){
-			bt_draw_btn(line->op1->b, sb_chk_rst_esc_menu_active(), false);
+			draw_operand_button(line, line->op1, CHANGING_OP1,
+			                    sb_chk_rst_esc_menu_active());
 		}
 		if (line->op2 != NULL){
-			bt_draw_btn(line->op2->b, sb_chk_rst_esc_menu_active(), false);
+			draw_operand_button(line, line->op2, CHANGING_OP2,
+			                    sb_chk_rst_esc_menu_active());
 		}
 	
 		int comma = cl_get_instruction_operand_quantity(line->ins->id);
@@ -2291,12 +2304,14 @@ void cw_player_holding_instruction(code_line_t *line, bool arng, bool del)
 	if (line->op1 != NULL){
 		line->op1->b->r.x = line->ins->b->r.x + op1_ofs;
 		line->op1->b->r.y = line->ins->b->r.y;
-		bt_draw_btn(line->op1->b, em_get_escape_state(), false);
+		draw_operand_button(line, line->op1, CHANGING_OP1,
+		                    em_get_escape_state());
 	}
 	if (line->op2 != NULL){
 		line->op2->b->r.x = line->ins->b->r.x + op2_ofs;
 		line->op2->b->r.y = line->ins->b->r.y;
-		bt_draw_btn(line->op2->b, em_get_escape_state(), false);
+		draw_operand_button(line, line->op2, CHANGING_OP2,
+		                    em_get_escape_state());
 	}
 	bt_draw_btn(line->ins->b, em_get_escape_state(), false);
 }

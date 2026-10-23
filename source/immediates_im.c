@@ -420,7 +420,8 @@ bool im_ms_rel_in_upimm(void)
  */
 static void init_imm_texture()
 {
-	g_imm_txt = dw_create_text_tex(IMM_TXT, C_AMBER);
+	g_imm_txt = dw_create_text_tex(IMM_TXT, C_WHITE);
+	dw_set_texture_color_mod(g_imm_txt, C_AMBER);
 }
 
 
@@ -463,6 +464,9 @@ void im_draw_imm(float animation_limit)
 static void draw_imm_txt_up(float pulse)
 {
 	SDL_Rect label_bounds = im_get_label_bounds();
+	if (g_imm_highlight) {
+		dw_set_texture_color_mod(g_imm_txt, C_WHITE);
+	}
 
 	if (IMM_LABEL_HIGHLIGHT_ENABLED && g_imm_highlight) {
 		SDL_FRect highlight_bounds = {
@@ -473,12 +477,11 @@ static void draw_imm_txt_up(float pulse)
 		};
 		highlight_bounds = dw_grow_rect_height(
 		    highlight_bounds, pulse * DW_TEXT_HIGHLIGHT_GROWTH_FACTOR);
-		dw_set_texture_color_mod(g_imm_txt, C_LIGHTGREY);
 		dw_draw_texture_fit_h_f(highlight_bounds, g_imm_txt);
-		dw_set_texture_color_mod(g_imm_txt, C_AMBER);
 	} else {
 		dw_draw_texture_fit_h(label_bounds, g_imm_txt);
 	}
+	dw_set_texture_color_mod(g_imm_txt, C_AMBER);
 }
 
 static void draw_imm_cell(const imm_t *imm, float pulse, bool highlighted)
@@ -533,7 +536,7 @@ static void draw_imm_value(const vb_value_box_t *value, float pulse,
 	};
 	animated_text = dw_grow_rect_height(
 	    animated_text, pulse * DW_TEXT_HIGHLIGHT_GROWTH_FACTOR);
-	dw_set_texture_color_mod(value->t, C_LIGHTGREY);
+	dw_set_texture_color_mod(value->t, C_WHITE);
 	dw_draw_texture_fit_h_f(animated_text, value->t);
 	dw_set_texture_color_mod(value->t, C_WHITE);
 }
