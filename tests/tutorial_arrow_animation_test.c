@@ -777,17 +777,18 @@ static void test_op2_vertical_clearance(void)
 	}
 }
 
-static void test_challenge_arrow_highlight_configuration(void)
+static void test_conditional_jump_tutorial_configuration(void)
 {
 	assert(tr_load_level(13));
 	const tutorial_step_t *step =
 		tr_get_named_step("complete_compare_branch_program");
 	assert(step != NULL);
 	assert(step->arrow_count == 1);
-	assert(step->arrow_ids[0] == AR_CHALLENGE);
-	assert(step->highlight_targets & TUTORIAL_HIGHLIGHT_CHALLENGE);
+	assert(step->arrow_ids[0] == AR_ZF);
+	assert(step->highlight_instruction_mask == (1 << JE));
+	assert((step->highlight_targets & TUTORIAL_HIGHLIGHT_CHALLENGE) == 0);
 	assert(g_arrow_highlight_targets[step->arrow_ids[0]] ==
-	       HIGHLIGHT_CHALLENGE);
+	       HIGHLIGHT_NONE);
 	tr_clear();
 }
 
@@ -815,7 +816,7 @@ int main(void)
 	test_level1_code_box_arrow_regression();
 	test_play_tutorial_steps_preserve_existing_highlight_configuration();
 	test_op2_vertical_clearance();
-	test_challenge_arrow_highlight_configuration();
+	test_conditional_jump_tutorial_configuration();
 	test_error_arrow_tracks_output_highlight();
 	test_resolution(DM_RESOLUTION_1600X900);
 	test_tutorial_reentry();
