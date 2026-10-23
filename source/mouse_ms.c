@@ -74,7 +74,7 @@ bool ms_click_inside_rect(SDL_Rect r)
  * Return:
  *	true if the left button of the mouse is pressed, false if otherwise
  */
-bool ms_left_pressed()
+bool ms_left_pressed(void)
 {
 	return mouse.left_pressed;
 }
@@ -89,7 +89,7 @@ bool ms_left_pressed()
  * Return:
  *	bool with the state of the button enable attribute.
  */
-bool ms_left_released()
+bool ms_left_released(void)
 {
 	return mouse.left_released;
 }
@@ -104,7 +104,7 @@ bool ms_left_released()
  * Return:
  *	bool with the state of the button enable attribute.
  */
-bool ms_right_pressed()
+bool ms_right_pressed(void)
 {
 	return mouse.right_pressed;
 }
@@ -119,7 +119,7 @@ bool ms_right_pressed()
  * Return:
  *	bool with the state of the button enable attribute.
  */
-bool ms_right_released()
+bool ms_right_released(void)
 {
 	return mouse.right_released;
 }
@@ -134,7 +134,7 @@ bool ms_right_released()
  * Return:
  *	bool with the state of the button enable attribute.
  */
-bool ms_chord_pressed()
+bool ms_chord_pressed(void)
 {
 	return mouse.chord_pressed;
 }
@@ -149,7 +149,7 @@ bool ms_chord_pressed()
  * Return:
  *	bool with the state of the button enable attribute.
  */
-bool ms_chord_released()
+bool ms_chord_released(void)
 {
 	return mouse.chord_released;
 }
@@ -165,7 +165,7 @@ bool ms_chord_released()
  *	void.
  */
 
-void ms_init_mouse()
+void ms_init_mouse(void)
 {
 	ms_reset_mouse_values();
 }
@@ -345,7 +345,7 @@ static void set_mouse_right_released(bool s)
  * Return:
  *	void.
  */
-void ms_clear_mouse_values()
+void ms_clear_mouse_values(void)
 {
 	set_mouse_scroll_x(0);
 	set_mouse_scroll_y(0);
@@ -391,7 +391,7 @@ void ms_consume_pointer_input(bool suppress_held_releases)
  * Return:
  *	void.
  */
-void ms_reset_mouse_values()
+void ms_reset_mouse_values(void)
 {
 	set_mouse_x(0);
 	set_mouse_y(0);
@@ -420,7 +420,7 @@ void ms_reset_mouse_values()
  * Return:
  *	The x coordinate of the mouse.
  */
-int ms_get_mouse_x()
+int ms_get_mouse_x(void)
 {
 	return mouse.x;
 }
@@ -435,12 +435,12 @@ int ms_get_mouse_x()
  * Return:
  *	The y coordinate of the mouse.
  */
-int ms_get_mouse_y()
+int ms_get_mouse_y(void)
 {
 	return mouse.y;
 }
 
-int ms_get_mouse_scroll_x()
+int ms_get_mouse_scroll_x(void)
 {
 	int cur_x = mouse.scroll_x;
 	set_mouse_scroll_x(0);
@@ -457,7 +457,7 @@ int ms_get_mouse_scroll_x()
  * Return:
  *	The y coordinate of the mouse.
  */
-int ms_get_mouse_scroll_y()
+int ms_get_mouse_scroll_y(void)
 {
 	int cur_y = mouse.scroll_y;
 	set_mouse_scroll_y(0);

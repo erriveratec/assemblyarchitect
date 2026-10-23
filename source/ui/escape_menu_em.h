@@ -13,10 +13,10 @@ typedef enum EscapeMenuAction {
 	ESC_MENU_EXIT
 } EscapeMenuAction;
 
-void em_toggle_escape_menu();
-bool em_get_escape_state();
+void em_toggle_escape_menu(void);
+bool em_get_escape_state(void);
 bool em_owns_frame_input(bool was_active, bool is_active);
-void em_init_escape_menu();
+void em_init_escape_menu(void);
 void em_render_escape_menu(bool show_menu);
 int em_update_escape_menu(bool show_menu);
 

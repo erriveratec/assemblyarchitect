@@ -396,7 +396,7 @@ static void test_arrow_highlight_mapping(void)
 		assert(arrow_has_highlight_provider(mappings[index].arrow_id) ==
 		       (mappings[index].target != HIGHLIGHT_NONE));
 	}
-	/* These arrows remain intentionally independent of highlight providers. */
+	/* PLAY can use shared timing without a visible highlight; EXEC uses private timing. */
 	assert(g_arrow_highlight_targets[AR_PLAY] == HIGHLIGHT_CODE_BOX);
 	assert(arrow_has_highlight_provider(AR_PLAY));
 	assert(g_arrow_highlight_targets[AR_ZF] == HIGHLIGHT_ZERO_FLAG);
@@ -632,7 +632,7 @@ static void test_synchronized_arrow_positions(void)
 	};
 	static const float samples[] = {0.0f, 0.25f, 0.5f, 0.75f, 1.0f};
 	static const int directions[] = {AR_UP, AR_DOWN, AR_LEFT, AR_RIGHT};
-	for (int target = HIGHLIGHT_INSTRUCTION;
+	for (highlight_target_t target = HIGHLIGHT_INSTRUCTION;
 	     target <= HIGHLIGHT_ZERO_FLAG; target++) {
 		provider_active[target] = true;
 		for (size_t index = 0;
@@ -748,6 +748,7 @@ static void test_level1_code_box_arrow_regression(void)
 	assert(progress == 0.0f);
 	assert(tr_update(NULL) == NULL);
 	tr_clear();
+	cw_destroy_code_window_assets();
 }
 
 static void test_op2_vertical_clearance(void)
@@ -794,12 +795,9 @@ static void test_zero_flag_tutorial_configuration(void)
 	const tutorial_step_t *step =
 		tr_get_named_step("explain_zero_flag_set");
 	assert(step != NULL);
-	assert(step->arrow_count == 1);
-	assert(step->arrow_ids[0] == AR_ZF);
+	assert(step->arrow_count == 0);
 	assert(step->highlight_targets == TUTORIAL_HIGHLIGHT_ZERO_FLAG);
 	assert(step->highlight_instruction_mask == (1 << CMP));
-	assert(g_arrow_highlight_targets[step->arrow_ids[0]] ==
-	       HIGHLIGHT_ZERO_FLAG);
 	for (int index = 0; index < tr_get_step_count(); index++) {
 		const tutorial_step_t *candidate = tr_get_step(index);
 		if (candidate != NULL &&
@@ -822,10 +820,19 @@ static void test_zero_flag_tutorial_configuration(void)
 	const tutorial_step_t *clear_step =
 		tr_get_named_step("explain_zero_flag_clear");
 	assert(clear_step != NULL);
-	assert(clear_step->arrow_count == 1);
-	assert(clear_step->arrow_ids[0] == AR_ZF);
+	assert(clear_step->arrow_count == 0);
 	assert(clear_step->highlight_targets == TUTORIAL_HIGHLIGHT_ZERO_FLAG);
+	assert(clear_step->highlight_instruction_mask == (1 << CMP));
+	for (int index = 0; index < tr_get_step_count(); index++) {
+		const tutorial_step_t *candidate = tr_get_step(index);
+		if (candidate != clear_step) {
+			tr_deactivate(candidate->name);
+		}
+	}
+	assert(tr_update(&zf_context) == clear_step);
+	assert(rg_get_zero_flag_highlight_progress(&zf_progress, 15.0f));
 	tr_clear();
+	assert(!rg_get_zero_flag_highlight_progress(&zf_progress, 15.0f));
 
 	assert(tr_load_level(14));
 	static const char *const zf_steps[] = {
@@ -838,7 +845,46 @@ static void test_zero_flag_tutorial_configuration(void)
 		assert(step != NULL);
 		assert(step->arrow_count == 1 && step->arrow_ids[0] == AR_ZF);
 		assert(step->highlight_targets == TUTORIAL_HIGHLIGHT_ZERO_FLAG);
+		assert(g_arrow_highlight_targets[step->arrow_ids[0]] == HIGHLIGHT_ZERO_FLAG);
 	}
+	tr_clear();
+}
+
+static void test_all_tutorial_arrow_ids(void)
+{
+	for (int level = 0; level <= 16; level++) {
+		assert(tr_load_level(level));
+		for (int index = 0; index < tr_get_step_count(); index++) {
+			const tutorial_step_t *step = tr_get_step(index);
+			assert(step != NULL);
+			for (int arrow = 0; arrow < step->arrow_count; arrow++) {
+				int id = step->arrow_ids[arrow];
+				assert(id >= 0 && (size_t)id < sizeof(g_arrow_highlight_targets) /
+				       sizeof(g_arrow_highlight_targets[0]));
+				assert(arrow_has_highlight_provider(id) || id == AR_EXEC);
+				if (id == AR_ZF) {
+					assert(step->highlight_targets & TUTORIAL_HIGHLIGHT_ZERO_FLAG);
+				}
+			}
+		}
+		tr_clear();
+	}
+}
+
+static void run_isolated_test(void (*test)(void))
+{
+	tr_clear();
+	ha_reset();
+	memset(provider_progress, 0, sizeof(provider_progress));
+	memset(provider_active, 0, sizeof(provider_active));
+	use_shared_output_provider = false;
+	arrow_draw_count = 0;
+	code_box_provider_calls = 0;
+	op2_line_rect = (SDL_Rect){0};
+	layout_available = true;
+	back_button_offset = 0;
+	dm_set_screen_resolution(DM_RESOLUTION_1600X900);
+	test();
 	tr_clear();
 }
 
@@ -861,21 +907,22 @@ int main(void)
 	};
 	assert(g_test_register_arrow.texture != NULL);
 	g_reg_arrow = &g_test_register_arrow;
-	test_arrow_highlight_mapping();
-	test_play_arrow_uses_shared_phase_with_active_provider();
-	test_play_arrow_position_is_independent_of_highlight_visibility();
-	test_play_arrow_activation_transition_is_continuous();
-	test_play_arrow_deactivation_transition_is_continuous();
-	test_play_arrow_does_not_mutate_private_motion();
-	test_play_arrow_initialization_policy();
-	test_independent_arrow_retains_private_motion();
-	test_mandatory_provider_arrow_retains_existing_behavior();
-	test_synchronized_arrow_positions();
-	test_level1_code_box_arrow_regression();
-	test_play_tutorial_steps_preserve_existing_highlight_configuration();
-	test_op2_vertical_clearance();
-	test_zero_flag_tutorial_configuration();
-	test_error_arrow_tracks_output_highlight();
+	run_isolated_test(test_arrow_highlight_mapping);
+	run_isolated_test(test_all_tutorial_arrow_ids);
+	run_isolated_test(test_play_arrow_uses_shared_phase_with_active_provider);
+	run_isolated_test(test_play_arrow_position_is_independent_of_highlight_visibility);
+	run_isolated_test(test_play_arrow_activation_transition_is_continuous);
+	run_isolated_test(test_play_arrow_deactivation_transition_is_continuous);
+	run_isolated_test(test_play_arrow_does_not_mutate_private_motion);
+	run_isolated_test(test_play_arrow_initialization_policy);
+	run_isolated_test(test_independent_arrow_retains_private_motion);
+	run_isolated_test(test_mandatory_provider_arrow_retains_existing_behavior);
+	run_isolated_test(test_synchronized_arrow_positions);
+	run_isolated_test(test_level1_code_box_arrow_regression);
+	run_isolated_test(test_play_tutorial_steps_preserve_existing_highlight_configuration);
+	run_isolated_test(test_op2_vertical_clearance);
+	run_isolated_test(test_zero_flag_tutorial_configuration);
+	run_isolated_test(test_error_arrow_tracks_output_highlight);
 	test_resolution(DM_RESOLUTION_1600X900);
 	test_tutorial_reentry();
 	test_resolution(DM_RESOLUTION_1920X1080);

@@ -93,22 +93,21 @@ _Static_assert(sizeof(g_arrow_highlight_targets) /
 	                   sizeof(g_arrow_highlight_targets[0]) == ARROW_ID_COUNT,
 	               "Arrow highlight mapping must cover every arrow ID");
 
-static void initialize_ins_arrow();
-static void initialize_drop_arrow();
-static void initialize_play_arrow();
-static void initialize_code_line_arrow();
-static void initialize_del_arrow();
-static void initialize_op2_arrow();
-static void initialize_error_arrow();
-static void initialize_challenge_arrow();
-static void initialize_ib_arrow();
-static void initialize_ob_arrow();
-static void initialize_regs_arrow();
-static void initialize_zf_arrow();
-static void initialize_imm_up_arrow();
-static void check_execution_arrow_in_place(int instruction_number);
+static void initialize_ins_arrow(void);
+static void initialize_drop_arrow(void);
+static void initialize_play_arrow(void);
+static void initialize_code_line_arrow(void);
+static void initialize_del_arrow(void);
+static void initialize_op2_arrow(void);
+static void initialize_error_arrow(void);
+static void initialize_challenge_arrow(void);
+static void initialize_ib_arrow(void);
+static void initialize_ob_arrow(void);
+static void initialize_regs_arrow(void);
+static void initialize_zf_arrow(void);
+static void initialize_imm_up_arrow(void);
 bool ar_move_execution_arrow(int instruction_number);
-SDL_Rect ar_get_arrow_wh();
+SDL_Rect ar_get_arrow_wh(void);
 static arrow_t *get_arrow_by_id(int arrow_id);
 static bool get_highlight_progress(const arrow_t *arrow, float *progress,
 								  float animation_limit);
@@ -138,7 +137,7 @@ static void animate_arrow(arrow_t *arrow, float animation_limit);
  * Return:
  *	SDL_Rect with the positions of the object
  */
-SDL_Rect ar_get_arrow_wh()
+SDL_Rect ar_get_arrow_wh(void)
 {
 	SDL_Rect b;
 	b.w = dm_scale_to_res(ARROW_W);
@@ -216,29 +215,7 @@ bool ar_move_execution_arrow(int instruction_number)
 	return in_final_position;
 }
 
-/* Function: check_execution_arrow_in_place
- * -----------------------------------------------------------------------------
- * Arguments:
- *	Evaluates if the execution arrow is it it's final posiition
- *
- * Return:
- *	bool if the exectution arrow arrived to its final position
- */
-static void check_execution_arrow_in_place(int instruction_number)
-{
-	int code_size = cw_get_code_list_size();	
-	assert(code_size > 0  && "Code size is invalid");
-	assert(instruction_number <= code_size && 
-		   "Instruction number is incorrect");
 
-	int y = get_execution_arrow_target_y(instruction_number);
-	
-	int mdelta = ax_get_arrow_move_delta();
-	if (g_arrow_exec.box.y == y){
-		int delta = ax_get_movement_delta(g_arrow_exec.box.y, y, mdelta/2);
-		g_arrow_exec.box.y += delta;
-	} 
-}
 /* Function: ar_reset_execution_arrow
  * -------------------------------------
  * Arguments:
@@ -247,7 +224,7 @@ static void check_execution_arrow_in_place(int instruction_number)
  * Return:
  *	void.
  */
-void ar_reset_execution_arrow()
+void ar_reset_execution_arrow(void)
 {
 	SDL_Rect cb = cw_get_stage_code_box();
 	SDL_Rect a = ar_get_arrow_wh();
@@ -275,7 +252,7 @@ void ar_reset_execution_arrow()
  * Return:
  *	void.
  */
-void ar_hide_execution_arrow()
+void ar_hide_execution_arrow(void)
 {
 	g_arrow_exec.visible = false;
 
@@ -291,7 +268,7 @@ void ar_hide_execution_arrow()
  * Return:
  *	Void.
  */
-static void initialize_regs_arrow()
+static void initialize_regs_arrow(void)
 {
 	SDL_Rect rb = rg_get_register_box();
 	SDL_Rect a = ar_get_arrow_wh();
@@ -321,7 +298,7 @@ static void initialize_regs_arrow()
  * Return:
  *	Void.
  */
-static void initialize_zf_arrow()
+static void initialize_zf_arrow(void)
 {
 	SDL_Rect rb = rg_get_flag_value_box_by_id(ZF).box;
 	SDL_Rect a = ar_get_arrow_wh();
@@ -350,7 +327,7 @@ static void initialize_zf_arrow()
  * Return:
  *	Void.
  */
-static void initialize_imm_up_arrow()
+static void initialize_imm_up_arrow(void)
 {
 	SDL_Rect a = ar_get_arrow_wh();
 	SDL_Rect label_bounds = im_get_label_bounds();
@@ -382,7 +359,7 @@ static void initialize_imm_up_arrow()
  * Return:
  *	Void.
  */
-static void initialize_ins_arrow()
+static void initialize_ins_arrow(void)
 {
 	int size = iw_get_instruction_list_size();
 	SDL_Rect ir = iw_get_instruction_rect_by_pos(size - 1);
@@ -417,7 +394,7 @@ static void initialize_ins_arrow()
  * Return:
  *	Void.
  */
-static void initialize_ins_minus_arrow()
+static void initialize_ins_minus_arrow(void)
 {
 	int size = iw_get_instruction_list_size();
 	
@@ -453,7 +430,7 @@ static void initialize_ins_minus_arrow()
  * Return:
  *	Void.
  */
-static void initialize_drop_arrow()
+static void initialize_drop_arrow(void)
 {
 	int h = dm_get_screen_height();	
 	SDL_Rect a = ar_get_arrow_wh();
@@ -482,7 +459,7 @@ static void initialize_drop_arrow()
  * Return:
  *	Void.
  */
-static void initialize_play_arrow()
+static void initialize_play_arrow(void)
 {
 	SDL_Rect sb = sb_get_stage_btns();
 	SDL_Rect a = ar_get_arrow_wh();
@@ -514,7 +491,7 @@ static void initialize_play_arrow()
  * Return:
  *	Void.
  */
-static void initialize_step_arrow()
+static void initialize_step_arrow(void)
 {
 	SDL_Rect sb = sb_get_stage_btns();
 	SDL_Rect a = ar_get_arrow_wh();
@@ -542,7 +519,7 @@ static void initialize_step_arrow()
  * Return:
  *	Void.
  */
-static void initialize_fast_arrow()
+static void initialize_fast_arrow(void)
 {
 	SDL_Rect sb = sb_get_stage_btns();
 	SDL_Rect a = ar_get_arrow_wh();
@@ -571,7 +548,7 @@ static void initialize_fast_arrow()
  * Return:
  *	Void.
  */
-static void initialize_code_line_arrow()
+static void initialize_code_line_arrow(void)
 {
 	SDL_Rect a = ar_get_arrow_wh();
 	int pos = cw_get_code_list_size() - 1;
@@ -606,7 +583,7 @@ static void initialize_code_line_arrow()
  * Return:
  *	Void.
  */
-static void initialize_del_arrow()
+static void initialize_del_arrow(void)
 {
 	SDL_Rect a = ar_get_arrow_wh();
 	SDL_Rect cb = cw_get_stage_code_box();
@@ -634,7 +611,7 @@ static void initialize_del_arrow()
  * Return:
  *	Void.
  */
-static void initialize_op2_arrow()
+static void initialize_op2_arrow(void)
 {
 	SDL_Rect a = ar_get_arrow_wh();
 	int clearance = dm_scale_to_res(
@@ -671,7 +648,7 @@ static void initialize_op2_arrow()
  * Return:
  *	Void.
  */
-static void initialize_error_arrow()
+static void initialize_error_arrow(void)
 {
 	SDL_Rect a = ar_get_arrow_wh();
 	SDL_Rect back_button;
@@ -704,7 +681,7 @@ static void initialize_error_arrow()
  * Return:
  *	Void.
  */
-static void initialize_challenge_arrow()
+static void initialize_challenge_arrow(void)
 {
 	SDL_Rect a = ar_get_arrow_wh();
 	SDL_Rect tb = cw_get_text_box_rect();
@@ -731,7 +708,7 @@ static void initialize_challenge_arrow()
  * Return:
  *	Void.
  */
-static void initialize_ib_arrow()
+static void initialize_ib_arrow(void)
 { 	
 	SDL_Rect b =  bf_get_input_buffer_bounds();
 	SDL_Rect dim = ar_get_arrow_wh();
@@ -761,7 +738,7 @@ static void initialize_ib_arrow()
  * Return:
  *	Void.
  */
-static void initialize_ob_arrow()
+static void initialize_ob_arrow(void)
 { 	
 	SDL_Rect b =  bf_get_output_buffer_bounds();
 	SDL_Rect dim = ar_get_arrow_wh();
@@ -790,7 +767,7 @@ static void initialize_ob_arrow()
  * Return:
  *	Void.
  */
-void ar_initialize_arrows()
+void ar_initialize_arrows(void)
 {
 	SDL_SetTextureColorMod(g_lv_arrow->texture, 255, 0, 0);
 	for (int arrow_id = AR_INS; arrow_id < ARROW_ID_COUNT; arrow_id++) {

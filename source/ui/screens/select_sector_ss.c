@@ -15,7 +15,6 @@
 
 static const Uint32 SECTOR_BTN_SPACING = 60;
 static const Uint32 FIRST_BTN_OFS = 3;
-static const Uint32 TYPE_DELAY_MS = 90;  
 static const Uint32 SMALL_SEPARATOR_H = 2;
 static const Uint32 BIG_SEPARATOR_H = 6;
 static const Uint32 SECTOR_TITLE_SEPARATOR = 24;
@@ -30,11 +29,11 @@ static char *SECTOR_3 = "[03] BRANCHING ENGINE";
 static char *SECTOR_4 = "[04] ADVANCED MODULE";
 
 static void create_sector_btns(btn_t **btns, bool *levels);
-static int get_sector_btn_spacing();
-static SDL_Rect get_sector_btn_box();
-static SDL_Rect get_upper_separator();
-static int get_fst_btn_ofs();
-static SDL_Rect get_sector_separator();
+static int get_sector_btn_spacing(void);
+static SDL_Rect get_sector_btn_box(void);
+static SDL_Rect get_upper_separator(void);
+static int get_fst_btn_ofs(void);
+static SDL_Rect get_sector_separator(void);
 
 
 /* Function: get_sector_separator
@@ -47,10 +46,8 @@ static SDL_Rect get_sector_separator();
  * Return:
  *	SDL_Rect with the positions of the objecto
  */
-static SDL_Rect get_sector_separator()
+static SDL_Rect get_sector_separator(void)
 {
-	int screen_width = dm_get_screen_width();
-	int screen_height = dm_get_screen_height();
 
 	SDL_Rect r = get_sector_btn_box();	
 	SDL_Rect b;
@@ -72,7 +69,7 @@ static SDL_Rect get_sector_separator()
  * Return:
  *	int with the ammount of spacing
  */
-static int get_fst_btn_ofs()
+static int get_fst_btn_ofs(void)
 {
 	return dm_scale_to_res(FIRST_BTN_OFS);
 }
@@ -87,10 +84,9 @@ static int get_fst_btn_ofs()
  * Return:
  *	SDL_Rect with the positions of the objecto
  */
-static SDL_Rect get_upper_separator()
+static SDL_Rect get_upper_separator(void)
 {
 	int screen_width = dm_get_screen_width();
-	int screen_height = dm_get_screen_height();
 
 	SDL_Rect r = sc_get_selection_title_bounds(SELECT_SECTOR);
 	SDL_Rect b;
@@ -111,10 +107,9 @@ static SDL_Rect get_upper_separator()
  * Return:
  *	SDL_Rect with the positions of the objecto
  */
-static SDL_Rect get_sector_btn_box()
+static SDL_Rect get_sector_btn_box(void)
 {
 	int screen_width = dm_get_screen_width();
-	int screen_height = dm_get_screen_height();
 
 	SDL_Rect b;
 	b.w = screen_width*2/3;
@@ -136,7 +131,7 @@ static SDL_Rect get_sector_btn_box()
  * Return:
  *	int with the ammount of spacing
  */
-static int get_sector_btn_spacing()
+static int get_sector_btn_spacing(void)
 {
 	return dm_scale_to_res(SECTOR_BTN_SPACING);
 }
@@ -212,7 +207,7 @@ static void create_sector_btns(btn_t **btns, bool *levels)
  *	The number of the level selected, if not valid press was performed
  *	the number of the select label stage will be returned.
  */
-int stage_select_sector_ss()
+int stage_select_sector_ss(void)
 {
 
 	static bool level_initialized = false;
@@ -236,7 +231,7 @@ int stage_select_sector_ss()
 	sc_fx_update_render(&fx_state, cur_time);
 
 	SDL_Rect b = sc_get_selection_title_bounds(SELECT_SECTOR);
-	bool title_done = sc_typewriter_update(&title, 
+	sc_typewriter_update(&title,
 										 cur_time, 
 										 b, 
 										 SELECT_SECTOR, 

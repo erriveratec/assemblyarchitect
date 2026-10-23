@@ -62,16 +62,22 @@ static void record_draw(enum draw_event event)
 	events[event_count++] = event;
 }
 
+static void record_animated_draw(enum draw_event event, float limit)
+{
+	assert(limit == dw_get_animation_limit());
+	record_draw(event);
+}
+
 #define ha_begin_frame() record_draw(DRAW_FRAME)
 #define iw_draw_ins_box() record_draw(DRAW_INSTRUCTIONS)
 #define cw_draw_code_window() record_draw(DRAW_CODE)
-#define cw_get_challenge_highlight_limit() 0.0f
+#define cw_get_challenge_highlight_limit() ((float)dw_get_animation_limit())
 #define cw_get_code_list_size() 0
 #define sb_draw_stage_btns(size, limit) record_draw(DRAW_CONTROLS)
 #define im_draw_imm(limit) record_draw(DRAW_IMMEDIATES)
 #define ar_display_arrow(arrow, limit) record_draw(DRAW_EXECUTION_ARROW)
 #define bf_draw_buffers(limit) record_draw(DRAW_BUFFERS)
-#define rg_draw_registers(limit) record_draw(DRAW_REGISTERS)
+#define rg_draw_registers(limit) record_animated_draw(DRAW_REGISTERS, limit)
 #define mc_draw_avatar() record_draw(DRAW_AVATAR)
 #define sb_draw_ret_btn() record_draw(DRAW_RETURN)
 #define sb_draw_rst_btn() record_draw(DRAW_RESET)
@@ -82,7 +88,7 @@ static void record_draw(enum draw_event event)
 
 #define set_code_editable level_test_set_code_editable
 #define sb_chk_rst_esc_menu_active() escape_active
-#define rg_draw_flag_boxes(limit) record_draw(DRAW_FLAG_BOXES)
+#define rg_draw_flag_boxes(limit) record_animated_draw(DRAW_FLAG_BOXES, limit)
 #define tr_render_current() record_draw(DRAW_TUTORIAL)
 #include "../source/levels_lv.c"
 #undef set_code_editable
@@ -127,7 +133,7 @@ static void test_render_order(int level, int operation, bool flags_visible)
 	event_count = 0;
 	stage_drawings(level, operation);
 	size_t cursor = 0;
-	for (int event = DRAW_FRAME; event <= DRAW_LEVEL_UI; event++) {
+	for (enum draw_event event = DRAW_FRAME; event <= DRAW_LEVEL_UI; event++) {
 		assert(events[cursor++] == event);
 	}
 	if (flags_visible) {

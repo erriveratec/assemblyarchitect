@@ -2,7 +2,7 @@
 #define SELECT_SECTOR_H
 
 
-int stage_select_sector_ss();
+int stage_select_sector_ss(void);
 
 #endif 
 

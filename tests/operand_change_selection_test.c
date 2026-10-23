@@ -434,6 +434,13 @@ int main(void)
 {
 	cw_create_code_list();
 	ms_init_mouse();
+	add_line(MOV, false, true);
+	assert(cw_get_instruction_operand(0, FIRST_OP) == NO_OPERAND);
+	assert(cw_get_instruction_operand(0, SECOND_OP) == IMMUP7);
+	add_line(JMP, false, false);
+	assert(cw_get_instruction_operand(1, FIRST_OP) == NO_OPERAND);
+	assert(cw_get_instruction_operand(1, SECOND_OP) == NO_OPERAND);
+	reset_fixture();
 	test_transfer_and_reselection();
 	test_structural_restoration();
 	test_jumps_and_labels();

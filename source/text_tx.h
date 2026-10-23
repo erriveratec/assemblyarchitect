@@ -63,17 +63,17 @@ bool tx_get_text_box_rects(const tx_text_box_options_t *options,
 						   SDL_Rect *box, SDL_Rect *content,
 						   int *text_height);
 
-void tx_init_global_msgs();
+void tx_init_global_msgs(void);
 void tx_text_box(int pos, int msg_id, int header);
 void tx_bottom_msg(const tx_text_box_options_t *options, int msg_id);
-void tx_free_level_text_textures();
+void tx_free_level_text_textures(void);
 void tx_set_and_allocate_msgs_array(int size);
 void tx_set_message_in_array(int pos, char *msg, int w, int h);
 void tx_set_single_line_message(int position, const char *message);
 bool tx_draw_create_typewriter_text(texture_t **t, SDL_Rect r, const char *text,
                                     size_t *index, SDL_Color color);
 texture_array_t *tx_get_message_texture(int pos);
-SDL_Rect         tx_get_text_box_wh();
+SDL_Rect         tx_get_text_box_wh(void);
 texture_array_t *tx_create_text_box_message(
 	const tx_text_box_options_t *options, const char *message);
 

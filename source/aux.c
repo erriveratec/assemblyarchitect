@@ -108,7 +108,7 @@ void ax_set_fast_move_delta(bool state)
  * Return:
  *	delta: The movement ammount.
  */
-int ax_get_move_delta() { return move_delta; }
+int ax_get_move_delta(void) { return move_delta; }
 
 /* Function: ax_pad_rectangle
  *------------------------------------------------------------------------------
@@ -132,7 +132,7 @@ SDL_Rect ax_pad_rectangle(SDL_Rect b, int offset, bool inside)
 		r.y = b.y + offset;
 		r.w = b.w - 2 * offset;
 		r.h = b.h - 2 * offset;
-	} else if (inside == false) {
+	} else {
 		r.x = b.x - offset;
 		r.y = b.y - offset;
 		r.w = b.w + 2 * offset;
@@ -238,20 +238,21 @@ char *ax_create_string_append_hex(char *s, int n)
 {
 	assert(s != NULL && "The string pointer is NULL");
 
+	char *string = NULL;
 	char *number = NULL;
 
 	number = ax_number_to_hex_string_two_digits(n);
 	check_mem(number);
-	char *string = malloc(sizeof(char) * (strlen(s) + strlen(ax_char_space) +
+	string = malloc(sizeof(char) * (strlen(s) + strlen(ax_char_space) +
 	                                      strlen(number) + 1));
 	check_mem(string);
 
 	strcpy(string, s);
 	strcat(string, ax_char_space);
 	strcat(string, number);
-	free(number);
 
 error:
+	free(number);
 	return string;
 }
 
@@ -514,29 +515,21 @@ char *ax_number_to_string_prepend_zero(int number)
 
 char *ax_number_to_string(int number)
 {
-	char *c = NULL;
-
-	if (number == 0) {
-		c = malloc(sizeof(char) * 2);
-		sprintf(c, "%d", number);
-	} else if (number == NO_VALUE) {
-		c               = malloc(sizeof(char) * 2);
-		char negative[] = "-";
-		strcpy(c, negative);
-	} else if (number < 0) {
-		int   absolute   = abs(number);
-		char *abs_number = malloc(sizeof(char) * (int)log10(absolute) + 2);
-		sprintf(abs_number, "%d", absolute);
-		c               = malloc(sizeof(char) * (int)log10(absolute) + 3);
-		char negative[] = "-";
-		strcpy(c, negative);
-		strcat(c, abs_number);
-		free(abs_number);
-	} else {
-		c = malloc(sizeof(char) * (int)log10(number) + 2);
-		sprintf(c, "%d", number);
+	int length = number == NO_VALUE ? 1 : snprintf(NULL, 0, "%d", number);
+	if (length < 0) {
+		return NULL;
 	}
-	return c;
+	size_t size = (size_t)length + 1;
+	char *text = malloc(size);
+	if (text == NULL) {
+		return NULL;
+	}
+	if (number == NO_VALUE) {
+		memcpy(text, "-", size);
+	} else {
+		snprintf(text, size, "%d", number);
+	}
+	return text;
 }
 
 /* Function: check_text_fits_width_by_height
@@ -617,7 +610,6 @@ int ax_get_wrapped_text_height(int w, int h, char *t)
 	assert(0 < h && "The height of the text is negative");
 	assert(NULL != t && "Text pointer is NULL");
 
-	int x_pos       = WRAPPED_TEXT_X_OFFSET;
 	int y_pos       = 0;
 	int y_offset    = h;
 	int string_size = strlen(t);

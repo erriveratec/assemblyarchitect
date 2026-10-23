@@ -21,7 +21,6 @@ static Uint32 RST_BTN_H = 75;
 
 static Uint32 STAGE_BUTTON_W = 60;
 static Uint32 STAGE_BUTTON_H = 60;
-static Uint32 STAGE_BUTTON_Y = 820;
 
 static Uint32 SCREEN_BORDERS_OFS = 5;
 static int get_hidden_stage_buttons_y(void)
@@ -50,11 +49,9 @@ iface_btn_t *step;
 iface_btn_t *ret_btn;
 iface_btn_t *rst_btn;
 
-static SDL_Rect get_return_button_box();
-static SDL_Rect get_rst_btn_box();
-static int get_ofs_space_stage_buttons();
-static SDL_Rect get_rst_b1_box();
-static SDL_Rect get_rst_b2_box();
+static SDL_Rect get_return_button_box(void);
+static SDL_Rect get_rst_btn_box(void);
+static int get_ofs_space_stage_buttons(void);
 
 static SDL_Rect get_highlighted_button_rect(SDL_Rect rect)
 {
@@ -95,9 +92,9 @@ static void draw_stage_button(iface_btn_t *button,
  * Return:
  *	Boolean with the state fo the escape_menu variable
  */
-bool sb_chk_rst_esc_menu_active()
+bool sb_chk_rst_esc_menu_active(void)
 {
-	bool active = (rm_chk_rst_menu_state() | em_get_escape_state());
+	bool active = (rm_chk_rst_menu_state() || em_get_escape_state());
 	return active;
 }
 
@@ -111,7 +108,7 @@ bool sb_chk_rst_esc_menu_active()
  * Return:
  *	int with the offset
  */
-static int get_ofs_space_stage_buttons()
+static int get_ofs_space_stage_buttons(void)
 {
 	SDL_Rect sb = sb_get_stage_btns();
 	return sb.w/2;
@@ -127,7 +124,7 @@ static int get_ofs_space_stage_buttons()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-SDL_Rect sb_get_stage_btns()
+SDL_Rect sb_get_stage_btns(void)
 {
 	SDL_Rect b;
 	SDL_Rect ib = il_get_initial_instruction_bounds();
@@ -150,7 +147,7 @@ SDL_Rect sb_get_stage_btns()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-static SDL_Rect get_rst_btn_box()
+static SDL_Rect get_rst_btn_box(void)
 {
 	SDL_Rect ret_box = get_return_button_box();
 	SDL_Rect b;
@@ -173,7 +170,7 @@ static SDL_Rect get_rst_btn_box()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-static SDL_Rect get_return_button_box()
+static SDL_Rect get_return_button_box(void)
 {
 	int screen_height = dm_get_screen_height();
 	SDL_Rect b;
@@ -263,7 +260,6 @@ int sb_get_play_button_member(int member)
 	return return_value;
 }
 
-static bool sb_check_released_in_stage_button(); // not used
 
 /* Function: adjust_stage_buttons_position
  * -------------------------------------
@@ -302,7 +298,7 @@ void adjust_stage_buttons_position(int code_size)
 
 }
 
-void sb_handle_screen_resize()
+void sb_handle_screen_resize(void)
 {
 	if (ret_btn != NULL){
 		ret_btn->r = get_return_button_box();
@@ -397,7 +393,7 @@ bool sb_get_button_highlight_progress(int button_id,
  * Return:
  *	Void.
  */
-void sb_draw_rst_btn()
+void sb_draw_rst_btn(void)
 {
 	bt_draw_iface_btn(rst_btn, sb_chk_rst_esc_menu_active(), g_sfx_iface_hover);
 }
@@ -412,7 +408,7 @@ void sb_draw_rst_btn()
  * Return:
  *	Void.
  */
-void sb_init_rst_btn()
+void sb_init_rst_btn(void)
 {
 	if (rst_btn == NULL){
 		SDL_Rect r = get_rst_btn_box();
@@ -432,7 +428,7 @@ void sb_init_rst_btn()
  * Return:
  *	true if inside that area
  */
-bool sb_chk_hov_rst_ret_btns()
+bool sb_chk_hov_rst_ret_btns(void)
 {
 	int hov = false;
 
@@ -454,7 +450,7 @@ bool sb_chk_hov_rst_ret_btns()
  * Return:
  *	true if button clicked, false if otherwise.
  */
-bool sb_chk_rel_rst_btn()
+bool sb_chk_rel_rst_btn(void)
 {
 	int rst = false;
 
@@ -476,7 +472,7 @@ bool sb_chk_rel_rst_btn()
  * Return:
  *	Void.
  */
-void sb_draw_ret_btn()
+void sb_draw_ret_btn(void)
 {
 	bt_draw_iface_btn(ret_btn, sb_chk_rst_esc_menu_active(), g_sfx_iface_hover);
 }
@@ -492,7 +488,7 @@ void sb_draw_ret_btn()
  * Return:
  *	Void.
  */
-void sb_init_ret_btn()
+void sb_init_ret_btn(void)
 {
 	if (ret_btn == NULL){
 		SDL_Rect r = get_return_button_box();
@@ -510,7 +506,7 @@ void sb_init_ret_btn()
  * Return:
  *	Void.
  */
-void sb_init_stage_btns()
+void sb_init_stage_btns(void)
 {
 	SDL_Rect sb = sb_get_stage_btns();
 	int hidden_y = get_hidden_stage_buttons_y();
@@ -557,7 +553,7 @@ void sb_init_stage_btns()
  * Return:
  *	true if button clicked, false if otherwise.
  */
-bool sb_chck_rel_ret_btn()
+bool sb_chck_rel_ret_btn(void)
 {
 	int ret = false;
 	
@@ -579,7 +575,7 @@ bool sb_chck_rel_ret_btn()
  * Return:
  *	true if button clicked, false if otherwise.
  */
-bool sb_chk_click_stage_btn()
+bool sb_chk_click_stage_btn(void)
 {
 	int ret = false;
 	if (sb_chk_rst_esc_menu_active() == false){
@@ -604,7 +600,7 @@ bool sb_chk_click_stage_btn()
  * Return:
  *	true if released in stage button, false if otherwise.
  */
-int identify_clicked_stage_button()
+int identify_clicked_stage_button(void)
 {
 	int clicked_button = INVALID;
 	

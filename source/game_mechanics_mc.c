@@ -79,24 +79,23 @@ static int get_operand_y_dest(int op_id);
 static vb_value_box_t get_operand_value_box(int op_id);
 bool set_operand_value_box(int op_id, vb_value_box_t val);
 void operate_instruction(code_line_t *line, vb_value_box_t value);
-void reset_avatar_no_pos();
+void reset_avatar_no_pos(void);
 static int handle_source_operand(code_line_t *line);
 static void handle_destiny_operand(code_line_t *line, int avatar_id);
 static bool retrieve_operand(avatar_t *avatar);
 static bool deliver_operand(avatar_t *avatar, int op_id);
 static bool is_operand_retrievable(int id);
 static bool check_operand_has_value(int op_id);
-static bool check_finishes_at_OB_correct_size();
-static bool check_correct_code_size();
+static bool check_finishes_at_OB_correct_size(void);
+static bool check_correct_code_size(void);
 static bool handle_iavatar_source_operand(int op_id);
 static bool handle_oavatar_source_operand(int op_id);
 static bool handle_ravatar_source_operand(int op_id);
 static bool check_avatar_has_value(avatar_t *avatar);
-static void draw_iavatar();
-static void draw_oavatar();
-static void draw_ravatar();
+static void draw_iavatar(void);
+static void draw_oavatar(void);
+static void draw_ravatar(void);
 bool cmp_substract(int op_id, vb_value_box_t val);
-static bool handle_ravatar_cmp(int op_id);
 static void rflag_generator(avatar_t *avatar, int id);
 /* Function: mc_is_executing
  * ----------------------------------------------------------------------------
@@ -108,7 +107,7 @@ static void rflag_generator(avatar_t *avatar, int id);
  * Return:
  *	Void.
  */
-bool mc_is_executing()
+bool mc_is_executing(void)
 {
 	return g_play;
 }
@@ -139,7 +138,7 @@ void mc_start_execution(bool state)
  * Return:
  *	void.
  */
-void mc_reset_invalid_operation_flag()
+void mc_reset_invalid_operation_flag(void)
 {
 	mc_set_operation_flag(NO_OPERATION);
 }
@@ -155,7 +154,7 @@ void mc_reset_invalid_operation_flag()
  * Return:
  *	flag_id:  The id with the flag of the invalid operation.
  */
-int mc_get_operation_flag()
+int mc_get_operation_flag(void)
 {
 	return g_invalid_operation_flag;
 }
@@ -185,7 +184,7 @@ void mc_set_operation_flag(int flag_id)
  * Return:
  *	void.
  */
-void mc_destroy_avatar_textures()
+void mc_destroy_avatar_textures(void)
 {
 	dw_free_texture(g_iavatar.mainval.t);
 	dw_free_texture(g_iavatar.secval.t);
@@ -203,7 +202,7 @@ void mc_destroy_avatar_textures()
  * Return:
  *	void.
  */
-void mc_init_avatar()
+void mc_init_avatar(void)
 {
 	SDL_Rect avatar = get_avatar_size();
 	SDL_Rect ib = bf_get_input_buffer_bounds();
@@ -268,7 +267,6 @@ void mc_init_avatar()
 	g_oavatar.secval.t = dw_create_text_tex(ax_char_dash, C_WHITE);
 	g_oavatar.color = C_CYAN;
 
-	int ofs = rg_get_panel_value_offset();
 	SDL_Rect rb = rg_get_register_box();
 	
 	g_ravatar.id = RAVATAR;
@@ -309,7 +307,7 @@ void mc_init_avatar()
  * Return:
  *	void.
  */
-void mc_reset_avatar()
+void mc_reset_avatar(void)
 {
 	dw_free_texture(g_iavatar.mainval.t);
 	g_iavatar.mainval.t = NULL;
@@ -337,7 +335,7 @@ void mc_reset_avatar()
  * Return:
  *	None.
  */
-void reset_avatar_no_pos()
+void reset_avatar_no_pos(void)
 {
 	SDL_Rect avatar = get_avatar_size();
 	g_iavatar.mainval.visible_box = false;
@@ -443,7 +441,7 @@ static horizontal_rail_geometry_t get_io_rail_geometry(
  * Return:
  *	Void.
  */
-static void draw_iavatar()
+static void draw_iavatar(void)
 {
 	
 
@@ -516,7 +514,7 @@ static void draw_iavatar()
  * Return:
  *	Void.
  */
-static void draw_oavatar()
+static void draw_oavatar(void)
 {
 	
 	SDL_Rect r0 = {.x = g_oavatar.box.x, .y = g_oavatar.box.y, 
@@ -588,7 +586,7 @@ static void draw_oavatar()
  * Return:
  *	Void.
  */
-void draw_ravatar()
+void draw_ravatar(void)
 {
 	
 
@@ -656,7 +654,7 @@ void draw_ravatar()
  * Return:
  *	Void.
  */
-void mc_draw_avatar()
+void mc_draw_avatar(void)
 {
 	draw_iavatar();
 	draw_oavatar();
@@ -719,6 +717,8 @@ static int get_operand_y_dest(int op_id)
 		y = rg_get_ibox_y();
 	} else if (op_id == OBOX){
 		y = rg_get_obox_y();
+	} else {
+		return NO_VALUE;
 	}
 	return y;
 }
@@ -744,6 +744,8 @@ static int get_operand_x_dest(int op_id)
 		x = im_get_imm_value_box_by_id(op_id).box.x;
 	} else if (op_id == IBOX || op_id == OBOX){
 		x = rg_get_ibox_x();
+	} else {
+		return NO_VALUE;
 	}
 	return x;
 }
@@ -775,6 +777,9 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 	SDL_Rect avtr = get_avatar_size();
 	bool mov = false;
 	const int x = get_avatar_operand_x_dest(op_id);
+	if (x == NO_VALUE) {
+		return false;
+	}
 	int y;
 
 	SDL_Rect vb = vb_get_size();
@@ -800,6 +805,8 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 			y = get_operand_y_dest(op_id) - 2.5*vb.h - 2*vbox_offset;
 		} else if (avatar->id == OAVATAR){
 			y = get_operand_y_dest(op_id);
+		} else {
+			return false;
 		}
 	} else {
 		return mov;
@@ -863,7 +870,7 @@ static vb_value_box_t get_operand_value_box(int op_id)
 		   || (op_id > IMM_MIN &&  op_id < IMM_MAX) 
 		   && "The operand id is invalid");
 	
-	vb_value_box_t op_value_box;
+	vb_value_box_t op_value_box = {.value = NO_VALUE};
 
 	if (op_id > REG_MIN && op_id < REG_MAX){
 		op_value_box = rg_get_register_value_box_by_id(op_id);	
@@ -922,21 +929,7 @@ static bool check_operand_has_value(int op_id)
 		   || (op_id > RGBOX_MIN &&  op_id < RGBOX_MAX) && 
 		   "The operand id is invalid");
 
-	vb_value_box_t op_value_box;
-
-	if (op_id > REG_MIN && op_id < REG_MAX){
-		op_value_box = rg_get_register_value_box_by_id(op_id);	
-	} else  if (op_id > FLAG_MIN && op_id < FLAG_MAX){
-		op_value_box = rg_get_flag_value_box_by_id(op_id);	
-	} else if (op_id == IB){
-		op_value_box = bf_get_input_buffer_value_box();
-	} else if (op_id == OB){
-		op_value_box = bf_get_output_buffer_value_box();
-	} else if (op_id == IBOX){
-		op_value_box = rg_get_ibox_value_box();
-	} else if (op_id == OBOX){
-		op_value_box = rg_get_obox_value_box();
-	}
+	vb_value_box_t op_value_box = get_operand_value_box(op_id);
 
 	bool value = true;
 	if (op_value_box.value == NO_VALUE){
@@ -1603,7 +1596,7 @@ static void handle_destiny_operand(code_line_t *line, int avatar_id)
  * Return:
  *	bool with the state if the level complies with the code size.
  */
-static bool check_correct_code_size()
+static bool check_correct_code_size(void)
 {
 	bool within_limit = false;
 	
@@ -1631,7 +1624,7 @@ static bool check_correct_code_size()
  * Return:
  *	void.
  */
-static bool check_finishes_at_OB_correct_size()
+static bool check_finishes_at_OB_correct_size(void)
 {
 	bool finished = false;
 	
@@ -1767,7 +1760,7 @@ void mc_set_run_ended(bool state)
  * Return:
  *	Run ended variable.
  */
-bool mc_get_run_ended()
+bool mc_get_run_ended(void)
 {
 	return run_ended;
 }
@@ -1797,7 +1790,7 @@ void mc_set_step_ended(bool state)
  * Return:
  *	Run ended variable.
  */
-bool mc_get_step_ended()
+bool mc_get_step_ended(void)
 {
 	return step_ended;
 }
@@ -1810,7 +1803,7 @@ bool mc_get_step_ended()
  * Return:
  *	true if a step is pending, false if otherwise
  */
-void mc_run_code()
+void mc_run_code(void)
 {
 	mc_set_run_ended(false);
 	int code_size = cw_get_code_list_size();	

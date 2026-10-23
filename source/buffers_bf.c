@@ -1121,12 +1121,11 @@ int bf_get_buffer_value_box_x_coord_by_id(int id)
 {
 	assert(id > BUF_MIN && id < BUF_MAX && "Invalid buffer id");
 	
-	List *input_list = get_input_list();
 	int x;
 	int ofs = bf_get_value_box_spacing();
 	if (id == IB){
 		x = input_box.x + ofs;
-	} else if (id == OB){
+	} else {
 		x = output_box.x + ofs;
 	}
 
@@ -1145,12 +1144,11 @@ int bf_get_buffer_value_box_y_coord_by_id(int id)
 {
 	assert(id > BUF_MIN && id < BUF_MAX && "Invalid buffer id");
 	
-	List *input_list = get_input_list();
 	int y;
 	int ofs = bf_get_value_box_spacing();
 	if (id == IB){
 		y = input_box.y + ofs;	
-	} else if (id == OB){
+	} else {
 		y = output_box.y - ofs;
 	}
 
@@ -1209,7 +1207,6 @@ vb_value_box_t bf_get_input_buffer_value_box(void)
 	int list_size = List_count(input_list);
 	assert(list_size > 0 && "No elements in the list");
 
-	int ofs = bf_get_value_box_spacing();
 	int ofsval = bf_get_value_box_secondary_spacing();
 	SDL_Rect val =  vb_get_size();
 	vb_value_box_t *first = List_shift(input_list);

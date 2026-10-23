@@ -190,7 +190,7 @@ static TraceDef make_meander_v(int x0,int y0,int w,int h){
     return t;
 }
 
-static void measure_HV_screen(const TraceDef* t,int W,int H,float cellx,float celly,double* Hp,double* Vp){
+static void measure_HV_screen(const TraceDef* t,float cellx,float celly,double* Hp,double* Vp){
     for (int i = 0; i < t->count - 1; i++) {
         int dx = t->p[i+1].gx - t->p[i].gx;
         int dy = t->p[i+1].gy - t->p[i].gy;
@@ -253,7 +253,7 @@ static void build_scene(int W,int H, TraceDef** outTr,int* outCnt, GPoint** outP
     int iter=0;
     while (iter++ < MAX_BAL_ITER){
         double Hpx=0.0, Vpx=0.0;
-        for (int i=0; i<tCount; i++) measure_HV_screen(&traces[i], W,H, cellx,celly, &Hpx,&Vpx);
+        for (int i=0; i<tCount; i++) measure_HV_screen(&traces[i], cellx,celly, &Hpx,&Vpx);
         double tot = Hpx + Vpx; if (tot <= 1.0) break;
         double diff = fabs(Hpx - Vpx) / tot;
         if (diff <= HV_BAL_TOL_PX) break;

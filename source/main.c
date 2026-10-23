@@ -28,7 +28,7 @@
 #define BG_COLOR_RED 0xFF0000FF
 #define BG_COLOR_GREEN 0x00FF00FF
 
-static bool initialize_game_assets();
+static bool initialize_game_assets(void);
 
 /* Function: initialize_game_assets
  * ----------------------------------------------------------------------------
@@ -40,7 +40,7 @@ static bool initialize_game_assets();
  * Return:
  *	LV_STUDIO_SCREEN
  */
-static bool initialize_game_assets()
+static bool initialize_game_assets(void)
 {
 	em_init_escape_menu();
 	rm_init_rst_menu();
@@ -84,7 +84,6 @@ int main(int argc, char *args[])
 	int state = LV_STUDIO_SCREEN;
 	int level = LV_NO_LEVEL;
 	int stage = LV_NO_STAGE;
-	Uint64 next_game_tick = SDL_GetTicks64();
 	Uint64 studio_screen_time = SDL_GetTicks64();
 	ms_init_mouse();
 

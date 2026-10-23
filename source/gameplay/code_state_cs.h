@@ -57,6 +57,6 @@ cs_state_t cs_get_state(void);
 
 
 // For compilation purposes, this has to be removed later
-bool chk_player_holds_line();
-code_line_t *get_hold_line();
+bool chk_player_holds_line(void);
+code_line_t *get_hold_line(void);
 #endif

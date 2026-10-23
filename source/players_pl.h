@@ -45,9 +45,9 @@ void aa_draw_human(SDL_Renderer* r,
                    float t,
                    int opts);
 
-int pl_get_sign_y_ofs();
-int pl_get_fig_block_w();
-int pl_get_fig_block_h();
+int pl_get_sign_y_ofs(void);
+int pl_get_fig_block_w(void);
+int pl_get_fig_block_h(void);
 
 // Outer sign rectangle (9x9 board) in PIXELS — useful for hit-testing/hover.
 SDL_Rect aa_sign_rect_px(int x, int y, int cellsz);

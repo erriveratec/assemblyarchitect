@@ -17,8 +17,8 @@ extern Mix_Chunk *g_sfx_run_error;
 extern Mix_Chunk *g_sfx_run_win;
 extern Mix_Chunk *g_sfx_run_correct_val;
 
-bool au_init_audio();
-void au_load_audio_media();
+bool au_init_audio(void);
+void au_load_audio_media(void);
 Mix_Chunk *au_load_audio_file(const char *path);
 
 

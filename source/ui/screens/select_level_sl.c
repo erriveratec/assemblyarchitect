@@ -33,16 +33,15 @@ static const Uint32 SECTOR_TITLE_SEPARATOR = 24;
 static const Uint32 SECTOR_BTN_SPACING     = 60;
 static const Uint32 FIRST_BTN_OFS          = 3;
 
-static void create_select_level_buttons(iface_btn_t **buttons, bool *levels);
-static SDL_Rect get_level_button_box();
-static int      get_sel_level_offset_y();
+static SDL_Rect get_level_button_box(void);
+static int      get_sel_level_offset_y(void);
 static SDL_Rect get_sector_subtitle_box(char *msg);
-static SDL_Rect get_subtitle_separator();
+static SDL_Rect get_subtitle_separator(void);
 static void     create_sector_lvl_btns(iface_btn_t **btns, bool *levels,
                                        int lv_qty);
-static SDL_Rect get_sector_0_lower_separator();
-static int      get_fst_btn_ofs();
-static int      get_level_btn_spacing();
+static SDL_Rect get_sector_0_lower_separator(void);
+static int      get_fst_btn_ofs(void);
+static int      get_level_btn_spacing(void);
 
 typedef struct level_hover_state_t {
 	texture_array_t *texture;
@@ -126,7 +125,7 @@ static void draw_sector_hover_description(iface_btn_t **buttons,
  * Return:
  *	int with the ammount of spacing
  */
-static int get_fst_btn_ofs() { return dm_scale_to_res(FIRST_BTN_OFS); }
+static int get_fst_btn_ofs(void) { return dm_scale_to_res(FIRST_BTN_OFS); }
 
 /* Function: get_level_btn_spacing
  * -----------------------------------------------------------------------------
@@ -138,7 +137,7 @@ static int get_fst_btn_ofs() { return dm_scale_to_res(FIRST_BTN_OFS); }
  * Return:
  *	int with the ammount of spacing
  */
-static int get_level_btn_spacing()
+static int get_level_btn_spacing(void)
 {
 	return dm_scale_to_res(SECTOR_BTN_SPACING);
 }
@@ -153,10 +152,9 @@ static int get_level_btn_spacing()
  * Return:
  *	SDL_Rect with the positions of the objecto
  */
-static SDL_Rect get_subtitle_separator()
+static SDL_Rect get_subtitle_separator(void)
 {
 	int screen_width  = dm_get_screen_width();
-	int screen_height = dm_get_screen_height();
 
 	SDL_Rect r = get_sector_subtitle_box("PLACEHOLDER");
 	SDL_Rect b;
@@ -179,8 +177,6 @@ static SDL_Rect get_subtitle_separator()
  */
 static SDL_Rect get_sector_subtitle_box(char *msg)
 {
-	int screen_width  = dm_get_screen_width();
-	int screen_height = dm_get_screen_height();
 
 	SDL_Rect r = sc_get_selection_title_bounds(SELECT_LEVEL_TEXT);
 	SDL_Rect b;
@@ -201,10 +197,9 @@ static SDL_Rect get_sector_subtitle_box(char *msg)
  * Return:
  *	SDL_Rect with the positions of the objecto
  */
-static SDL_Rect get_sector_0_lower_separator()
+static SDL_Rect get_sector_0_lower_separator(void)
 {
 	int screen_width  = dm_get_screen_width();
-	int screen_height = dm_get_screen_height();
 
 	SDL_Rect r        = get_level_button_box();
 	int      y_offset = get_sel_level_offset_y();
@@ -227,7 +222,7 @@ static SDL_Rect get_sector_0_lower_separator()
  * Return:
  *	int with the offset for the sel level buttons
  */
-static int get_sel_level_offset_y()
+static int get_sel_level_offset_y(void)
 {
 	int y_offset = dm_scale_to_res(SEL_LEVEL_BUTTON_H + SEL_LEVEL_Y_OFS);
 	return y_offset;
@@ -243,10 +238,9 @@ static int get_sel_level_offset_y()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-static SDL_Rect get_level_button_box()
+static SDL_Rect get_level_button_box(void)
 {
 	int screen_width  = dm_get_screen_width();
-	int screen_height = dm_get_screen_height();
 
 	SDL_Rect r = get_subtitle_separator();
 	SDL_Rect b;
@@ -297,6 +291,8 @@ static void create_sector_lvl_btns(iface_btn_t **btns, bool *lvls, int sec_id)
 	} else if (sec_id == LV_SECTOR_4) {
 		start  = LV_SECTOR_4_START;
 		finish = LV_LEVEL_QUANTITY;
+	} else {
+		return;
 	}
 	int counter = 0;
 	for (int i = start; i < finish; i++) {
@@ -329,7 +325,7 @@ static void create_sector_lvl_btns(iface_btn_t **btns, bool *lvls, int sec_id)
  *	The number of the level selected, if not valid press was performed
  *	the number of the select label stage will be returned.
  */
-int sl_select_level_sector_1()
+int sl_select_level_sector_1(void)
 {
 	static bool          level_initialized = false;
 	static bool          player_levels[LV_LEVEL_QUANTITY];
@@ -339,7 +335,6 @@ int sl_select_level_sector_1()
 	static sc_fx_t         fx_state = {0};
 	static sc_typewriter_t title    = {0};
 
-	static Uint64 anim_prev_ms;
 	static Uint64 sub_start_ms;
 	static level_hover_state_t hover_state = {.previous_button_index = -1};
 	Uint64        cur_time     = SDL_GetTicks64();
@@ -360,7 +355,6 @@ int sl_select_level_sector_1()
 		SDL_SetTextureAlphaMod(subtitle->texture, sub_alpha);
 		sc_typewriter_reset(&title);
 		sc_fx_init(&fx_state, cur_time);
-		anim_prev_ms = cur_time;
 	}
 
 	sc_fx_update_render(&fx_state, cur_time);
@@ -454,7 +448,7 @@ int sl_select_level_sector_1()
  *	The number of the level selected, if not valid press was performed
  *	the number of the select label stage will be returned.
  */
-int sl_select_level_sector_0()
+int sl_select_level_sector_0(void)
 {
 	static bool          level_initialized = false;
 	static bool          player_levels[LV_LEVEL_QUANTITY];
@@ -464,7 +458,6 @@ int sl_select_level_sector_0()
 	static sc_fx_t         fx_state = {0};
 	static sc_typewriter_t title    = {0};
 
-	static Uint64 anim_prev_ms;
 	static Uint64 sub_start_ms;
 	static level_hover_state_t hover_state = {.previous_button_index = -1};
 	Uint64        cur_time     = SDL_GetTicks64();
@@ -485,7 +478,6 @@ int sl_select_level_sector_0()
 		SDL_SetTextureAlphaMod(subtitle->texture, sub_alpha);
 		sc_typewriter_reset(&title);
 		sc_fx_init(&fx_state, cur_time);
-		anim_prev_ms = cur_time;
 	}
 
 	sc_fx_update_render(&fx_state, cur_time);

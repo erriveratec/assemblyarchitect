@@ -863,7 +863,7 @@ bool wc_reset_expected_output(void)
 
 
 /* Creates the expected-output list. */
-bool wc_create_expected_output()
+bool wc_create_expected_output(void)
 {
     assert(g_expected_output == NULL &&
            "Expected-output list already exists");
@@ -914,7 +914,7 @@ int wc_get_expected_output_size(void)
  * Return:
  *	Pointer to input list.
  */
-List *wc_get_expected_output()
+List *wc_get_expected_output(void)
 {
 	return g_expected_output;
 }

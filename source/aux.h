@@ -5,7 +5,7 @@
 #include "draw_dw.h"
 
 // For values not assigned
-#define NO_VALUE 0x80000001
+#define NO_VALUE (-2147483647)
 
 // For the return of functions
 #define SUCCESS 0
@@ -66,9 +66,9 @@ SDL_Rect ax_scale_rect_proportion(SDL_Rect b, float scale);
 SDL_Rect ax_scale_rect_percentage(SDL_Rect b, float scale);
 
 void ax_set_fast_move_delta(bool state);
-int ax_get_move_delta();
-int ax_get_arrow_move_delta();
-int ax_get_cw_move_delta();
+int ax_get_move_delta(void);
+int ax_get_arrow_move_delta(void);
+int ax_get_cw_move_delta(void);
 void ax_set_arrow_mdelta(bool fast);
 
 int ax_get_x_delta_div(int x1, int x2, int y1, int y2);

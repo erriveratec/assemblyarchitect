@@ -1,14 +1,15 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 #include <SDL.h>
 #include <SDL_ttf.h>
 
 #include "buffers_bf.h"
+#include "aux.h"
 #include "arrow_ar.h"
 #include "draw_dw.h"
 #include "ui/value_box_vb.h"
-#include "code_window_cw.h"
 #include "code_window_cw.h"
 #include "dimensions_dm.h"
 #include "gameplay/level_presentation_lp.h"
@@ -158,33 +159,33 @@ static void test_operand_availability(void)
 
 static void test_highlight_source_composition(void)
 {
+	float progress = -1.0f;
+	float limit = dw_get_animation_limit();
+	im_set_imm_up_avail(true);
+	ha_reset();
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, false);
 	assert(!im_are_immediates_highlighted());
-	assert(dw_get_render_style(im_are_immediates_highlighted()) ==
-	       DW_RENDER_STYLE_NORMAL);
+	assert(!im_get_highlight_progress(&progress, limit));
 
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, true);
 	assert(im_are_immediates_highlighted());
-	assert(dw_get_render_style(im_are_immediates_highlighted()) ==
-	       DW_RENDER_STYLE_HIGHLIGHT_WHITE);
+	assert(im_get_highlight_progress(&progress, limit));
+	assert(progress == ha_get_progress());
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 	assert(!im_are_immediates_highlighted());
 
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, true);
 	assert(im_are_immediates_highlighted());
-	assert(dw_get_render_style(im_are_immediates_highlighted()) ==
-	       DW_RENDER_STYLE_HIGHLIGHT_WHITE);
+	assert(im_get_highlight_progress(&progress, limit));
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, true);
 	assert(im_are_immediates_highlighted());
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 	assert(im_are_immediates_highlighted());
-	assert(dw_get_render_style(im_are_immediates_highlighted()) ==
-	       DW_RENDER_STYLE_HIGHLIGHT_WHITE);
+	assert(im_get_highlight_progress(&progress, limit));
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, false);
 	assert(!im_are_immediates_highlighted());
-	assert(dw_get_render_style(im_are_immediates_highlighted()) ==
-	       DW_RENDER_STYLE_NORMAL);
+	assert(!im_get_highlight_progress(&progress, limit));
 
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, true);
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, true);
@@ -192,6 +193,7 @@ static void test_highlight_source_composition(void)
 	assert(im_are_immediates_highlighted());
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 	assert(!im_are_immediates_highlighted());
+	im_set_imm_up_avail(false);
 }
 
 static void test_disabled_highlighting_clears_availability(void)
@@ -292,6 +294,11 @@ static void test_tutorial_highlight_parsing(void)
 
 	char unknown[] = "immedate";
 	assert(!tr_parse_highlights(unknown, &targets));
+	char zero_flag[] = "zero_flag";
+	assert(tr_parse_highlights(zero_flag, &targets));
+	assert(targets == TUTORIAL_HIGHLIGHT_ZERO_FLAG);
+	char invalid_alias[] = "zf";
+	assert(!tr_parse_highlights(invalid_alias, &targets));
 
 	assert(tr_load_level(10));
 	const tutorial_step_t *step = tr_get_named_step("introduce_immediates");
@@ -374,11 +381,13 @@ static void test_layout_invariants(void)
 	dm_set_screen_dimensions(0, 900);
 	assert(dm_get_screen_width() == 1600 && dm_get_screen_height() == 900);
 	dm_set_screen_resolution(DM_RESOLUTION_1920X1080);
+	im_destroy_imm_assets();
 }
 
 static void test_immediate_grid_geometry(dm_resolution_t resolution)
 {
 	dm_set_screen_resolution(resolution);
+	im_set_imm_up_avail(true);
 	im_init_imm_assets();
 	im_layout_grid();
 	SDL_Rect cell_size = im_get_cell_size();
@@ -469,6 +478,8 @@ static void test_immediate_grid_geometry(dm_resolution_t resolution)
 	SDL_Rect cell_rects[20];
 	SDL_Rect normal_bounds[20];
 	SDL_Rect repeated_normal_bounds[20];
+	SDL_Rect normal_frames[20];
+	SDL_Rect highlighted_frames[20];
 	SDL_Rect highlighted_bounds[20];
 	SDL_Rect restored_bounds[20];
 	for (int index = 0; index < 20; index++) {
@@ -488,6 +499,7 @@ static void test_immediate_grid_geometry(dm_resolution_t resolution)
 	clear_test_renderer();
 	im_draw_imm((float)dw_get_animation_limit());
 	capture_number_bounds(cell_rects, normal_bounds, C_WHITE);
+	capture_number_bounds(cell_rects, normal_frames, C_GREY);
 	clear_test_renderer();
 	im_draw_imm((float)dw_get_animation_limit());
 	capture_number_bounds(cell_rects, repeated_normal_bounds, C_WHITE);
@@ -516,16 +528,23 @@ static void test_immediate_grid_geometry(dm_resolution_t resolution)
 	             dw_pulse_progress((float)dw_get_animation_step(),
 	                               animation_limit)) < 0.00001f);
 	capture_number_bounds(cell_rects, highlighted_bounds, C_WHITE);
+	capture_number_bounds(cell_rects, highlighted_frames, C_GREY);
 	for (int index = 0; index < 20; index++) {
 		vb_value_box_t current = im_get_imm_value_box_by_id(IMMUP0 + index);
 		assert(current.box.x == cell_rects[index].x);
 		assert(current.box.y == cell_rects[index].y);
 		assert(current.box.w == cell_rects[index].w);
 		assert(current.box.h == cell_rects[index].h);
-		assert(highlighted_bounds[index].x == cell_rects[index].x);
-		assert(highlighted_bounds[index].y == cell_rects[index].y);
-		assert(highlighted_bounds[index].w == cell_rects[index].w);
-		assert(highlighted_bounds[index].h == cell_rects[index].h);
+		assert(SDL_RectEquals(&highlighted_frames[index], &normal_frames[index]));
+		assert(SDL_RectEquals(&highlighted_frames[index], &cell_rects[index]));
+		assert(highlighted_bounds[index].x > cell_rects[index].x);
+		assert(highlighted_bounds[index].y > cell_rects[index].y);
+		assert(highlighted_bounds[index].x + highlighted_bounds[index].w <
+		       cell_rects[index].x + cell_rects[index].w);
+		assert(highlighted_bounds[index].y + highlighted_bounds[index].h <
+		       cell_rects[index].y + cell_rects[index].h);
+		assert(highlighted_bounds[index].w >= normal_bounds[index].w);
+		assert(highlighted_bounds[index].h >= normal_bounds[index].h);
 	}
 
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
@@ -549,20 +568,94 @@ static void test_operand_highlight_configuration(void)
 	assert(!lp_are_operand_highlights_enabled());
 }
 
+static void test_saved_operand_states(void)
+{
+	static const struct {
+		const char *text;
+		int state;
+		int first;
+		int second;
+	} cases[] = {
+		{"MOV rax IMMUP7", COMPLETE, RAX, IMMUP7},
+		{"MOV rax _", MISSING_OP2, RAX, NO_OPERAND},
+		{"MOV _ IMMUP7", MISSING_OP1, NO_OPERAND, IMMUP7},
+		{"MOV _ _", MISSING_BOTH, NO_OPERAND, NO_OPERAND}
+	};
+	cw_create_code_list();
+	cw_init_code_window_texture();
+	for (size_t index = 0; index < sizeof(cases) / sizeof(cases[0]); index++) {
+		char text[32];
+		snprintf(text, sizeof(text), "%s", cases[index].text);
+		cw_add_saved_line(text);
+		assert(cw_get_code_list_size() == 1);
+		assert(cw_get_code_line_at_pos(0)->state == cases[index].state);
+		assert(cw_get_instruction_operand(0, FIRST_OP) == cases[index].first);
+		assert(cw_get_instruction_operand(0, SECOND_OP) == cases[index].second);
+		cw_clear_code_list();
+	}
+	cw_destroy_code_window_assets();
+}
+
+static void reset_highlight_fixture(void)
+{
+	tr_clear();
+	oh_clear();
+	const ui_highlight_source_t sources[] = {
+		UI_HIGHLIGHT_SOURCE_TUTORIAL, UI_HIGHLIGHT_SOURCE_AVAILABILITY
+	};
+	for (size_t index = 0; index < sizeof(sources) / sizeof(sources[0]); index++) {
+		rg_set_register_highlight_source(sources[index], false);
+		rg_set_zero_flag_highlight_source(sources[index], false);
+		bf_set_buffer_highlight_source(sources[index], false, false);
+		im_set_highlight_source(sources[index], false);
+		sb_set_highlight_source(sources[index], STEP, false);
+		sb_set_highlight_source(sources[index], FAST, false);
+	}
+	im_set_imm_up_avail(false);
+	cw_set_code_box_highlight(false);
+	cw_set_challenge_highlight(false);
+	lp_configure(false, false, false, false, false);
+	ha_reset();
+	ms_init_mouse();
+	dm_set_screen_resolution(DM_RESOLUTION_1920X1080);
+}
+
+static void run_isolated_test(void (*test)(void))
+{
+	reset_highlight_fixture();
+	test();
+	reset_highlight_fixture();
+}
+
 int main(void)
 {
 	assert(dm_get_screen_width() == 1600 && dm_get_screen_height() == 900);
 	init_test_graphics();
-	test_operand_availability();
-	test_highlight_source_composition();
-	test_disabled_highlighting_clears_availability();
-	test_stage_button_highlight_sources();
-		test_code_window_highlight_progress_accessors();
-	test_operand_highlight_configuration();
-	test_tutorial_highlight_parsing();
-	test_layout_invariants();
+	const int numbers[] = {INT_MIN, INT_MAX, NO_VALUE, -1, 0, 1, 100};
+	for (size_t index = 0; index < sizeof(numbers) / sizeof(numbers[0]); index++) {
+		char expected[32];
+		if (numbers[index] == NO_VALUE) {
+			snprintf(expected, sizeof(expected), "-");
+		} else {
+			snprintf(expected, sizeof(expected), "%d", numbers[index]);
+		}
+		char *actual = ax_number_to_string(numbers[index]);
+		assert(actual != NULL && strcmp(actual, expected) == 0);
+		free(actual);
+	}
+	run_isolated_test(test_saved_operand_states);
+	run_isolated_test(test_operand_availability);
+	run_isolated_test(test_highlight_source_composition);
+	run_isolated_test(test_disabled_highlighting_clears_availability);
+	run_isolated_test(test_stage_button_highlight_sources);
+	run_isolated_test(test_code_window_highlight_progress_accessors);
+	run_isolated_test(test_operand_highlight_configuration);
+	run_isolated_test(test_tutorial_highlight_parsing);
+	run_isolated_test(test_layout_invariants);
 	test_immediate_grid_geometry(DM_RESOLUTION_1600X900);
+	reset_highlight_fixture();
 	test_immediate_grid_geometry(DM_RESOLUTION_1920X1080);
+	reset_highlight_fixture();
 	TTF_CloseFont(g_font);
 	SDL_DestroyRenderer(g_renderer);
 	SDL_FreeSurface(g_screen);

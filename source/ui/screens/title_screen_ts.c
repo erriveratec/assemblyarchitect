@@ -31,10 +31,10 @@ static const Uint32 PRESS_SPACE_Y = 870;
 static const Uint32 STUDIO_BOX_W = 600;
 static const Uint32 STUDIO_BOX_H = 600;
 
-static const Uint32 FADE_MS = 1250;
-static const Uint32 STUDIO_SCREEN_DELAY_MS = 2500; 
+static const int FADE_MS = 1250;
+static const int STUDIO_SCREEN_DELAY_MS = 2500;
 
-static SDL_Rect get_game_title_img_box();
+static SDL_Rect get_game_title_img_box(void);
 static SDL_Rect get_game_title_box(const char *title);
 static SDL_Rect get_press_space_box(const char *message);
 static SDL_Rect get_studio_name_box(void);
@@ -49,7 +49,7 @@ static SDL_Rect get_studio_name_box(void);
  * Return:
  *	SDL_Rect with the positions of the object.
  */
-static SDL_Rect get_game_title_img_box()
+static SDL_Rect get_game_title_img_box(void)
 {
 	int screen_width = dm_get_screen_width();
 	SDL_Rect b;
@@ -224,7 +224,6 @@ int ts_stage_studio(Uint64 start_time, Uint64 cur_time, bool key_pressed)
 	b.x = (dm_get_screen_width() - w)/2;
 	b.w = w;
 	Uint8 alpha = 255;
-	static bool sfx_played = false;
 
 	if (delay <= FADE_MS){
 		float k = (float)delay / (float)FADE_MS;

@@ -25,7 +25,7 @@ Mix_Chunk *g_sfx_run_correct_val = NULL;
  * Return:
  *	boolean with the state
  */
-bool au_init_audio()
+bool au_init_audio(void)
 {
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) < 0) {
 		SDL_Log("Mix_OpenAudio: %s", Mix_GetError());
@@ -71,7 +71,7 @@ Mix_Chunk *au_load_audio_file(const char *path)
  * Return:
  *	Void.
  */
-void au_load_audio_media()
+void au_load_audio_media(void)
 {
 	char path[512];
 

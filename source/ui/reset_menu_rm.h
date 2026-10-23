@@ -6,9 +6,9 @@
 #include <stdbool.h>
 
 
-void rm_init_rst_menu();
+void rm_init_rst_menu(void);
 void rm_render_rst_menu(bool show_menu);
 void rm_set_rst_menu(bool state);
-bool rm_chk_rst_menu_state();
+bool rm_chk_rst_menu_state(void);
 bool rm_chk_rst_menu_btns(bool show_menu);
 #endif

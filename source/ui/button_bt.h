@@ -56,10 +56,10 @@ void bt_draw_iface_btn_nopad(iface_btn_t *b);
 bool bt_chk_mouse_click_iface_btn(iface_btn_t *button);
 bool bt_chk_rel_iface_btn(iface_btn_t *button, Mix_Chunk *rel_sound);
 void bt_destroy_iface_btn(iface_btn_t *b);
-float bt_get_hover_factor();
-int bt_get_btn_lift();
+float bt_get_hover_factor(void);
+int bt_get_btn_lift(void);
 
-int bt_get_ofs_button_shadow();
+int bt_get_ofs_button_shadow(void);
 bool bt_chk_hover_iface_btn(iface_btn_t *btn);
 
 #endif

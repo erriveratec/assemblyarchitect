@@ -40,15 +40,13 @@ typedef struct level_flags_t {
 int g_player = FL_NO_PLAYER;
 
 void                stage_drawings(int level, int operation_id);
-static code_line_t *pending_operand_handler();
+static code_line_t *pending_operand_handler(void);
 static void         flag_handler(level_flags_t *flags, int clicked_button);
 static code_line_t *edit_code(int level_id);
-static void         reset_level(int level_id, level_flags_t *flags);
+static void         reset_level(level_flags_t *flags);
 static void         destroy_level(level_flags_t *flags);
-static void         init_stage_assets();
+static void         init_stage_assets(void);
 static void         code_updated_actions(int level_id);
-static void         set_code_editable();
-static void         reset_code_editable();
 static void         rst_btn_hdl(int level_id, level_flags_t *f);
 static int          get_sector_id(int level_id);
 
@@ -84,7 +82,7 @@ void reset_level_flags(level_flags_t *flags)
  * Return:
  *	void.
  */
-static void init_stage_assets()
+static void init_stage_assets(void)
 {
 	sb_init_stage_btns();
 
@@ -224,7 +222,7 @@ void stage_drawings(int level, int operation_id)
  * Return:
  *	void.
  */
-void stage_button_handler()
+void stage_button_handler(void)
 {
 	int clicked_button = identify_clicked_stage_button();
 
@@ -353,11 +351,10 @@ static void code_updated_actions(int level_id)
  * Return:
  *	NULL, if the peding operand is not a line, LABEL if the operand is a line.
  */
-static code_line_t *pending_operand_handler()
+static code_line_t *pending_operand_handler(void)
 {
 	bool reg_sel   = rg_chk_rel_in_reg();
 	bool buf_sel   = bf_ms_rel_in_buf();
-	bool label_sel = cw_ms_rel_in_label();
 	bool imm_sel   = im_ms_rel_in_upimm();
 	bool rel       = ms_left_released();
 
@@ -490,7 +487,6 @@ static code_line_t *edit_code(int level_id)
  * Comprirses all the functions related to the rst button
  *
  * Arguments:
- * 	level_id: the level number that is going to be reset.
  *	flags: the flags of the level that will be reset.
  *
  * Return:
@@ -513,7 +509,7 @@ static void rst_btn_hdl(int level_id, level_flags_t *flags)
 	bool menu_closed = menu_was_active && !menu_is_active;
 
 	if (reset_confirmed) {
-		reset_level(level_id, flags);
+		reset_level(flags);
 
 		cw_clear_code_list();
 		lv_init_stage_code(level_id);
@@ -536,7 +532,7 @@ static void rst_btn_hdl(int level_id, level_flags_t *flags)
  * Return:
  *	void.
  */
-static void reset_level(int level_id, level_flags_t *flags)
+static void reset_level(level_flags_t *flags)
 {
 	oh_clear();
 	mc_reset_avatar();
@@ -607,14 +603,12 @@ int stage_level(int level_id)
 	int                   W = dm_get_screen_width();
 	int                   H = dm_get_screen_height();
 	static fx_electron_t *fx;
-	static Uint64         last_type_ms;
 	static Uint64         anim_prev_ms;
 	Uint64                cur_time      = SDL_GetTicks64();
 	static bool           electron_init = false;
 
 	if (electron_init == false) {
 		electron_init = true;
-		last_type_ms  = cur_time;
 		fx            = fx_electron_create(g_renderer, W, H, NULL);
 	}
 
@@ -648,7 +642,7 @@ int stage_level(int level_id)
 	bool continued_after_win =
 	    operation_id == MC_WIN && result_action == RUN_RESULT_ACTION_CONTINUE;
 	if (result_action == RUN_RESULT_ACTION_BACK) {
-		reset_level(level_id, &flags);
+		reset_level(&flags);
 		flags.play = false;
 	} else if (continued_after_win) {
 		rr_reset_state();
@@ -668,7 +662,7 @@ int stage_level(int level_id)
 	mc_start_execution(flags.play);
 
 	if (flags.stop == true && flags.stop_enabled == true) {
-		reset_level(level_id, &flags);
+		reset_level(&flags);
 	} else if (flags.non_stop == false || cw_is_operand_pending() == true) {
 		hold_line = edit_code(level_id);
 		lv_set_hold_line(hold_line);
@@ -695,7 +689,7 @@ int stage_level(int level_id)
 	if (back_to_level_selection == true) {
 		rr_reset_state();
 		ret_val = get_post_level_destination(level_id, continued_after_win);
-		reset_level(level_id, &flags);
+		reset_level(&flags);
 		destroy_level(&flags);
 		electron_init = false;
 		aa_electron_fx_destroy(fx);

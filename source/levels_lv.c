@@ -24,36 +24,18 @@
 #define OP1_LAST IR_OPERAND_1_LAST
 #define OP2_LAST IR_OPERAND_2_LAST
 
-const Uint32 LV_SECTOR_1_START = 8;
-const Uint32 LV_SECTOR_2_START = 16;
-const Uint32 LV_SECTOR_3_START = 24;
-const Uint32 LV_SECTOR_4_START = 32;
-const Uint32 LV_SECTOR_LV_QTY  = 8;
+const int LV_SECTOR_1_START = 8;
+const int LV_SECTOR_2_START = 16;
+const int LV_SECTOR_3_START = 24;
+const int LV_SECTOR_4_START = 32;
+const int LV_SECTOR_LV_QTY  = 8;
 
-static lv_rules_t g_lv_rules = {0};
 
 static void level_generic(void);
-static void level_0();
-static void level_1();
-static void level_2();
-static void level_3();
-static void level_4();
-static void level_5();
-static void level_6();
-static void level_7();
-static void level_8();
-static void level_9();
-static void level_10();
-static void level_11();
-static void level_12();
-static void level_13();
-static void level_14();
-static void level_15();
-static void level_16();
-static void level_17();
-static bool check_display_reg_lv_arrow();
-static int  check_display_buf_arrow();
-static bool chk_display_imm_up_arrow();
+static void level_16(void);
+static bool check_display_reg_lv_arrow(void);
+static int  check_display_buf_arrow(void);
+static bool chk_display_imm_up_arrow(void);
 static void draw_regs_arrow(bool show_arrows);
 static void draw_bufs_arrow(int buf_id);
 static void draw_im_up_arrow(bool show_arrows);
@@ -231,7 +213,7 @@ static void set_code_editable(bool state, int exception)
  * Return:
  *	Void.
  */
-static void level_16()
+static void level_16(void)
 {
 	if (sb_chk_rst_esc_menu_active() == true) {
 		return;
@@ -293,7 +275,7 @@ static void draw_contextual_features(float animation_limit)
  * Return:
  *	The id of the operand that the arrow must be shown
  */
-static int check_display_buf_arrow()
+static int check_display_buf_arrow(void)
 {
 	int display_ar = NO_OPERAND;
 	if (cw_check_code_sorted() == true && cw_is_operand_pending() == true) {
@@ -349,7 +331,7 @@ static void draw_bufs_arrow(int buf_id)
  * Return:
  *	true if the pointing arrow to the registers should be displayed
  */
-static bool check_display_reg_lv_arrow()
+static bool check_display_reg_lv_arrow(void)
 {
 	bool display_ar = false;
 	if (cw_check_code_sorted() == true && cw_is_operand_pending() == true) {
@@ -374,7 +356,7 @@ static bool check_display_reg_lv_arrow()
  * Return:
  *	true if the pointing arrow to the registers should be displayed
  */
-static bool chk_display_imm_up_arrow()
+static bool chk_display_imm_up_arrow(void)
 {
 	bool display_ar = false;
 	if (cw_check_code_sorted() == true && cw_is_operand_pending() == true) {

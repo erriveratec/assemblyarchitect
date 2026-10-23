@@ -18,7 +18,7 @@ static const Uint32 FIGURE_H = 25 ;
  * Return:
  *	int with absolute value of the offset
  */
-int pl_get_sign_y_ofs()
+int pl_get_sign_y_ofs(void)
 {
 	return abs(SIGN_OFS);
 }
@@ -33,7 +33,7 @@ int pl_get_sign_y_ofs()
  * Return:
  *	Number of blocks of the width the figure.
  */
-int pl_get_fig_block_w()
+int pl_get_fig_block_w(void)
 {
 	return FIGURE_W;
 }
@@ -48,7 +48,7 @@ int pl_get_fig_block_w()
  * Return:
  *	Number of blocks of the height the figure.
  */
-int pl_get_fig_block_h()
+int pl_get_fig_block_h(void)
 {
 	return FIGURE_H;
 }

@@ -591,9 +591,6 @@ static void test_highlight_foregrounds_and_normal_tints(void)
 
 static void assert_pending_draw_state(int state, int expected_offset)
 {
-	int op1_offset = cl_get_code_button_size().w;
-	int op2_offset = 2 * cl_get_code_button_size().w +
-	                  um_padding_horizontal();
 	SDL_Rect expected_base = g_pending_fixture.instruction_button.r;
 	expected_base.x += expected_offset;
 	SDL_Rect expected_rect;

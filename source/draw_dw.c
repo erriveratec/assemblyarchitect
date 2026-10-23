@@ -61,11 +61,9 @@ const Uint32        IFACE_INNER_BORDER  = 4;  // Used for Interface Messages
 static const Uint32 IFACE_HEADER_BOX_H  = 50;
 static const Uint32 IFACE_HEADER_TEXT_H = 30;
 
-static void     draw_text(int x, int y, float s, SDL_Color c, char *t);
-static int      draw_scaled_texture(int x, int y, float s, texture_t *t);
-static int      get_ofs_iface_inner_border();
-static int      get_h_iface_header();
-static SDL_Rect get_iface_box_big_wh();
+static int      get_ofs_iface_inner_border(void);
+static int      get_h_iface_header(void);
+static SDL_Rect get_iface_box_big_wh(void);
 static SDL_Rect get_iface_header_box(SDL_Rect b);
 static void     draw_status_symbol(SDL_Rect box, bool success);
 
@@ -79,7 +77,7 @@ static void     draw_status_symbol(SDL_Rect box, bool success);
  * Return:
  *	SDL_Rect with the dimension of the object
  */
-static SDL_Rect get_iface_box_big_wh()
+static SDL_Rect get_iface_box_big_wh(void)
 {
 	SDL_Rect b;
 	b.w = dm_scale_to_res(IFACE_BOX_BIG_W);
@@ -98,7 +96,7 @@ static SDL_Rect get_iface_box_big_wh()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-SDL_Rect dw_get_iface_big_lower_box()
+SDL_Rect dw_get_iface_big_lower_box(void)
 {
 	SDL_Rect wh = get_iface_box_big_wh();
 	SDL_Rect b;
@@ -119,7 +117,7 @@ SDL_Rect dw_get_iface_big_lower_box()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-SDL_Rect dw_get_iface_big_center_box()
+SDL_Rect dw_get_iface_big_center_box(void)
 {
 	int      w  = dm_get_screen_width();
 	int      h  = dm_get_screen_height();
@@ -153,7 +151,7 @@ static SDL_Rect get_iface_header_box(SDL_Rect b)
  * Return:
  *	The offset that will be use of the rectangle padding of the interface
  */
-int dw_get_ofs_iface_filled_border()
+int dw_get_ofs_iface_filled_border(void)
 {
 	return dm_scale_to_res(IFACE_FILLED_OFS);
 }
@@ -168,7 +166,7 @@ int dw_get_ofs_iface_filled_border()
  * Return:
  *	The height of the iface header text
  */
-int dw_get_h_iface_header_txt() { return dm_scale_to_res(IFACE_HEADER_TEXT_H); }
+int dw_get_h_iface_header_txt(void) { return dm_scale_to_res(IFACE_HEADER_TEXT_H); }
 
 /* Function: get_ofs_iface_filled_border
  * -----------------------------------------------------------------------------
@@ -180,7 +178,7 @@ int dw_get_h_iface_header_txt() { return dm_scale_to_res(IFACE_HEADER_TEXT_H); }
  * Return:
  *	The offset that will be use of the rectangle padding of the interface
  */
-static int get_ofs_iface_inner_border()
+static int get_ofs_iface_inner_border(void)
 {
 	return dm_scale_to_res(IFACE_INNER_BORDER);
 }
@@ -195,7 +193,7 @@ static int get_ofs_iface_inner_border()
  * Return:
  *	The height of the title
  */
-static int get_h_iface_header() { return dm_scale_to_res(IFACE_HEADER_BOX_H); }
+static int get_h_iface_header(void) { return dm_scale_to_res(IFACE_HEADER_BOX_H); }
 
 /* Function: dw_set_array_texture_color_mod
  * -----------------------------------------------------------------------------
@@ -594,48 +592,6 @@ int dw_draw_texture_fits_width(SDL_Rect r, texture_t *t)
 	return SUCCESS;
 }
 
-/* Function: draw_scaled_texture
- * -------------------------------------------------------------
- * This function receives as a argument a texture, the positions
- * where the texture is going to be located and a scaling factor
- * that will be used.
- *
- * Arguments:
- *	x: position x of the texture.
- *	y: position y of the texture.
- *	s: scaling factor of the texture.
- *	t: texture object that is going to be drawn.
- *
- * Return:
- *	SUCCESS or FAIL
- */
-static int draw_scaled_texture(int x, int y, float s, texture_t *t)
-{
-	assert(s >= 0 && "The scaling factor is negative");
-	assert(t != NULL && "The texture pointer cannot be NULL");
-
-	// image resolution
-	float w     = (float)t->w;
-	float h     = (float)t->h;
-	float ratio = w / h;
-
-	float scaled_w = w - (h - h * s) * ratio;
-	float scaled_h = h * s;
-
-	SDL_Rect d;
-
-	d.x = x;
-	d.y = y;
-	d.w = scaled_w;
-	d.h = scaled_h;
-
-	if (SDL_RenderCopy(g_renderer, t->texture, NULL, &d) < 0) {
-		printf("Texture could not be copied SDL_Error: %s\n", SDL_GetError());
-		return FAIL;
-	}
-	return SUCCESS;
-}
-
 /* Function: dw_load_texture
  * ----------------------------------------
  * This function receives as an argument the path of the texture
@@ -820,7 +776,6 @@ texture_array_t *dw_create_text_tex_array_by_h(int w, int h, SDL_Color c,
 		return NULL;
 	}
 
-	int y_offset = h;
 
 	int   string_size = strlen(t);
 	char *text        = calloc((size_t)string_size + 1, sizeof(char));
@@ -886,7 +841,6 @@ texture_array_t *dw_create_text_tex_array_by_h(int w, int h, SDL_Color c,
 		}
 	}
 	free(text);
-error:
 	return array;
 }
 
@@ -924,40 +878,10 @@ void dw_draw_wrapped_texture_by_h(SDL_Rect r, int h, texture_array_t *a)
 
 		y_pos += y_offset;
 	}
-error:
 	return;
 }
 
-/* Function: draw_text
- * This function draws text as images in places in the screen, the
- * function is created to reduce the ammount of verbose in other
- * functions
- *
- * Arguments:
- *	x: position x of the text.
- *	y: position y of the text.
- *	s: scaling factor of the text.
- *  c: color of the drawn text
- *	t: text to be drawn on screen.
- *
- * Return:
- *	Void
- */
-static void draw_text(int x, int y, float s, SDL_Color c, char *t)
-{
-	assert(NULL != t && "The text pointer is NULL");
 
-	texture_t *text_texture = NULL;
-
-	text_texture = dw_create_text_tex(t, c);
-	assert(text_texture != NULL && "Failed to load texture from rendered text");
-
-	int status = SUCCESS;
-	status     = draw_scaled_texture(x, y, s, text_texture);
-	assert(FAIL != status && "The texture could not be drawn");
-
-	dw_free_texture(text_texture);
-}
 
 /* Function: dw_draw_rectangle
  *-----------------------------------------------------------------------------

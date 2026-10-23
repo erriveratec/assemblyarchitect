@@ -1,7 +1,7 @@
 #include "list.h"
 #include "dbg.h"
 
-List *List_create()
+List *List_create(void)
 {
     return calloc(1, sizeof(List));
 }

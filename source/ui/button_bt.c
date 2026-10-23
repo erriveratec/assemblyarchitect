@@ -19,7 +19,6 @@ static const int MODAL_BUTTON_HEIGHT = 60;
 static const Uint32 IFACE_BUTTON_SPACE_W = 7; // Used for the button inner bord
 static const Uint32 IFACE_BUTTON_OUTER_W = 3; //Outer width of the iface button
 
-static bool g_btns_blocked = false;
 
 SDL_Rect bt_get_modal_button_size(void)
 {
@@ -34,10 +33,10 @@ SDL_Rect bt_get_modal_button_size(void)
 
 bool bt_chk_hover_iface_btn(iface_btn_t *btn);
 static void draw_btn_scaled_texture(SDL_Rect box, iface_btn_t *b);
-static int get_w_iface_space_border();
-static int get_w_iface_outer_border();
-static int get_w_button_padding();
-static int get_h_button_padding();
+static int get_w_iface_space_border(void);
+static int get_w_iface_outer_border(void);
+static int get_w_button_padding(void);
+static int get_h_button_padding(void);
 static void draw_button(btn_t *button, bool blk, bool hv,
 	                    const SDL_Color *text_color);
 
@@ -51,7 +50,7 @@ static void draw_button(btn_t *button, bool blk, bool hv,
  * Return:
  *	int with the offset
  */
-static int get_w_button_padding()
+static int get_w_button_padding(void)
 {
 	return um_padding_horizontal() +
 		   dm_scale_to_res(IFACE_BUTTON_SPACE_W);
@@ -67,7 +66,7 @@ static int get_w_button_padding()
  * Return:
  *	int with the offset
  */
-static int get_h_button_padding()
+static int get_h_button_padding(void)
 {
 	return um_padding_vertical() +
 		   dm_scale_to_res(IFACE_BUTTON_SPACE_W);
@@ -85,7 +84,7 @@ static int get_h_button_padding()
  * Return:
  *	The offset that will be use of the rectangle padding of the interface
  */
-static int get_w_iface_space_border()
+static int get_w_iface_space_border(void)
 {
 	return dm_scale_to_res(IFACE_BUTTON_SPACE_W);
 }
@@ -100,7 +99,7 @@ static int get_w_iface_space_border()
  * Return:
  *	The offset that will be use of the rectangle padding of the interface
  */
-static int get_w_iface_outer_border()
+static int get_w_iface_outer_border(void)
 {
 	return dm_scale_to_res(IFACE_BUTTON_OUTER_W);
 }
@@ -115,7 +114,7 @@ static int get_w_iface_outer_border()
  * Return:
  *	The offset that will be used for the shadow of the buttons
  */
-int bt_get_ofs_button_shadow()
+int bt_get_ofs_button_shadow(void)
 {
 	return dm_scale_to_res(BUTTON_SHADOW_OFS);
 }
@@ -130,7 +129,7 @@ int bt_get_ofs_button_shadow()
  * Return:
  *	The hover factor
  */
-int bt_get_btn_lift()
+int bt_get_btn_lift(void)
 {
 	return dm_scale_to_res(BUTTON_LIFT);
 }
@@ -145,7 +144,7 @@ int bt_get_btn_lift()
  * Return:
  *	The hover factor
  */
-float bt_get_hover_factor()
+float bt_get_hover_factor(void)
 {
 	return HOVER_SCALE;
 }
@@ -283,8 +282,6 @@ iface_btn_t *bt_create_iface_btn(SDL_Rect r, texture_t *t, bool enabled)
 		return NULL;
 	}
 	new_button->r = r;
-	float scale_w = (float)r.w/t->w;
-	float scale_h = (float)r.h/t->h;
 	new_button->t = t;
 	new_button->enabled = enabled;
 	new_button->hovered = false;
@@ -465,8 +462,6 @@ void bt_draw_iface_btn_nopad(iface_btn_t *b)
 	float scale_h = (float)(b->r.h - 2*offset)/b->t->h;
 	
 	if (scale_w < scale_h){
-		int y = p.y + (p.h - b->t->h*scale_w)/2;
-		SDL_Rect r = {.x = p.x, .y = y, .w = p.w};
 		dw_draw_texture_fits_width(p, b->t);
 	} else {
 		int x = p.x + (p.w - b->t->w*scale_h)/2;

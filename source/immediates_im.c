@@ -45,7 +45,7 @@ typedef struct imm_t {
 	imm_cell_borders_t borders;
 } imm_t;
 
-static void init_imm_texture();
+static void init_imm_texture(void);
 static void draw_imm_txt_up(float pulse);
 static void draw_imm_cell(const imm_t *imm, float pulse, bool highlighted);
 static void draw_imm_cell_frame(const imm_t *imm);
@@ -105,7 +105,6 @@ static bool is_valid_imm_id(int id)
 
 static SDL_Point get_grid_origin(void)
 {
-	SDL_Rect input_bounds = rg_get_initial_input_value_box_bounds();
 	SDL_Point origin = {
 		.x = dm_scale_to_res(IMM_LABEL_X),
 		.y = dm_scale_to_res(IMM_LABEL_Y)
@@ -197,7 +196,7 @@ operand_t *im_create_imm_op_by_id(int op_id)
 			char *num;
 			if (op_id < IMMUP_1){
 	   			num = ax_number_to_string(i - IMMUP0);
-			} else if (op_id > IMMUP10){
+			} else {
 	   			num = ax_number_to_string(-(i - IMMUP10));
 			}	
 			texture_t *t = dw_create_text_tex(num, C_WHITE);
@@ -418,7 +417,7 @@ bool im_ms_rel_in_upimm(void)
  * Return:
  *	Void.
  */
-static void init_imm_texture()
+static void init_imm_texture(void)
 {
 	g_imm_txt = dw_create_text_tex(IMM_TXT, C_WHITE);
 	dw_set_texture_color_mod(g_imm_txt, C_AMBER);

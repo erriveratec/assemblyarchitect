@@ -500,7 +500,6 @@ char *cl_get_instruction_text(int instruction_id)
 		default: 
 			text = "INVALID";
 	}
-error:
 	return text;
 }
 
@@ -634,7 +633,6 @@ char *get_operand_text(int operand_id)
 		default:
 			text = invalid_op_text;
 	}
-error:
 	return text;
 }
 
@@ -845,10 +843,9 @@ bool check_valid_operand(int id)
 {
 	bool valid = false;
 
-	if (id > REG_MIN && id < REG_MAX 
-		|| id > MEMORY_MIN && id < MEMORY_MAX 
-		|| id > BUF_MIN && id < BUF_MAX
-		|| id > IMM_MIN && id < IMM_MAX){
+	if ((id > REG_MIN && id < REG_MAX)
+		|| (id > BUF_MIN && id < BUF_MAX)
+		|| (id > IMM_MIN && id < IMM_MAX)){
 		valid = true;
 	}
 	return valid;

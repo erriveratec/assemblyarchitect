@@ -58,24 +58,16 @@
 char *HOVER_MSGS_STARTS = "+++MESSAGES STARTS";
 char *HOVER_MSGS_ENDS   = "+++MESSAGES ENDS";
 
-static char *get_player_end_string(int player_id);
 static void  parse_challenge_text(FILE *fp);
-static int   get_level_id_number(int level_id);
-static char *get_delimiter_level_string(char *text, int level_id);
 static void  parse_instructions(FILE *fp);
 static void  parse_registers(FILE *fp);
-bool         check_if_save_file_exists();
+bool         check_if_save_file_exists(void);
 void         copy_file(char *src, char *dst);
 void         delete_file(char *path);
 void         write_player_code_to_file(FILE *fp);
-static void  parse_saved_code(FILE *fp);
-static char *create_string_with_number(char *s, int n);
 static void  parse_win_condition(FILE *fp);
-static void  parse_message(FILE *fp, int msg_pos, int w, int h,
-                           const char *end_marker);
 
 void         fl_write_to_file(FILE *fp, char *string);
-static char *get_delimeter_level_string(const char *text, int level_id);
 
 /* Function: fl_get_player_id_string
  *------------------------------------------------------------------------------
@@ -91,9 +83,10 @@ static char *get_delimeter_level_string(const char *text, int level_id);
  */
 char *fl_get_player_id_string(int player_id)
 {
+	char *id = NULL;
 	char *number = ax_number_to_string_prepend_zero(player_id);
 	check_mem(number);
-	char *id =
+	id =
 	    malloc(sizeof(char) * (strlen(STR_PLAYER) + strlen(ax_char_space) +
 	                           strlen(number) + 1));
 	check_mem(id);
@@ -101,9 +94,9 @@ char *fl_get_player_id_string(int player_id)
 	strcpy(id, STR_PLAYER);
 	strcat(id, ax_char_space);
 	strcat(id, number);
-	free(number);
 
 error:
+	free(number);
 	return id;
 }
 
@@ -121,6 +114,7 @@ error:
  */
 char *fl_get_level_id_string(int level_id)
 {
+	char *id = NULL;
 	char *number = NULL;
 
 	if (level_id < 10) {
@@ -130,7 +124,7 @@ char *fl_get_level_id_string(int level_id)
 	}
 
 	check_mem(number);
-	char *id =
+	id =
 	    malloc(sizeof(char) * (strlen(STR_LEVEL_STARTS) +
 	                           strlen(ax_char_space) + strlen(number) + 1));
 	check_mem(id);
@@ -138,72 +132,15 @@ char *fl_get_level_id_string(int level_id)
 	strcpy(id, STR_LEVEL_STARTS);
 	strcat(id, ax_char_space);
 	strcat(id, number);
-	free(number);
 
 error:
+	free(number);
 	return id;
 }
 
-/* Function: create_string_with_number
- *------------------------------------------------------------------------------
- * Creates a string with a number attached to the end
- *
- * Arguments:
- * s: string to be used in the first part
- * n: number that will be used.
- *
- * Return:
- *	char * to the created string.
- *
- */
-static char *create_string_with_number(char *s, int n)
-{
-	assert(s != NULL && "The string pointer is NULL");
 
-	char *number = ax_number_to_string_prepend_zero(n);
-	check_mem(number);
-	char *string = malloc(sizeof(char) * (strlen(s) + strlen(ax_char_space) +
-	                                      strlen(number) + 1));
-	check_mem(string);
 
-	strcpy(string, s);
-	strcat(string, ax_char_space);
-	strcat(string, number);
-	free(number);
 
-error:
-	return string;
-}
-
-/* Function: get_delimeter_level_string
- *------------------------------------------------------------------------------
- * This function is called to generate a string that will be looked on to the
- * save file to search a level
- *
- * Arguments:
- *	level: The level number that will be search in the file
- *
- * Return:
- *	char * to the created string.
- *
- */
-static char *get_delimeter_level_string(const char *text, int level_id)
-{
-	char *number = ax_number_to_string_two_digits(level_id);
-	check_mem(number);
-	char *string = malloc(sizeof(char) *
-	                      (strlen(text) + 2 * CHAR_SIZE + strlen(number) + 1));
-	check_mem(string);
-
-	strcpy(string, text);
-	strcat(string, " \0");
-	strcat(string, number);
-	strcat(string, "\n\0");
-	free(number);
-
-error:
-	return string;
-}
 
 /* Function: parse_challenge_text
  *------------------------------------------------------------------------------
@@ -268,37 +205,7 @@ static void parse_win_condition(FILE *fp)
 	return;
 }
 
-/* Function: parse_saved_code
- *------------------------------------------------------------------------------
- * This function processes the saved code for a level in the save file.
- *
- * Arguments:
- *	fp: the file pointer of the level data
- *
- * Return:
- *	void.
- *
- */
-static void parse_saved_code(FILE *fp)
-{
-	char   *line = NULL;
-	size_t  len  = 0;
-	ssize_t read;
 
-	char *saveptr1;
-	char *text;
-
-	while ((read = getline(&line, &len, fp)) != READ_ERROR) {
-		text = strtok_r(line, ax_char_newline, &saveptr1);
-		if (strstr(STR_CODE_ENDS, line) != NULL) {
-			cw_update_saved_jump_instructions();
-			break;
-		} else if (strcmp(line, ax_char_newline) != STRING_EQUAL) {
-			cw_add_saved_line(text);
-		}
-	}
-	return;
-}
 
 /* Function: parse_instructions
  *------------------------------------------------------------------------------
@@ -399,7 +306,6 @@ void fl_file_initialize_level(int level_id)
 	FILE *fp = fopen(path, "r");
 	check_mem(fp);
 	char *saveptr1;
-	char *text;
 
 	char *level       = fl_get_level_id_string(level_id);
 	bool  level_found = false;
@@ -484,43 +390,7 @@ error:
 	return;
 }
 
-/* Function: parse_message
- *------------------------------------------------------------------------------
- * This function processes a message of a level
- *
- * Arguments:
- *	fp: the file pointer of the level data
- *	msg_pos: the position where the message will be located
- *	w: The width of the container of the message
- * 	h: height of the text message
- *
- * Return:
- *	void.
- *
- */
-static void parse_message(FILE *fp, int msg_pos, int w, int h,
-                          const char *end_marker)
-{
-	char   *line = NULL;
-	size_t  len  = 0;
-	ssize_t read;
-	char    msg[MSG_LENGTH] = "";
 
-	int i = 0;
-	while ((read = getline(&line, &len, fp)) != READ_ERROR) {
-		if (strstr(line, end_marker) != NULL) {
-			tx_set_message_in_array(msg_pos, msg, w, h);
-			break;
-		}
-		line[strcspn(line, "\n")] = '\0';
-		if (i != 0)
-			strcat(msg, ax_char_newline);
-		strcat(msg, line);
-		i++;
-	}
-	free(line);
-	return;
-}
 
 /* Function: fl_load_save_file
  *------------------------------------------------------------------------------

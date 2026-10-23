@@ -27,8 +27,8 @@ SDL_Rect g_instruction_box;
 static int g_highlight_instruction_mask;
 static float g_instruction_highlight_value;
 
-static List *get_instruction_list();
-static void draw_instruction_text();
+static List *get_instruction_list(void);
+static void draw_instruction_text(void);
 static void draw_highlighted_instruction(btn_t *button);
 
 /* Function: iw_init_ins_box
@@ -41,7 +41,7 @@ static void draw_highlighted_instruction(btn_t *button);
  * Return:
  *	Void.
  */
-void iw_init_ins_box()
+void iw_init_ins_box(void)
 {
 	instructions_text = dw_create_text_tex(INSTRUCTIONS_TEXT, C_AMBER);
 	g_instruction_box = il_get_initial_instruction_bounds();
@@ -115,7 +115,7 @@ int iw_get_instruction_y_by_id(int id)
  * Return:
  *	Void.
  */
-static void draw_instruction_text()
+static void draw_instruction_text(void)
 {
 	SDL_Rect ib = il_get_initial_instruction_bounds();
 	int x = ib.x;
@@ -134,7 +134,7 @@ static void draw_instruction_text()
  * Return:
  *	int: size of the instruction list
  */
-int iw_get_instruction_list_size()
+int iw_get_instruction_list_size(void)
 {
 	assert(instruction_list != NULL);
 	List *instructions = get_instruction_list();
@@ -151,7 +151,7 @@ int iw_get_instruction_list_size()
  *	Void.
  *
  */
-void iw_create_instruction_list()
+void iw_create_instruction_list(void)
 {
 	assert(instruction_list == NULL && "The register list is not NULL");
 	instruction_list = List_create();
@@ -169,7 +169,7 @@ void iw_create_instruction_list()
  *	Void.
  *
  */
-void iw_destroy_instruction_list()
+void iw_destroy_instruction_list(void)
 {
 	List *instructions = get_instruction_list();
 	LIST_FOREACH(instructions, first, next, cur){ 
@@ -192,7 +192,7 @@ void iw_destroy_instruction_list()
  *	Void.
  *
  */
-static List *get_instruction_list()
+static List *get_instruction_list(void)
 {
 	return instruction_list;
 }
@@ -212,10 +212,9 @@ static List *get_instruction_list()
 *
 */
 
-bool iw_chk_click_ins()
+bool iw_chk_click_ins(void)
 {
 	List *instructions = get_instruction_list();
-   	int x = List_count(instructions);
    	bool clicked = false;
 
 	if (sb_chk_rst_esc_menu_active() == false){
@@ -245,11 +244,10 @@ bool iw_chk_click_ins()
  *	NULL if not button was clicked
  *
  */
-instruction_t *iw_get_clicked_instruction()
+instruction_t *iw_get_clicked_instruction(void)
 {
 	List *instructions = get_instruction_list();
 	assert(NULL != instructions && "The instruction pointer cannot be NULL");
-	int x = List_count(instructions);
 	LIST_FOREACH(instructions, first, next, cur){ 
 		
 		instruction_t *c = cur->value;
@@ -284,7 +282,6 @@ void iw_add_instruction_to_list(int id)
 	texture_t *instruction_text = dw_create_text_tex(text, 
 								  C_WHITE);
 	
-	SDL_Rect cb = cl_get_code_button_size();
 	int list_size = List_count(instructions);
 	
 	SDL_Rect ib = il_get_initial_instruction_bounds();
@@ -323,7 +320,7 @@ error:
  *	void
  *
  */
-void iw_update_ins_box_size()
+void iw_update_ins_box_size(void)
 {
  	int size = iw_get_instruction_list_size();
 
@@ -345,7 +342,7 @@ void iw_update_ins_box_size()
  *	void
  *
  */
-void iw_draw_ins_box()
+void iw_draw_ins_box(void)
 {
 	List *instructions = get_instruction_list();
 	assert(instructions != NULL && "Invalid pointer");

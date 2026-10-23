@@ -110,7 +110,6 @@ code_end
 [level 13]
 unlocked = true
 code_begin
-MOV rax, [ib]
 code_end
 
 [level 14]

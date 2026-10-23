@@ -55,17 +55,16 @@ texture_array_t **g_msgs = NULL;
 int               g_gbl_msgs_size;
 texture_array_t **g_gbl_msgs = NULL;
 
-static int      get_box_member(SDL_Rect *box, int member);
-static int      get_h_bottom_msg();
-static SDL_Rect get_text_box_center_up();
-static int      get_border_ofs();
-static SDL_Rect get_text_box_upper();
-static SDL_Rect get_text_box_lower();
-static SDL_Rect get_text_box_center();
-static SDL_Rect get_text_box_ins();
-static SDL_Rect get_text_box_code();
-static SDL_Rect get_text_box_upper_right();
-static SDL_Rect get_text_box_center_right();
+static int      get_h_bottom_msg(void);
+static SDL_Rect get_text_box_center_up(void);
+static int      get_border_ofs(void);
+static SDL_Rect get_text_box_upper(void);
+static SDL_Rect get_text_box_lower(void);
+static SDL_Rect get_text_box_center(void);
+static SDL_Rect get_text_box_ins(void);
+static SDL_Rect get_text_box_code(void);
+static SDL_Rect get_text_box_upper_right(void);
+static SDL_Rect get_text_box_center_right(void);
 static SDL_Rect get_error_box_bounds(void);
 static SDL_Rect get_stagebutton_box_bounds(void);
 
@@ -104,7 +103,7 @@ static SDL_Rect get_stagebutton_box_bounds(void)
  * Return:
  *	The offset value
  */
-static int get_border_ofs() { return dm_scale_to_res(BORDER_OFS); }
+static int get_border_ofs(void) { return dm_scale_to_res(BORDER_OFS); }
 
 /* Function: tx_get_text_box_wh
  * -----------------------------------------------------------------------------
@@ -116,7 +115,7 @@ static int get_border_ofs() { return dm_scale_to_res(BORDER_OFS); }
  * Return:
  *	SDL_Rect with the dimension of the object
  */
-SDL_Rect tx_get_text_box_wh()
+SDL_Rect tx_get_text_box_wh(void)
 {
 	SDL_Rect b;
 	b.w = dm_scale_to_res(TEXT_BOX_W);
@@ -136,7 +135,7 @@ SDL_Rect tx_get_text_box_wh()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-static SDL_Rect get_text_box_upper_right()
+static SDL_Rect get_text_box_upper_right(void)
 {
 	SDL_Rect d = tx_get_text_box_wh();
 	int      margin = get_border_ofs();
@@ -158,7 +157,7 @@ static SDL_Rect get_text_box_upper_right()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-static SDL_Rect get_text_box_code()
+static SDL_Rect get_text_box_code(void)
 {
 	SDL_Rect cb = cw_get_stage_code_box();
 	SDL_Rect d  = tx_get_text_box_wh();
@@ -179,7 +178,7 @@ static SDL_Rect get_text_box_code()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-static SDL_Rect get_text_box_ins()
+static SDL_Rect get_text_box_ins(void)
 {
 
 	SDL_Rect ib = il_get_initial_instruction_bounds();
@@ -202,7 +201,7 @@ static SDL_Rect get_text_box_ins()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-static SDL_Rect get_text_box_center_right()
+static SDL_Rect get_text_box_center_right(void)
 {
 	int      w = dm_get_screen_width();
 	int      h = dm_get_screen_height();
@@ -226,7 +225,7 @@ static SDL_Rect get_text_box_center_right()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-static SDL_Rect get_text_box_center()
+static SDL_Rect get_text_box_center(void)
 {
 	int      w = dm_get_screen_width();
 	int      h = dm_get_screen_height();
@@ -250,7 +249,7 @@ static SDL_Rect get_text_box_center()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-static SDL_Rect get_text_box_lower()
+static SDL_Rect get_text_box_lower(void)
 {
 	int      w = dm_get_screen_width();
 	int      h = dm_get_screen_height();
@@ -272,7 +271,7 @@ static SDL_Rect get_text_box_lower()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-static SDL_Rect get_text_box_upper()
+static SDL_Rect get_text_box_upper(void)
 {
 	int      w = dm_get_screen_width();
 	SDL_Rect d = tx_get_text_box_wh();
@@ -294,7 +293,7 @@ static SDL_Rect get_text_box_upper()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-static SDL_Rect get_text_box_center_up()
+static SDL_Rect get_text_box_center_up(void)
 {
 	int      w = dm_get_screen_width();
 	int      h = dm_get_screen_height();
@@ -317,7 +316,7 @@ static SDL_Rect get_text_box_center_up()
  * Return:
  *	int with the offset for the sel level buttons
  */
-static int get_h_bottom_msg()
+static int get_h_bottom_msg(void)
 {
 	int h = dm_scale_to_res(TEXT_H_BOTTOM_MSG);
 	return h;
@@ -491,7 +490,7 @@ void tx_set_single_line_message(int position, const char *message)
  * Return:
  *	Void.
  */
-void tx_init_global_msgs()
+void tx_init_global_msgs(void)
 {
 	g_gbl_msgs_size = 3;
 	g_gbl_msgs      = malloc(sizeof(texture_array_t *) * g_gbl_msgs_size);
@@ -523,7 +522,7 @@ void tx_init_global_msgs()
  * Return:
  * 	Void.
  */
-void tx_free_level_text_textures()
+void tx_free_level_text_textures(void)
 {
 	if (g_msgs != NULL) {
 		for (int i = 0; i < g_msgs_size; i++) {
@@ -536,38 +535,7 @@ void tx_free_level_text_textures()
 	g_msgs_size = 0;
 }
 
-/* Function: get_box_member
- * -----------------------------------------------------------------------------
- * Returns the property member of a given text box by a pointer to the bos
- *
- * Arguments:
- *	box: pointer of the box that the member will be recovered
- *	member: the member of the box that will be recovered.
- *
- * Return:
- *	member of the box recovered.
- */
-static int get_box_member(SDL_Rect *box, int member)
-{
-	assert(box != NULL && "Box pointer is NULL");
-	assert(member > MEMBER_MIN && member < MEMBER_MAX && "Invalid member");
-	int retval;
-	switch (member) {
-	case MEMBER_X:
-		retval = box->x;
-		break;
-	case MEMBER_Y:
-		retval = box->y;
-		break;
-	case MEMBER_W:
-		retval = box->w;
-		break;
-	case MEMBER_H:
-		retval = box->h;
-		break;
-	}
-	return retval;
-}
+
 
 /* Function: tx_bottom_msg
  * -----------------------------------------------------------------------------

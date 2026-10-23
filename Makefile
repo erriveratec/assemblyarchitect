@@ -12,6 +12,7 @@ DATA_DIRS = sound fonts data img
 APP_ICON = icon.icns
 
 S_FILES := $(shell find $(S_DIR) -type f -name '*.c')
+S_HEADERS := $(shell find $(S_DIR) -type f -name '*.h')
 # Tests: tests/<feature>_test.c, executable build/tests/<feature>_test, target test-<feature-with-hyphens>.
 TEST_BUILD_DIR := build/tests
 TUTORIAL_TEXT_TEST_EXEC = $(TEST_BUILD_DIR)/tutorial_text_test
@@ -58,7 +59,10 @@ TEST_EXECS := \
 	$(TUTORIAL_ARROW_ANIMATION_TEST_EXEC) \
 	$(HIGHLIGHT_ANIMATION_SYNC_TEST_EXEC) \
 	$(MODAL_POINTER_CAPTURE_TEST_EXEC) \
-	$(RUN_RESULT_RENDER_ORDER_TEST_EXEC)
+	$(RUN_RESULT_RENDER_ORDER_TEST_EXEC) \
+	$(VALUE_BOX_TRANSPORT_TEST_EXEC) \
+	$(REGISTERS_HIGHLIGHT_GEOMETRY_TEST_EXEC)
+TEST_TARGETS := $(addprefix test-,$(subst _,-,$(patsubst %_test,%,$(notdir $(TEST_EXECS)))))
 LEGACY_ROOT_TEST_EXECS := \
 	$(notdir $(TEST_EXECS)) \
 	highligh_animation_sync_test
@@ -70,6 +74,7 @@ LEGACY_ROOT_TEST_EXECS := \
 
 CC = clang
 CFLAGS = -g -I$(S_DIR)
+override CFLAGS += -Wall -Wextra -Wpedantic -Werror
 
 ############################
 # SDL Frameworks
@@ -84,10 +89,10 @@ SDL_FRAMEWORKS = \
     SDL2_mixer.framework
 
 SDL_INCLUDES = \
-    -I$(FRAMEWORK_DIR)/SDL2.framework/Headers \
-    -I$(FRAMEWORK_DIR)/SDL2_image.framework/Headers \
-    -I$(FRAMEWORK_DIR)/SDL2_ttf.framework/Headers \
-    -I$(FRAMEWORK_DIR)/SDL2_mixer.framework/Headers
+	-isystem $(FRAMEWORK_DIR)/SDL2.framework/Headers \
+	-isystem $(FRAMEWORK_DIR)/SDL2_image.framework/Headers \
+	-isystem $(FRAMEWORK_DIR)/SDL2_ttf.framework/Headers \
+	-isystem $(FRAMEWORK_DIR)/SDL2_mixer.framework/Headers
 
 SDL_LINK = \
     -F$(FRAMEWORK_DIR) \
@@ -114,7 +119,7 @@ all: build
 
 build: $(EXEC)
 
-$(EXEC): $(S_FILES)
+$(EXEC): $(S_FILES) $(S_HEADERS) Makefile
 	$(CC) $(CFLAGS) $(S_FILES) -o $@ \
     $(SDL_INCLUDES) $(SDL_LINK) \
 	-Wl,-rpath,/Library/Frameworks
@@ -122,7 +127,7 @@ $(EXEC): $(S_FILES)
 run: build
 	./$(EXEC)
 
-test: test-level-config-hover test-operand-highlights test-operand-change-selection test-tutorial-text test-sector-completion-navigation test-buffer-label-layout test-execution-arrow-geometry test-text-box-layout test-tutorial-arrow-animation test-highlight-animation-sync test-modal-pointer-capture test-run-result-render-order test-value-box-transport test-io-rail-geometry test-registers-highlight-geometry
+test: $(TEST_TARGETS)
 
 .PHONY: all build run app clean test test-level-config-hover test-operand-highlights test-operand-change-selection \
 	test-tutorial-text test-sector-completion-navigation test-buffer-label-layout \

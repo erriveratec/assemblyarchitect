@@ -160,6 +160,26 @@ This produces:
 
 ---
 
+### Tests and Warning Policy
+
+Run `make test` for all 15 regression targets, or `make -k test` to collect all
+failures. Tests use SDL software rendering and do not need a display server.
+Production and tests enforce `-Wall -Wextra -Wpedantic -Werror`; custom `CFLAGS`
+retain that policy. Third-party SDL headers are system includes.
+
+For AddressSanitizer and UndefinedBehaviorSanitizer:
+
+```sh
+make -B build CFLAGS='-g -O1 -Isource -fsanitize=address,undefined -fno-omit-frame-pointer'
+ASAN_OPTIONS=halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 make -k test \
+  CFLAGS='-g -O1 -Isource -fsanitize=address,undefined -fno-omit-frame-pointer'
+make clean
+make build test
+```
+
+See [ENGINEERING_BASELINE.md](ENGINEERING_BASELINE.md) for the diagnostic inventory,
+classifications, preserved behavior, and verification procedure.
+
 
 ## 🚧 Development Status
 

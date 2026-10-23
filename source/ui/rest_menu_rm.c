@@ -30,8 +30,8 @@ texture_t *g_system_alert_texture = NULL;
 iface_btn_t *g_rst_b1;
 iface_btn_t *g_rst_b2;
 
-static SDL_Rect get_rst_b1_box();
-static SDL_Rect get_rst_b2_box();
+static SDL_Rect get_rst_b1_box(void);
+static SDL_Rect get_rst_b2_box(void);
 
 /* Function: sb_get_rst_menu_state
  * ----------------------------------------------------------------------------
@@ -43,7 +43,7 @@ static SDL_Rect get_rst_b2_box();
  * Return:
  *	Boolean with the state of the rst menu variable
  */
-bool rm_chk_rst_menu_state()
+bool rm_chk_rst_menu_state(void)
 {
 	return g_rst_menu;
 }
@@ -99,7 +99,7 @@ void rm_set_rst_menu(bool state)
  * Return:
  *	SDL_Rect with the positions of the object
  */
-static SDL_Rect get_rst_b1_box()
+static SDL_Rect get_rst_b1_box(void)
 {
 	int cont_w = dm_scale_to_res(RST_MENU_BTNS_W);
 	int offset = dm_scale_to_res(RESUME_DIALOG_INSET);
@@ -124,7 +124,7 @@ static SDL_Rect get_rst_b1_box()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-static SDL_Rect get_rst_b2_box()
+static SDL_Rect get_rst_b2_box(void)
 {
 	int back_w = dm_scale_to_res(RST_MENU_BTNS_W);
 	int cont_w = dm_scale_to_res(RST_MENU_BTNS_W);
@@ -150,7 +150,7 @@ static SDL_Rect get_rst_b2_box()
  * Return:
  *	Void.	
  */
-void rm_init_rst_menu()
+void rm_init_rst_menu(void)
 {
 	g_system_alert_texture = dw_create_text_tex(SYSTEM_ALERT, C_GREY);
 	g_rst_b1_texture = dw_create_text_tex(RST_MENU_TEXT1, C_WHITE);

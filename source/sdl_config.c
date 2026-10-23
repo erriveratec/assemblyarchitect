@@ -119,7 +119,7 @@ int init_sdl(int width, int height, int argc, char *args[])
 
 }
 
-int toggle_fullscreen()
+int toggle_fullscreen(void)
 {
 	Uint32 flags = SDL_GetWindowFlags(g_window);
 	Uint32 fullscreen = flags & SDL_WINDOW_FULLSCREEN_DESKTOP ? 0 :
@@ -144,7 +144,7 @@ int toggle_fullscreen()
  * Return:
  *	SUCCESS or FAIL
  */
-int load_media()
+int load_media(void)
 {
 	char path[512];
 
@@ -269,7 +269,7 @@ int load_media()
  * Return:
  *	SUCCESS or FAIL
  */
-void close_sdl()
+void close_sdl(void)
 {
 
 //    if (g_studio_sfx)  Mix_FreeChunk(g_studio_sfx);

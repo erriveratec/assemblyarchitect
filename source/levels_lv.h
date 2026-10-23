@@ -8,11 +8,11 @@
 
 #define LV_LEVEL_QUANTITY 40
 
-extern const Uint32 LV_SECTOR_LV_QTY;
-extern const Uint32 LV_SECTOR_1_START;
-extern const Uint32 LV_SECTOR_2_START;
-extern const Uint32 LV_SECTOR_3_START;
-extern const Uint32 LV_SECTOR_4_START;
+extern const int LV_SECTOR_LV_QTY;
+extern const int LV_SECTOR_1_START;
+extern const int LV_SECTOR_2_START;
+extern const int LV_SECTOR_3_START;
+extern const int LV_SECTOR_4_START;
 
 typedef struct lv_rules_t {
     int instruction_limit;
@@ -87,18 +87,18 @@ enum LevelStates{
 
 void lv_upd_level_assets(int level);
 void lv_init_level_assets(int level);
-bool wc_is_satisfied();
+bool wc_is_satisfied(void);
 void lv_level_drawings(int level);
 void lv_prepare_level_frame(int level, int operation_id);
 void init_level(int level_id);
-bool lv_is_code_editable();
-bool lv_is_buf_selectable();
-bool lv_is_reg_selectable();
-bool lv_is_arrange_enabled();
-bool lv_is_del_enabled();
+bool lv_is_code_editable(void);
+bool lv_is_buf_selectable(void);
+bool lv_is_reg_selectable(void);
+bool lv_is_arrange_enabled(void);
+bool lv_is_del_enabled(void);
 void lv_set_hold_line(code_line_t *line);
 void lv_init_stage_code(int level_id);
-int lv_get_level_instructions_limit();
+int lv_get_level_instructions_limit(void);
 void lv_set_level_instructions_limit(int limit);
 
 

@@ -33,10 +33,10 @@ iface_btn_t *g_escape_b2;
 iface_btn_t *g_escape_b3;
 
 
-static SDL_Rect get_escape_b1_box();
-static SDL_Rect get_escape_b2_box();
-static SDL_Rect get_escape_b3_box();
-static void update_fullscreen_button_label();
+static SDL_Rect get_escape_b1_box(void);
+static SDL_Rect get_escape_b2_box(void);
+static SDL_Rect get_escape_b3_box(void);
+static void update_fullscreen_button_label(void);
 
 
 
@@ -51,7 +51,7 @@ static void update_fullscreen_button_label();
  * Return:
  *	SDL_Rect with the positions of the object
  */
-static SDL_Rect get_escape_b1_box()
+static SDL_Rect get_escape_b1_box(void)
 {
 	SDL_Rect mb = dw_get_iface_big_center_box();
 
@@ -73,9 +73,8 @@ static SDL_Rect get_escape_b1_box()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-static SDL_Rect get_escape_b2_box()
+static SDL_Rect get_escape_b2_box(void)
 {
-	SDL_Rect mb = dw_get_iface_big_center_box();
 	SDL_Rect b1 = get_escape_b1_box();
 	
 	SDL_Rect b;
@@ -96,9 +95,8 @@ static SDL_Rect get_escape_b2_box()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-static SDL_Rect get_escape_b3_box()
+static SDL_Rect get_escape_b3_box(void)
 {
-	SDL_Rect mb = dw_get_iface_big_center_box();
 	SDL_Rect b2 = get_escape_b2_box();
 	
 	SDL_Rect b;
@@ -109,7 +107,7 @@ static SDL_Rect get_escape_b3_box()
 	return b;
 }
 
-static void update_fullscreen_button_label()
+static void update_fullscreen_button_label(void)
 {
 	char *label = SDL_GetWindowFlags(g_window) &
 				  SDL_WINDOW_FULLSCREEN_DESKTOP ?
@@ -141,7 +139,7 @@ static void update_fullscreen_button_label()
  * Return:
  *	void.	
  */
-void em_toggle_escape_menu()
+void em_toggle_escape_menu(void)
 {
 	g_escape_menu = !g_escape_menu;
 
@@ -163,7 +161,7 @@ void em_toggle_escape_menu()
  * Return:
  *	Boolean with the state fo the escape_menu variable
  */
-bool em_get_escape_state()
+bool em_get_escape_state(void)
 {
 	return g_escape_menu;
 }
@@ -184,7 +182,7 @@ bool em_owns_frame_input(bool was_active, bool is_active)
  * Return:
  *	Void.	
  */
-void em_init_escape_menu()
+void em_init_escape_menu(void)
 {
 	g_escape_b1_texture = dw_create_text_tex(ESC_MENU_TEXT1, C_WHITE);
 

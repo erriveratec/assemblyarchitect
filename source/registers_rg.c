@@ -40,12 +40,13 @@ static bool g_zero_flag_highlight;
 
 static void set_register_box_member(int value, int member);
 reg_t *create_register(int id, btn_t *b);
-static void destroy_register_list();
-static void draw_register_text();
-static void draw_register_box();
-static void draw_value_boxes();
-static void display_arrow_registers();
+static void destroy_register_list(void);
+static void draw_register_text(void);
+static void draw_register_box(void);
+static void draw_value_boxes(void);
+#if RG_HIGHLIGHT_REGISTER_VALUES
 static SDL_FRect grow_register_rect(SDL_Rect rect, float height_growth);
+#endif
 static SDL_FRect get_highlighted_label_rect(SDL_Rect base_region,
 											texture_t *texture,
 											float pulse);
@@ -53,10 +54,12 @@ static void draw_text_label_highlight(texture_t *texture,
 										 SDL_Rect base_region,
 										 float pulse,
 										 SDL_Color color);
+#if RG_HIGHLIGHT_REGISTER_VALUES
 static void draw_register_value_highlight(vb_value_box_t *value, btn_t *button);
 static void draw_value_box_highlight(const vb_value_box_t *value,
 									 SDL_FRect animated_box,
 									 float pulse);
+#endif
 static void draw_register_button_highlight(btn_t *button);
 
 vb_value_box_t g_ibox;
@@ -155,7 +158,7 @@ texture_t *g_zf_text = NULL;
  * Return:
  *	Void.
  */
-void rg_init_reg_texture()
+void rg_init_reg_texture(void)
 {
 	g_reg_text = dw_create_text_tex(AX_REG_TEXT, C_AMBER);
 }
@@ -171,7 +174,7 @@ void rg_init_reg_texture()
  *	Void.
  *
  */
-void rg_reset_ibox()
+void rg_reset_ibox(void)
 {
 	g_ibox.value = NO_VALUE;
 	dw_free_texture(g_ibox.t);
@@ -190,7 +193,7 @@ void rg_reset_ibox()
  *	Void.
  *
  */
-void rg_reset_obox()
+void rg_reset_obox(void)
 {
 	g_obox.value = NO_VALUE;
 	dw_free_texture(g_obox.t);
@@ -254,7 +257,7 @@ void rg_set_obox_value_box(vb_value_box_t value)
  *	ibox value box
  *
  */
-vb_value_box_t rg_get_ibox_value_box()
+vb_value_box_t rg_get_ibox_value_box(void)
 {
 	return g_ibox;
 }
@@ -270,7 +273,7 @@ vb_value_box_t rg_get_ibox_value_box()
  *	ibox value box
  *
  */
-vb_value_box_t rg_get_obox_value_box()
+vb_value_box_t rg_get_obox_value_box(void)
 {
 	return g_obox;
 }
@@ -286,7 +289,7 @@ vb_value_box_t rg_get_obox_value_box()
  *	x_coordinate_of the value box
  *
  */
-int rg_get_ibox_x()
+int rg_get_ibox_x(void)
 {
 	return g_ibox.box.x;
 }
@@ -302,7 +305,7 @@ int rg_get_ibox_x()
  *	y coordinate of the ibox
  *
  */
-int rg_get_ibox_y()
+int rg_get_ibox_y(void)
 {
 	return g_ibox.box.y;
 
@@ -318,7 +321,7 @@ int rg_get_ibox_y()
  *	y coordinate of the ibox
  *
  */
-int rg_get_obox_y()
+int rg_get_obox_y(void)
 {
 	return g_obox.box.y;
 
@@ -336,7 +339,7 @@ int rg_get_obox_y()
  *	Void.
  *
  */
-void rg_init_flag_and_vboxes()
+void rg_init_flag_and_vboxes(void)
 {
 	g_ibox.box = rg_get_input_value_box_bounds();
 	g_ibox.value = NO_VALUE;
@@ -369,7 +372,7 @@ void rg_init_flag_and_vboxes()
  *	Void.
  *
  */
-void rg_destroy_value_boxes()
+void rg_destroy_value_boxes(void)
 {
 	dw_free_texture(g_ibox.t); 
 	dw_free_texture(g_obox.t); 
@@ -387,7 +390,7 @@ void rg_destroy_value_boxes()
  *	Void.
  *
  */
-static void draw_value_boxes()
+static void draw_value_boxes(void)
 {
 	vb_draw(&g_ibox, C_MAGENTA);
 	vb_draw(&g_obox, C_CYAN);
@@ -458,11 +461,10 @@ int rg_get_reg_box_y_pos(int pos)
  *	Void.
  *
  */
-void rg_update_register_box_position()
+void rg_update_register_box_position(void)
 {
 	List *registers = rg_get_register_list();
 	check_mem(registers);	
-	int list_size = List_count(registers);
 
 	int screen_height =  dm_get_screen_height();
 
@@ -472,8 +474,6 @@ void rg_update_register_box_position()
 	set_register_box_member(y, MEMBER_Y);
 
 	SDL_Rect cb = cl_get_code_button_size();
-	int ofs = rg_get_panel_value_offset();
-	int bet_reg = rg_get_register_spacing();
 	int i = 0;
 	LIST_FOREACH(registers, first, next, cur){ 
 		reg_t *c = cur->value;
@@ -496,7 +496,7 @@ error:
  * Return:
  *	void.
  */
-static void destroy_register_list()
+static void destroy_register_list(void)
 {
 	List_destroy(register_list);
 	register_list = NULL;
@@ -513,7 +513,7 @@ static void destroy_register_list()
  * Return:
  *	void.
  */
-void rg_destroy_register_list()
+void rg_destroy_register_list(void)
 {
 	List *registers = rg_get_register_list();
    	
@@ -534,7 +534,7 @@ void rg_destroy_register_list()
  * Return:
  *	void.
  */
-void rg_reset_register_values()
+void rg_reset_register_values(void)
 {
 	List *registers = rg_get_register_list();
 	
@@ -557,7 +557,7 @@ void rg_reset_register_values()
  * Return:
  *	Pointer to the object that will be assigned as a default reg operand.
  */
-operand_t *rg_get_default_operand_register()
+operand_t *rg_get_default_operand_register(void)
 {
 	operand_t *r = rg_create_register_operand_by_id(DEFAULT_OPERAND);
 	return r;
@@ -574,7 +574,7 @@ operand_t *rg_get_default_operand_register()
  *	Void.
  *
  */
-List *rg_get_register_list()
+List *rg_get_register_list(void)
 {
 	return register_list;
 }
@@ -591,7 +591,7 @@ List *rg_get_register_list()
  *	Void.
  *
  */
-void create_register_list()
+void create_register_list(void)
 {
 	assert(NULL == register_list && "The register list is not NULL");
 	register_list = List_create();
@@ -612,7 +612,7 @@ error:
  *	Box of the member 
  *
  */
-SDL_Rect rg_get_register_box()
+SDL_Rect rg_get_register_box(void)
 {
 	return register_box;
 }
@@ -699,23 +699,29 @@ operand_t *rg_create_register_operand_by_id(int id)
 {
 	assert(id > REG_MIN && id < REG_MAX && "Incorrect id");
 	texture_t *reg_text = cl_create_operand_texture(id);
-	check_mem(reg_text);
+	if (reg_text == NULL) {
+		return NULL;
+	}
 	
 	SDL_Rect cb = cl_get_code_button_size();
-	int text_h = ty_stage_label_height();
-	int register_text_w = get_text_width_fits_height(text_h, AX_REG_TEXT);
 	int x = 0;
 	int y = 0;
 	SDL_Rect r = {.x = x, .y = y, .w = cb.w, .h = cb.h};
 	btn_t *b = bt_create_btn(r, reg_text);
-	check_mem(b);
+	if (b == NULL) {
+		dw_free_texture(reg_text);
+		return NULL;
+	}
 
 	operand_t *op = malloc(sizeof(operand_t));
+	if (op == NULL) {
+		bt_destroy_button(b);
+		return NULL;
+	}
 	
 	op->b = b;
 	op->id = id;
 
-	error:
 	return op;
 }
 
@@ -753,8 +759,6 @@ void rg_add_register_to_list(int id)
 	texture_t *reg_text = cl_create_operand_texture(id);
 	check_mem(reg_text);
 
-	int text_h = ty_stage_label_height();
-	int register_text_w = get_text_width_fits_height(text_h, AX_REG_TEXT);
 	int x = register_box.x + ofs;
 
 	int y = 0;		
@@ -854,6 +858,7 @@ bool rg_get_zero_flag_highlight_progress(float *progress,
 	return true;
 }
 
+#if RG_HIGHLIGHT_REGISTER_VALUES
 static SDL_FRect grow_register_rect(SDL_Rect rect, float height_growth)
 {
 	SDL_FRect base = {
@@ -864,6 +869,7 @@ static SDL_FRect grow_register_rect(SDL_Rect rect, float height_growth)
 	};
 	return dw_grow_rect_height(base, height_growth);
 }
+#endif
 
 static SDL_FRect get_highlighted_label_rect(SDL_Rect base_region,
 											texture_t *texture,
@@ -897,6 +903,7 @@ static void draw_text_label_highlight(texture_t *texture,
 	dw_set_texture_color_mod(texture, C_WHITE);
 }
 
+#if RG_HIGHLIGHT_REGISTER_VALUES
 static void draw_register_value_highlight(vb_value_box_t *value, btn_t *button)
 {
 	float pulse = g_register_highlight_value;
@@ -932,6 +939,7 @@ static void draw_value_box_highlight(const vb_value_box_t *value,
 		     (text_size.h / 5.0f) / 2.0f;
 	dw_draw_texture_fit_h_f(animated_text, value->t);
 }
+#endif
 
 static void draw_register_button_highlight(btn_t *button)
 {
@@ -990,7 +998,7 @@ void rg_set_register_box(SDL_Rect r)
  * Return:
  *	Void.
  */
-static void draw_register_box()
+static void draw_register_box(void)
 {
 	dw_draw_filled_rectangle(register_box, C_GREY, C_GREY);
 	
@@ -1015,7 +1023,7 @@ static void draw_register_box()
  *	Void.
  *
  */
-static void draw_register_text()
+static void draw_register_text(void)
 {
 	int text_h = ty_stage_label_height();
 	int x = register_box.x;
@@ -1038,11 +1046,10 @@ static void draw_register_text()
 *
 */
 
-bool rg_chk_rel_in_reg()
+bool rg_chk_rel_in_reg(void)
 {
 	List *registers = rg_get_register_list();
 	assert(registers != NULL && "The registers pointer cannot be NULL");
-   	int x = List_count(registers);
    	bool selected = false;
 
 	if (sb_chk_rst_esc_menu_active() == false){
@@ -1074,10 +1081,9 @@ bool rg_chk_rel_in_reg()
 *	The pointer to the clicked register in an operand form 
 *
 */
-operand_t *rg_create_sel_reg_op()
+operand_t *rg_create_sel_reg_op(void)
 {
 	List *registers = rg_get_register_list();
-   	int x = List_count(registers);
 	operand_t *o = NULL;
 
    	LIST_FOREACH(registers, first, next, cur){ 
@@ -1207,7 +1213,7 @@ vb_value_box_t rg_get_register_value_box_by_id(int id)
  *	Void.
  *
  */
-void rg_reset_rflags()
+void rg_reset_rflags(void)
 {
 	g_zf.value = NO_VALUE;
 	dw_free_texture(g_zf.t);

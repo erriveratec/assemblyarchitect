@@ -22,22 +22,22 @@ extern texture_t *return_button;
 extern texture_t *reset_button;
 
 
-void sb_draw_ret_btn();
-void sb_init_ret_btn();
+void sb_draw_ret_btn(void);
+void sb_init_ret_btn(void);
 
-void sb_init_stage_btns();
+void sb_init_stage_btns(void);
 void sb_draw_stage_btns(int code_size, float animation_limit);
-void sb_handle_screen_resize();
+void sb_handle_screen_resize(void);
 void sb_set_highlight_source(ui_highlight_source_t source,
 							int button_id,
 							bool enabled);
 bool sb_get_button_highlight_progress(int button_id,
 									  float *progress,
 									  float animation_limit);
-bool sb_chk_click_stage_btn();
-int identify_clicked_stage_button();
-bool sb_chck_rel_ret_btn();
-SDL_Rect sb_get_stage_btns();
+bool sb_chk_click_stage_btn(void);
+int identify_clicked_stage_button(void);
+bool sb_chck_rel_ret_btn(void);
+SDL_Rect sb_get_stage_btns(void);
 
 int sb_get_play_button_member(int member);
 SDL_Rect sb_get_sb_rect(int member);
@@ -45,12 +45,12 @@ SDL_Rect sb_get_sb_rect(int member);
 
 void sb_set_step_btns_avail(bool state);
 
-void sb_draw_rst_btn();
-void sb_init_rst_btn();
+void sb_draw_rst_btn(void);
+void sb_init_rst_btn(void);
 
-bool sb_chk_rel_rst_btn();
+bool sb_chk_rel_rst_btn(void);
 
-bool sb_chk_rst_esc_menu_active();
-bool sb_chk_hov_rst_ret_btns();
+bool sb_chk_rst_esc_menu_active(void);
+bool sb_chk_hov_rst_ret_btns(void);
 
 #endif

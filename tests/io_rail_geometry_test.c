@@ -75,7 +75,7 @@ static void test_io_rail(bool input)
 	avatar->id = input ? IAVATAR : OAVATAR;
 	const int operands[] = {IMMUP0, IMMUP10, IMMUP_1, IB, OB,
 		input ? IBOX : OBOX};
-	for (int index = 0; index < sizeof(operands) / sizeof(operands[0]); index++) {
+	for (size_t index = 0; index < sizeof(operands) / sizeof(operands[0]); index++) {
 		reach_operand(avatar, operands[index]);
 	}
 	reach_operand(avatar, IMMUP0);
@@ -158,6 +158,12 @@ int main(void)
 	g_font = TTF_OpenFont("fonts/DOSVGA437.ttf", 130);
 	assert(g_font != NULL);
 	im_init_imm_assets();
+	assert(get_operand_x_dest(INVALID_OPERAND) == NO_VALUE);
+	assert(get_operand_y_dest(INVALID_OPERAND) == NO_VALUE);
+	avatar_t invalid_route = {.id = IAVATAR, .box = {10, 20, 30, 40}};
+	SDL_Rect original = invalid_route.box;
+	assert(!move_avatar_to_operand(&invalid_route, OBOX));
+	assert(SDL_RectEquals(&invalid_route.box, &original));
 	test_resolution(DM_RESOLUTION_1600X900);
 	test_resolution(DM_RESOLUTION_1920X1080);
 	test_resolution(DM_RESOLUTION_1600X900);

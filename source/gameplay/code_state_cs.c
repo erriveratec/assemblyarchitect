@@ -77,7 +77,6 @@ cs_context_t cs_capture_context(void)
 
 cs_state_t cs_get_state(void)
 {
-	cs_context_t context = cs_capture_context();
 	cs_state_t   state   = CS_STATE_UNCLASSIFIED;
 
 	return state;

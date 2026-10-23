@@ -17,10 +17,10 @@ extern int g_height;
 extern TTF_Font *g_font;
 
 
-int load_media();
-void close_sdl();
+int load_media(void);
+void close_sdl(void);
 int init_sdl(int width, int height, int argc, char *args[]);
-int toggle_fullscreen();
+int toggle_fullscreen(void);
 
 
 #endif

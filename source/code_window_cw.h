@@ -19,8 +19,8 @@ enum code_line_element{
 	CW_LABEL
 };
 
-void cw_draw_code_window();
-void cw_create_code_list();
+void cw_draw_code_window(void);
+void cw_create_code_list(void);
 void cw_set_scroll_box(SDL_Rect r);
 void cw_set_code_box(SDL_Rect r);
 void cw_set_challenge_text(char *text);
@@ -29,50 +29,50 @@ void cw_set_code_box_highlight(bool enabled);
 void cw_set_stage_name(char *text);
 void cw_player_holding_instruction(code_line_t *line, bool arng, bool del);
 bool cw_check_if_in_code_list(code_line_t *instruction);
-bool cw_chk_click_code();
-bool cw_chk_rclick_code();
+bool cw_chk_click_code(void);
+bool cw_chk_rclick_code(void);
 
-code_line_t *cw_get_clicked_code();
-code_line_t *cw_get_rclicked_code();
+code_line_t *cw_get_clicked_code(void);
+code_line_t *cw_get_rclicked_code(void);
 code_line_t *cw_clone_rclicked_line(code_line_t *line);
 
-bool cw_check_code_sorted();
-void cw_sort_code();
-bool cw_is_operand_pending();
-bool cw_is_operand_1_pending();
-bool cw_is_operand_2_pending();
-code_line_t *cw_get_code_line_pending_operand();
-bool cw_chk_click_code_op();
+bool cw_check_code_sorted(void);
+void cw_sort_code(void);
+bool cw_is_operand_pending(void);
+bool cw_is_operand_1_pending(void);
+bool cw_is_operand_2_pending(void);
+code_line_t *cw_get_code_line_pending_operand(void);
+bool cw_chk_click_code_op(void);
 bool cw_chk_click_code_op2(int code_line_pos);
 
-void cw_change_clicked_code_line_state();
-int cw_get_code_list_size();
+void cw_change_clicked_code_line_state(void);
+int cw_get_code_list_size(void);
 int cw_get_instruction_at_code_pos(int position);
 int cw_get_instruction_operand(int position, int operand_number);
 code_line_t *cw_get_code_line_at_pos(int pos);
-void cw_reset_code_execution();
+void cw_reset_code_execution(void);
 void cw_add_saved_line(char *line);
-void cw_destroy_code_window_assets();
+void cw_destroy_code_window_assets(void);
 int cw_get_instruction_y_coord(int instruction_position); //review usage
 int cw_get_code_line_x(int instruction_id);
 int cw_get_code_line_y(int pos);
-bool cw_ms_rel_in_label();
+bool cw_ms_rel_in_label(void);
 operand_t *cw_create_jmp_op(code_line_t *addr);
-void cw_update_saved_jump_instructions();
+void cw_update_saved_jump_instructions(void);
 void cw_operate_jump_instruction(code_line_t *line);
-SDL_Rect cw_get_text_box_rect();
-float cw_get_challenge_highlight_limit();
+SDL_Rect cw_get_text_box_rect(void);
+float cw_get_challenge_highlight_limit(void);
 bool cw_get_code_box_highlight_progress(float *progress,
 										float animation_limit);
 bool cw_get_challenge_highlight_progress(float *progress,
 										float animation_limit);
-void cw_init_code_window_texture();
+void cw_init_code_window_texture(void);
 SDL_Rect cw_get_code_line_coord_at_pos(int code_line_element, int pos);
 int cw_get_code_line_pos_by_ptr(code_line_t *line);
-code_line_t *cw_create_label_code_line();
-void cw_clear_code_list();
+code_line_t *cw_create_label_code_line(void);
+void cw_clear_code_list(void);
 void cw_assign_op_to_line(operand_t *op, code_line_t *line);
-void cw_highlight_code_pending_operand();
-SDL_Rect cw_get_stage_code_box();
+void cw_highlight_code_pending_operand(void);
+SDL_Rect cw_get_stage_code_box(void);
 int cw_get_code_line_spacing(void);
 #endif

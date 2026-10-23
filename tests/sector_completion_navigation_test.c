@@ -95,11 +95,57 @@ static void test_reset_operation(void);
 static void test_unlock(int player_id, int level_id);
 static void test_forbid_save(int player_id, int level_id);
 
+static fx_electron_t *test_electron_create(SDL_Renderer *renderer, int width,
+                                         int height, const char *path)
+{
+	assert(renderer == g_renderer && width == dm_get_screen_width());
+	assert(height == dm_get_screen_height() && path == NULL);
+	electron_creates++;
+	return NULL;
+}
+
+static void test_electron_update(fx_electron_t *electron, float delta)
+{
+	assert(electron == NULL && delta == 0.0f);
+}
+
+static void test_electron_render(fx_electron_t *electron, SDL_Renderer *renderer)
+{
+	assert(electron == NULL && renderer == g_renderer);
+}
+
+static void test_electron_destroy(fx_electron_t *electron)
+{
+	assert(electron == NULL);
+	electron_destroys++;
+}
+
+static void test_draw_registers(float limit)
+{
+	assert(limit == dw_get_animation_limit());
+}
+
+static void test_draw_level(int level)
+{
+	assert(level >= 0 && level < LV_LEVEL_MAX);
+}
+
+static void test_draw_result(int operation_id)
+{
+	assert(operation_id == operation);
+	drawing_calls++;
+}
+
+static void test_hold_line(code_line_t *line)
+{
+	assert(line == NULL);
+}
+
 #define SDL_GetTicks64() ((Uint64)0)
-#define fx_electron_create(renderer, width, height, path) (++electron_creates, (fx_electron_t *)NULL)
-#define fx_electron_update(electron, delta) ((void)0)
-#define fx_electron_render(electron, renderer) ((void)0)
-#define aa_electron_fx_destroy(electron) ((void)++electron_destroys)
+#define fx_electron_create test_electron_create
+#define fx_electron_update test_electron_update
+#define fx_electron_render test_electron_render
+#define aa_electron_fx_destroy test_electron_destroy
 #define sb_chck_rel_ret_btn() (check_background_pointer(), return_released)
 #define sb_chk_click_stage_btn() (check_background_pointer(), step_clicked)
 #define identify_clicked_stage_button() STEP
@@ -117,7 +163,7 @@ static void test_forbid_save(int player_id, int level_id);
 #define em_render_escape_menu(active) ((void)0)
 #define rr_update(operation_id) update_result(operation_id)
 #define rr_reset_state() ((void)++result_reset_calls)
-#define rr_render(operation_id) ((void)++drawing_calls)
+#define rr_render test_draw_result
 #define mc_get_operation_flag() (operation)
 #define mc_set_operation_flag(operation_id) ((void)(operation = (operation_id)))
 #define mc_get_run_ended() (run_ended)
@@ -146,7 +192,7 @@ static void test_forbid_save(int player_id, int level_id);
 #define rg_reset_rflags() ((void)0)
 #define rg_destroy_register_list() ((void)0)
 #define rg_destroy_value_boxes() ((void)0)
-#define rg_draw_registers(limit) ((void)0)
+#define rg_draw_registers test_draw_registers
 #define oh_clear() ((void)0)
 #define cw_reset_code_execution() ((void)0)
 #define cw_destroy_code_window_assets() ((void)0)
@@ -156,14 +202,14 @@ static void test_forbid_save(int player_id, int level_id);
 #define cw_chk_click_code() false
 #define cw_chk_rclick_code() false
 #define cw_draw_code_window() ((void)0)
-#define cw_get_challenge_highlight_limit() 0.0f
+#define cw_get_challenge_highlight_limit() ((float)dw_get_animation_limit())
 #define iw_chk_click_ins() false
 #define iw_draw_ins_box() ((void)0)
 #define iw_destroy_instruction_list() ((void)0)
 #define tr_clear() ((void)0)
-#define lv_set_hold_line(line) ((void)0)
+#define lv_set_hold_line test_hold_line
 #define lv_prepare_level_frame(level_id, operation_id) ((void)check_background_pointer())
-#define lv_level_drawings(level_id) ((void)0)
+#define lv_level_drawings test_draw_level
 #define sb_draw_stage_btns(size, animation_limit) ((void)0)
 #define sb_draw_ret_btn() ((void)0)
 #define sb_draw_rst_btn() ((void)0)

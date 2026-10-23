@@ -33,13 +33,13 @@ static const int PLAYER_NAME_HEIGHT = 50;
 static const int PLAYER_LORE_OFFSET = 22;
 static const int PLAYER_DARK_PLATE_OFFSET = 6;
 
-static SDL_Rect get_p1_button_box();
-static SDL_Rect get_p2_button_box();
-static SDL_Rect get_p3_button_box();
+static SDL_Rect get_p1_button_box(void);
+static SDL_Rect get_p2_button_box(void);
+static SDL_Rect get_p3_button_box(void);
 static void create_player_btns(iface_btn_t **player_btns);
 static void create_player_texts(texture_t **player_text, texture_t **lore);
 static void draw_player_texts(texture_t **player_text, texture_t **lore);
-static int get_player_block_size();
+static int get_player_block_size(void);
 
 /* Function: get_block_size
  * -----------------------------------------------------------------------------
@@ -51,7 +51,7 @@ static int get_player_block_size();
  * Return:
  *	Block size of the figures
  */
-static int get_player_block_size()
+static int get_player_block_size(void)
 {
 	return dm_scale_to_res(PLAYER_BLOCK_W);
 }
@@ -76,7 +76,6 @@ static void draw_player_figures(float t)
 	bool hover_p2 = ax_chk_mouse_hover_rect(p2_box);
 	bool hover_p3 = ax_chk_mouse_hover_rect(p3_box);
 	
-	static bool chime_played = false;
 	
 	int p1_bs = get_player_block_size();
 	int p2_bs = get_player_block_size();
@@ -254,7 +253,7 @@ static void create_player_texts(texture_t **player_text, texture_t **lore)
  * Return:
  *	SDL_Rect with the positions of the object
  */
-static SDL_Rect get_p1_button_box()
+static SDL_Rect get_p1_button_box(void)
 {
 	int screen_width = dm_get_screen_width();
 
@@ -276,7 +275,7 @@ static SDL_Rect get_p1_button_box()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-static SDL_Rect get_p2_button_box()
+static SDL_Rect get_p2_button_box(void)
 {
 	int screen_width = dm_get_screen_width();
 	SDL_Rect b;
@@ -297,7 +296,7 @@ static SDL_Rect get_p2_button_box()
  * Return:
  *	SDL_Rect with the positions of the object
  */
-SDL_Rect get_p3_button_box()
+SDL_Rect get_p3_button_box(void)
 {
 	int screen_width = dm_get_screen_width();
 	SDL_Rect b;
@@ -319,7 +318,7 @@ SDL_Rect get_p3_button_box()
 *	SELECT_PLAYER_SCREEN if the user have not selected a player. 
 *	LEVEL_SELECTION if a player has been chosen
 */
-int sp_stage_select_player()
+int sp_stage_select_player(void)
 {
     static bool init = false;
     static iface_btn_t *player_btns[3];
@@ -355,7 +354,7 @@ int sp_stage_select_player()
     t += dt;
  
 	SDL_Rect b = sc_get_selection_title_bounds(SELECT_PLAYER_TEXT);
-	bool title_done = sc_typewriter_update(&title, 
+	sc_typewriter_update(&title,
 										 cur_time, 
 										 b, 
 										 SELECT_PLAYER_TEXT, 
@@ -418,6 +417,5 @@ int sp_stage_select_player()
 
 	   }
    }
-   error:
    return ret_val;
 }

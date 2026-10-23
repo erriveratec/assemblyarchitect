@@ -46,30 +46,29 @@ texture_t *g_stage_name;
 texture_t *g_comma_tex;
 texture_t **g_numbers;
 
-void display_line_number();
+void display_line_number(void);
 int get_code_line_position(int y);
 ListNode *get_list_node_by_value(code_line_t *line);
-static bool in_code_window();
+static bool in_code_window(void);
 static bool chk_sel_line_in_pos(code_line_t *line);
 static void set_text_box(int x, int y, int w, int h);
-static void display_player_code();
+static void display_player_code(void);
 static void add_code_line(code_line_t *line);
 static void add_code_line_last_pos(code_line_t *line);
 static void set_code_box_member(int value, int member);
 static void set_text_box_member(int value, int member);
-static void code_box_height_adjust();
-static void adjust_code_box_position();
+static void code_box_height_adjust(void);
+static void adjust_code_box_position(void);
 static int get_label_operand_value(code_line_t *line);
-List *get_code_list();
+List *get_code_list(void);
 static operand_t *create_label_operand(code_line_t *line);
 static operand_t *create_saved_label_operand(int op1_id);
 static int label_counter_up_to_index(int index);
-static void update_label_instructions();
-static void update_jump_instructions();
+static void update_label_instructions(void);
+static void update_jump_instructions(void);
 static operand_t *create_updated_jump_operand(code_line_t *jmp_addr);
-static code_line_t *get_clicked_label_code_line();
 static operand_t *create_saved_jump_operand(int op1_id);
-static SDL_Rect get_scroll_box();
+static SDL_Rect get_scroll_box(void);
 
 int cw_get_code_line_spacing(void)
 {
@@ -111,7 +110,7 @@ static int cw_get_missing_operand_width(void)
  * Return:
  *	SDL_Rect with the positions of the object
  */
-SDL_Rect cw_get_stage_code_box()
+SDL_Rect cw_get_stage_code_box(void)
 {
 	SDL_Rect ib = il_get_initial_instruction_bounds();
 	SDL_Rect sb = sb_get_stage_btns();
@@ -134,7 +133,7 @@ SDL_Rect cw_get_stage_code_box()
  * Return:
  * 	Void.
  */
-void cw_init_code_window_texture()
+void cw_init_code_window_texture(void)
 {
 	g_comma_tex = dw_create_text_tex(",", C_WHITE);
 	g_numbers = malloc(sizeof(texture_t*) * (MAX_CODE_LINES + 1));
@@ -203,7 +202,7 @@ error:
  * Return:
  * 	void.
  */
-void cw_update_saved_jump_instructions()
+void cw_update_saved_jump_instructions(void)
 {
 	List *code = get_code_list();
 	check_mem(code);
@@ -298,7 +297,6 @@ static operand_t *create_updated_jump_operand(code_line_t *jmp_addr)
 	free(line_text);
 	free(op_text);
 
-error:
 	return op;
 }
 
@@ -313,7 +311,7 @@ error:
  * Return:
  * 	void.
  */
-static void update_jump_instructions()
+static void update_jump_instructions(void)
 {
 	List *code = get_code_list();
 	check_mem(code);
@@ -385,38 +383,7 @@ error:
 	return op;
 } 
 
-/* Function: get_clicked_label_code_line
-*------------------------------------------------------------------------------
-* Traverses the whole code list and returns the pointer of the clicked 
-* LABEL code line.
-*
-* Arguments:
-* 	Void.
-*	
-* Return:
-*	Clicked Label code line
-*
-*/
-static code_line_t *get_clicked_label_code_line()
-{
-	List *code = get_code_list();
-	check_mem(code);
-	code_line_t *clicked_label = NULL;
 
-	code_line_t *c;
-	LIST_FOREACH(code, first, next, cur){ 
-		c = cur->value;
-		if (c->ins->id == LABEL){
-			if (bt_chk_rel_btn(c->ins->b, NULL) == true ||
-				bt_chk_rel_btn(c->op1->b, NULL) == true){
-				clicked_label = c;
-				break;
-			}
-		}
-	}
-error:
-	return clicked_label;
-}
 
 
 
@@ -432,11 +399,11 @@ error:
 *	boolean with the result if a mouse click was performed
 *
 */
-bool cw_ms_rel_in_label()
+bool cw_ms_rel_in_label(void)
 {
+	bool selected = false;
 	List *code = get_code_list();
 	check_mem(code);
-	bool selected = false;
 
 	code_line_t *c;
 	LIST_FOREACH(code, first, next, cur){ 
@@ -463,7 +430,7 @@ error:
  * Return:
  * 	void.
  */
-static void update_label_instructions()
+static void update_label_instructions(void)
 {
 	List *code = get_code_list();
 	check_mem(code);
@@ -607,10 +574,9 @@ static int label_counter_up_to_index(int index)
 	int list_size = cw_get_code_list_size();
 	assert(index < list_size && "index values is out of reach");
 
+	int label_counter = 0;
 	List *code = get_code_list();
 	check_mem(code);
-
-	int label_counter = 0;
 	int i = 0;
 	code_line_t *c;
 	
@@ -644,31 +610,22 @@ error:
  */
 static int get_label_operand_value(code_line_t *line)
 {
+	int label = NO_VALUE;
 	List *code = get_code_list();
 	check_mem(code);
 	check_mem(line);
 
 	int pos = cw_get_code_line_pos_by_ptr(line);
-	int label = pos;	
+	label = pos;
 
 	bool in_code_list = cw_check_if_in_code_list(line);
-	int list_size = cw_get_code_list_size();
 
 	if (in_code_list == false){
 		label = NO_VALUE;
 	} else if (pos == 0){
 		label = 1;
 	 } else {
-		int i = 0;
-		code_line_t *c;
-		LIST_FOREACH(code, first, next, cur){ 
-			c = cur->value;
-			if (i == pos){
-				label = i - label_counter_up_to_index(i) + 2;
-				break;
-			}
-			i++;
-		}
+		label = pos - label_counter_up_to_index(pos) + 2;
 	}
 error:
 	return label;
@@ -759,13 +716,15 @@ void cw_add_saved_line(char *line)
 			op1_id = atoi(op1_text);
 		} else {
 			op1_text =  strtok_r(NULL, delim, &saveptr1);
-			op1_id = cl_text_to_operand_id(op1_text);
+			op1_id = op1_text == NULL || strcmp(op1_text, "_") == 0
+				? NO_OPERAND : cl_text_to_operand_id(op1_text);
 		}
 	}
 	
 	if (operand_quantity == TWO_OPERANDS){
 		op2_text =  strtok_r(NULL, delim, &saveptr1);
-		op2_id = cl_text_to_operand_id(op2_text);
+		op2_id = op2_text == NULL || strcmp(op2_text, "_") == 0
+			? NO_OPERAND : cl_text_to_operand_id(op2_text);
 	}
 	
 	int list_size = cw_get_code_list_size();
@@ -776,7 +735,6 @@ void cw_add_saved_line(char *line)
 	int x = cw_get_code_line_x(ins_id);
 	int y = cw_get_code_line_y(0);
 
-	SDL_Rect cb = cl_get_code_button_size();
 	for (int i = 0; i <= list_size; i++){
 		y += cw_get_code_line_spacing();
 	}
@@ -790,7 +748,7 @@ void cw_add_saved_line(char *line)
 	code_line_t *new_line = cl_create_code_line(new_ins);
 	
 	if (operand_quantity == ONE_OPERAND || operand_quantity == TWO_OPERANDS){
-		operand_t *op1;
+		operand_t *op1 = NULL;
 		if (cl_is_ins_jmp_type(ins_id) == true){
 			op1 = create_saved_jump_operand(op1_id);
 		} else if (ins_id == LABEL){
@@ -800,10 +758,10 @@ void cw_add_saved_line(char *line)
 		} else if (op1_id > BUF_MIN && op1_id < BUF_MAX){
 			op1 = bf_create_buffer_operand_by_id(op1_id);
 		}
-		cw_assign_op_to_line(op1, new_line);
+		new_line->op1 = op1;
 	}
 	if (operand_quantity == TWO_OPERANDS){
-		operand_t *op2;
+		operand_t *op2 = NULL;
 		if (op2_id > REG_MIN && op2_id < REG_MAX){
 			op2 = rg_create_register_operand_by_id(op2_id);
 		} else if (op2_id > BUF_MIN && op2_id < BUF_MAX){
@@ -811,10 +769,17 @@ void cw_add_saved_line(char *line)
 		} else if (op2_id > IMM_MIN && op2_id < IMM_MAX){
 			op2 = im_create_imm_op_by_id(op2_id);
 		}
-		cw_assign_op_to_line(op2, new_line);
+		new_line->op2 = op2;
 	}
 
 	new_line->state = COMPLETE;
+	if (operand_quantity == TWO_OPERANDS) {
+		new_line->state = new_line->op1 == NULL
+			? (new_line->op2 == NULL ? MISSING_BOTH : MISSING_OP1)
+			: (new_line->op2 == NULL ? MISSING_OP2 : COMPLETE);
+	} else if (operand_quantity == ONE_OPERAND && new_line->op1 == NULL) {
+		new_line->state = MISSING_OP1;
+	}
 
 	List *code = get_code_list();
 	List_push(code, new_line);
@@ -868,7 +833,7 @@ int cw_get_instruction_operand(int position, int operand_pos)
 	assert(operand_pos >= ZERO_OPERANDS && 
 		   operand_pos <= TWO_OPERANDS && "The operand position is invalid");
 
-	int operand;
+	int operand = NO_OPERAND;
 	List *code = get_code_list();
 	code_line_t *c;
 	
@@ -886,11 +851,11 @@ int cw_get_instruction_operand(int position, int operand_pos)
 	
 	if (operand_quantity == ZERO_OPERANDS){
 		operand = NO_OPERAND;
-	} else if (operand_quantity == ONE_OPERAND && operand_pos == FIRST_OP ||
-			   operand_quantity == TWO_OPERANDS && operand_pos == FIRST_OP){
-		operand = c->op1->id;
+	} else if ((operand_quantity == ONE_OPERAND || operand_quantity == TWO_OPERANDS)
+	           && operand_pos == FIRST_OP){
+		operand = c->op1 == NULL ? NO_OPERAND : c->op1->id;
 	} else if (operand_quantity == TWO_OPERANDS && operand_pos == SECOND_OP){
-		operand = c->op2->id;
+		operand = c->op2 == NULL ? NO_OPERAND : c->op2->id;
 	}
 	return operand;
 }
@@ -933,7 +898,7 @@ int cw_get_instruction_at_code_pos(int position)
  * Return:
  *	Void.
  */
-int cw_get_code_list_size()
+int cw_get_code_list_size(void)
 {
 	assert(code_list != NULL && "The code list is NULL");
 	return List_count(code_list);
@@ -950,7 +915,7 @@ int cw_get_code_list_size()
  *	Void.
  *
  */
-void cw_create_code_list()
+void cw_create_code_list(void)
 {
 	assert(code_list == NULL && "The register list is not NULL");
 	code_list = List_create();
@@ -968,7 +933,7 @@ void cw_create_code_list()
  *	Void.
  *
  */
-List *get_code_list()
+List *get_code_list(void)
 {
 	return code_list;
 }
@@ -985,11 +950,10 @@ List *get_code_list()
  *	NULL if not button was clicked
  *
  */
-code_line_t *cw_get_clicked_code()
+code_line_t *cw_get_clicked_code(void)
 {
 	List *code = get_code_list();
 	assert(NULL != code && "The code pointer is NULL");
-	int x = List_count(code);
 	
 	code_line_t *clicked = NULL;
 	LIST_FOREACH(code, first, next, cur){ 
@@ -1015,11 +979,10 @@ code_line_t *cw_get_clicked_code()
  *	NULL if not button was clicked
  *
  */
-code_line_t *cw_get_rclicked_code()
+code_line_t *cw_get_rclicked_code(void)
 {
 	List *code = get_code_list();
 	assert(NULL != code && "The code pointer is NULL");
-	int x = List_count(code);
 	
 	code_line_t *clicked = NULL;
 	LIST_FOREACH(code, first, next, cur){ 
@@ -1044,7 +1007,7 @@ code_line_t *cw_get_rclicked_code()
  *	true if the user clicked over an code instruction, false if otherwise
  *
  */
-bool cw_chk_rclick_code()
+bool cw_chk_rclick_code(void)
 {
 	List *code = get_code_list();
 	bool clicked = false;
@@ -1077,7 +1040,7 @@ bool cw_chk_rclick_code()
  *	true if the user clicked over an instructions, false if otherwise
  *
  */
-bool cw_chk_click_code()
+bool cw_chk_click_code(void)
 {
 	List *code = get_code_list();
 	bool clicked = false;
@@ -1127,7 +1090,7 @@ error:
  * Return:
  *	Void.
  */
-void cw_destroy_code_window_assets()
+void cw_destroy_code_window_assets(void)
 {
 	dw_free_texture(g_stage_name);
 	dw_free_texture_array(g_challenge_text);
@@ -1151,7 +1114,7 @@ void cw_destroy_code_window_assets()
  * Return:
  *	The accessed member.
  */
-static SDL_Rect get_scroll_box()
+static SDL_Rect get_scroll_box(void)
 {
 	return g_scroll_box;
 }
@@ -1240,12 +1203,12 @@ static void set_text_box_member(int value, int member)
  * Return:
  *	The rectangle of the text box
  */
-SDL_Rect cw_get_text_box_rect()
+SDL_Rect cw_get_text_box_rect(void)
 {
 	return g_text_box;
 }
 
-float cw_get_challenge_highlight_limit()
+float cw_get_challenge_highlight_limit(void)
 {
 	int h = ty_message_height();
 	if (g_text_box.w <= 0 || g_text_box.h <= 0) {
@@ -1307,7 +1270,7 @@ bool cw_get_challenge_highlight_progress(float *progress,
  * Return:
  *	Void.
  */
-static bool in_code_window(){
+static bool in_code_window(void){
 	
 	int mouse_x = ms_get_mouse_x();
 	int mouse_y = ms_get_mouse_y();
@@ -1496,14 +1459,13 @@ static void code_box_height_adjust()
  * Return:
  *	void.
  */
-static void code_box_height_adjust()
+static void code_box_height_adjust(void)
 {
 	List *code = get_code_list();
 	assert(NULL != code && "The code list cannot be NULL");
 
 	int list_size = List_count(code);
 
-	SDL_Rect cbut = cl_get_code_button_size();
 	SDL_Rect codbox = get_scroll_box();
 	SDL_Rect ogcodbox = cw_get_stage_code_box();
 	
@@ -1540,7 +1502,7 @@ static void code_box_height_adjust()
  * Return:
  *	void.
  */
-static void adjust_code_box_position()
+static void adjust_code_box_position(void)
 {
 	static int y_pending_scroll = 0;
 	
@@ -1592,9 +1554,8 @@ static void adjust_code_box_position()
  * Return:
  *	void.
  */
-void cw_draw_code_window()
+void cw_draw_code_window(void)
 {
-	List *code = get_code_list();
 
 	// Adjust the height of the code box
 	code_box_height_adjust();
@@ -1697,7 +1658,6 @@ void cw_draw_code_window()
 
 	int border_ofs = um_padding_horizontal_with_border();
 	int text_h = ty_emphasis_height();
-	int w = ax_get_texture_w_fit_h(text_h, g_stage_name);
 	SDL_Rect b = {.x = g_scroll_box.x + border_ofs, 
 				  .y = g_scroll_box.y + border_ofs,
 				  .h = text_h};
@@ -1738,7 +1698,7 @@ static void draw_operand_button(code_line_t *line, operand_t *operand,
  * Return:
  *	void
  */
-static void display_player_code()
+static void display_player_code(void)
 {
 	List *code = get_code_list();
 	assert(code != NULL && "The code list can't be NULL");
@@ -1749,7 +1709,6 @@ static void display_player_code()
 		return;
 	}
 	SDL_Rect cb = cl_get_code_button_size();
-	int number_ofs = um_padding_horizontal_with_border();
 	LIST_FOREACH(code, first, next, cur){
 		code_line_t *line = cur->value;	
 		bt_draw_btn(line->ins->b, sb_chk_rst_esc_menu_active(), false);
@@ -1795,7 +1754,6 @@ int cw_get_instruction_y_coord(int instruction_position)
 	assert(instruction_position >= 0 && instruction_position < code_size &&
 		   "Incorrect instruction position value");
 
-	int y;
 	List *code = get_code_list();
 	code_line_t *c;
 	
@@ -1803,12 +1761,11 @@ int cw_get_instruction_y_coord(int instruction_position)
 	LIST_FOREACH(code, first, next, cur){ 
 		c = cur->value;
 		if (i == instruction_position){
-			y = c->ins->b->r.y;
-			break;
+			return c->ins->b->r.y;
 		}
 		i++;
 	}
-	return y;
+	return 0;
 }
 
 /* Function: display_line_number
@@ -1822,7 +1779,7 @@ int cw_get_instruction_y_coord(int instruction_position)
  * Return:
  *	void
  */
-void display_line_number()
+void display_line_number(void)
 {
 	List *code = get_code_list();
 	assert(code != NULL && "The code list can't be NULL");
@@ -1832,13 +1789,11 @@ void display_line_number()
 		return;
 	}
 
-	SDL_Rect cb = cl_get_code_button_size();
 	int number_ofs = um_padding_horizontal_with_border();
 	SDL_Rect sb = cw_get_stage_code_box();
 	int x = sb.x + number_ofs;
 	int y = cw_get_code_line_y(0);
 	int h = ty_code_height();
-	char *number = NULL;
 	
 	int line_number = 1;
 	for(int i = 0; i < list_size; i++){
@@ -1876,7 +1831,6 @@ int cw_get_code_line_y(int pos)
 		return y;
 	}
 	
-	SDL_Rect cb = cl_get_code_button_size();
 	for(int i = 0; i < list_size; i++){
 		y += cw_get_code_line_spacing();
 		if (pos == i){
@@ -1900,7 +1854,6 @@ int cw_get_code_line_y(int pos)
  */
 SDL_Rect cw_get_code_line_coord_at_pos(int code_line_element, int pos)
 {
-	SDL_Rect cb = cl_get_code_button_size();
 	int op1_ofs = cw_get_operand1_offset();
 	int op2_ofs = cw_get_operand2_offset();
 	
@@ -1949,7 +1902,7 @@ SDL_Rect cw_get_code_line_coord_at_pos(int code_line_element, int pos)
  * Return:
  *	Void.
  */
-void cw_sort_code()
+void cw_sort_code(void)
 {
 	List *code = get_code_list();
 	int list_size = List_count(code);
@@ -1958,11 +1911,9 @@ void cw_sort_code()
 		return;
 	}
 	
-	SDL_Rect cb = cl_get_code_button_size();
 	int op1_ofs = cw_get_operand1_offset();
 	int op2_ofs = cw_get_operand2_offset();
 	
-	int h = cb.h; 
 	int y = cw_get_code_line_y(0);
 
 	int mdelta = ax_get_cw_move_delta();
@@ -2075,7 +2026,6 @@ int get_code_line_position(int y)
 	List *code = get_code_list();
 	int first_y = cw_get_code_line_y(0);
 
-	SDL_Rect cb = cl_get_code_button_size();
 	int h = cw_get_code_line_spacing();
 	int list_size = List_count(code);
 
@@ -2105,7 +2055,6 @@ static void add_code_line_last_pos(code_line_t *line)
 	assert(NULL != code &&  "Code list is NULL");
 	assert(NULL != line &&  "The code line object is NULL");
 
-	int list_count = List_count(code);
 		
 	List_push(code, line);
 	return;
@@ -2221,7 +2170,7 @@ static bool chk_sel_line_in_pos(code_line_t *line)
  * Return:
  *	Void.
  */
-void cw_clear_code_list()
+void cw_clear_code_list(void)
 {
 	List *code = get_code_list();
 
@@ -2327,7 +2276,7 @@ void cw_player_holding_instruction(code_line_t *line, bool arng, bool del)
  * 	true if a line is pending operand, false if otherwise
  *
  */
-bool cw_is_operand_2_pending()
+bool cw_is_operand_2_pending(void)
 {
 	List *code = get_code_list();
 
@@ -2354,7 +2303,7 @@ bool cw_is_operand_2_pending()
  * 	true if a line is pending operand, false if otherwise
  *
  */
-bool cw_is_operand_1_pending()
+bool cw_is_operand_1_pending(void)
 {
 	List *code = get_code_list();
 
@@ -2381,7 +2330,7 @@ bool cw_is_operand_1_pending()
  * 	true if a line is pending operand, false if otherwise
  *
  */
-bool cw_is_operand_pending()
+bool cw_is_operand_pending(void)
 {
 	List *code = get_code_list();
 
@@ -2409,7 +2358,7 @@ bool cw_is_operand_pending()
  * 	pointer to the active pending code line, or NULL if none is found.
  *
  */
-code_line_t *cw_get_code_line_pending_operand()
+code_line_t *cw_get_code_line_pending_operand(void)
 {
 	List *code = get_code_list();
 	if (code == NULL) {
@@ -2486,7 +2435,7 @@ static bool get_animated_pending_operand_rect(float normalized_progress,
  * The primary gameplay render path owns ha_begin_frame().
  *
  */
-void cw_highlight_code_pending_operand()
+void cw_highlight_code_pending_operand(void)
 {
 	SDL_Rect animated_operand_rect;
 	if (get_animated_pending_operand_rect(ha_get_progress(),
@@ -2507,7 +2456,7 @@ void cw_highlight_code_pending_operand()
  * 	true if all code is in position, false if otherwise.
  *
  */
-bool cw_check_code_sorted()
+bool cw_check_code_sorted(void)
 {
 	List *code = get_code_list();
 	int list_size = List_count(code);
@@ -2515,8 +2464,6 @@ bool cw_check_code_sorted()
 		return true;
 	}
 	
-	SDL_Rect cb = cl_get_code_button_size();
-	int h = cb.h;
 	int y = cw_get_code_line_y(0);
 
 	int retval = true;
@@ -2581,7 +2528,7 @@ bool cw_chk_click_code_op2(int code_line_pos)
  *	false if otherwise.
  *
  */
-bool cw_chk_click_code_op()
+bool cw_chk_click_code_op(void)
 {
 	List *code = get_code_list();
 	assert(NULL != code && "The code pointer cannot be NULL");
@@ -2629,7 +2576,7 @@ static void reset_button_animation(btn_t *button)
  *	void.
  *
  */
-void cw_change_clicked_code_line_state()
+void cw_change_clicked_code_line_state(void)
 {
 	List *code = get_code_list();
 	assert(NULL != code && "The code pointer cannot be NULL");
@@ -2782,10 +2729,9 @@ void cw_assign_op_to_line(operand_t *op, code_line_t *line)
 * Return:
 *	Void.
 */
-void cw_reset_code_execution()
+void cw_reset_code_execution(void)
 {
 	List *code = get_code_list();
-   	int x = List_count(code);
 
    	LIST_FOREACH(code, first, next, cur){ 
 	   	code_line_t *c = cur->value;
@@ -2804,8 +2750,9 @@ void cw_reset_code_execution()
  * Return:
  *	Void.
  */
-code_line_t *cw_create_label_code_line()
+code_line_t *cw_create_label_code_line(void)
 {
+	code_line_t *new = NULL;
 	char *text = cl_get_instruction_text(LABEL);
 	texture_t *t = dw_create_text_tex(text, C_WHITE);
 	SDL_Rect r = cl_get_code_button_size();
@@ -2816,7 +2763,7 @@ code_line_t *cw_create_label_code_line()
 	check_mem(b);
 	
 	instruction_t *i = cl_create_instruction(LABEL, b);
-	code_line_t *new = cl_create_code_line(i);
+	new = cl_create_code_line(i);
 
 error:
 	return new;
