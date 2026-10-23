@@ -95,6 +95,7 @@ code_end
 [level 10]
 unlocked = true
 code_begin
+MOV rax, [ib]
 MOV rax, IMMUP0
 code_end
 

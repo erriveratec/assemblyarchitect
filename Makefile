@@ -29,6 +29,8 @@ BUFFER_LABEL_LAYOUT_TEST_EXEC = $(TEST_BUILD_DIR)/buffer_label_layout_test
 BUFFER_LABEL_LAYOUT_TEST_SOURCE = tests/buffer_label_layout_test.c
 EXECUTION_ARROW_GEOMETRY_TEST_EXEC = $(TEST_BUILD_DIR)/execution_arrow_geometry_test
 EXECUTION_ARROW_GEOMETRY_TEST_SOURCE = tests/execution_arrow_geometry_test.c
+IO_RAIL_GEOMETRY_TEST_EXEC = $(TEST_BUILD_DIR)/io_rail_geometry_test
+IO_RAIL_GEOMETRY_TEST_SOURCE = tests/io_rail_geometry_test.c
 TEXT_BOX_LAYOUT_TEST_EXEC = $(TEST_BUILD_DIR)/text_box_layout_test
 TEXT_BOX_LAYOUT_TEST_SOURCE = tests/text_box_layout_test.c
 TUTORIAL_ARROW_ANIMATION_TEST_EXEC = $(TEST_BUILD_DIR)/tutorial_arrow_animation_test
@@ -47,6 +49,7 @@ TEST_EXECS := \
 	$(SECTOR_COMPLETION_NAVIGATION_TEST_EXEC) \
 	$(BUFFER_LABEL_LAYOUT_TEST_EXEC) \
 	$(EXECUTION_ARROW_GEOMETRY_TEST_EXEC) \
+	$(IO_RAIL_GEOMETRY_TEST_EXEC) \
 	$(TEXT_BOX_LAYOUT_TEST_EXEC) \
 	$(TUTORIAL_ARROW_ANIMATION_TEST_EXEC) \
 	$(HIGHLIGHT_ANIMATION_SYNC_TEST_EXEC) \
@@ -114,13 +117,13 @@ $(EXEC): $(S_FILES)
 run: build
 	./$(EXEC)
 
-test: test-level-config-hover test-operand-highlights test-operand-change-selection test-tutorial-text test-sector-completion-navigation test-buffer-label-layout test-execution-arrow-geometry test-text-box-layout test-tutorial-arrow-animation test-highlight-animation-sync test-modal-pointer-capture test-value-box-transport
+test: test-level-config-hover test-operand-highlights test-operand-change-selection test-tutorial-text test-sector-completion-navigation test-buffer-label-layout test-execution-arrow-geometry test-text-box-layout test-tutorial-arrow-animation test-highlight-animation-sync test-modal-pointer-capture test-value-box-transport test-io-rail-geometry
 
 .PHONY: all build run app clean test test-level-config-hover test-operand-highlights test-operand-change-selection \
 	test-tutorial-text test-sector-completion-navigation test-buffer-label-layout \
 	test-execution-arrow-geometry test-text-box-layout test-tutorial-arrow-animation \
 	test-highlight-animation-sync test-modal-pointer-capture \
-	test-value-box-transport
+	test-value-box-transport test-io-rail-geometry
 
 $(TEST_BUILD_DIR):
 	mkdir -p $@
@@ -153,6 +156,12 @@ test-text-box-layout: | $(TEST_BUILD_DIR)
 	    $(filter-out $(S_DIR)/text_tx.c $(S_DIR)/ui/run_result_rr.c,$(TEST_SOURCES)) -o $(TEXT_BOX_LAYOUT_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(TEXT_BOX_LAYOUT_TEST_EXEC)
+
+test-io-rail-geometry: | $(TEST_BUILD_DIR)
+	$(CC) $(CFLAGS) $(IO_RAIL_GEOMETRY_TEST_SOURCE) \
+	    $(filter-out $(S_DIR)/game_mechanics_mc.c,$(TEST_SOURCES)) -o $(IO_RAIL_GEOMETRY_TEST_EXEC) \
+	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
+	./$(IO_RAIL_GEOMETRY_TEST_EXEC)
 
 test-execution-arrow-geometry: | $(TEST_BUILD_DIR)
 	$(CC) $(CFLAGS) $(EXECUTION_ARROW_GEOMETRY_TEST_SOURCE) \

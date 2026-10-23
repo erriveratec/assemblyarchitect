@@ -74,6 +74,7 @@ enum counter_actions{
 static void execute_instruction(code_line_t *line, int line_pos);
 static bool move_avatar_to_operand(avatar_t *avatar, int op_id);
 static int get_operand_x_dest(int op_id);
+static int get_avatar_operand_x_dest(int op_id);
 static int get_operand_y_dest(int op_id);
 static vb_value_box_t get_operand_value_box(int op_id);
 bool set_operand_value_box(int op_id, vb_value_box_t val);
@@ -410,6 +411,28 @@ void reset_avatar_no_pos()
 	g_ravatar.secval.t = dw_create_text_tex(ax_char_dash, C_WHITE);
 
 }
+typedef struct horizontal_rail_geometry_t {
+	int x;
+	int width;
+} horizontal_rail_geometry_t;
+
+static horizontal_rail_geometry_t get_io_rail_geometry(
+	const avatar_t *avatar, int rail_width, int rail_right_center_x)
+{
+	/* Align the left rail-end center with the avatar connector at IMMUP0. */
+	const int avatar_destination_x = get_avatar_operand_x_dest(IMMUP0);
+	const int connector_center_x = avatar_destination_x + avatar->box.w / 2;
+	const int rail_left_x = connector_center_x - rail_width / 2;
+	const int horizontal_rail_width =
+		rail_right_center_x - connector_center_x + rail_width;
+	assert(rail_width > 0 && avatar->box.w > 0);
+	assert(horizontal_rail_width > 0);
+	return (horizontal_rail_geometry_t){
+		.x = rail_left_x,
+		.width = horizontal_rail_width
+	};
+}
+
 /* Function: draw_iavatar
  * ----------------------------------------------------------------------------
  * Draws the iavatar and its corresponding rail
@@ -437,23 +460,24 @@ static void draw_iavatar()
 	int rail_w = dm_scale_to_res(STAGE_RAIL_WIDTH);
 
 	int offset = bf_get_value_box_spacing();
-	int x = ibox.x + ibox.w/2 - rail_w/2;
+	const int rail_right_center_x = bf.x + offset + ibox.w / 2;
+	const horizontal_rail_geometry_t rail =
+		get_io_rail_geometry(&g_iavatar, rail_w, rail_right_center_x);
 	int y = rb.y - medium - rail_w/2;
-	int w = bf.x + ibox.w/2 - x + offset + rail_w/2;
 	int h = rail_w;
 
-	SDL_Rect r1 = {.x = x, .y = y, .w = w, .h = h};
+	SDL_Rect r1 = {.x = rail.x, .y = y, .w = rail.width, .h = h};
 	dw_draw_filled_rectangle(r1, C_MAGENTA, C_MAGENTA);
 
 	int rail_end_w = dm_scale_to_res(STAGE_RAIL_END_WIDTH);
 
-	int rail_end_x = x - (rail_end_w - rail_w)/2;
+	int rail_end_x = rail.x - (rail_end_w - rail_w)/2;
 	int rail_end_y = y - (rail_end_w - rail_w)/2;
 	SDL_Rect r2 = {.x = rail_end_x, .y = rail_end_y, .w = rail_end_w, 
 				   .h = rail_end_w};
 	dw_draw_filled_rectangle(r2 , C_MAGENTA, C_MAGENTA);
 
-	rail_end_x = x + w - (rail_end_w - rail_w) + rail_w/2;
+	rail_end_x = rail.x + rail.width - (rail_end_w - rail_w) + rail_w/2;
 
 	SDL_Rect r3 = {.x = rail_end_x, .y = rail_end_y, .w = rail_end_w, 
 				   .h = rail_end_w};
@@ -508,24 +532,25 @@ static void draw_oavatar()
 	int rail_w = dm_scale_to_res(STAGE_RAIL_WIDTH);
 	int offset = bf_get_value_box_spacing();
 
-	int x = obox.x + obox.w/2 - rail_w/2;
+	const int rail_right_center_x = bf.x + offset + obox.w / 2;
+	const horizontal_rail_geometry_t rail =
+		get_io_rail_geometry(&g_oavatar, rail_w, rail_right_center_x);
 	int y = bf.y - medium - rail_w/2;
-	int w = bf.x + obox.w/2 - x + offset + rail_w/2;
 	int h = rail_w;
 	
-	SDL_Rect r1 = {.x = x, .y = y, .w = w, .h = h};
+	SDL_Rect r1 = {.x = rail.x, .y = y, .w = rail.width, .h = h};
 	dw_draw_filled_rectangle(r1, C_CYAN, C_CYAN);
 
 	int rail_end_w = dm_scale_to_res(STAGE_RAIL_END_WIDTH);
 
-	int rail_end_x = x - (rail_end_w - rail_w)/2;
+	int rail_end_x = rail.x - (rail_end_w - rail_w)/2;
 	int rail_end_y = y - (rail_end_w - rail_w)/2;
 	
 	SDL_Rect r2 = {.x = rail_end_x, .y = rail_end_y, .w = rail_end_w, 
 				   .h = rail_end_w};
 	dw_draw_filled_rectangle(r2, C_CYAN, C_CYAN);
 
-	rail_end_x = x + w - (rail_end_w - rail_w) + rail_w/2;
+	rail_end_x = rail.x + rail.width - (rail_end_w - rail_w) + rail_w/2;
 	SDL_Rect r3 = {.x = rail_end_x, .y = rail_end_y, .w = rail_end_w, 
 				   .h = rail_end_w};
 	dw_draw_filled_rectangle(r3, C_CYAN, C_CYAN);
@@ -716,11 +741,22 @@ static int get_operand_x_dest(int op_id)
 	} else if (op_id > BUF_MIN && op_id < BUF_MAX){
 		x = bf_get_buffer_value_box_x_coord_by_id(op_id);	
 	} else if (op_id > IMM_MIN && op_id < IMM_MAX){
-		x = im_get_imm_value_box_x_coord_by_id(op_id);	
+		x = im_get_imm_value_box_by_id(op_id).box.x;
 	} else if (op_id == IBOX || op_id == OBOX){
 		x = rg_get_ibox_x();
 	}
 	return x;
+}
+
+static int get_avatar_operand_x_dest(int op_id)
+{
+	const SDL_Rect avatar_size = get_avatar_size();
+	if (op_id > REG_MIN && op_id < REG_MAX){
+		return get_operand_x_dest(op_id) + 1.5*avatar_size.w;
+	} else if (op_id > FLAG_MIN && op_id < FLAG_MAX){
+		return get_operand_x_dest(op_id) - 1.5*avatar_size.w;
+	}
+	return get_operand_x_dest(op_id);
 }
 
 /* Function: move_avatar_to_operand
@@ -738,16 +774,8 @@ static bool move_avatar_to_operand(avatar_t *avatar, int op_id)
 
 	SDL_Rect avtr = get_avatar_size();
 	bool mov = false;
-	int x;
+	const int x = get_avatar_operand_x_dest(op_id);
 	int y;
-
-	if (op_id > REG_MIN && op_id < REG_MAX){
-		x = get_operand_x_dest(op_id) + 1.5*avtr.w;
-	} else if (op_id > FLAG_MIN && op_id < FLAG_MAX){
-		x = get_operand_x_dest(op_id) - 1.5*avtr.w;
-	} else {
-		x = get_operand_x_dest(op_id);
-	}
 
 	SDL_Rect vb = vb_get_size();
 	int vbox_offset = vb_get_vertical_offset();
