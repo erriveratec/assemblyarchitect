@@ -128,6 +128,7 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 		im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 		sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, STEP, false);
 		sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, FAST, false);
+		rg_set_zero_flag_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 		iw_set_highlight_instructions(0);
 		g_current_step = NULL;
 		return NULL;
@@ -144,6 +145,7 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 		im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 		sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, STEP, false);
 		sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, FAST, false);
+		rg_set_zero_flag_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 		iw_set_highlight_instructions(0);
 		g_current_step = NULL;
 		return NULL;
@@ -159,6 +161,9 @@ const tutorial_step_t *tr_update(const cs_context_t *context)
 	rg_set_register_highlight_source(
 	    UI_HIGHLIGHT_SOURCE_TUTORIAL,
 	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_REGISTERS) != 0);
+	rg_set_zero_flag_highlight_source(
+		UI_HIGHLIGHT_SOURCE_TUTORIAL,
+		(step->highlight_targets & TUTORIAL_HIGHLIGHT_ZERO_FLAG) != 0);
 	im_set_highlight_source(
 	    UI_HIGHLIGHT_SOURCE_TUTORIAL,
 	    (step->highlight_targets & TUTORIAL_HIGHLIGHT_IMMEDIATES) != 0);
@@ -251,6 +256,8 @@ bool tr_parse_highlights(char *text, int *targets)
 			*targets |= TUTORIAL_HIGHLIGHT_STEP;
 		} else if (strcmp(highlight, "fast") == 0) {
 			*targets |= TUTORIAL_HIGHLIGHT_FAST;
+		} else if (strcmp(highlight, "zero_flag") == 0) {
+			*targets |= TUTORIAL_HIGHLIGHT_ZERO_FLAG;
 		} else {
 			return false;
 		}
@@ -568,6 +575,7 @@ void tr_clear(void)
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 	sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, STEP, false);
 	sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, FAST, false);
+	rg_set_zero_flag_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 	iw_set_highlight_instructions(0);
 	for (int index = 0; index < g_step_count; index++) {
 		tx_free_styled_text(g_steps[index].text_message);

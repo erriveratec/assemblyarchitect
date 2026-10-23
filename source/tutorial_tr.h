@@ -53,7 +53,8 @@ typedef enum tutorial_highlight_t {
     TUTORIAL_HIGHLIGHT_CODE_BOX = 1 << 4,
     TUTORIAL_HIGHLIGHT_IMMEDIATES = 1 << 5,
     TUTORIAL_HIGHLIGHT_STEP = 1 << 6,
-    TUTORIAL_HIGHLIGHT_FAST = 1 << 7
+    TUTORIAL_HIGHLIGHT_FAST = 1 << 7,
+    TUTORIAL_HIGHLIGHT_ZERO_FLAG = 1 << 8
 } tutorial_highlight_t;
 
 #define TUTORIAL_MAX_ARROWS 4

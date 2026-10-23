@@ -25,7 +25,11 @@ void rg_set_register_highlight_source(ui_highlight_source_t source,
 									  bool enabled);
 bool rg_get_register_highlight_progress(float *progress,
 										float animation_limit);
-void rg_draw_flag_boxes();
+void rg_set_zero_flag_highlight_source(ui_highlight_source_t source,
+									  bool enabled);
+bool rg_get_zero_flag_highlight_progress(float *progress,
+										float animation_limit);
+void rg_draw_flag_boxes(float animation_limit);
 bool rg_chk_rel_in_reg();
 operand_t *rg_get_default_operand_register();
 operand_t *rg_create_sel_reg_op();

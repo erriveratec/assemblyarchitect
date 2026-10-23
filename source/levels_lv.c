@@ -61,7 +61,7 @@ static void set_code_editable(bool state, int exception);
 static void set_buf_selectable(bool state);
 static void set_reg_selectable(bool state);
 static void set_arrange_enabled(bool state);
-static void draw_contextual_features(void);
+static void draw_contextual_features(float animation_limit);
 
 /* Function: lv_is_reg_selectable
  * ----------------------------------------------------------------------------
@@ -240,7 +240,7 @@ static void level_16()
 
 static void level_generic(void)
 {
-	draw_contextual_features();
+	draw_contextual_features(cw_get_challenge_highlight_limit());
 	tr_render_current();
 }
 
@@ -263,7 +263,7 @@ void lv_prepare_level_frame(int level, int operation_id)
 	oh_update(lp_are_operand_highlights_enabled(), selection_possible);
 }
 
-static void draw_contextual_features(void)
+static void draw_contextual_features(float animation_limit)
 {
 	if (lp_are_register_hints_enabled()) {
 		draw_regs_arrow(check_display_reg_lv_arrow());
@@ -278,7 +278,7 @@ static void draw_contextual_features(void)
 	}
 
 	if (lp_are_flag_boxes_visible()) {
-		rg_draw_flag_boxes();
+		rg_draw_flag_boxes(animation_limit);
 	}
 }
 
@@ -531,7 +531,7 @@ void lv_level_drawings(int level)
 		break;
 
 	default:
-		rg_draw_flag_boxes();
+		rg_draw_flag_boxes(cw_get_challenge_highlight_limit());
 		sb_set_step_btns_avail(true);
 		im_set_imm_up_avail(true);
 		draw_bufs_arrow(check_display_buf_arrow());

@@ -35,6 +35,8 @@ static SDL_Rect register_box;
 static bool g_register_highlight;
 static unsigned int g_register_highlight_sources;
 static float g_register_highlight_value;
+static unsigned int g_zero_flag_highlight_sources;
+static bool g_zero_flag_highlight;
 
 static void set_register_box_member(int value, int member);
 reg_t *create_register(int id, btn_t *b);
@@ -44,7 +46,17 @@ static void draw_register_box();
 static void draw_value_boxes();
 static void display_arrow_registers();
 static SDL_FRect grow_register_rect(SDL_Rect rect, float height_growth);
+static SDL_FRect get_highlighted_label_rect(SDL_Rect base_region,
+											texture_t *texture,
+											float pulse);
+static void draw_text_label_highlight(texture_t *texture,
+										 SDL_Rect base_region,
+										 float pulse,
+										 SDL_Color color);
 static void draw_register_value_highlight(vb_value_box_t *value, btn_t *button);
+static void draw_value_box_highlight(const vb_value_box_t *value,
+									 SDL_FRect animated_box,
+									 float pulse);
 static void draw_register_button_highlight(btn_t *button, SDL_Rect hover_rect);
 
 vb_value_box_t g_ibox;
@@ -383,7 +395,7 @@ static void draw_value_boxes()
 
 /* Function: rg_draw_flag_boxes
  * -----------------------------------------------------------------------------
- * Draws the register value boxes with white color
+ * Draws the ZF value box and its label.
  *
  * Arguments:
  * 	Void.
@@ -392,15 +404,22 @@ static void draw_value_boxes()
  *	Void.
  *
  */
-void rg_draw_flag_boxes()
+void rg_draw_flag_boxes(float animation_limit)
 {
 	vb_draw(&g_zf, C_GREY);
 	SDL_Rect text = g_zf.box;
 	text.h = cl_get_code_button_size().h;
-	int w = get_text_width_fits_height(text.h, ZF_TEXT);
 	text.y += text.h;
-	text.x += (vb_get_size().w - w)/2;
-	dw_draw_texture_fit_h(text, g_zf_text);
+	text.w = vb_get_size().w;
+	if (g_zero_flag_highlight) {
+		float pulse = ha_get_value(animation_limit);
+		draw_text_label_highlight(g_zf_text, text, pulse, C_LIGHTGREY);
+	} else {
+		int width = ax_get_texture_w_fit_h(text.h, g_zf_text);
+		text.x += (text.w - width) / 2;
+		text.w = width;
+		dw_draw_texture_fit_h(text, g_zf_text);
+	}
 	
 	return;
 }
@@ -801,6 +820,14 @@ void rg_set_register_highlight_source(ui_highlight_source_t source,
 	g_register_highlight = g_register_highlight_sources != 0;
 }
 
+void rg_set_zero_flag_highlight_source(ui_highlight_source_t source,
+									  bool enabled)
+{
+	g_zero_flag_highlight_sources = ui_highlight_source_set_enabled(
+	    g_zero_flag_highlight_sources, source, enabled);
+	g_zero_flag_highlight = g_zero_flag_highlight_sources != 0;
+}
+
 bool rg_get_register_highlight_progress(float *progress,
 										float animation_limit)
 {
@@ -808,6 +835,17 @@ bool rg_get_register_highlight_progress(float *progress,
 		return false;
 	}
 	if (!isfinite(animation_limit) || animation_limit <= 0.0f) {
+		return false;
+	}
+	*progress = ha_get_progress();
+	return true;
+}
+
+bool rg_get_zero_flag_highlight_progress(float *progress,
+										float animation_limit)
+{
+	if (progress == NULL || !g_zero_flag_highlight ||
+	    !isfinite(animation_limit) || animation_limit <= 0.0f) {
 		return false;
 	}
 	*progress = ha_get_progress();
@@ -825,6 +863,38 @@ static SDL_FRect grow_register_rect(SDL_Rect rect, float height_growth)
 	return dw_grow_rect_height(base, height_growth);
 }
 
+static SDL_FRect get_highlighted_label_rect(SDL_Rect base_region,
+											texture_t *texture,
+											float pulse)
+{
+	int width = ax_get_texture_w_fit_h(base_region.h, texture);
+	SDL_Rect label = {
+		.x = base_region.x + (base_region.w - width) / 2,
+		.y = base_region.y,
+		.w = width,
+		.h = base_region.h
+	};
+	SDL_FRect label_f = {
+		.x = label.x,
+		.y = label.y,
+		.w = label.w,
+		.h = label.h
+	};
+	return dw_grow_rect_height(
+	    label_f, pulse * DW_TEXT_HIGHLIGHT_GROWTH_FACTOR);
+}
+
+static void draw_text_label_highlight(texture_t *texture,
+										 SDL_Rect base_region,
+										 float pulse,
+										 SDL_Color color)
+{
+	SDL_FRect label = get_highlighted_label_rect(base_region, texture, pulse);
+	dw_set_texture_color_mod(texture, color);
+	dw_draw_texture_fit_h_f(label, texture);
+	dw_set_texture_color_mod(texture, C_WHITE);
+}
+
 static void draw_register_value_highlight(vb_value_box_t *value, btn_t *button)
 {
 	float pulse = g_register_highlight_value;
@@ -832,6 +902,13 @@ static void draw_register_value_highlight(vb_value_box_t *value, btn_t *button)
 	float gap = button->r.y - value->box.y - value->box.h;
 	SDL_FRect box = grow_register_rect(value->box, pulse);
 	box.y = animated_button.y - gap - box.h;
+	draw_value_box_highlight(value, box, pulse);
+}
+
+static void draw_value_box_highlight(const vb_value_box_t *value,
+									 SDL_FRect box,
+									 float pulse)
+{
 	dw_draw_filled_rectangle_f(box, C_BLACK, C_WHITE);
 	if (value->t == NULL) {
 		return;
@@ -858,19 +935,8 @@ static void draw_register_button_highlight(btn_t *button, SDL_Rect hover_rect)
 {
 	bool hover = ax_chk_mouse_hover_rect(hover_rect) &&
 	             !sb_chk_rst_esc_menu_active();
-	float pulse = g_register_highlight_value *
-	              DW_TEXT_HIGHLIGHT_GROWTH_FACTOR;
-	SDL_FRect label = {
-		.x = button->r.x + (button->r.w -
-		     ax_get_texture_w_fit_h(button->r.h, button->t)) / 2.0f,
-		.y = button->r.y,
-		.w = ax_get_texture_w_fit_h(button->r.h, button->t),
-		.h = button->r.h
-	};
-	label = dw_grow_rect_height(label, pulse);
-	dw_set_texture_color_mod(button->t, hover ? C_WHITE : C_LIGHTGREY);
-	dw_draw_texture_fit_h_f(label, button->t);
-	dw_set_texture_color_mod(button->t, C_WHITE);
+	draw_text_label_highlight(button->t, button->r, g_register_highlight_value,
+	                          hover ? C_WHITE : C_LIGHTGREY);
 }
 
 /* Function: rg_get_registers_text_width

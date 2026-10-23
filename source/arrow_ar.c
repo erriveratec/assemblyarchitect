@@ -59,7 +59,8 @@ typedef enum highlight_target_t {
 	HIGHLIGHT_REGISTERS,
 	HIGHLIGHT_STEP,
 	HIGHLIGHT_FAST,
-	HIGHLIGHT_IMMEDIATES
+	HIGHLIGHT_IMMEDIATES,
+	HIGHLIGHT_ZERO_FLAG
 } highlight_target_t;
 
 /* Mapped arrows use their target's normalized highlight progress.
@@ -85,7 +86,7 @@ static const highlight_target_t g_arrow_highlight_targets[ARROW_ID_COUNT] = {
 	[AR_OB] = HIGHLIGHT_OUTPUT_BUFFER,
 	[AR_EXEC] = HIGHLIGHT_NONE,
 	[AR_REG] = HIGHLIGHT_REGISTERS,
-	[AR_ZF] = HIGHLIGHT_NONE,
+	[AR_ZF] = HIGHLIGHT_ZERO_FLAG,
 	[AR_IMM_UP] = HIGHLIGHT_IMMEDIATES
 };
 _Static_assert(sizeof(g_arrow_highlight_targets) /
@@ -1045,6 +1046,10 @@ static bool get_highlight_progress(const arrow_t *arrow, float *progress,
 		break;
 	case HIGHLIGHT_IMMEDIATES:
 		available = im_get_highlight_progress(progress, animation_limit);
+		break;
+	case HIGHLIGHT_ZERO_FLAG:
+		available = rg_get_zero_flag_highlight_progress(progress,
+		                                              animation_limit);
 		break;
 	case HIGHLIGHT_NONE:
 		break;

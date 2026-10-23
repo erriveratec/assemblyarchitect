@@ -23,7 +23,7 @@
 #include "tutorial_tr.h"
 #include "ui/ui_metrics_um.h"
 
-enum { TARGET_PROGRESS_COUNT = 9 };
+enum { TARGET_PROGRESS_COUNT = 10 };
 
 static texture_t g_test_input_arrow_texture;
 
@@ -66,6 +66,8 @@ static void clear_highlight_targets(void)
 	                               false);
 	rg_set_register_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 	rg_set_register_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, false);
+	rg_set_zero_flag_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
+	rg_set_zero_flag_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, false);
 	iw_set_highlight_instructions(0);
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, false);
@@ -162,6 +164,7 @@ static void enable_all_targets(void)
 	im_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, true);
 	sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, STEP, true);
 	sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, FAST, true);
+	rg_set_zero_flag_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, true);
 }
 
 static void read_active_target_progress(float progress[TARGET_PROGRESS_COUNT])
@@ -172,11 +175,12 @@ static void read_active_target_progress(float progress[TARGET_PROGRESS_COUNT])
 	assert(bf_get_input_buffer_highlight_progress(&progress[2], animation_limit));
 	assert(bf_get_output_buffer_highlight_progress(&progress[3], animation_limit));
 	assert(rg_get_register_highlight_progress(&progress[4], animation_limit));
-	assert(iw_get_highlight_instruction_progress(&progress[5]));
-	assert(im_get_highlight_progress(&progress[6], animation_limit));
-	assert(sb_get_button_highlight_progress(STEP, &progress[7],
+	assert(rg_get_zero_flag_highlight_progress(&progress[5], animation_limit));
+	assert(iw_get_highlight_instruction_progress(&progress[6]));
+	assert(im_get_highlight_progress(&progress[7], animation_limit));
+	assert(sb_get_button_highlight_progress(STEP, &progress[8],
 	                                       animation_limit));
-	assert(sb_get_button_highlight_progress(FAST, &progress[8],
+	assert(sb_get_button_highlight_progress(FAST, &progress[9],
 	                                       animation_limit));
 }
 
@@ -358,6 +362,43 @@ static void test_source_ownership_and_inactive_clock(void)
 	    &shared_progress, (float)dw_get_animation_limit()));
 	assert(shared_progress == ha_get_progress());
 	assert(shared_progress > phase_without_targets);
+}
+
+static void test_zero_flag_source_ownership_and_progress(void)
+{
+	ha_reset();
+	clear_highlight_targets();
+	const float animation_limit = (float)dw_get_animation_limit();
+	float progress = -1.0f;
+	assert(!rg_get_zero_flag_highlight_progress(&progress, animation_limit));
+
+	rg_set_zero_flag_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, true);
+	rg_set_zero_flag_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, true);
+	ha_begin_frame();
+	assert(rg_get_zero_flag_highlight_progress(&progress, animation_limit));
+	assert(progress == ha_get_progress());
+	assert(progress >= 0.0f && progress <= 1.0f);
+	float previous = progress;
+	ha_begin_frame();
+	assert(rg_get_zero_flag_highlight_progress(&progress, animation_limit));
+	assert(progress == ha_get_progress());
+	assert(progress != previous);
+
+	rg_set_zero_flag_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, true);
+	rg_set_zero_flag_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
+	rg_set_zero_flag_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
+	assert(rg_get_zero_flag_highlight_progress(&progress, animation_limit));
+	assert(progress == ha_get_progress());
+	rg_set_zero_flag_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, false);
+	assert(!rg_get_zero_flag_highlight_progress(&progress, animation_limit));
+
+	rg_set_zero_flag_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, true);
+	assert(!rg_get_zero_flag_highlight_progress(NULL, animation_limit));
+	assert(!rg_get_zero_flag_highlight_progress(&progress, 0.0f));
+	assert(!rg_get_zero_flag_highlight_progress(&progress, -1.0f));
+	assert(!rg_get_zero_flag_highlight_progress(&progress, NAN));
+	assert(!rg_get_zero_flag_highlight_progress(&progress, INFINITY));
+	rg_set_zero_flag_highlight_source(UI_HIGHLIGHT_SOURCE_TUTORIAL, false);
 }
 
 static void test_getters_preserve_frame_snapshot(void)
@@ -661,6 +702,7 @@ int main(void)
 	test_level0_tutorial_transition();
 	test_peaks_directions_and_target_removal();
 	test_source_ownership_and_inactive_clock();
+	test_zero_flag_source_ownership_and_progress();
 	test_getters_preserve_frame_snapshot();
 	test_invalid_getter_inputs();
 	test_pending_rect_geometry_helper();

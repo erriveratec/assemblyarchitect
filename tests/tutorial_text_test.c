@@ -275,6 +275,23 @@ static void test_blank_wrap_and_overflow(void)
 static void test_execution_control_highlights(void)
 {
 	int targets = 0;
+	char zero_flag_highlight[] = "zero_flag";
+	assert(tr_parse_highlights(zero_flag_highlight, &targets));
+	assert(targets == TUTORIAL_HIGHLIGHT_ZERO_FLAG);
+
+	char composed_highlights[] = "register, zero_flag, output_buffer";
+	assert(tr_parse_highlights(composed_highlights, &targets));
+	assert(targets == (TUTORIAL_HIGHLIGHT_REGISTERS |
+	                   TUTORIAL_HIGHLIGHT_ZERO_FLAG |
+	                   TUTORIAL_HIGHLIGHT_OUTPUT_BUFFER));
+
+	char zf_alias[] = "zf";
+	assert(!tr_parse_highlights(zf_alias, &targets));
+	char zero_flags_near_match[] = "zero_flags";
+	assert(!tr_parse_highlights(zero_flags_near_match, &targets));
+	char flag_alias[] = "flag";
+	assert(!tr_parse_highlights(flag_alias, &targets));
+
 	char step_highlight[] = "step";
 	assert(tr_parse_highlights(step_highlight, &targets));
 	assert(targets == TUTORIAL_HIGHLIGHT_STEP);

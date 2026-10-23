@@ -16,6 +16,7 @@ static void test_draw_rotated_texture(int x, int y, int height, double angle,
 #define bf_get_input_buffer_highlight_progress test_input_progress
 #define bf_get_output_buffer_highlight_progress test_output_progress
 #define rg_get_register_highlight_progress test_register_progress
+#define rg_get_zero_flag_highlight_progress test_zero_flag_progress
 #define sb_get_button_highlight_progress test_button_progress
 #define im_get_highlight_progress test_immediate_progress
 #define rr_get_failure_back_button_rect test_failure_back_button_rect
@@ -30,6 +31,7 @@ static void test_draw_rotated_texture(int x, int y, int height, double angle,
 #undef im_get_highlight_progress
 #undef sb_get_button_highlight_progress
 #undef rg_get_register_highlight_progress
+#undef rg_get_zero_flag_highlight_progress
 #undef bf_get_output_buffer_highlight_progress
 #undef bf_get_input_buffer_highlight_progress
 #undef cw_get_challenge_highlight_progress
@@ -40,13 +42,15 @@ static void test_draw_rotated_texture(int x, int y, int height, double angle,
 
 bool bf_get_output_buffer_highlight_progress(float *progress, float animation_limit);
 bool rg_get_register_highlight_progress(float *progress, float animation_limit);
+bool rg_get_zero_flag_highlight_progress(float *progress, float animation_limit);
 
-static float provider_progress[HIGHLIGHT_IMMEDIATES + 1];
-static bool provider_active[HIGHLIGHT_IMMEDIATES + 1];
+static float provider_progress[HIGHLIGHT_ZERO_FLAG + 1];
+static bool provider_active[HIGHLIGHT_ZERO_FLAG + 1];
 static bool use_shared_output_provider;
 static int arrow_draw_count;
 static int code_box_provider_calls;
 static SDL_Rect op2_line_rect;
+static texture_t g_test_register_arrow;
 
 SDL_Rect test_stage_buttons_rect(void)
 {
@@ -137,6 +141,12 @@ bool test_register_progress(float *progress, float animation_limit)
 {
 	return animation_limit > 0.0f &&
 	       test_progress(HIGHLIGHT_REGISTERS, progress);
+}
+
+bool test_zero_flag_progress(float *progress, float animation_limit)
+{
+	return animation_limit > 0.0f &&
+	       test_progress(HIGHLIGHT_ZERO_FLAG, progress);
 }
 
 bool test_button_progress(int button_id, float *progress, float animation_limit)
@@ -376,7 +386,7 @@ static void test_arrow_highlight_mapping(void)
 		{AR_OB, HIGHLIGHT_OUTPUT_BUFFER},
 		{AR_EXEC, HIGHLIGHT_NONE},
 		{AR_REG, HIGHLIGHT_REGISTERS},
-		{AR_ZF, HIGHLIGHT_NONE},
+		{AR_ZF, HIGHLIGHT_ZERO_FLAG},
 		{AR_IMM_UP, HIGHLIGHT_IMMEDIATES}
 	};
 	for (size_t index = 0; index < sizeof(mappings) / sizeof(mappings[0]);
@@ -389,7 +399,7 @@ static void test_arrow_highlight_mapping(void)
 	/* These arrows remain intentionally independent of highlight providers. */
 	assert(g_arrow_highlight_targets[AR_PLAY] == HIGHLIGHT_CODE_BOX);
 	assert(arrow_has_highlight_provider(AR_PLAY));
-	assert(g_arrow_highlight_targets[AR_ZF] == HIGHLIGHT_NONE);
+	assert(g_arrow_highlight_targets[AR_ZF] == HIGHLIGHT_ZERO_FLAG);
 	assert(g_arrow_highlight_targets[AR_EXEC] == HIGHLIGHT_NONE);
 }
 
@@ -611,18 +621,19 @@ static void test_mandatory_provider_arrow_retains_existing_behavior(void)
 {
 	assert_mandatory_provider_behavior(AR_CODE, HIGHLIGHT_CODE_BOX);
 	assert_mandatory_provider_behavior(AR_ERROR, HIGHLIGHT_OUTPUT_BUFFER);
+	assert_mandatory_provider_behavior(AR_ZF, HIGHLIGHT_ZERO_FLAG);
 }
 
 static void test_synchronized_arrow_positions(void)
 {
 	static const int synchronized_arrows[] = {
 		AR_INS, AR_INS_MINUS, AR_DROP, AR_STEP, AR_FAST, AR_CODE, AR_DEL,
-		AR_OP2, AR_ERROR, AR_CHALLENGE, AR_IB, AR_OB, AR_REG, AR_IMM_UP
+		AR_OP2, AR_ERROR, AR_CHALLENGE, AR_IB, AR_OB, AR_REG, AR_IMM_UP, AR_ZF
 	};
 	static const float samples[] = {0.0f, 0.25f, 0.5f, 0.75f, 1.0f};
 	static const int directions[] = {AR_UP, AR_DOWN, AR_LEFT, AR_RIGHT};
 	for (int target = HIGHLIGHT_INSTRUCTION;
-	     target <= HIGHLIGHT_IMMEDIATES; target++) {
+	     target <= HIGHLIGHT_ZERO_FLAG; target++) {
 		provider_active[target] = true;
 		for (size_t index = 0;
 		     index < sizeof(synchronized_arrows) / sizeof(synchronized_arrows[0]);
@@ -777,18 +788,57 @@ static void test_op2_vertical_clearance(void)
 	}
 }
 
-static void test_conditional_jump_tutorial_configuration(void)
+static void test_zero_flag_tutorial_configuration(void)
 {
 	assert(tr_load_level(13));
 	const tutorial_step_t *step =
-		tr_get_named_step("complete_compare_branch_program");
+		tr_get_named_step("explain_zero_flag_set");
 	assert(step != NULL);
 	assert(step->arrow_count == 1);
 	assert(step->arrow_ids[0] == AR_ZF);
-	assert(step->highlight_instruction_mask == (1 << JE));
-	assert((step->highlight_targets & TUTORIAL_HIGHLIGHT_CHALLENGE) == 0);
+	assert(step->highlight_targets == TUTORIAL_HIGHLIGHT_ZERO_FLAG);
+	assert(step->highlight_instruction_mask == (1 << CMP));
 	assert(g_arrow_highlight_targets[step->arrow_ids[0]] ==
-	       HIGHLIGHT_NONE);
+	       HIGHLIGHT_ZERO_FLAG);
+	for (int index = 0; index < tr_get_step_count(); index++) {
+		const tutorial_step_t *candidate = tr_get_step(index);
+		if (candidate != NULL &&
+		    strcmp(candidate->name, "explain_zero_flag_set") != 0) {
+			tr_deactivate(candidate->name);
+		}
+	}
+	cs_context_t zf_context = {.code_size = 0, .operation_flag = NO_OPERATION};
+	assert(tr_update(&zf_context) == step);
+	float zf_progress = -1.0f;
+	assert(rg_get_zero_flag_highlight_progress(&zf_progress, 15.0f));
+	assert(tr_update(NULL) == NULL);
+	assert(!rg_get_zero_flag_highlight_progress(&zf_progress, 15.0f));
+
+	assert(tr_load_level(13));
+	assert(!rg_get_zero_flag_highlight_progress(&zf_progress, 15.0f));
+	step = tr_get_named_step("explain_zero_flag_set");
+	assert(step != NULL);
+
+	const tutorial_step_t *clear_step =
+		tr_get_named_step("explain_zero_flag_clear");
+	assert(clear_step != NULL);
+	assert(clear_step->arrow_count == 1);
+	assert(clear_step->arrow_ids[0] == AR_ZF);
+	assert(clear_step->highlight_targets == TUTORIAL_HIGHLIGHT_ZERO_FLAG);
+	tr_clear();
+
+	assert(tr_load_level(14));
+	static const char *const zf_steps[] = {
+		"explain_jump_not_equal",
+		"explain_zero_flag_clear",
+		"explain_zero_flag_set"
+	};
+	for (size_t index = 0; index < sizeof(zf_steps) / sizeof(zf_steps[0]); index++) {
+		step = tr_get_named_step(zf_steps[index]);
+		assert(step != NULL);
+		assert(step->arrow_count == 1 && step->arrow_ids[0] == AR_ZF);
+		assert(step->highlight_targets == TUTORIAL_HIGHLIGHT_ZERO_FLAG);
+	}
 	tr_clear();
 }
 
@@ -803,6 +853,14 @@ int main(void)
 	assert(g_renderer != NULL);
 	g_font = TTF_OpenFont("fonts/DOSVGA437.ttf", 130);
 	assert(g_font != NULL);
+	g_test_register_arrow = (texture_t){
+		.w = 45,
+		.h = 45,
+		.texture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_RGBA8888,
+		                             SDL_TEXTUREACCESS_STATIC, 45, 45)
+	};
+	assert(g_test_register_arrow.texture != NULL);
+	g_reg_arrow = &g_test_register_arrow;
 	test_arrow_highlight_mapping();
 	test_play_arrow_uses_shared_phase_with_active_provider();
 	test_play_arrow_position_is_independent_of_highlight_visibility();
@@ -816,13 +874,14 @@ int main(void)
 	test_level1_code_box_arrow_regression();
 	test_play_tutorial_steps_preserve_existing_highlight_configuration();
 	test_op2_vertical_clearance();
-	test_conditional_jump_tutorial_configuration();
+	test_zero_flag_tutorial_configuration();
 	test_error_arrow_tracks_output_highlight();
 	test_resolution(DM_RESOLUTION_1600X900);
 	test_tutorial_reentry();
 	test_resolution(DM_RESOLUTION_1920X1080);
 	test_tutorial_reentry();
 	TTF_CloseFont(g_font);
+	SDL_DestroyTexture(g_test_register_arrow.texture);
 	SDL_DestroyRenderer(g_renderer);
 	SDL_FreeSurface(g_screen);
 	TTF_Quit();
