@@ -12,6 +12,7 @@ typedef enum run_result_action_t {
 bool rr_initialize(void);
 void rr_destroy(void);
 
+bool rr_is_valid_operation(int operation_id);
 run_result_action_t rr_update(int operation_id);
 void rr_render(int operation_id);
 

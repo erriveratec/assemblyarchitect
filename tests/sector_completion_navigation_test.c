@@ -43,6 +43,53 @@ static int execution_calls;
 static int electron_creates;
 static int electron_destroys;
 static int drawing_calls;
+static bool probe_pointer;
+static bool expect_background_pointer;
+static bool reset_menu_active;
+static int result_update_calls;
+static int background_checks;
+
+static bool check_background_pointer(void)
+{
+	if (probe_pointer) {
+		assert((ms_left_pressed() || ms_left_released()) == expect_background_pointer);
+		assert((ms_right_pressed() || ms_right_released()) == expect_background_pointer);
+		assert((ms_chord_pressed() || ms_chord_released()) == expect_background_pointer);
+		if (!expect_background_pointer) {
+			assert(ms_get_mouse_scroll_x() == 0);
+			assert(ms_get_mouse_scroll_y() == 0);
+		}
+		background_checks++;
+	}
+	return false;
+}
+
+static run_result_action_t update_result(int operation_id)
+{
+	(void)operation_id;
+	result_update_calls++;
+	if (probe_pointer) {
+		assert(ms_left_pressed() || ms_left_released());
+		assert(ms_right_pressed() || ms_right_released());
+	}
+	return action;
+}
+
+static void inject_pointer(bool pressed)
+{
+	ms_reset_mouse_values();
+	SDL_Event event = {0};
+	event.type = pressed ? SDL_MOUSEBUTTONDOWN : SDL_MOUSEBUTTONUP;
+	event.button.state = pressed ? SDL_PRESSED : SDL_RELEASED;
+	event.button.button = SDL_BUTTON_LEFT;
+	ms_mouse_button_handler(event);
+	event.button.button = SDL_BUTTON_RIGHT;
+	ms_mouse_button_handler(event);
+	event.type = SDL_MOUSEWHEEL;
+	event.wheel.x = 1;
+	event.wheel.y = 2;
+	ms_mouse_wheel_handler(event);
+}
 
 static void test_reset_operation(void);
 static void test_unlock(int player_id, int level_id);
@@ -53,22 +100,22 @@ static void test_forbid_save(int player_id, int level_id);
 #define fx_electron_update(electron, delta) ((void)0)
 #define fx_electron_render(electron, renderer) ((void)0)
 #define aa_electron_fx_destroy(electron) ((void)++electron_destroys)
-#define sb_chck_rel_ret_btn() (return_released)
-#define sb_chk_click_stage_btn() (step_clicked)
+#define sb_chck_rel_ret_btn() (check_background_pointer(), return_released)
+#define sb_chk_click_stage_btn() (check_background_pointer(), step_clicked)
 #define identify_clicked_stage_button() STEP
 #define sb_chk_hov_rst_ret_btns() false
-#define sb_chk_rel_rst_btn() false
+#define sb_chk_rel_rst_btn() check_background_pointer()
 #define ms_left_pressed() false
 #define ms_left_released() false
 #define ms_consume_left_press() ((void)0)
 #define ms_reset_mouse_values() ((void)0)
-#define rm_chk_rst_menu_state() false
+#define rm_chk_rst_menu_state() reset_menu_active
 #define rm_chk_rst_menu_btns(active) false
 #define rm_set_rst_menu(active) ((void)0)
 #define rm_render_rst_menu(active) ((void)0)
 #define em_get_escape_state() false
 #define em_render_escape_menu(active) ((void)0)
-#define rr_update(operation_id) (action)
+#define rr_update(operation_id) update_result(operation_id)
 #define rr_reset_state() ((void)++result_reset_calls)
 #define rr_render(operation_id) ((void)++drawing_calls)
 #define mc_get_operation_flag() (operation)
@@ -105,7 +152,7 @@ static void test_forbid_save(int player_id, int level_id);
 #define cw_destroy_code_window_assets() ((void)0)
 #define cw_sort_code() ((void)0)
 #define cw_is_operand_pending() false
-#define cw_chk_click_code_op() false
+#define cw_chk_click_code_op() check_background_pointer()
 #define cw_chk_click_code() false
 #define cw_chk_rclick_code() false
 #define cw_draw_code_window() ((void)0)
@@ -115,7 +162,7 @@ static void test_forbid_save(int player_id, int level_id);
 #define iw_destroy_instruction_list() ((void)0)
 #define tr_clear() ((void)0)
 #define lv_set_hold_line(line) ((void)0)
-#define lv_prepare_level_frame(level_id, operation_id) ((void)0)
+#define lv_prepare_level_frame(level_id, operation_id) ((void)check_background_pointer())
 #define lv_level_drawings(level_id) ((void)0)
 #define sb_draw_stage_btns(size, animation_limit) ((void)0)
 #define sb_draw_ret_btn() ((void)0)
@@ -178,6 +225,11 @@ static void reset_fixture(void)
 	electron_creates = 0;
 	electron_destroys = 0;
 	drawing_calls = 0;
+	probe_pointer = false;
+	expect_background_pointer = false;
+	reset_menu_active = false;
+	result_update_calls = 0;
+	background_checks = 0;
 	g_player = 2;
 }
 
@@ -383,6 +435,63 @@ static void test_win_result_repeated_frames(void)
 	}
 }
 
+static void test_result_pointer_priority(void)
+{
+	const int operations[] = {NO_OPERATION, OUTPUT_BUFFER_INCOMPLETE, MC_WIN};
+	for (size_t index = 0; index < sizeof(operations) / sizeof(operations[0]); index++) {
+		for (int pressed = 0; pressed <= 1; pressed++) {
+			reset_fixture();
+			operation = operations[index];
+			probe_pointer = true;
+			expect_background_pointer = operation == NO_OPERATION;
+			inject_pointer(pressed);
+			assert(stage_level(LV_LEVEL_13) == LV_PLAY_LEVEL);
+			assert(result_update_calls == 1);
+			assert(background_checks >= 5);
+			assert(execution_calls == 0 && reset_calls == 0);
+			probe_pointer = false;
+			return_released = true;
+			assert_exit(LV_LEVEL_13, LV_SECTOR_1);
+		}
+	}
+	reset_fixture();
+	operation = MC_WIN;
+	reset_menu_active = true;
+	probe_pointer = true;
+	expect_background_pointer = true;
+	inject_pointer(false);
+	assert(stage_level(LV_LEVEL_13) == LV_PLAY_LEVEL);
+	assert(result_update_calls == 0);
+	assert(background_checks >= 5);
+	probe_pointer = false;
+	reset_menu_active = false;
+	return_released = true;
+	assert_exit(LV_LEVEL_13, LV_SECTOR_1);
+	for (size_t index = 1; index < sizeof(operations) / sizeof(operations[0]); index++) {
+		reset_fixture();
+		operation = operations[index];
+		action = RUN_RESULT_ACTION_BACK;
+		probe_pointer = true;
+		inject_pointer(false);
+		assert(stage_level(LV_LEVEL_13) == LV_PLAY_LEVEL);
+		assert(operation == NO_OPERATION && reset_calls == 1);
+		assert(background_checks >= 5 && execution_calls == 0);
+		probe_pointer = false;
+		action = RUN_RESULT_ACTION_NONE;
+		return_released = true;
+		reset_calls = 0;
+		assert_exit(LV_LEVEL_13, LV_SECTOR_1);
+	}
+	reset_fixture();
+	operation = MC_WIN;
+	action = RUN_RESULT_ACTION_CONTINUE;
+	probe_pointer = true;
+	inject_pointer(false);
+	assert_exit(LV_LEVEL_13, LV_SECTOR_1);
+	assert(background_checks >= 5 && execution_calls == 0);
+	probe_pointer = false;
+}
+
 int main(void)
 {
 	test_destination_helpers();
@@ -392,6 +501,7 @@ int main(void)
 	test_unlock_requires_completed_execution();
 	test_execution_unlock_and_replay();
 	test_win_result_repeated_frames();
+	test_result_pointer_priority();
 	puts("Sector completion navigation tests passed (all levels, boundaries, exits, replay, repeated frames, unlock guard)");
 	return 0;
 }

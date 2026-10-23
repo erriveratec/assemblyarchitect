@@ -208,13 +208,12 @@ void stage_drawings(int level, int operation_id)
 	mc_draw_avatar();
 	sb_draw_ret_btn();
 	sb_draw_rst_btn();
+	lv_level_drawings(level);
 	/*
-	 * Draw the result before tutorial overlays so Level 0 can explain the
-	 * first incomplete run while the result remains visible. Tutorial layouts
-	 * must not cover result buttons.
+	 * Results are the final gameplay layer, above contextual and tutorial UI.
+	 * Application reset/escape menus retain priority in stage_level().
 	 */
 	rr_render(operation_id);
-	lv_level_drawings(level);
 }
 
 /* Function: stage_button_handler
@@ -629,6 +628,14 @@ int stage_level(int level_id)
 	int                  ret_val   = LV_PLAY_LEVEL;
 	static code_line_t  *hold_line = NULL;
 	static level_flags_t flags;
+	int operation_id = mc_get_operation_flag();
+	run_result_action_t result_action = RUN_RESULT_ACTION_NONE;
+	if (!rm_chk_rst_menu_state()) {
+		result_action = rr_update(operation_id);
+		if (rr_is_valid_operation(operation_id)) {
+			ms_consume_pointer_input(result_action != RUN_RESULT_ACTION_NONE);
+		}
+	}
 	bool                 back_to_level_selection = sb_chck_rel_ret_btn();
 
 	lv_set_hold_line(hold_line);
@@ -638,8 +645,6 @@ int stage_level(int level_id)
 	}
 
 	rst_btn_hdl(level_id, &flags);
-	int operation_id = mc_get_operation_flag();
-	run_result_action_t result_action = rr_update(operation_id);
 	bool continued_after_win =
 	    operation_id == MC_WIN && result_action == RUN_RESULT_ACTION_CONTINUE;
 	if (result_action == RUN_RESULT_ACTION_BACK) {

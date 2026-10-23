@@ -438,7 +438,7 @@ static bool rr_is_failure(int operation_id)
 	return operation_id > NO_OPERATION && operation_id < MC_WIN;
 }
 
-static bool rr_is_valid_operation(int operation_id)
+bool rr_is_valid_operation(int operation_id)
 {
 	return rr_is_success(operation_id) || rr_is_failure(operation_id);
 }

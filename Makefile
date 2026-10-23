@@ -39,6 +39,8 @@ HIGHLIGHT_ANIMATION_SYNC_TEST_EXEC = $(TEST_BUILD_DIR)/highlight_animation_sync_
 HIGHLIGHT_ANIMATION_SYNC_TEST_SOURCE = tests/highlight_animation_sync_test.c
 MODAL_POINTER_CAPTURE_TEST_EXEC = $(TEST_BUILD_DIR)/modal_pointer_capture_test
 MODAL_POINTER_CAPTURE_TEST_SOURCE = tests/modal_pointer_capture_test.c
+RUN_RESULT_RENDER_ORDER_TEST_EXEC = $(TEST_BUILD_DIR)/run_result_render_order_test
+RUN_RESULT_RENDER_ORDER_TEST_SOURCE = tests/run_result_render_order_test.c
 VALUE_BOX_TRANSPORT_TEST_EXEC = $(TEST_BUILD_DIR)/value_box_transport_test
 VALUE_BOX_TRANSPORT_TEST_SOURCE = tests/value_box_transport_test.c
 REGISTERS_HIGHLIGHT_GEOMETRY_TEST_EXEC = $(TEST_BUILD_DIR)/registers_highlight_geometry_test
@@ -55,7 +57,8 @@ TEST_EXECS := \
 	$(TEXT_BOX_LAYOUT_TEST_EXEC) \
 	$(TUTORIAL_ARROW_ANIMATION_TEST_EXEC) \
 	$(HIGHLIGHT_ANIMATION_SYNC_TEST_EXEC) \
-	$(MODAL_POINTER_CAPTURE_TEST_EXEC)
+	$(MODAL_POINTER_CAPTURE_TEST_EXEC) \
+	$(RUN_RESULT_RENDER_ORDER_TEST_EXEC)
 LEGACY_ROOT_TEST_EXECS := \
 	$(notdir $(TEST_EXECS)) \
 	highligh_animation_sync_test
@@ -119,12 +122,12 @@ $(EXEC): $(S_FILES)
 run: build
 	./$(EXEC)
 
-test: test-level-config-hover test-operand-highlights test-operand-change-selection test-tutorial-text test-sector-completion-navigation test-buffer-label-layout test-execution-arrow-geometry test-text-box-layout test-tutorial-arrow-animation test-highlight-animation-sync test-modal-pointer-capture test-value-box-transport test-io-rail-geometry test-registers-highlight-geometry
+test: test-level-config-hover test-operand-highlights test-operand-change-selection test-tutorial-text test-sector-completion-navigation test-buffer-label-layout test-execution-arrow-geometry test-text-box-layout test-tutorial-arrow-animation test-highlight-animation-sync test-modal-pointer-capture test-run-result-render-order test-value-box-transport test-io-rail-geometry test-registers-highlight-geometry
 
 .PHONY: all build run app clean test test-level-config-hover test-operand-highlights test-operand-change-selection \
 	test-tutorial-text test-sector-completion-navigation test-buffer-label-layout \
 	test-execution-arrow-geometry test-text-box-layout test-tutorial-arrow-animation \
-	test-highlight-animation-sync test-modal-pointer-capture \
+	test-highlight-animation-sync test-modal-pointer-capture test-run-result-render-order \
 	test-value-box-transport test-io-rail-geometry test-registers-highlight-geometry
 
 $(TEST_BUILD_DIR):
@@ -135,6 +138,12 @@ test-modal-pointer-capture: | $(TEST_BUILD_DIR)
 	$(CC) $(CFLAGS) $(MODAL_POINTER_CAPTURE_TEST_SOURCE) $(TEST_SOURCES) -o $(MODAL_POINTER_CAPTURE_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(MODAL_POINTER_CAPTURE_TEST_EXEC)
+
+test-run-result-render-order: | $(TEST_BUILD_DIR)
+	$(CC) $(CFLAGS) $(RUN_RESULT_RENDER_ORDER_TEST_SOURCE) \
+	    $(filter-out $(S_DIR)/stages.c $(S_DIR)/levels_lv.c $(S_DIR)/ui/run_result_rr.c,$(TEST_SOURCES)) -o $(RUN_RESULT_RENDER_ORDER_TEST_EXEC) \
+	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
+	./$(RUN_RESULT_RENDER_ORDER_TEST_EXEC)
 
 test-value-box-transport: | $(TEST_BUILD_DIR)
 	$(CC) $(CFLAGS) $(VALUE_BOX_TRANSPORT_TEST_SOURCE) \
