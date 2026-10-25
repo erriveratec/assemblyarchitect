@@ -110,14 +110,21 @@ code_end
 [level 13]
 unlocked = true
 code_begin
-MOV rbx, IMMUP0
-MOV rax, IMMUP0
 code_end
 
 [level 14]
 unlocked = true
 code_begin
+line 01
+line 01
 MOV rax, [ib]
+CMP rax, IMMUP0
+JE 09
+CMP rax, IMMUP7
+JNE 01
+MOV [ob], rax
+JMP 00
+line 08
 code_end
 
 [level 15]
