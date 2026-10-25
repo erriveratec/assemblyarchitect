@@ -4,6 +4,16 @@
 #include <math.h>
 #include <stdbool.h>
 #include <SDL.h>
+#include "code_line_cl.h"
+
+static inline bool cw_is_active_operand_replacement_slot(
+	const code_line_t *line,
+	int changing_state,
+	const code_line_t *pending_line)
+{
+	return line != NULL && line == pending_line &&
+		line->state == changing_state;
+}
 
 /* Internal pure geometry helper, shared with synchronization tests. */
 static inline bool cw_calculate_pending_operand_rect(

@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
+#include "../source/code_window_cw_internal.h"
 
 #define rg_chk_rel_in_reg test_reg_selected
 #define bf_ms_rel_in_buf test_buffer_selected
@@ -153,6 +154,72 @@ static void test_transfer_and_reselection(void)
 	assert(second->op2 == selected && selected->id == IMMUP7);
 	assert(cw_is_operand_pending());
 	assert(cw_get_code_line_pending_operand() == second);
+	reset_fixture();
+}
+
+static void test_active_replacement_render_decision(void)
+{
+	code_line_t *pending = add_line(MOV, true, true);
+	code_line_t *other = add_line(ADD, true, true);
+	pending->state = CHANGING_OP1;
+	other->state = CHANGING_OP1;
+	assert(cw_get_code_line_pending_operand() == pending);
+	assert(cw_is_active_operand_replacement_slot(
+		pending, CHANGING_OP1, cw_get_code_line_pending_operand()));
+	assert(!cw_is_active_operand_replacement_slot(
+		pending, CHANGING_OP2, cw_get_code_line_pending_operand()));
+	assert(!cw_is_active_operand_replacement_slot(
+		other, CHANGING_OP1, cw_get_code_line_pending_operand()));
+
+	pending->state = CHANGING_OP2;
+	other->state = COMPLETE;
+	assert(cw_is_active_operand_replacement_slot(
+		pending, CHANGING_OP2, cw_get_code_line_pending_operand()));
+	assert(!cw_is_active_operand_replacement_slot(
+		pending, CHANGING_OP1, cw_get_code_line_pending_operand()));
+	other->state = CHANGING_OP2;
+	assert(!cw_is_active_operand_replacement_slot(
+		other, CHANGING_OP2, cw_get_code_line_pending_operand()));
+
+	int ordinary_states[] = {COMPLETE, MISSING_OP1, MISSING_OP2, MISSING_BOTH};
+	for (size_t index = 0;
+	     index < sizeof(ordinary_states) / sizeof(ordinary_states[0]); index++) {
+		pending->state = ordinary_states[index];
+		assert(!cw_is_active_operand_replacement_slot(
+			pending, CHANGING_OP1, cw_get_code_line_pending_operand()));
+		assert(!cw_is_active_operand_replacement_slot(
+			pending, CHANGING_OP2, cw_get_code_line_pending_operand()));
+	}
+	assert(!cw_is_active_operand_replacement_slot(
+		NULL, CHANGING_OP1, pending));
+	reset_fixture();
+}
+
+static void test_reclick_preserves_pending_replacement(void)
+{
+	code_line_t *line = add_line(MOV, true, true);
+	operand_t *original = line->op1;
+	select_operand(line, OP1);
+	assert(cw_get_code_line_pending_operand() == line);
+	select_operand(line, OP1);
+	assert(cw_get_code_line_pending_operand() == line);
+	assert(line->state == CHANGING_OP1 && line->op1 == original);
+	int changing_count = 0;
+	LIST_FOREACH(get_code_list(), first, next, current) {
+		code_line_t *candidate = current->value;
+		if (candidate->state == CHANGING_OP1 ||
+		    candidate->state == CHANGING_OP2) {
+			changing_count++;
+			assert(candidate == line);
+		}
+	}
+	assert(changing_count == 1);
+
+	release_at(0, 0);
+	assert(pending_operand_handler() == NULL);
+	assert(line->state == COMPLETE);
+	assert(!cw_is_active_operand_replacement_slot(
+		line, CHANGING_OP1, cw_get_code_line_pending_operand()));
 	reset_fixture();
 }
 
@@ -422,6 +489,9 @@ static void test_replacement(void)
 		cw_assign_op_to_line(new_operand, line);
 		assert((position == OP1 ? line->op1 : line->op2) == new_operand);
 		assert(line->state == COMPLETE);
+		assert(!cw_is_active_operand_replacement_slot(
+			line, position == OP1 ? CHANGING_OP1 : CHANGING_OP2,
+			cw_get_code_line_pending_operand()));
 		assert_reset(line->op1->b);
 		assert_reset(line->op2->b);
 		assert(!cw_is_operand_pending());
@@ -442,6 +512,8 @@ int main(void)
 	assert(cw_get_instruction_operand(1, SECOND_OP) == NO_OPERAND);
 	reset_fixture();
 	test_transfer_and_reselection();
+	test_active_replacement_render_decision();
+	test_reclick_preserves_pending_replacement();
 	test_structural_restoration();
 	test_jumps_and_labels();
 	test_click_away();

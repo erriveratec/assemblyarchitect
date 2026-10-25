@@ -1680,12 +1680,12 @@ void cw_draw_code_window(void)
 static void draw_operand_button(code_line_t *line, operand_t *operand,
 	                            int changing_state, bool blocked)
 {
-	if (line->state == changing_state &&
-	    line == cw_get_code_line_pending_operand()) {
-		bt_draw_btn_with_text_color(operand->b, blocked, false, C_WHITE);
-	} else {
-		bt_draw_btn(operand->b, blocked, false);
+	if (operand == NULL || operand->b == NULL ||
+	    cw_is_active_operand_replacement_slot(
+		    line, changing_state, cw_get_code_line_pending_operand())) {
+		return;
 	}
+	bt_draw_btn(operand->b, blocked, false);
 }
 
 /* Function: display_player_code
