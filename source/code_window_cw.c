@@ -40,6 +40,17 @@ static bool g_challenge_highlight;
 static bool g_code_box_highlight;
 static float g_challenge_highlight_value;
 static float g_code_box_highlight_value;
+typedef struct button_animation_claim_t {
+	btn_t *button;
+	bool previous_animated;
+	bool previous_anim_dir;
+	int previous_anim_state;
+	bool active;
+} button_animation_claim_t;
+
+/* Snapshot claims preserve prior state; they cannot arbitrate concurrent writers to btn_t. */
+static button_animation_claim_t g_active_jump_operand_claim;
+static button_animation_claim_t g_active_jump_label_claim;
 
 texture_array_t *g_challenge_text;
 texture_t *g_stage_name;
@@ -69,6 +80,100 @@ static void update_jump_instructions(void);
 static operand_t *create_updated_jump_operand(code_line_t *jmp_addr);
 static operand_t *create_saved_jump_operand(int op1_id);
 static SDL_Rect get_scroll_box(void);
+static void reset_button_animation(btn_t *button);
+
+static void release_button_animation_claim(button_animation_claim_t *claim)
+{
+	if (claim == NULL || !claim->active) {
+		return;
+	}
+	claim->button->animated = claim->previous_animated;
+	claim->button->anim_dir = claim->previous_anim_dir;
+	claim->button->anim_state = claim->previous_anim_state;
+	*claim = (button_animation_claim_t){0};
+}
+
+static void claim_button_animation(button_animation_claim_t *claim,
+	                               btn_t *button)
+{
+	if (claim == NULL) {
+		return;
+	}
+	if (claim->active && claim->button == button) {
+		return;
+	}
+	release_button_animation_claim(claim);
+	if (button == NULL) {
+		return;
+	}
+	claim->button = button;
+	claim->previous_animated = button->animated;
+	claim->previous_anim_dir = button->anim_dir;
+	claim->previous_anim_state = button->anim_state;
+	claim->active = true;
+	button->animated = true;
+	button->anim_dir = false;
+	button->anim_state = 0;
+}
+
+static btn_t *get_jump_target_label_button(const code_line_t *line)
+{
+	if (line == NULL || line->ins == NULL ||
+	    !cl_is_ins_jmp_type(line->ins->id) || line->op1 == NULL ||
+	    line->op1->b == NULL || line->op1->jptr == NULL ||
+	    line->op1->jptr->ins == NULL || line->op1->jptr->ins->id != LABEL ||
+	    line->op1->jptr->op1 == NULL || line->op1->jptr->op1->b == NULL) {
+		return NULL;
+	}
+	return line->op1->jptr->op1->b;
+}
+
+static void release_active_jump_replacement_claims(void)
+{
+	if (g_active_jump_operand_claim.active &&
+	    g_active_jump_operand_claim.button ==
+		g_active_jump_label_claim.button) {
+		release_button_animation_claim(&g_active_jump_operand_claim);
+		g_active_jump_label_claim = (button_animation_claim_t){0};
+		return;
+	}
+	release_button_animation_claim(&g_active_jump_label_claim);
+	release_button_animation_claim(&g_active_jump_operand_claim);
+}
+
+static void start_active_jump_replacement_highlight(code_line_t *line)
+{
+	if (!cw_is_active_jump_operand_replacement(
+		line, cw_get_code_line_pending_operand()) ||
+	    line->op1 == NULL || line->op1->b == NULL) {
+		return;
+	}
+
+	btn_t *operand_button = line->op1->b;
+	btn_t *label_button = get_jump_target_label_button(line);
+	if (label_button == operand_button) {
+		label_button = NULL;
+	}
+	if (g_active_jump_operand_claim.active &&
+	    g_active_jump_operand_claim.button == operand_button &&
+	    g_active_jump_label_claim.active == (label_button != NULL) &&
+	    (!g_active_jump_label_claim.active ||
+	     g_active_jump_label_claim.button == label_button)) {
+		return;
+	}
+	release_active_jump_replacement_claims();
+	claim_button_animation(&g_active_jump_operand_claim, operand_button);
+	claim_button_animation(&g_active_jump_label_claim, label_button);
+}
+
+static bool button_has_active_jump_claim(const btn_t *button)
+{
+	return button != NULL &&
+		((g_active_jump_operand_claim.active &&
+		  g_active_jump_operand_claim.button == button) ||
+		 (g_active_jump_label_claim.active &&
+		  g_active_jump_label_claim.button == button));
+}
 
 int cw_get_code_line_spacing(void)
 {
@@ -204,6 +309,7 @@ error:
  */
 void cw_update_saved_jump_instructions(void)
 {
+	release_active_jump_replacement_claims();
 	List *code = get_code_list();
 	check_mem(code);
 
@@ -313,6 +419,7 @@ static operand_t *create_updated_jump_operand(code_line_t *jmp_addr)
  */
 static void update_jump_instructions(void)
 {
+	release_active_jump_replacement_claims();
 	List *code = get_code_list();
 	check_mem(code);
 
@@ -432,6 +539,7 @@ error:
  */
 static void update_label_instructions(void)
 {
+	release_active_jump_replacement_claims();
 	List *code = get_code_list();
 	check_mem(code);
 	
@@ -1092,6 +1200,7 @@ error:
  */
 void cw_destroy_code_window_assets(void)
 {
+	release_active_jump_replacement_claims();
 	dw_free_texture(g_stage_name);
 	dw_free_texture_array(g_challenge_text);
 	List *code = get_code_list();
@@ -1680,12 +1789,18 @@ void cw_draw_code_window(void)
 static void draw_operand_button(code_line_t *line, operand_t *operand,
 	                            int changing_state, bool blocked)
 {
+	code_line_t *pending_line = cw_get_code_line_pending_operand();
 	if (operand == NULL || operand->b == NULL ||
-	    cw_is_active_operand_replacement_slot(
-		    line, changing_state, cw_get_code_line_pending_operand())) {
+	    !cw_should_draw_replacement_operand(
+		    line, changing_state, pending_line)) {
 		return;
 	}
-	bt_draw_btn(operand->b, blocked, false);
+	if (button_has_active_jump_claim(operand->b)) {
+		bt_draw_btn_with_highlight_progress(operand->b, blocked, false,
+		                                   ha_get_progress());
+	} else {
+		bt_draw_btn(operand->b, blocked, false);
+	}
 }
 
 /* Function: display_player_code
@@ -2172,6 +2287,7 @@ static bool chk_sel_line_in_pos(code_line_t *line)
  */
 void cw_clear_code_list(void)
 {
+	release_active_jump_replacement_claims();
 	List *code = get_code_list();
 
 	while (cw_get_code_list_size() > 0){
@@ -2203,6 +2319,7 @@ void cw_player_holding_instruction(code_line_t *line, bool arng, bool del)
 	List *code = get_code_list();
 	assert(code != NULL &&  "Code list is NULL");
 	assert(line != NULL &&  "The code line object is NULL");
+	cw_cancel_pending_operand_change();
 	
 	if (in_code_window() == true || line->ins->id == LABEL || del == false){
 		if (cw_check_if_in_code_list(line) == true){
@@ -2437,6 +2554,10 @@ static bool get_animated_pending_operand_rect(float normalized_progress,
  */
 void cw_highlight_code_pending_operand(void)
 {
+	code_line_t *pending_line = cw_get_code_line_pending_operand();
+	if (!cw_should_draw_pending_operand_rect(pending_line, pending_line)) {
+		return;
+	}
 	SDL_Rect animated_operand_rect;
 	if (get_animated_pending_operand_rect(ha_get_progress(),
 	                                      &animated_operand_rect)) {
@@ -2604,6 +2725,12 @@ void cw_change_clicked_code_line_state(void)
 	if (selected_line == NULL){
 		return;
 	}
+	code_line_t *pending_line = cw_get_code_line_pending_operand();
+	bool same_active_jump = selected_operand == OP1 &&
+		cw_is_active_jump_operand_replacement(selected_line, pending_line);
+	if (!same_active_jump) {
+		release_active_jump_replacement_claims();
+	}
 
 	for (ListNode *current = code->first; current != NULL; current = current->next){
 		code_line_t *c = current->value;
@@ -2611,18 +2738,14 @@ void cw_change_clicked_code_line_state(void)
 			(c->state != CHANGING_OP1 && c->state != CHANGING_OP2)){
 			continue;
 		}
-		if (c->op1 != NULL && c->op1->b != NULL){
-			reset_button_animation(c->op1->b);
+		if (!cl_is_ins_jmp_type(c->ins->id)) {
+			if (c->op1 != NULL && c->op1->b != NULL){
+				reset_button_animation(c->op1->b);
+			}
+			if (c->op2 != NULL && c->op2->b != NULL){
+				reset_button_animation(c->op2->b);
+			}
 		}
-		if (c->op2 != NULL && c->op2->b != NULL){
-			reset_button_animation(c->op2->b);
-		}
-		if (cl_is_ins_jmp_type(c->ins->id) == true && c->op1 != NULL &&
-			c->op1->jptr != NULL && c->op1->jptr->op1 != NULL &&
-			c->op1->jptr->op1->b != NULL){
-			reset_button_animation(c->op1->jptr->op1->b);
-		}
-
 		int qty = cl_get_instruction_operand_quantity(c->ins->id);
 		if (qty == TWO_OPERANDS && c->op1 == NULL && c->op2 == NULL){
 			c->state = MISSING_BOTH;
@@ -2638,12 +2761,43 @@ void cw_change_clicked_code_line_state(void)
 	btn_t *selected_button = selected_operand == OP1 ?
 		selected_line->op1->b : selected_line->op2->b;
 	selected_line->state = selected_operand == OP1 ? CHANGING_OP1 : CHANGING_OP2;
-	reset_button_animation(selected_button);
-	if (cl_is_ins_jmp_type(selected_line->ins->id) == true &&
-		selected_line->op1 != NULL && selected_line->op1->jptr != NULL &&
-		selected_line->op1->jptr->op1 != NULL &&
-		selected_line->op1->jptr->op1->b != NULL){
-		reset_button_animation(selected_line->op1->jptr->op1->b);
+	bool selected_jump_replacement = cw_is_active_jump_operand_replacement(
+		selected_line, cw_get_code_line_pending_operand());
+	if (!selected_jump_replacement) {
+		reset_button_animation(selected_button);
+	}
+	if (selected_jump_replacement) {
+		start_active_jump_replacement_highlight(selected_line);
+	}
+}
+
+void cw_cancel_pending_operand_change(void)
+{
+	release_active_jump_replacement_claims();
+	code_line_t *line = cw_get_code_line_pending_operand();
+	if (line == NULL || (line->state != CHANGING_OP1 &&
+	                     line->state != CHANGING_OP2) || line->ins == NULL) {
+		return;
+	}
+
+	int quantity = cl_get_instruction_operand_quantity(line->ins->id);
+	bool missing_op2 = line->state == CHANGING_OP1 &&
+		quantity == TWO_OPERANDS && line->op2 == NULL;
+	if (quantity == TWO_OPERANDS && line->op1 == NULL && line->op2 == NULL) {
+		line->state = MISSING_BOTH;
+	} else if (quantity != ZERO_OPERANDS && line->op1 == NULL) {
+		line->state = MISSING_OP1;
+	} else if (quantity == TWO_OPERANDS && line->op2 == NULL) {
+		line->state = MISSING_OP2;
+	} else {
+		line->state = missing_op2 ? MISSING_OP2 : COMPLETE;
+	}
+
+	if (!cl_is_ins_jmp_type(line->ins->id)) {
+		reset_button_animation(line->op1 != NULL ? line->op1->b : NULL);
+	}
+	if (quantity == TWO_OPERANDS) {
+		reset_button_animation(line->op2 != NULL ? line->op2->b : NULL);
 	}
 }
 
@@ -2666,6 +2820,7 @@ void cw_assign_op_to_line(operand_t *op, code_line_t *line)
 {
 	assert(NULL != op && "The operand cannot be NULL");
 	assert(NULL != line && "The line cannot be NULL");
+	release_active_jump_replacement_claims();
 
 	int op1_ofs = cw_get_operand1_offset();
 	int op2_ofs = cw_get_operand2_offset();
@@ -2731,6 +2886,7 @@ void cw_assign_op_to_line(operand_t *op, code_line_t *line)
 */
 void cw_reset_code_execution(void)
 {
+	release_active_jump_replacement_claims();
 	List *code = get_code_list();
 
    	LIST_FOREACH(code, first, next, cur){ 

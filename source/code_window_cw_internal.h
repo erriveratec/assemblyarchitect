@@ -15,6 +15,44 @@ static inline bool cw_is_active_operand_replacement_slot(
 		line->state == changing_state;
 }
 
+static inline bool cw_is_active_jump_operand_replacement(
+	const code_line_t *line,
+	const code_line_t *pending_line)
+{
+	return line != NULL && line == pending_line &&
+		line->state == CHANGING_OP1 && line->ins != NULL &&
+		cl_is_ins_jmp_type(line->ins->id);
+}
+
+static inline bool cw_should_draw_pending_operand_rect(
+	const code_line_t *line,
+	const code_line_t *pending_line)
+{
+	if (line == NULL || line != pending_line) {
+		return false;
+	}
+	if (line->state == MISSING_BOTH || line->state == MISSING_OP1 ||
+	    line->state == MISSING_OP2) {
+		return true;
+	}
+	if (line->state == CHANGING_OP1 || line->state == CHANGING_OP2) {
+		return !(cw_is_active_jump_operand_replacement(line, pending_line) &&
+		         line->op1 != NULL && line->op1->b != NULL);
+	}
+	return false;
+}
+
+static inline bool cw_should_draw_replacement_operand(
+	const code_line_t *line,
+	int changing_state,
+	const code_line_t *pending_line)
+{
+	return !cw_is_active_operand_replacement_slot(
+		line, changing_state, pending_line) ||
+		(changing_state == CHANGING_OP1 &&
+		 cw_is_active_jump_operand_replacement(line, pending_line));
+}
+
 /* Internal pure geometry helper, shared with synchronization tests. */
 static inline bool cw_calculate_pending_operand_rect(
 	SDL_Rect base_operand_rect,

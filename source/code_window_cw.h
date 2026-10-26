@@ -46,6 +46,7 @@ bool cw_chk_click_code_op(void);
 bool cw_chk_click_code_op2(int code_line_pos);
 
 void cw_change_clicked_code_line_state(void);
+void cw_cancel_pending_operand_change(void);
 int cw_get_code_list_size(void);
 int cw_get_instruction_at_code_pos(int position);
 int cw_get_instruction_operand(int position, int operand_number);

@@ -511,6 +511,67 @@ static void test_button_foreground_override(void)
 	dw_free_texture(texture);
 }
 
+static void read_renderer_pixels(unsigned char *pixels)
+{
+	assert(SDL_RenderReadPixels(g_renderer, NULL, SDL_PIXELFORMAT_RGBA32, pixels,
+	                            g_screen->pitch) == 0);
+}
+
+static void test_button_highlights_use_shared_phase(void)
+{
+	texture_t *texture = dw_create_text_tex("rax", C_WHITE);
+	assert(texture != NULL);
+	btn_t first = {
+		.r = {.x = 100, .y = 100, .w = 180, .h = 60},
+		.t = texture,
+		.animated = false,
+		.anim_dir = true,
+		.anim_state = 7,
+		.enabled = true
+	};
+	btn_t second = {
+		.r = {.x = 400, .y = 100, .w = 180, .h = 60},
+		.t = texture,
+		.animated = true,
+		.anim_dir = true,
+		.anim_state = 13,
+		.enabled = true
+	};
+	const size_t pixel_count = (size_t)g_screen->pitch * (size_t)g_screen->h;
+	unsigned char *forward_pixels = malloc(pixel_count);
+	unsigned char *reverse_pixels = malloc(pixel_count);
+	assert(forward_pixels != NULL && reverse_pixels != NULL);
+	int animation_limit = dw_get_animation_limit();
+	assert(animation_limit > 0);
+	ha_reset();
+	ms_init_mouse();
+	for (int frame = 0; frame < 2 * get_cycle_frame_budget(); frame++) {
+		ha_begin_frame();
+		float phase = ha_get_progress();
+		clear_test_renderer();
+		bt_draw_btn_with_highlight_progress(&first, false, false, phase);
+		bt_draw_btn_with_highlight_progress(&second, false, false, phase);
+		assert(ha_get_progress() == phase);
+		read_renderer_pixels(forward_pixels);
+
+		clear_test_renderer();
+		bt_draw_btn_with_highlight_progress(&second, false, false, phase);
+		bt_draw_btn_with_highlight_progress(&first, false, false, phase);
+		assert(ha_get_progress() == phase);
+		read_renderer_pixels(reverse_pixels);
+		assert(memcmp(forward_pixels, reverse_pixels, pixel_count) == 0);
+
+		clear_test_renderer();
+		bt_draw_btn_with_highlight_progress(&first, false, false, phase);
+		assert(ha_get_progress() == phase);
+		assert(!first.animated && first.anim_dir && first.anim_state == 7);
+		assert(second.animated && second.anim_dir && second.anim_state == 13);
+	}
+	free(forward_pixels);
+	free(reverse_pixels);
+	dw_free_texture(texture);
+}
+
 static void assert_tinted_label_colors(SDL_Color immediate_color,
 	                                  SDL_Color flag_color)
 {
@@ -828,6 +889,7 @@ int main(void)
 	test_peaks_directions_and_target_removal();
 	test_source_ownership_and_inactive_clock();
 	test_zero_flag_source_ownership_and_progress();
+	test_button_highlights_use_shared_phase();
 	test_getters_preserve_frame_snapshot();
 	test_invalid_getter_inputs();
 	test_button_foreground_override();

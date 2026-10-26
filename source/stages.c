@@ -388,35 +388,7 @@ static code_line_t *pending_operand_handler(void)
 	} else if (rel == true && reg_sel == false && buf_sel == false &&
 	           imm_sel == false) {
 		if (l->state == CHANGING_OP1 || l->state == CHANGING_OP2) {
-			int qty  = cl_get_instruction_operand_quantity(l->ins->id);
-			bool missing_op2 = l->state == CHANGING_OP1 &&
-								qty == TWO_OPERANDS && l->op2 == NULL;
-			if (qty == TWO_OPERANDS && l->op1 == NULL && l->op2 == NULL) {
-				l->state = MISSING_BOTH;
-			} else if (qty != ZERO_OPERANDS && l->op1 == NULL) {
-				l->state = MISSING_OP1;
-			} else {
-				l->state = missing_op2 ? MISSING_OP2 : COMPLETE;
-			}
-			if (qty == ONE_OPERAND || qty == TWO_OPERANDS) {
-				if (l->op1 != NULL && l->op1->b != NULL) {
-					l->op1->b->animated   = false;
-					l->op1->b->anim_dir   = false;
-					l->op1->b->anim_state = 0;
-				}
-				if (cl_is_ins_jmp_type(l->ins->id) == true &&
-				    l->op1 != NULL && l->op1->jptr != NULL &&
-				    l->op1->jptr->op1 != NULL && l->op1->jptr->op1->b != NULL) {
-					l->op1->jptr->op1->b->animated   = false;
-					l->op1->jptr->op1->b->anim_dir   = false;
-					l->op1->jptr->op1->b->anim_state = 0;
-				}
-			}
-			if (qty == TWO_OPERANDS && l->op2 != NULL && l->op2->b != NULL) {
-				l->op2->b->animated   = false;
-				l->op2->b->anim_dir   = false;
-				l->op2->b->anim_state = 0;
-			}
+			cw_cancel_pending_operand_change();
 		}
 	}
 	return r;

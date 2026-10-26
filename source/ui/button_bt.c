@@ -2,6 +2,7 @@
 #include "ui/button_bt.h"
 
 #include <assert.h>
+#include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "mouse_ms.h"
@@ -38,7 +39,9 @@ static int get_w_iface_outer_border(void);
 static int get_w_button_padding(void);
 static int get_h_button_padding(void);
 static void draw_button(btn_t *button, bool blk, bool hv,
-	                    const SDL_Color *text_color);
+	                    const SDL_Color *text_color,
+	                    bool use_highlight_progress,
+	                    float normalized_progress);
 
 /* Function: get_w_button_padding
  * -----------------------------------------------------------------------------
@@ -517,17 +520,25 @@ btn_t *bt_create_btn(SDL_Rect r, texture_t *t)
  */
 void bt_draw_btn(btn_t *b, bool blk, bool hv)
 {
-	draw_button(b, blk, hv, NULL);
+	draw_button(b, blk, hv, NULL, false, 0.0f);
+}
+
+void bt_draw_btn_with_highlight_progress(btn_t *button, bool blk, bool hv,
+	                                    float normalized_progress)
+{
+	draw_button(button, blk, hv, NULL, true, normalized_progress);
 }
 
 void bt_draw_btn_with_text_color(btn_t *button, bool blk, bool hv,
 	                            SDL_Color text_color)
 {
-	draw_button(button, blk, hv, &text_color);
+	draw_button(button, blk, hv, &text_color, false, 0.0f);
 }
 
 static void draw_button(btn_t *b, bool blk, bool hv,
-	                    const SDL_Color *text_color)
+	                    const SDL_Color *text_color,
+	                    bool use_highlight_progress,
+	                    float normalized_progress)
 {
 	assert(b != NULL && "The button pointer is NULL");
 	
@@ -555,7 +566,8 @@ static void draw_button(btn_t *b, bool blk, bool hv,
 	float scale_w = (float)b->r.w/b->t->w;
 	float scale_h = (float)b->r.h/b->t->h;
 	
-	if (b->animated == false || b->enabled == false){
+	if ((!use_highlight_progress && b->animated == false) ||
+	    b->enabled == false){
 		if (scale_w < scale_h){
 			int y = box.y + (box.h - b->t->h*scale_w)/2;
 			SDL_Rect r = {.x = box.x, .y = y, .w = box.w};
@@ -565,32 +577,47 @@ static void draw_button(btn_t *b, bool blk, bool hv,
 			SDL_Rect r = {.x = x, .y = box.y, .h = box.h};
 			dw_draw_texture_fit_h(r, b->t);
 		}
-	} else if (b->animated == true){
+	} else {
+		int highlight_state;
+		if (use_highlight_progress) {
+			if (!isfinite(normalized_progress)) {
+				normalized_progress = 0.0f;
+			}
+			if (normalized_progress < 0.0f) normalized_progress = 0.0f;
+			if (normalized_progress > 1.0f) normalized_progress = 1.0f;
+			int animation_limit = dw_get_animation_limit();
+		highlight_state = animation_limit > 0 ?
+			(int)(normalized_progress * (float)animation_limit) : 0;
+		} else {
+			highlight_state = b->anim_state;
+		}
 		
 		if (scale_w < scale_h){
 			int y = b->r.y + (b->r.h - b->t->h*scale_w)/2;
-			SDL_Rect r = {.x = b->r.x - b->anim_state/2, 
-						  .y = y - b->anim_state/2, 
-						  .w = b->r.w + b->anim_state};
+			SDL_Rect r = {.x = b->r.x - highlight_state/2,
+						  .y = y - highlight_state/2,
+						  .w = b->r.w + highlight_state};
 			dw_draw_texture_fits_width(r, b->t);
 		} else {
 			int x = b->r.x + (b->r.w - b->t->w*scale_h)/2;
-			SDL_Rect r = {.x = x - b->anim_state/2, 
-						  .y = b->r.y - b->anim_state/2, 
-						  .h = b->r.h + b->anim_state};
+			SDL_Rect r = {.x = x - highlight_state/2,
+						  .y = b->r.y - highlight_state/2,
+						  .h = b->r.h + highlight_state};
 			dw_draw_texture_fit_h(r, b->t);
 		}
-		int anim_max = dw_get_animation_limit();
-		int anim_delta = dw_get_animation_step();
-		if (b->anim_dir == false && b->anim_state == anim_max){
-			b->anim_dir = true;
-		} else if (b->anim_dir == true && b->anim_state == 0){
-			b->anim_dir = false;
-		}
-		if (b->anim_dir == false){
-			b->anim_state += anim_delta;
-		} else if (b->anim_dir == true){
-			b->anim_state -= anim_delta;
+		if (!use_highlight_progress) {
+			int anim_max = dw_get_animation_limit();
+			int anim_delta = dw_get_animation_step();
+			if (b->anim_dir == false && b->anim_state == anim_max){
+				b->anim_dir = true;
+			} else if (b->anim_dir == true && b->anim_state == 0){
+				b->anim_dir = false;
+			}
+			if (b->anim_dir == false){
+				b->anim_state += anim_delta;
+			} else if (b->anim_dir == true){
+				b->anim_state -= anim_delta;
+			}
 		}
 	}
 	dw_set_texture_color_mod(b->t, C_WHITE);
