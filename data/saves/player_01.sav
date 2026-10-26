@@ -116,13 +116,7 @@ code_end
 unlocked = true
 code_begin
 line 01
-MOV rax, [ib]
-line 02
-CMP rax, IMMUP0
-CMP rax, IMMUP7
-MOV [ob], rax
 JMP 00
-JMP 02
 code_end
 
 [level 15]

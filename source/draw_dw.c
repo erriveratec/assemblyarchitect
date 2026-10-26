@@ -526,6 +526,17 @@ int dw_draw_texture_fit_h_f(SDL_FRect r, texture_t *t)
 	return SUCCESS;
 }
 
+int dw_draw_texture_rect_f(SDL_FRect r, texture_t *t)
+{
+	assert(r.w > 0.0f && r.h > 0.0f && "Texture destination is invalid");
+	assert(t != NULL && "The texture pointer cannot be NULL");
+	if (SDL_RenderCopyF(g_renderer, t->texture, NULL, &r) < 0) {
+		printf("Texture could not be copied SDL_Error: %s\n", SDL_GetError());
+		return FAIL;
+	}
+	return SUCCESS;
+}
+
 /* Function: dw_draw_texture_fit_h
  * -----------------------------------------------------------------------------
  * Draws a texture scaling it correctly to a given height

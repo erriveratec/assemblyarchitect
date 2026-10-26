@@ -48,9 +48,20 @@ typedef struct button_animation_claim_t {
 	bool active;
 } button_animation_claim_t;
 
+typedef enum jump_highlight_component_t {
+	JUMP_HIGHLIGHT_OPERAND,
+	JUMP_HIGHLIGHT_LABEL_INSTRUCTION,
+	JUMP_HIGHLIGHT_LABEL_OPERAND,
+	JUMP_HIGHLIGHT_COMPONENT_COUNT
+} jump_highlight_component_t;
+
+typedef struct jump_target_label_buttons_t {
+	btn_t *instruction_button;
+	btn_t *operand_button;
+} jump_target_label_buttons_t;
+
 /* Snapshot claims preserve prior state; they cannot arbitrate concurrent writers to btn_t. */
-static button_animation_claim_t g_active_jump_operand_claim;
-static button_animation_claim_t g_active_jump_label_claim;
+static button_animation_claim_t g_active_jump_claims[JUMP_HIGHLIGHT_COMPONENT_COUNT];
 
 texture_array_t *g_challenge_text;
 texture_t *g_stage_name;
@@ -87,9 +98,11 @@ static void release_button_animation_claim(button_animation_claim_t *claim)
 	if (claim == NULL || !claim->active) {
 		return;
 	}
-	claim->button->animated = claim->previous_animated;
-	claim->button->anim_dir = claim->previous_anim_dir;
-	claim->button->anim_state = claim->previous_anim_state;
+	if (claim->button != NULL) {
+		claim->button->animated = claim->previous_animated;
+		claim->button->anim_dir = claim->previous_anim_dir;
+		claim->button->anim_state = claim->previous_anim_state;
+	}
 	*claim = (button_animation_claim_t){0};
 }
 
@@ -116,29 +129,46 @@ static void claim_button_animation(button_animation_claim_t *claim,
 	button->anim_state = 0;
 }
 
-static btn_t *get_jump_target_label_button(const code_line_t *line)
+static jump_target_label_buttons_t get_jump_target_label_buttons(
+	const code_line_t *line)
 {
+	jump_target_label_buttons_t buttons = {0};
 	if (line == NULL || line->ins == NULL ||
 	    !cl_is_ins_jmp_type(line->ins->id) || line->op1 == NULL ||
-	    line->op1->b == NULL || line->op1->jptr == NULL ||
-	    line->op1->jptr->ins == NULL || line->op1->jptr->ins->id != LABEL ||
-	    line->op1->jptr->op1 == NULL || line->op1->jptr->op1->b == NULL) {
-		return NULL;
+	    line->op1->jptr == NULL || line->op1->jptr->ins == NULL ||
+	    line->op1->jptr->ins->id != LABEL) {
+		return buttons;
 	}
-	return line->op1->jptr->op1->b;
+	code_line_t *target = line->op1->jptr;
+	buttons.instruction_button = target->ins->b;
+	if (target->op1 != NULL) {
+		buttons.operand_button = target->op1->b;
+	}
+	return buttons;
 }
 
 static void release_active_jump_replacement_claims(void)
 {
-	if (g_active_jump_operand_claim.active &&
-	    g_active_jump_operand_claim.button ==
-		g_active_jump_label_claim.button) {
-		release_button_animation_claim(&g_active_jump_operand_claim);
-		g_active_jump_label_claim = (button_animation_claim_t){0};
-		return;
+	btn_t *released_buttons[JUMP_HIGHLIGHT_COMPONENT_COUNT] = {0};
+	int released_count = 0;
+	for (int index = JUMP_HIGHLIGHT_COMPONENT_COUNT - 1; index >= 0; index--) {
+		button_animation_claim_t *claim = &g_active_jump_claims[index];
+		if (claim->active && claim->button != NULL) {
+			bool already_released = false;
+			for (int earlier = 0; earlier < released_count; earlier++) {
+				if (released_buttons[earlier] == claim->button) {
+					already_released = true;
+					break;
+				}
+			}
+			if (already_released) {
+				g_active_jump_claims[index] = (button_animation_claim_t){0};
+				continue;
+			}
+			released_buttons[released_count++] = claim->button;
+		}
+		release_button_animation_claim(claim);
 	}
-	release_button_animation_claim(&g_active_jump_label_claim);
-	release_button_animation_claim(&g_active_jump_operand_claim);
 }
 
 static void start_active_jump_replacement_highlight(code_line_t *line)
@@ -149,30 +179,87 @@ static void start_active_jump_replacement_highlight(code_line_t *line)
 		return;
 	}
 
-	btn_t *operand_button = line->op1->b;
-	btn_t *label_button = get_jump_target_label_button(line);
-	if (label_button == operand_button) {
-		label_button = NULL;
+	jump_target_label_buttons_t target_buttons =
+		get_jump_target_label_buttons(line);
+	btn_t *desired_buttons[JUMP_HIGHLIGHT_COMPONENT_COUNT] = {
+		line->op1->b,
+		target_buttons.instruction_button,
+		target_buttons.operand_button
+	};
+	for (int index = 0; index < JUMP_HIGHLIGHT_COMPONENT_COUNT; index++) {
+		if (desired_buttons[index] == NULL) {
+			continue;
+		}
+		for (int earlier = 0; earlier < index; earlier++) {
+			if (desired_buttons[earlier] == desired_buttons[index]) {
+				desired_buttons[index] = NULL;
+				break;
+			}
+		}
 	}
-	if (g_active_jump_operand_claim.active &&
-	    g_active_jump_operand_claim.button == operand_button &&
-	    g_active_jump_label_claim.active == (label_button != NULL) &&
-	    (!g_active_jump_label_claim.active ||
-	     g_active_jump_label_claim.button == label_button)) {
+	bool same_relationship = true;
+	for (int index = 0; index < JUMP_HIGHLIGHT_COMPONENT_COUNT; index++) {
+		button_animation_claim_t *claim = &g_active_jump_claims[index];
+		if ((desired_buttons[index] != NULL) != claim->active ||
+		    (claim->active && claim->button != desired_buttons[index])) {
+			same_relationship = false;
+			break;
+		}
+	}
+	if (same_relationship) {
 		return;
 	}
 	release_active_jump_replacement_claims();
-	claim_button_animation(&g_active_jump_operand_claim, operand_button);
-	claim_button_animation(&g_active_jump_label_claim, label_button);
+	for (int index = 0; index < JUMP_HIGHLIGHT_COMPONENT_COUNT; index++) {
+		claim_button_animation(&g_active_jump_claims[index], desired_buttons[index]);
+	}
 }
 
 static bool button_has_active_jump_claim(const btn_t *button)
 {
-	return button != NULL &&
-		((g_active_jump_operand_claim.active &&
-		  g_active_jump_operand_claim.button == button) ||
-		 (g_active_jump_label_claim.active &&
-		  g_active_jump_label_claim.button == button));
+	if (button == NULL) {
+		return false;
+	}
+	for (int index = 0; index < JUMP_HIGHLIGHT_COMPONENT_COUNT; index++) {
+		if (g_active_jump_claims[index].active &&
+		    g_active_jump_claims[index].button == button) {
+			return true;
+		}
+	}
+	return false;
+}
+
+static bool get_active_jump_target_label_group(
+	const code_line_t *line,
+	jump_target_label_buttons_t *buttons)
+{
+	if (buttons == NULL) {
+		return false;
+	}
+	*buttons = (jump_target_label_buttons_t){0};
+	code_line_t *pending_line = cw_get_code_line_pending_operand();
+	if (!cw_is_active_jump_operand_replacement(pending_line, pending_line) ||
+	    pending_line->op1 == NULL || pending_line->op1->b == NULL ||
+	    pending_line->op1->jptr != line) {
+		return false;
+	}
+	jump_target_label_buttons_t target_buttons =
+		get_jump_target_label_buttons(pending_line);
+	button_animation_claim_t *instruction_claim =
+		&g_active_jump_claims[JUMP_HIGHLIGHT_LABEL_INSTRUCTION];
+	button_animation_claim_t *operand_claim =
+		&g_active_jump_claims[JUMP_HIGHLIGHT_LABEL_OPERAND];
+	if (target_buttons.instruction_button != NULL &&
+	    instruction_claim->active &&
+	    instruction_claim->button == target_buttons.instruction_button) {
+		buttons->instruction_button = target_buttons.instruction_button;
+	}
+	if (target_buttons.operand_button != NULL &&
+	    operand_claim->active &&
+	    operand_claim->button == target_buttons.operand_button) {
+		buttons->operand_button = target_buttons.operand_button;
+	}
+	return buttons->instruction_button != NULL || buttons->operand_button != NULL;
 }
 
 int cw_get_code_line_spacing(void)
@@ -1786,6 +1873,19 @@ void cw_draw_code_window(void)
 
 }
 
+static void draw_code_button(btn_t *button, bool blocked, bool hover)
+{
+	if (button == NULL) {
+		return;
+	}
+	if (button_has_active_jump_claim(button)) {
+		bt_draw_btn_with_highlight_progress(button, blocked, hover,
+		                                   ha_get_progress());
+	} else {
+		bt_draw_btn(button, blocked, hover);
+	}
+}
+
 static void draw_operand_button(code_line_t *line, operand_t *operand,
 	                            int changing_state, bool blocked)
 {
@@ -1795,11 +1895,53 @@ static void draw_operand_button(code_line_t *line, operand_t *operand,
 		    line, changing_state, pending_line)) {
 		return;
 	}
-	if (button_has_active_jump_claim(operand->b)) {
-		bt_draw_btn_with_highlight_progress(operand->b, blocked, false,
-		                                   ha_get_progress());
-	} else {
-		bt_draw_btn(operand->b, blocked, false);
+	draw_code_button(operand->b, blocked, false);
+}
+
+static bool button_is_in_label_group(const btn_t *button,
+	                                 jump_target_label_buttons_t buttons)
+{
+	return button != NULL &&
+		(button == buttons.instruction_button || button == buttons.operand_button);
+}
+
+static void draw_code_line_buttons(code_line_t *line, bool blocked)
+{
+	jump_target_label_buttons_t label_buttons;
+	bool grouped_label = get_active_jump_target_label_group(line, &label_buttons);
+	if (grouped_label) {
+		btn_t *reference_button =
+			g_active_jump_claims[JUMP_HIGHLIGHT_OPERAND].button;
+		float reference_scale;
+		bt_group_draw_item_t items[] = {
+			{label_buttons.instruction_button, blocked, false},
+			{label_buttons.operand_button, blocked, false}
+		};
+		if (bt_calculate_button_highlight_scale(
+			reference_button, ha_get_progress(), &reference_scale)) {
+			if (!bt_draw_btn_group_with_highlight_scale(
+				items, sizeof(items) / sizeof(items[0]), reference_scale,
+				BT_HIGHLIGHT_ANCHOR_LEFT)) {
+				draw_code_button(label_buttons.instruction_button, blocked, false);
+				draw_code_button(label_buttons.operand_button, blocked, false);
+			}
+		} else {
+			draw_code_button(label_buttons.instruction_button, blocked, false);
+			draw_code_button(label_buttons.operand_button, blocked, false);
+		}
+	}
+
+	if (!grouped_label ||
+	    !button_is_in_label_group(line->ins != NULL ? line->ins->b : NULL,
+	                              label_buttons)) {
+		draw_code_button(line->ins != NULL ? line->ins->b : NULL, blocked, false);
+	}
+	if (line->op1 != NULL &&
+	    (!grouped_label || !button_is_in_label_group(line->op1->b, label_buttons))) {
+		draw_operand_button(line, line->op1, CHANGING_OP1, blocked);
+	}
+	if (line->op2 != NULL) {
+		draw_operand_button(line, line->op2, CHANGING_OP2, blocked);
 	}
 }
 
@@ -1826,16 +1968,7 @@ static void display_player_code(void)
 	SDL_Rect cb = cl_get_code_button_size();
 	LIST_FOREACH(code, first, next, cur){
 		code_line_t *line = cur->value;	
-		bt_draw_btn(line->ins->b, sb_chk_rst_esc_menu_active(), false);
-		
-		if (line->op1 != NULL){
-			draw_operand_button(line, line->op1, CHANGING_OP1,
-			                    sb_chk_rst_esc_menu_active());
-		}
-		if (line->op2 != NULL){
-			draw_operand_button(line, line->op2, CHANGING_OP2,
-			                    sb_chk_rst_esc_menu_active());
-		}
+		draw_code_line_buttons(line, sb_chk_rst_esc_menu_active());
 	
 		int comma = cl_get_instruction_operand_quantity(line->ins->id);
 
@@ -2370,16 +2503,12 @@ void cw_player_holding_instruction(code_line_t *line, bool arng, bool del)
 	if (line->op1 != NULL){
 		line->op1->b->r.x = line->ins->b->r.x + op1_ofs;
 		line->op1->b->r.y = line->ins->b->r.y;
-		draw_operand_button(line, line->op1, CHANGING_OP1,
-		                    em_get_escape_state());
 	}
 	if (line->op2 != NULL){
 		line->op2->b->r.x = line->ins->b->r.x + op2_ofs;
 		line->op2->b->r.y = line->ins->b->r.y;
-		draw_operand_button(line, line->op2, CHANGING_OP2,
-		                    em_get_escape_state());
 	}
-	bt_draw_btn(line->ins->b, em_get_escape_state(), false);
+	draw_code_line_buttons(line, em_get_escape_state());
 }
 
 /* Function: cw_is_operand_1_pending

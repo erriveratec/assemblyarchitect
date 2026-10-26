@@ -297,7 +297,8 @@ static void test_jumps_and_labels(void)
 		label->op1->b->anim_dir = true;
 		label->op1->b->anim_state = 8;
 		select_operand(jump, OP1);
-		assert(jump->op1->b->animated && label->op1->b->animated);
+		assert(jump->op1->b->animated && label->ins->b->animated &&
+		       label->op1->b->animated);
 		assert(jump->op1->b->anim_state == label->op1->b->anim_state);
 		assert(label->state == COMPLETE);
 		assert(cw_is_active_jump_operand_replacement(
@@ -349,9 +350,11 @@ static void test_jump_animation_claim_lifecycle(void)
 	first_jump->op1->jptr = first_label;
 	second_jump->op1->jptr = second_label;
 	set_animation(first_jump->op1->b, false, true, 17);
+	set_animation(first_label->ins->b, true, false, 4);
 	set_animation(first_label->op1->b, true, true, 11);
 	select_operand(first_jump, OP1);
 	assert(first_jump->op1->b->animated && first_jump->op1->b->anim_state == 0);
+	assert(first_label->ins->b->animated && first_label->ins->b->anim_state == 0);
 	assert(first_label->op1->b->animated && first_label->op1->b->anim_state == 0);
 	assert(first_label->state == COMPLETE);
 
@@ -362,6 +365,8 @@ static void test_jump_animation_claim_lifecycle(void)
 	assert(first_jump->state == COMPLETE && first_label->state == COMPLETE);
 	assert(!first_jump->op1->b->animated);
 	assert(first_jump->op1->b->anim_dir && first_jump->op1->b->anim_state == 17);
+	assert(first_label->ins->b->animated && !first_label->ins->b->anim_dir);
+	assert(first_label->ins->b->anim_state == 4);
 	assert(first_label->op1->b->animated && first_label->op1->b->anim_dir);
 	assert(first_label->op1->b->anim_state == 11);
 	cw_cancel_pending_operand_change();
@@ -374,12 +379,16 @@ static void test_jump_animation_claim_lifecycle(void)
 	assert(first_jump->op1->b->anim_dir && first_jump->op1->b->anim_state == 17);
 	assert(first_label->op1->b->animated && first_label->op1->b->anim_dir);
 	assert(first_label->op1->b->anim_state == 11);
+	assert(first_label->ins->b->animated && !first_label->ins->b->anim_dir);
+	assert(first_label->ins->b->anim_state == 4);
 	assert(second_jump->op1->b->animated && second_label->op1->b->animated);
+	assert(second_label->ins->b->animated);
 	assert(first_label->state == COMPLETE && second_label->state == COMPLETE);
 	select_operand(normal, OP1);
 	assert(!second_jump->op1->b->animated);
 	assert(!second_jump->op1->b->anim_dir && second_jump->op1->b->anim_state == 0);
 	assert(!second_label->op1->b->animated);
+	assert(!second_label->ins->b->animated);
 	assert(normal->state == CHANGING_OP1);
 
 	reset_fixture();
@@ -387,9 +396,11 @@ static void test_jump_animation_claim_lifecycle(void)
 	first_label = add_line(LABEL, true, false);
 	first_jump->op1->jptr = first_label;
 	select_operand(first_jump, OP1);
-	assert(first_jump->op1->b->animated && first_label->op1->b->animated);
+	assert(first_jump->op1->b->animated && first_label->ins->b->animated &&
+	       first_label->op1->b->animated);
 	cw_cancel_pending_operand_change();
 	assert_reset(first_jump->op1->b);
+	assert_reset(first_label->ins->b);
 	assert_reset(first_label->op1->b);
 	reset_fixture();
 
@@ -403,37 +414,95 @@ static void test_jump_animation_claim_lifecycle(void)
 	assert(!first_jump->op1->b->animated);
 	assert(first_jump->op1->b->anim_dir && first_jump->op1->b->anim_state == 19);
 	reset_fixture();
+
+	first_jump = add_line(JMP, true, false);
+	code_line_t *old_label = add_line(LABEL, true, false);
+	code_line_t *new_label = add_line(LABEL, true, false);
+	first_jump->op1->jptr = old_label;
+	set_animation(old_label->ins->b, false, true, 5);
+	select_operand(first_jump, OP1);
+	first_jump->op1->jptr = new_label;
+	select_operand(first_jump, OP1);
+	assert(!old_label->ins->b->animated && old_label->ins->b->anim_dir);
+	assert(old_label->ins->b->anim_state == 5);
+	assert_reset(old_label->op1->b);
+	assert(new_label->ins->b->animated && new_label->op1->b->animated);
+	cw_cancel_pending_operand_change();
+	reset_fixture();
 }
 
 static void test_jump_animation_claim_missing_targets(void)
 {
-	for (int scenario = 0; scenario < 5; scenario++) {
+	for (int scenario = 0; scenario < 6; scenario++) {
 		code_line_t *jump = add_line(JNE, true, false);
 		code_line_t *target = add_line(scenario == 1 ? MOV : LABEL, true, false);
 		jump->op1->jptr = target;
 		if (scenario == 0) jump->op1->jptr = NULL;
 		if (scenario == 2) target->ins = NULL;
-		if (scenario == 3) target->op1 = NULL;
-		if (scenario == 4) target->op1->b = NULL;
+		if (scenario == 3) target->ins->b = NULL;
+		if (scenario == 4) target->op1 = NULL;
+		if (scenario == 5) target->op1->b = NULL;
 		set_animation(jump->op1->b, false, true, 13);
 		if (target->op1 != NULL && target->op1->b != NULL) {
 			set_animation(target->op1->b, true, false, 7);
 		}
 		btn_t *target_button = target->op1 != NULL ? target->op1->b : NULL;
+		btn_t *target_instruction_button = target->ins != NULL ? target->ins->b : NULL;
 		select_operand(jump, OP1);
 		assert(jump->op1->b->animated);
 		assert(jump->op1->b->anim_state == 0);
 		if (target_button != NULL) {
 			assert(target_button->animated);
-			assert(target_button->anim_state == 7);
+			assert(target_button->anim_state ==
+			       (scenario != 0 && target->ins != NULL &&
+			        target->ins->id == LABEL ? 0 : 7));
+		}
+		if (target_instruction_button != NULL) {
+			if (scenario != 0 && target->ins->id == LABEL) {
+				assert(target_instruction_button->animated);
+				assert(target_instruction_button->anim_state == 0);
+			} else {
+				assert(!target_instruction_button->animated);
+			}
 		}
 		cw_cancel_pending_operand_change();
 		assert(!jump->op1->b->animated && jump->op1->b->anim_dir);
 		assert(jump->op1->b->anim_state == 13);
 		if (target_button != NULL) {
 			assert(target_button->animated);
-			assert(!target_button->anim_dir && target_button->anim_state == 7);
+			assert(!target_button->anim_dir);
+			assert(target_button->anim_state == 7);
 		}
+		if (target_instruction_button != NULL) {
+			assert(!target_instruction_button->animated);
+			assert(!target_instruction_button->anim_dir &&
+			       target_instruction_button->anim_state == 0);
+		}
+		reset_fixture();
+	}
+}
+
+static void test_jump_animation_claim_aliases(void)
+{
+	for (int scenario = 0; scenario < 4; scenario++) {
+		code_line_t *jump = add_line(JMP, true, false);
+		code_line_t *label = add_line(LABEL, true, false);
+		jump->op1->jptr = label;
+		btn_t *jump_button = jump->op1->b;
+		btn_t *instruction_button = label->ins->b;
+		btn_t *operand_button = label->op1->b;
+		if (scenario == 0 || scenario == 3) instruction_button = jump_button;
+		if (scenario == 1 || scenario == 3) operand_button = jump_button;
+		if (scenario == 2 || scenario == 3) operand_button = instruction_button;
+		label->ins->b = instruction_button;
+		label->op1->b = operand_button;
+		set_animation(jump_button, false, true, 23);
+		select_operand(jump, OP1);
+		assert(jump_button->animated);
+		assert(label->state == COMPLETE);
+		cw_cancel_pending_operand_change();
+		assert(!jump_button->animated && jump_button->anim_dir);
+		assert(jump_button->anim_state == 23);
 		reset_fixture();
 	}
 }
@@ -739,6 +808,7 @@ int main(void)
 	test_jumps_and_labels();
 	test_jump_animation_claim_lifecycle();
 	test_jump_animation_claim_missing_targets();
+	test_jump_animation_claim_aliases();
 	test_defensive_jump_click_away();
 	test_click_away();
 	test_replacement();

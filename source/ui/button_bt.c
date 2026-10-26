@@ -43,6 +43,289 @@ static void draw_button(btn_t *button, bool blk, bool hv,
 	                    bool use_highlight_progress,
 	                    float normalized_progress);
 
+static float clamp_highlight_progress(float normalized_progress)
+{
+	if (!isfinite(normalized_progress)) {
+		return 0.0f;
+	}
+	return fmaxf(0.0f, fminf(1.0f, normalized_progress));
+}
+
+static float get_highlight_growth(float normalized_progress, int animation_limit)
+{
+	if (animation_limit <= 0) {
+		return 0.0f;
+	}
+	return clamp_highlight_progress(normalized_progress) *
+	       (float)animation_limit;
+}
+
+bool bt_calculate_highlight_group_rects(const SDL_FRect *base_rects,
+	                                    size_t rect_count,
+	                                    float normalized_progress,
+	                                    int animation_limit,
+	                                    SDL_FRect *draw_rects)
+{
+	if (base_rects == NULL || draw_rects == NULL || rect_count == 0 ||
+	    !isfinite(normalized_progress)) {
+		return false;
+	}
+	SDL_FRect group = {0};
+	for (size_t index = 0; index < rect_count; index++) {
+		SDL_FRect rect = base_rects[index];
+		if (!isfinite(rect.x) || !isfinite(rect.y) ||
+		    !isfinite(rect.w) || !isfinite(rect.h) ||
+		    rect.w <= 0.0f || rect.h <= 0.0f) {
+			return false;
+		}
+		if (index == 0) {
+			group = rect;
+		} else {
+			float left = fminf(group.x, rect.x);
+			float top = fminf(group.y, rect.y);
+			float right = fmaxf(group.x + group.w, rect.x + rect.w);
+			float bottom = fmaxf(group.y + group.h, rect.y + rect.h);
+			group = (SDL_FRect){left, top, right - left, bottom - top};
+		}
+	}
+	if (!isfinite(group.w) || group.w <= 0.0f) {
+		return false;
+	}
+	float growth = get_highlight_growth(normalized_progress, animation_limit);
+	float scale = 1.0f + growth / group.w;
+	return bt_calculate_highlight_group_rects_with_scale(
+		base_rects, rect_count, scale, BT_HIGHLIGHT_ANCHOR_CENTER, draw_rects);
+}
+
+bool bt_calculate_button_highlight_scale(const btn_t *button,
+	                                     float normalized_progress,
+	                                     float *scale)
+{
+	if (button == NULL || button->t == NULL || scale == NULL ||
+	    button->t->w <= 0 || button->t->h <= 0 ||
+	    button->r.w <= 0 || button->r.h <= 0 ||
+	    !isfinite(normalized_progress)) {
+		return false;
+	}
+	float width_scale = (float)button->r.w / (float)button->t->w;
+	float height_scale = (float)button->r.h / (float)button->t->h;
+	float reference_extent = width_scale < height_scale ?
+		(float)button->r.w : (float)button->r.h;
+	float growth = get_highlight_growth(normalized_progress,
+	                                   dw_get_animation_limit());
+	*scale = 1.0f + growth / reference_extent;
+	return isfinite(*scale) && *scale > 0.0f;
+}
+
+bool bt_calculate_highlight_group_rects_with_scale(
+	const SDL_FRect *base_rects,
+	size_t rect_count,
+	float scale,
+	bt_highlight_horizontal_anchor_t horizontal_anchor,
+	SDL_FRect *draw_rects)
+{
+	if (base_rects == NULL || draw_rects == NULL || rect_count == 0 ||
+	    !isfinite(scale) || scale <= 0.0f ||
+	    (horizontal_anchor != BT_HIGHLIGHT_ANCHOR_CENTER &&
+	     horizontal_anchor != BT_HIGHLIGHT_ANCHOR_LEFT)) {
+		return false;
+	}
+	SDL_FRect group = {0};
+	for (size_t index = 0; index < rect_count; index++) {
+		SDL_FRect rect = base_rects[index];
+		if (!isfinite(rect.x) || !isfinite(rect.y) ||
+		    !isfinite(rect.w) || !isfinite(rect.h) ||
+		    rect.w <= 0.0f || rect.h <= 0.0f) {
+			return false;
+		}
+		if (index == 0) {
+			group = rect;
+		} else {
+			float left = fminf(group.x, rect.x);
+			float top = fminf(group.y, rect.y);
+			float right = fmaxf(group.x + group.w, rect.x + rect.w);
+			float bottom = fmaxf(group.y + group.h, rect.y + rect.h);
+			group = (SDL_FRect){left, top, right - left, bottom - top};
+		}
+	}
+	float anchor_x = horizontal_anchor == BT_HIGHLIGHT_ANCHOR_LEFT ?
+		group.x : group.x + group.w / 2.0f;
+	float center_y = group.y + group.h / 2.0f;
+	for (size_t index = 0; index < rect_count; index++) {
+		draw_rects[index] = (SDL_FRect){
+			.x = anchor_x + (base_rects[index].x - anchor_x) * scale,
+			.y = center_y + (base_rects[index].y - center_y) * scale,
+			.w = base_rects[index].w * scale,
+			.h = base_rects[index].h * scale
+		};
+	}
+	return true;
+}
+
+static SDL_FRect get_fitted_button_rect(SDL_Rect box, const texture_t *texture)
+{
+	float width_scale = (float)box.w / (float)texture->w;
+	float height_scale = (float)box.h / (float)texture->h;
+	if (width_scale < height_scale) {
+		int height = (int)((float)texture->h * width_scale);
+		int y = (int)((float)box.y + ((float)box.h -
+		                             (float)texture->h * width_scale) / 2.0f);
+		return (SDL_FRect){
+			.x = (float)box.x,
+			.y = (float)y,
+			.w = (float)box.w,
+			.h = (float)height
+		};
+	}
+	int width = (int)((float)texture->w * height_scale);
+	int x = (int)((float)box.x + ((float)box.w -
+	                             (float)texture->w * height_scale) / 2.0f);
+	return (SDL_FRect){
+		.x = (float)x,
+		.y = (float)box.y,
+		.w = (float)width,
+		.h = (float)box.h
+	};
+}
+
+static SDL_Rect get_button_draw_box(const bt_group_draw_item_t *item,
+	                                bool *is_hovered)
+{
+	btn_t *button = item->button;
+	bool hover = (ax_chk_mouse_hover_rect(button->r) && button->enabled &&
+	              !item->blocked) || (item->hover && !item->blocked);
+	*is_hovered = hover;
+	SDL_Rect box = button->r;
+	if (hover) {
+		box = ax_scale_rect_percentage(box, bt_get_hover_factor());
+		box.y -= bt_get_btn_lift();
+	}
+	return box;
+}
+
+static bool draw_button_group(
+	const bt_group_draw_item_t *items,
+	size_t item_count,
+	float normalized_progress,
+	bool use_explicit_scale,
+	float explicit_scale,
+	bt_highlight_horizontal_anchor_t horizontal_anchor)
+{
+	if (items == NULL || item_count == 0) {
+		return false;
+	}
+	bt_group_draw_item_t *valid_items = calloc(item_count, sizeof(*valid_items));
+	SDL_FRect *base_rects = calloc(item_count, sizeof(*base_rects));
+	SDL_FRect *draw_rects = calloc(item_count, sizeof(*draw_rects));
+	if (valid_items == NULL || base_rects == NULL || draw_rects == NULL) {
+		free(valid_items);
+		free(base_rects);
+		free(draw_rects);
+		return false;
+	}
+	size_t valid_count = 0;
+	for (size_t index = 0; index < item_count; index++) {
+		btn_t *button = items[index].button;
+		if (button == NULL || button->t == NULL || button->t->w <= 0 ||
+		    button->t->h <= 0 || button->r.w <= 0 || button->r.h <= 0) {
+			continue;
+		}
+		bool duplicate = false;
+		for (size_t previous = 0; previous < valid_count; previous++) {
+			if (valid_items[previous].button == button) {
+				duplicate = true;
+				break;
+			}
+		}
+		if (!duplicate) {
+			valid_items[valid_count++] = items[index];
+		}
+	}
+	if (valid_count == 0) {
+		free(valid_items);
+		free(base_rects);
+		free(draw_rects);
+		return true;
+	}
+	for (size_t index = 0; index < valid_count; index++) {
+		bool hovered;
+		SDL_Rect box = get_button_draw_box(&valid_items[index], &hovered);
+		base_rects[index] = get_fitted_button_rect(box,
+		                                            valid_items[index].button->t);
+	}
+	for (size_t index = 1; index < valid_count; index++) {
+		size_t current = index;
+		while (current > 0 &&
+		       base_rects[current].x < base_rects[current - 1].x) {
+			SDL_FRect rect = base_rects[current];
+			base_rects[current] = base_rects[current - 1];
+			base_rects[current - 1] = rect;
+			bt_group_draw_item_t item = valid_items[current];
+			valid_items[current] = valid_items[current - 1];
+			valid_items[current - 1] = item;
+			current--;
+		}
+	}
+	bool geometry_valid = use_explicit_scale ?
+		bt_calculate_highlight_group_rects_with_scale(
+			base_rects, valid_count, explicit_scale, horizontal_anchor,
+			draw_rects) :
+		bt_calculate_highlight_group_rects(
+			base_rects, valid_count, normalized_progress,
+			dw_get_animation_limit(), draw_rects);
+	if (!geometry_valid) {
+		free(valid_items);
+		free(base_rects);
+		free(draw_rects);
+		return false;
+	}
+	for (size_t index = 0; index < valid_count; index++) {
+		btn_t *button = valid_items[index].button;
+		if (button->rect) {
+			dw_draw_rectangle(button->r, C_WHITE);
+		}
+		bool hovered;
+		(void)get_button_draw_box(&valid_items[index], &hovered);
+		SDL_Color color = C_LIGHTGREY;
+		if ((hovered && button->enabled && !valid_items[index].blocked) ||
+		    (valid_items[index].hover && !valid_items[index].blocked)) {
+			color = C_WHITE;
+		} else if (!button->enabled) {
+			color = C_GREY;
+		}
+		dw_set_texture_color_mod(button->t, color);
+		if (!button->enabled) {
+			dw_draw_texture_rect_f(base_rects[index], button->t);
+		} else {
+			dw_draw_texture_rect_f(draw_rects[index], button->t);
+		}
+		dw_set_texture_color_mod(button->t, C_WHITE);
+	}
+	free(valid_items);
+	free(base_rects);
+	free(draw_rects);
+	return true;
+}
+
+bool bt_draw_btn_group_with_highlight_progress(
+	const bt_group_draw_item_t *items,
+	size_t item_count,
+	float normalized_progress)
+{
+	return draw_button_group(items, item_count, normalized_progress, false, 1.0f,
+	                         BT_HIGHLIGHT_ANCHOR_CENTER);
+}
+
+bool bt_draw_btn_group_with_highlight_scale(
+	const bt_group_draw_item_t *items,
+	size_t item_count,
+	float scale,
+	bt_highlight_horizontal_anchor_t horizontal_anchor)
+{
+	return draw_button_group(items, item_count, 0.0f, true, scale,
+	                         horizontal_anchor);
+}
+
 /* Function: get_w_button_padding
  * -----------------------------------------------------------------------------
  *	Returns the scale value for the horizontal padding

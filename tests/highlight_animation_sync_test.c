@@ -537,6 +537,14 @@ static void test_button_highlights_use_shared_phase(void)
 		.anim_state = 13,
 		.enabled = true
 	};
+	btn_t third = {
+		.r = {.x = 700, .y = 100, .w = 180, .h = 60},
+		.t = texture,
+		.animated = true,
+		.anim_dir = false,
+		.anim_state = 21,
+		.enabled = true
+	};
 	const size_t pixel_count = (size_t)g_screen->pitch * (size_t)g_screen->h;
 	unsigned char *forward_pixels = malloc(pixel_count);
 	unsigned char *reverse_pixels = malloc(pixel_count);
@@ -551,10 +559,12 @@ static void test_button_highlights_use_shared_phase(void)
 		clear_test_renderer();
 		bt_draw_btn_with_highlight_progress(&first, false, false, phase);
 		bt_draw_btn_with_highlight_progress(&second, false, false, phase);
+		bt_draw_btn_with_highlight_progress(&third, false, false, phase);
 		assert(ha_get_progress() == phase);
 		read_renderer_pixels(forward_pixels);
 
 		clear_test_renderer();
+		bt_draw_btn_with_highlight_progress(&third, false, false, phase);
 		bt_draw_btn_with_highlight_progress(&second, false, false, phase);
 		bt_draw_btn_with_highlight_progress(&first, false, false, phase);
 		assert(ha_get_progress() == phase);
@@ -562,14 +572,248 @@ static void test_button_highlights_use_shared_phase(void)
 		assert(memcmp(forward_pixels, reverse_pixels, pixel_count) == 0);
 
 		clear_test_renderer();
-		bt_draw_btn_with_highlight_progress(&first, false, false, phase);
+		int skipped_component = frame % 3;
+		if (skipped_component != 0) {
+			bt_draw_btn_with_highlight_progress(&first, false, false, phase);
+		}
+		if (skipped_component != 1) {
+			bt_draw_btn_with_highlight_progress(&second, false, false, phase);
+		}
+		if (skipped_component != 2) {
+			bt_draw_btn_with_highlight_progress(&third, false, false, phase);
+		}
 		assert(ha_get_progress() == phase);
 		assert(!first.animated && first.anim_dir && first.anim_state == 7);
 		assert(second.animated && second.anim_dir && second.anim_state == 13);
+		assert(third.animated && !third.anim_dir && third.anim_state == 21);
 	}
 	free(forward_pixels);
 	free(reverse_pixels);
 	dw_free_texture(texture);
+}
+
+static void test_group_highlight_geometry(void)
+{
+	const SDL_FRect base[] = {
+		{.x = 100.0f, .y = 100.0f, .w = 50.0f, .h = 24.0f},
+		{.x = 150.0f, .y = 100.0f, .w = 50.0f, .h = 24.0f}
+	};
+	const SDL_FRect original[] = {base[0], base[1]};
+	const float phases[] = {0.0f, 0.25f, 0.5f, 0.75f, 1.0f};
+	const float original_center_x = 150.0f;
+	const float original_center_y = 112.0f;
+	const float original_center_distance = 50.0f;
+	int animation_limit = dw_get_animation_limit();
+	assert(animation_limit > 0);
+	for (size_t phase_index = 0;
+	     phase_index < sizeof(phases) / sizeof(phases[0]); phase_index++) {
+		SDL_FRect output[2];
+		assert(bt_calculate_highlight_group_rects(
+			base, 2, phases[phase_index], animation_limit, output));
+		for (int index = 0; index < 2; index++) {
+			assert(output[index].w > 0.0f && output[index].h > 0.0f);
+		}
+		assert(output[0].x + output[0].w <= output[1].x + 0.001f);
+		assert(fabsf(output[0].y - output[1].y) < 0.001f);
+		float union_left = fminf(output[0].x, output[1].x);
+		float union_right = fmaxf(output[0].x + output[0].w,
+		                          output[1].x + output[1].w);
+		float union_top = fminf(output[0].y, output[1].y);
+		float union_bottom = fmaxf(output[0].y + output[0].h,
+		                           output[1].y + output[1].h);
+		assert(fabsf((union_left + union_right) / 2.0f - original_center_x) < 0.001f);
+		assert(fabsf((union_top + union_bottom) / 2.0f - original_center_y) < 0.001f);
+		float first_center = output[0].x + output[0].w / 2.0f;
+		float second_center = output[1].x + output[1].w / 2.0f;
+		float distance = second_center - first_center;
+		float scale = output[0].w / base[0].w;
+		assert(fabsf(distance - original_center_distance * scale) < 0.001f);
+		if (phase_index == 0) {
+			assert(memcmp(output, original, sizeof(output)) == 0);
+		}
+	}
+	assert(memcmp(base, original, sizeof(base)) == 0);
+
+	float independent_scale = 1.0f + (float)animation_limit / base[0].w;
+	float independent_left_right = base[0].x + base[0].w / 2.0f +
+		(base[0].w * independent_scale) / 2.0f;
+	float independent_right_left = base[1].x + base[1].w / 2.0f -
+		(base[1].w * independent_scale) / 2.0f;
+	assert(independent_left_right > independent_right_left);
+	SDL_FRect grouped_maximum[2];
+	assert(bt_calculate_highlight_group_rects(base, 2, 1.0f,
+	                                         animation_limit, grouped_maximum));
+	assert(grouped_maximum[0].x + grouped_maximum[0].w <=
+	       grouped_maximum[1].x + 0.001f);
+	assert(!bt_calculate_highlight_group_rects(NULL, 2, 0.5f,
+	                                          animation_limit, grouped_maximum));
+	assert(!bt_calculate_highlight_group_rects(base, 0, 0.5f,
+	                                          animation_limit, grouped_maximum));
+	SDL_FRect invalid[] = {{.x = 0.0f, .y = 0.0f, .w = 0.0f, .h = 10.0f}};
+	assert(!bt_calculate_highlight_group_rects(invalid, 1, 0.5f,
+	                                          animation_limit, grouped_maximum));
+	assert(!bt_calculate_highlight_group_rects(base, 2, NAN,
+	                                          animation_limit, grouped_maximum));
+	assert(bt_calculate_highlight_group_rects(base, 2, 1.0f, 0,
+	                                         grouped_maximum));
+	assert(memcmp(grouped_maximum, original, sizeof(grouped_maximum)) == 0);
+	assert(bt_calculate_highlight_group_rects(base, 2, 1.0f, -4,
+	                                         grouped_maximum));
+	assert(memcmp(grouped_maximum, original, sizeof(grouped_maximum)) == 0);
+}
+
+static void test_reference_scale_left_anchored_group(void)
+{
+	btn_t reference = {
+		.r = {.x = 10, .y = 20, .w = 50, .h = 24},
+		.enabled = true
+	};
+	texture_t reference_texture = {.w = 100, .h = 24};
+	reference.t = &reference_texture;
+	const SDL_FRect base[] = {
+		{.x = 5.0f, .y = 100.0f, .w = 40.0f, .h = 24.0f},
+		{.x = 45.0f, .y = 100.0f, .w = 45.0f, .h = 24.0f}
+	};
+	const float phases[] = {0.0f, 0.25f, 0.5f, 0.75f, 1.0f};
+	int animation_limit = dw_get_animation_limit();
+	for (size_t phase_index = 0;
+	     phase_index < sizeof(phases) / sizeof(phases[0]); phase_index++) {
+		float reference_scale;
+		assert(bt_calculate_button_highlight_scale(
+			&reference, phases[phase_index], &reference_scale));
+		SDL_FRect output[2];
+		assert(bt_calculate_highlight_group_rects_with_scale(
+			base, 2, reference_scale, BT_HIGHLIGHT_ANCHOR_LEFT, output));
+		assert(fabsf(output[0].x - base[0].x) < 0.0001f);
+		assert(fabsf(output[0].x - 5.0f) < 0.0001f);
+		assert(output[0].x + output[0].w <= output[1].x + 0.0001f);
+		assert(fabsf(output[0].w / base[0].w - reference_scale) < 0.0001f);
+		assert(fabsf(output[1].w / base[1].w - reference_scale) < 0.0001f);
+		assert(fabsf(output[0].h / base[0].h - reference_scale) < 0.0001f);
+		assert(fabsf(output[1].h / base[1].h - reference_scale) < 0.0001f);
+		float base_spacing = base[1].x - (base[0].x + base[0].w);
+		float output_spacing = output[1].x - (output[0].x + output[0].w);
+		assert(fabsf(output_spacing - base_spacing * reference_scale) < 0.0001f);
+		float base_right = base[1].x + base[1].w;
+		float output_right = output[1].x + output[1].w;
+		if (phases[phase_index] == 0.0f) {
+			assert(fabsf(output_right - base_right) < 0.0001f);
+		} else {
+			assert(output_right > base_right);
+		}
+		assert(fabsf(reference_scale -
+			(1.0f + phases[phase_index] * (float)animation_limit / 50.0f)) <
+		       0.0001f);
+	}
+
+	float maximum_scale;
+	assert(bt_calculate_button_highlight_scale(&reference, 1.0f, &maximum_scale));
+	SDL_FRect partial_base[] = {base[1]};
+	SDL_FRect partial_output[1];
+	assert(bt_calculate_highlight_group_rects_with_scale(
+		partial_base, 1, maximum_scale, BT_HIGHLIGHT_ANCHOR_LEFT,
+		partial_output));
+	assert(fabsf(partial_output[0].x - partial_base[0].x) < 0.0001f);
+	assert(fabsf(partial_output[0].w / partial_base[0].w - maximum_scale) <
+	       0.0001f);
+	assert(partial_output[0].x + partial_output[0].w >
+	       partial_base[0].x + partial_base[0].w);
+	assert(!bt_calculate_highlight_group_rects_with_scale(
+		base, 2, NAN, BT_HIGHLIGHT_ANCHOR_LEFT, partial_output));
+}
+
+static bool region_has_non_black_pixel(SDL_Rect region)
+{
+	Uint32 *pixels = malloc((size_t)region.w * (size_t)region.h * sizeof(*pixels));
+	assert(pixels != NULL);
+	assert(SDL_RenderReadPixels(g_renderer, &region, SDL_PIXELFORMAT_RGBA32,
+	                            pixels, region.w * (int)sizeof(*pixels)) == 0);
+	bool found = false;
+	for (int index = 0; index < region.w * region.h; index++) {
+		Uint8 red, green, blue, alpha;
+		SDL_GetRGBA(pixels[index], g_screen->format, &red, &green, &blue, &alpha);
+		if ((red != 0 || green != 0 || blue != 0) && alpha != 0) {
+			found = true;
+			break;
+		}
+	}
+	free(pixels);
+	return found;
+}
+
+static void test_group_highlight_rendering(void)
+{
+	texture_t *instruction_texture = dw_create_text_tex("line", C_WHITE);
+	texture_t *operand_texture = dw_create_text_tex("03:", C_WHITE);
+	assert(instruction_texture != NULL && operand_texture != NULL);
+	btn_t instruction = {
+		.r = {.x = 100, .y = 300, .w = 50, .h = 24},
+		.t = instruction_texture, .enabled = true
+	};
+	btn_t operand = {
+		.r = {.x = 150, .y = 300, .w = 50, .h = 24},
+		.t = operand_texture, .enabled = true
+	};
+	SDL_Rect original_instruction = instruction.r;
+	SDL_Rect original_operand = operand.r;
+	bt_group_draw_item_t forward[] = {
+		{&instruction, false, false}, {&operand, false, false}
+	};
+	bt_group_draw_item_t reverse[] = {
+		{&operand, false, false}, {&instruction, false, false}
+	};
+	const size_t pixel_count = (size_t)g_screen->pitch * (size_t)g_screen->h;
+	unsigned char *forward_pixels = malloc(pixel_count);
+	unsigned char *reverse_pixels = malloc(pixel_count);
+	assert(forward_pixels != NULL && reverse_pixels != NULL);
+	ha_reset();
+	ms_init_mouse();
+	for (int frame = 0; frame < 2 * get_cycle_frame_budget(); frame++) {
+		ha_begin_frame();
+		float phase = ha_get_progress();
+		clear_test_renderer();
+		assert(bt_draw_btn_group_with_highlight_progress(forward, 2, phase));
+		assert(ha_get_progress() == phase);
+		read_renderer_pixels(forward_pixels);
+		clear_test_renderer();
+		assert(bt_draw_btn_group_with_highlight_progress(reverse, 2, phase));
+		assert(ha_get_progress() == phase);
+		read_renderer_pixels(reverse_pixels);
+		assert(memcmp(forward_pixels, reverse_pixels, pixel_count) == 0);
+		assert(!instruction.animated && instruction.anim_state == 0);
+		assert(!operand.animated && operand.anim_state == 0);
+		assert_rect_equal(instruction.r, original_instruction);
+		assert_rect_equal(operand.r, original_operand);
+	}
+
+	clear_test_renderer();
+	float scale;
+	assert(bt_calculate_button_highlight_scale(&instruction, 1.0f, &scale));
+	assert(bt_draw_btn_group_with_highlight_scale(
+		forward, 2, scale, BT_HIGHLIGHT_ANCHOR_LEFT));
+	assert(region_has_non_black_pixel((SDL_Rect){90, 285, 60, 50}));
+	assert(region_has_non_black_pixel((SDL_Rect){150, 285, 65, 50}));
+	bt_group_draw_item_t instruction_only[] = {{&instruction, false, false}};
+	bt_group_draw_item_t operand_only[] = {{&operand, false, false}};
+	assert(bt_draw_btn_group_with_highlight_progress(instruction_only, 1, 0.5f));
+	assert(bt_draw_btn_group_with_highlight_progress(operand_only, 1, 0.5f));
+	assert(!bt_draw_btn_group_with_highlight_progress(NULL, 0, 0.5f));
+	bt_group_draw_item_t partial_group[] = {
+		{NULL, false, false}, {&operand, false, false}
+	};
+	assert(bt_draw_btn_group_with_highlight_progress(partial_group, 2, 0.5f));
+	bt_group_draw_item_t empty_group[] = {{NULL, false, false}, {NULL, true, true}};
+	assert(bt_draw_btn_group_with_highlight_progress(empty_group, 2, 0.5f));
+	bt_group_draw_item_t duplicate[] = {
+		{&instruction, false, false}, {&instruction, false, false}
+	};
+	clear_test_renderer();
+	assert(bt_draw_btn_group_with_highlight_progress(duplicate, 2, 0.5f));
+	assert(region_has_non_black_pixel((SDL_Rect){95, 285, 60, 50}));
+	free(forward_pixels);
+	free(reverse_pixels);
+	dw_free_texture(instruction_texture);
+	dw_free_texture(operand_texture);
 }
 
 static void assert_tinted_label_colors(SDL_Color immediate_color,
@@ -890,6 +1134,9 @@ int main(void)
 	test_source_ownership_and_inactive_clock();
 	test_zero_flag_source_ownership_and_progress();
 	test_button_highlights_use_shared_phase();
+	test_group_highlight_geometry();
+	test_reference_scale_left_anchored_group();
+	test_group_highlight_rendering();
 	test_getters_preserve_frame_snapshot();
 	test_invalid_getter_inputs();
 	test_button_foreground_override();
