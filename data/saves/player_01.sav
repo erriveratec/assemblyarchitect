@@ -116,6 +116,7 @@ code_end
 unlocked = true
 code_begin
 line 01
+MOV rax, [ib]
 JMP 00
 code_end
 
