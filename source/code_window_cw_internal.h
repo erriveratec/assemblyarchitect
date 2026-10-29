@@ -3,42 +3,12 @@
 
 #include <math.h>
 #include <stdbool.h>
-#include <limits.h>
-#include <stdint.h>
 #include <SDL.h>
 #include "code_line_cl.h"
 #include "text_tx.h"
 
-static inline bool cw_calculate_challenge_frame_rect(
-	SDL_Rect text_bounds, SDL_Rect container, int allowance, SDL_Rect *frame)
-{
-	if (frame == NULL || text_bounds.w <= 0 || text_bounds.h <= 0 ||
-	    container.w <= 0 || container.h <= 0 || allowance < 0) {
-		return false;
-	}
-	int64_t left = (int64_t)text_bounds.x - allowance;
-	int64_t top = (int64_t)text_bounds.y - allowance;
-	int64_t right = (int64_t)text_bounds.x + text_bounds.w + allowance;
-	int64_t bottom = (int64_t)text_bounds.y + text_bounds.h + allowance;
-	int64_t container_right = (int64_t)container.x + container.w;
-	int64_t container_bottom = (int64_t)container.y + container.h;
-	if (left < container.x) left = container.x;
-	if (top < container.y) top = container.y;
-	if (right > container_right) right = container_right;
-	if (bottom > container_bottom) bottom = container_bottom;
-	if (right <= left || bottom <= top || left < INT_MIN || top < INT_MIN ||
-	    right > INT_MAX || bottom > INT_MAX || right - left > INT_MAX ||
-	    bottom - top > INT_MAX) {
-		return false;
-	}
-	*frame = (SDL_Rect){
-		.x = (int)left,
-		.y = (int)top,
-		.w = (int)(right - left),
-		.h = (int)(bottom - top)
-	};
-	return true;
-}
+bool cw_calculate_challenge_frame_rect(
+	SDL_Rect text_bounds, SDL_Rect container, int allowance, SDL_Rect *frame);
 
 #ifdef CW_CHALLENGE_TEXT_TESTING
 typedef tx_styled_text_t *(*cw_challenge_text_factory_t)(

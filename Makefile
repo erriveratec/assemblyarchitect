@@ -168,7 +168,7 @@ test-highlight-animation-sync: | $(TEST_BUILD_DIR)
 	./$(HIGHLIGHT_ANIMATION_SYNC_TEST_EXEC)
 
 test-tutorial-arrow-animation: | $(TEST_BUILD_DIR)
-	$(CC) $(CFLAGS) $(TUTORIAL_ARROW_ANIMATION_TEST_SOURCE) \
+	$(CC) $(CFLAGS) -DTR_TUTORIAL_TESTING $(TUTORIAL_ARROW_ANIMATION_TEST_SOURCE) \
 	    $(filter-out $(S_DIR)/arrow_ar.c,$(TEST_SOURCES)) -o $(TUTORIAL_ARROW_ANIMATION_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(TUTORIAL_ARROW_ANIMATION_TEST_EXEC)

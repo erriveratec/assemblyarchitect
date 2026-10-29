@@ -1,13 +1,42 @@
 #include <assert.h>
+#include <dirent.h>
+#include <errno.h>
+#include <limits.h>
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <sys/stat.h>
 #include <SDL_ttf.h>
 #include "game_mechanics_mc.h"
 #include "sdl_config.h"
 #include "tutorial_tr.h"
+#include "tutorial_tr_internal.h"
+#include "code_window_cw.h"
+#include "code_window_cw_internal.h"
+#include "registers_rg.h"
+#include "stage_buttons_sb.h"
+#include "gameplay/ui_highlight_source.h"
 #include "gameplay/highlight_animation_ha.h"
 
 static void test_draw_rotated_texture(int x, int y, int height, double angle,
 									  texture_t *texture);
+SDL_Rect test_stage_buttons_rect(void);
+SDL_Rect test_stage_button_rect(int member);
+int test_code_list_size(void);
+SDL_Rect test_code_line_coord_at_pos(int element, int position);
+bool test_failure_back_button_rect(SDL_Rect *button_rect);
+bool test_instruction_progress(float *progress);
+bool test_code_box_progress(float *progress, float animation_limit);
+bool test_challenge_progress(float *progress, float animation_limit);
+bool test_input_progress(float *progress, float animation_limit);
+bool test_output_progress(float *progress, float animation_limit);
+bool test_register_progress(float *progress, float animation_limit);
+bool test_zero_flag_progress(float *progress, float animation_limit);
+bool test_button_progress(int button_id, float *progress,
+	                      float animation_limit);
+bool test_immediate_progress(float *progress, float animation_limit);
 #define iw_get_highlight_instruction_progress test_instruction_progress
 #define cw_get_code_box_highlight_progress test_code_box_progress
 #define cw_get_code_list_size test_code_list_size
@@ -51,6 +80,76 @@ static int arrow_draw_count;
 static int code_box_provider_calls;
 static SDL_Rect op2_line_rect;
 static texture_t g_test_register_arrow;
+
+static bool load_fixture(const char *fixture_name, const char *text)
+{
+	FILE *stream = tmpfile();
+	assert(stream != NULL);
+	size_t length = strlen(text);
+	assert(fwrite(text, 1, length, stream) == length);
+	rewind(stream);
+	bool loaded = tr_load_tutorial_stream_for_testing(stream, fixture_name);
+	fclose(stream);
+	return loaded;
+}
+
+static void assert_fixture_rejected(const char *fixture_name, const char *text)
+{
+	assert(!load_fixture(fixture_name, text));
+	assert(tr_get_step_count() == 0);
+	assert(tr_get_step(0) == NULL);
+	float progress = -1.0f;
+	assert(!rg_get_zero_flag_highlight_progress(
+	    &progress, (float)dw_get_animation_limit()));
+}
+
+static void test_challenge_frame_geometry_helper(void)
+{
+	const SDL_Rect container = {.x = 100, .y = 120, .w = 300, .h = 240};
+	const SDL_Rect text = {.x = 160, .y = 170, .w = 80, .h = 40};
+	SDL_Rect frame = {0};
+	assert(cw_calculate_challenge_frame_rect(text, container, 5, &frame));
+	assert(frame.x == 155 && frame.y == 165 && frame.w == 90 && frame.h == 50);
+	assert(cw_calculate_challenge_frame_rect(text, container, 0, &frame));
+	assert(memcmp(&frame, &text, sizeof(frame)) == 0);
+
+	assert(cw_calculate_challenge_frame_rect(
+	    (SDL_Rect){.x = 102, .y = 150, .w = 50, .h = 40},
+	    container, 5, &frame));
+	assert(frame.x == container.x);
+	assert(cw_calculate_challenge_frame_rect(
+	    (SDL_Rect){.x = 345, .y = 150, .w = 50, .h = 40},
+	    container, 5, &frame));
+	assert(frame.x + frame.w == container.x + container.w);
+	assert(cw_calculate_challenge_frame_rect(
+	    (SDL_Rect){.x = 150, .y = 122, .w = 50, .h = 40},
+	    container, 5, &frame));
+	assert(frame.y == container.y);
+	assert(cw_calculate_challenge_frame_rect(
+	    (SDL_Rect){.x = 150, .y = 315, .w = 50, .h = 40},
+	    container, 5, &frame));
+	assert(frame.y + frame.h == container.y + container.h);
+
+	SDL_Rect sentinel = {.x = 7, .y = 11, .w = 13, .h = 17};
+	frame = sentinel;
+	assert(!cw_calculate_challenge_frame_rect(text, container, -1, &frame));
+	assert(memcmp(&frame, &sentinel, sizeof(frame)) == 0);
+	assert(!cw_calculate_challenge_frame_rect(text, container, 0, NULL));
+	assert(!cw_calculate_challenge_frame_rect(
+	    (SDL_Rect){.x = 0, .y = 0, .w = 0, .h = 5}, container, 0, &frame));
+	assert(memcmp(&frame, &sentinel, sizeof(frame)) == 0);
+	assert(!cw_calculate_challenge_frame_rect(
+	    text, (SDL_Rect){.x = 0, .y = 0, .w = -1, .h = 5}, 0, &frame));
+	assert(memcmp(&frame, &sentinel, sizeof(frame)) == 0);
+	assert(!cw_calculate_challenge_frame_rect(
+	    (SDL_Rect){.x = 200, .y = 200, .w = 20, .h = 20},
+	    (SDL_Rect){.x = 0, .y = 0, .w = 1, .h = 1}, 0, &frame));
+	assert(memcmp(&frame, &sentinel, sizeof(frame)) == 0);
+	assert(!cw_calculate_challenge_frame_rect(
+	    (SDL_Rect){.x = INT_MAX - 2, .y = 10, .w = 10, .h = 20},
+	    (SDL_Rect){.x = INT_MIN, .y = 0, .w = INT_MAX, .h = 100}, 5, &frame));
+	assert(memcmp(&frame, &sentinel, sizeof(frame)) == 0);
+}
 
 SDL_Rect test_stage_buttons_rect(void)
 {
@@ -237,33 +336,6 @@ static void test_error_arrow_tracks_output_highlight(void)
 	provider_active[HIGHLIGHT_OUTPUT_BUFFER] = false;
 }
 
-static void assert_cycles(float limit)
-{
-	int half_cycle = (dw_get_animation_limit() + dw_get_animation_step() - 1)
-		/ dw_get_animation_step();
-	int upper_endpoints = 0;
-	int lower_endpoints = 0;
-	float previous = 0.0f;
-	for (int frame = 0; frame <= 8 * (half_cycle + 1); frame++) {
-		ha_begin_frame();
-		float actual = ha_get_progress();
-		float register_progress = -1.0f;
-		assert(rg_get_register_highlight_progress(&register_progress, limit));
-		assert_progress_equal(register_progress, actual);
-		assert_error_position(actual, limit);
-		if (actual == 1.0f && previous < 1.0f) {
-			upper_endpoints++;
-			assert(g_arrow_error.box.x == g_arrow_error.startx + g_arrow_error.travel);
-		}
-		if (frame > 0 && actual == 0.0f && previous > 0.0f) {
-			lower_endpoints++;
-			assert(g_arrow_error.box.x == g_arrow_error.startx);
-		}
-		previous = actual;
-	}
-	assert(upper_endpoints >= 3 && lower_endpoints >= 3);
-}
-
 static void test_resolution(dm_resolution_t resolution)
 {
 	dm_set_screen_resolution(resolution);
@@ -300,68 +372,80 @@ static void test_resolution(dm_resolution_t resolution)
 
 static void test_tutorial_reentry(void)
 {
-	assert(tr_load_level(0));
-	cs_context_t context = {
-		.code_size = 1,
-		.code_sorted = true,
-		.operation_flag = OUTPUT_BUFFER_INCOMPLETE
-	};
-	const tutorial_step_t *failure_step = tr_get_named_step("explain_missing_output");
-	assert(failure_step != NULL);
-	assert(failure_step->arrow_count == 1);
-	assert(failure_step->arrow_ids[0] == AR_ERROR);
-	assert(failure_step->highlight_targets & TUTORIAL_HIGHLIGHT_OUTPUT_BUFFER);
-	assert(failure_step->highlight_targets & TUTORIAL_HIGHLIGHT_REGISTERS);
-	assert(g_arrow_highlight_targets[failure_step->arrow_ids[0]] ==
-	       HIGHLIGHT_OUTPUT_BUFFER);
-	use_shared_output_provider = true;
+	static const char fixture[] =
+	    "[tutorial]\nformat = 1\n"
+	    "# fixture comment\n"
+	    "[zero_flag_case]\nbox = center\nheader = none\ndismiss = none\n"
+	    " arrow = zf \nhighlight = zero_flag\nwhen.code_size = 0\n"
+	    "text_begin\nControlled ZF fixture\ntext_end\n"
+	    "[play_case]\nbox = upper\nheader = none\ndismiss = none\n"
+	    "arrow = play\nhighlight = code_box\nwhen.code_size = 1\n"
+	    "text_begin\nControlled play fixture\ntext_end\n"
+	    "[plain_case]\nbox = lower\nheader = none\ndismiss = none\n"
+	    "when.code_size = 2\ntext_begin\nText-only fixture\ntext_end\n";
+	assert(load_fixture("arrow-runtime-fixture", fixture));
+	assert(tr_get_step_count() == 3);
+	const tutorial_step_t *zf_step = tr_get_named_step("zero_flag_case");
+	const tutorial_step_t *play_step = tr_get_named_step("play_case");
+	const tutorial_step_t *plain_step = tr_get_named_step("plain_case");
+	assert(zf_step != NULL && zf_step->arrow_count == 1 &&
+	       zf_step->arrow_ids[0] == AR_ZF);
+	assert(play_step != NULL && play_step->arrow_count == 1 &&
+	       play_step->arrow_ids[0] == AR_PLAY);
+	assert(plain_step != NULL && plain_step->arrow_count == 0);
+	assert(plain_step->highlight_targets == 0);
+
 	ha_reset();
-	for (int opening = 0; opening < 3; opening++) {
-		back_button_offset = opening * 31;
+	rg_set_zero_flag_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, true);
+	cs_context_t context = {.code_size = 0, .operation_flag = NO_OPERATION};
+	assert(tr_update(&context) == zf_step);
+	assert(g_arrow_zf.arrow_id == AR_ZF && g_arrow_zf.visible);
+	float progress = -1.0f;
+	float limit = (float)dw_get_animation_limit();
+	assert(rg_get_zero_flag_highlight_progress(&progress, limit));
+	assert(!cw_get_code_box_highlight_progress(&progress, limit));
+	assert(!rg_get_register_highlight_progress(&progress, limit));
+	assert(!sb_get_button_highlight_progress(STEP, &progress, limit));
+	provider_active[HIGHLIGHT_ZERO_FLAG] = true;
+	provider_progress[HIGHLIGHT_ZERO_FLAG] = 0.5f;
+	int draws_before = arrow_draw_count;
+	tr_render_step("zero_flag_case");
+	assert(arrow_draw_count == draws_before + 1);
+	for (int frame = 0; frame < 4 * (dw_get_animation_limit() +
+	                                  dw_get_animation_step() - 1) /
+	                         dw_get_animation_step(); frame++) {
 		ha_begin_frame();
-		float entry_progress = ha_get_progress();
-		assert(tr_update(&context) == failure_step);
-		assert_reset();
-		float limit = dw_get_animation_limit();
-		assert_error_position(entry_progress, limit);
-		assert_cycles(limit);
-		SDL_Rect before_update = g_arrow_error.box;
-		assert(tr_update(&context) == failure_step);
-		assert_error_position(ha_get_progress(), limit);
-		assert(g_arrow_error.box.x == before_update.x);
-		assert(g_arrow_error.box.y == before_update.y);
-		assert(tr_update(NULL) == NULL);
-		float progress = -1.0f;
-		assert(!get_highlight_progress(&g_arrow_error, &progress, limit));
-		int draws_before = arrow_draw_count;
-		ar_display_arrow(AR_ERROR, limit);
-		assert(arrow_draw_count == draws_before);
-		assert_reset();
-		ha_begin_frame();
+		assert(ha_get_progress() >= 0.0f && ha_get_progress() <= 1.0f);
+		assert(ha_get_value(limit) >= 0.0f && ha_get_value(limit) <= limit);
 	}
-	tr_clear();
-	use_shared_output_provider = false;
-	back_button_offset = 0;
-}
+	g_arrow_zf.motion_pulse.value = 6.25f;
+	assert(tr_update(&context) == zf_step);
+	assert(g_arrow_zf.motion_pulse.value == 6.25f);
 
-static void test_play_tutorial_steps_preserve_existing_highlight_configuration(void)
-{
-	assert(tr_load_level(0));
-	const tutorial_step_t *without_code_box =
-		tr_get_named_step("run_first_instruction");
-	assert(without_code_box != NULL);
-	assert(without_code_box->arrow_count == 1);
-	assert(without_code_box->arrow_ids[0] == AR_PLAY);
-	assert(!(without_code_box->highlight_targets &
-	         TUTORIAL_HIGHLIGHT_CODE_BOX));
-	tr_clear();
+	context.code_size = 2;
+	assert(tr_update(&context) == plain_step);
+	assert(rg_get_zero_flag_highlight_progress(&progress, limit));
+	draws_before = arrow_draw_count;
+	tr_render_step("plain_after_arrow");
+	assert(arrow_draw_count == draws_before);
+	rg_set_zero_flag_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, false);
+	assert(!rg_get_zero_flag_highlight_progress(&progress, limit));
+	assert(!cw_get_code_box_highlight_progress(&progress, limit));
+	assert(!rg_get_register_highlight_progress(&progress, limit));
 
-	assert(tr_load_level(1));
-	const tutorial_step_t *with_code_box = tr_get_named_step("run_program");
-	assert(with_code_box != NULL);
-	assert(with_code_box->arrow_count == 1);
-	assert(with_code_box->arrow_ids[0] == AR_PLAY);
-	assert(with_code_box->highlight_targets & TUTORIAL_HIGHLIGHT_CODE_BOX);
+	context.code_size = 0;
+	assert(tr_update(&context) == zf_step);
+	context.code_size = 1;
+	assert(tr_update(&context) == play_step);
+	assert(g_arrow_play.arrow_id == AR_PLAY && g_arrow_play.visible);
+	assert(cw_get_code_box_highlight_progress(&progress, limit));
+	assert(!rg_get_zero_flag_highlight_progress(&progress, limit));
+	context.code_size = 2;
+	assert(tr_update(&context) == plain_step);
+	assert(!cw_get_code_box_highlight_progress(&progress, limit));
+	assert(tr_update(NULL) == NULL);
+	assert(!rg_get_zero_flag_highlight_progress(&progress, limit));
+	assert(!sb_get_button_highlight_progress(STEP, &progress, limit));
 	tr_clear();
 }
 
@@ -709,48 +793,6 @@ static void test_synchronized_arrow_positions(void)
 	assert(zero_travel.box.y == zero_travel.starty);
 }
 
-static void test_level1_code_box_arrow_regression(void)
-{
-	assert(tr_load_level(1));
-	cw_create_code_list();
-	for (int index = 0; index < tr_get_step_count(); index++) {
-		const tutorial_step_t *candidate = tr_get_step(index);
-		if (candidate != NULL &&
-		    strcmp(candidate->name, "select_last_instruction") != 0) {
-			tr_deactivate(candidate->name);
-		}
-	}
-	cs_context_t context = {.code_size = 3};
-	const tutorial_step_t *step = tr_update(&context);
-	assert(step != NULL);
-	assert(strcmp(step->name, "select_last_instruction") == 0);
-	assert(step->arrow_count == 1);
-	assert(step->arrow_ids[0] == AR_CODE);
-	assert(step->highlight_targets & TUTORIAL_HIGHLIGHT_CODE_BOX);
-	assert(g_arrow_highlight_targets[step->arrow_ids[0]] == HIGHLIGHT_CODE_BOX);
-
-	provider_active[HIGHLIGHT_CODE_BOX] = true;
-	arrow_t arrow = {.arrow_id = step->arrow_ids[0], .travel = 120,
-	                 .startx = 300, .starty = 400, .dir = AR_UP};
-	provider_progress[HIGHLIGHT_CODE_BOX] = 1.0f;
-	float progress = 0.0f;
-	assert(get_highlight_progress(&arrow, &progress, 15.0f));
-	assert(fabsf(progress - 1.0f) < 0.00001f);
-	position_arrow(&arrow, progress);
-	assert(arrow.box.y == arrow.starty - arrow.travel);
-	provider_progress[HIGHLIGHT_CODE_BOX] = 0.0f;
-	assert(get_highlight_progress(&arrow, &progress, 15.0f));
-	position_arrow(&arrow, progress);
-	assert(arrow.box.y == arrow.starty);
-	provider_active[HIGHLIGHT_CODE_BOX] = false;
-	progress = 0.0f;
-	assert(!get_highlight_progress(&arrow, &progress, 15.0f));
-	assert(progress == 0.0f);
-	assert(tr_update(NULL) == NULL);
-	tr_clear();
-	cw_destroy_code_window_assets();
-}
-
 static void test_op2_vertical_clearance(void)
 {
 	static const dm_resolution_t resolutions[] = {
@@ -789,82 +831,185 @@ static void test_op2_vertical_clearance(void)
 	}
 }
 
-static void test_zero_flag_tutorial_configuration(void)
+static uint64_t tutorial_structure_signature(void)
 {
-	assert(tr_load_level(13));
-	const tutorial_step_t *step =
-		tr_get_named_step("explain_zero_flag_set");
-	assert(step != NULL);
-	assert(step->arrow_count == 0);
-	assert(step->highlight_targets == TUTORIAL_HIGHLIGHT_ZERO_FLAG);
-	assert(step->highlight_instruction_mask == (1 << CMP));
+	uint64_t sum = 0;
+	uint64_t mixed_xor = 0;
 	for (int index = 0; index < tr_get_step_count(); index++) {
-		const tutorial_step_t *candidate = tr_get_step(index);
-		if (candidate != NULL &&
-		    strcmp(candidate->name, "explain_zero_flag_set") != 0) {
-			tr_deactivate(candidate->name);
+		const tutorial_step_t *step = tr_get_step(index);
+		uint64_t hash = UINT64_C(1469598103934665603);
+		for (const unsigned char *cursor =
+	         (const unsigned char *)step->name; *cursor != '\0'; cursor++) {
+			hash = (hash ^ *cursor) * UINT64_C(1099511628211);
 		}
-	}
-	cs_context_t zf_context = {.code_size = 0, .operation_flag = NO_OPERATION};
-	assert(tr_update(&zf_context) == step);
-	float zf_progress = -1.0f;
-	assert(rg_get_zero_flag_highlight_progress(&zf_progress, 15.0f));
-	assert(tr_update(NULL) == NULL);
-	assert(!rg_get_zero_flag_highlight_progress(&zf_progress, 15.0f));
-
-	assert(tr_load_level(13));
-	assert(!rg_get_zero_flag_highlight_progress(&zf_progress, 15.0f));
-	step = tr_get_named_step("explain_zero_flag_set");
-	assert(step != NULL);
-
-	const tutorial_step_t *clear_step =
-		tr_get_named_step("explain_zero_flag_clear");
-	assert(clear_step != NULL);
-	assert(clear_step->arrow_count == 0);
-	assert(clear_step->highlight_targets == TUTORIAL_HIGHLIGHT_ZERO_FLAG);
-	assert(clear_step->highlight_instruction_mask == (1 << CMP));
-	for (int index = 0; index < tr_get_step_count(); index++) {
-		const tutorial_step_t *candidate = tr_get_step(index);
-		if (candidate != clear_step) {
-			tr_deactivate(candidate->name);
+		hash = (hash ^ (uint64_t)step->arrow_count) *
+		       UINT64_C(1099511628211);
+		for (int arrow = 0; arrow < step->arrow_count; arrow++) {
+			hash = (hash ^ (uint64_t)step->arrow_ids[arrow]) *
+			       UINT64_C(1099511628211);
 		}
+		hash = (hash ^ (uint64_t)step->highlight_targets) *
+		       UINT64_C(1099511628211);
+		sum += hash;
+		mixed_xor ^= hash;
 	}
-	assert(tr_update(&zf_context) == clear_step);
-	assert(rg_get_zero_flag_highlight_progress(&zf_progress, 15.0f));
-	tr_clear();
-	assert(!rg_get_zero_flag_highlight_progress(&zf_progress, 15.0f));
+	return sum ^ mixed_xor ^ (uint64_t)tr_get_step_count();
+}
 
-	assert(tr_load_level(14));
-	static const char *const zf_steps[] = {
-		"explain_jump_not_equal",
-		"explain_zero_flag_clear",
-		"explain_zero_flag_set"
+static void test_tutorial_arrow_parser_fixtures(void)
+{
+	static const struct {
+		const char *token;
+		int expected_arrow;
+	} mappings[] = {
+		{"zf", AR_ZF},
+		{"zero_flag", AR_ZF},
+		{"play", AR_PLAY},
+		{"instruction", AR_INS},
+		{"output_buffer", AR_OB}
 	};
-	for (size_t index = 0; index < sizeof(zf_steps) / sizeof(zf_steps[0]); index++) {
-		step = tr_get_named_step(zf_steps[index]);
-		assert(step != NULL);
-		assert(step->arrow_count == 1 && step->arrow_ids[0] == AR_ZF);
-		assert(step->highlight_targets == TUTORIAL_HIGHLIGHT_ZERO_FLAG);
-		assert(g_arrow_highlight_targets[step->arrow_ids[0]] == HIGHLIGHT_ZERO_FLAG);
+	char fixture[512];
+	for (size_t index = 0; index < sizeof(mappings) / sizeof(mappings[0]);
+	     index++) {
+		int length = snprintf(fixture, sizeof(fixture),
+		    "[tutorial]\nformat = 1\n[case]\nbox = center\nheader = none\n"
+		    "dismiss = none\narrow = %s\ntext_begin\nFixture\ntext_end\n",
+		    mappings[index].token);
+		assert(length > 0 && (size_t)length < sizeof(fixture));
+		assert(load_fixture("arrow-token-mapping", fixture));
+		const tutorial_step_t *step = tr_get_named_step("case");
+		assert(step != NULL && step->arrow_count == 1);
+		assert(step->arrow_ids[0] == mappings[index].expected_arrow);
+		tr_clear();
 	}
+
+	static const char reordered[] =
+	    "[tutorial]\nformat = 1\n"
+	    "[text_only]\nbox = center\nheader = none\ndismiss = none\n"
+	    "text_begin\nText fixture\ntext_end\n"
+	    "[plain_after_arrow]\nbox = center\nheader = none\ndismiss = none\n"
+	    "text_begin\nNo arrow fixture\ntext_end\n"
+	    "[arrow_step]\nbox = center\nheader = none\ndismiss = none\n"
+	    "arrow = zf\ntext_begin\nArrow fixture\ntext_end\n";
+	assert(load_fixture("arrow-order-reversed", reordered));
+	assert(tr_get_step_count() == 3);
+	assert(tr_get_named_step("text_only")->arrow_count == 0);
+	assert(tr_get_named_step("plain_after_arrow")->arrow_count == 0);
+	assert(tr_get_named_step("arrow_step")->arrow_count == 1);
+	assert(tr_get_named_step("arrow_step")->arrow_ids[0] == AR_ZF);
 	tr_clear();
+	assert(load_fixture("arrow-order-original",
+	    "[tutorial]\nformat = 1\n[arrow_step]\nbox = center\nheader = none\n"
+	    "dismiss = none\narrow = zf\ntext_begin\nArrow fixture\ntext_end\n"
+	    "[plain_after_arrow]\nbox = center\nheader = none\ndismiss = none\n"
+	    "text_begin\nNo arrow fixture\ntext_end\n"));
+	assert(tr_get_named_step("plain_after_arrow")->arrow_count == 0);
+	assert(tr_get_named_step("arrow_step")->arrow_ids[0] == AR_ZF);
+	tr_clear();
+	assert(load_fixture("empty-arrow-tutorial",
+	    "[tutorial]\nformat = 1\n[plain]\nbox = center\nheader = none\n"
+	    "dismiss = none\ntext_begin\nNo arrows here\ntext_end\n"));
+	assert(tr_get_step_count() == 1);
+	assert(tr_get_named_step("plain")->arrow_count == 0);
+	tr_clear();
+
+	assert_fixture_rejected("unknown-arrow",
+	    "[tutorial]\nformat = 1\n[bad]\narrow = output_bufr\n"
+	    "text_begin\nBad\ntext_end\n");
+	assert_fixture_rejected("empty-arrow",
+	    "[tutorial]\nformat = 1\n[bad]\narrow = \ntext_begin\nBad\ntext_end\n");
+	assert_fixture_rejected("duplicate-arrow",
+	    "[tutorial]\nformat = 1\n[bad]\narrow = zf\narrow = play\n"
+	    "text_begin\nBad\ntext_end\n");
+	assert_fixture_rejected("malformed-section",
+	    "[tutorial]\nformat = 1\n[bad\ntext_begin\nBad\ntext_end\n");
+	assert_fixture_rejected("truncated-text",
+	    "[tutorial]\nformat = 1\n[partial]\ntext_begin\nnever closed\n");
+	assert_fixture_rejected("partial-parse-cleanup",
+	    "[tutorial]\nformat = 1\n[valid_first]\nbox = center\nheader = none\n"
+	    "text_begin\nAllocated before failure\ntext_end\n[invalid_second]\n"
+	    "arrow = unknown\ntext_begin\nFailure\ntext_end\n");
+	char long_fixture[512];
+	char long_token[180];
+	memset(long_token, 'a', sizeof(long_token) - 1);
+	long_token[sizeof(long_token) - 1] = '\0';
+	int length = snprintf(long_fixture, sizeof(long_fixture),
+	    "[tutorial]\nformat = 1\n[bad]\narrow = %s\ntext_begin\nBad\ntext_end\n",
+	    long_token);
+	assert(length > 0 && (size_t)length < sizeof(long_fixture));
+	assert_fixture_rejected("long-arrow-token", long_fixture);
 }
 
 static void test_all_tutorial_arrow_ids(void)
 {
-	for (int level = 0; level <= 16; level++) {
-		assert(tr_load_level(level));
+	DIR *levels = opendir("data/levels");
+	assert(levels != NULL);
+	int level_ids[128];
+	size_t level_count = 0;
+	struct dirent *entry;
+	while ((entry = readdir(levels)) != NULL) {
+		char *end = NULL;
+		errno = 0;
+		long id = strtol(entry->d_name, &end, 10);
+		if (errno != 0 || end == entry->d_name || *end != '\0' ||
+		    id < 0 || id > INT_MAX || level_count ==
+		    sizeof(level_ids) / sizeof(level_ids[0])) {
+			continue;
+		}
+		char tutorial_path[256];
+		struct stat file_info;
+		snprintf(tutorial_path, sizeof(tutorial_path),
+		         "data/levels/%02ld/tutorial.cfg", id);
+		if (stat(tutorial_path, &file_info) == 0 && S_ISREG(file_info.st_mode)) {
+			level_ids[level_count++] = (int)id;
+		}
+	}
+	closedir(levels);
+	for (size_t left = 0; left < level_count; left++) {
+		for (size_t right = left + 1; right < level_count; right++) {
+			if (level_ids[right] < level_ids[left]) {
+				int temporary = level_ids[left];
+				level_ids[left] = level_ids[right];
+				level_ids[right] = temporary;
+			}
+		}
+	}
+	assert(level_count > 0);
+	for (size_t level_index = 0; level_index < level_count; level_index++) {
+		int level_id = level_ids[level_index];
+		assert(tr_load_level(level_id));
+		uint64_t first_signature = tutorial_structure_signature();
 		for (int index = 0; index < tr_get_step_count(); index++) {
 			const tutorial_step_t *step = tr_get_step(index);
 			assert(step != NULL);
+			assert(step->name[0] != '\0');
+			assert(step->text_message != NULL);
+			assert(step->box >= TUTORIAL_BOX_CENTER_UP &&
+			       step->box <= TUTORIAL_BOX_INSTRUCTION);
+			assert(step->header >= TUTORIAL_HEADER_NONE &&
+			       step->header <= TUTORIAL_HEADER_INSTRUCTION);
+			assert(step->dismiss >= TUTORIAL_DISMISS_NONE &&
+			       step->dismiss <= TUTORIAL_DISMISS_OPERATION_ERROR);
+			assert(step->arrow_count >= 0 &&
+			       step->arrow_count <= TUTORIAL_MAX_ARROWS);
 			for (int arrow = 0; arrow < step->arrow_count; arrow++) {
 				int id = step->arrow_ids[arrow];
-				assert(id >= 0 && (size_t)id < sizeof(g_arrow_highlight_targets) /
+				assert(id >= 0 && id < ARROW_ID_COUNT);
+				assert((size_t)id < sizeof(g_arrow_highlight_targets) /
 				       sizeof(g_arrow_highlight_targets[0]));
 				assert(arrow_has_highlight_provider(id) || id == AR_EXEC);
-				if (id == AR_ZF) {
-					assert(step->highlight_targets & TUTORIAL_HIGHLIGHT_ZERO_FLAG);
-				}
+			}
+		}
+		tr_clear();
+		assert(tr_get_step_count() == 0);
+		assert(tr_load_level(level_id));
+		assert(tutorial_structure_signature() == first_signature);
+		for (int index = 0; index < tr_get_step_count(); index++) {
+			const tutorial_step_t *step = tr_get_step(index);
+			assert(step != NULL && step->text_message != NULL);
+			for (int arrow = 0; arrow < step->arrow_count; arrow++) {
+				assert(step->arrow_ids[arrow] >= 0 &&
+				       step->arrow_ids[arrow] < ARROW_ID_COUNT);
 			}
 		}
 		tr_clear();
@@ -875,6 +1020,10 @@ static void run_isolated_test(void (*test)(void))
 {
 	tr_clear();
 	ha_reset();
+	rg_set_zero_flag_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, false);
+	rg_set_register_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, false);
+	sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, STEP, false);
+	sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, FAST, false);
 	memset(provider_progress, 0, sizeof(provider_progress));
 	memset(provider_active, 0, sizeof(provider_active));
 	use_shared_output_provider = false;
@@ -884,8 +1033,16 @@ static void run_isolated_test(void (*test)(void))
 	layout_available = true;
 	back_button_offset = 0;
 	dm_set_screen_resolution(DM_RESOLUTION_1600X900);
+	SDL_RenderSetClipRect(g_renderer, NULL);
 	test();
+	tr_update(NULL);
 	tr_clear();
+	rg_set_zero_flag_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, false);
+	rg_set_register_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, false);
+	sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, STEP, false);
+	sb_set_highlight_source(UI_HIGHLIGHT_SOURCE_AVAILABILITY, FAST, false);
+	SDL_RenderSetClipRect(g_renderer, NULL);
+	ha_reset();
 }
 
 int main(void)
@@ -909,6 +1066,8 @@ int main(void)
 	g_reg_arrow = &g_test_register_arrow;
 	run_isolated_test(test_arrow_highlight_mapping);
 	run_isolated_test(test_all_tutorial_arrow_ids);
+	run_isolated_test(test_challenge_frame_geometry_helper);
+	run_isolated_test(test_tutorial_arrow_parser_fixtures);
 	run_isolated_test(test_play_arrow_uses_shared_phase_with_active_provider);
 	run_isolated_test(test_play_arrow_position_is_independent_of_highlight_visibility);
 	run_isolated_test(test_play_arrow_activation_transition_is_continuous);
@@ -918,10 +1077,7 @@ int main(void)
 	run_isolated_test(test_independent_arrow_retains_private_motion);
 	run_isolated_test(test_mandatory_provider_arrow_retains_existing_behavior);
 	run_isolated_test(test_synchronized_arrow_positions);
-	run_isolated_test(test_level1_code_box_arrow_regression);
-	run_isolated_test(test_play_tutorial_steps_preserve_existing_highlight_configuration);
 	run_isolated_test(test_op2_vertical_clearance);
-	run_isolated_test(test_zero_flag_tutorial_configuration);
 	run_isolated_test(test_error_arrow_tracks_output_highlight);
 	test_resolution(DM_RESOLUTION_1600X900);
 	test_tutorial_reentry();

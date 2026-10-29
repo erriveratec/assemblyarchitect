@@ -338,7 +338,7 @@ static bool parse_arrow(const char *text, int *arrow_id)
 		*arrow_id = AR_CHALLENGE;
 	} else if (strcmp(text, "drop") == 0) {
 		*arrow_id = AR_DROP;
-	} else if (strcmp(text, "zero_flag") == 0) {
+	} else if (strcmp(text, "zero_flag") == 0 || strcmp(text, "zf") == 0) {
 		*arrow_id = AR_ZF;
 	} else if (strcmp(text, "code") == 0) {
 		*arrow_id = AR_CODE;
@@ -507,11 +507,20 @@ static bool parse_arrows(tutorial_step_t *step, const char *text)
 	if (step == NULL || text == NULL) {
 		return false;
 	}
+	while (isspace((unsigned char)*text)) text++;
+	if (*text == '\0') {
+		return false;
+	}
 
 	char buffer[128];
 	int  copied = snprintf(buffer, sizeof(buffer), "%s", text);
 
 	if (copied < 0 || copied >= (int)sizeof(buffer)) {
+		return false;
+	}
+	size_t token_length = strlen(buffer);
+	if (token_length == 0 || buffer[0] == ',' ||
+	    buffer[token_length - 1] == ',' || strstr(buffer, ",,") != NULL) {
 		return false;
 	}
 
@@ -797,27 +806,20 @@ void tr_render_step(const char *name)
 	}
 }
 
-bool tr_load_level(int level_id)
+static bool tr_parse_tutorial_stream(FILE *file, const char *source_name)
 {
-	char relative_path[64];
-	char path[512];
-
-	snprintf(relative_path, sizeof(relative_path), TUTORIAL_PATH_FORMAT,
-	         level_id);
-	ax_get_resource_path(path, sizeof(path), relative_path);
-
-	FILE *file = fopen(path, "r");
-	if (file == NULL) {
-		return false;
-	}
-
-	tr_clear();
+	if (file == NULL || source_name == NULL) return false;
 	char             line[512];
 	tutorial_step_t *step         = NULL;
 	bool             reading_text = false;
+	bool             arrow_key_seen = false;
 	size_t           text_line_count = 0;
 
 	while (fgets(line, sizeof(line), file) != NULL) {
+		if (strchr(line, '\n') == NULL && !feof(file)) {
+			fprintf(stderr, "%s: line exceeds parser buffer\n", source_name);
+			goto invalid;
+		}
 		char   raw_line[sizeof(line)];
 		size_t raw_length = strcspn(line, "\r\n");
 		memcpy(raw_line, line, raw_length);
@@ -827,19 +829,29 @@ bool tr_load_level(int level_id)
 		size_t text_length = strlen(text);
 		char *closing_bracket = strchr(text, ']');
 
+		if (!reading_text && text_length > 0 &&
+		    (text[0] == '#' || text[0] == ';')) {
+			continue;
+		}
+		if (!reading_text && text[0] == '[' &&
+		    !(text_length >= 2 && closing_bracket == text + text_length - 1)) {
+			fprintf(stderr, "%s: malformed section header\n", source_name);
+			goto invalid;
+		}
 		if (text_length >= 2 && text[0] == '[' &&
 		    closing_bracket == text + text_length - 1 &&
 		    strcmp(text, "[tutorial]") != 0) {
 			if (reading_text) {
 				fprintf(stderr,
-				        "tutorial.cfg: level %d step '%s' "
+				        "%s step '%s' "
 				        "is missing text_end\n",
-				        level_id, step != NULL ? step->name : "unknown");
+				        source_name, step != NULL ? step->name : "unknown");
 				goto invalid;
 			}
 
 			if (g_step_count == TUTORIAL_MAX_STEPS) {
-				break;
+				fprintf(stderr, "%s: exceeds maximum step count\n", source_name);
+				goto invalid;
 			}
 
 			step = &g_steps[g_step_count++];
@@ -849,6 +861,7 @@ bool tr_load_level(int level_id)
 			step->large_box                    = false;
 			step->large_text                   = false;
 			step->arrow_count                  = 0;
+			arrow_key_seen                     = false;
 			step->when_code_size               = -1;
 			step->when_code_size_max           = -1;
 			step->when_holding                 = -1;
@@ -888,9 +901,9 @@ bool tr_load_level(int level_id)
 		if (strcmp(text, "text_begin") == 0) {
 			if (reading_text) {
 				fprintf(stderr,
-				        "tutorial.cfg: level %d step '%s' "
+				        "%s step '%s' "
 				        "contains nested text_begin\n",
-				        level_id, step->name);
+				        source_name, step->name);
 				goto invalid;
 			}
 			reading_text = true;
@@ -901,9 +914,9 @@ bool tr_load_level(int level_id)
 		if (strcmp(text, "text_end") == 0) {
 			if (!reading_text) {
 				fprintf(stderr,
-				        "tutorial.cfg: level %d step '%s' "
+				        "%s step '%s' "
 				        "contains text_end without text_begin\n",
-				        level_id, step->name);
+				        source_name, step->name);
 				goto invalid;
 			}
 
@@ -911,9 +924,9 @@ bool tr_load_level(int level_id)
 
 			if (step->text[0] == '\0') {
 				fprintf(stderr,
-				        "tutorial.cfg: level %d step '%s' "
+				        "%s step '%s' "
 				        "contains empty text\n",
-				        level_id, step->name);
+				        source_name, step->name);
 				goto invalid;
 			}
 
@@ -924,17 +937,17 @@ bool tr_load_level(int level_id)
 
 			if (step->text_message == NULL) {
 				fprintf(stderr,
-				        "tutorial.cfg: error: level %d step '%s' "
+				        "%s: error: step '%s' "
 				        "could not create text texture\n",
-				        level_id, step->name);
+				        source_name, step->name);
 				goto invalid;
 			}
 			if (layout.overflowed) {
 				fprintf(stderr,
-				        "tutorial.cfg: warning: level %d step '%s' text "
+				        "%s: warning: step '%s' text "
 				        "overflows: requires %d rows, box supports %d, %d "
 				        "row%s clipped\n",
-				        level_id, step->name, layout.required_rows,
+				        source_name, step->name, layout.required_rows,
 				        layout.visible_rows, layout.overflow_rows,
 				        layout.overflow_rows == 1 ? "" : "s");
 			}
@@ -947,8 +960,8 @@ bool tr_load_level(int level_id)
 			size_t separator_length = text_line_count == 0 ? 0 : 1;
 			if (used + separator_length + raw_length >= sizeof(step->text)) {
 				fprintf(stderr,
-				        "tutorial.cfg: level %d step '%s' text exceeds %zu bytes\n",
-				        level_id, step->name, sizeof(step->text) - 1);
+				        "%s step '%s' text exceeds %zu bytes\n",
+				        source_name, step->name, sizeof(step->text) - 1);
 				goto invalid;
 			}
 
@@ -1011,14 +1024,22 @@ bool tr_load_level(int level_id)
 			step->priority = (int)priority;
 		}
 		if (strcmp(key, "arrow") == 0) {
-			if (!parse_arrows(step, value)) {
+			if (arrow_key_seen || !parse_arrows(step, value)) {
+				fprintf(stderr,
+				        "%s step '%s': invalid arrow token \"%s\"\n",
+				        source_name, step->name, value);
 				goto invalid;
 			}
+			arrow_key_seen = true;
 		}
 		if (strcmp(key, "arrows") == 0) {
-			if (!parse_arrows(step, value)) {
+			if (arrow_key_seen || !parse_arrows(step, value)) {
+				fprintf(stderr,
+				        "%s step '%s': invalid arrow token \"%s\"\n",
+				        source_name, step->name, value);
 				goto invalid;
 			}
+			arrow_key_seen = true;
 		}
 		if (strcmp(key, "highlight") == 0 &&
 		    !tr_parse_highlights(value, &step->highlight_targets)) {
@@ -1138,18 +1159,39 @@ bool tr_load_level(int level_id)
 
 	if (reading_text) {
 		fprintf(stderr,
-		        "tutorial.cfg: level %d step '%s' "
+		        "%s step '%s' "
 		        "is missing text_end at end of file\n",
-		        level_id, step != NULL ? step->name : "unknown");
+		        source_name, step != NULL ? step->name : "unknown");
 		goto invalid;
 	}
 
-	fclose(file);
 	return g_step_count > 0;
 
 invalid:
-	fprintf(stderr, "tutorial.cfg: level %d has invalid metadata\n", level_id);
-	fclose(file);
+	fprintf(stderr, "%s: invalid tutorial metadata\n", source_name);
 	tr_clear();
 	return false;
 }
+
+bool tr_load_level(int level_id)
+{
+	char relative_path[64];
+	char path[512];
+	snprintf(relative_path, sizeof(relative_path), TUTORIAL_PATH_FORMAT,
+	         level_id);
+	ax_get_resource_path(path, sizeof(path), relative_path);
+	FILE *file = fopen(path, "r");
+	if (file == NULL) return false;
+	tr_clear();
+	bool loaded = tr_parse_tutorial_stream(file, path);
+	fclose(file);
+	return loaded;
+}
+
+#ifdef TR_TUTORIAL_TESTING
+bool tr_load_tutorial_stream_for_testing(FILE *file, const char *fixture_name)
+{
+	tr_clear();
+	return tr_parse_tutorial_stream(file, fixture_name);
+}
+#endif

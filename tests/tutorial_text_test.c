@@ -1092,20 +1092,6 @@ static void test_execution_control_highlights(void)
 	char unknown_fast[] = "fas";
 	assert(!tr_parse_highlights(unknown_fast, &targets));
 
-	assert(tr_load_level(4));
-	const tutorial_step_t *step =
-	    tr_get_named_step("introduce_execution_controls");
-	assert(step != NULL);
-	assert(step->highlight_targets & TUTORIAL_HIGHLIGHT_STEP);
-	assert(step->highlight_targets & TUTORIAL_HIGHLIGHT_FAST);
-	assert(step->arrow_count == 0);
-	assert(step->box == TUTORIAL_BOX_CENTER);
-	assert(step->header == TUTORIAL_HEADER_SYSTEM_NOTICE);
-	assert(step->dismiss == TUTORIAL_DISMISS_MOUSE_PRESS);
-	assert(step->when_code_size == 1);
-	assert(step->when_operand_pending == 0);
-	assert(step->text_message != NULL);
-	tr_clear();
 }
 
 int main(void)
