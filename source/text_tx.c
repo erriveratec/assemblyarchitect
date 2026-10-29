@@ -9,6 +9,7 @@
 #include <math.h>
 #include <string.h>
 #include <SDL_mixer.h>
+#include "dbg.h"
 #include "ui/value_box_vb.h"
 #include "instruction_layout_il.h"
 #include "draw_dw.h"
@@ -1456,88 +1457,214 @@ tx_styled_text_t *tx_create_styled_text_for_width(
 	return tx_create_styled_text(content, text_height, message, options, NULL);
 }
 
-static void tx_draw_styled_text_internal(SDL_Rect content, int text_height,
-										 const tx_styled_text_t *message,
-										 int vertical_offset,
-										 float vertical_growth)
+static bool tx_validate_styled_draw_input(
+	SDL_Rect content, int text_height, float vertical_growth,
+	const tx_styled_text_t *message)
 {
 	if (message == NULL || message->rows == NULL || message->row_count <= 0 ||
-	    g_renderer == NULL || content.w <= 0 || content.h <= 0 ||
-	    text_height <= 0 || !isfinite(vertical_growth) || vertical_growth < 0.0f) {
-		return;
+	    content.w <= 0 || content.h <= 0 || text_height <= 0 ||
+	    !isfinite(vertical_growth) || vertical_growth < 0.0f) {
+		return false;
+	}
+	double content_right = (double)content.x + content.w;
+	double content_bottom = (double)content.y + content.h;
+	if (content_right > INT_MAX || content_right < INT_MIN ||
+	    content_bottom > INT_MAX || content_bottom < INT_MIN) {
+		return false;
 	}
 	for (int row_index = 0; row_index < message->row_count; row_index++) {
 		const tx_styled_row_t *row = &message->rows[row_index];
 		if (row->fragment_count < 0 || row->rendered_width < 0 ||
 		    (row->fragment_count > 0 && row->fragments == NULL)) {
-			return;
+			return false;
 		}
 		for (int fragment = 0; fragment < row->fragment_count; fragment++) {
 			const tx_text_fragment_t *part = &row->fragments[fragment];
 			if (part->texture == NULL || part->texture->texture == NULL ||
 			    part->texture->w <= 0 || part->texture->h <= 0 ||
 			    part->x_offset < 0) {
-				return;
+				return false;
 			}
 		}
+	}
+	return true;
+}
+
+static bool tx_get_styled_fragment_destination(
+	SDL_Rect content, int text_height, int vertical_offset,
+	float vertical_growth,
+	const tx_styled_text_t *message, int row_index, int fragment_index,
+	SDL_FRect *destination)
+{
+	if (destination == NULL || row_index < 0 ||
+	    row_index >= message->row_count || fragment_index < 0 ||
+	    fragment_index >= message->rows[row_index].fragment_count) {
+		return false;
+	}
+	const tx_styled_row_t *row = &message->rows[row_index];
+	const tx_text_fragment_t *part = &row->fragments[fragment_index];
+	double row_step = (double)text_height + vertical_growth;
+	double scale = row_step / text_height;
+	double row_width = (double)row->rendered_width * scale;
+	double x = content.x + (content.w - row_width) / 2.0 +
+	           part->x_offset * scale;
+	double y = (double)content.y - vertical_offset;
+	if (message->row_count <= content.h / text_height) {
+		y += (content.h - (double)message->row_count * row_step) / 2.0;
+	}
+	y += (double)row_index * row_step + vertical_growth / 2.0;
+	float destination_height = (float)row_step;
+	float destination_x = (float)x;
+	float destination_y = (float)y;
+	float destination_width =
+	    (float)(part->texture->w * destination_height) / part->texture->h;
+	if (!isfinite(row_step) || row_step <= 0.0 ||
+	    !isfinite(row_width) || !isfinite(x) || !isfinite(y) ||
+	    !isfinite(destination_height) || destination_height <= 0.0f ||
+	    !isfinite(destination_x) || !isfinite(destination_y) ||
+	    !isfinite(destination_width) || destination_width <= 0.0f) {
+		return false;
+	}
+	*destination = (SDL_FRect){
+		.x = destination_x,
+		.y = destination_y,
+		.w = destination_width,
+		.h = destination_height
+	};
+	return true;
+}
+
+static bool tx_calculate_styled_text_pulsed_bounds(
+	SDL_Rect content, int text_height, int vertical_offset,
+	float vertical_growth, const tx_styled_text_t *message, SDL_Rect *bounds)
+{
+	if (bounds == NULL ||
+	    !tx_validate_styled_draw_input(content, text_height, vertical_growth,
+	                                   message)) {
+		return false;
 	}
 	int visible_rows = content.h / text_height;
 	if (visible_rows > message->row_count) {
 		visible_rows = message->row_count;
 	}
-	double row_step = (double)text_height + vertical_growth;
-	double y = content.y - vertical_offset;
-	if (message->row_count <= content.h / text_height) {
-		y += (content.h - message->row_count * row_step) / 2.0f;
+	double min_x = content.x;
+	double min_y = content.y;
+	double max_x = (double)content.x + content.w;
+	double max_y = (double)content.y + content.h;
+	for (int row_index = 0; row_index < visible_rows; row_index++) {
+		const tx_styled_row_t *row = &message->rows[row_index];
+		for (int fragment = 0; fragment < row->fragment_count; fragment++) {
+			SDL_FRect destination;
+			if (!tx_get_styled_fragment_destination(
+			        content, text_height, vertical_offset, vertical_growth,
+			        message, row_index,
+			        fragment, &destination)) {
+				return false;
+			}
+			float right = destination.x + destination.w;
+			float bottom = destination.y + destination.h;
+			if (!isfinite(right) || !isfinite(bottom)) {
+				return false;
+			}
+			if (destination.x < min_x) min_x = destination.x;
+			if (destination.y < min_y) min_y = destination.y;
+			if (right > max_x) max_x = right;
+			if (bottom > max_y) max_y = bottom;
+		}
+	}
+	double left = floor(min_x);
+	double top = floor(min_y);
+	double right = ceil(max_x);
+	double bottom = ceil(max_y);
+	double width = right - left;
+	double height = bottom - top;
+	if (!isfinite(left) || !isfinite(top) || !isfinite(right) ||
+	    !isfinite(bottom) || left < INT_MIN || top < INT_MIN ||
+	    right > INT_MAX || bottom > INT_MAX || width <= 0.0 ||
+	    height <= 0.0 || width > INT_MAX || height > INT_MAX) {
+		return false;
+	}
+	*bounds = (SDL_Rect){
+		.x = (int)left,
+		.y = (int)top,
+		.w = (int)width,
+		.h = (int)height
+	};
+	return true;
+}
+
+bool tx_get_styled_text_pulsed_bounds(
+	SDL_Rect content, int text_height, float vertical_growth,
+	const tx_styled_text_t *message, SDL_Rect *bounds)
+{
+	return tx_calculate_styled_text_pulsed_bounds(
+	    content, text_height, 0, vertical_growth, message, bounds);
+}
+
+static bool tx_restore_renderer_clip(SDL_bool clipping_was_enabled,
+	                                 const SDL_Rect *previous_clip)
+{
+	if (SDL_RenderSetClipRect(
+	        g_renderer, clipping_was_enabled ? previous_clip : NULL) != 0) {
+		debug("Unable to restore SDL renderer clip: %s", SDL_GetError());
+		return false;
+	}
+	return true;
+}
+
+static void tx_draw_styled_text_internal(SDL_Rect content, int text_height,
+										 const tx_styled_text_t *message,
+										 int vertical_offset,
+										 float vertical_growth)
+{
+	if (g_renderer == NULL ||
+	    !tx_validate_styled_draw_input(content, text_height, vertical_growth,
+	                                   message)) {
+		return;
+	}
+	SDL_Rect drawing_clip;
+	if (vertical_growth == 0.0f) {
+		drawing_clip = content;
+	} else if (!tx_calculate_styled_text_pulsed_bounds(
+	        content, text_height, vertical_offset, vertical_growth, message,
+	        &drawing_clip)) {
+		return;
+	}
+	int visible_rows = content.h / text_height;
+	if (visible_rows > message->row_count) {
+		visible_rows = message->row_count;
 	}
 	SDL_Rect old_clip;
 	SDL_RenderGetClipRect(g_renderer, &old_clip);
 	SDL_bool clipping_was_enabled = SDL_RenderIsClipEnabled(g_renderer);
-	SDL_Rect drawing_clip = content;
-	if (vertical_growth > 0.0f) {
-		double growth = (double)message->row_count * vertical_growth;
-		double expanded_y = content.y - growth / 2.0;
-		double expanded_height = content.h + growth;
-		if (!isfinite(expanded_y) || !isfinite(expanded_height) ||
-		    expanded_y < INT_MIN || expanded_y > INT_MAX ||
-		    expanded_height <= 0.0 || expanded_height > INT_MAX) {
-			return;
-		}
-		drawing_clip.y = (int)floor(expanded_y);
-		drawing_clip.h = (int)ceil(expanded_height);
-	}
 	if (clipping_was_enabled) {
 		SDL_Rect intersection;
-		SDL_IntersectRect(&drawing_clip, &old_clip, &intersection);
+		if (!SDL_IntersectRect(&drawing_clip, &old_clip, &intersection)) {
+			return;
+		}
 		drawing_clip = intersection;
 	}
+	if (drawing_clip.w <= 0 || drawing_clip.h <= 0) {
+		return;
+	}
 	if (SDL_RenderSetClipRect(g_renderer, &drawing_clip) != 0) {
-		SDL_RenderSetClipRect(g_renderer,
-		                      clipping_was_enabled ? &old_clip : NULL);
+		tx_restore_renderer_clip(clipping_was_enabled, &old_clip);
 		return;
 	}
 	for (int row_index = 0; row_index < visible_rows; row_index++) {
 		const tx_styled_row_t *row = &message->rows[row_index];
-		double scale = row_step / text_height;
-		double row_width = row->rendered_width * scale;
-		double row_x = content.x + (content.w - row_width) / 2.0;
 		for (int fragment = 0; fragment < row->fragment_count; fragment++) {
 			const tx_text_fragment_t *part = &row->fragments[fragment];
-			double x = row_x + part->x_offset * scale;
-			if (!isfinite(x) || !isfinite(y) || x < INT_MIN || x > INT_MAX ||
-			    y < INT_MIN || y > INT_MAX ||
-			    row_step > INT_MAX) {
-				continue;
+			SDL_FRect destination;
+			if (tx_get_styled_fragment_destination(
+			        content, text_height, vertical_offset, vertical_growth,
+			        message, row_index,
+			        fragment, &destination)) {
+				dw_draw_texture_fit_h_f(destination, part->texture);
 			}
-			SDL_FRect destination = {
-				.x = (float)x, .y = (float)(y + vertical_growth / 2.0f),
-				.w = (float)content.w, .h = (float)row_step};
-			dw_draw_texture_fit_h_f(destination, part->texture);
 		}
-		y += row_step;
 	}
-	SDL_RenderSetClipRect(g_renderer,
-	                      clipping_was_enabled ? &old_clip : NULL);
+	tx_restore_renderer_clip(clipping_was_enabled, &old_clip);
 }
 
 void tx_draw_styled_text(SDL_Rect content, int text_height,

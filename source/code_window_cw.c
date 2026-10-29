@@ -1866,21 +1866,21 @@ void cw_draw_code_window(void)
 		tx_draw_styled_text(g_text_box, h, g_challenge_text, 0);
 		dw_draw_rectangle(g_text_box, C_GREY);
 	} else if (g_challenge_text != NULL) {
-		int line_count = g_challenge_text->row_count;
 		g_challenge_highlight_value = ha_get_value(anim_limit);
 		float challenge_pulse = g_challenge_highlight_value;
-
-		SDL_FRect base_challenge_box = {
-			.x = g_text_box.x,
-			.y = g_text_box.y,
-			.w = g_text_box.w,
-			.h = g_text_box.h
-		};
-		SDL_FRect challenge_box = dw_grow_rect_height(
-		    base_challenge_box, challenge_pulse * line_count);
-		tx_draw_styled_text_pulsed(g_text_box, h, challenge_pulse,
-		                           g_challenge_text);
-		dw_draw_rectangle_f(challenge_box, C_GREY);
+		SDL_Rect challenge_bounds;
+		if (tx_get_styled_text_pulsed_bounds(
+		        g_text_box, h, challenge_pulse, g_challenge_text,
+		        &challenge_bounds)) {
+			SDL_Rect challenge_frame;
+			tx_draw_styled_text_pulsed(g_text_box, h, challenge_pulse,
+			                           g_challenge_text);
+			if (cw_calculate_challenge_frame_rect(
+			        challenge_bounds, g_code_box, um_border_width(),
+			        &challenge_frame)) {
+				dw_draw_rectangle(challenge_frame, C_GREY);
+			}
+		}
 	}
 	if (!g_challenge_highlight) {
 		g_challenge_highlight_value = 0.0f;

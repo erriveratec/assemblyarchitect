@@ -1,4 +1,7 @@
 #include <assert.h>
+#include <float.h>
+#include <limits.h>
+#include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +17,7 @@
 #include "aux.h"
 #include "sdl_config.h"
 #include "text_tx.h"
+#include "gameplay/highlight_animation_ha.h"
 #include "code_window_cw.h"
 #include "code_window_cw_internal.h"
 #include "tutorial_tr.h"
@@ -448,6 +452,373 @@ static void assert_all_fragments_color(const tx_styled_text_t *message,
 	}
 }
 
+static void assert_rect_equal(SDL_Rect actual, SDL_Rect expected)
+{
+	assert(actual.x == expected.x);
+	assert(actual.y == expected.y);
+	assert(actual.w == expected.w);
+	assert(actual.h == expected.h);
+}
+
+static Uint32 *read_screen_pixels(void)
+{
+	Uint32 *pixels = malloc((size_t)g_screen->pitch * g_screen->h);
+	assert(pixels != NULL);
+	assert(SDL_RenderReadPixels(g_renderer, NULL, g_screen->format->format,
+	                           pixels, g_screen->pitch) == 0);
+	return pixels;
+}
+
+static bool pixel_matches(Uint32 pixel, SDL_Color color)
+{
+	Uint8 red, green, blue, alpha;
+	SDL_GetRGBA(pixel, g_screen->format, &red, &green, &blue, &alpha);
+	return red == color.r && green == color.g && blue == color.b &&
+	       alpha == color.a;
+}
+
+static void clear_test_surface(void)
+{
+	SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
+	assert(SDL_RenderClear(g_renderer) == 0);
+}
+
+static void test_pulsed_challenge_geometry(void)
+{
+	static const char challenge[] =
+	    "Move the value\nfrom the Input\nBuffer [ib] to\n"
+	    "    the Output\n    Buffer [ob]";
+	SDL_Rect stage_box = cw_get_stage_code_box();
+	cw_set_code_box(stage_box);
+	cw_set_challenge_text(challenge);
+	assert(g_challenge_text != NULL && g_challenge_text->row_count > 1);
+	cw_set_scroll_box(stage_box);
+	SDL_Rect content = cw_get_text_box_rect();
+	int text_height = ty_message_height();
+	assert(content.w > 0 && content.h > 0 && text_height > 0);
+
+	SDL_Rect zero_bounds;
+	assert(tx_get_styled_text_pulsed_bounds(
+	    content, text_height, 0.0f, g_challenge_text, &zero_bounds));
+	assert_rect_equal(zero_bounds, content);
+	clear_test_surface();
+	tx_draw_styled_text(content, text_height, g_challenge_text, 0);
+	Uint32 *normal_pixels = read_screen_pixels();
+	clear_test_surface();
+	tx_draw_styled_text_pulsed(content, text_height, 0.0f, g_challenge_text);
+	Uint32 *zero_pulse_pixels = read_screen_pixels();
+	assert(memcmp(normal_pixels, zero_pulse_pixels,
+	              (size_t)g_screen->pitch * g_screen->h) == 0);
+	free(normal_pixels);
+	free(zero_pulse_pixels);
+	assert(SDL_RenderIsClipEnabled(g_renderer) == SDL_FALSE);
+
+	float animation_limit = cw_get_challenge_highlight_limit();
+	assert(isfinite(animation_limit) && animation_limit > 0.0f);
+	ha_reset();
+	int frame = 0;
+	while (ha_get_progress() < 1.0f && frame++ < 1000) {
+		ha_begin_frame();
+	}
+	assert(ha_get_progress() == 1.0f);
+	float maximum_pulse = ha_get_value(animation_limit);
+	assert(maximum_pulse == animation_limit);
+
+	const tx_styled_row_t *first_challenge_row = &g_challenge_text->rows[0];
+	assert(first_challenge_row->fragment_count > 0);
+	const tx_text_fragment_t *leading_fragment =
+	    &first_challenge_row->fragments[0];
+#ifdef TX_STYLED_TEXT_TESTING
+	assert(first_challenge_row->test_text != NULL);
+	assert(first_challenge_row->test_text[0] == 'M');
+#endif
+	SDL_Rect challenge_bounds;
+	assert(tx_get_styled_text_pulsed_bounds(
+	    content, text_height, maximum_pulse, g_challenge_text,
+	    &challenge_bounds));
+	SDL_Rect challenge_frame;
+	assert(cw_calculate_challenge_frame_rect(
+	    challenge_bounds, stage_box, um_border_width(), &challenge_frame));
+	assert(challenge_frame.x ==
+	       (challenge_bounds.x - um_border_width() < stage_box.x
+	            ? stage_box.x : challenge_bounds.x - um_border_width()));
+	assert(challenge_frame.y ==
+	       (challenge_bounds.y - um_border_width() < stage_box.y
+	            ? stage_box.y : challenge_bounds.y - um_border_width()));
+	assert((int64_t)challenge_frame.x + challenge_frame.w ==
+	       ((int64_t)challenge_bounds.x + challenge_bounds.w + um_border_width() >
+	                (int64_t)stage_box.x + stage_box.w
+	            ? (int64_t)stage_box.x + stage_box.w
+	            : (int64_t)challenge_bounds.x + challenge_bounds.w +
+	                  um_border_width()));
+	assert((int64_t)challenge_frame.y + challenge_frame.h ==
+	       ((int64_t)challenge_bounds.y + challenge_bounds.h + um_border_width() >
+	                (int64_t)stage_box.y + stage_box.h
+	            ? (int64_t)stage_box.y + stage_box.h
+	            : (int64_t)challenge_bounds.y + challenge_bounds.h +
+	                  um_border_width()));
+	SDL_FRect first_destination = {
+		.x = (float)(content.x +
+		    (content.w - first_challenge_row->rendered_width *
+		     ((double)text_height + maximum_pulse) / text_height) / 2.0 +
+		    leading_fragment->x_offset *
+		    ((double)text_height + maximum_pulse) / text_height),
+		.y = 0.0f,
+		.w = 0.0f,
+		.h = (float)((double)text_height + maximum_pulse)
+	};
+	double first_y = content.y;
+	if (g_challenge_text->row_count <= content.h / text_height) {
+		first_y += (content.h - g_challenge_text->row_count *
+		            ((double)text_height + maximum_pulse)) / 2.0;
+	}
+	first_destination.y = (float)(first_y + maximum_pulse / 2.0f);
+	first_destination.w = (float)(leading_fragment->texture->w *
+	                              first_destination.h) /
+	                       leading_fragment->texture->h;
+	assert(floor(first_destination.x) >= challenge_bounds.x);
+	assert(ceil(first_destination.x + first_destination.w) <=
+	       (double)challenge_bounds.x + challenge_bounds.w);
+	assert(floor(first_destination.y) >= challenge_bounds.y);
+	assert(ceil(first_destination.y + first_destination.h) <=
+	       (double)challenge_bounds.y + challenge_bounds.h);
+
+	/* Stretch the first M-bearing fragment to the measured content width. */
+	tx_text_fragment_t leading_only_fragment = *leading_fragment;
+	tx_styled_row_t leading_only_row = {
+		.fragments = &leading_only_fragment,
+		.fragment_count = 1,
+		.rendered_width = content.w
+	};
+	tx_styled_text_t leading_only_message = {
+		.rows = &leading_only_row,
+		.row_count = 1
+	};
+	SDL_Rect enlarged_bounds;
+	assert(tx_get_styled_text_pulsed_bounds(
+	    content, text_height, maximum_pulse, &leading_only_message,
+	    &enlarged_bounds));
+	assert(enlarged_bounds.x < content.x);
+	clear_test_surface();
+	tx_draw_styled_text_pulsed(content, text_height, maximum_pulse,
+	                           &leading_only_message);
+	Uint32 *enlarged_pixels = read_screen_pixels();
+	bool found_left_m_pixel = false;
+	for (int y = enlarged_bounds.y;
+	     y < g_screen->h && y < enlarged_bounds.y + enlarged_bounds.h; y++) {
+		for (int x = enlarged_bounds.x; x < content.x; x++) {
+			if (pixel_matches(enlarged_pixels[
+			        (size_t)y * (g_screen->pitch / (int)sizeof(Uint32)) + x],
+			        C_SILVERGREY)) {
+				found_left_m_pixel = true;
+				break;
+			}
+		}
+		if (found_left_m_pixel) break;
+	}
+	free(enlarged_pixels);
+	assert(found_left_m_pixel);
+
+	const tx_styled_text_options_t plain_options = {
+		.highlight_arch_tokens = false,
+		.parse_authoring_prefixes = false,
+		.body_color = C_SILVERGREY
+	};
+	tx_styled_text_t *wide_text = tx_create_styled_text_for_width(
+	    1000, text_height, "MMMMMMMMMM", &plain_options);
+	tx_styled_text_t *narrow_text = tx_create_styled_text_for_width(
+	    1000, text_height, "M", &plain_options);
+	assert(wide_text != NULL && narrow_text != NULL);
+	assert(wide_text->row_count == 1 && narrow_text->row_count == 1);
+	const tx_styled_row_t *wide_source = &wide_text->rows[0];
+	const tx_styled_row_t *narrow_source = &narrow_text->rows[0];
+	assert(wide_source->fragment_count == 1 &&
+	       narrow_source->fragment_count == 1);
+	SDL_Rect maximum_content = {
+		.x = 300,
+		.y = 200,
+		.w = wide_source->rendered_width,
+		.h = text_height
+	};
+	SDL_Rect maximum_bounds;
+	assert(tx_get_styled_text_pulsed_bounds(
+	    maximum_content, text_height, maximum_pulse, wide_text,
+	    &maximum_bounds));
+	assert(maximum_bounds.x < maximum_content.x);
+	assert(maximum_bounds.x + maximum_bounds.w >
+	       maximum_content.x + maximum_content.w);
+	int left_expansion = maximum_content.x - maximum_bounds.x;
+	int right_expansion = maximum_bounds.x + maximum_bounds.w -
+	                      maximum_content.x - maximum_content.w;
+	assert(abs(left_expansion - right_expansion) <= 1);
+
+	SDL_Rect multi_content = {
+		.x = 300,
+		.y = 250,
+		.w = wide_source->rendered_width,
+		.h = 2 * text_height
+	};
+	tx_text_fragment_t multiple_fragments[] = {
+		wide_source->fragments[0],
+		narrow_source->fragments[0]
+	};
+	tx_text_fragment_t narrow_row_fragment = narrow_source->fragments[0];
+	tx_styled_row_t multiple_rows[] = {
+		{
+			.fragments = multiple_fragments,
+			.fragment_count = 2,
+			.rendered_width = wide_source->rendered_width +
+			                   narrow_source->rendered_width
+		},
+		{
+			.fragments = &narrow_row_fragment,
+			.fragment_count = 1,
+			.rendered_width = narrow_source->rendered_width
+		}
+	};
+	multiple_fragments[1].x_offset = wide_source->rendered_width;
+	tx_styled_text_t multi_message = {
+		.rows = multiple_rows,
+		.row_count = 2
+	};
+	SDL_Rect multi_bounds;
+	assert(tx_get_styled_text_pulsed_bounds(
+	    multi_content, text_height, maximum_pulse, &multi_message,
+	    &multi_bounds));
+	double scale = ((double)text_height + maximum_pulse) / text_height;
+	double expected_left = floor(multi_content.x +
+	    (multi_content.w - multiple_rows[0].rendered_width * scale) / 2.0);
+	float destination_height = (float)((double)text_height + maximum_pulse);
+	float first_x = (float)(multi_content.x +
+	    (multi_content.w - multiple_rows[0].rendered_width * scale) / 2.0);
+	float first_width = (float)(multiple_fragments[0].texture->w *
+	    destination_height) / multiple_fragments[0].texture->h;
+	float second_x = (float)(multi_content.x +
+	    (multi_content.w - multiple_rows[0].rendered_width * scale) / 2.0 +
+	    multiple_fragments[1].x_offset * scale);
+	float second_width = (float)(multiple_fragments[1].texture->w *
+	    destination_height) / multiple_fragments[1].texture->h;
+	float narrow_row_x = (float)(multi_content.x +
+	    (multi_content.w - multiple_rows[1].rendered_width * scale) / 2.0);
+	float narrow_row_width = (float)(multiple_fragments[1].texture->w *
+	    destination_height) / multiple_fragments[1].texture->h;
+	double expected_right = ceil(fmax(
+	    (double)multi_content.x + multi_content.w,
+	    fmax(first_x + first_width,
+	         fmax(second_x + second_width,
+	              narrow_row_x + narrow_row_width))));
+	assert(multi_bounds.x == (int)expected_left);
+	assert(multi_bounds.x + multi_bounds.w == (int)expected_right);
+	double expected_top = floor(multi_content.y - maximum_pulse / 2.0);
+	double expected_bottom = ceil(multi_content.y + 2.0 * text_height +
+	                             1.5 * maximum_pulse);
+	assert(multi_bounds.y == (int)expected_top);
+	assert(multi_bounds.y + multi_bounds.h == (int)expected_bottom);
+	tx_free_styled_text(wide_text);
+	tx_free_styled_text(narrow_text);
+
+	SDL_Rect parent_clip = {
+		.x = content.x + content.w / 2,
+		.y = content.y,
+		.w = content.w,
+		.h = content.h + (int)(g_challenge_text->row_count * maximum_pulse) + 10
+	};
+	assert(SDL_RenderSetClipRect(g_renderer, &parent_clip) == 0);
+	clear_test_surface();
+	assert(SDL_RenderSetClipRect(g_renderer, &parent_clip) == 0);
+	tx_draw_styled_text_pulsed(content, text_height, maximum_pulse,
+	                           &leading_only_message);
+	assert(SDL_RenderIsClipEnabled(g_renderer) == SDL_TRUE);
+	SDL_Rect restored_clip;
+	SDL_RenderGetClipRect(g_renderer, &restored_clip);
+	assert_rect_equal(restored_clip, parent_clip);
+	SDL_Rect expected_intersection;
+	assert(SDL_IntersectRect(&parent_clip, &enlarged_bounds,
+	                         &expected_intersection));
+	Uint32 *parent_pixels = read_screen_pixels();
+	for (int y = 0; y < g_screen->h; y++) {
+		for (int x = 0; x < g_screen->w; x++) {
+			bool inside_parent = x >= parent_clip.x &&
+			                     x < parent_clip.x + parent_clip.w &&
+			                     y >= parent_clip.y &&
+			                     y < parent_clip.y + parent_clip.h;
+			Uint32 pixel = parent_pixels[
+			    (size_t)y * (g_screen->pitch / (int)sizeof(Uint32)) + x];
+			if (!inside_parent) {
+				assert(pixel_matches(pixel, (SDL_Color){0, 0, 0, 255}));
+			}
+		}
+	}
+	free(parent_pixels);
+
+	SDL_Rect disjoint_clip = {
+		.x = 0,
+		.y = 0,
+		.w = content.x > 0 ? content.x : 1,
+		.h = content.y > 0 ? content.y : 1
+	};
+	assert(SDL_RenderSetClipRect(g_renderer, &disjoint_clip) == 0);
+	clear_test_surface();
+	assert(SDL_RenderSetClipRect(g_renderer, &disjoint_clip) == 0);
+	tx_draw_styled_text_pulsed(content, text_height, maximum_pulse,
+	                           &leading_only_message);
+	assert(SDL_RenderIsClipEnabled(g_renderer) == SDL_TRUE);
+	SDL_RenderGetClipRect(g_renderer, &restored_clip);
+	assert_rect_equal(restored_clip, disjoint_clip);
+	Uint32 *empty_pixels = read_screen_pixels();
+	for (int y = 0; y < g_screen->h; y++) {
+		for (int x = 0; x < g_screen->w; x++) {
+			assert(pixel_matches(empty_pixels[
+			    (size_t)y * (g_screen->pitch / (int)sizeof(Uint32)) + x],
+			    (SDL_Color){0, 0, 0, 255}));
+		}
+	}
+	free(empty_pixels);
+	assert(SDL_RenderSetClipRect(g_renderer, NULL) == 0);
+
+	SDL_Rect invalid_bounds;
+	SDL_Rect bounds_sentinel = {.x = 17, .y = 23, .w = 31, .h = 47};
+	invalid_bounds = bounds_sentinel;
+	if (!tx_get_styled_text_pulsed_bounds(
+	        content, text_height, -1.0f, g_challenge_text, &invalid_bounds)) {
+		assert_rect_equal(invalid_bounds, bounds_sentinel);
+	} else {
+		assert(!"Invalid bounds input unexpectedly succeeded");
+	}
+	assert(!tx_get_styled_text_pulsed_bounds(
+	    content, text_height, NAN, g_challenge_text, &invalid_bounds));
+	assert(!tx_get_styled_text_pulsed_bounds(
+	    content, text_height, INFINITY, g_challenge_text, &invalid_bounds));
+	assert(!tx_get_styled_text_pulsed_bounds(
+	    content, text_height, FLT_MAX, g_challenge_text, &invalid_bounds));
+	assert(!tx_get_styled_text_pulsed_bounds(
+	    content, 0, 0.0f, g_challenge_text, &invalid_bounds));
+	assert(!tx_get_styled_text_pulsed_bounds(
+	    (SDL_Rect){.x = content.x, .y = content.y, .w = 0, .h = content.h},
+	    text_height, 0.0f, g_challenge_text, &invalid_bounds));
+	assert(!tx_get_styled_text_pulsed_bounds(
+	    (SDL_Rect){.x = INT_MAX - 2, .y = content.y, .w = 10, .h = content.h},
+	    text_height, 0.0f, g_challenge_text, &invalid_bounds));
+	tx_styled_text_t invalid_message = {.rows = NULL, .row_count = 1};
+	assert(!tx_get_styled_text_pulsed_bounds(
+	    content, text_height, 0.0f, &invalid_message, &invalid_bounds));
+	tx_text_fragment_t null_texture_fragment = {.texture = NULL};
+	tx_styled_row_t null_texture_row = {
+		.fragments = &null_texture_fragment,
+		.fragment_count = 1,
+		.rendered_width = 1
+	};
+	tx_styled_text_t null_texture_message = {
+		.rows = &null_texture_row,
+		.row_count = 1
+	};
+	assert(!tx_get_styled_text_pulsed_bounds(
+	    content, text_height, 0.0f, &null_texture_message, &invalid_bounds));
+	assert(!tx_get_styled_text_pulsed_bounds(
+	    content, text_height, 0.0f, NULL, &invalid_bounds));
+	cw_set_challenge_text("");
+}
+
 static void test_highlighting_policy_and_defaults(void)
 {
 	const char *text = "Move [ib] into rax, then write rax to [ob]";
@@ -757,6 +1128,7 @@ int main(void)
 	test_generic_mixed_color_messages();
 	test_highlighting_policy_and_defaults();
 	test_challenge_and_hover_policies();
+	test_pulsed_challenge_geometry();
 	test_blank_wrap_and_overflow();
 
 	TTF_CloseFont(g_font);

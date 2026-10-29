@@ -123,6 +123,15 @@ tx_styled_text_t *tx_create_styled_text_for_width(
 
 void tx_draw_styled_text(SDL_Rect content, int text_height,
 						 const tx_styled_text_t *message, int vertical_offset);
+/* Calculates bounds including content and every visible pulsed-fragment
+ * destination. Visibility uses the original content-height row policy; bounds
+ * are rounded outward with floor/ceil. vertical_growth must be finite and
+ * nonnegative. This function does not change renderer state. Returns true
+ * only when bounds is valid; on false, bounds is unchanged and must not be
+ * used. */
+bool tx_get_styled_text_pulsed_bounds(
+	SDL_Rect content, int text_height, float vertical_growth,
+	const tx_styled_text_t *message, SDL_Rect *bounds);
 /* Applies vertical pulse geometry without changing fragment colors or alpha. */
 void tx_draw_styled_text_pulsed(SDL_Rect content, int text_height,
 								float vertical_growth,
