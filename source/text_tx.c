@@ -1145,6 +1145,9 @@ static void tx_free_row(tx_styled_row_t *row)
 		dw_free_texture(row->fragments[index].texture);
 	}
 	free(row->fragments);
+#ifdef TX_STYLED_TEXT_TESTING
+	free(row->test_text);
+#endif
 	*row = (tx_styled_row_t){0};
 }
 
@@ -1180,7 +1183,17 @@ static bool tx_append_row(tx_styled_text_t *message, tx_styled_row_t *row)
 static bool tx_append_empty_styled_row(tx_styled_text_t *message)
 {
 	tx_styled_row_t row = {0};
-	return tx_append_row(message, &row);
+#ifdef TX_STYLED_TEXT_TESTING
+	row.test_text = calloc(1, sizeof(*row.test_text));
+	if (row.test_text == NULL) {
+		return false;
+	}
+#endif
+	if (!tx_append_row(message, &row)) {
+		tx_free_row(&row);
+		return false;
+	}
+	return true;
 }
 
 static bool tx_create_row_from_span(tx_styled_text_t *message,
@@ -1191,6 +1204,17 @@ static bool tx_create_row_from_span(tx_styled_text_t *message,
 									int text_height, SDL_Color body_color)
 {
 	tx_styled_row_t row = {0};
+#ifdef TX_STYLED_TEXT_TESTING
+	if (end - start == SIZE_MAX) {
+		return false;
+	}
+	row.test_text = malloc(end - start + 1);
+	if (row.test_text == NULL) {
+		return false;
+	}
+	memcpy(row.test_text, line + start, end - start);
+	row.test_text[end - start] = '\0';
+#endif
 	for (size_t index = 0; index < run_count; index++) {
 		const tx_styled_run_t *run = &runs[index];
 		size_t run_end = run->start + run->length;

@@ -5,6 +5,16 @@
 #include <stdbool.h>
 #include <SDL.h>
 #include "code_line_cl.h"
+#include "text_tx.h"
+
+typedef tx_styled_text_t *(*cw_challenge_text_factory_t)(
+	int width, int text_height, const char *text,
+	const tx_styled_text_options_t *options);
+
+/* Challenge-specific creation seam for lifecycle tests; NULL resets to the
+ * production factory. Kept internal so gameplay callers cannot change it. */
+void cw_set_challenge_text_factory(cw_challenge_text_factory_t factory);
+void cw_reset_challenge_text_factory(void);
 
 static inline bool cw_is_active_operand_replacement_slot(
 	const code_line_t *line,

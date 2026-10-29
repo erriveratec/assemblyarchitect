@@ -59,6 +59,11 @@ typedef struct tx_styled_row_t {
 	tx_text_fragment_t *fragments;
 	int fragment_count;
 	int rendered_width;
+#ifdef TX_STYLED_TEXT_TESTING
+	/* Whitespace is measured but has no texture fragment; retain row source only
+	 * in test builds so wrapping can be verified without pixel/OCR inspection. */
+	char *test_text;
+#endif
 } tx_styled_row_t;
 
 /* Owns its rows and every fragment texture stored in them. */

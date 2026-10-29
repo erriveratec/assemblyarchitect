@@ -204,8 +204,8 @@ test-sector-completion-navigation: | $(TEST_BUILD_DIR)
 	./$(SECTOR_COMPLETION_NAVIGATION_TEST_EXEC)
 
 test-tutorial-text: | $(TEST_BUILD_DIR)
-	$(CC) $(CFLAGS) $(TUTORIAL_TEXT_TEST_SOURCE) \
-	    $(filter-out $(S_DIR)/code_window_cw.c,$(TEST_SOURCES)) -o $(TUTORIAL_TEXT_TEST_EXEC) \
+	# Test-only row source enables content assertions without production metadata.
+	$(CC) $(CFLAGS) -DTX_STYLED_TEXT_TESTING $(TUTORIAL_TEXT_TEST_SOURCE) $(TEST_SOURCES) -o $(TUTORIAL_TEXT_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(TUTORIAL_TEXT_TEST_EXEC)
 

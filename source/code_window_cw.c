@@ -65,6 +65,27 @@ typedef struct jump_target_label_buttons_t {
 static button_animation_claim_t g_active_jump_claims[JUMP_HIGHLIGHT_COMPONENT_COUNT];
 
 tx_styled_text_t *g_challenge_text;
+static tx_styled_text_t *cw_create_challenge_text(
+	int width, int text_height, const char *text,
+	const tx_styled_text_options_t *options)
+{
+	return tx_create_styled_text_for_width(width, text_height, text, options);
+}
+
+static cw_challenge_text_factory_t g_challenge_text_factory =
+	cw_create_challenge_text;
+
+void cw_set_challenge_text_factory(cw_challenge_text_factory_t factory)
+{
+	g_challenge_text_factory = factory != NULL ? factory :
+		cw_create_challenge_text;
+}
+
+void cw_reset_challenge_text_factory(void)
+{
+	g_challenge_text_factory = cw_create_challenge_text;
+}
+
 texture_t *g_stage_name;
 texture_t *g_comma_tex;
 texture_t **g_numbers;
@@ -1507,7 +1528,7 @@ void cw_set_challenge_text(const char *text)
 		.parse_authoring_prefixes = false,
 		.body_color = C_SILVERGREY
 	};
-	g_challenge_text = tx_create_styled_text_for_width(w, h, text, &options);
+	g_challenge_text = g_challenge_text_factory(w, h, text, &options);
 	if (g_challenge_text == NULL) {
 		fprintf(stderr, "Unable to create styled challenge text\n");
 	}

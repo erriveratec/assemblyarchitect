@@ -1,9 +1,9 @@
 #include <assert.h>
 #include <stdint.h>
-#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <SDL.h>
 #include <SDL_ttf.h>
 
@@ -15,50 +15,92 @@
 #include "sdl_config.h"
 #include "text_tx.h"
 #include "code_window_cw.h"
+#include "code_window_cw_internal.h"
 #include "tutorial_tr.h"
 #include "tutorial_tr_internal.h"
 
 extern tx_styled_text_t *g_challenge_text;
-static tx_styled_text_t *test_create_challenge_text(
-	int width, int height, const char *text,
-	const tx_styled_text_options_t *options);
-static int challenge_allocation_diagnostics;
-static int test_challenge_fprintf(FILE *stream, const char *format, ...);
-#define tx_create_styled_text_for_width test_create_challenge_text
-#define fprintf test_challenge_fprintf
-#include "../source/code_window_cw.c"
-#undef fprintf
-#undef tx_create_styled_text_for_width
-
-static int test_challenge_fprintf(FILE *stream, const char *format, ...)
-{
-	if (strcmp(format, "Unable to create styled challenge text\n") == 0) {
-		challenge_allocation_diagnostics++;
-		return 0;
-	}
-	va_list arguments;
-	va_start(arguments, format);
-	int result = vfprintf(stream, format, arguments);
-	va_end(arguments);
-	return result;
-}
-
 static bool fail_challenge_creation;
+static int challenge_factory_calls;
+static int challenge_factory_option_errors;
+static char challenge_factory_text[128];
 
-static tx_styled_text_t *test_create_challenge_text(
+static tx_styled_text_t *test_challenge_text_factory(
 	int width, int height, const char *text,
 	const tx_styled_text_options_t *options)
 {
+	challenge_factory_calls++;
+	if (width <= 0 || height <= 0 || text == NULL || options == NULL ||
+	    options->highlight_arch_tokens || options->parse_authoring_prefixes ||
+	    options->body_color.r != C_SILVERGREY.r ||
+	    options->body_color.g != C_SILVERGREY.g ||
+	    options->body_color.b != C_SILVERGREY.b ||
+	    options->body_color.a != C_SILVERGREY.a) {
+		challenge_factory_option_errors++;
+	}
+	snprintf(challenge_factory_text, sizeof(challenge_factory_text), "%s",
+	         text != NULL ? text : "");
 	if (fail_challenge_creation) {
-		assert(width > 0 && height > 0 && text[0] != '\0');
-		assert(options != NULL && !options->highlight_arch_tokens);
-		assert(!options->parse_authoring_prefixes);
-		assert(options->body_color.r == C_SILVERGREY.r &&
-		       options->body_color.g == C_SILVERGREY.g &&
-		       options->body_color.b == C_SILVERGREY.b);
 		return NULL;
 	}
 	return tx_create_styled_text_for_width(width, height, text, options);
+}
+
+static size_t capture_challenge_diagnostic(const char *text, char *output,
+											   size_t output_size)
+{
+	FILE *capture = tmpfile();
+	assert(capture != NULL);
+	fflush(stderr);
+	int saved_stderr = dup(STDERR_FILENO);
+	assert(saved_stderr >= 0);
+	assert(dup2(fileno(capture), STDERR_FILENO) >= 0);
+	cw_set_challenge_text(text);
+	fflush(stderr);
+	assert(dup2(saved_stderr, STDERR_FILENO) >= 0);
+	close(saved_stderr);
+	rewind(capture);
+	size_t bytes_read = fread(output, 1, output_size - 1, capture);
+	output[bytes_read] = '\0';
+	fclose(capture);
+	return bytes_read;
+}
+
+static bool reconstruct_styled_rows(const tx_styled_text_t *message,
+									char *output, size_t output_size)
+{
+	if (message == NULL || output == NULL || output_size == 0) {
+		return false;
+	}
+	size_t written = 0;
+	for (int row = 0; row < message->row_count; row++) {
+		const tx_styled_row_t *styled_row = &message->rows[row];
+		if (styled_row->fragment_count < 0 ||
+		    (styled_row->fragment_count > 0 && styled_row->fragments == NULL)) {
+			return false;
+		}
+		for (int fragment = 0; fragment < styled_row->fragment_count; fragment++) {
+			if (styled_row->fragments[fragment].texture == NULL) {
+				return false;
+			}
+		}
+#ifdef TX_STYLED_TEXT_TESTING
+		if (styled_row->test_text == NULL) {
+			return false;
+		}
+		/* The row source preserves spaces that intentionally have no texture. */
+		size_t row_length = strlen(styled_row->test_text);
+		if (row_length >= output_size - written) {
+			return false;
+		}
+		memcpy(output + written, styled_row->test_text, row_length);
+		written += row_length;
+#else
+		return false;
+#endif
+	}
+	output[written] = '\0';
+	return true;
 }
 
 static tx_text_box_options_t g_options = {
@@ -428,8 +470,14 @@ static void test_highlighting_policy_and_defaults(void)
 static void test_challenge_and_hover_policies(void)
 {
 	cw_create_code_list();
-	cw_set_challenge_text("Move [ib] into rax, execute MOV, and write to [ob]");
+	const char *first_challenge =
+		"Move [ib] into rax, execute MOV, and write to [ob]";
+	char reconstructed[512];
+	cw_set_challenge_text(first_challenge);
 	assert(g_challenge_text != NULL);
+	assert(reconstruct_styled_rows(g_challenge_text, reconstructed,
+	                               sizeof(reconstructed)));
+	assert(strcmp(reconstructed, first_challenge) == 0);
 	assert_all_fragments_color(g_challenge_text, C_SILVERGREY);
 	tx_draw_styled_text_pulsed(
 		(SDL_Rect){.x = 100, .y = 100, .w = 700, .h = 300},
@@ -438,19 +486,51 @@ static void test_challenge_and_hover_policies(void)
 	assert(SDL_RenderIsClipEnabled(g_renderer) == SDL_FALSE);
 
 	int first_row_count = g_challenge_text->row_count;
-	cw_set_challenge_text("MOV rax [ib] [ob]");
+	const char *replacement_challenge = "MOV rax [ib] [ob]";
+	cw_set_challenge_text(replacement_challenge);
 	assert(g_challenge_text != NULL);
 	assert_all_fragments_color(g_challenge_text, C_SILVERGREY);
+	assert(reconstruct_styled_rows(g_challenge_text, reconstructed,
+	                               sizeof(reconstructed)));
+	assert(strcmp(reconstructed, replacement_challenge) == 0);
+	assert(strstr(reconstructed, "execute MOV") == NULL);
 	assert(g_challenge_text->row_count < first_row_count);
-	int diagnostics_before_empty = challenge_allocation_diagnostics;
-	cw_set_challenge_text("");
+	int calls_before_empty = challenge_factory_calls;
+	cw_set_challenge_text_factory(test_challenge_text_factory);
+	char diagnostic[256];
+	size_t diagnostic_length =
+		capture_challenge_diagnostic("", diagnostic, sizeof(diagnostic));
+	cw_reset_challenge_text_factory();
 	assert(g_challenge_text == NULL);
-	assert(challenge_allocation_diagnostics == diagnostics_before_empty);
+	assert(diagnostic_length == 0);
+	assert(challenge_factory_calls == calls_before_empty);
+	cw_set_challenge_text_factory(test_challenge_text_factory);
+	diagnostic_length =
+		capture_challenge_diagnostic("", diagnostic, sizeof(diagnostic));
+	cw_reset_challenge_text_factory();
+	assert(g_challenge_text == NULL);
+	assert(diagnostic_length == 0);
+	assert(challenge_factory_calls == calls_before_empty);
+	cw_set_challenge_text_factory(test_challenge_text_factory);
 	fail_challenge_creation = true;
-	cw_set_challenge_text("non-empty allocation failure");
+	int calls_before_failure = challenge_factory_calls;
+	diagnostic_length = capture_challenge_diagnostic(
+		"non-empty allocation failure", diagnostic, sizeof(diagnostic));
+	cw_reset_challenge_text_factory();
 	assert(g_challenge_text == NULL);
-	assert(challenge_allocation_diagnostics == diagnostics_before_empty + 1);
+	assert(diagnostic_length > 0);
+	assert(strcmp(diagnostic,
+	              "Unable to create styled challenge text\n") == 0);
+	assert(challenge_factory_calls == calls_before_failure + 1);
+	assert(challenge_factory_option_errors == 0);
+	assert(strcmp(challenge_factory_text,
+	              "non-empty allocation failure") == 0);
 	fail_challenge_creation = false;
+	cw_set_challenge_text(replacement_challenge);
+	assert(g_challenge_text != NULL);
+	assert(reconstruct_styled_rows(g_challenge_text, reconstructed,
+	                               sizeof(reconstructed)));
+	assert(strcmp(reconstructed, replacement_challenge) == 0);
 	cw_destroy_code_window_assets();
 	assert(g_challenge_text == NULL);
 
@@ -468,6 +548,11 @@ static void test_challenge_and_hover_policies(void)
 	legacy_message = tx_get_message_texture(0);
 	assert(legacy_message != NULL);
 	assert_all_fragments_color(legacy_message, C_WHITE);
+	tx_set_styled_message_in_array(0, "Use rax with [ib]", 1000,
+	                               ty_message_height(), &hover_options);
+	legacy_message = tx_get_message_texture(0);
+	assert(legacy_message != NULL);
+	assert_all_fragments_color(legacy_message, C_GREY);
 	tx_set_styled_single_line_message(0, "Use rax with [ib]",
 	                                  ty_message_height(), &hover_options);
 	tx_styled_text_t *hover = tx_get_message_texture(0);
