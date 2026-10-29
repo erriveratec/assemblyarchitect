@@ -39,29 +39,16 @@ code_end
 [level 04]
 unlocked = true
 code_begin
-MOV rax, [ib]
-MOV rbx, [ib]
-MOV rcx, [ib]
-MOV [ob], rcx
-MOV [ob], rbx
-MOV [ob], rax
 code_end
 
 [level 05]
 unlocked = true
 code_begin
-MOV rax, [ib]
-MOV rbx, [ib]
-ADD rax, rbx
-MOV [ob], rax
 code_end
 
 [level 06]
 unlocked = true
 code_begin
-MOV rax, [ib]
-ADD rax, rax
-MOV [ob], rax
 code_end
 
 [level 07]
