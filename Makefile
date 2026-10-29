@@ -205,7 +205,10 @@ test-sector-completion-navigation: | $(TEST_BUILD_DIR)
 
 test-tutorial-text: | $(TEST_BUILD_DIR)
 	# Test-only row source enables content assertions without production metadata.
-	$(CC) $(CFLAGS) -DTX_STYLED_TEXT_TESTING $(TUTORIAL_TEXT_TEST_SOURCE) $(TEST_SOURCES) -o $(TUTORIAL_TEXT_TEST_EXEC) \
+	$(CC) $(CFLAGS) \
+	    -DTX_STYLED_TEXT_TESTING \
+	    -DCW_CHALLENGE_TEXT_TESTING \
+	    $(TUTORIAL_TEXT_TEST_SOURCE) $(TEST_SOURCES) -o $(TUTORIAL_TEXT_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(TUTORIAL_TEXT_TEST_EXEC)
 

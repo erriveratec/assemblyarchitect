@@ -20,6 +20,7 @@
 #include "tutorial_tr_internal.h"
 
 extern tx_styled_text_t *g_challenge_text;
+static SDL_Color fragment_color(const tx_text_fragment_t *fragment);
 static bool fail_challenge_creation;
 static int challenge_factory_calls;
 static int challenge_factory_option_errors;
@@ -101,6 +102,42 @@ static bool reconstruct_styled_rows(const tx_styled_text_t *message,
 	}
 	output[written] = '\0';
 	return true;
+}
+
+static void assert_production_challenge_recovery(const char *text,
+											 char *reconstructed,
+											 size_t reconstructed_size)
+{
+	cw_reset_challenge_text_factory();
+	int calls_before = challenge_factory_calls;
+	cw_set_challenge_text(text);
+	bool created = g_challenge_text != NULL;
+	bool content_matches = created && reconstruct_styled_rows(
+		g_challenge_text, reconstructed, reconstructed_size) &&
+		strcmp(reconstructed, text) == 0;
+	bool colors_match = created;
+	if (created) {
+		for (int row = 0; row < g_challenge_text->row_count; row++) {
+			for (int fragment = 0;
+			     fragment < g_challenge_text->rows[row].fragment_count; fragment++) {
+				SDL_Color color = fragment_color(
+				    &g_challenge_text->rows[row].fragments[fragment]);
+				colors_match &= color.r == C_SILVERGREY.r &&
+				                color.g == C_SILVERGREY.g &&
+				                color.b == C_SILVERGREY.b &&
+				                color.a == C_SILVERGREY.a;
+			}
+		}
+	}
+	bool factory_unchanged = challenge_factory_calls == calls_before;
+	cw_set_challenge_text("");
+	bool cleared = g_challenge_text == NULL;
+	cw_reset_challenge_text_factory();
+	assert(created);
+	assert(content_matches);
+	assert(colors_match);
+	assert(factory_unchanged);
+	assert(cleared);
 }
 
 static tx_text_box_options_t g_options = {
@@ -469,6 +506,7 @@ static void test_highlighting_policy_and_defaults(void)
 
 static void test_challenge_and_hover_policies(void)
 {
+	cw_reset_challenge_text_factory();
 	cw_create_code_list();
 	const char *first_challenge =
 		"Move [ib] into rax, execute MOV, and write to [ob]";
@@ -526,13 +564,19 @@ static void test_challenge_and_hover_policies(void)
 	assert(strcmp(challenge_factory_text,
 	              "non-empty allocation failure") == 0);
 	fail_challenge_creation = false;
-	cw_set_challenge_text(replacement_challenge);
-	assert(g_challenge_text != NULL);
-	assert(reconstruct_styled_rows(g_challenge_text, reconstructed,
-	                               sizeof(reconstructed)));
-	assert(strcmp(reconstructed, replacement_challenge) == 0);
+	assert_production_challenge_recovery(replacement_challenge,
+	                                     reconstructed, sizeof(reconstructed));
+	cw_set_challenge_text_factory(test_challenge_text_factory);
+	cw_reset_challenge_text_factory();
+	assert_production_challenge_recovery(replacement_challenge,
+	                                     reconstructed, sizeof(reconstructed));
+	cw_set_challenge_text_factory(test_challenge_text_factory);
+	cw_set_challenge_text_factory(NULL);
+	assert_production_challenge_recovery(replacement_challenge,
+	                                     reconstructed, sizeof(reconstructed));
 	cw_destroy_code_window_assets();
 	assert(g_challenge_text == NULL);
+	cw_reset_challenge_text_factory();
 
 	tx_set_and_allocate_msgs_array(1);
 	const tx_styled_text_options_t hover_options = {
