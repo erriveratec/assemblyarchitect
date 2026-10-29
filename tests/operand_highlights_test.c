@@ -300,13 +300,20 @@ static void test_tutorial_highlight_parsing(void)
 	char invalid_alias[] = "zf";
 	assert(!tr_parse_highlights(invalid_alias, &targets));
 
-	assert(tr_load_level(10));
-	const tutorial_step_t *step = tr_get_named_step("introduce_immediates");
+	static const char fixture[] =
+	    "[tutorial]\nformat = 1\n"
+	    "[fixture_immediate]\nbox = center\nheader = none\ndismiss = none\n"
+	    "highlight = immediate\ntext_begin\nImmediate fixture\ntext_end\n";
+	FILE *stream = tmpfile();
+	assert(stream != NULL);
+	assert(fwrite(fixture, 1, sizeof(fixture) - 1, stream) == sizeof(fixture) - 1);
+	rewind(stream);
+	assert(tr_load_tutorial_stream_for_testing(stream,
+	                                           "operand-highlight-fixture"));
+	fclose(stream);
+	const tutorial_step_t *step = tr_get_named_step("fixture_immediate");
 	assert(step != NULL);
-	assert(step->highlight_targets & TUTORIAL_HIGHLIGHT_IMMEDIATES);
-	step = tr_get_named_step("explain_immediate_addition");
-	assert(step != NULL);
-	assert(step->highlight_targets & TUTORIAL_HIGHLIGHT_IMMEDIATES);
+	assert(step->highlight_targets == TUTORIAL_HIGHLIGHT_IMMEDIATES);
 	tr_clear();
 }
 

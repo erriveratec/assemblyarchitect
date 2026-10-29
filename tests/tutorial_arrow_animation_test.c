@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #include <SDL_ttf.h>
 #include "game_mechanics_mc.h"
 #include "sdl_config.h"
@@ -93,14 +94,83 @@ static bool load_fixture(const char *fixture_name, const char *text)
 	return loaded;
 }
 
+static bool load_fixture_with_diagnostic(const char *fixture_name,
+	                                     const char *text,
+	                                     char *diagnostic,
+	                                     size_t diagnostic_size)
+{
+	FILE *capture = tmpfile();
+	assert(capture != NULL);
+	fflush(stderr);
+	int saved_stderr = dup(STDERR_FILENO);
+	assert(saved_stderr >= 0);
+	assert(dup2(fileno(capture), STDERR_FILENO) >= 0);
+	bool loaded = load_fixture(fixture_name, text);
+	fflush(stderr);
+	assert(dup2(saved_stderr, STDERR_FILENO) >= 0);
+	close(saved_stderr);
+	rewind(capture);
+	if (diagnostic != NULL && diagnostic_size > 0) {
+		size_t bytes = fread(diagnostic, 1, diagnostic_size - 1, capture);
+		diagnostic[bytes] = '\0';
+	}
+	fclose(capture);
+	return loaded;
+}
+
 static void assert_fixture_rejected(const char *fixture_name, const char *text)
 {
-	assert(!load_fixture(fixture_name, text));
+	char diagnostic[1024];
+	assert(!load_fixture_with_diagnostic(fixture_name, text, diagnostic,
+	                                     sizeof(diagnostic)));
+	assert(strstr(diagnostic, fixture_name) != NULL);
 	assert(tr_get_step_count() == 0);
 	assert(tr_get_step(0) == NULL);
 	float progress = -1.0f;
 	assert(!rg_get_zero_flag_highlight_progress(
 	    &progress, (float)dw_get_animation_limit()));
+	assert(load_fixture("valid-after-parser-failure",
+	    "[tutorial]\nformat = 1\n[recovered]\nbox = center\nheader = none\n"
+	    "dismiss = none\ntext_begin\nClean recovery\ntext_end\n"));
+	assert(tr_get_step_count() == 1);
+	assert(tr_get_named_step("recovered")->arrow_count == 0);
+	tr_clear();
+}
+
+static void assert_invalid_arrow_fixture(const char *fixture_name,
+	                                    const char *arrow_value,
+	                                    const char *expected_diagnostic_token)
+{
+	char fixture[1024];
+	int length = snprintf(fixture, sizeof(fixture),
+	    "[tutorial]\nformat = 1\n[bad]\nbox = center\nheader = none\n"
+	    "dismiss = none\narrow = %s\ntext_begin\nInvalid arrow fixture\ntext_end\n",
+	    arrow_value);
+	assert(length > 0 && (size_t)length < sizeof(fixture));
+	char diagnostic[1024];
+	assert(!load_fixture_with_diagnostic(fixture_name, fixture, diagnostic,
+	                                     sizeof(diagnostic)));
+	assert(strstr(diagnostic, fixture_name) != NULL);
+	assert(strstr(diagnostic, "step 'bad'") != NULL);
+	assert(strstr(diagnostic, "invalid arrow declaration") != NULL);
+	if (expected_diagnostic_token != NULL &&
+	    expected_diagnostic_token[0] != '\0') {
+		char token_prefix[33];
+		snprintf(token_prefix, sizeof(token_prefix), "%.32s",
+		         expected_diagnostic_token);
+		assert(strstr(diagnostic, token_prefix) != NULL);
+	}
+	assert(tr_get_step_count() == 0);
+	float progress = -1.0f;
+	assert(!rg_get_zero_flag_highlight_progress(
+	    &progress, (float)dw_get_animation_limit()));
+	assert(load_fixture("valid-after-invalid-arrow",
+	    "[tutorial]\nformat = 1\n[recovered]\nbox = center\nheader = none\n"
+	    "dismiss = none\narrow = zf\ntext_begin\nRecovered\ntext_end\n"));
+	const tutorial_step_t *recovered = tr_get_named_step("recovered");
+	assert(recovered != NULL && recovered->arrow_count == 1 &&
+	       recovered->arrow_ids[0] == AR_ZF);
+	tr_clear();
 }
 
 static void test_challenge_frame_geometry_helper(void)
@@ -831,29 +901,170 @@ static void test_op2_vertical_clearance(void)
 	}
 }
 
+static void check_tutorial_condition(bool condition, const char *path,
+	                                 int level_id, int step_index,
+	                                 const char *step_name, const char *property,
+	                                 const char *actual, const char *expected)
+{
+	if (condition) return;
+	fprintf(stderr, "%s (level %d)", path, level_id);
+	if (step_index >= 0) {
+		fprintf(stderr, " step %d \"%.63s\"", step_index,
+		        step_name != NULL && step_name[0] != '\0' ? step_name : "?");
+	}
+	fprintf(stderr, ": %s is %s; expected %s\n", property, actual, expected);
+	fflush(stderr);
+	assert(condition);
+}
+
+static const char *arrow_id_name(int arrow_id)
+{
+	switch (arrow_id) {
+	case AR_INS: return "AR_INS";
+	case AR_INS_MINUS: return "AR_INS_MINUS";
+	case AR_DROP: return "AR_DROP";
+	case AR_PLAY: return "AR_PLAY";
+	case AR_STEP: return "AR_STEP";
+	case AR_FAST: return "AR_FAST";
+	case AR_CODE: return "AR_CODE";
+	case AR_DEL: return "AR_DEL";
+	case AR_OP2: return "AR_OP2";
+	case AR_ERROR: return "AR_ERROR";
+	case AR_CHALLENGE: return "AR_CHALLENGE";
+	case AR_IB: return "AR_IB";
+	case AR_OB: return "AR_OB";
+	case AR_EXEC: return "AR_EXEC";
+	case AR_REG: return "AR_REG";
+	case AR_ZF: return "AR_ZF";
+	case AR_IMM_UP: return "AR_IMM_UP";
+	default: return "unknown";
+	}
+}
+
+static void validate_production_step(const char *path, int level_id,
+	                                 int step_index,
+	                                 const tutorial_step_t *step)
+{
+	check_tutorial_condition(step != NULL, path, level_id, step_index, NULL,
+	                         "step pointer", "NULL", "a parsed step");
+	if (step == NULL) return;
+	bool name_terminated =
+	    memchr(step->name, '\0', sizeof(step->name)) != NULL;
+	char name_actual[96];
+	snprintf(name_actual, sizeof(name_actual), "%.63s%s", step->name,
+	         name_terminated ? "" : " (unterminated)");
+	check_tutorial_condition(step->name[0] != '\0' && name_terminated,
+	                         path, level_id, step_index, step->name,
+	                         "step name", name_actual,
+	                         "a nonempty terminated name");
+	check_tutorial_condition(step->text_message != NULL, path, level_id,
+	                         step_index, step->name, "text_message",
+	                         step->text_message == NULL ? "NULL" : "present",
+	                         "present");
+	char enum_actual[48];
+	snprintf(enum_actual, sizeof(enum_actual), "%d", (int)step->box);
+	check_tutorial_condition(step->box >= TUTORIAL_BOX_CENTER_UP &&
+	                         step->box <= TUTORIAL_BOX_INSTRUCTION,
+	                         path, level_id, step_index, step->name,
+	                         "box enum", enum_actual,
+	                         "TUTORIAL_BOX_CENTER_UP..TUTORIAL_BOX_INSTRUCTION");
+	snprintf(enum_actual, sizeof(enum_actual), "%d", (int)step->header);
+	check_tutorial_condition(step->header >= TUTORIAL_HEADER_NONE &&
+	                         step->header <= TUTORIAL_HEADER_INSTRUCTION,
+	                         path, level_id, step_index, step->name,
+	                         "header enum", enum_actual,
+	                         "TUTORIAL_HEADER_NONE..TUTORIAL_HEADER_INSTRUCTION");
+	snprintf(enum_actual, sizeof(enum_actual), "%d", (int)step->dismiss);
+	check_tutorial_condition(step->dismiss >= TUTORIAL_DISMISS_NONE &&
+	                         step->dismiss <= TUTORIAL_DISMISS_OPERATION_ERROR,
+	                         path, level_id, step_index, step->name,
+	                         "dismiss enum", enum_actual,
+	                         "TUTORIAL_DISMISS_NONE..TUTORIAL_DISMISS_OPERATION_ERROR");
+	const int supported_highlights = TUTORIAL_HIGHLIGHT_CHALLENGE |
+	    TUTORIAL_HIGHLIGHT_INPUT_BUFFER | TUTORIAL_HIGHLIGHT_OUTPUT_BUFFER |
+	    TUTORIAL_HIGHLIGHT_REGISTERS | TUTORIAL_HIGHLIGHT_CODE_BOX |
+	    TUTORIAL_HIGHLIGHT_IMMEDIATES | TUTORIAL_HIGHLIGHT_STEP |
+	    TUTORIAL_HIGHLIGHT_FAST | TUTORIAL_HIGHLIGHT_ZERO_FLAG;
+	snprintf(enum_actual, sizeof(enum_actual), "0x%x",
+	         (unsigned int)step->highlight_targets);
+	check_tutorial_condition((step->highlight_targets & ~supported_highlights) == 0,
+	                         path, level_id, step_index, step->name,
+	                         "highlight target mask", enum_actual,
+	                         "only defined TUTORIAL_HIGHLIGHT_* bits");
+	snprintf(enum_actual, sizeof(enum_actual), "%d", step->arrow_count);
+	check_tutorial_condition(step->arrow_count >= 0 &&
+	                         step->arrow_count <= TUTORIAL_MAX_ARROWS,
+	                         path, level_id, step_index, step->name,
+	                         "arrow_count", enum_actual,
+	                         "0..TUTORIAL_MAX_ARROWS");
+	if (step->arrow_count < 0 || step->arrow_count > TUTORIAL_MAX_ARROWS) {
+		return;
+	}
+	for (int arrow_index = 0; arrow_index < step->arrow_count; arrow_index++) {
+		int id = step->arrow_ids[arrow_index];
+		char actual[64];
+		char property[64];
+		snprintf(actual, sizeof(actual), "%s (%d)", arrow_id_name(id), id);
+		snprintf(property, sizeof(property), "arrow[%d] id", arrow_index);
+		check_tutorial_condition(id >= 0 && id < ARROW_ID_COUNT,
+		                         path, level_id, step_index, step->name,
+		                         property, actual,
+		                         "0 <= id < ARROW_ID_COUNT");
+		if (id >= 0 && id < ARROW_ID_COUNT) {
+			bool provider_available =
+			    arrow_has_highlight_provider(id) || id == AR_EXEC;
+			snprintf(property, sizeof(property),
+			         "arrow[%d] runtime provider", arrow_index);
+			check_tutorial_condition(provider_available, path, level_id,
+			                         step_index, step->name,
+			                         property, arrow_id_name(id),
+			                         "a configured provider or AR_EXEC private motion");
+		}
+	}
+}
+
+/* Production tutorial content is mutable. Validate parser/runtime invariants
+ * only; authored names, order, text, and optional scaffolding are not contracts. */
 static uint64_t tutorial_structure_signature(void)
 {
-	uint64_t sum = 0;
-	uint64_t mixed_xor = 0;
+	uint64_t signature = UINT64_C(1469598103934665603);
 	for (int index = 0; index < tr_get_step_count(); index++) {
 		const tutorial_step_t *step = tr_get_step(index);
-		uint64_t hash = UINT64_C(1469598103934665603);
 		for (const unsigned char *cursor =
 	         (const unsigned char *)step->name; *cursor != '\0'; cursor++) {
-			hash = (hash ^ *cursor) * UINT64_C(1099511628211);
+			signature = (signature ^ *cursor) * UINT64_C(1099511628211);
 		}
-		hash = (hash ^ (uint64_t)step->arrow_count) *
-		       UINT64_C(1099511628211);
+		for (const unsigned char *cursor =
+	         (const unsigned char *)step->text; *cursor != '\0'; cursor++) {
+			signature = (signature ^ *cursor) * UINT64_C(1099511628211);
+		}
+		const int fields[] = {
+			step->priority, step->box, step->large_box, step->large_text,
+			step->header, step->dismiss, step->arrow_count,
+			step->when_code_size, step->when_code_size_max, step->when_holding,
+			step->when_held_instruction_id, step->when_held_instruction_not_id,
+			step->when_operand_pending, step->when_operand_1_pending,
+			step->when_operand_2_pending, step->when_first_operand_1_id,
+			step->when_first_operand_2_id, step->when_last_operand_1_id,
+			step->when_last_operand_2_id, step->when_last_line_state,
+			step->when_code_sorted, step->when_play_state, step->when_won,
+			step->when_operation_flag, step->when_operation_error,
+			step->effect_code_editable, step->effect_code_editable_exception,
+			step->effect_buffer_selectable, step->effect_register_selectable,
+			step->effect_arrange_enabled, step->effect_delete_enabled,
+			step->highlight_targets, step->highlight_instruction_mask, step->active
+		};
+		for (size_t field = 0; field < sizeof(fields) / sizeof(fields[0]); field++) {
+			signature = (signature ^ (uint32_t)fields[field]) *
+			            UINT64_C(1099511628211);
+		}
 		for (int arrow = 0; arrow < step->arrow_count; arrow++) {
-			hash = (hash ^ (uint64_t)step->arrow_ids[arrow]) *
-			       UINT64_C(1099511628211);
+			signature = (signature ^ (uint32_t)step->arrow_ids[arrow]) *
+			            UINT64_C(1099511628211);
 		}
-		hash = (hash ^ (uint64_t)step->highlight_targets) *
-		       UINT64_C(1099511628211);
-		sum += hash;
-		mixed_xor ^= hash;
 	}
-	return sum ^ mixed_xor ^ (uint64_t)tr_get_step_count();
+	return (signature ^ (uint32_t)tr_get_step_count()) *
+	       UINT64_C(1099511628211);
 }
 
 static void test_tutorial_arrow_parser_fixtures(void)
@@ -882,6 +1093,20 @@ static void test_tutorial_arrow_parser_fixtures(void)
 		assert(step->arrow_ids[0] == mappings[index].expected_arrow);
 		tr_clear();
 	}
+	assert(load_fixture("standalone-none-arrow",
+	    "[tutorial]\nformat = 1\n[none_case]\nbox = center\nheader = none\n"
+	    "dismiss = none\narrow = none\ntext_begin\nNo arrow\ntext_end\n"));
+	assert(tr_get_named_step("none_case")->arrow_count == 0);
+	tr_clear();
+	assert(load_fixture("multiple-arrow-list",
+	    "[tutorial]\nformat = 1\n[multiple]\nbox = center\nheader = none\n"
+	    "dismiss = none\narrow = zf, register\n"
+	    "text_begin\nMultiple arrows\ntext_end\n"));
+	const tutorial_step_t *multiple = tr_get_named_step("multiple");
+	assert(multiple != NULL && multiple->arrow_count == 2);
+	assert(multiple->arrow_ids[0] == AR_ZF);
+	assert(multiple->arrow_ids[1] == AR_REG);
+	tr_clear();
 
 	static const char reordered[] =
 	    "[tutorial]\nformat = 1\n"
@@ -889,12 +1114,19 @@ static void test_tutorial_arrow_parser_fixtures(void)
 	    "text_begin\nText fixture\ntext_end\n"
 	    "[plain_after_arrow]\nbox = center\nheader = none\ndismiss = none\n"
 	    "text_begin\nNo arrow fixture\ntext_end\n"
+	    "[explicit_none_after_arrow]\nbox = center\nheader = none\n"
+	    "dismiss = none\narrow = none\ntext_begin\nNo arrow fixture\ntext_end\n"
+	    "[arrow_after_none]\nbox = center\nheader = none\ndismiss = none\n"
+	    "arrow = play\ntext_begin\nArrow fixture\ntext_end\n"
 	    "[arrow_step]\nbox = center\nheader = none\ndismiss = none\n"
 	    "arrow = zf\ntext_begin\nArrow fixture\ntext_end\n";
 	assert(load_fixture("arrow-order-reversed", reordered));
-	assert(tr_get_step_count() == 3);
+	assert(tr_get_step_count() == 5);
 	assert(tr_get_named_step("text_only")->arrow_count == 0);
 	assert(tr_get_named_step("plain_after_arrow")->arrow_count == 0);
+	assert(tr_get_named_step("explicit_none_after_arrow")->arrow_count == 0);
+	assert(tr_get_named_step("arrow_after_none")->arrow_count == 1);
+	assert(tr_get_named_step("arrow_after_none")->arrow_ids[0] == AR_PLAY);
 	assert(tr_get_named_step("arrow_step")->arrow_count == 1);
 	assert(tr_get_named_step("arrow_step")->arrow_ids[0] == AR_ZF);
 	tr_clear();
@@ -913,12 +1145,31 @@ static void test_tutorial_arrow_parser_fixtures(void)
 	assert(tr_get_named_step("plain")->arrow_count == 0);
 	tr_clear();
 
-	assert_fixture_rejected("unknown-arrow",
-	    "[tutorial]\nformat = 1\n[bad]\narrow = output_bufr\n"
-	    "text_begin\nBad\ntext_end\n");
-	assert_fixture_rejected("empty-arrow",
-	    "[tutorial]\nformat = 1\n[bad]\narrow = \ntext_begin\nBad\ntext_end\n");
-	assert_fixture_rejected("duplicate-arrow",
+	assert_invalid_arrow_fixture("empty-arrow", "", "");
+	assert_invalid_arrow_fixture("unknown-arrow", "output_bufr", "output_bufr");
+	assert_invalid_arrow_fixture("none-mixed-leading", "none,zf", "none");
+	assert_invalid_arrow_fixture("none-mixed-trailing", "zf,none", "none");
+	assert_invalid_arrow_fixture("none-duplicate", "none,none", "none");
+	assert_invalid_arrow_fixture("none-middle", "zf,none,register", "none");
+	assert_invalid_arrow_fixture("none-trailing-empty", "none,", "none");
+	assert_invalid_arrow_fixture("none-leading-empty", ",none", "");
+	assert_invalid_arrow_fixture("none-interior-empty", "none,,zf", "none");
+	assert_invalid_arrow_fixture("duplicate-arrow-id", "zf,zf", "zf");
+	assert_invalid_arrow_fixture("duplicate-arrow-alias", "zf,zero_flag", "zero_flag");
+	assert_invalid_arrow_fixture("too-many-arrows",
+	                             "zf,register,input_buffer,output_buffer,play",
+	                             "play");
+	char oversized_token[180];
+	memset(oversized_token, 'a', sizeof(oversized_token) - 1);
+	oversized_token[sizeof(oversized_token) - 1] = '\0';
+	assert_invalid_arrow_fixture("oversized-arrow-token", oversized_token,
+	                             oversized_token);
+	char oversized_list[180];
+	memset(oversized_list, 'x', sizeof(oversized_list) - 1);
+	oversized_list[sizeof(oversized_list) - 1] = '\0';
+	assert_invalid_arrow_fixture("oversized-arrow-list", oversized_list,
+	                             oversized_list);
+	assert_fixture_rejected("duplicate-arrow-key",
 	    "[tutorial]\nformat = 1\n[bad]\narrow = zf\narrow = play\n"
 	    "text_begin\nBad\ntext_end\n");
 	assert_fixture_rejected("malformed-section",
@@ -943,17 +1194,20 @@ static void test_tutorial_arrow_parser_fixtures(void)
 static void test_all_tutorial_arrow_ids(void)
 {
 	DIR *levels = opendir("data/levels");
-	assert(levels != NULL);
-	int level_ids[128];
+	check_tutorial_condition(levels != NULL, "data/levels", -1, -1, NULL,
+	                         "directory open", levels == NULL ? "failed" : "ok",
+	                         "an accessible directory");
+	if (levels == NULL) return;
+	int *level_ids = NULL;
 	size_t level_count = 0;
+	size_t level_capacity = 0;
 	struct dirent *entry;
 	while ((entry = readdir(levels)) != NULL) {
 		char *end = NULL;
 		errno = 0;
 		long id = strtol(entry->d_name, &end, 10);
 		if (errno != 0 || end == entry->d_name || *end != '\0' ||
-		    id < 0 || id > INT_MAX || level_count ==
-		    sizeof(level_ids) / sizeof(level_ids[0])) {
+		    id < 0 || id > INT_MAX) {
 			continue;
 		}
 		char tutorial_path[256];
@@ -961,6 +1215,26 @@ static void test_all_tutorial_arrow_ids(void)
 		snprintf(tutorial_path, sizeof(tutorial_path),
 		         "data/levels/%02ld/tutorial.cfg", id);
 		if (stat(tutorial_path, &file_info) == 0 && S_ISREG(file_info.st_mode)) {
+			bool duplicate_id = false;
+			for (size_t index = 0; index < level_count; index++) {
+				duplicate_id |= level_ids[index] == (int)id;
+			}
+			if (duplicate_id) continue;
+			if (level_count == level_capacity) {
+				size_t new_capacity = level_capacity == 0 ? 16 : level_capacity * 2;
+				int *new_level_ids = realloc(level_ids,
+				                             new_capacity * sizeof(*level_ids));
+				check_tutorial_condition(new_level_ids != NULL, tutorial_path,
+				                         (int)id, -1, NULL, "level list allocation",
+				                         "failed", "available memory");
+				if (new_level_ids == NULL) {
+					free(level_ids);
+					closedir(levels);
+					return;
+				}
+				level_ids = new_level_ids;
+				level_capacity = new_capacity;
+			}
 			level_ids[level_count++] = (int)id;
 		}
 	}
@@ -974,46 +1248,56 @@ static void test_all_tutorial_arrow_ids(void)
 			}
 		}
 	}
-	assert(level_count > 0);
+	check_tutorial_condition(level_count > 0, "data/levels", -1, -1, NULL,
+	                         "tutorial discovery", "no tutorial files found",
+	                         "at least one regular tutorial.cfg file");
 	for (size_t level_index = 0; level_index < level_count; level_index++) {
 		int level_id = level_ids[level_index];
-		assert(tr_load_level(level_id));
+		char path[256];
+		snprintf(path, sizeof(path), "data/levels/%02d/tutorial.cfg", level_id);
+		bool loaded = tr_load_level(level_id);
+		check_tutorial_condition(loaded, path, level_id, -1, NULL,
+		                         "parse result", loaded ? "success" : "failure",
+		                         "success");
+		if (!loaded) continue;
 		uint64_t first_signature = tutorial_structure_signature();
+		int first_count = tr_get_step_count();
 		for (int index = 0; index < tr_get_step_count(); index++) {
 			const tutorial_step_t *step = tr_get_step(index);
-			assert(step != NULL);
-			assert(step->name[0] != '\0');
-			assert(step->text_message != NULL);
-			assert(step->box >= TUTORIAL_BOX_CENTER_UP &&
-			       step->box <= TUTORIAL_BOX_INSTRUCTION);
-			assert(step->header >= TUTORIAL_HEADER_NONE &&
-			       step->header <= TUTORIAL_HEADER_INSTRUCTION);
-			assert(step->dismiss >= TUTORIAL_DISMISS_NONE &&
-			       step->dismiss <= TUTORIAL_DISMISS_OPERATION_ERROR);
-			assert(step->arrow_count >= 0 &&
-			       step->arrow_count <= TUTORIAL_MAX_ARROWS);
-			for (int arrow = 0; arrow < step->arrow_count; arrow++) {
-				int id = step->arrow_ids[arrow];
-				assert(id >= 0 && id < ARROW_ID_COUNT);
-				assert((size_t)id < sizeof(g_arrow_highlight_targets) /
-				       sizeof(g_arrow_highlight_targets[0]));
-				assert(arrow_has_highlight_provider(id) || id == AR_EXEC);
-			}
+			validate_production_step(path, level_id, index, step);
 		}
 		tr_clear();
-		assert(tr_get_step_count() == 0);
-		assert(tr_load_level(level_id));
-		assert(tutorial_structure_signature() == first_signature);
-		for (int index = 0; index < tr_get_step_count(); index++) {
-			const tutorial_step_t *step = tr_get_step(index);
-			assert(step != NULL && step->text_message != NULL);
-			for (int arrow = 0; arrow < step->arrow_count; arrow++) {
-				assert(step->arrow_ids[arrow] >= 0 &&
-				       step->arrow_ids[arrow] < ARROW_ID_COUNT);
+		bool cleared = tr_get_step_count() == 0;
+		check_tutorial_condition(cleared, path, level_id, -1, NULL,
+		                         "clear state", "steps remain loaded",
+		                         "zero loaded steps");
+		loaded = tr_load_level(level_id);
+		check_tutorial_condition(loaded, path, level_id, -1, NULL,
+		                         "repeated parse result",
+		                         loaded ? "success" : "failure", "success");
+		if (loaded) {
+			uint64_t second_signature = tutorial_structure_signature();
+			int second_count = tr_get_step_count();
+			if (second_signature != first_signature || second_count != first_count) {
+				fprintf(stderr,
+				        "%s (level %d): repeated load differed: signature "
+				        "0x%016llx vs 0x%016llx, step_count %d vs %d\n",
+				        path, level_id,
+				        (unsigned long long)first_signature,
+				        (unsigned long long)second_signature,
+				        first_count, second_count);
+				fflush(stderr);
+				assert(second_signature == first_signature &&
+				       second_count == first_count);
+			}
+			for (int index = 0; index < tr_get_step_count(); index++) {
+				validate_production_step(path, level_id, index,
+				                         tr_get_step(index));
 			}
 		}
 		tr_clear();
 	}
+	free(level_ids);
 }
 
 static void run_isolated_test(void (*test)(void))

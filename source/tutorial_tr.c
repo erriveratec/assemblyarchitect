@@ -330,9 +330,7 @@ static bool parse_dismiss(const char *text, tutorial_dismiss_t *dismiss)
 
 static bool parse_arrow(const char *text, int *arrow_id)
 {
-	if (strcmp(text, "none") == 0) {
-		*arrow_id = -1;
-	} else if (strcmp(text, "instruction") == 0) {
+	if (strcmp(text, "instruction") == 0) {
 		*arrow_id = AR_INS;
 	} else if (strcmp(text, "challenge") == 0) {
 		*arrow_id = AR_CHALLENGE;
@@ -476,69 +474,97 @@ static bool parse_instruction_highlights(char *text, int *mask)
 	return *mask != 0;
 }
 
-static bool add_arrow(tutorial_step_t *step, const char *text)
+static void copy_arrow_diagnostic_token(char *output, size_t output_size,
+	                                    const char *token)
 {
-	if (step == NULL || text == NULL) {
-		return false;
-	}
-
-	if (step->arrow_count >= TUTORIAL_MAX_ARROWS) {
-		return false;
-	}
-
-	int arrow_id = -1;
-
-	if (!parse_arrow(text, &arrow_id)) {
-		return false;
-	}
-
-	if (arrow_id < 0) {
-		return true;
-	}
-
-	step->arrow_ids[step->arrow_count] = arrow_id;
-	step->arrow_count++;
-
-	return true;
+	if (output == NULL || output_size == 0) return;
+	snprintf(output, output_size, "%s", token != NULL ? token : "");
 }
 
-static bool parse_arrows(tutorial_step_t *step, const char *text)
+static bool parse_arrow_list(const char *text,
+	                         int parsed_ids[TUTORIAL_MAX_ARROWS],
+	                         int *parsed_count,
+	                         char *invalid_token,
+	                         size_t invalid_token_size)
 {
-	if (step == NULL || text == NULL) {
+	if (text == NULL || parsed_ids == NULL || parsed_count == NULL) {
 		return false;
 	}
 	while (isspace((unsigned char)*text)) text++;
-	if (*text == '\0') {
+	size_t text_length = strlen(text);
+	while (text_length > 0 && isspace((unsigned char)text[text_length - 1])) {
+		text_length--;
+	}
+	if (text_length == 0) {
+		copy_arrow_diagnostic_token(invalid_token, invalid_token_size, "");
 		return false;
 	}
-
+	/* "none" is valid only as the complete declaration, never as a list item. */
+	if (text_length == 4 && strncmp(text, "none", 4) == 0) {
+		*parsed_count = 0;
+		return true;
+	}
 	char buffer[128];
-	int  copied = snprintf(buffer, sizeof(buffer), "%s", text);
-
-	if (copied < 0 || copied >= (int)sizeof(buffer)) {
+	if (text_length >= sizeof(buffer)) {
+		copy_arrow_diagnostic_token(invalid_token, invalid_token_size, text);
 		return false;
 	}
-	size_t token_length = strlen(buffer);
-	if (token_length == 0 || buffer[0] == ',' ||
-	    buffer[token_length - 1] == ',' || strstr(buffer, ",,") != NULL) {
-		return false;
-	}
-
-	step->arrow_count = 0;
-	char *saveptr     = NULL;
-	char *token       = strtok_r(buffer, ",", &saveptr);
-
-	while (token != NULL) {
-		char *arrow_name = trim(token);
-
-		if (!add_arrow(step, arrow_name)) {
-			step->arrow_count = 0;
+	memcpy(buffer, text, text_length);
+	buffer[text_length] = '\0';
+	int local_ids[TUTORIAL_MAX_ARROWS];
+	int local_count = 0;
+	char *cursor = buffer;
+	while (true) {
+		char *comma = strchr(cursor, ',');
+		if (comma != NULL) *comma = '\0';
+		char *token = trim(cursor);
+		if (*token == '\0') {
+			copy_arrow_diagnostic_token(invalid_token, invalid_token_size,
+			                            token);
 			return false;
 		}
-
-		token = strtok_r(NULL, ",", &saveptr);
+		int arrow_id;
+		if (!parse_arrow(token, &arrow_id)) {
+			copy_arrow_diagnostic_token(invalid_token, invalid_token_size,
+			                            token);
+			return false;
+		}
+		if (local_count >= TUTORIAL_MAX_ARROWS) {
+			copy_arrow_diagnostic_token(invalid_token, invalid_token_size,
+			                            token);
+			return false;
+		}
+		/* Reject duplicate resolved IDs, including aliases such as zf/zero_flag. */
+		for (int index = 0; index < local_count; index++) {
+			if (local_ids[index] == arrow_id) {
+				copy_arrow_diagnostic_token(invalid_token, invalid_token_size,
+				                            token);
+				return false;
+			}
+		}
+		local_ids[local_count++] = arrow_id;
+		if (comma == NULL) break;
+		cursor = comma + 1;
 	}
+	memcpy(parsed_ids, local_ids, (size_t)local_count * sizeof(local_ids[0]));
+	*parsed_count = local_count;
+	return true;
+}
 
+static bool parse_arrows(tutorial_step_t *step, const char *text,
+	                     char *invalid_token, size_t invalid_token_size)
+{
+	if (step == NULL) return false;
+	int parsed_ids[TUTORIAL_MAX_ARROWS];
+	int parsed_count = 0;
+	if (!parse_arrow_list(text, parsed_ids, &parsed_count, invalid_token,
+	                      invalid_token_size)) {
+		return false;
+	}
+	memset(step->arrow_ids, 0, sizeof(step->arrow_ids));
+	memcpy(step->arrow_ids, parsed_ids,
+	       (size_t)parsed_count * sizeof(parsed_ids[0]));
+	step->arrow_count = parsed_count;
 	return true;
 }
 
@@ -1024,19 +1050,27 @@ static bool tr_parse_tutorial_stream(FILE *file, const char *source_name)
 			step->priority = (int)priority;
 		}
 		if (strcmp(key, "arrow") == 0) {
-			if (arrow_key_seen || !parse_arrows(step, value)) {
+			char invalid_token[128] = {0};
+			if (arrow_key_seen || !parse_arrows(
+			        step, value, invalid_token, sizeof(invalid_token))) {
 				fprintf(stderr,
-				        "%s step '%s': invalid arrow token \"%s\"\n",
-				        source_name, step->name, value);
+				        "%s step '%s': invalid arrow declaration near token \"%s\"%s\n",
+				        source_name, step->name,
+				        arrow_key_seen ? value : invalid_token,
+				        arrow_key_seen ? " (duplicate key)" : "");
 				goto invalid;
 			}
 			arrow_key_seen = true;
 		}
 		if (strcmp(key, "arrows") == 0) {
-			if (arrow_key_seen || !parse_arrows(step, value)) {
+			char invalid_token[128] = {0};
+			if (arrow_key_seen || !parse_arrows(
+			        step, value, invalid_token, sizeof(invalid_token))) {
 				fprintf(stderr,
-				        "%s step '%s': invalid arrow token \"%s\"\n",
-				        source_name, step->name, value);
+				        "%s step '%s': invalid arrow declaration near token \"%s\"%s\n",
+				        source_name, step->name,
+				        arrow_key_seen ? value : invalid_token,
+				        arrow_key_seen ? " (duplicate key)" : "");
 				goto invalid;
 			}
 			arrow_key_seen = true;

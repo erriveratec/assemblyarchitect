@@ -22,6 +22,7 @@
 #include "sdl_config.h"
 #include "stage_buttons_sb.h"
 #include "tutorial_tr.h"
+#include "tutorial_tr_internal.h"
 #include "ui/ui_metrics_um.h"
 
 enum { TARGET_PROGRESS_COUNT = 10 };
@@ -233,13 +234,27 @@ static void assert_level0_review_progress(float expected)
 	assert(register_progress == expected);
 }
 
-static void test_level0_tutorial_transition(void)
+static void test_fixture_tutorial_transition(void)
 {
 	ha_reset();
 	clear_highlight_targets();
-	bool loaded = tr_load_level(0);
-	assert(loaded);
-	(void)loaded;
+	static const char fixture[] =
+	    "[tutorial]\nformat = 1\n"
+	    "[fixture_input]\nbox = center\nheader = none\ndismiss = none\n"
+	    "highlight = input_buffer\nwhen.code_size = 1\n"
+	    "when.operand_pending = 1\nwhen.operand_2_pending = 1\n"
+	    "text_begin\nInput fixture\ntext_end\n"
+	    "[fixture_review]\nbox = center\nheader = none\ndismiss = none\n"
+	    "highlight = code_box,input_buffer,register\nwhen.code_size = 1\n"
+	    "when.operand_pending = 0\nwhen.operation_error = 0\n"
+	    "text_begin\nReview fixture\ntext_end\n";
+	FILE *stream = tmpfile();
+	assert(stream != NULL);
+	assert(fwrite(fixture, 1, sizeof(fixture) - 1, stream) == sizeof(fixture) - 1);
+	rewind(stream);
+	assert(tr_load_tutorial_stream_for_testing(stream,
+	                                           "highlight-sync-fixture"));
+	fclose(stream);
 
 	cs_context_t select_input_context = {
 		.code_size = 1,
@@ -249,7 +264,7 @@ static void test_level0_tutorial_transition(void)
 		.operand_2_pending = true
 	};
 	const tutorial_step_t *step = tr_update(&select_input_context);
-	assert(step != NULL && strcmp(step->name, "select_input_buffer") == 0);
+	assert(step == tr_get_named_step("fixture_input"));
 	float input_progress = -1.0f;
 	assert(bf_get_input_buffer_highlight_progress(
 	    &input_progress, (float)dw_get_animation_limit()));
@@ -259,22 +274,19 @@ static void test_level0_tutorial_transition(void)
 	    &input_progress, (float)dw_get_animation_limit()));
 	assert(input_progress == interior_phase);
 
-	/* This regression checks real tutorial activation and the shared normalized
-	 * phase. Component tests cover target geometry; amplitudes may differ while
-	 * all active targets reach normalized endpoints in the same frame.
-	 */
+	/* Active fixture targets must join the same normalized animation phase. */
 	cs_context_t review_context = {
 		.code_size = 1,
 		.operation_flag = NO_OPERATION
 	};
 	step = tr_update(&review_context);
-	assert(step != NULL && strcmp(step->name, "review_first_mov") == 0);
+	assert(step == tr_get_named_step("fixture_review"));
 	ha_begin_frame();
 	assert_level0_review_progress(ha_get_progress());
 
 	for (int frame = 0; frame < 5; frame++) {
 		step = tr_update(&review_context);
-		assert(step != NULL && strcmp(step->name, "review_first_mov") == 0);
+		assert(step == tr_get_named_step("fixture_review"));
 		ha_begin_frame();
 		assert_level0_review_progress(ha_get_progress());
 	}
@@ -1129,7 +1141,7 @@ int main(void)
 {
 	initialize_test_graphics();
 	test_transition_joins_shared_phase();
-	test_level0_tutorial_transition();
+	test_fixture_tutorial_transition();
 	test_peaks_directions_and_target_removal();
 	test_source_ownership_and_inactive_clock();
 	test_zero_flag_source_ownership_and_progress();

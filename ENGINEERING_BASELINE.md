@@ -36,7 +36,7 @@ and messages without repeated compilations of the same source/header.
 | `test-operand-highlights`, `tests/operand_highlights_test.c:164` and subsequent style assertions | Obsolete expectation / stale API | Commit `8cb7058` replaced `dw_get_render_style` and `DW_RENDER_STYLE_*` with explicit texture colors. Test source-owner composition and public animation progress; retain rendered white-glyph and grey-frame checks. |
 | Same target, newly reachable pixel assertion in `test_immediate_grid_geometry` | Obsolete expectation | The current renderer pulses white glyphs inside unchanged grey frames, not a cell-sized white region. Assert frame equality, enclosed visible glyphs, nonshrinking pulse, canonical bounds, and restoration. |
 | `test-registers-highlight-geometry`, `tests/registers_highlight_geometry_test.c:26` and style mocks | Test defect / stale API | Mocks used deleted `dw_render_style_t` signatures. Intercept the actual draw/color functions, assert grey value boxes, white pulsing labels, grey restoration, positive in-window geometry, and no accumulated offsets. |
-| `test-tutorial-arrow-animation`, `tests/tutorial_arrow_animation_test.c:797` | Intentional configuration change | Commits `3739fe6` and `d991ac4` deliberately removed Level 13 ZF arrows in favor of CMP and ZF highlights. Assert zero arrows and both highlight targets, activation and cleanup. Level 14 still requires `AR_ZF` with its real provider. No configuration was changed. |
+| `test-tutorial-arrow-animation`, `tests/tutorial_arrow_animation_test.c` | Mutable production tutorial content | Tutorial arrows are optional scaffolding. Parser mapping, none/list semantics, runtime activation and transitions use controlled fixtures; shipped files are checked only for structural validity and same-file repeat-load determinism. |
 
 ## Warning Classifications
 
@@ -88,14 +88,14 @@ textures; initializing its normal assets fixed it without a production workaroun
 
 | File | Previous assumption | New invariant and protection |
 | --- | --- | --- |
-| `tests/operand_highlights_test.c` | Deleted render-style API and whole-cell white highlight; shared fixture state | Public source composition/progress, real white glyphs within unchanged grey frames, restored geometry, explicit state cleanup; saved missing-operand states, numeric extremes, strict `zero_flag` naming. |
+| `tests/operand_highlights_test.c` | Deleted render-style API and whole-cell white highlight; shared fixture state | Public source composition/progress, real white glyphs within unchanged grey frames, restored geometry, explicit state cleanup; saved missing-operand states, numeric extremes, strict `zero_flag` naming; tutorial highlight parsing uses a controlled fixture. |
 | `tests/registers_highlight_geometry_test.c` | Deleted style mocks and highlighted value box | Typed color/draw capture proves label-only white pulse, unchanged grey value box, canonical metric-derived geometry and repeated-render stability. |
-| `tests/tutorial_arrow_animation_test.c` | Level 13 always has ZF arrows | Intentional Level 13 CMP/ZF highlighting and Level 14 ZF arrows; all 17 level files load with valid arrow IDs; mandatory-provider behavior remains tested; provider state resets between cases. |
+| `tests/tutorial_arrow_animation_test.c` | Production levels require particular arrow scaffolding | Controlled parser/runtime fixtures cover arrow mapping, optional/none arrows, transitions, malformed lists, and ownership; discovered shipped tutorials are validated structurally without authored-content expectations. |
 | `tests/operand_change_selection_test.c` | Only existing-operand queries exercised | Missing operand queries return `NO_OPERAND`; existing selection and replacement assertions retained. |
 | `tests/io_rail_geometry_test.c` | Only valid routes exercised | Invalid IDs/unsupported avatar route reject movement without geometry mutation; all existing positive route checks retained. |
 | `tests/sector_completion_navigation_test.c` | No-op macros discarded live call arguments | Typed stubs check dimensions, timing, operation and held-line state; all navigation, one-shot win, click-leak checks retained. |
 | `tests/run_result_render_order_test.c` | Render mocks discarded animation limits | Typed event recording validates positive fixture limits; all layer-order and modal-action assertions retained. |
-| `tests/highlight_animation_sync_test.c` | Unused copied offset calculations | Remove only dead local calculations; all pixel, animation, and source-owner assertions retained. |
+| `tests/highlight_animation_sync_test.c` | Shared-phase transition depended on named Level 0 steps | Shared-phase transition now uses a controlled tutorial fixture; pixel, animation, and source-owner assertions remain. |
 
 No test was deleted, skipped, made expected-to-fail, or given wider tolerances.
 
