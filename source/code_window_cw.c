@@ -14,6 +14,7 @@
 #include "buffers_bf.h"
 #include "registers_rg.h"
 #include "draw_dw.h"
+#include "text_tx.h"
 #include "gameplay/highlight_animation_ha.h"
 #include "immediates_im.h"
 #include "stage_buttons_sb.h"
@@ -63,7 +64,7 @@ typedef struct jump_target_label_buttons_t {
 /* Snapshot claims preserve prior state; they cannot arbitrate concurrent writers to btn_t. */
 static button_animation_claim_t g_active_jump_claims[JUMP_HIGHLIGHT_COMPONENT_COUNT];
 
-texture_array_t *g_challenge_text;
+tx_styled_text_t *g_challenge_text;
 texture_t *g_stage_name;
 texture_t *g_comma_tex;
 texture_t **g_numbers;
@@ -1289,7 +1290,8 @@ void cw_destroy_code_window_assets(void)
 {
 	release_active_jump_replacement_claims();
 	dw_free_texture(g_stage_name);
-	dw_free_texture_array(g_challenge_text);
+	tx_free_styled_text(g_challenge_text);
+	g_challenge_text = NULL;
 	List *code = get_code_list();
 	LIST_FOREACH(code, first, next, cur){
 		code_line_t *line = cur->value;	
@@ -1490,12 +1492,25 @@ static bool in_code_window(void){
  * Return:
  *	void
  */
-void cw_set_challenge_text(char *text)
+void cw_set_challenge_text(const char *text)
 {
+	assert(NULL != text && "The text pointer is NULL");
+	tx_free_styled_text(g_challenge_text);
+	g_challenge_text = NULL;
+	if (text[0] == '\0') {
+		return;
+	}
 	int w = cw_get_code_text_width();
 	int h = ty_message_height();
-	assert(NULL != text && "The text pointer is NULL");
-	g_challenge_text = dw_create_text_tex_array_by_h(w, h, C_SILVERGREY, text);
+	const tx_styled_text_options_t options = {
+		.highlight_arch_tokens = false,
+		.parse_authoring_prefixes = false,
+		.body_color = C_SILVERGREY
+	};
+	g_challenge_text = tx_create_styled_text_for_width(w, h, text, &options);
+	if (g_challenge_text == NULL) {
+		fprintf(stderr, "Unable to create styled challenge text\n");
+	}
 }
 
 void cw_set_challenge_highlight(bool enabled)
@@ -1555,7 +1570,9 @@ void cw_set_scroll_box(SDL_Rect r)
 
 	int text_h = ty_emphasis_height();
 	int border_ofs = um_padding_horizontal_with_border();
-	int text_box_height = g_challenge_text->size * h;
+	int text_box_height = g_challenge_text != NULL
+	                          ? g_challenge_text->row_count * h
+	                          : 0;
 	set_text_box(r.x + border_ofs, 
 				 r.y + border_ofs + text_h + border_ofs, 
 				 w, 
@@ -1808,15 +1825,14 @@ void cw_draw_code_window(void)
 	display_line_number();
 
 	int h = ty_message_height();
-	if (!g_challenge_highlight) {
-		dw_draw_wrapped_texture_by_h(g_text_box, h, g_challenge_text);
+	if (g_challenge_text != NULL && !g_challenge_highlight) {
+		tx_draw_styled_text(g_text_box, h, g_challenge_text, 0);
 		dw_draw_rectangle(g_text_box, C_GREY);
-	} else {
-		int line_count = g_challenge_text->size;
+	} else if (g_challenge_text != NULL) {
+		int line_count = g_challenge_text->row_count;
 		g_challenge_highlight_value = ha_get_value(anim_limit);
 		float challenge_pulse = g_challenge_highlight_value;
 
-		float line_height = h + challenge_pulse;
 		SDL_FRect base_challenge_box = {
 			.x = g_text_box.x,
 			.y = g_text_box.y,
@@ -1825,24 +1841,8 @@ void cw_draw_code_window(void)
 		};
 		SDL_FRect challenge_box = dw_grow_rect_height(
 		    base_challenge_box, challenge_pulse * line_count);
-		float y = g_text_box.y + g_text_box.h / 2.0f -
-		          line_count * line_height / 2.0f;
-		for (int index = 0; index < line_count; index++) {
-			texture_t *line = g_challenge_text->t[index];
-			if (line != NULL) {
-				float base_width = (float)(line->w * h) / line->h;
-				SDL_FRect base_line_box = {
-					.x = g_text_box.x + (g_text_box.w - base_width) / 2.0f,
-					.y = y + challenge_pulse / 2.0f,
-					.w = base_width,
-					.h = h
-				};
-				dw_draw_texture_fit_h_f(
-				    dw_grow_rect_height(base_line_box, challenge_pulse),
-				    line);
-			}
-			y += line_height;
-		}
+		tx_draw_styled_text_pulsed(g_text_box, h, challenge_pulse,
+		                           g_challenge_text);
 		dw_draw_rectangle_f(challenge_box, C_GREY);
 	}
 	if (!g_challenge_highlight) {

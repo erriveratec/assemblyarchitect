@@ -55,6 +55,25 @@ static size_t event_count;
 static bool escape_active;
 static void draw_level(int level);
 static int draw_result_button(iface_btn_t *button);
+static tx_styled_text_t *test_create_styled_text(
+	SDL_Rect content, int text_height, const char *message,
+	const tx_styled_text_options_t *options,
+	tx_text_layout_info_t *layout_info);
+static void test_free_styled_text(tx_styled_text_t *message);
+static int styled_text_allocation_attempts;
+static int styled_text_free_count;
+static int fail_styled_text_after = 3;
+static bool styled_options_valid = true;
+static bool saw_lowercase_input_message;
+static tx_styled_text_t fake_styled_text[8];
+static texture_t fake_textures[4];
+static iface_btn_t fake_buttons[2];
+static int fake_texture_count;
+static int fake_button_count;
+
+static texture_t *test_create_text(char *text, SDL_Color color);
+static iface_btn_t *test_create_button(SDL_Rect rect, texture_t *label,
+										  bool enabled);
 
 static void record_draw(enum draw_event event)
 {
@@ -94,9 +113,21 @@ static void record_animated_draw(enum draw_event event, float limit)
 #undef set_code_editable
 
 #define dw_draw_iface_box_with_status(box, header, success) record_draw(DRAW_RESULT_BOX)
-#define dw_draw_wrapped_texture_by_h(rect, height, message) record_draw(DRAW_RESULT_MESSAGE)
+#define tx_draw_styled_text(rect, height, message, offset) record_draw(DRAW_RESULT_MESSAGE)
+#define tx_create_styled_text test_create_styled_text
+#define tx_free_styled_text test_free_styled_text
+#define dw_create_text_tex test_create_text
+#define dw_free_texture(texture) ((void)(texture))
+#define bt_create_iface_btn test_create_button
+#define bt_destroy_iface_btn(button) ((void)(button))
 #define bt_draw_iface_btn(button, blocked, sound) draw_result_button(button)
 #include "../source/ui/run_result_rr.c"
+#undef tx_create_styled_text
+#undef tx_free_styled_text
+#undef dw_create_text_tex
+#undef dw_free_texture
+#undef bt_create_iface_btn
+#undef bt_destroy_iface_btn
 
 static void draw_level(int level)
 {
@@ -111,10 +142,65 @@ static int draw_result_button(iface_btn_t *button)
 	return BTN_NONE;
 }
 
+static tx_styled_text_t *test_create_styled_text(
+	SDL_Rect content, int text_height, const char *message,
+	const tx_styled_text_options_t *options,
+	tx_text_layout_info_t *layout_info)
+{
+	(void)content;
+	(void)text_height;
+	(void)message;
+	(void)layout_info;
+	styled_text_allocation_attempts++;
+	if (options == NULL || !options->highlight_arch_tokens ||
+	    options->parse_authoring_prefixes ||
+	    options->body_color.r != C_WHITE.r ||
+	    options->body_color.g != C_WHITE.g ||
+	    options->body_color.b != C_WHITE.b) {
+		styled_options_valid = false;
+	}
+	if (strcmp(message, "A value cannot be recovered if the Input Buffer [ib] is empty") == 0) {
+		saw_lowercase_input_message = true;
+	}
+	if ((fail_styled_text_after > 0 &&
+	     styled_text_allocation_attempts > fail_styled_text_after) ||
+	    styled_text_allocation_attempts >
+	        (int)(sizeof(fake_styled_text) / sizeof(fake_styled_text[0]))) {
+		return NULL;
+	}
+	return &fake_styled_text[styled_text_allocation_attempts - 1];
+}
+
+static texture_t *test_create_text(char *text, SDL_Color color)
+{
+	(void)text;
+	(void)color;
+	assert(fake_texture_count < (int)(sizeof(fake_textures) / sizeof(fake_textures[0])));
+	return &fake_textures[fake_texture_count++];
+}
+
+static iface_btn_t *test_create_button(SDL_Rect rect, texture_t *label,
+										 bool enabled)
+{
+	assert(fake_button_count < (int)(sizeof(fake_buttons) / sizeof(fake_buttons[0])));
+	iface_btn_t *button = &fake_buttons[fake_button_count++];
+	button->r = rect;
+	button->t = label;
+	button->enabled = enabled;
+	return button;
+}
+
+static void test_free_styled_text(tx_styled_text_t *message)
+{
+	if (message != NULL) {
+		styled_text_free_count++;
+	}
+}
+
 static void initialize_result_fixture(void)
 {
 	static texture_t header;
-	static texture_array_t message;
+	static tx_styled_text_t message;
 	static iface_btn_t back = {.enabled = true};
 	static iface_btn_t next = {.enabled = true};
 	dm_set_screen_resolution(DM_RESOLUTION_1600X900);
@@ -191,6 +277,52 @@ static void test_result_buttons(void)
 	assert(!rr_is_valid_operation(MC_WIN + 1));
 }
 
+static void test_partial_initialization_cleanup(void)
+{
+	ib_empty = reg_val_bad = flag_val_bad = ob_val_bad = NULL;
+	ib_unproc_vals = exc_code_size = ob_incomplete = g_win_text = NULL;
+	g_run_completed = NULL;
+	g_run_failed = NULL;
+	g_result_back_button = NULL;
+	g_result_continue_button = NULL;
+	g_initialized = false;
+	styled_text_allocation_attempts = 0;
+	styled_text_free_count = 0;
+	fail_styled_text_after = 3;
+	styled_options_valid = true;
+	saw_lowercase_input_message = false;
+
+	assert(!rr_initialize());
+	assert(styled_text_allocation_attempts == 4);
+	assert(styled_text_free_count == 3);
+	assert(styled_options_valid);
+	assert(saw_lowercase_input_message);
+	assert(ib_empty == NULL && reg_val_bad == NULL && flag_val_bad == NULL);
+	assert(ob_val_bad == NULL && ib_unproc_vals == NULL && exc_code_size == NULL);
+	assert(ob_incomplete == NULL && g_win_text == NULL);
+	assert(g_run_completed == NULL && g_run_failed == NULL);
+	assert(!g_initialized && !g_layout_resolved);
+	run_result_layout_t layout;
+	assert(!rr_get_layout(false, &layout));
+
+	rr_destroy();
+	assert(styled_text_free_count == 3);
+
+	styled_text_allocation_attempts = 0;
+	fail_styled_text_after = 0;
+	fake_texture_count = 0;
+	fake_button_count = 0;
+	assert(rr_initialize());
+	assert(g_initialized);
+	assert(styled_text_allocation_attempts == 8);
+	assert(g_win_text != NULL && ob_incomplete != NULL && ib_empty != NULL);
+	rr_destroy();
+	assert(!g_initialized);
+	assert(styled_text_free_count == 11);
+	rr_destroy();
+	assert(styled_text_free_count == 11);
+}
+
 int main(void)
 {
 	initialize_result_fixture();
@@ -207,6 +339,7 @@ int main(void)
 		}
 	}
 	test_result_buttons();
+	test_partial_initialization_cleanup();
 	puts("Run-result render order and button tests passed");
 	return 0;
 }

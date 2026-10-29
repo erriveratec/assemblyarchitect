@@ -44,7 +44,7 @@ static int      get_fst_btn_ofs(void);
 static int      get_level_btn_spacing(void);
 
 typedef struct level_hover_state_t {
-	texture_array_t *texture;
+	tx_styled_text_t *texture;
 	Uint64           changed_at_ms;
 	int              previous_button_index;
 } level_hover_state_t;
@@ -57,10 +57,18 @@ static void load_sector_hover_messages(int first_level_id)
 	int end_level_id = first_level_id + LV_SECTOR_LV_QTY;
 	if (end_level_id > LV_LEVEL_QUANTITY)
 		end_level_id = LV_LEVEL_QUANTITY;
+	const tx_styled_text_options_t description_options = {
+		.highlight_arch_tokens = false,
+		.parse_authoring_prefixes = false,
+		.body_color = C_GREY
+	};
 	for (int level_id = first_level_id; level_id < end_level_id; level_id++) {
 		char message[LEVEL_HOVER_MESSAGE_CAPACITY];
 		if (lc_load_hover_message(level_id, message, sizeof(message)) == SUCCESS)
-			tx_set_single_line_message(level_id, message);
+			tx_set_styled_single_line_message(
+				level_id, message,
+				sc_get_selection_description_text_height(),
+				&description_options);
 	}
 }
 
@@ -93,12 +101,10 @@ static void draw_sector_hover_description(iface_btn_t **buttons,
 		                     : NULL;
 	}
 
-	texture_array_t *texture = state->texture;
-	if (texture == NULL || texture->size <= 0 || texture->t == NULL ||
-	    texture->t[0] == NULL)
+	tx_styled_text_t *texture = state->texture;
+	if (texture == NULL || texture->row_count <= 0)
 		return;
 
-	dw_set_array_texture_color_mod(texture, C_GREY);
 	Uint64 elapsed = current_time - state->changed_at_ms;
 	float  fade    = (float)elapsed / (float)DESCRIPTION_FADE_MS;
 	if (fade < 0.0f)
@@ -106,13 +112,15 @@ static void draw_sector_hover_description(iface_btn_t **buttons,
 	if (fade > 1.0f)
 		fade = 1.0f;
 	Uint8 alpha = (Uint8)(fade * 255.0f);
-	SDL_SetTextureAlphaMod(texture->t[0]->texture, alpha);
+	tx_set_styled_text_alpha(texture, alpha);
 
 	SDL_Rect box = get_sector_0_lower_separator();
 	box.y += box.h + dm_scale_to_res(SECTOR_TITLE_SEPARATOR);
-	dw_draw_wrapped_texture_by_h(box,
-	                             sc_get_selection_description_text_height(),
-	                             texture);
+	int text_height = sc_get_selection_description_text_height();
+	box.y += (box.h - text_height) / 2;
+	box.h = text_height;
+	tx_draw_styled_text(box, text_height,
+	                     texture, 0);
 }
 
 /* Function: get_fst_btn_ofs

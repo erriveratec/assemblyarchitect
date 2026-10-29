@@ -34,6 +34,15 @@ typedef struct tx_text_layout_info_t {
 	bool overflowed;
 } tx_text_layout_info_t;
 
+typedef struct tx_styled_text_options_t {
+	/* Recolor only complete recognized architecture tokens green. Opt-in. */
+	bool highlight_arch_tokens;
+	/* Parse and strip tutorial @syntax, @directive, and @warning prefixes. */
+	bool parse_authoring_prefixes;
+	/* Color for ordinary text; syntax-prefix colors remain role-specific. */
+	SDL_Color body_color;
+} tx_styled_text_options_t;
+
 typedef enum tx_text_style_t {
 	TX_TEXT_STYLE_BODY,
 	TX_TEXT_STYLE_SYNTAX,
@@ -68,28 +77,60 @@ void tx_text_box(int pos, int msg_id, int header);
 void tx_bottom_msg(const tx_text_box_options_t *options, int msg_id);
 void tx_free_level_text_textures(void);
 void tx_set_and_allocate_msgs_array(int size);
+/* Historical monochrome APIs retained for source compatibility. */
 void tx_set_message_in_array(int pos, char *msg, int w, int h);
 void tx_set_single_line_message(int position, const char *message);
+/* Styled equivalents use the same storage and wrapping implementation. */
+void tx_set_styled_message_in_array(
+	int pos, const char *message, int width, int text_height,
+	const tx_styled_text_options_t *options);
+void tx_set_styled_single_line_message(
+	int position, const char *message, int text_height,
+	const tx_styled_text_options_t *options);
 bool tx_draw_create_typewriter_text(texture_t **t, SDL_Rect r, const char *text,
                                     size_t *index, SDL_Color color);
-texture_array_t *tx_get_message_texture(int pos);
+tx_styled_text_t *tx_get_message_texture(int pos);
 SDL_Rect         tx_get_text_box_wh(void);
+/* Legacy monochrome helpers retained for fixed UI copy and external
+ * compatibility. Prose that may contain architecture vocabulary must use
+ * the styled-text API. */
 texture_array_t *tx_create_text_box_message(
 	const tx_text_box_options_t *options, const char *message);
 
-/* Tutorial authoring prefixes style a complete logical source line and are
- * stripped before rendering: @syntax marks assembly forms and operands,
- * @directive marks the required operation or execution action, and @warning
- * marks important constraints. Unprefixed lines use body style; unknown
- * prefixes remain ordinary visible text. */
+/* Creates text in the selected tutorial box. This compatibility wrapper
+ * explicitly enables architecture highlighting and authoring-prefix parsing.
+ * The returned object owns its fragment textures and retains neither message
+ * nor options pointers. */
 tx_styled_text_t *tx_create_styled_text_box_message(
 	const tx_text_box_options_t *options, const char *message,
 	tx_text_layout_info_t *layout_info);
 
+/* Styled text is not automatically architecture-highlighted. NULL options
+ * disable both token highlighting and authoring-prefix parsing and use C_WHITE
+ * for ordinary text. Creation retains neither message nor options pointers. */
+tx_styled_text_t *tx_create_styled_text(
+	SDL_Rect content, int text_height, const char *message,
+	const tx_styled_text_options_t *options,
+	tx_text_layout_info_t *layout_info);
+tx_styled_text_t *tx_create_styled_text_for_width(
+	int content_width, int text_height, const char *message,
+	const tx_styled_text_options_t *options);
+
+void tx_draw_styled_text(SDL_Rect content, int text_height,
+						 const tx_styled_text_t *message, int vertical_offset);
+/* Applies vertical pulse geometry without changing fragment colors or alpha. */
+void tx_draw_styled_text_pulsed(SDL_Rect content, int text_height,
+								float vertical_growth,
+								const tx_styled_text_t *message);
+
 void tx_draw_styled_text_box_message(const tx_text_box_options_t *options,
 									const tx_styled_text_t *message, int header);
+/* NULL-safe; releases every fragment texture and the owned row storage. */
 void tx_free_styled_text(tx_styled_text_t *message);
+/* Applies a render alpha modifier to every owned fragment texture. */
+void tx_set_styled_text_alpha(tx_styled_text_t *message, Uint8 alpha);
 
+/* Compatibility renderer for monochrome texture arrays. */
 void tx_text_box_texture(const tx_text_box_options_t *options,
 			 texture_array_t *message, int header);
 

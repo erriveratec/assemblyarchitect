@@ -15,7 +15,7 @@
 #include "mouse_ms.h"
 
 #define INPUT_BUFFER_EMPTY_TEXT "A value cannot be recovered if the "\
-"Input Buffer [IB] is empty"
+"Input Buffer [ib] is empty"
 #define REG_VALUE_INVALID_TEXT "Register cannot be read if a value "\
 "hasn't been stored first"
 #define FLAG_VALUE_INVALID_TEXT "FLAG cannot be read if a value "\
@@ -31,14 +31,14 @@
 #define RUN_COMPLETED_TEXT "RUN COMPLETED"
 #define RUN_FAILED_TEXT "RUN FAILED"
 
-static texture_array_t *ib_empty;
-static texture_array_t *reg_val_bad;
-static texture_array_t *flag_val_bad;
-static texture_array_t *ob_val_bad;
-static texture_array_t *ib_unproc_vals;
-static texture_array_t *exc_code_size;
-static texture_array_t *ob_incomplete;
-static texture_array_t *g_win_text;
+static tx_styled_text_t *ib_empty;
+static tx_styled_text_t *reg_val_bad;
+static tx_styled_text_t *flag_val_bad;
+static tx_styled_text_t *ob_val_bad;
+static tx_styled_text_t *ib_unproc_vals;
+static tx_styled_text_t *exc_code_size;
+static tx_styled_text_t *ob_incomplete;
+static tx_styled_text_t *g_win_text;
 static texture_t *g_run_completed;
 static texture_t *g_run_failed;
 static iface_btn_t *g_result_back_button;
@@ -380,12 +380,6 @@ static bool rr_validate_layout_mode(run_result_box_size_t size,
 	    !rr_get_layout_for_size(size, true, success_layout, failure_reason)) {
 		return false;
 	}
-	if (failure_layout->message.w != success_layout->message.w ||
-	    failure_layout->text_height != success_layout->text_height) {
-		if (failure_reason != NULL) *failure_reason =
-			"failure and success message widths or text heights do not match";
-		return false;
-	}
 	return true;
 }
 
@@ -443,7 +437,7 @@ bool rr_is_valid_operation(int operation_id)
 	return rr_is_success(operation_id) || rr_is_failure(operation_id);
 }
 
-static texture_array_t *rr_get_message(int operation_id)
+static tx_styled_text_t *rr_get_message(int operation_id)
 {
 	switch (operation_id) {
 	case INPUT_BUFFER_EMPTY: return ib_empty;
@@ -495,10 +489,14 @@ bool rr_initialize(void)
 	}
 
 	if (!rr_resolve_layout()) {
+		rr_destroy();
 		return false;
 	}
-	int message_width = g_failure_layout.message.w;
-	int text_h = g_failure_layout.text_height;
+	const tx_styled_text_options_t styled_options = {
+		.highlight_arch_tokens = true,
+		.parse_authoring_prefixes = false,
+		.body_color = C_WHITE
+	};
 
 #define RR_CHECK_RESOURCE(resource, expression) \
 	do { \
@@ -509,22 +507,30 @@ bool rr_initialize(void)
 		} \
 	} while (0)
 
-	RR_CHECK_RESOURCE(ib_empty, dw_create_text_tex_array_by_h(
-		message_width, text_h, C_WHITE, INPUT_BUFFER_EMPTY_TEXT));
-	RR_CHECK_RESOURCE(reg_val_bad, dw_create_text_tex_array_by_h(
-		message_width, text_h, C_WHITE, REG_VALUE_INVALID_TEXT));
-	RR_CHECK_RESOURCE(flag_val_bad, dw_create_text_tex_array_by_h(
-		message_width, text_h, C_WHITE, FLAG_VALUE_INVALID_TEXT));
-	RR_CHECK_RESOURCE(ob_val_bad, dw_create_text_tex_array_by_h(
-		message_width, text_h, C_WHITE, INVALID_OUTPUT_VALUE_TEXT));
-	RR_CHECK_RESOURCE(ib_unproc_vals, dw_create_text_tex_array_by_h(
-		message_width, text_h, C_WHITE, UNPROCESSED_IB_VALUES_TEXT));
-	RR_CHECK_RESOURCE(exc_code_size, dw_create_text_tex_array_by_h(
-		message_width, text_h, C_WHITE, EXCEEDS_CODE_LIMIT_TEXT));
-	RR_CHECK_RESOURCE(ob_incomplete, dw_create_text_tex_array_by_h(
-		message_width, text_h, C_WHITE, OUTPUT_BUFFER_INCOMPLETE_TEXT));
-	RR_CHECK_RESOURCE(g_win_text, dw_create_text_tex_array_by_h(
-		message_width, text_h, C_WHITE, WIN_TEXT));
+	RR_CHECK_RESOURCE(ib_empty, tx_create_styled_text(
+		g_failure_layout.message, g_failure_layout.text_height,
+		INPUT_BUFFER_EMPTY_TEXT, &styled_options, NULL));
+	RR_CHECK_RESOURCE(reg_val_bad, tx_create_styled_text(
+		g_failure_layout.message, g_failure_layout.text_height,
+		REG_VALUE_INVALID_TEXT, &styled_options, NULL));
+	RR_CHECK_RESOURCE(flag_val_bad, tx_create_styled_text(
+		g_failure_layout.message, g_failure_layout.text_height,
+		FLAG_VALUE_INVALID_TEXT, &styled_options, NULL));
+	RR_CHECK_RESOURCE(ob_val_bad, tx_create_styled_text(
+		g_failure_layout.message, g_failure_layout.text_height,
+		INVALID_OUTPUT_VALUE_TEXT, &styled_options, NULL));
+	RR_CHECK_RESOURCE(ib_unproc_vals, tx_create_styled_text(
+		g_failure_layout.message, g_failure_layout.text_height,
+		UNPROCESSED_IB_VALUES_TEXT, &styled_options, NULL));
+	RR_CHECK_RESOURCE(exc_code_size, tx_create_styled_text(
+		g_failure_layout.message, g_failure_layout.text_height,
+		EXCEEDS_CODE_LIMIT_TEXT, &styled_options, NULL));
+	RR_CHECK_RESOURCE(ob_incomplete, tx_create_styled_text(
+		g_failure_layout.message, g_failure_layout.text_height,
+		OUTPUT_BUFFER_INCOMPLETE_TEXT, &styled_options, NULL));
+	RR_CHECK_RESOURCE(g_win_text, tx_create_styled_text(
+		g_success_layout.message, g_success_layout.text_height,
+		WIN_TEXT, &styled_options, NULL));
 	RR_CHECK_RESOURCE(g_run_completed, dw_create_text_tex(
 		RUN_COMPLETED_TEXT, C_WHITE));
 	RR_CHECK_RESOURCE(g_run_failed, dw_create_text_tex(RUN_FAILED_TEXT, C_WHITE));
@@ -582,21 +588,21 @@ void rr_destroy(void)
 	g_run_completed = NULL;
 	dw_free_texture(g_run_failed);
 	g_run_failed = NULL;
-	dw_free_texture_array(ib_empty);
+	tx_free_styled_text(ib_empty);
 	ib_empty = NULL;
-	dw_free_texture_array(reg_val_bad);
+	tx_free_styled_text(reg_val_bad);
 	reg_val_bad = NULL;
-	dw_free_texture_array(flag_val_bad);
+	tx_free_styled_text(flag_val_bad);
 	flag_val_bad = NULL;
-	dw_free_texture_array(ob_val_bad);
+	tx_free_styled_text(ob_val_bad);
 	ob_val_bad = NULL;
-	dw_free_texture_array(ib_unproc_vals);
+	tx_free_styled_text(ib_unproc_vals);
 	ib_unproc_vals = NULL;
-	dw_free_texture_array(exc_code_size);
+	tx_free_styled_text(exc_code_size);
 	exc_code_size = NULL;
-	dw_free_texture_array(ob_incomplete);
+	tx_free_styled_text(ob_incomplete);
 	ob_incomplete = NULL;
-	dw_free_texture_array(g_win_text);
+	tx_free_styled_text(g_win_text);
 	g_win_text = NULL;
 	g_initialized = false;
 	g_layout_resolved = false;
@@ -670,7 +676,7 @@ void rr_render(int operation_id)
 	    !rr_assign_button_rectangles(&layout)) {
 		return;
 	}
-	texture_array_t *message = rr_get_message(operation_id);
+	tx_styled_text_t *message = rr_get_message(operation_id);
 	texture_t *header = rr_is_success(operation_id) ?
 		g_run_completed : g_run_failed;
 	if (message == NULL || header == NULL) {
@@ -681,7 +687,7 @@ void rr_render(int operation_id)
 
 	dw_draw_iface_box_with_status(layout.box, header,
 	                              rr_is_success(operation_id));
-	dw_draw_wrapped_texture_by_h(layout.message, layout.text_height, message);
+	tx_draw_styled_text(layout.message, layout.text_height, message, 0);
 	bt_draw_iface_btn(g_result_back_button, false, g_sfx_iface_hover);
 	if (rr_is_success(operation_id)) {
 		bt_draw_iface_btn(g_result_continue_button, false, g_sfx_iface_hover);
