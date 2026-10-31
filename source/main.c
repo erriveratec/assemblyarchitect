@@ -121,12 +121,19 @@ int main(int argc, char *args[])
 					switch (event.window.event) {
 					case SDL_WINDOWEVENT_SIZE_CHANGED:
 					case SDL_WINDOWEVENT_RESIZED:
-						(void)sdl_handle_window_size_changed(
-							event.window.data1, event.window.data2);
+							if (sdl_handle_window_size_changed(
+							        event.window.data1, event.window.data2) != SUCCESS) {
+								SDL_Log("Non-fatal window resize update failed for %dx%d: %s",
+								        event.window.data1, event.window.data2,
+								        SDL_GetError());
+							}
 						break;
 #if SDL_VERSION_ATLEAST(2, 0, 18)
 					case SDL_WINDOWEVENT_DISPLAY_CHANGED:
-						(void)sdl_apply_display_configuration();
+							if (sdl_apply_display_configuration() != SUCCESS) {
+								SDL_Log("Non-fatal display configuration refresh failed: %s",
+								        SDL_GetError());
+							}
 						break;
 #endif
 					default:

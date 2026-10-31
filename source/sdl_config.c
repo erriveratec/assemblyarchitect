@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "sdl_config.h"
+#include "sdl_config_internal.h"
 #include "aux.h"
 #include "draw_dw.h"
 #include "stage_buttons_sb.h"
@@ -135,7 +136,7 @@ failure:
 	return FAIL;
 }
 
-int sdl_apply_display_configuration(void)
+static int apply_renderer_logical_presentation(void)
 {
 	if (g_window == NULL || g_renderer == NULL) {
 		SDL_Log("Cannot configure display without a window and renderer");
@@ -150,6 +151,15 @@ int sdl_apply_display_configuration(void)
 		SDL_Log("Could not enable proportional renderer scaling: %s", SDL_GetError());
 		return FAIL;
 	}
+	return SUCCESS;
+}
+
+static int refresh_display_metrics(void)
+{
+	if (g_window == NULL || g_renderer == NULL) {
+		SDL_Log("Cannot refresh display metrics without a window and renderer");
+		return FAIL;
+	}
 	SDL_GetWindowSize(g_window, &g_window_width, &g_window_height);
 	if (SDL_GetRendererOutputSize(g_renderer, &g_renderer_output_width,
 	                              &g_renderer_output_height) != 0) {
@@ -157,6 +167,14 @@ int sdl_apply_display_configuration(void)
 		return FAIL;
 	}
 	return SUCCESS;
+}
+
+int sdl_apply_display_configuration(void)
+{
+	if (apply_renderer_logical_presentation() != SUCCESS) {
+		return FAIL;
+	}
+	return refresh_display_metrics();
 }
 
 int sdl_handle_window_size_changed(int window_width, int window_height)
@@ -201,10 +219,13 @@ bool sdl_fullscreen_requested(int argc, char *args[])
 	return false;
 }
 
-static void restore_windowed_rectangle(void)
+static int restore_windowed_rectangle(void)
 {
+	if (g_window == NULL) {
+		return FAIL;
+	}
 	if (!g_windowed_rect_valid) {
-		return;
+		return SUCCESS;
 	}
 	int display_index = SDL_GetWindowDisplayIndex(g_window);
 	SDL_Rect usable_bounds;
@@ -228,6 +249,97 @@ static void restore_windowed_rectangle(void)
 		SDL_SetWindowSize(g_window, g_windowed_rect.w, g_windowed_rect.h);
 		SDL_SetWindowPosition(g_window, g_windowed_rect.x, g_windowed_rect.y);
 	}
+	return SUCCESS;
+}
+
+static int transition_set_fullscreen(void *context, bool enabled)
+{
+	(void)context;
+	Uint32 flags = enabled ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0;
+	if (SDL_SetWindowFullscreen(g_window, flags) != 0) {
+		SDL_Log("Could not set fullscreen state: %s", SDL_GetError());
+		return FAIL;
+	}
+	return SUCCESS;
+}
+
+static int transition_restore_windowed_rect(void *context)
+{
+	(void)context;
+	return restore_windowed_rectangle();
+}
+
+static int transition_apply_display_configuration(void *context)
+{
+	(void)context;
+	return apply_renderer_logical_presentation();
+}
+
+static int transition_refresh_display_metrics(void *context)
+{
+	(void)context;
+	return refresh_display_metrics();
+}
+
+static void transition_log_rollback_failure(void *context,
+	                                        const char *operation)
+{
+	(void)context;
+	SDL_Log("Fullscreen rollback failed while %s: %s", operation,
+	        SDL_GetError());
+}
+
+int sdl_run_fullscreen_transition(
+	bool was_fullscreen, bool enabled,
+	const sdl_fullscreen_transition_operations_t *operations)
+{
+	if (operations == NULL || operations->set_fullscreen == NULL ||
+	    operations->restore_windowed_rect == NULL ||
+	    operations->apply_display_configuration == NULL ||
+	    operations->refresh_display_metrics == NULL ||
+	    operations->log_rollback_failure == NULL) {
+		return FAIL;
+	}
+	if (was_fullscreen == enabled) {
+		return SUCCESS;
+	}
+	if (operations->set_fullscreen(operations->context, enabled) != SUCCESS) {
+		return FAIL;
+	}
+	if (!enabled &&
+	    operations->restore_windowed_rect(operations->context) != SUCCESS) {
+		SDL_Log("Could not restore the windowed rectangle after fullscreen");
+		goto rollback;
+	}
+	if (operations->apply_display_configuration(operations->context) != SUCCESS) {
+		SDL_Log("Could not apply display configuration after fullscreen change");
+		goto rollback;
+	}
+	if (operations->refresh_display_metrics(operations->context) != SUCCESS) {
+		SDL_Log("Could not refresh display metrics after fullscreen change");
+		goto rollback;
+	}
+	return SUCCESS;
+
+rollback:
+	if (operations->set_fullscreen(operations->context, was_fullscreen) != SUCCESS) {
+		operations->log_rollback_failure(operations->context,
+		                                 "restoring fullscreen state");
+	}
+	if (!was_fullscreen &&
+	    operations->restore_windowed_rect(operations->context) != SUCCESS) {
+		operations->log_rollback_failure(operations->context,
+		                                 "restoring the windowed rectangle");
+	}
+	if (operations->apply_display_configuration(operations->context) != SUCCESS) {
+		operations->log_rollback_failure(operations->context,
+		                                 "reapplying display configuration");
+	}
+	if (operations->refresh_display_metrics(operations->context) != SUCCESS) {
+		operations->log_rollback_failure(operations->context,
+		                                 "refreshing physical display metrics");
+	}
+	return FAIL;
 }
 
 int sdl_set_fullscreen(bool enabled)
@@ -245,22 +357,14 @@ int sdl_set_fullscreen(bool enabled)
 		SDL_GetWindowSize(g_window, &g_windowed_rect.w, &g_windowed_rect.h);
 		g_windowed_rect_valid = g_windowed_rect.w > 0 && g_windowed_rect.h > 0;
 	}
-	Uint32 flags = enabled ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0;
-	if (SDL_SetWindowFullscreen(g_window, flags) != 0) {
-		SDL_Log("Could not set fullscreen state: %s", SDL_GetError());
-		return FAIL;
-	}
-	if (!enabled) {
-		restore_windowed_rectangle();
-	}
-	if (sdl_apply_display_configuration() != SUCCESS) {
-		Uint32 previous_flags = was_fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0;
-		if (SDL_SetWindowFullscreen(g_window, previous_flags) != 0) {
-			SDL_Log("Could not roll back fullscreen state: %s", SDL_GetError());
-		}
-		return FAIL;
-	}
-	return SUCCESS;
+	const sdl_fullscreen_transition_operations_t operations = {
+		.set_fullscreen = transition_set_fullscreen,
+		.restore_windowed_rect = transition_restore_windowed_rect,
+		.apply_display_configuration = transition_apply_display_configuration,
+		.refresh_display_metrics = transition_refresh_display_metrics,
+		.log_rollback_failure = transition_log_rollback_failure
+	};
+	return sdl_run_fullscreen_transition(was_fullscreen, enabled, &operations);
 }
 
 int toggle_fullscreen(void)

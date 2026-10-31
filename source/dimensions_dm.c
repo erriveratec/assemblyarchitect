@@ -30,11 +30,6 @@ void dm_set_logical_dimensions(int width, int height)
 	g_logical_height = height;
 }
 
-void dm_set_screen_dimensions(int width, int height)
-{
-	dm_set_logical_dimensions(width, height);
-}
-
 int dm_get_screen_width(void)
 {
 	return g_logical_width;

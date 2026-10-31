@@ -165,6 +165,12 @@ compatibility was not established: the new constructor fixtures use `IMMUP7`,
 not bare numeric `7`, which the constructor rejects. The storage loader forwards
 tokens directly; numeric-token compatibility was not changed by this cleanup.
 
+## Follow-up Work
+
+- Rebuild renderer-owned textures after `SDL_RENDER_DEVICE_RESET` and
+  `SDL_RENDER_TARGETS_RESET`; keep asset reconstruction out of the fullscreen
+  transition path.
+
 ## Preserved Behavior
 
 Result dialogs remain the final gameplay layer, including above Level 13 ZF UI.

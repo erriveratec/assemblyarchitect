@@ -10,8 +10,6 @@ typedef enum dm_resolution_t {
 void dm_set_screen_resolution(dm_resolution_t resolution);
 /* Changes logical canvas dimensions; never use for OS window resizing. */
 void dm_set_logical_dimensions(int width, int height);
-/* Compatibility wrapper for explicit logical-size changes. */
-void dm_set_screen_dimensions(int width, int height);
 int dm_get_screen_width(void);
 int dm_get_screen_height(void);
 int dm_scale_to_res(int dimension);
