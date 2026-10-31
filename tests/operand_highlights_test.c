@@ -381,11 +381,11 @@ static void test_layout_invariants(void)
 	assert(output_label.x == output_bounds.x && output_label.y == 1040);
 	assert(output_label.w == 0 && output_label.h == ty_code_height());
 
-	dm_set_screen_dimensions(1600, 900);
+	dm_set_logical_dimensions(1600, 900);
 	assert(dm_get_screen_width() == 1600 && dm_get_screen_height() == 900);
 	assert(bf_get_output_buffer_bounds().y == 785);
 	assert(bf_get_output_label_anchor().y == 860);
-	dm_set_screen_dimensions(0, 900);
+	dm_set_logical_dimensions(0, 900);
 	assert(dm_get_screen_width() == 1600 && dm_get_screen_height() == 900);
 	dm_set_screen_resolution(DM_RESOLUTION_1920X1080);
 	im_destroy_imm_assets();

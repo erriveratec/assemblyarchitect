@@ -69,7 +69,6 @@ int main(int argc, char *args[])
 		return FAIL;
 	}
 	SDL_PixelFormat *format = g_screen->format;
-	SDL_GetWindowSize(g_window, &g_width, &g_height);
 
 	au_init_audio();
 
@@ -101,7 +100,7 @@ int main(int argc, char *args[])
 		bool key_pressed = false;
 
 		while (SDL_PollEvent(&event)){
-			
+			/* SDL logical sizing maps mouse button and motion coordinates to the canvas. */
 			switch (event.type){
 				case SDL_MOUSEBUTTONDOWN:
 					ms_mouse_button_handler(event);	
@@ -119,14 +118,21 @@ int main(int argc, char *args[])
 					quit_game = true;
 					break;
 				case SDL_WINDOWEVENT:
-						if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){
-							g_width = event.window.data1;
-							g_height = event.window.data2;
-							dm_set_screen_dimensions(g_width, g_height);
-							sb_handle_screen_resize();
-							im_layout_grid();
-						}
+					switch (event.window.event) {
+					case SDL_WINDOWEVENT_SIZE_CHANGED:
+					case SDL_WINDOWEVENT_RESIZED:
+						(void)sdl_handle_window_size_changed(
+							event.window.data1, event.window.data2);
 						break;
+#if SDL_VERSION_ATLEAST(2, 0, 18)
+					case SDL_WINDOWEVENT_DISPLAY_CHANGED:
+						(void)sdl_apply_display_configuration();
+						break;
+#endif
+					default:
+						break;
+					}
+					break;
 				case SDL_KEYDOWN:
 						if (event.key.keysym.sym != SDLK_ESCAPE) {
 							key_pressed = true;

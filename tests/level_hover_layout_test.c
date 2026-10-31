@@ -134,7 +134,7 @@ static void test_constrained_resolution(void)
 	assert((int64_t)bounds.x + bounds.w <= dm_get_screen_width());
 	assert((int64_t)bounds.y + bounds.h <= dm_get_screen_height());
 
-	dm_set_screen_dimensions(INT_MAX, INT_MAX);
+	dm_set_logical_dimensions(INT_MAX, INT_MAX);
 	assert(get_level_hover_description_bounds(&bounds));
 	assert(bounds.x >= 0 && bounds.y >= 0);
 	assert(bounds.w > 0 && bounds.h >= sc_get_selection_description_text_height());

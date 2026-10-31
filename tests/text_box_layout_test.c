@@ -53,7 +53,7 @@ int main(void)
 	test_screen_layout();
 	dm_set_screen_resolution(DM_RESOLUTION_1920X1080);
 	test_screen_layout();
-	dm_set_screen_dimensions(1920, 1200);
+	dm_set_logical_dimensions(1920, 1200);
 	test_screen_layout();
 	return 0;
 }

@@ -109,8 +109,7 @@ static SDL_Rect get_escape_b3_box(void)
 
 static void update_fullscreen_button_label(void)
 {
-	char *label = SDL_GetWindowFlags(g_window) &
-				  SDL_WINDOW_FULLSCREEN_DESKTOP ?
+	char *label = sdl_is_fullscreen() ?
 				  ESC_MENU_TEXT2_WINDOWED : ESC_MENU_TEXT2;
 	texture_t *texture = dw_create_text_tex(label, C_WHITE);
 
@@ -124,6 +123,20 @@ static void update_fullscreen_button_label(void)
 	g_escape_b2_texture = texture;
 	if (g_escape_b2 != NULL){
 		g_escape_b2->t = texture;
+	}
+}
+
+SDL_Rect em_get_button_rect(EscapeMenuButton button)
+{
+	switch (button) {
+	case EM_BUTTON_RESUME:
+		return get_escape_b1_box();
+	case EM_BUTTON_FULLSCREEN:
+		return get_escape_b2_box();
+	case EM_BUTTON_EXIT:
+		return get_escape_b3_box();
+	default:
+		return (SDL_Rect){0};
 	}
 }
 
@@ -197,7 +210,7 @@ void em_init_escape_menu(void)
 	g_escape_b2_texture = dw_create_text_tex(ESC_MENU_TEXT2, C_WHITE);
 	r = get_escape_b2_box();
 	g_escape_b2 = bt_create_iface_btn(r, g_escape_b2_texture, true);
-	if (SDL_GetWindowFlags(g_window) & SDL_WINDOW_FULLSCREEN_DESKTOP){
+	if (sdl_is_fullscreen()){
 		update_fullscreen_button_label();
 	}
 	
@@ -234,9 +247,6 @@ void sb_display_escape_menu(bool show_menu)
 		} else if (bt_chk_rel_iface_btn(g_escape_b2, g_sfx_select) == true){
 			if (toggle_fullscreen() == 0){
 				update_fullscreen_button_label();
-				g_escape_b1->r = get_escape_b1_box();
-				g_escape_b2->r = get_escape_b2_box();
-				g_escape_b3->r = get_escape_b3_box();
 			}
 		} else if (bt_chk_rel_iface_btn(g_escape_b3, g_sfx_select) == true){
 			set_quit_game();
@@ -294,9 +304,6 @@ int em_update_escape_menu(bool show_menu)
 		} else if (bt_chk_rel_iface_btn(g_escape_b2, g_sfx_select) == true){
 			if (toggle_fullscreen() == 0){
 				update_fullscreen_button_label();
-				g_escape_b1->r = get_escape_b1_box();
-				g_escape_b2->r = get_escape_b2_box();
-				g_escape_b3->r = get_escape_b3_box();
 			}
 		} else if (bt_chk_rel_iface_btn(g_escape_b3, g_sfx_select) == true){
 			press_btn_state = ESC_MENU_EXIT;
