@@ -1,5 +1,7 @@
 #include <assert.h>
+#include <limits.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <SDL.h>
 #include <SDL_mixer.h>
 #include "dimensions_dm.h"
@@ -27,9 +29,12 @@ static const Uint32 DESCRIPTION_FADE_MS    = 150;
 static const Uint32 SEL_LEVEL_BUTTON_W     = 200;
 static const Uint32 SEL_LEVEL_BUTTON_H     = 140;
 static const Uint32 SEL_LEVEL_Y_OFS        = 70;
+static const Uint32 SEL_LEVEL_COMPACT_Y_OFS = 30;
+static const Uint32 SEL_LEVEL_COMPACT_MAX_H = 900;
 static const Uint32 SEP_LEGTH              = 1200;
 static const Uint32 BIG_SEPARATOR_H        = 6;
 static const Uint32 SECTOR_TITLE_SEPARATOR = 24;
+static const Uint32 LEVEL_HOVER_DESCRIPTION_BOTTOM_MARGIN = 16;
 static const Uint32 SECTOR_BTN_SPACING     = 60;
 static const Uint32 FIRST_BTN_OFS          = 3;
 
@@ -40,6 +45,7 @@ static SDL_Rect get_subtitle_separator(void);
 static void     create_sector_lvl_btns(iface_btn_t **btns, bool *levels,
                                        int lv_qty);
 static SDL_Rect get_sector_0_lower_separator(void);
+static bool     get_level_hover_description_bounds(SDL_Rect *out_bounds);
 static int      get_fst_btn_ofs(void);
 static int      get_level_btn_spacing(void);
 
@@ -53,6 +59,10 @@ enum { LEVEL_HOVER_MESSAGE_CAPACITY = 512 };
 
 static void load_sector_hover_messages(int first_level_id)
 {
+	SDL_Rect bounds;
+	if (!get_level_hover_description_bounds(&bounds))
+		return;
+	int text_height = sc_get_selection_description_text_height();
 	tx_set_and_allocate_msgs_array(LV_LEVEL_QUANTITY);
 	int end_level_id = first_level_id + LV_SECTOR_LV_QTY;
 	if (end_level_id > LV_LEVEL_QUANTITY)
@@ -65,10 +75,8 @@ static void load_sector_hover_messages(int first_level_id)
 	for (int level_id = first_level_id; level_id < end_level_id; level_id++) {
 		char message[LEVEL_HOVER_MESSAGE_CAPACITY];
 		if (lc_load_hover_message(level_id, message, sizeof(message)) == SUCCESS)
-			tx_set_styled_single_line_message(
-				level_id, message,
-				sc_get_selection_description_text_height(),
-				&description_options);
+			tx_set_styled_message_in_array(level_id, message, bounds.w,
+			                               text_height, &description_options);
 	}
 }
 
@@ -114,12 +122,11 @@ static void draw_sector_hover_description(iface_btn_t **buttons,
 	Uint8 alpha = (Uint8)(fade * 255.0f);
 	tx_set_styled_text_alpha(texture, alpha);
 
-	SDL_Rect box = get_sector_0_lower_separator();
-	box.y += box.h + dm_scale_to_res(SECTOR_TITLE_SEPARATOR);
+	SDL_Rect bounds;
+	if (!get_level_hover_description_bounds(&bounds))
+		return;
 	int text_height = sc_get_selection_description_text_height();
-	box.y += (box.h - text_height) / 2;
-	box.h = text_height;
-	tx_draw_styled_text(box, text_height,
+	tx_draw_styled_text(bounds, text_height,
 	                     texture, 0);
 }
 
@@ -220,6 +227,49 @@ static SDL_Rect get_sector_0_lower_separator(void)
 	return b;
 }
 
+/* Keep wrapped hover text below the separator and wholly inside the viewport. */
+static bool get_level_hover_description_bounds(SDL_Rect *out_bounds)
+{
+	if (out_bounds == NULL)
+		return false;
+
+	int screen_width = dm_get_screen_width();
+	int screen_height = dm_get_screen_height();
+	int text_height = sc_get_selection_description_text_height();
+	int separator_gap = dm_scale_to_res(SECTOR_TITLE_SEPARATOR);
+	int bottom_margin =
+	    dm_scale_to_res(LEVEL_HOVER_DESCRIPTION_BOTTOM_MARGIN);
+	if (screen_width <= 0 || screen_height <= 0 || text_height <= 0 ||
+	    separator_gap < 0 || bottom_margin < 0)
+		return false;
+
+	SDL_Rect separator = get_sector_0_lower_separator();
+	if (separator.w <= 0 || separator.h <= 0)
+		return false;
+
+	int64_t separator_left = separator.x;
+	int64_t separator_right = separator_left + separator.w;
+	int64_t left = separator_left > 0 ? separator_left : 0;
+	int64_t right = separator_right < screen_width
+	                     ? separator_right : screen_width;
+	int64_t top = (int64_t)separator.y + separator.h + separator_gap;
+	int64_t bottom = (int64_t)screen_height - bottom_margin;
+	int64_t width = right - left;
+	int64_t height = bottom - top;
+	if (width <= 0 || height < text_height || left < 0 || top < 0 ||
+	    right > screen_width || bottom > screen_height || left > INT_MAX ||
+	    top > INT_MAX || width > INT_MAX || height > INT_MAX)
+		return false;
+
+	*out_bounds = (SDL_Rect){
+		.x = (int)left,
+		.y = (int)top,
+		.w = (int)width,
+		.h = (int)height
+	};
+	return true;
+}
+
 /* Function: get_sel_level_offset_y
  * -----------------------------------------------------------------------------
  * Returns the offset for the sel level buttons
@@ -232,7 +282,10 @@ static SDL_Rect get_sector_0_lower_separator(void)
  */
 static int get_sel_level_offset_y(void)
 {
-	int y_offset = dm_scale_to_res(SEL_LEVEL_BUTTON_H + SEL_LEVEL_Y_OFS);
+	Uint32 row_gap = dm_get_screen_height() <=
+	                         (int)dm_scale_to_res(SEL_LEVEL_COMPACT_MAX_H)
+	                     ? SEL_LEVEL_COMPACT_Y_OFS : SEL_LEVEL_Y_OFS;
+	int y_offset = dm_scale_to_res(SEL_LEVEL_BUTTON_H + row_gap);
 	return y_offset;
 }
 

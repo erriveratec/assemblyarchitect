@@ -22,6 +22,8 @@ OPERAND_HIGHLIGHTS_TEST_EXEC = $(TEST_BUILD_DIR)/operand_highlights_test
 OPERAND_HIGHLIGHTS_TEST_SOURCE = tests/operand_highlights_test.c
 LEVEL_CONFIG_HOVER_TEST_EXEC = $(TEST_BUILD_DIR)/level_config_hover_test
 LEVEL_CONFIG_HOVER_TEST_SOURCE = tests/level_config_hover_test.c
+LEVEL_HOVER_LAYOUT_TEST_EXEC = $(TEST_BUILD_DIR)/level_hover_layout_test
+LEVEL_HOVER_LAYOUT_TEST_SOURCE = tests/level_hover_layout_test.c
 OPERAND_CHANGE_SELECTION_TEST_EXEC = $(TEST_BUILD_DIR)/operand_change_selection_test
 OPERAND_CHANGE_SELECTION_TEST_SOURCE = tests/operand_change_selection_test.c
 SECTOR_COMPLETION_NAVIGATION_TEST_EXEC = $(TEST_BUILD_DIR)/sector_completion_navigation_test
@@ -50,6 +52,7 @@ TEST_EXECS := \
 	$(TUTORIAL_TEXT_TEST_EXEC) \
 	$(OPERAND_HIGHLIGHTS_TEST_EXEC) \
 	$(LEVEL_CONFIG_HOVER_TEST_EXEC) \
+	$(LEVEL_HOVER_LAYOUT_TEST_EXEC) \
 	$(OPERAND_CHANGE_SELECTION_TEST_EXEC) \
 	$(SECTOR_COMPLETION_NAVIGATION_TEST_EXEC) \
 	$(BUFFER_LABEL_LAYOUT_TEST_EXEC) \
@@ -130,6 +133,7 @@ run: build
 test: $(TEST_TARGETS)
 
 .PHONY: all build run app clean test test-level-config-hover test-operand-highlights test-operand-change-selection \
+	test-level-hover-layout \
 	test-tutorial-text test-sector-completion-navigation test-buffer-label-layout \
 	test-execution-arrow-geometry test-text-box-layout test-tutorial-arrow-animation \
 	test-highlight-animation-sync test-modal-pointer-capture test-run-result-render-order \
@@ -227,6 +231,12 @@ test-level-config-hover: | $(TEST_BUILD_DIR)
 	$(CC) $(CFLAGS) $(LEVEL_CONFIG_HOVER_TEST_SOURCE) $(TEST_SOURCES) -o $(LEVEL_CONFIG_HOVER_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(LEVEL_CONFIG_HOVER_TEST_EXEC)
+
+test-level-hover-layout: | $(TEST_BUILD_DIR)
+	$(CC) $(CFLAGS) -DTX_STYLED_TEXT_TESTING $(LEVEL_HOVER_LAYOUT_TEST_SOURCE) \
+	    $(filter-out $(S_DIR)/ui/screens/select_level_sl.c,$(TEST_SOURCES)) -o $(LEVEL_HOVER_LAYOUT_TEST_EXEC) \
+	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
+	./$(LEVEL_HOVER_LAYOUT_TEST_EXEC)
 
 ############################
 # App bundle target

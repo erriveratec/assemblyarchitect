@@ -108,7 +108,7 @@ int main(void)
 
 	assert(lc_load_hover_message(2, message, sizeof(message)) == SUCCESS);
 	assert(strcmp(message,
-	              "DATA COMSUMPTION, REGISTER PERSISTANCE, AND INSTRUCTION DUPLICATION") == 0);
+	              "DATA CONSUMPTION, REGISTER PERSISTENCE, AND INSTRUCTION DUPLICATION") == 0);
 	assert(lp_are_operand_highlights_enabled());
 
 	char small_buffer[8];
