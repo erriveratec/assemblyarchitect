@@ -657,7 +657,7 @@ int bt_draw_iface_btn_at_rect(iface_btn_t *b,
 	}
 
 	if (b->enabled == false){
-		dw_draw_filled_rectangle(box, C_BLACK, C_GREY);
+		dw_draw_filled_rectangle_with_outline(box, C_BLACK, C_GREY, 2);
 		SDL_Rect in = ax_pad_rectangle(box, offset, true);
 		dw_draw_rectangle(in, C_GREY);
 		draw_btn_scaled_texture(box, b);
@@ -730,7 +730,7 @@ void bt_draw_iface_btn_nopad(iface_btn_t *b)
 	int offset = get_w_iface_space_border();
 	
 	if (b->enabled == false){
-		dw_draw_filled_rectangle(b->r, C_BLACK, C_GREY);
+		dw_draw_filled_rectangle_with_outline(b->r, C_BLACK, C_GREY, 2);
 		SDL_Rect in = ax_pad_rectangle(b->r, offset, true);
 		dw_draw_rectangle(in, C_GREY);
 	} else if (clicked == true){

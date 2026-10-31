@@ -5,10 +5,11 @@
 #define dw_draw_texture_fit_h test_draw_texture_fit_h
 #define dw_draw_texture_fit_h_f test_draw_texture_fit_h_f
 #define dw_set_texture_color_mod test_set_texture_color_mod
-#define dw_draw_filled_rectangle_f test_draw_filled_rectangle_f
+#define dw_draw_filled_rectangle_f_with_outline \
+	test_draw_filled_rectangle_f_with_outline
 /* This narrow private-helper test follows the existing geometry test pattern. */
 #include "../source/registers_rg.c"
-#undef dw_draw_filled_rectangle_f
+#undef dw_draw_filled_rectangle_f_with_outline
 #undef dw_set_texture_color_mod
 #undef dw_draw_texture_fit_h_f
 #undef dw_draw_texture_fit_h
@@ -58,12 +59,16 @@ int test_draw_texture_fit_h_f(SDL_FRect rect, texture_t *texture)
 	return SUCCESS;
 }
 
-void test_draw_filled_rectangle_f(SDL_FRect rect, SDL_Color in,
-								 SDL_Color out)
+void test_draw_filled_rectangle_f_with_outline(SDL_FRect rect, SDL_Color fill,
+											  SDL_Color outline,
+											  float thickness)
 {
 	(void)rect;
-	(void)in;
-	(void)out;
+	assert(fill.r == C_BLACK.r && fill.g == C_BLACK.g &&
+	       fill.b == C_BLACK.b);
+	assert(outline.r == C_WHITE.r && outline.g == C_WHITE.g &&
+	       outline.b == C_WHITE.b);
+	assert(thickness == 2.0f);
 	g_highlight_rectangle_draw_count++;
 }
 

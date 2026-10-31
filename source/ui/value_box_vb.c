@@ -90,7 +90,7 @@ void vb_draw(vb_value_box_t *box, SDL_Color color)
 		? 0
 		: ax_get_texture_w_fit_h(text_size.h, box->t);
 
-	dw_draw_filled_rectangle(box->box, C_BLACK, color);
+	dw_draw_filled_rectangle_with_outline(box->box, C_BLACK, color, 2);
 
 	int x_offset = (text_size.w - text_width) / 2;
 	int y_offset = (text_size.h / 5) / 2;

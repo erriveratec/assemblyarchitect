@@ -1,6 +1,9 @@
 #include "draw_dw.h"
 
 #include <assert.h>
+#include <limits.h>
+#include <math.h>
+#include <stdint.h>
 #include <string.h>
 #include <SDL.h>
 #include <SDL_image.h>
@@ -66,6 +69,88 @@ static int      get_h_iface_header(void);
 static SDL_Rect get_iface_box_big_wh(void);
 static SDL_Rect get_iface_header_box(SDL_Rect b);
 static void     draw_status_symbol(SDL_Rect box, bool success);
+
+static void set_draw_color(SDL_Color color)
+{
+	SDL_SetRenderDrawColor(g_renderer, color.r, color.g, color.b, color.a);
+}
+
+static void fill_rect(SDL_Rect rect, SDL_Color color)
+{
+	if (rect.w <= 0 || rect.h <= 0) {
+		return;
+	}
+	set_draw_color(color);
+	SDL_RenderFillRect(g_renderer, &rect);
+}
+
+static void fill_rect_f(SDL_FRect rect, SDL_Color color)
+{
+	if (rect.w <= 0.0f || rect.h <= 0.0f) {
+		return;
+	}
+	set_draw_color(color);
+	SDL_RenderFillRectF(g_renderer, &rect);
+}
+
+static SDL_Rect inset_rect_from_edges(SDL_Rect rect, const SDL_Rect edges[4])
+{
+	int left = edges[3].w;
+	int top = edges[0].h;
+	int right = edges[1].w;
+	int bottom = edges[2].h;
+	return (SDL_Rect){
+		.x = rect.x + left,
+		.y = rect.y + top,
+		.w = rect.w - left - right,
+		.h = rect.h - top - bottom
+	};
+}
+
+static bool calculate_rect_outline_edges(SDL_Rect rect, int thickness,
+	                                     SDL_Rect edges[4])
+{
+	if (edges == NULL || rect.w <= 0 || rect.h <= 0 || thickness <= 0) {
+		return false;
+	}
+	int64_t right_exclusive = (int64_t)rect.x + rect.w;
+	int64_t bottom_exclusive = (int64_t)rect.y + rect.h;
+	if (right_exclusive > (int64_t)INT_MAX + 1 ||
+	    bottom_exclusive > (int64_t)INT_MAX + 1) {
+		return false;
+	}
+	int max_thickness = rect.w < rect.h ? rect.w : rect.h;
+	max_thickness = max_thickness / 2 + max_thickness % 2;
+	if (thickness > max_thickness) {
+		thickness = max_thickness;
+	}
+	int left = thickness < rect.w ? thickness : rect.w;
+	int right = thickness < rect.w - left ? thickness : rect.w - left;
+	int top = thickness < rect.h ? thickness : rect.h;
+	int bottom = thickness < rect.h - top ? thickness : rect.h - top;
+	int inner_height = rect.h - top - bottom;
+	int64_t right_x = right_exclusive - right;
+	int64_t bottom_y = bottom_exclusive - bottom;
+	if ((right > 0 && inner_height > 0 &&
+	     (right_x < INT_MIN || right_x > INT_MAX)) ||
+	    (bottom > 0 && (bottom_y < INT_MIN || bottom_y > INT_MAX))) {
+		return false;
+	}
+	edges[0] = (SDL_Rect){.x = rect.x, .y = rect.y, .w = rect.w, .h = top};
+	edges[1] = right > 0 && inner_height > 0 ?
+	           (SDL_Rect){.x = (int)right_x, .y = rect.y + top,
+	                      .w = right, .h = inner_height} :
+	           (SDL_Rect){.x = rect.x, .y = rect.y};
+	edges[2] = bottom > 0 ?
+	           (SDL_Rect){.x = rect.x, .y = (int)bottom_y,
+	                      .w = rect.w, .h = bottom} :
+	           (SDL_Rect){.x = rect.x, .y = rect.y};
+	edges[3] = left > 0 && inner_height > 0 ?
+	           (SDL_Rect){.x = rect.x, .y = rect.y + top,
+	                      .w = left, .h = inner_height} :
+	           (SDL_Rect){.x = rect.x, .y = rect.y};
+	return true;
+}
 
 /* Function: tx_get_iface_box_big_wh
  * -----------------------------------------------------------------------------
@@ -270,12 +355,7 @@ void dw_draw_inner_shadow_lines(SDL_Rect r, SDL_Color top_left,
  */
 void dw_draw_thick_rect(SDL_Rect b, int w, SDL_Color c)
 {
-	dw_draw_filled_rectangle(b, c, c);
-	b.x += w;
-	b.y += w;
-	b.w -= 2 * w;
-	b.h -= 2 * w;
-	dw_draw_filled_rectangle(b, C_BLACK, C_BLACK);
+	dw_draw_filled_rectangle_with_outline(b, C_BLACK, c, w);
 }
 
 /* Function: dw_get_iface_content_box
@@ -321,7 +401,7 @@ SDL_Rect dw_get_iface_content_box(SDL_Rect b)
  */
 void dw_draw_iface_box(SDL_Rect b, texture_t *header)
 {
-	dw_draw_filled_rectangle(b, C_GREY, C_DARKGREY);
+	dw_draw_filled_rectangle_with_outline(b, C_GREY, C_DARKGREY, 2);
 
 	int      offset       = dw_get_ofs_iface_filled_border();
 	SDL_Rect in           = ax_pad_rectangle(b, offset, true);
@@ -908,16 +988,65 @@ void dw_draw_wrapped_texture_by_h(SDL_Rect r, int h, texture_array_t *a)
  */
 void dw_draw_rectangle(SDL_Rect r, SDL_Color c)
 {
-	SDL_Rect rect = r;
-	SDL_SetRenderDrawColor(g_renderer, c.r, c.g, c.b, c.a);
-	SDL_RenderDrawRect(g_renderer, &rect);
+	dw_draw_rect_outline(r, 2, c);
 	SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
 }
 
 void dw_draw_rectangle_f(SDL_FRect r, SDL_Color c)
 {
-	SDL_SetRenderDrawColor(g_renderer, c.r, c.g, c.b, 255);
-	SDL_RenderDrawRectF(g_renderer, &r);
+	dw_draw_rect_outline_f(r, 2.0f, c);
+	SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
+}
+
+bool dw_calculate_rect_outline_edges(SDL_Rect rect, int logical_thickness,
+	                                SDL_Rect edges[4])
+{
+	return calculate_rect_outline_edges(rect, logical_thickness, edges);
+}
+
+void dw_draw_rect_outline(SDL_Rect rect, int logical_thickness, SDL_Color color)
+{
+	SDL_Rect edges[4];
+	if (!dw_calculate_rect_outline_edges(rect, logical_thickness, edges)) {
+		return;
+	}
+	for (size_t index = 0; index < 4; index++) {
+		fill_rect(edges[index], color);
+	}
+	SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
+}
+
+void dw_draw_rect_outline_f(SDL_FRect rect, float logical_thickness,
+	                        SDL_Color color)
+{
+	if (!isfinite(rect.x) || !isfinite(rect.y) || !isfinite(rect.w) ||
+	    !isfinite(rect.h) || !isfinite(logical_thickness) ||
+	    rect.w <= 0.0f || rect.h <= 0.0f || logical_thickness <= 0.0f) {
+		return;
+	}
+	float min_dimension = fminf(rect.w, rect.h);
+	float max_thickness = fminf(min_dimension,
+	                            floorf(min_dimension / 2.0f + 0.5f));
+	if (max_thickness <= 0.0f) {
+		max_thickness = min_dimension;
+	}
+	float thickness = fminf(logical_thickness, max_thickness);
+	float left = fminf(thickness, rect.w);
+	float right = fminf(thickness, rect.w - left);
+	float top = fminf(thickness, rect.h);
+	float bottom = fminf(thickness, rect.h - top);
+	float inner_height = rect.h - top - bottom;
+	SDL_FRect edges[4] = {
+		{.x = rect.x, .y = rect.y, .w = rect.w, .h = top},
+		{.x = rect.x + rect.w - right, .y = rect.y + top,
+		 .w = right, .h = inner_height},
+		{.x = rect.x, .y = rect.y + rect.h - bottom,
+		 .w = rect.w, .h = bottom},
+		{.x = rect.x, .y = rect.y + top, .w = left, .h = inner_height}
+	};
+	for (size_t index = 0; index < 4; index++) {
+		fill_rect_f(edges[index], color);
+	}
 	SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
 }
 
@@ -1001,19 +1130,60 @@ void dw_pulse_advance(dw_pulse_t *pulse, float limit)
  */
 void dw_draw_filled_rectangle(SDL_Rect r, SDL_Color in, SDL_Color out)
 {
-	SDL_Rect rect = r;
-	SDL_SetRenderDrawColor(g_renderer, in.r, in.g, in.b, in.a);
-	SDL_RenderFillRect(g_renderer, &rect);
-	SDL_SetRenderDrawColor(g_renderer, out.r, out.g, out.b, out.a);
-	SDL_RenderDrawRect(g_renderer, &rect);
+	fill_rect(r, in);
+	dw_draw_rect_outline(r, 1, out);
 	SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
 }
 
 void dw_draw_filled_rectangle_f(SDL_FRect r, SDL_Color in, SDL_Color out)
 {
-	SDL_SetRenderDrawColor(g_renderer, in.r, in.g, in.b, in.a);
-	SDL_RenderFillRectF(g_renderer, &r);
-	SDL_SetRenderDrawColor(g_renderer, out.r, out.g, out.b, out.a);
-	SDL_RenderDrawRectF(g_renderer, &r);
+	fill_rect_f(r, in);
+	dw_draw_rect_outline_f(r, 1.0f, out);
+	SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
+}
+
+void dw_draw_filled_rectangle_with_outline(SDL_Rect rect, SDL_Color fill,
+	                                      SDL_Color outline,
+	                                      int logical_thickness)
+{
+	SDL_Rect edges[4];
+	if (!dw_calculate_rect_outline_edges(rect, logical_thickness, edges)) {
+		return;
+	}
+	for (size_t index = 0; index < 4; index++) {
+		fill_rect(edges[index], outline);
+	}
+	SDL_Rect inner = inset_rect_from_edges(rect, edges);
+	fill_rect(inner, fill);
+	SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
+}
+
+void dw_draw_filled_rectangle_f_with_outline(SDL_FRect rect, SDL_Color fill,
+	                                         SDL_Color outline,
+	                                         float logical_thickness)
+{
+	if (!isfinite(rect.x) || !isfinite(rect.y) || !isfinite(rect.w) ||
+	    !isfinite(rect.h) || !isfinite(logical_thickness) ||
+	    rect.w <= 0.0f || rect.h <= 0.0f || logical_thickness <= 0.0f) {
+		return;
+	}
+	float min_dimension = fminf(rect.w, rect.h);
+	float max_thickness = fminf(min_dimension,
+	                            floorf(min_dimension / 2.0f + 0.5f));
+	if (max_thickness <= 0.0f) {
+		max_thickness = min_dimension;
+	}
+	float thickness = fminf(logical_thickness, max_thickness);
+	dw_draw_rect_outline_f(rect, thickness, outline);
+	float left = fminf(thickness, rect.w);
+	float right = fminf(thickness, rect.w - left);
+	float top = fminf(thickness, rect.h);
+	float bottom = fminf(thickness, rect.h - top);
+	fill_rect_f((SDL_FRect){
+		.x = rect.x + left,
+		.y = rect.y + top,
+		.w = rect.w - left - right,
+		.h = rect.h - top - bottom
+	}, fill);
 	SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
 }

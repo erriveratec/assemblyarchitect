@@ -47,11 +47,13 @@ int ax_get_texture_w_fit_h(int height, texture_t *texture)
 	return 0;
 }
 
-void dw_draw_filled_rectangle(SDL_Rect rect, SDL_Color fill, SDL_Color border)
+void dw_draw_filled_rectangle_with_outline(SDL_Rect rect, SDL_Color fill,
+	                                      SDL_Color border, int thickness)
 {
 	(void)rect;
 	(void)fill;
 	(void)border;
+	assert(thickness == 2);
 }
 
 int dw_draw_texture_fit_h(SDL_Rect rect, texture_t *texture)

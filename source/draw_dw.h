@@ -32,8 +32,22 @@ void dw_free_texture_array(texture_array_t *t);
 
 void dw_draw_rectangle(SDL_Rect r, SDL_Color c);
 void dw_draw_rectangle_f(SDL_FRect r, SDL_Color c);
+/* Calculates non-overlapping top, right, bottom, and left edges.
+ * Thickness is clamped to ceil(half the smaller rectangle extent). */
+bool dw_calculate_rect_outline_edges(SDL_Rect rect, int logical_thickness,
+	                                SDL_Rect edges[4]);
+void dw_draw_rect_outline(SDL_Rect rect, int logical_thickness, SDL_Color color);
+void dw_draw_rect_outline_f(SDL_FRect rect, float logical_thickness,
+	                        SDL_Color color);
+/* These legacy filled helpers retain a one-logical-pixel outline. */
 void dw_draw_filled_rectangle(SDL_Rect r, SDL_Color in, SDL_Color out);
 void dw_draw_filled_rectangle_f(SDL_FRect r, SDL_Color in, SDL_Color out);
+void dw_draw_filled_rectangle_with_outline(SDL_Rect rect, SDL_Color fill,
+	                                      SDL_Color outline,
+	                                      int logical_thickness);
+void dw_draw_filled_rectangle_f_with_outline(SDL_FRect rect, SDL_Color fill,
+	                                         SDL_Color outline,
+	                                         float logical_thickness);
 SDL_FRect dw_grow_rect_height(SDL_FRect rect, float height_growth);
 /* Reset, sample, and advance a pixel-valued pulse using operand cycle timing. */
 void dw_pulse_reset(dw_pulse_t *pulse);

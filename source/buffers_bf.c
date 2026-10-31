@@ -950,7 +950,7 @@ static void draw_buffer_value_box(vb_value_box_t *value, SDL_Color color,
 
 	SDL_FRect value_box = transform_buffer_content_rect(
 	    value->box, body_box, animated_body, animation);
-	dw_draw_filled_rectangle_f(value_box, C_BLACK, color);
+	dw_draw_filled_rectangle_f_with_outline(value_box, C_BLACK, color, 2.0f);
 	if (value->t == NULL) {
 		return;
 	}

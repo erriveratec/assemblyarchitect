@@ -50,6 +50,8 @@ REGISTERS_HIGHLIGHT_GEOMETRY_TEST_EXEC = $(TEST_BUILD_DIR)/registers_highlight_g
 REGISTERS_HIGHLIGHT_GEOMETRY_TEST_SOURCE = tests/registers_highlight_geometry_test.c
 DISPLAY_RESIZE_TEST_EXEC = $(TEST_BUILD_DIR)/display_resize_test
 DISPLAY_RESIZE_TEST_SOURCE = tests/display_resize_test.c
+DRAWING_OUTLINE_TEST_EXEC = $(TEST_BUILD_DIR)/drawing_outline_test
+DRAWING_OUTLINE_TEST_SOURCE = tests/drawing_outline_test.c
 TEST_EXECS := \
 	$(TUTORIAL_TEXT_TEST_EXEC) \
 	$(OPERAND_HIGHLIGHTS_TEST_EXEC) \
@@ -67,7 +69,8 @@ TEST_EXECS := \
 	$(RUN_RESULT_RENDER_ORDER_TEST_EXEC) \
 	$(VALUE_BOX_TRANSPORT_TEST_EXEC) \
 	$(REGISTERS_HIGHLIGHT_GEOMETRY_TEST_EXEC) \
-	$(DISPLAY_RESIZE_TEST_EXEC)
+	$(DISPLAY_RESIZE_TEST_EXEC) \
+	$(DRAWING_OUTLINE_TEST_EXEC)
 TEST_TARGETS := $(addprefix test-,$(subst _,-,$(patsubst %_test,%,$(notdir $(TEST_EXECS)))))
 LEGACY_ROOT_TEST_EXECS := \
 	$(notdir $(TEST_EXECS)) \
@@ -142,7 +145,7 @@ test: $(TEST_TARGETS)
 	test-highlight-animation-sync test-modal-pointer-capture test-run-result-render-order \
 	test-value-box-transport test-io-rail-geometry test-registers-highlight-geometry
 
-.PHONY: test-display-resize
+.PHONY: test-display-resize test-drawing-outline
 
 $(TEST_BUILD_DIR):
 	mkdir -p $@
@@ -247,6 +250,11 @@ test-display-resize: | $(TEST_BUILD_DIR)
 	$(CC) $(CFLAGS) $(DISPLAY_RESIZE_TEST_SOURCE) $(TEST_SOURCES) -o $(DISPLAY_RESIZE_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(DISPLAY_RESIZE_TEST_EXEC)
+
+test-drawing-outline: | $(TEST_BUILD_DIR)
+	$(CC) $(CFLAGS) $(DRAWING_OUTLINE_TEST_SOURCE) $(TEST_SOURCES) -o $(DRAWING_OUTLINE_TEST_EXEC) \
+	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
+	./$(DRAWING_OUTLINE_TEST_EXEC)
 
 ############################
 # App bundle target

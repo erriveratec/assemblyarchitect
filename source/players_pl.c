@@ -1,5 +1,6 @@
 #include "players_pl.h"
 #include <math.h>
+#include "draw_dw.h"
 
 
 static const int SIGN_OFS = -5;
@@ -212,7 +213,11 @@ static void draw_sign(SDL_Renderer* r,int ox,int oy,int cs,
     if((opts & AA_OPT_LIFT) && !(opts & AA_OPT_DIM)){
         SDL_Rect outer = (SDL_Rect){ ox + bx*cs, oy + by*cs, 9*cs, 9*cs };
         SDL_Rect halo  = { outer.x-2, outer.y-2, outer.w+4, outer.h+4 };
-        SDL_SetRenderDrawColor(r, 255,255,255, 50); SDL_RenderDrawRect(r, &halo);
+        SDL_BlendMode blend_mode;
+        SDL_GetRenderDrawBlendMode(r, &blend_mode);
+        SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
+        dw_draw_rect_outline(halo, 2, (SDL_Color){255, 255, 255, 50});
+        SDL_SetRenderDrawBlendMode(r, blend_mode);
         SDL_Rect sh = { outer.x, outer.y + outer.h, outer.w, 2 }; // pixel shadow 2px
         SDL_SetRenderDrawColor(r, 0,0,0,160); SDL_RenderFillRect(r, &sh);
     }

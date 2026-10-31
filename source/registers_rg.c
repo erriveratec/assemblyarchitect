@@ -918,7 +918,7 @@ static void draw_value_box_highlight(const vb_value_box_t *value,
 									 SDL_FRect box,
 									 float pulse)
 {
-	dw_draw_filled_rectangle_f(box, C_BLACK, C_WHITE);
+	dw_draw_filled_rectangle_f_with_outline(box, C_BLACK, C_WHITE, 2.0f);
 	if (value->t == NULL) {
 		return;
 	}
