@@ -603,7 +603,7 @@ void bf_generate_input_list(void)
 static void bf_create_natural_increase_input_list(void)
 {
 	int list_half = g_ip.size/2;
-	int rng = (rand() % list_half) + NATURAL_NMIN - 2;//Always 2 el at IB
+	int rng = (rand() % list_half) + NATURAL_NMIN;//Always 2 el at IB
 	int node = list_half + rng;
 	int x = 1;	
 
