@@ -203,7 +203,6 @@ static void initialize_result_fixture(void)
 	static tx_styled_text_t message;
 	static iface_btn_t back = {.enabled = true};
 	static iface_btn_t next = {.enabled = true};
-	dm_set_screen_resolution(DM_RESOLUTION_1600X900);
 	assert(rr_resolve_layout());
 	g_result_back_button = &back;
 	g_result_continue_button = &next;

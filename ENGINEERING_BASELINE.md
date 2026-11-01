@@ -23,6 +23,15 @@ warning groups. The original suite had 15 targets: 12 passed, two failed compila
 Every test file contains behavioral assertions; none was an assertion-free success.
 Tests use SDL software rendering with `SDL_Init(0)`, not a video-driver workaround.
 
+## Display Architecture
+
+The application has one immutable 1920x1080 logical canvas. SDL scales it
+proportionally to physical window and fullscreen output sizes; physical
+dimensions never alter gameplay or interface geometry. The preferred physical
+minimum is 1280x720, with adaptive minimum sizing on smaller usable workspaces.
+A physical 1600x900 display remains supported, but no alternative logical
+layout mode exists.
+
 Complete original outputs were retained in `/tmp/assemblygame-baseline-build.log`,
 `/tmp/assemblygame-baseline-tests.log`, `/tmp/assemblygame-baseline-reruns.log`,
 `/tmp/assemblygame-strict-build.log`, and `/tmp/assemblygame-strict-tests.log`.

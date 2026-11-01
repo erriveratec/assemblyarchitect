@@ -71,9 +71,8 @@ static void move_to_instruction(int position, bool downward)
 	assert_centered(position);
 }
 
-static void test_resolution(dm_resolution_t resolution, bool fast)
+static void test_canonical_canvas(bool fast)
 {
-	dm_set_screen_resolution(resolution);
 	ax_set_arrow_mdelta(fast);
 	ar_reset_execution_arrow();
 	assert_centered(0);
@@ -96,9 +95,7 @@ static void test_resolution(dm_resolution_t resolution, bool fast)
 
 int main(void)
 {
-	test_resolution(DM_RESOLUTION_1600X900, false);
-	test_resolution(DM_RESOLUTION_1600X900, true);
-	test_resolution(DM_RESOLUTION_1920X1080, false);
-	test_resolution(DM_RESOLUTION_1920X1080, true);
+	test_canonical_canvas(false);
+	test_canonical_canvas(true);
 	return 0;
 }

@@ -125,9 +125,8 @@ static void test_io_rail(bool input)
 	}
 }
 
-static void test_resolution(dm_resolution_t resolution)
+static void test_canonical_canvas(void)
 {
-	dm_set_screen_resolution(resolution);
 	ax_set_fast_move_delta(false);
 	im_layout_grid();
 	assert(im_get_imm_value_box_by_id(IMMUP0).box.x == im_get_grid_bounds().x);
@@ -164,9 +163,7 @@ int main(void)
 	SDL_Rect original = invalid_route.box;
 	assert(!move_avatar_to_operand(&invalid_route, OBOX));
 	assert(SDL_RectEquals(&invalid_route.box, &original));
-	test_resolution(DM_RESOLUTION_1600X900);
-	test_resolution(DM_RESOLUTION_1920X1080);
-	test_resolution(DM_RESOLUTION_1600X900);
+	test_canonical_canvas();
 	im_destroy_imm_assets();
 	TTF_CloseFont(g_font);
 	SDL_DestroyRenderer(g_renderer);

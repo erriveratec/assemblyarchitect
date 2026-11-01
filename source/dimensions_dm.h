@@ -1,16 +1,17 @@
 #ifndef DIMENSIONS_DM_H
 #define DIMENSIONS_DM_H
 
-typedef enum dm_resolution_t {
-	DM_RESOLUTION_1920X1080,
-	DM_RESOLUTION_1600X900
-} dm_resolution_t;
+enum {
+	DM_LOGICAL_CANVAS_WIDTH = 1920,
+	DM_LOGICAL_CANVAS_HEIGHT = 1080
+};
 
-/* Selects the preset and its logical screen-coordinate dimensions. */
-void dm_set_screen_resolution(dm_resolution_t resolution);
-/* Changes logical canvas dimensions; never use for OS window resizing. */
-void dm_set_logical_dimensions(int width, int height);
+/* Return canonical logical canvas dimensions, never SDL window/output sizes. */
 int dm_get_screen_width(void);
 int dm_get_screen_height(void);
+/*
+ * Geometry is authored directly in the canonical logical coordinate system.
+ * This temporary compatibility function returns its argument unchanged.
+ */
 int dm_scale_to_res(int dimension);
 #endif

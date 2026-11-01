@@ -8,7 +8,7 @@
 static void assert_centered(int screen_width, SDL_Rect buffer,
 							SDL_Rect label, int expected_x)
 {
-	dm_set_logical_dimensions(screen_width, 1080);
+	assert(screen_width == DM_LOGICAL_CANVAS_WIDTH);
 	center_label_on_visible_buffer(&label, buffer);
 	assert(label.x == expected_x);
 	assert(label.w == 200);
@@ -23,10 +23,9 @@ int main(void)
 	                label, 900);
 	assert_centered(1920, (SDL_Rect){.x = 1400, .y = 300, .w = 1000, .h = 75},
 	                label, 1560);
-	assert_centered(1600, (SDL_Rect){.x = -200, .y = 300, .w = 1000, .h = 75},
-	                label, 300);
+	assert_centered(1920, (SDL_Rect){.x = 1700, .y = 300, .w = 1000, .h = 75},
+	                label, 1710);
 
-	dm_set_logical_dimensions(1920, 1080);
 	SDL_Rect offscreen_buffer = {
 		.x = 2000, .y = 300, .w = 1000, .h = 75
 	};

@@ -31,14 +31,12 @@ static void init_test_graphics(void)
 {
 	assert(SDL_Init(0) == 0);
 	assert(TTF_Init() == 0);
-	dm_set_screen_resolution(DM_RESOLUTION_1600X900);
-	assert(dm_get_screen_width() == 1600);
-	assert(dm_get_screen_height() == 900);
+	assert(dm_get_screen_width() == DM_LOGICAL_CANVAS_WIDTH);
+	assert(dm_get_screen_height() == DM_LOGICAL_CANVAS_HEIGHT);
+	assert(dm_scale_to_res(0) == 0);
+	assert(dm_scale_to_res(1) == 1);
 	assert(dm_scale_to_res(173) == 173);
-	dm_set_screen_resolution(DM_RESOLUTION_1920X1080);
-	assert(dm_get_screen_width() == 1920);
-	assert(dm_get_screen_height() == 1080);
-	assert(dm_scale_to_res(173) == 173);
+	assert(dm_scale_to_res(-1) == -1);
 	g_screen = SDL_CreateRGBSurfaceWithFormat(
 	    0, dm_get_screen_width(), dm_get_screen_height(), 32,
 	    SDL_PIXELFORMAT_RGBA32);
@@ -354,13 +352,6 @@ static void test_layout_invariants(void)
 	assert(initial_grid.x >= 0 &&
 	       initial_grid.x + initial_grid.w <= dm_get_screen_width());
 	assert(im_get_imm_value_box_by_id(IMMUP0).box.x == initial_grid.x);
-	dm_set_screen_resolution(DM_RESOLUTION_1600X900);
-	im_layout_grid();
-	assert(im_get_grid_bounds().x == initial_grid.x);
-	assert(im_get_grid_bounds().x + im_get_grid_bounds().w <=
-	       dm_get_screen_width());
-	dm_set_screen_resolution(DM_RESOLUTION_1920X1080);
-	im_layout_grid();
 	rg_set_register_box((SDL_Rect){
 		.x = code_box.x + code_box.w,
 		.y = 0,
@@ -381,19 +372,11 @@ static void test_layout_invariants(void)
 	assert(output_label.x == output_bounds.x && output_label.y == 1040);
 	assert(output_label.w == 0 && output_label.h == ty_code_height());
 
-	dm_set_logical_dimensions(1600, 900);
-	assert(dm_get_screen_width() == 1600 && dm_get_screen_height() == 900);
-	assert(bf_get_output_buffer_bounds().y == 785);
-	assert(bf_get_output_label_anchor().y == 860);
-	dm_set_logical_dimensions(0, 900);
-	assert(dm_get_screen_width() == 1600 && dm_get_screen_height() == 900);
-	dm_set_screen_resolution(DM_RESOLUTION_1920X1080);
 	im_destroy_imm_assets();
 }
 
-static void test_immediate_grid_geometry(dm_resolution_t resolution)
+static void test_immediate_grid_geometry_on_canonical_canvas(void)
 {
-	dm_set_screen_resolution(resolution);
 	im_set_imm_up_avail(true);
 	im_init_imm_assets();
 	im_layout_grid();
@@ -624,7 +607,6 @@ static void reset_highlight_fixture(void)
 	lp_configure(false, false, false, false, false);
 	ha_reset();
 	ms_init_mouse();
-	dm_set_screen_resolution(DM_RESOLUTION_1920X1080);
 }
 
 static void run_isolated_test(void (*test)(void))
@@ -636,7 +618,6 @@ static void run_isolated_test(void (*test)(void))
 
 int main(void)
 {
-	assert(dm_get_screen_width() == 1600 && dm_get_screen_height() == 900);
 	init_test_graphics();
 	const int numbers[] = {INT_MIN, INT_MAX, NO_VALUE, -1, 0, 1, 100};
 	for (size_t index = 0; index < sizeof(numbers) / sizeof(numbers[0]); index++) {
@@ -659,9 +640,7 @@ int main(void)
 	run_isolated_test(test_operand_highlight_configuration);
 	run_isolated_test(test_tutorial_highlight_parsing);
 	run_isolated_test(test_layout_invariants);
-	test_immediate_grid_geometry(DM_RESOLUTION_1600X900);
-	reset_highlight_fixture();
-	test_immediate_grid_geometry(DM_RESOLUTION_1920X1080);
+	test_immediate_grid_geometry_on_canonical_canvas();
 	reset_highlight_fixture();
 	TTF_CloseFont(g_font);
 	SDL_DestroyRenderer(g_renderer);

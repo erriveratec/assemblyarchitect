@@ -73,9 +73,8 @@ static void assert_centers_match(SDL_Rect source, SDL_Rect destination)
 	assert(llabs(source_center_y - destination_center_y) <= 1);
 }
 
-static void test_transport_at_resolution(dm_resolution_t resolution)
+static void test_transport_on_canonical_canvas(void)
 {
-	dm_set_screen_resolution(resolution);
 	SDL_Rect canonical = vb_get_size();
 	SDL_Rect source_box = {
 		.x = -37,
@@ -144,8 +143,7 @@ static void test_transport_at_resolution(dm_resolution_t resolution)
 
 int main(void)
 {
-	test_transport_at_resolution(DM_RESOLUTION_1600X900);
-	test_transport_at_resolution(DM_RESOLUTION_1920X1080);
+	test_transport_on_canonical_canvas();
 	assert(g_texture_create_count == g_texture_free_count);
 	vb_copy_for_transport(NULL, NULL);
 	return 0;

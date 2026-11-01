@@ -33,8 +33,6 @@ static void test_upper_right_layout(bool large_box)
 		run_result_layout_t result;
 		assert(rr_get_layout_for_size(RUN_RESULT_BOX_LARGE, success,
 		                              &result, NULL));
-		/* Two large boxes cannot fit side by side with a centered result
-		 * at 1600x900 under the current sizing policy. */
 		if (!large_box || dm_get_screen_width() >= LARGE_FORMAT_MIN_WIDTH) {
 			assert(!rr_rects_overlap(box, result.box));
 		}
@@ -49,11 +47,6 @@ static void test_screen_layout(void)
 
 int main(void)
 {
-	dm_set_screen_resolution(DM_RESOLUTION_1600X900);
-	test_screen_layout();
-	dm_set_screen_resolution(DM_RESOLUTION_1920X1080);
-	test_screen_layout();
-	dm_set_logical_dimensions(1920, 1200);
 	test_screen_layout();
 	return 0;
 }

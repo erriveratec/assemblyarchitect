@@ -90,7 +90,6 @@ static void assert_same_size_and_center(SDL_FRect actual, SDL_Rect original,
 
 int main(void)
 {
-	dm_set_screen_resolution(DM_RESOLUTION_1600X900);
 	ha_reset();
 	g_label_color = C_GREY;
 	texture_t label_texture = {.w = 1, .h = 2};

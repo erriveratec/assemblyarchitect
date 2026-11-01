@@ -392,7 +392,6 @@ static void assert_error_position(float progress, float limit)
 static void test_error_arrow_tracks_output_highlight(void)
 {
 	static const float samples[] = {0.0f, 0.25f, 0.5f, 0.75f, 1.0f};
-	dm_set_screen_resolution(DM_RESOLUTION_1600X900);
 	const float limits[] = {dw_get_animation_limit(), 7.3f};
 	provider_active[HIGHLIGHT_OUTPUT_BUFFER] = true;
 	for (size_t index = 0; index < sizeof(limits) / sizeof(limits[0]); index++) {
@@ -406,9 +405,8 @@ static void test_error_arrow_tracks_output_highlight(void)
 	provider_active[HIGHLIGHT_OUTPUT_BUFFER] = false;
 }
 
-static void test_resolution(dm_resolution_t resolution)
+static void test_canonical_canvas(void)
 {
-	dm_set_screen_resolution(resolution);
 	float limits[] = {dw_get_animation_limit(), 7.3f};
 	ar_init_arrow(AR_ERROR);
 	assert_reset();
@@ -703,7 +701,6 @@ static void test_play_arrow_does_not_mutate_private_motion(void)
 
 static void test_play_arrow_initialization_policy(void)
 {
-	dm_set_screen_resolution(DM_RESOLUTION_1600X900);
 	ar_init_arrow(AR_PLAY);
 	assert(g_arrow_play.arrow_id == AR_PLAY);
 	assert(g_arrow_play.dir == AR_DOWN);
@@ -865,39 +862,30 @@ static void test_synchronized_arrow_positions(void)
 
 static void test_op2_vertical_clearance(void)
 {
-	static const dm_resolution_t resolutions[] = {
-		DM_RESOLUTION_1600X900,
-		DM_RESOLUTION_1920X1080
-	};
 	static const float samples[] = {0.0f, 0.25f, 0.5f, 0.75f, 1.0f};
 	op2_line_rect = (SDL_Rect){.x = 423, .y = 504, .w = 90, .h = 40};
 
-	for (size_t resolution = 0;
-	     resolution < sizeof(resolutions) / sizeof(resolutions[0]);
-	     resolution++) {
-		dm_set_screen_resolution(resolutions[resolution]);
-		SDL_Rect arrow_size = ar_get_arrow_wh();
-		int original_y = op2_line_rect.y + op2_line_rect.h / 2;
-		int expected_clearance =
-			dm_scale_to_res(OP2_ARROW_VERTICAL_CLEARANCE_DESIGN_PX);
-		int expected_start_y = original_y + expected_clearance;
+	SDL_Rect arrow_size = ar_get_arrow_wh();
+	int original_y = op2_line_rect.y + op2_line_rect.h / 2;
+	int expected_clearance =
+		dm_scale_to_res(OP2_ARROW_VERTICAL_CLEARANCE_DESIGN_PX);
+	int expected_start_y = original_y + expected_clearance;
 
-		ar_init_arrow(AR_OP2);
-		assert(g_arrow_op2.starty == expected_start_y);
-		assert(g_arrow_op2.box.y == expected_start_y);
-		assert(g_arrow_op2.travel == arrow_size.h);
-		assert(g_arrow_op2.dir == AR_UP);
-		assert(g_arrow_op2.visible);
-		assert(!g_arrow_op2.highlight_progress_inverted);
+	ar_init_arrow(AR_OP2);
+	assert(g_arrow_op2.starty == expected_start_y);
+	assert(g_arrow_op2.box.y == expected_start_y);
+	assert(g_arrow_op2.travel == arrow_size.h);
+	assert(g_arrow_op2.dir == AR_UP);
+	assert(g_arrow_op2.visible);
+	assert(!g_arrow_op2.highlight_progress_inverted);
 
-		for (size_t sample = 0;
-		     sample < sizeof(samples) / sizeof(samples[0]); sample++) {
-			int expected_original_y =
-				original_y - (int)(arrow_size.h * samples[sample]);
-			int expected_corrected_y = expected_original_y + expected_clearance;
-			position_arrow(&g_arrow_op2, samples[sample]);
-			assert(g_arrow_op2.box.y == expected_corrected_y);
-		}
+	for (size_t sample = 0;
+	     sample < sizeof(samples) / sizeof(samples[0]); sample++) {
+		int expected_original_y =
+			original_y - (int)(arrow_size.h * samples[sample]);
+		int expected_corrected_y = expected_original_y + expected_clearance;
+		position_arrow(&g_arrow_op2, samples[sample]);
+		assert(g_arrow_op2.box.y == expected_corrected_y);
 	}
 }
 
@@ -1316,7 +1304,6 @@ static void run_isolated_test(void (*test)(void))
 	op2_line_rect = (SDL_Rect){0};
 	layout_available = true;
 	back_button_offset = 0;
-	dm_set_screen_resolution(DM_RESOLUTION_1600X900);
 	SDL_RenderSetClipRect(g_renderer, NULL);
 	test();
 	tr_update(NULL);
@@ -1363,9 +1350,7 @@ int main(void)
 	run_isolated_test(test_synchronized_arrow_positions);
 	run_isolated_test(test_op2_vertical_clearance);
 	run_isolated_test(test_error_arrow_tracks_output_highlight);
-	test_resolution(DM_RESOLUTION_1600X900);
-	test_tutorial_reentry();
-	test_resolution(DM_RESOLUTION_1920X1080);
+	test_canonical_canvas();
 	test_tutorial_reentry();
 	TTF_CloseFont(g_font);
 	SDL_DestroyTexture(g_test_register_arrow.texture);

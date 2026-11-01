@@ -96,13 +96,13 @@ static void initialize_test_graphics(void)
 	(void)ttf_result;
 
 	g_screen = SDL_CreateRGBSurfaceWithFormat(
-	    0, 1600, 900, 32, SDL_PIXELFORMAT_RGBA32);
+		0, DM_LOGICAL_CANVAS_WIDTH, DM_LOGICAL_CANVAS_HEIGHT, 32,
+		SDL_PIXELFORMAT_RGBA32);
 	assert(g_screen != NULL);
 	g_renderer = SDL_CreateSoftwareRenderer(g_screen);
 	assert(g_renderer != NULL);
 	g_font = TTF_OpenFont("fonts/DOSVGA437.ttf", 130);
 	assert(g_font != NULL);
-	dm_set_screen_resolution(DM_RESOLUTION_1600X900);
 	g_test_input_arrow_texture = (texture_t){
 		.w = 45,
 		.h = 45,

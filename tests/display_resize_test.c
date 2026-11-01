@@ -6,10 +6,12 @@
 #include <SDL.h>
 
 #include "aux.h"
+#include "buffers_bf.h"
 #include "dimensions_dm.h"
 #include "draw_dw.h"
 #include "immediates_im.h"
 #include "instruction_layout_il.h"
+#include "registers_rg.h"
 #include "sdl_config.h"
 #include "sdl_config_internal.h"
 #include "stage_buttons_sb.h"
@@ -111,7 +113,6 @@ static void assert_logical_canvas_unchanged(void)
 
 static void test_fullscreen_transition_round_trip(void)
 {
-	dm_set_screen_resolution(DM_RESOLUTION_1920X1080);
 	display_transition_fixture_t fixture = {
 		.saved_rect = {.x = 42, .y = 68, .w = 1280, .h = 720},
 		.current_rect = {.x = 42, .y = 68, .w = 1280, .h = 720}
@@ -134,7 +135,6 @@ static void test_fullscreen_transition_round_trip(void)
 
 static void test_fullscreen_transition_rolls_back_configuration_failure(void)
 {
-	dm_set_screen_resolution(DM_RESOLUTION_1920X1080);
 	display_transition_fixture_t fixture = {
 		.saved_rect = {.x = 15, .y = 25, .w = 1440, .h = 810},
 		.current_rect = {.x = 15, .y = 25, .w = 1440, .h = 810},
@@ -227,7 +227,6 @@ static void assert_minimum_size(int preferred_width, int preferred_height,
 
 static void test_adaptive_minimum_size_calculation(void)
 {
-	dm_set_screen_resolution(DM_RESOLUTION_1920X1080);
 	assert_minimum_size(1280, 720, 1920, 1040, 1280, 720);
 	assert_minimum_size(1280, 720, 1280, 720, 1280, 720);
 	assert_minimum_size(1280, 720, 1280, 680, 1209, 680);
@@ -260,8 +259,6 @@ static void test_adaptive_minimum_size_calculation(void)
 
 static void test_physical_resize_preserves_logical_layout(void)
 {
-	dm_set_screen_resolution(DM_RESOLUTION_1920X1080);
-	dm_set_logical_dimensions(1920, 1080);
 	SDL_Rect canvas = {.x = 0, .y = 0, .w = 1920, .h = 1080};
 	SDL_Rect geometry[] = {
 		dw_get_iface_big_center_box(),
@@ -270,9 +267,12 @@ static void test_physical_resize_preserves_logical_layout(void)
 		em_get_button_rect(EM_BUTTON_EXIT),
 		sb_get_stage_btns(),
 		im_get_grid_bounds(),
-		il_get_initial_instruction_bounds()
+		il_get_initial_instruction_bounds(),
+		rg_get_register_box(),
+		bf_get_input_buffer_bounds(),
+		bf_get_output_buffer_bounds()
 	};
-	for (size_t index = 0; index < sizeof(geometry) / sizeof(geometry[0]); index++) {
+	for (size_t index = 0; index < 8; index++) {
 		assert(rect_inside(geometry[index], canvas));
 	}
 	assert(rect_inside(geometry[1], geometry[0]));
@@ -280,7 +280,8 @@ static void test_physical_resize_preserves_logical_layout(void)
 	assert(rect_inside(geometry[3], geometry[0]));
 
 	static const int physical_sizes[][2] = {
-		{1366, 768}, {2560, 1440}, {1920, 1200}, {3440, 1440}
+		{1920, 1080}, {1600, 900}, {1366, 768}, {1280, 720},
+		{1024, 768}, {1920, 1200}, {2560, 1440}, {3440, 1440}
 	};
 	for (size_t index = 0;
 	     index < sizeof(physical_sizes) / sizeof(physical_sizes[0]); index++) {
@@ -299,7 +300,10 @@ static void test_physical_resize_preserves_logical_layout(void)
 			case 3: current = em_get_button_rect(EM_BUTTON_EXIT); break;
 			case 4: current = sb_get_stage_btns(); break;
 			case 5: current = im_get_grid_bounds(); break;
-			default: current = il_get_initial_instruction_bounds(); break;
+			case 6: current = il_get_initial_instruction_bounds(); break;
+			case 7: current = rg_get_register_box(); break;
+			case 8: current = bf_get_input_buffer_bounds(); break;
+			default: current = bf_get_output_buffer_bounds(); break;
 			}
 			assert(rect_equal(current, geometry[rect_index]));
 		}
@@ -314,6 +318,8 @@ static void test_physical_resize_preserves_logical_layout(void)
 
 int main(void)
 {
+	assert(dm_get_screen_width() == DM_LOGICAL_CANVAS_WIDTH);
+	assert(dm_get_screen_height() == DM_LOGICAL_CANVAS_HEIGHT);
 	test_fullscreen_argument_parsing();
 	test_adaptive_minimum_size_calculation();
 	test_physical_resize_preserves_logical_layout();

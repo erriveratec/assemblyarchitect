@@ -4,6 +4,15 @@
 
 The project is developed in C using SDL2 and currently targets macOS.
 
+## Display Model
+
+Assembly Architect uses one canonical 1920x1080 logical canvas. SDL scales it
+proportionally to the physical window or fullscreen output; physical dimensions
+do not change gameplay or interface geometry. The preferred minimum window is
+1280x720, with an adaptive minimum on smaller usable workspaces. A physical
+1600x900 window is supported through SDL scaling; there is no alternative
+logical layout mode.
+
 ---
 
 ## 🧠 Concept Overview
