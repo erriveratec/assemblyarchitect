@@ -169,13 +169,13 @@ static int get_level_btn_spacing(void)
  */
 static SDL_Rect get_subtitle_separator(void)
 {
-	int screen_width  = dm_get_screen_width();
+	int logical_width = dm_get_logical_width();
 
 	SDL_Rect r = get_sector_subtitle_box("PLACEHOLDER");
 	SDL_Rect b;
 	b.w = SEP_LEGTH;
 	b.h = BIG_SEPARATOR_H;
-	b.x = (screen_width - b.w) / 2;
+	b.x = (logical_width - b.w) / 2;
 	b.y = r.y + r.h + (int)SECTOR_TITLE_SEPARATOR;
 	return b;
 }
@@ -197,7 +197,7 @@ static SDL_Rect get_sector_subtitle_box(char *msg)
 	SDL_Rect b;
 	b.h = sc_get_selection_subtitle_height();
 	b.w = get_text_width_fits_height(b.h, msg);
-	b.x = dm_get_screen_width() / 2 - b.w / 2;
+	b.x = dm_get_logical_width() / 2 - b.w / 2;
 	b.y = r.y + r.h;
 	return b;
 }
@@ -214,14 +214,14 @@ static SDL_Rect get_sector_subtitle_box(char *msg)
  */
 static SDL_Rect get_sector_0_lower_separator(void)
 {
-	int screen_width  = dm_get_screen_width();
+	int logical_width = dm_get_logical_width();
 
 	SDL_Rect r        = get_level_button_box();
 	int      y_offset = get_sel_level_offset_y();
 	SDL_Rect b;
 	b.w = SEP_LEGTH;
 	b.h = BIG_SEPARATOR_H;
-	b.x = (screen_width - b.w) / 2;
+	b.x = (logical_width - b.w) / 2;
 	b.y = r.y + 2 * y_offset;
 
 	return b;
@@ -233,13 +233,13 @@ static bool get_level_hover_description_bounds(SDL_Rect *out_bounds)
 	if (out_bounds == NULL)
 		return false;
 
-	int screen_width = dm_get_screen_width();
-	int screen_height = dm_get_screen_height();
+	int logical_width = dm_get_logical_width();
+	int logical_height = dm_get_logical_height();
 	int text_height = sc_get_selection_description_text_height();
 	int separator_gap = (int)SECTOR_TITLE_SEPARATOR;
 	int bottom_margin =
 		(int)LEVEL_HOVER_DESCRIPTION_BOTTOM_MARGIN;
-	if (screen_width <= 0 || screen_height <= 0 || text_height <= 0 ||
+	if (logical_width <= 0 || logical_height <= 0 || text_height <= 0 ||
 	    separator_gap < 0 || bottom_margin < 0)
 		return false;
 
@@ -250,14 +250,14 @@ static bool get_level_hover_description_bounds(SDL_Rect *out_bounds)
 	int64_t separator_left = separator.x;
 	int64_t separator_right = separator_left + separator.w;
 	int64_t left = separator_left > 0 ? separator_left : 0;
-	int64_t right = separator_right < screen_width
-	                     ? separator_right : screen_width;
+	int64_t right = separator_right < logical_width
+			 ? separator_right : logical_width;
 	int64_t top = (int64_t)separator.y + separator.h + separator_gap;
-	int64_t bottom = (int64_t)screen_height - bottom_margin;
+	int64_t bottom = (int64_t)logical_height - bottom_margin;
 	int64_t width = right - left;
 	int64_t height = bottom - top;
 	if (width <= 0 || height < text_height || left < 0 || top < 0 ||
-	    right > screen_width || bottom > screen_height || left > INT_MAX ||
+	    right > logical_width || bottom > logical_height || left > INT_MAX ||
 	    top > INT_MAX || width > INT_MAX || height > INT_MAX)
 		return false;
 
@@ -282,7 +282,7 @@ static bool get_level_hover_description_bounds(SDL_Rect *out_bounds)
  */
 static int get_sel_level_offset_y(void)
 {
-	Uint32 row_gap = dm_get_screen_height() <=
+	Uint32 row_gap = dm_get_logical_height() <=
 				     (int)SEL_LEVEL_COMPACT_MAX_H
 	                     ? SEL_LEVEL_COMPACT_Y_OFS : SEL_LEVEL_Y_OFS;
 	int y_offset = (int)(SEL_LEVEL_BUTTON_H + row_gap);
@@ -301,13 +301,13 @@ static int get_sel_level_offset_y(void)
  */
 static SDL_Rect get_level_button_box(void)
 {
-	int screen_width  = dm_get_screen_width();
+	int logical_width = dm_get_logical_width();
 
 	SDL_Rect r = get_subtitle_separator();
 	SDL_Rect b;
 	b.w = SEL_LEVEL_BUTTON_W;
 	b.h = SEL_LEVEL_BUTTON_H;
-	b.x = (screen_width - (4 * b.w + 3 * b.w / 2)) / 2;
+	b.x = (logical_width - (4 * b.w + 3 * b.w / 2)) / 2;
 	b.y = r.y + r.h + get_level_btn_spacing() + get_fst_btn_ofs();
 
 	return b;

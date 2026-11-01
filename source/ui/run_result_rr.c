@@ -153,8 +153,8 @@ static bool rr_get_layout_for_size(run_result_box_size_t size,
 		}
 		int width = g_run_result_layout_config.custom_width;
 		int height = g_run_result_layout_config.custom_height;
-		int screen_width = dm_get_screen_width();
-		int screen_height = dm_get_screen_height();
+		int logical_width = dm_get_logical_width();
+		int logical_height = dm_get_logical_height();
 		if (width <= 0) {
 			if (failure_reason != NULL) *failure_reason = "width must be positive";
 			return false;
@@ -164,11 +164,11 @@ static bool rr_get_layout_for_size(run_result_box_size_t size,
 			return false;
 		}
 		int margin = 16;
-		if (screen_width <= 2 * margin || width > screen_width - 2 * margin) {
+		if (logical_width <= 2 * margin || width > logical_width - 2 * margin) {
 			if (failure_reason != NULL) *failure_reason = "width exceeds the usable screen width";
 			return false;
 		}
-		if (screen_height <= 2 * margin || height > screen_height - 2 * margin) {
+		if (logical_height <= 2 * margin || height > logical_height - 2 * margin) {
 			if (failure_reason != NULL) *failure_reason = "height exceeds the usable screen height";
 			return false;
 		}
@@ -191,13 +191,13 @@ static bool rr_get_layout_for_size(run_result_box_size_t size,
 	int64_t box_right = (int64_t)box.x + box.w;
 	int64_t box_bottom = (int64_t)box.y + box.h;
 	if (box.x < safe_margin ||
-	    box_right > (int64_t)dm_get_screen_width() - safe_margin) {
+	    box_right > (int64_t)dm_get_logical_width() - safe_margin) {
 		if (failure_reason != NULL) *failure_reason =
 			"final box exceeds the screen safe width";
 		return false;
 	}
 	if (box.y < safe_margin ||
-	    box_bottom > (int64_t)dm_get_screen_height() - safe_margin) {
+	    box_bottom > (int64_t)dm_get_logical_height() - safe_margin) {
 		if (failure_reason != NULL) *failure_reason =
 			"vertical offset moves the final box outside the screen safe area";
 		return false;

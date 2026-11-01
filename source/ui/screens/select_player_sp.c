@@ -255,12 +255,12 @@ static void create_player_texts(texture_t **player_text, texture_t **lore)
  */
 static SDL_Rect get_p1_button_box(void)
 {
-	int screen_width = dm_get_screen_width();
+	int logical_width = dm_get_logical_width();
 
 	SDL_Rect b;
 	b.w = P_BUTTON_W;
 	b.h = P_BUTTON_H;
-	b.x = (screen_width - 3*b.w)/4;
+	b.x = (logical_width - 3*b.w)/4;
 	b.y = P_BUTTON_Y;
 	return b;
 }
@@ -277,11 +277,11 @@ static SDL_Rect get_p1_button_box(void)
  */
 static SDL_Rect get_p2_button_box(void)
 {
-	int screen_width = dm_get_screen_width();
+	int logical_width = dm_get_logical_width();
 	SDL_Rect b;
 	b.w = P_BUTTON_W;
 	b.h = P_BUTTON_H;
-	b.x = 2*(screen_width - 3*b.w)/4 + b.w;
+	b.x = 2*(logical_width - 3*b.w)/4 + b.w;
 	b.y = P_BUTTON_Y;
 	return b;
 }
@@ -298,11 +298,11 @@ static SDL_Rect get_p2_button_box(void)
  */
 SDL_Rect get_p3_button_box(void)
 {
-	int screen_width = dm_get_screen_width();
+	int logical_width = dm_get_logical_width();
 	SDL_Rect b;
 	b.w = P_BUTTON_W;
 	b.h = P_BUTTON_H;
-	b.x = 3*(screen_width - 3*b.w)/4 + 2*b.w;
+	b.x = 3*(logical_width - 3*b.w)/4 + 2*b.w;
 	b.y = P_BUTTON_Y;
 	return b;
 }

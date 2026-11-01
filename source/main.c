@@ -60,10 +60,10 @@ static bool initialize_game_assets(void)
 
 int main(int argc, char *args[])
 {
-	int screen_width = dm_get_screen_width();
-	int screen_height = dm_get_screen_height();
+	int logical_width = dm_get_logical_width();
+	int logical_height = dm_get_logical_height();
 
-	if (init_sdl(screen_width, screen_height, argc, args) == FAIL){
+	if (init_sdl(logical_width, logical_height, argc, args) == FAIL){
 		printf("SDL could not be initialized");
 		return FAIL;
 	}

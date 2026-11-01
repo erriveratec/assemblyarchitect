@@ -572,8 +572,8 @@ static int get_post_level_destination(int level_id, bool continued_after_win)
 int stage_level(int level_id)
 {
 	// Electron animation
-	int                   W = dm_get_screen_width();
-	int                   H = dm_get_screen_height();
+	int                   W = dm_get_logical_width();
+	int                   H = dm_get_logical_height();
 	static fx_electron_t *fx;
 	static Uint64         anim_prev_ms;
 	Uint64                cur_time      = SDL_GetTicks64();

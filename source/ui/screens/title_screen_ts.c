@@ -51,11 +51,11 @@ static SDL_Rect get_studio_name_box(void);
  */
 static SDL_Rect get_game_title_img_box(void)
 {
-	int screen_width = dm_get_screen_width();
+	int logical_width = dm_get_logical_width();
 	SDL_Rect b;
 	b.w = TITLE_IMG_W;
 	b.h = TITLE_IMG_H;
-	b.x = (screen_width - b.w)/2;
+	b.x = (logical_width - b.w)/2;
 	b.y = TITLE_IMG_Y;
 	return b;
 }
@@ -65,7 +65,7 @@ static SDL_Rect get_game_title_box(const char *title)
 	SDL_Rect box;
 	box.h = GAME_TITLE_H;
 	box.w = get_text_width_fits_height(box.h, (char *)title);
-	box.x = (dm_get_screen_width() - box.w) / 2;
+	box.x = (dm_get_logical_width() - box.w) / 2;
 	box.y = GAME_TITLE_Y;
 	return box;
 }
@@ -75,7 +75,7 @@ static SDL_Rect get_press_space_box(const char *message)
 	SDL_Rect box;
 	box.h = PRESS_SPACE_H;
 	box.w = get_text_width_fits_height(box.h, (char *)message);
-	box.x = (dm_get_screen_width() - box.w) / 2;
+	box.x = (dm_get_logical_width() - box.w) / 2;
 	box.y = PRESS_SPACE_Y;
 	return box;
 }
@@ -86,7 +86,7 @@ static SDL_Rect get_studio_name_box(void)
 	box.w = STUDIO_BOX_W;
 	box.h = STUDIO_BOX_H;
 	box.x = 0;
-	box.y = (dm_get_screen_height() - box.h) / 2;
+	box.y = (dm_get_logical_height() - box.h) / 2;
 	return box;
 }
 
@@ -221,7 +221,7 @@ int ts_stage_studio(Uint64 start_time, Uint64 cur_time, bool key_pressed)
 	
 	SDL_Rect b = get_studio_name_box();
 	int w = ax_get_texture_w_fit_h(b.h, g_logo);
-	b.x = (dm_get_screen_width() - w)/2;
+	b.x = (dm_get_logical_width() - w)/2;
 	b.w = w;
 	Uint8 alpha = 255;
 

@@ -169,8 +169,8 @@ int main(void)
 	                           active_pulse * DW_TEXT_HIGHLIGHT_GROWTH_FACTOR);
 	assert(g_animated_label_rect.w > 0 && g_animated_label_rect.h > 0);
 	assert(g_animated_label_rect.x >= 0 && g_animated_label_rect.y >= 0);
-	assert(g_animated_label_rect.x + g_animated_label_rect.w <= dm_get_screen_width());
-	assert(g_animated_label_rect.y + g_animated_label_rect.h <= dm_get_screen_height());
+	assert(g_animated_label_rect.x + g_animated_label_rect.w <= dm_get_logical_width());
+	assert(g_animated_label_rect.y + g_animated_label_rect.h <= dm_get_logical_height());
 	SDL_FRect first_draw = g_animated_label_rect;
 	rg_draw_flag_boxes(maximum_pulse);
 	assert_close(g_animated_label_rect.x, first_draw.x);

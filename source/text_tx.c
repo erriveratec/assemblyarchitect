@@ -144,7 +144,7 @@ static SDL_Rect get_text_box_upper_right(void)
 	SDL_Rect b;
 	b.w = d.w;
 	b.h = d.h;
-	b.x = dm_get_screen_width() - b.w - margin;
+	b.x = dm_get_logical_width() - b.w - margin;
 	b.y = margin;
 	return b;
 }
@@ -205,8 +205,8 @@ static SDL_Rect get_text_box_ins(void)
  */
 static SDL_Rect get_text_box_center_right(void)
 {
-	int      w = dm_get_screen_width();
-	int      h = dm_get_screen_height();
+	int      w = dm_get_logical_width();
+	int      h = dm_get_logical_height();
 	SDL_Rect d = tx_get_text_box_wh();
 
 	SDL_Rect b;
@@ -229,8 +229,8 @@ static SDL_Rect get_text_box_center_right(void)
  */
 static SDL_Rect get_text_box_center(void)
 {
-	int      w = dm_get_screen_width();
-	int      h = dm_get_screen_height();
+	int      w = dm_get_logical_width();
+	int      h = dm_get_logical_height();
 	SDL_Rect d = tx_get_text_box_wh();
 
 	SDL_Rect b;
@@ -253,8 +253,8 @@ static SDL_Rect get_text_box_center(void)
  */
 static SDL_Rect get_text_box_lower(void)
 {
-	int      w = dm_get_screen_width();
-	int      h = dm_get_screen_height();
+	int      w = dm_get_logical_width();
+	int      h = dm_get_logical_height();
 	SDL_Rect d = tx_get_text_box_wh();
 	SDL_Rect b;
 	b.w = d.w;
@@ -275,7 +275,7 @@ static SDL_Rect get_text_box_lower(void)
  */
 static SDL_Rect get_text_box_upper(void)
 {
-	int      w = dm_get_screen_width();
+	int      w = dm_get_logical_width();
 	SDL_Rect d = tx_get_text_box_wh();
 	SDL_Rect b;
 	b.w = d.w;
@@ -297,8 +297,8 @@ static SDL_Rect get_text_box_upper(void)
  */
 static SDL_Rect get_text_box_center_up(void)
 {
-	int      w = dm_get_screen_width();
-	int      h = dm_get_screen_height();
+	int      w = dm_get_logical_width();
+	int      h = dm_get_logical_height();
 	SDL_Rect d = tx_get_text_box_wh();
 	SDL_Rect b;
 	b.w = d.w;
@@ -715,11 +715,11 @@ bool tx_get_text_box_rects(
 		}
 		resolved_box.w = width;
 		resolved_box.h = height;
-		if (resolved_box.x + resolved_box.w > dm_get_screen_width()) {
-			resolved_box.x = dm_get_screen_width() - resolved_box.w;
+		if (resolved_box.x + resolved_box.w > dm_get_logical_width()) {
+			resolved_box.x = dm_get_logical_width() - resolved_box.w;
 		}
-		if (resolved_box.y + resolved_box.h > dm_get_screen_height()) {
-			resolved_box.y = dm_get_screen_height() - resolved_box.h;
+		if (resolved_box.y + resolved_box.h > dm_get_logical_height()) {
+			resolved_box.y = dm_get_logical_height() - resolved_box.h;
 		}
 		if (resolved_box.x < 0) {
 			resolved_box.x = 0;

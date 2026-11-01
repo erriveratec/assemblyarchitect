@@ -46,8 +46,8 @@ static int test_canonical_hover_messages(void)
 	assert(get_level_hover_description_bounds(&bounds));
 	assert(bounds.w > 0 && bounds.h > 0);
 	assert(bounds.x >= 0 && bounds.y >= 0);
-	assert((int64_t)bounds.x + bounds.w <= dm_get_screen_width());
-	assert((int64_t)bounds.y + bounds.h <= dm_get_screen_height());
+	assert((int64_t)bounds.x + bounds.w <= dm_get_logical_width());
+	assert((int64_t)bounds.y + bounds.h <= dm_get_logical_height());
 	int text_height = sc_get_selection_description_text_height();
 	assert(bounds.h / text_height >= 1);
 	SDL_Rect separator = get_sector_0_lower_separator();
@@ -116,7 +116,7 @@ static int test_canonical_hover_messages(void)
 	assert(SDL_RenderSetClipRect(g_renderer, NULL) == 0);
 	tx_free_level_text_textures();
 	printf("%dx%d hover bounds: x=%d y=%d w=%d h=%d; max rows=%d\n",
-	       dm_get_screen_width(), dm_get_screen_height(), bounds.x, bounds.y,
+	       dm_get_logical_width(), dm_get_logical_height(), bounds.x, bounds.y,
 	       bounds.w, bounds.h, maximum_row_count);
 	return maximum_row_count;
 }
@@ -127,8 +127,8 @@ static void test_canonical_hover_bounds(void)
 	assert(get_level_hover_description_bounds(&bounds));
 	assert(bounds.h >= sc_get_selection_description_text_height());
 	assert(bounds.x >= 0 && bounds.y >= 0);
-	assert((int64_t)bounds.x + bounds.w <= dm_get_screen_width());
-	assert((int64_t)bounds.y + bounds.h <= dm_get_screen_height());
+	assert((int64_t)bounds.x + bounds.w <= dm_get_logical_width());
+	assert((int64_t)bounds.y + bounds.h <= dm_get_logical_height());
 
 }
 
@@ -137,7 +137,7 @@ int main(void)
 	assert(SDL_Init(0) == 0);
 	assert(TTF_Init() == 0);
 	g_screen = SDL_CreateRGBSurfaceWithFormat(
-	    0, dm_get_screen_width(), dm_get_screen_height(), 32,
+	    0, dm_get_logical_width(), dm_get_logical_height(), 32,
 	    SDL_PIXELFORMAT_RGBA32);
 	assert(g_screen != NULL);
 	g_renderer = SDL_CreateSoftwareRenderer(g_screen);
@@ -145,8 +145,8 @@ int main(void)
 	g_font = TTF_OpenFont("fonts/DOSVGA437.ttf", 130);
 	assert(g_font != NULL);
 
-	assert(dm_get_screen_width() == DM_LOGICAL_CANVAS_WIDTH);
-	assert(dm_get_screen_height() == DM_LOGICAL_CANVAS_HEIGHT);
+	assert(dm_get_logical_width() == DM_LOGICAL_CANVAS_WIDTH);
+	assert(dm_get_logical_height() == DM_LOGICAL_CANVAS_HEIGHT);
 	int maximum_rows = test_canonical_hover_messages();
 	assert(maximum_rows <= DM_LOGICAL_CANVAS_HEIGHT /
 	       sc_get_selection_description_text_height());

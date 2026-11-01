@@ -86,13 +86,13 @@ static int get_fst_btn_ofs(void)
  */
 static SDL_Rect get_upper_separator(void)
 {
-	int screen_width = dm_get_screen_width();
+	int logical_width = dm_get_logical_width();
 
 	SDL_Rect r = sc_get_selection_title_bounds(SELECT_SECTOR);
 	SDL_Rect b;
-	b.w = screen_width*3/4;
+	b.w = logical_width*3/4;
 	b.h = BIG_SEPARATOR_H;
-	b.x = screen_width/8;
+	b.x = logical_width/8;
 	b.y = r.y + r.h + (int)SECTOR_TITLE_SEPARATOR;
 	return b;
 }
@@ -109,10 +109,10 @@ static SDL_Rect get_upper_separator(void)
  */
 static SDL_Rect get_sector_btn_box(void)
 {
-	int screen_width = dm_get_screen_width();
+	int logical_width = dm_get_logical_width();
 
 	SDL_Rect b;
-	b.w = screen_width*2/3;
+	b.w = logical_width*2/3;
 	b.h = sc_get_selection_subtitle_height();
 	b.x = sc_get_selection_title_bounds(SELECT_SECTOR).x;
 	b.y = get_upper_separator().y + get_sector_btn_spacing() 

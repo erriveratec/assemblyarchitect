@@ -107,8 +107,8 @@ static sdl_fullscreen_transition_operations_t mock_operations(
 
 static void assert_logical_canvas_unchanged(void)
 {
-	assert(dm_get_screen_width() == 1920);
-	assert(dm_get_screen_height() == 1080);
+	assert(dm_get_logical_width() == 1920);
+	assert(dm_get_logical_height() == 1080);
 }
 
 static void test_fullscreen_transition_round_trip(void)
@@ -253,8 +253,8 @@ static void test_adaptive_minimum_size_calculation(void)
 		1280, 720, (SDL_Rect){.w = 1280, .h = 0}, &result));
 	assert(!sdl_calculate_adaptive_minimum_size(
 		1280, 720, (SDL_Rect){.w = 1280, .h = -1}, &result));
-	assert(dm_get_screen_width() == 1920);
-	assert(dm_get_screen_height() == 1080);
+	assert(dm_get_logical_width() == 1920);
+	assert(dm_get_logical_height() == 1080);
 }
 
 static void test_physical_resize_preserves_logical_layout(void)
@@ -287,8 +287,8 @@ static void test_physical_resize_preserves_logical_layout(void)
 	     index < sizeof(physical_sizes) / sizeof(physical_sizes[0]); index++) {
 		assert(sdl_handle_window_size_changed(physical_sizes[index][0],
 		                                      physical_sizes[index][1]) == SUCCESS);
-		assert(dm_get_screen_width() == 1920);
-		assert(dm_get_screen_height() == 1080);
+		assert(dm_get_logical_width() == 1920);
+		assert(dm_get_logical_height() == 1080);
 		assert(sdl_is_fullscreen() == false);
 		for (size_t rect_index = 0;
 		     rect_index < sizeof(geometry) / sizeof(geometry[0]); rect_index++) {
@@ -309,17 +309,17 @@ static void test_physical_resize_preserves_logical_layout(void)
 		}
 	}
 	assert(sdl_handle_window_size_changed(0, 768) == FAIL);
-	assert(dm_get_screen_width() == 1920);
-	assert(dm_get_screen_height() == 1080);
+	assert(dm_get_logical_width() == 1920);
+	assert(dm_get_logical_height() == 1080);
 	assert(sdl_set_fullscreen(false) == FAIL);
-	assert(dm_get_screen_width() == 1920);
-	assert(dm_get_screen_height() == 1080);
+	assert(dm_get_logical_width() == 1920);
+	assert(dm_get_logical_height() == 1080);
 }
 
 int main(void)
 {
-	assert(dm_get_screen_width() == DM_LOGICAL_CANVAS_WIDTH);
-	assert(dm_get_screen_height() == DM_LOGICAL_CANVAS_HEIGHT);
+	assert(dm_get_logical_width() == DM_LOGICAL_CANVAS_WIDTH);
+	assert(dm_get_logical_height() == DM_LOGICAL_CANVAS_HEIGHT);
 	test_fullscreen_argument_parsing();
 	test_adaptive_minimum_size_calculation();
 	test_physical_resize_preserves_logical_layout();

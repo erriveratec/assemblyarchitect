@@ -25,7 +25,7 @@ static Uint32 STAGE_BUTTON_H = 60;
 static Uint32 SCREEN_BORDERS_OFS = 5;
 static int get_hidden_stage_buttons_y(void)
 {
-	return dm_get_screen_height() + 150;
+	return dm_get_logical_height() + 150;
 }
 
 bool g_step_btns_avail = true;
@@ -128,7 +128,7 @@ SDL_Rect sb_get_stage_btns(void)
 {
 	SDL_Rect b;
 	SDL_Rect ib = il_get_initial_instruction_bounds();
-	int sh = dm_get_screen_height();
+	int sh = dm_get_logical_height();
 	int shadow = bt_get_ofs_button_shadow();
 	b.w = STAGE_BUTTON_W;
 	b.h = STAGE_BUTTON_H;
@@ -172,12 +172,12 @@ static SDL_Rect get_rst_btn_box(void)
  */
 static SDL_Rect get_return_button_box(void)
 {
-	int screen_height = dm_get_screen_height();
+	int logical_height = dm_get_logical_height();
 	SDL_Rect b;
 	b.w = RET_BUTTON_W;
 	b.h = RET_BUTTON_H;
 	b.x = SCREEN_BORDERS_OFS;
-	b.y = screen_height - b.h - 2*bt_get_ofs_button_shadow();
+	b.y = logical_height - b.h - 2*bt_get_ofs_button_shadow();
 	return b;
 }
 

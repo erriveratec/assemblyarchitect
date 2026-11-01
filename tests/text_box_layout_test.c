@@ -16,9 +16,9 @@ static void test_upper_right_layout(bool large_box)
 	assert(tx_get_text_box_rects(&options, &box, NULL, NULL));
 	assert(box.w > 0 && box.h > 0);
 	assert(box.x >= 0 && box.y >= 0);
-	assert(box.x + box.w <= dm_get_screen_width());
-	assert(box.y + box.h <= dm_get_screen_height());
-	assert(dm_get_screen_width() - box.x - box.w == get_border_ofs());
+	assert(box.x + box.w <= dm_get_logical_width());
+	assert(box.y + box.h <= dm_get_logical_height());
+	assert(dm_get_logical_width() - box.x - box.w == get_border_ofs());
 	assert(box.y == get_border_ofs());
 	SDL_Rect expected_size = tx_get_text_box_wh();
 	if (large_box) {
@@ -33,7 +33,7 @@ static void test_upper_right_layout(bool large_box)
 		run_result_layout_t result;
 		assert(rr_get_layout_for_size(RUN_RESULT_BOX_LARGE, success,
 		                              &result, NULL));
-		if (!large_box || dm_get_screen_width() >= LARGE_FORMAT_MIN_WIDTH) {
+		if (!large_box || dm_get_logical_width() >= LARGE_FORMAT_MIN_WIDTH) {
 			assert(!rr_rects_overlap(box, result.box));
 		}
 	}

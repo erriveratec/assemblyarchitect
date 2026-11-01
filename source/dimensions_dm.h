@@ -6,7 +6,10 @@ enum {
 	DM_LOGICAL_CANVAS_HEIGHT = 1080
 };
 
-/* Return canonical logical canvas dimensions, never SDL window/output sizes. */
-int dm_get_screen_width(void);
-int dm_get_screen_height(void);
+/*
+ * Return canonical logical-canvas dimensions.
+ * These are never SDL window, display, viewport, or renderer-output sizes.
+ */
+int dm_get_logical_width(void);
+int dm_get_logical_height(void);
 #endif

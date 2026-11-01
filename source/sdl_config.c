@@ -47,16 +47,19 @@ TTF_Font *g_font = NULL;
  * Return:
  *	Void.
  */
-int init_sdl(int width, int height, int argc, char *args[])
+int init_sdl(int requested_logical_width, int requested_logical_height,
+			 int argc, char *args[])
 {
 	bool fullscreen_requested = sdl_fullscreen_requested(argc, args);
 	Uint32 window_flags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
-	int logical_width = dm_get_screen_width();
-	int logical_height = dm_get_screen_height();
+	int logical_width = dm_get_logical_width();
+	int logical_height = dm_get_logical_height();
 
-	if (width != logical_width || height != logical_height) {
+	if (requested_logical_width != logical_width ||
+	    requested_logical_height != logical_height) {
 		SDL_Log("Requested window size %dx%d differs from logical canvas %dx%d; using the logical canvas size",
-		        width, height, logical_width, logical_height);
+		        requested_logical_width, requested_logical_height,
+		        logical_width, logical_height);
 	}
 	if (fullscreen_requested) {
 		window_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
@@ -146,8 +149,8 @@ static int apply_renderer_logical_presentation(void)
 		SDL_Log("Cannot configure display without a window and renderer");
 		return FAIL;
 	}
-	if (SDL_RenderSetLogicalSize(g_renderer, dm_get_screen_width(),
-	                             dm_get_screen_height()) != 0) {
+	if (SDL_RenderSetLogicalSize(g_renderer, dm_get_logical_width(),
+	                             dm_get_logical_height()) != 0) {
 		SDL_Log("Could not set renderer logical size: %s", SDL_GetError());
 		return FAIL;
 	}

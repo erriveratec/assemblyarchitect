@@ -98,8 +98,8 @@ static void test_forbid_save(int player_id, int level_id);
 static fx_electron_t *test_electron_create(SDL_Renderer *renderer, int width,
                                          int height, const char *path)
 {
-	assert(renderer == g_renderer && width == dm_get_screen_width());
-	assert(height == dm_get_screen_height() && path == NULL);
+	assert(renderer == g_renderer && width == dm_get_logical_width());
+	assert(height == dm_get_logical_height() && path == NULL);
 	electron_creates++;
 	return NULL;
 }

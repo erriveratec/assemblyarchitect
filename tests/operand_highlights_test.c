@@ -31,10 +31,10 @@ static void init_test_graphics(void)
 {
 	assert(SDL_Init(0) == 0);
 	assert(TTF_Init() == 0);
-	assert(dm_get_screen_width() == DM_LOGICAL_CANVAS_WIDTH);
-	assert(dm_get_screen_height() == DM_LOGICAL_CANVAS_HEIGHT);
+	assert(dm_get_logical_width() == DM_LOGICAL_CANVAS_WIDTH);
+	assert(dm_get_logical_height() == DM_LOGICAL_CANVAS_HEIGHT);
 	g_screen = SDL_CreateRGBSurfaceWithFormat(
-	    0, dm_get_screen_width(), dm_get_screen_height(), 32,
+	    0, dm_get_logical_width(), dm_get_logical_height(), 32,
 	    SDL_PIXELFORMAT_RGBA32);
 	assert(g_screen != NULL);
 	g_renderer = SDL_CreateSoftwareRenderer(g_screen);
@@ -346,7 +346,7 @@ static void test_layout_invariants(void)
 	assert(initial_grid.w == 11 * immediate_cell_size.w);
 	assert(initial_grid.h == 2 * immediate_cell_size.h);
 	assert(initial_grid.x >= 0 &&
-	       initial_grid.x + initial_grid.w <= dm_get_screen_width());
+	       initial_grid.x + initial_grid.w <= dm_get_logical_width());
 	assert(im_get_imm_value_box_by_id(IMMUP0).box.x == initial_grid.x);
 	rg_set_register_box((SDL_Rect){
 		.x = code_box.x + code_box.w,
@@ -404,8 +404,8 @@ static void test_immediate_grid_geometry_on_canonical_canvas(void)
 	SDL_Rect label = im_get_label_bounds();
 	assert(grid.x >= 0 && grid.y >= 0);
 	assert(grid.w == 11 * cell_size.w && grid.h == 2 * cell_size.h);
-	assert(grid.x + grid.w <= dm_get_screen_width());
-	assert(grid.y + grid.h <= dm_get_screen_height());
+	assert(grid.x + grid.w <= dm_get_logical_width());
+	assert(grid.y + grid.h <= dm_get_logical_height());
 	assert(cells[0].box.x == grid.x && cells[0].box.y == grid.y);
 	assert(cells[10].box.x + cells[10].box.w == grid.x + grid.w);
 	assert(cells[11].box.x == cells[0].box.x + cell_size.w);
@@ -415,7 +415,7 @@ static void test_immediate_grid_geometry_on_canonical_canvas(void)
 	assert(abs(2 * label.x + label.w - (2 * grid.x + grid.w)) <= 1);
 	assert(label.y == grid.y + grid.h && label.h == ty_stage_label_height());
 	assert(label.w > 0 && label.x >= grid.x && label.x + label.w <= grid.x + grid.w);
-	assert(grid.x + grid.w <= dm_get_screen_width());
+	assert(grid.x + grid.w <= dm_get_logical_width());
 	assert(grid.x + grid.w - cell_size.w == cells[10].box.x);
 	SDL_Rect arrow_size = ar_get_arrow_wh();
 	SDL_Rect arrow_bounds = {

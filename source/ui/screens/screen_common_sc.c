@@ -26,15 +26,15 @@ SDL_Rect sc_get_selection_title_bounds(const char *text)
     SDL_Rect bounds;
     bounds.h = SELECTION_TITLE_H;
     bounds.w = get_text_width_fits_height(bounds.h, (char *)text);
-    bounds.x = (dm_get_screen_width() - bounds.w) / 2;
+    bounds.x = (dm_get_logical_width() - bounds.w) / 2;
     bounds.y = SELECTION_TITLE_Y;
     return bounds;
 }
 
 void sc_fx_init(sc_fx_t *fx, Uint64 cur_time)
 {
-	int W = dm_get_screen_width();
-	int H = dm_get_screen_height();
+	int W = dm_get_logical_width();
+	int H = dm_get_logical_height();
     if (fx == NULL || fx->initialized) {
         return;
     }

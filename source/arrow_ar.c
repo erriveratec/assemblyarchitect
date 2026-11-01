@@ -432,7 +432,7 @@ static void initialize_ins_minus_arrow(void)
  */
 static void initialize_drop_arrow(void)
 {
-	int h = dm_get_screen_height();	
+	int h = dm_get_logical_height();
 	SDL_Rect a = ar_get_arrow_wh();
 	SDL_Rect cb = cw_get_stage_code_box();
 	

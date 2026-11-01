@@ -1099,7 +1099,7 @@ int main(void)
 	assert(SDL_Init(0) == 0);
 	assert(TTF_Init() == 0);
 	g_screen = SDL_CreateRGBSurfaceWithFormat(
-	    0, dm_get_screen_width(), dm_get_screen_height(), 32,
+	    0, dm_get_logical_width(), dm_get_logical_height(), 32,
 	    SDL_PIXELFORMAT_RGBA32);
 	assert(g_screen != NULL);
 	g_renderer = SDL_CreateSoftwareRenderer(g_screen);

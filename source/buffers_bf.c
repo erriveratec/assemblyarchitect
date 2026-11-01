@@ -158,7 +158,7 @@ SDL_Rect bf_get_output_buffer_bounds(void)
 	SDL_Rect input_label = bf_get_input_label_anchor();
 	SDL_Rect bounds = {
 		.x = BUFFER_X,
-		.y = dm_get_screen_height() - input_label.h - BUFFER_HEIGHT,
+		.y = dm_get_logical_height() - input_label.h - BUFFER_HEIGHT,
 		.w = BUFFER_WIDTH,
 		.h = BUFFER_HEIGHT
 	};
@@ -169,7 +169,7 @@ SDL_Rect bf_get_output_label_anchor(void)
 {
 	SDL_Rect bounds = {
 		.x = bf_get_output_buffer_bounds().x,
-		.y = dm_get_screen_height() - ty_code_height(),
+		.y = dm_get_logical_height() - ty_code_height(),
 		.w = 0,
 		.h = ty_code_height()
 	};
@@ -205,7 +205,7 @@ void bf_init_buffer_assets(void)
 	SDL_Rect ib = bf_get_input_buffer_bounds();
 	int ofs = bf_get_value_box_spacing();
 	g_output_list_x_pos = ib.x + ofs;
-	g_input_list_x_pos = dm_get_screen_width();
+	g_input_list_x_pos = dm_get_logical_width();
 }
 
 /* Function: bf_set_win_condition
@@ -550,11 +550,11 @@ static void add_input_to_list(int value, int type)
 	vb_value_box_t *new_input = malloc(sizeof(vb_value_box_t));
 	check_mem(new_input);
 
-	int screen_width = dm_get_screen_width();
+	int logical_width = dm_get_logical_width();
 
 	new_input->value = value;
 	new_input->type = type;
-	new_input->box.x = screen_width;
+	new_input->box.x = logical_width;
 	SDL_Rect vb = vb_get_size();
 	int y_offset = (input_box.h - vb.h)/2;
 	new_input->box.y = input_box.y + y_offset;
@@ -825,13 +825,13 @@ static buffer_animation_t get_buffer_animation(SDL_Rect *label_box,
 
 static SDL_Rect get_visible_horizontal_rect(SDL_Rect rect)
 {
-	int screen_width = dm_get_screen_width();
+	int logical_width = dm_get_logical_width();
 	int64_t left = rect.x > 0 ? rect.x : 0;
 	int64_t right = (int64_t)rect.x + rect.w;
-	if (right > screen_width) {
-		right = screen_width;
+	if (right > logical_width) {
+		right = logical_width;
 	}
-	if (screen_width <= 0 || rect.w <= 0 || right <= left) {
+	if (logical_width <= 0 || rect.w <= 0 || right <= left) {
 		rect.w = 0;
 		return rect;
 	}
@@ -1230,8 +1230,8 @@ vb_value_box_t bf_get_input_buffer_value_box(void)
  */
 void bf_reset_input_list_x_pos(void)
 {
-	int screen_width = dm_get_screen_width();
-	g_input_list_x_pos = screen_width;
+	int logical_width = dm_get_logical_width();
+	g_input_list_x_pos = logical_width;
 }
 
 /* Function: destroy_input_list

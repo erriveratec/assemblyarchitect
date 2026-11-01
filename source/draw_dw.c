@@ -187,8 +187,8 @@ SDL_Rect dw_get_iface_big_lower_box(void)
 	SDL_Rect b;
 	b.w = wh.w;
 	b.h = wh.h;
-	b.x = dm_get_screen_width() / 2 - b.w / 2;
-	b.y = dm_get_screen_height() - b.h - dw_get_ofs_iface_filled_border();
+	b.x = dm_get_logical_width() / 2 - b.w / 2;
+	b.y = dm_get_logical_height() - b.h - dw_get_ofs_iface_filled_border();
 	return b;
 }
 
@@ -204,8 +204,8 @@ SDL_Rect dw_get_iface_big_lower_box(void)
  */
 SDL_Rect dw_get_iface_big_center_box(void)
 {
-	int      w  = dm_get_screen_width();
-	int      h  = dm_get_screen_height();
+	int      w  = dm_get_logical_width();
+	int      h  = dm_get_logical_height();
 	SDL_Rect wh = get_iface_box_big_wh();
 	SDL_Rect b;
 	b.w = wh.w;
