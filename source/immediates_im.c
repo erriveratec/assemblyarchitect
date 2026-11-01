@@ -463,9 +463,7 @@ void im_draw_imm(float animation_limit)
 static void draw_imm_txt_up(float pulse)
 {
 	SDL_Rect label_bounds = im_get_label_bounds();
-	if (g_imm_highlight) {
-		dw_set_texture_color_mod(g_imm_txt, C_WHITE);
-	}
+	dw_set_texture_color_mod(g_imm_txt, C_AMBER);
 
 	if (IMM_LABEL_HIGHLIGHT_ENABLED && g_imm_highlight) {
 		SDL_FRect highlight_bounds = {

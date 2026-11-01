@@ -828,13 +828,13 @@ static void test_group_highlight_rendering(void)
 	dw_free_texture(operand_texture);
 }
 
-static void assert_tinted_label_colors(SDL_Color immediate_color,
-	                                  SDL_Color flag_color)
+static void assert_tinted_label_colors(SDL_Color expected_immediates_label_color,
+	                                  SDL_Color expected_zero_flag_label_color)
 {
 	float animation_limit = (float)dw_get_animation_limit();
 	clear_test_renderer();
 	im_draw_imm(animation_limit);
-	assert_region_contains_color(im_get_label_bounds(), immediate_color);
+	assert_region_contains_color(im_get_label_bounds(), expected_immediates_label_color);
 	for (int index = 0; index < 20; index++) {
 		vb_value_box_t value = im_get_imm_value_box_by_id(IMMUP0 + index);
 		SDL_Rect text_region = value.box;
@@ -853,7 +853,7 @@ static void assert_tinted_label_colors(SDL_Color immediate_color,
 	label.h = cl_get_code_button_size().h;
 	label.y += label.h;
 	label.w = vb_get_size().w;
-	assert_region_contains_color(label, flag_color);
+	assert_region_contains_color(label, expected_zero_flag_label_color);
 }
 
 static void test_highlight_foregrounds_and_normal_tints(void)
@@ -883,7 +883,7 @@ static void test_highlight_foregrounds_and_normal_tints(void)
 		for (int frame = 0; frame < get_cycle_frame_budget(); frame++) {
 			ha_begin_frame();
 			float phase = ha_get_progress();
-			assert_tinted_label_colors(C_WHITE, C_WHITE);
+			assert_tinted_label_colors(C_AMBER, C_WHITE);
 			assert(ha_get_progress() == phase);
 			float buffer_phase = -1.0f;
 			float animation_limit = (float)dw_get_animation_limit();
