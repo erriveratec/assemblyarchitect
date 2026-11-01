@@ -6,6 +6,7 @@
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 #include "sdl_config.h"
 #include "sdl_config_internal.h"
@@ -76,6 +77,9 @@ int init_sdl(int width, int height, int argc, char *args[])
 	if (g_window == NULL) {
 		SDL_Log("Window creation failed: %s", SDL_GetError());
 		goto failure;
+	}
+	if (sdl_apply_window_size_policy() != SUCCESS) {
+		SDL_Log("Could not apply the adaptive minimum window size; continuing without the policy");
 	}
 	int display_index = SDL_GetWindowDisplayIndex(g_window);
 	SDL_Rect usable_bounds;
@@ -166,6 +170,18 @@ static int refresh_display_metrics(void)
 		SDL_Log("Could not query renderer output size: %s", SDL_GetError());
 		return FAIL;
 	}
+	if (!sdl_is_fullscreen()) {
+		int x;
+		int y;
+		int width;
+		int height;
+		SDL_GetWindowPosition(g_window, &x, &y);
+		SDL_GetWindowSize(g_window, &width, &height);
+		if (width > 0 && height > 0) {
+			g_windowed_rect = (SDL_Rect){.x = x, .y = y, .w = width, .h = height};
+			g_windowed_rect_valid = true;
+		}
+	}
 	return SUCCESS;
 }
 
@@ -175,6 +191,181 @@ int sdl_apply_display_configuration(void)
 		return FAIL;
 	}
 	return refresh_display_metrics();
+}
+
+bool sdl_calculate_adaptive_minimum_size(
+	int preferred_width, int preferred_height, SDL_Rect usable_bounds,
+	sdl_window_size_limits_t *result)
+{
+	if (result == NULL || preferred_width <= 0 || preferred_height <= 0 ||
+	    usable_bounds.w <= 0 || usable_bounds.h <= 0) {
+		return false;
+	}
+
+	if (usable_bounds.w >= preferred_width && usable_bounds.h >= preferred_height) {
+		result->minimum_width = preferred_width;
+		result->minimum_height = preferred_height;
+		return true;
+	}
+
+	int64_t width_scaled = (int64_t)usable_bounds.w * preferred_height;
+	int64_t height_scaled = (int64_t)usable_bounds.h * preferred_width;
+	if (width_scaled <= height_scaled) {
+		result->minimum_width = usable_bounds.w < preferred_width ?
+	                        usable_bounds.w : preferred_width;
+		/* Round to nearest pixel, with exact halves rounded upward. */
+		int64_t rounded_height =
+			((int64_t)result->minimum_width * preferred_height +
+			 preferred_width / 2) / preferred_width;
+		result->minimum_height = (int)rounded_height;
+	} else {
+		result->minimum_height = usable_bounds.h < preferred_height ?
+	                         usable_bounds.h : preferred_height;
+		int64_t rounded_width =
+			((int64_t)result->minimum_height * preferred_width +
+			 preferred_height / 2) / preferred_height;
+		result->minimum_width = (int)rounded_width;
+	}
+
+	if (result->minimum_width < 1) result->minimum_width = 1;
+	if (result->minimum_height < 1) result->minimum_height = 1;
+	if (result->minimum_width > preferred_width) result->minimum_width = preferred_width;
+	if (result->minimum_height > preferred_height) result->minimum_height = preferred_height;
+	if (result->minimum_width > usable_bounds.w) result->minimum_width = usable_bounds.w;
+	if (result->minimum_height > usable_bounds.h) result->minimum_height = usable_bounds.h;
+	return true;
+}
+
+int sdl_apply_window_size_policy(void)
+{
+	if (g_window == NULL) {
+		SDL_Log("Cannot apply the adaptive minimum window size without a window");
+		return FAIL;
+	}
+
+	int display_index = SDL_GetWindowDisplayIndex(g_window);
+	SDL_Rect usable_bounds = {0};
+	bool have_bounds = false;
+	if (display_index < 0) {
+		SDL_Log("Could not determine the window display for minimum-size policy: %s",
+		        SDL_GetError());
+	} else {
+		int usable_bounds_result =
+			SDL_GetDisplayUsableBounds(display_index, &usable_bounds);
+		if (usable_bounds_result == 0 &&
+		    usable_bounds.w > 0 && usable_bounds.h > 0) {
+			have_bounds = true;
+		} else {
+			if (usable_bounds_result != 0) {
+				SDL_Log("Could not obtain usable bounds for display %d: %s",
+				        display_index, SDL_GetError());
+			} else {
+				SDL_Log("Display %d reported invalid usable bounds %dx%d",
+				        display_index, usable_bounds.w, usable_bounds.h);
+			}
+			int display_bounds_result =
+				SDL_GetDisplayBounds(display_index, &usable_bounds);
+			if (display_bounds_result == 0 &&
+			    usable_bounds.w > 0 && usable_bounds.h > 0) {
+				have_bounds = true;
+			} else if (display_bounds_result != 0) {
+				SDL_Log("Could not obtain full bounds for display %d: %s",
+				        display_index, SDL_GetError());
+			} else {
+				SDL_Log("Display %d reported invalid full bounds %dx%d",
+				        display_index, usable_bounds.w, usable_bounds.h);
+			}
+		}
+	}
+
+	if (!have_bounds) {
+		usable_bounds = (SDL_Rect){
+			.w = SDL_PREFERRED_MIN_WINDOW_WIDTH,
+			.h = SDL_PREFERRED_MIN_WINDOW_HEIGHT
+		};
+		SDL_Log("Using preferred minimum window size fallback %dx%d",
+		        SDL_PREFERRED_MIN_WINDOW_WIDTH,
+		        SDL_PREFERRED_MIN_WINDOW_HEIGHT);
+	}
+	sdl_window_size_limits_t limits;
+	if (!sdl_calculate_adaptive_minimum_size(
+	        SDL_PREFERRED_MIN_WINDOW_WIDTH, SDL_PREFERRED_MIN_WINDOW_HEIGHT,
+	        usable_bounds, &limits)) {
+		SDL_Log("Could not calculate a positive adaptive minimum window size");
+		return FAIL;
+	}
+
+	SDL_SetWindowMinimumSize(g_window, limits.minimum_width, limits.minimum_height);
+	int effective_width;
+	int effective_height;
+	SDL_GetWindowMinimumSize(g_window, &effective_width, &effective_height);
+	if (effective_width != limits.minimum_width ||
+	    effective_height != limits.minimum_height) {
+		SDL_Log("Requested minimum window size %dx%d but SDL reports %dx%d",
+		        limits.minimum_width, limits.minimum_height,
+		        effective_width, effective_height);
+	}
+	SDL_Log("Adaptive minimum window size set to %dx%d for display %d "
+	        "(usable bounds %dx%d)",
+	        limits.minimum_width, limits.minimum_height, display_index,
+	        usable_bounds.w, usable_bounds.h);
+	return SUCCESS;
+}
+
+int sdl_handle_display_changed(void)
+{
+	int result = SUCCESS;
+	if (sdl_apply_display_configuration() != SUCCESS) {
+		SDL_Log("Could not reapply renderer presentation or refresh physical metrics after display change");
+		result = FAIL;
+	}
+	if (sdl_apply_window_size_policy() != SUCCESS) {
+		SDL_Log("Could not refresh the adaptive minimum window size after display change");
+		result = FAIL;
+	}
+	if (g_window == NULL || sdl_is_fullscreen()) {
+		return result;
+	}
+
+	int display_index = SDL_GetWindowDisplayIndex(g_window);
+	if (display_index < 0) {
+		SDL_Log("Could not determine the window display while updating its saved position: %s",
+		        SDL_GetError());
+		return FAIL;
+	}
+	SDL_Rect usable_bounds;
+	if (SDL_GetDisplayUsableBounds(display_index, &usable_bounds) != 0) {
+		SDL_Log("Could not obtain usable bounds for display %d while updating the saved position: %s",
+		        display_index, SDL_GetError());
+		return FAIL;
+	}
+	if (usable_bounds.w <= 0 || usable_bounds.h <= 0) {
+		SDL_Log("Display %d reported invalid usable bounds %dx%d",
+		        display_index, usable_bounds.w, usable_bounds.h);
+		return FAIL;
+	}
+	int x;
+	int y;
+	int width;
+	int height;
+	SDL_GetWindowPosition(g_window, &x, &y);
+	SDL_GetWindowSize(g_window, &width, &height);
+	if (width <= 0 || height <= 0) {
+		return FAIL;
+	}
+	int64_t max_x = (int64_t)usable_bounds.x + usable_bounds.w - width;
+	int64_t max_y = (int64_t)usable_bounds.y + usable_bounds.h - height;
+	if (width <= usable_bounds.w) {
+		if (x < usable_bounds.x) x = usable_bounds.x;
+		if ((int64_t)x > max_x) x = (int)max_x;
+	}
+	if (height <= usable_bounds.h) {
+		if (y < usable_bounds.y) y = usable_bounds.y;
+		if ((int64_t)y > max_y) y = (int)max_y;
+	}
+	g_windowed_rect = (SDL_Rect){.x = x, .y = y, .w = width, .h = height};
+	g_windowed_rect_valid = true;
+	return result;
 }
 
 int sdl_handle_window_size_changed(int window_width, int window_height)
@@ -199,6 +390,24 @@ int sdl_handle_window_size_changed(int window_width, int window_height)
 		SDL_Log("Could not query renderer output size after resize: %s", SDL_GetError());
 		return FAIL;
 	}
+	return SUCCESS;
+}
+
+int sdl_handle_window_moved(int window_x, int window_y)
+{
+	if (g_window == NULL || sdl_is_fullscreen()) {
+		return SUCCESS;
+	}
+	int width;
+	int height;
+	SDL_GetWindowSize(g_window, &width, &height);
+	if (width <= 0 || height <= 0) {
+		return FAIL;
+	}
+	g_windowed_rect = (SDL_Rect){
+		.x = window_x, .y = window_y, .w = width, .h = height
+	};
+	g_windowed_rect_valid = true;
 	return SUCCESS;
 }
 

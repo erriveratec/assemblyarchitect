@@ -23,7 +23,10 @@ bool sdl_is_fullscreen(void);
 bool sdl_fullscreen_requested(int argc, char *args[]);
 int sdl_set_fullscreen(bool enabled);
 int sdl_handle_window_size_changed(int window_width, int window_height);
+int sdl_handle_window_moved(int window_x, int window_y);
 int sdl_apply_display_configuration(void);
+int sdl_apply_window_size_policy(void);
+int sdl_handle_display_changed(void);
 
 
 #endif

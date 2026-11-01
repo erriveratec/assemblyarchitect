@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <limits.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -207,6 +208,56 @@ static void test_fullscreen_argument_parsing(void)
 	assert(!sdl_fullscreen_requested(0, NULL));
 }
 
+static void assert_minimum_size(int preferred_width, int preferred_height,
+	                            int usable_width, int usable_height,
+	                            int expected_width, int expected_height)
+{
+	sdl_window_size_limits_t result;
+	assert(sdl_calculate_adaptive_minimum_size(
+		preferred_width, preferred_height,
+		(SDL_Rect){.w = usable_width, .h = usable_height}, &result));
+	assert(result.minimum_width == expected_width);
+	assert(result.minimum_height == expected_height);
+	assert(result.minimum_width > 0 && result.minimum_height > 0);
+	assert(result.minimum_width <= preferred_width);
+	assert(result.minimum_height <= preferred_height);
+	assert(result.minimum_width <= usable_width);
+	assert(result.minimum_height <= usable_height);
+}
+
+static void test_adaptive_minimum_size_calculation(void)
+{
+	dm_set_screen_resolution(DM_RESOLUTION_1920X1080);
+	assert_minimum_size(1280, 720, 1920, 1040, 1280, 720);
+	assert_minimum_size(1280, 720, 1280, 720, 1280, 720);
+	assert_minimum_size(1280, 720, 1280, 680, 1209, 680);
+	assert_minimum_size(1280, 720, 1024, 768, 1024, 576);
+	assert_minimum_size(1280, 720, 800, 600, 800, 450);
+	assert_minimum_size(1280, 720, 600, 900, 600, 338);
+	assert_minimum_size(1280, 720, 1, 1, 1, 1);
+	assert_minimum_size(1280, 720, INT_MAX, INT_MAX, 1280, 720);
+	assert_minimum_size(INT_MAX, INT_MAX, INT_MAX - 1, INT_MAX - 1,
+	                    INT_MAX - 1, INT_MAX - 1);
+
+	sdl_window_size_limits_t result;
+	SDL_Rect usable = {.w = 1280, .h = 720};
+	assert(!sdl_calculate_adaptive_minimum_size(1280, 720, usable, NULL));
+	assert(!sdl_calculate_adaptive_minimum_size(0, 720, usable, &result));
+	assert(!sdl_calculate_adaptive_minimum_size(-1, 720, usable, &result));
+	assert(!sdl_calculate_adaptive_minimum_size(1280, 0, usable, &result));
+	assert(!sdl_calculate_adaptive_minimum_size(1280, -1, usable, &result));
+	assert(!sdl_calculate_adaptive_minimum_size(
+		1280, 720, (SDL_Rect){.w = 0, .h = 720}, &result));
+	assert(!sdl_calculate_adaptive_minimum_size(
+		1280, 720, (SDL_Rect){.w = -1, .h = 720}, &result));
+	assert(!sdl_calculate_adaptive_minimum_size(
+		1280, 720, (SDL_Rect){.w = 1280, .h = 0}, &result));
+	assert(!sdl_calculate_adaptive_minimum_size(
+		1280, 720, (SDL_Rect){.w = 1280, .h = -1}, &result));
+	assert(dm_get_screen_width() == 1920);
+	assert(dm_get_screen_height() == 1080);
+}
+
 static void test_physical_resize_preserves_logical_layout(void)
 {
 	dm_set_screen_resolution(DM_RESOLUTION_1920X1080);
@@ -264,6 +315,7 @@ static void test_physical_resize_preserves_logical_layout(void)
 int main(void)
 {
 	test_fullscreen_argument_parsing();
+	test_adaptive_minimum_size_calculation();
 	test_physical_resize_preserves_logical_layout();
 	test_fullscreen_transition_round_trip();
 	test_fullscreen_transition_rolls_back_configuration_failure();
