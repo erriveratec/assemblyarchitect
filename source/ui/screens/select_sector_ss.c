@@ -52,7 +52,7 @@ static SDL_Rect get_sector_separator(void)
 	SDL_Rect r = get_sector_btn_box();	
 	SDL_Rect b;
 	b.w = sc_get_selection_title_bounds(SELECT_SECTOR).w;
-	b.h = dm_scale_to_res(SMALL_SEPARATOR_H);
+	b.h = SMALL_SEPARATOR_H;
 	b.x = sc_get_selection_title_bounds(SELECT_SECTOR).x;
 	b.y = r.y + r.h + get_sector_btn_spacing()/2;
 	
@@ -71,7 +71,7 @@ static SDL_Rect get_sector_separator(void)
  */
 static int get_fst_btn_ofs(void)
 {
-	return dm_scale_to_res(FIRST_BTN_OFS);
+	return FIRST_BTN_OFS;
 }
 
 /* Function: get_upper_separator
@@ -91,9 +91,9 @@ static SDL_Rect get_upper_separator(void)
 	SDL_Rect r = sc_get_selection_title_bounds(SELECT_SECTOR);
 	SDL_Rect b;
 	b.w = screen_width*3/4;
-	b.h = dm_scale_to_res(BIG_SEPARATOR_H);
+	b.h = BIG_SEPARATOR_H;
 	b.x = screen_width/8;
-	b.y = r.y + r.h + dm_scale_to_res(SECTOR_TITLE_SEPARATOR); 
+	b.y = r.y + r.h + (int)SECTOR_TITLE_SEPARATOR;
 	return b;
 }
 
@@ -133,7 +133,7 @@ static SDL_Rect get_sector_btn_box(void)
  */
 static int get_sector_btn_spacing(void)
 {
-	return dm_scale_to_res(SECTOR_BTN_SPACING);
+	return SECTOR_BTN_SPACING;
 }
 
 

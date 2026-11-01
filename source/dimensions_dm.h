@@ -9,9 +9,4 @@ enum {
 /* Return canonical logical canvas dimensions, never SDL window/output sizes. */
 int dm_get_screen_width(void);
 int dm_get_screen_height(void);
-/*
- * Geometry is authored directly in the canonical logical coordinate system.
- * This temporary compatibility function returns its argument unchanged.
- */
-int dm_scale_to_res(int dimension);
 #endif

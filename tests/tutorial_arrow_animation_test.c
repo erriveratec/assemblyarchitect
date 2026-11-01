@@ -337,9 +337,9 @@ static int back_button_offset;
 bool test_failure_back_button_rect(SDL_Rect *button_rect)
 {
 	*button_rect = (SDL_Rect){
-		.x = dm_scale_to_res(800 + back_button_offset),
-		.y = dm_scale_to_res(500 + back_button_offset),
-		.w = dm_scale_to_res(160), .h = dm_scale_to_res(60)
+		.x = 800 + back_button_offset,
+		.y = 500 + back_button_offset,
+		.w = 160, .h = 60
 	};
 	return layout_available;
 }
@@ -867,8 +867,7 @@ static void test_op2_vertical_clearance(void)
 
 	SDL_Rect arrow_size = ar_get_arrow_wh();
 	int original_y = op2_line_rect.y + op2_line_rect.h / 2;
-	int expected_clearance =
-		dm_scale_to_res(OP2_ARROW_VERTICAL_CLEARANCE_DESIGN_PX);
+	int expected_clearance = OP2_ARROW_VERTICAL_CLEARANCE_DESIGN_PX;
 	int expected_start_y = original_y + expected_clearance;
 
 	ar_init_arrow(AR_OP2);

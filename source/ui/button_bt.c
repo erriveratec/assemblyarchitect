@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "mouse_ms.h"
-#include "dimensions_dm.h"
 #include "aux.h"
 #include "ui/ui_metrics_um.h"
 #include <SDL_mixer.h>
@@ -26,8 +25,8 @@ SDL_Rect bt_get_modal_button_size(void)
 	SDL_Rect size = {
 		.x = 0,
 		.y = 0,
-		.w = dm_scale_to_res(MODAL_BUTTON_WIDTH),
-		.h = dm_scale_to_res(MODAL_BUTTON_HEIGHT)
+		.w = MODAL_BUTTON_WIDTH,
+		.h = MODAL_BUTTON_HEIGHT
 	};
 	return size;
 }
@@ -338,8 +337,7 @@ bool bt_draw_btn_group_with_highlight_scale(
  */
 static int get_w_button_padding(void)
 {
-	return um_padding_horizontal() +
-		   dm_scale_to_res(IFACE_BUTTON_SPACE_W);
+	return um_padding_horizontal() + (int)IFACE_BUTTON_SPACE_W;
 }
 
 /* Function: get_h_button_padding
@@ -354,8 +352,7 @@ static int get_w_button_padding(void)
  */
 static int get_h_button_padding(void)
 {
-	return um_padding_vertical() +
-		   dm_scale_to_res(IFACE_BUTTON_SPACE_W);
+	return um_padding_vertical() + (int)IFACE_BUTTON_SPACE_W;
 }
 
 
@@ -372,7 +369,7 @@ static int get_h_button_padding(void)
  */
 static int get_w_iface_space_border(void)
 {
-	return dm_scale_to_res(IFACE_BUTTON_SPACE_W);
+	return IFACE_BUTTON_SPACE_W;
 }
 
 /* Function: get_w_iface_outer_border
@@ -387,7 +384,7 @@ static int get_w_iface_space_border(void)
  */
 static int get_w_iface_outer_border(void)
 {
-	return dm_scale_to_res(IFACE_BUTTON_OUTER_W);
+	return IFACE_BUTTON_OUTER_W;
 }
 
 /* Function: bt_get_ofs_button_shadow
@@ -402,7 +399,7 @@ static int get_w_iface_outer_border(void)
  */
 int bt_get_ofs_button_shadow(void)
 {
-	return dm_scale_to_res(BUTTON_SHADOW_OFS);
+	return BUTTON_SHADOW_OFS;
 }
 
 /* Function: get_hover_factor
@@ -417,7 +414,7 @@ int bt_get_ofs_button_shadow(void)
  */
 int bt_get_btn_lift(void)
 {
-	return dm_scale_to_res(BUTTON_LIFT);
+	return BUTTON_LIFT;
 }
 
 /* Function: get_hover_factor

@@ -20,12 +20,12 @@ static const int ANIMATION_STEP = 1;
 
 int dw_get_animation_limit(void)
 {
-	return dm_scale_to_res(ANIMATION_LIMIT);
+	return ANIMATION_LIMIT;
 }
 
 int dw_get_animation_step(void)
 {
-	return dm_scale_to_res(ANIMATION_STEP);
+	return ANIMATION_STEP;
 }
 
 SDL_Color C_BLACK         = {0, 0, 0, 255};
@@ -165,8 +165,8 @@ static bool calculate_rect_outline_edges(SDL_Rect rect, int thickness,
 static SDL_Rect get_iface_box_big_wh(void)
 {
 	SDL_Rect b;
-	b.w = dm_scale_to_res(IFACE_BOX_BIG_W);
-	b.h = dm_scale_to_res(IFACE_BOX_BIG_H);
+	b.w = IFACE_BOX_BIG_W;
+	b.h = IFACE_BOX_BIG_H;
 	b.x = 0;
 	b.y = 0;
 	return b;
@@ -238,7 +238,7 @@ static SDL_Rect get_iface_header_box(SDL_Rect b)
  */
 int dw_get_ofs_iface_filled_border(void)
 {
-	return dm_scale_to_res(IFACE_FILLED_OFS);
+	return IFACE_FILLED_OFS;
 }
 
 /* Function: get_get_h_iface_header_txt
@@ -251,7 +251,7 @@ int dw_get_ofs_iface_filled_border(void)
  * Return:
  *	The height of the iface header text
  */
-int dw_get_h_iface_header_txt(void) { return dm_scale_to_res(IFACE_HEADER_TEXT_H); }
+int dw_get_h_iface_header_txt(void) { return IFACE_HEADER_TEXT_H; }
 
 /* Function: get_ofs_iface_filled_border
  * -----------------------------------------------------------------------------
@@ -265,7 +265,7 @@ int dw_get_h_iface_header_txt(void) { return dm_scale_to_res(IFACE_HEADER_TEXT_H
  */
 static int get_ofs_iface_inner_border(void)
 {
-	return dm_scale_to_res(IFACE_INNER_BORDER);
+	return IFACE_INNER_BORDER;
 }
 
 /* Function: get_h_iface_title
@@ -278,7 +278,7 @@ static int get_ofs_iface_inner_border(void)
  * Return:
  *	The height of the title
  */
-static int get_h_iface_header(void) { return dm_scale_to_res(IFACE_HEADER_BOX_H); }
+static int get_h_iface_header(void) { return IFACE_HEADER_BOX_H; }
 
 /* Function: dw_set_array_texture_color_mod
  * -----------------------------------------------------------------------------
@@ -455,8 +455,8 @@ void dw_draw_iface_box_with_status(SDL_Rect b, texture_t *header,
 	SDL_Rect header_box = get_iface_header_box(b);
 	int text_h = dw_get_h_iface_header_txt();
 	int text_w = ax_get_texture_w_fit_h(text_h, header);
-	int icon_size = dm_scale_to_res(28);
-	int gap = dm_scale_to_res(10);
+	int icon_size = 28;
+	int gap = 10;
 	int group_w = icon_size + gap + text_w;
 	int max_text_w = header_box.w - icon_size - gap;
 	if (text_w > max_text_w) {
@@ -490,8 +490,8 @@ static void draw_status_symbol(SDL_Rect box, bool success)
 	SDL_Color color = success ? C_SUCCESS_GREEN : C_FAILURE_RED;
 	SDL_SetRenderDrawColor(g_renderer, color.r, color.g, color.b, color.a);
 
-	int thickness = dm_scale_to_res(4);
-	int inset = dm_scale_to_res(4);
+	int thickness = 4;
+	int inset = 4;
 	if (success) {
 		int x1 = box.x + inset;
 		int y1 = box.y + box.h / 2;

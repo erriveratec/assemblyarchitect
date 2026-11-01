@@ -56,7 +56,7 @@ static int test_canonical_hover_messages(void)
 	                        first_button.h;
 	assert(second_row_bottom <= separator.y);
 	assert((int64_t)bounds.y >= (int64_t)separator.y + separator.h +
-	                            dm_scale_to_res(SECTOR_TITLE_SEPARATOR));
+				   (int)SECTOR_TITLE_SEPARATOR);
 
 	tx_styled_text_options_t options = {
 		.highlight_arch_tokens = false,

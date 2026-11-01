@@ -17,8 +17,8 @@ SDL_Rect cl_get_code_button_size(void)
 	SDL_Rect size = {
 		.x = 0,
 		.y = 0,
-		.w = dm_scale_to_res(CODE_BUTTON_WIDTH),
-		.h = dm_scale_to_res(CODE_BUTTON_HEIGHT)
+		.w = CODE_BUTTON_WIDTH,
+		.h = CODE_BUTTON_HEIGHT
 	};
 	return size;
 }

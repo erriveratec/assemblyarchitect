@@ -8,17 +8,17 @@ static const int VERTICAL_PADDING = 10;
 
 int um_border_width(void)
 {
-	return dm_scale_to_res(BORDER_WIDTH);
+	return BORDER_WIDTH;
 }
 
 int um_padding_horizontal(void)
 {
-	return dm_scale_to_res(HORIZONTAL_PADDING);
+	return HORIZONTAL_PADDING;
 }
 
 int um_padding_vertical(void)
 {
-	return dm_scale_to_res(VERTICAL_PADDING);
+	return VERTICAL_PADDING;
 }
 
 int um_padding_horizontal_with_border(void)

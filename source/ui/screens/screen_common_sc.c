@@ -13,21 +13,21 @@ static const int SELECTION_DESCRIPTION_TEXT_HEIGHT = 40;
 
 int sc_get_selection_subtitle_height(void)
 {
-    return dm_scale_to_res(SELECTION_SUBTITLE_HEIGHT);
+    return SELECTION_SUBTITLE_HEIGHT;
 }
 
 int sc_get_selection_description_text_height(void)
 {
-    return dm_scale_to_res(SELECTION_DESCRIPTION_TEXT_HEIGHT);
+    return SELECTION_DESCRIPTION_TEXT_HEIGHT;
 }
 
 SDL_Rect sc_get_selection_title_bounds(const char *text)
 {
     SDL_Rect bounds;
-    bounds.h = dm_scale_to_res(SELECTION_TITLE_H);
+    bounds.h = SELECTION_TITLE_H;
     bounds.w = get_text_width_fits_height(bounds.h, (char *)text);
     bounds.x = (dm_get_screen_width() - bounds.w) / 2;
-    bounds.y = dm_scale_to_res(SELECTION_TITLE_Y);
+    bounds.y = SELECTION_TITLE_Y;
     return bounds;
 }
 

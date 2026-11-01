@@ -22,8 +22,8 @@ static void test_upper_right_layout(bool large_box)
 	assert(box.y == get_border_ofs());
 	SDL_Rect expected_size = tx_get_text_box_wh();
 	if (large_box) {
-		expected_size.w = dm_scale_to_res(LARGE_TEXT_BOX_W);
-		expected_size.h = dm_scale_to_res(LARGE_TEXT_BOX_H);
+		expected_size.w = LARGE_TEXT_BOX_W;
+		expected_size.h = LARGE_TEXT_BOX_H;
 	}
 	assert(box.w == expected_size.w && box.h == expected_size.h);
 

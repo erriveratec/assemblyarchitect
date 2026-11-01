@@ -101,13 +101,13 @@ void rm_set_rst_menu(bool state)
  */
 static SDL_Rect get_rst_b1_box(void)
 {
-	int cont_w = dm_scale_to_res(RST_MENU_BTNS_W);
-	int offset = dm_scale_to_res(RESUME_DIALOG_INSET);
+	int cont_w = RST_MENU_BTNS_W;
+	int offset = RESUME_DIALOG_INSET;
 	SDL_Rect rb = dw_get_iface_big_center_box();
 	SDL_Rect cb = dw_get_iface_content_box(rb);
 	SDL_Rect b;
-	b.w = dm_scale_to_res(RST_MENU_BTNS_W);
-	b.h = dm_scale_to_res(RST_MENU_BTNS_H);
+	b.w = RST_MENU_BTNS_W;
+	b.h = RST_MENU_BTNS_H;
 	b.x = cb.x + (cb.w - (b.w + cont_w))/3;
 	b.y = rb.y + rb.h - b.h - offset;
 	return b;
@@ -126,14 +126,14 @@ static SDL_Rect get_rst_b1_box(void)
  */
 static SDL_Rect get_rst_b2_box(void)
 {
-	int back_w = dm_scale_to_res(RST_MENU_BTNS_W);
-	int cont_w = dm_scale_to_res(RST_MENU_BTNS_W);
-	int offset = dm_scale_to_res(RESUME_DIALOG_INSET);
+	int back_w = RST_MENU_BTNS_W;
+	int cont_w = RST_MENU_BTNS_W;
+	int offset = RESUME_DIALOG_INSET;
 	SDL_Rect rb = dw_get_iface_big_center_box();
 	SDL_Rect cb = dw_get_iface_content_box(rb);
 	SDL_Rect b;
-	b.w = dm_scale_to_res(RST_MENU_BTNS_W);
-	b.h = dm_scale_to_res(RST_MENU_BTNS_H);
+	b.w = RST_MENU_BTNS_W;
+	b.h = RST_MENU_BTNS_H;
 	b.x = cb.x + back_w + 2*(cb.w - (back_w + cont_w))/3 ;
 	b.y = rb.y + rb.h - b.h - offset;
 	return b;

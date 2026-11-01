@@ -26,8 +26,8 @@ static SDL_Rect get_avatar_size(void)
 	SDL_Rect size = {
 		.x = 0,
 		.y = 0,
-		.w = dm_scale_to_res(AVATAR_WIDTH),
-		.h = dm_scale_to_res(AVATAR_HEIGHT)
+		.w = AVATAR_WIDTH,
+		.h = AVATAR_HEIGHT
 	};
 	return size;
 }
@@ -455,7 +455,7 @@ static void draw_iavatar(void)
 	int medium = (rb.y - bf_y_lower)/2;
 
 	SDL_Rect ibox = rg_get_input_value_box_bounds();
-	int rail_w = dm_scale_to_res(STAGE_RAIL_WIDTH);
+	int rail_w = STAGE_RAIL_WIDTH;
 
 	int offset = bf_get_value_box_spacing();
 	const int rail_right_center_x = bf.x + offset + ibox.w / 2;
@@ -467,7 +467,7 @@ static void draw_iavatar(void)
 	SDL_Rect r1 = {.x = rail.x, .y = y, .w = rail.width, .h = h};
 	dw_draw_filled_rectangle(r1, C_MAGENTA, C_MAGENTA);
 
-	int rail_end_w = dm_scale_to_res(STAGE_RAIL_END_WIDTH);
+	int rail_end_w = STAGE_RAIL_END_WIDTH;
 
 	int rail_end_x = rail.x - (rail_end_w - rail_w)/2;
 	int rail_end_y = y - (rail_end_w - rail_w)/2;
@@ -527,7 +527,7 @@ static void draw_oavatar(void)
 	int medium = (bf_y_upper - (rb.y + rb.h))/2;
 
 	SDL_Rect obox = rg_get_output_value_box_bounds();
-	int rail_w = dm_scale_to_res(STAGE_RAIL_WIDTH);
+	int rail_w = STAGE_RAIL_WIDTH;
 	int offset = bf_get_value_box_spacing();
 
 	const int rail_right_center_x = bf.x + offset + obox.w / 2;
@@ -539,7 +539,7 @@ static void draw_oavatar(void)
 	SDL_Rect r1 = {.x = rail.x, .y = y, .w = rail.width, .h = h};
 	dw_draw_filled_rectangle(r1, C_CYAN, C_CYAN);
 
-	int rail_end_w = dm_scale_to_res(STAGE_RAIL_END_WIDTH);
+	int rail_end_w = STAGE_RAIL_END_WIDTH;
 
 	int rail_end_x = rail.x - (rail_end_w - rail_w)/2;
 	int rail_end_y = y - (rail_end_w - rail_w)/2;
@@ -597,7 +597,7 @@ void draw_ravatar(void)
 	SDL_Rect ibox = rg_get_input_value_box_bounds();
 	SDL_Rect rb = rg_get_register_box();
 	int reg_ofs =  rg_get_panel_value_offset();
-	int rail_w = dm_scale_to_res(STAGE_RAIL_WIDTH);
+	int rail_w = STAGE_RAIL_WIDTH;
 
 	int rx = ibox.x + ibox.w/2;
 	int ry = rb.y + reg_ofs;
@@ -622,7 +622,7 @@ void draw_ravatar(void)
 	SDL_Rect r2 = {.x = xf, .y = yc, .w = wf, .h = hf};
 	dw_draw_filled_rectangle(r2, C_YELLOW, C_YELLOW);
 
-	int rail_end_w = dm_scale_to_res(STAGE_RAIL_END_WIDTH);
+	int rail_end_w = STAGE_RAIL_END_WIDTH;
 
 	int rail_end_x = rx - (rail_end_w - rail_w)/2;
 	int rail_end_y = ry - (rail_end_w - rail_w)/2;

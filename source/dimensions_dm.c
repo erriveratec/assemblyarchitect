@@ -9,8 +9,3 @@ int dm_get_screen_height(void)
 {
 	return DM_LOGICAL_CANVAS_HEIGHT;
 }
-
-int dm_scale_to_res(int dimension)
-{
-	return dimension;
-}

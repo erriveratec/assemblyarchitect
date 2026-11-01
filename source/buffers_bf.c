@@ -134,10 +134,10 @@ static void draw_buffer_border(SDL_Rect body_box, SDL_FRect animated_body,
 SDL_Rect bf_get_input_buffer_bounds(void)
 {
 	SDL_Rect bounds = {
-		.x = dm_scale_to_res(BUFFER_X),
+		.x = BUFFER_X,
 		.y = ty_code_height(),
-		.w = dm_scale_to_res(BUFFER_WIDTH),
-		.h = dm_scale_to_res(BUFFER_HEIGHT)
+		.w = BUFFER_WIDTH,
+		.h = BUFFER_HEIGHT
 	};
 	return bounds;
 }
@@ -157,10 +157,10 @@ SDL_Rect bf_get_output_buffer_bounds(void)
 {
 	SDL_Rect input_label = bf_get_input_label_anchor();
 	SDL_Rect bounds = {
-		.x = dm_scale_to_res(BUFFER_X),
-		.y = dm_get_screen_height() - input_label.h - dm_scale_to_res(BUFFER_HEIGHT),
-		.w = dm_scale_to_res(BUFFER_WIDTH),
-		.h = dm_scale_to_res(BUFFER_HEIGHT)
+		.x = BUFFER_X,
+		.y = dm_get_screen_height() - input_label.h - BUFFER_HEIGHT,
+		.w = BUFFER_WIDTH,
+		.h = BUFFER_HEIGHT
 	};
 	return bounds;
 }
@@ -179,7 +179,7 @@ SDL_Rect bf_get_output_label_anchor(void)
 int bf_get_value_box_spacing(void)
 {
 	SDL_Rect value_box = vb_get_size();
-	return (dm_scale_to_res(BUFFER_HEIGHT) - value_box.h) / 2;
+	return (BUFFER_HEIGHT - value_box.h) / 2;
 }
 
 static int bf_get_value_box_secondary_spacing(void)

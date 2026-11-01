@@ -32,6 +32,10 @@ minimum is 1280x720, with adaptive minimum sizing on smaller usable workspaces.
 A physical 1600x900 display remains supported, but no alternative logical
 layout mode exists.
 
+The legacy identity compatibility wrapper has been removed. Geometry now uses
+canonical logical units directly; physical scaling remains exclusively in SDL.
+Removing the wrapper did not change layout values.
+
 Complete original outputs were retained in `/tmp/assemblygame-baseline-build.log`,
 `/tmp/assemblygame-baseline-tests.log`, `/tmp/assemblygame-baseline-reruns.log`,
 `/tmp/assemblygame-strict-build.log`, and `/tmp/assemblygame-strict-tests.log`.

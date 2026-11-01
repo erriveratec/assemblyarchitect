@@ -53,38 +53,38 @@ static SDL_Rect get_game_title_img_box(void)
 {
 	int screen_width = dm_get_screen_width();
 	SDL_Rect b;
-	b.w = dm_scale_to_res(TITLE_IMG_W);
-	b.h = dm_scale_to_res(TITLE_IMG_H);
+	b.w = TITLE_IMG_W;
+	b.h = TITLE_IMG_H;
 	b.x = (screen_width - b.w)/2;
-	b.y = dm_scale_to_res(TITLE_IMG_Y);
+	b.y = TITLE_IMG_Y;
 	return b;
 }
 
 static SDL_Rect get_game_title_box(const char *title)
 {
 	SDL_Rect box;
-	box.h = dm_scale_to_res(GAME_TITLE_H);
+	box.h = GAME_TITLE_H;
 	box.w = get_text_width_fits_height(box.h, (char *)title);
 	box.x = (dm_get_screen_width() - box.w) / 2;
-	box.y = dm_scale_to_res(GAME_TITLE_Y);
+	box.y = GAME_TITLE_Y;
 	return box;
 }
 
 static SDL_Rect get_press_space_box(const char *message)
 {
 	SDL_Rect box;
-	box.h = dm_scale_to_res(PRESS_SPACE_H);
+	box.h = PRESS_SPACE_H;
 	box.w = get_text_width_fits_height(box.h, (char *)message);
 	box.x = (dm_get_screen_width() - box.w) / 2;
-	box.y = dm_scale_to_res(PRESS_SPACE_Y);
+	box.y = PRESS_SPACE_Y;
 	return box;
 }
 
 static SDL_Rect get_studio_name_box(void)
 {
 	SDL_Rect box;
-	box.w = dm_scale_to_res(STUDIO_BOX_W);
-	box.h = dm_scale_to_res(STUDIO_BOX_H);
+	box.w = STUDIO_BOX_W;
+	box.h = STUDIO_BOX_H;
 	box.x = 0;
 	box.y = (dm_get_screen_height() - box.h) / 2;
 	return box;

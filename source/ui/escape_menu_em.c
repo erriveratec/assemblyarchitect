@@ -56,10 +56,10 @@ static SDL_Rect get_escape_b1_box(void)
 	SDL_Rect mb = dw_get_iface_big_center_box();
 
 	SDL_Rect b;
-	b.w = dm_scale_to_res(ESC_MENU_BUTTON_W);
-	b.h = dm_scale_to_res(ESC_MENU_BUTTON_H);
+	b.w = ESC_MENU_BUTTON_W;
+	b.h = ESC_MENU_BUTTON_H;
 	b.x = mb.x + mb.w/2 - b.w/2;
-	b.y = mb.y + mb.h - 3*b.h - 5*dm_scale_to_res(ESC_MENU_BUTTON_SPACE);
+	b.y = mb.y + mb.h - 3*b.h - 5*(int)ESC_MENU_BUTTON_SPACE;
 	return b;
 }
 
@@ -78,10 +78,10 @@ static SDL_Rect get_escape_b2_box(void)
 	SDL_Rect b1 = get_escape_b1_box();
 	
 	SDL_Rect b;
-	b.w = dm_scale_to_res(ESC_MENU_BUTTON_W);
-	b.h = dm_scale_to_res(ESC_MENU_BUTTON_H);
+	b.w = ESC_MENU_BUTTON_W;
+	b.h = ESC_MENU_BUTTON_H;
 	b.x = b1.x;
-	b.y = b1.y + b.h + dm_scale_to_res(ESC_MENU_BUTTON_SPACE);
+	b.y = b1.y + b.h + (int)ESC_MENU_BUTTON_SPACE;
 	return b;
 }
 
@@ -100,10 +100,10 @@ static SDL_Rect get_escape_b3_box(void)
 	SDL_Rect b2 = get_escape_b2_box();
 	
 	SDL_Rect b;
-	b.w = dm_scale_to_res(ESC_MENU_BUTTON_W);
-	b.h = dm_scale_to_res(ESC_MENU_BUTTON_H);
+	b.w = ESC_MENU_BUTTON_W;
+	b.h = ESC_MENU_BUTTON_H;
 	b.x = b2.x;
-	b.y = b2.y + b.h + dm_scale_to_res(ESC_MENU_BUTTON_SPACE);
+	b.y = b2.y + b.h + (int)ESC_MENU_BUTTON_SPACE;
 	return b;
 }
 

@@ -78,7 +78,7 @@ static SDL_Rect get_error_box_bounds(void)
 		.x = lower_box.x + (lower_box.w / 3) / 2,
 		.y = lower_box.y + lower_box.h + 2 * arrow_size.h,
 		.w = lower_box.w * 2 / 3,
-		.h = dm_scale_to_res(MESSAGE_BOX_HEIGHT)
+		.h = MESSAGE_BOX_HEIGHT
 	};
 	return bounds;
 }
@@ -87,10 +87,10 @@ static SDL_Rect get_stagebutton_box_bounds(void)
 {
 	SDL_Rect code_box = cw_get_stage_code_box();
 	SDL_Rect bounds = {
-		.x = code_box.x + (code_box.w - dm_scale_to_res(MESSAGE_BOX_WIDTH)) / 2,
-		.y = code_box.y + code_box.h - dm_scale_to_res(MESSAGE_BOX_HEIGHT) / 2,
-		.w = dm_scale_to_res(MESSAGE_BOX_WIDTH),
-		.h = dm_scale_to_res(MESSAGE_BOX_HEIGHT)
+		.x = code_box.x + (code_box.w - MESSAGE_BOX_WIDTH) / 2,
+		.y = code_box.y + code_box.h - MESSAGE_BOX_HEIGHT / 2,
+		.w = MESSAGE_BOX_WIDTH,
+		.h = MESSAGE_BOX_HEIGHT
 	};
 	return bounds;
 }
@@ -105,7 +105,7 @@ static SDL_Rect get_stagebutton_box_bounds(void)
  * Return:
  *	The offset value
  */
-static int get_border_ofs(void) { return dm_scale_to_res(BORDER_OFS); }
+static int get_border_ofs(void) { return BORDER_OFS; }
 
 /* Function: tx_get_text_box_wh
  * -----------------------------------------------------------------------------
@@ -120,8 +120,8 @@ static int get_border_ofs(void) { return dm_scale_to_res(BORDER_OFS); }
 SDL_Rect tx_get_text_box_wh(void)
 {
 	SDL_Rect b;
-	b.w = dm_scale_to_res(TEXT_BOX_W);
-	b.h = dm_scale_to_res(TEXT_BOX_H);
+	b.w = TEXT_BOX_W;
+	b.h = TEXT_BOX_H;
 	b.x = 0;
 	b.y = 0;
 	return b;
@@ -320,7 +320,7 @@ static SDL_Rect get_text_box_center_up(void)
  */
 static int get_h_bottom_msg(void)
 {
-	int h = dm_scale_to_res(TEXT_H_BOTTOM_MSG);
+	int h = TEXT_H_BOTTOM_MSG;
 	return h;
 }
 
@@ -695,8 +695,8 @@ bool tx_get_text_box_rects(
 	}
 
 	if (options->large_box) {
-		int width  = dm_scale_to_res(LARGE_TEXT_BOX_W);
-		int height = dm_scale_to_res(LARGE_TEXT_BOX_H);
+		int width  = LARGE_TEXT_BOX_W;
+		int height = LARGE_TEXT_BOX_H;
 		int extra_width  = width - resolved_box.w;
 		int extra_height = height - resolved_box.h;
 

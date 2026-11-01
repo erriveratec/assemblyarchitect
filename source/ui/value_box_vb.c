@@ -15,8 +15,8 @@ SDL_Rect vb_get_size(void)
 	SDL_Rect size = {
 		.x = 0,
 		.y = 0,
-		.w = dm_scale_to_res(VALUE_BOX_WIDTH),
-		.h = dm_scale_to_res(VALUE_BOX_HEIGHT)
+		.w = VALUE_BOX_WIDTH,
+		.h = VALUE_BOX_HEIGHT
 	};
 	return size;
 }

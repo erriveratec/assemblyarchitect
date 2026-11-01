@@ -77,9 +77,9 @@ bool ax_chk_mouse_hover_rect(SDL_Rect rect)
 void ax_set_arrow_mdelta(bool fast)
 {
 	if (fast) {
-		arrow_mdelta = dm_scale_to_res(ARROW_MDELTA_FAST);
+		arrow_mdelta = ARROW_MDELTA_FAST;
 	} else {
-		arrow_mdelta = dm_scale_to_res(ARROW_MDELTA_SLOW);
+		arrow_mdelta = ARROW_MDELTA_SLOW;
 	}
 }
 
@@ -90,12 +90,12 @@ int ax_get_arrow_move_delta(void)
 
 int ax_get_cw_move_delta(void)
 {
-	return dm_scale_to_res(CW_MDELTA);
+	return CW_MDELTA;
 }
 
 void ax_set_fast_move_delta(bool state)
 {
-	move_delta = dm_scale_to_res(state ? FAST_MOVE_DELTA : MOVE_DELTA);
+	move_delta = state ? FAST_MOVE_DELTA : MOVE_DELTA;
 }
 
 /* Function: ax_get_move_delta

@@ -16,12 +16,12 @@ int test_code_list_size(void)
 int test_instruction_y(int position)
 {
 	assert(position >= 0 && position < test_code_list_size());
-	return dm_scale_to_res(100) + position * cl_get_code_button_size().h;
+	return 100 + position * cl_get_code_button_size().h;
 }
 
 SDL_Rect test_stage_code_box(void)
 {
-	return (SDL_Rect){.x = dm_scale_to_res(200)};
+	return (SDL_Rect){.x = 200};
 }
 
 static void assert_centered(int position)

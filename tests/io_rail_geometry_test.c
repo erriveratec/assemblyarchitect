@@ -80,7 +80,7 @@ static void test_io_rail(bool input)
 	}
 	reach_operand(avatar, IMMUP0);
 	const int connector_center_x = avatar->box.x + avatar->box.w / 2;
-	const int rail_width = dm_scale_to_res(STAGE_RAIL_WIDTH);
+	const int rail_width = STAGE_RAIL_WIDTH;
 	const SDL_Rect buffer = input ? bf_get_input_buffer_bounds() :
 		bf_get_output_buffer_bounds();
 	const SDL_Rect value = input ? rg_get_input_value_box_bounds() :
@@ -117,7 +117,7 @@ static void test_io_rail(bool input)
 			(buffer.y - registers.y - registers.h) / 2;
 		const int expected_y = (input ? registers.y : buffer.y) - medium - rail_width / 2;
 		assert(rectangles[1].y == expected_y);
-		const int end_width = dm_scale_to_res(STAGE_RAIL_END_WIDTH);
+		const int end_width = STAGE_RAIL_END_WIDTH;
 		assert(rectangles[2].x == rail.x - (end_width - rail_width) / 2);
 		assert(rectangles[3].x == old_left_x + old_width -
 			(end_width - rail_width) + rail_width / 2);

@@ -33,10 +33,6 @@ static void init_test_graphics(void)
 	assert(TTF_Init() == 0);
 	assert(dm_get_screen_width() == DM_LOGICAL_CANVAS_WIDTH);
 	assert(dm_get_screen_height() == DM_LOGICAL_CANVAS_HEIGHT);
-	assert(dm_scale_to_res(0) == 0);
-	assert(dm_scale_to_res(1) == 1);
-	assert(dm_scale_to_res(173) == 173);
-	assert(dm_scale_to_res(-1) == -1);
 	g_screen = SDL_CreateRGBSurfaceWithFormat(
 	    0, dm_get_screen_width(), dm_get_screen_height(), 32,
 	    SDL_PIXELFORMAT_RGBA32);

@@ -130,8 +130,8 @@ SDL_Rect sb_get_stage_btns(void)
 	SDL_Rect ib = il_get_initial_instruction_bounds();
 	int sh = dm_get_screen_height();
 	int shadow = bt_get_ofs_button_shadow();
-	b.w = dm_scale_to_res(STAGE_BUTTON_W);
-	b.h = dm_scale_to_res(STAGE_BUTTON_H);
+	b.w = STAGE_BUTTON_W;
+	b.h = STAGE_BUTTON_H;
 	b.x = ib.x + ib.w;
 	b.y = sh - b.h - 2*shadow;
 	return b;
@@ -151,8 +151,8 @@ static SDL_Rect get_rst_btn_box(void)
 {
 	SDL_Rect ret_box = get_return_button_box();
 	SDL_Rect b;
-	b.w = dm_scale_to_res(RST_BTN_W);
-	b.h = dm_scale_to_res(RST_BTN_H);
+	b.w = RST_BTN_W;
+	b.h = RST_BTN_H;
 	b.x = ret_box.x;
 	b.y = ret_box.y - b.h - 3*bt_get_ofs_button_shadow();	
 	return b;
@@ -174,9 +174,9 @@ static SDL_Rect get_return_button_box(void)
 {
 	int screen_height = dm_get_screen_height();
 	SDL_Rect b;
-	b.w = dm_scale_to_res(RET_BUTTON_W);
-	b.h = dm_scale_to_res(RET_BUTTON_H);
-	b.x = dm_scale_to_res(SCREEN_BORDERS_OFS);
+	b.w = RET_BUTTON_W;
+	b.h = RET_BUTTON_H;
+	b.x = SCREEN_BORDERS_OFS;
 	b.y = screen_height - b.h - 2*bt_get_ofs_button_shadow();
 	return b;
 }

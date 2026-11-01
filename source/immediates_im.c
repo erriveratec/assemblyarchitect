@@ -92,8 +92,8 @@ SDL_Rect im_get_cell_size(void)
 	SDL_Rect size = {
 		.x = 0,
 		.y = 0,
-		.w = dm_scale_to_res(IMM_CELL_WIDTH),
-		.h = dm_scale_to_res(IMM_CELL_HEIGHT)
+		.w = IMM_CELL_WIDTH,
+		.h = IMM_CELL_HEIGHT
 	};
 	return size;
 }
@@ -106,8 +106,8 @@ static bool is_valid_imm_id(int id)
 static SDL_Point get_grid_origin(void)
 {
 	SDL_Point origin = {
-		.x = dm_scale_to_res(IMM_LABEL_X),
-		.y = dm_scale_to_res(IMM_LABEL_Y)
+		.x = IMM_LABEL_X,
+		.y = IMM_LABEL_Y
 	};
 	return origin;
 }
@@ -492,7 +492,7 @@ static void draw_imm_cell(const imm_t *imm, float pulse, bool highlighted)
 static void draw_imm_cell_frame(const imm_t *imm)
 {
 	const SDL_Rect box = imm->val.box;
-	int border = dm_scale_to_res(IMM_CELL_BORDER_WIDTH);
+	int border = IMM_CELL_BORDER_WIDTH;
 	int shared_leading_border = border / 2;
 	int shared_trailing_border = border - shared_leading_border;
 	SDL_Rect inner = box;

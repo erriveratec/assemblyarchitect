@@ -53,7 +53,7 @@ static int get_player_block_size(void);
  */
 static int get_player_block_size(void)
 {
-	return dm_scale_to_res(PLAYER_BLOCK_W);
+	return PLAYER_BLOCK_W;
 }
 
 /* Function: draw_player_figures
@@ -159,8 +159,8 @@ static void draw_player_texts(texture_t **player_text, texture_t **lore)
 	SDL_Rect p2_box = get_p2_button_box();
 	SDL_Rect p3_box = get_p3_button_box();
 
-	int box_ofs = dm_scale_to_res(PLAYER_NAME_OFFSET);
-	int player_h = dm_scale_to_res(PLAYER_NAME_HEIGHT);
+	int box_ofs = PLAYER_NAME_OFFSET;
+	int player_h = PLAYER_NAME_HEIGHT;
 	p1_box.y += (p1_box.h + box_ofs);
 	p1_box.h = player_h;
 	p2_box.y += (p2_box.h + box_ofs);
@@ -172,7 +172,7 @@ static void draw_player_texts(texture_t **player_text, texture_t **lore)
 	dw_draw_texture_center_fit_h(p2_box, player_text[1]);
 	dw_draw_texture_center_fit_h(p3_box, player_text[2]);
 	
-	int lore_ofs = dm_scale_to_res(PLAYER_LORE_OFFSET);
+	int lore_ofs = PLAYER_LORE_OFFSET;
 	int lore_h = sc_get_selection_description_text_height();
 	p1_box.y += (p1_box.h + lore_ofs);
 	p1_box.h = lore_h;
@@ -258,10 +258,10 @@ static SDL_Rect get_p1_button_box(void)
 	int screen_width = dm_get_screen_width();
 
 	SDL_Rect b;
-	b.w = dm_scale_to_res(P_BUTTON_W);
-	b.h = dm_scale_to_res(P_BUTTON_H);
+	b.w = P_BUTTON_W;
+	b.h = P_BUTTON_H;
 	b.x = (screen_width - 3*b.w)/4;
-	b.y = dm_scale_to_res(P_BUTTON_Y);
+	b.y = P_BUTTON_Y;
 	return b;
 }
 
@@ -279,10 +279,10 @@ static SDL_Rect get_p2_button_box(void)
 {
 	int screen_width = dm_get_screen_width();
 	SDL_Rect b;
-	b.w = dm_scale_to_res(P_BUTTON_W);
-	b.h = dm_scale_to_res(P_BUTTON_H);
+	b.w = P_BUTTON_W;
+	b.h = P_BUTTON_H;
 	b.x = 2*(screen_width - 3*b.w)/4 + b.w;
-	b.y = dm_scale_to_res(P_BUTTON_Y);
+	b.y = P_BUTTON_Y;
 	return b;
 }
 
@@ -300,10 +300,10 @@ SDL_Rect get_p3_button_box(void)
 {
 	int screen_width = dm_get_screen_width();
 	SDL_Rect b;
-	b.w = dm_scale_to_res(P_BUTTON_W);
-	b.h = dm_scale_to_res(P_BUTTON_H);
+	b.w = P_BUTTON_W;
+	b.h = P_BUTTON_H;
 	b.x = 3*(screen_width - 3*b.w)/4 + 2*b.w;
-	b.y = dm_scale_to_res(P_BUTTON_Y);
+	b.y = P_BUTTON_Y;
 	return b;
 }
 
@@ -363,7 +363,7 @@ int sp_stage_select_player(void)
 		dw_draw_texture_fit_h(b, title.texture);
 	}
   
-	int plate_ofs = dm_scale_to_res(PLAYER_DARK_PLATE_OFFSET);
+	int plate_ofs = PLAYER_DARK_PLATE_OFFSET;
    SDL_Rect dark_plate_1 = ax_pad_rectangle(p1_box, plate_ofs, false);
    SDL_Rect dark_plate_2 = ax_pad_rectangle(p2_box, plate_ofs, false);
    SDL_Rect dark_plate_3 = ax_pad_rectangle(p3_box, plate_ofs, false);

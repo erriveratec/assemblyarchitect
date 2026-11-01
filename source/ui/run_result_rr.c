@@ -151,19 +151,19 @@ static bool rr_get_layout_for_size(run_result_box_size_t size,
 			if (failure_reason != NULL) *failure_reason = "height must be positive";
 			return false;
 		}
-		int width = dm_scale_to_res(g_run_result_layout_config.custom_width);
-		int height = dm_scale_to_res(g_run_result_layout_config.custom_height);
+		int width = g_run_result_layout_config.custom_width;
+		int height = g_run_result_layout_config.custom_height;
 		int screen_width = dm_get_screen_width();
 		int screen_height = dm_get_screen_height();
 		if (width <= 0) {
-			if (failure_reason != NULL) *failure_reason = "scaled width must be positive";
+			if (failure_reason != NULL) *failure_reason = "width must be positive";
 			return false;
 		}
 		if (height <= 0) {
-			if (failure_reason != NULL) *failure_reason = "scaled height must be positive";
+			if (failure_reason != NULL) *failure_reason = "height must be positive";
 			return false;
 		}
-		int margin = dm_scale_to_res(16);
+		int margin = 16;
 		if (screen_width <= 2 * margin || width > screen_width - 2 * margin) {
 			if (failure_reason != NULL) *failure_reason = "width exceeds the usable screen width";
 			return false;
@@ -180,14 +180,14 @@ static bool rr_get_layout_for_size(run_result_box_size_t size,
 		box.y = center_y - height / 2;
 	}
 	int64_t offset_y = (int64_t)box.y +
-	                   dm_scale_to_res(g_run_result_layout_config.vertical_offset);
+				   g_run_result_layout_config.vertical_offset;
 	if (offset_y < INT_MIN || offset_y > INT_MAX) {
 		if (failure_reason != NULL) *failure_reason =
 			"vertical offset exceeds supported coordinates";
 		return false;
 	}
 	box.y = (int)offset_y;
-	int safe_margin = dm_scale_to_res(16);
+	int safe_margin = 16;
 	int64_t box_right = (int64_t)box.x + box.w;
 	int64_t box_bottom = (int64_t)box.y + box.h;
 	if (box.x < safe_margin ||
@@ -211,11 +211,9 @@ static bool rr_get_layout_for_size(run_result_box_size_t size,
 		return false;
 	}
 	SDL_Rect button_size = bt_get_modal_button_size();
-	int gap = dm_scale_to_res(g_run_result_layout_config.button_gap);
-	int message_gap = dm_scale_to_res(
-		g_run_result_layout_config.message_button_gap);
-	int bottom_padding = dm_scale_to_res(
-		g_run_result_layout_config.bottom_padding);
+	int gap = g_run_result_layout_config.button_gap;
+	int message_gap = g_run_result_layout_config.message_button_gap;
+	int bottom_padding = g_run_result_layout_config.bottom_padding;
 	if (button_size.w <= 0 || button_size.h <= 0) {
 		if (failure_reason != NULL) *failure_reason =
 			"modal button dimensions must be positive";

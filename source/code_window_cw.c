@@ -324,12 +324,12 @@ static int cw_get_operand2_offset(void)
 
 static int cw_get_comma_offset(void)
 {
-	return cw_get_operand2_offset() - dm_scale_to_res(CODE_COMMA_OFFSET);
+	return cw_get_operand2_offset() - CODE_COMMA_OFFSET;
 }
 
 static int cw_get_missing_operand_width(void)
 {
-	return dm_scale_to_res(MISSING_OPERAND_WIDTH);
+	return MISSING_OPERAND_WIDTH;
 }
 
 /* Function: cw_get_code_stage_box
@@ -349,8 +349,8 @@ SDL_Rect cw_get_stage_code_box(void)
 	SDL_Rect b;
 	
 	b.x = ib.x + ib.w;
-	b.y = dm_scale_to_res(CODE_BOX_Y);
-	b.w = dm_scale_to_res(CODE_BOX_W);
+	b.y = CODE_BOX_Y;
+	b.w = CODE_BOX_W;
 	b.h = sb.y - 2*b.y;
 	return b;
 }

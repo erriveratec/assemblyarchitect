@@ -72,8 +72,8 @@ SDL_Rect rg_get_panel_size(void)
 	SDL_Rect bounds = {
 		.x = 0,
 		.y = 0,
-		.w = dm_scale_to_res(REGISTER_PANEL_WIDTH),
-		.h = dm_scale_to_res(REGISTER_PANEL_HEIGHT)
+		.w = REGISTER_PANEL_WIDTH,
+		.h = REGISTER_PANEL_HEIGHT
 	};
 	return bounds;
 }
@@ -126,7 +126,7 @@ SDL_Rect rg_get_zero_flag_bounds(void)
 	SDL_Rect value_size = vb_get_size();
 	SDL_Rect panel = rg_get_register_box();
 	SDL_Rect bounds = {
-		.x = panel.x + panel.w + dm_scale_to_res(ZERO_FLAG_OFFSET),
+		.x = panel.x + panel.w + ZERO_FLAG_OFFSET,
 		.y = rg_get_reg_box_y_pos(0),
 		.w = value_size.w,
 		.h = value_size.h
@@ -136,12 +136,12 @@ SDL_Rect rg_get_zero_flag_bounds(void)
 
 int rg_get_panel_value_offset(void)
 {
-	return dm_scale_to_res(REGISTER_PANEL_VALUE_OFFSET);
+	return REGISTER_PANEL_VALUE_OFFSET;
 }
 
 static int rg_get_register_spacing(void)
 {
-	return dm_scale_to_res(REGISTER_SPACING);
+	return REGISTER_SPACING;
 }
 
 texture_t *g_reg_text = NULL;

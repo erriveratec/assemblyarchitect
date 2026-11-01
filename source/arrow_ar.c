@@ -140,8 +140,8 @@ static void animate_arrow(arrow_t *arrow, float animation_limit);
 SDL_Rect ar_get_arrow_wh(void)
 {
 	SDL_Rect b;
-	b.w = dm_scale_to_res(ARROW_W);
-	b.h = dm_scale_to_res(ARROW_H);
+	b.w = ARROW_W;
+	b.h = ARROW_H;
 	b.x = 0;
 	b.y = 0;
 	return b;
@@ -614,8 +614,7 @@ static void initialize_del_arrow(void)
 static void initialize_op2_arrow(void)
 {
 	SDL_Rect a = ar_get_arrow_wh();
-	int clearance = dm_scale_to_res(
-		OP2_ARROW_VERTICAL_CLEARANCE_DESIGN_PX);
+	int clearance = OP2_ARROW_VERTICAL_CLEARANCE_DESIGN_PX;
 	
 	int pos = 1;
 	int size  = cw_get_code_list_size();

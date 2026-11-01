@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "dimensions_dm.h"
 #include "ui/value_box_vb.h"
 
 SDL_Color C_WHITE = {255, 255, 255, 255};
@@ -79,8 +78,8 @@ static void test_transport_on_canonical_canvas(void)
 	SDL_Rect source_box = {
 		.x = -37,
 		.y = -23,
-		.w = canonical.w + dm_scale_to_res(10),
-		.h = canonical.h + dm_scale_to_res(10)
+		.w = canonical.w + 10,
+		.h = canonical.h + 10
 	};
 	vb_value_box_t source = {
 		.value = -17,
@@ -113,8 +112,8 @@ static void test_transport_on_canonical_canvas(void)
 	source.box = (SDL_Rect){
 		.x = -41,
 		.y = -29,
-		.w = canonical.w + dm_scale_to_res(9),
-		.h = canonical.h + dm_scale_to_res(11)
+		.w = canonical.w + 9,
+		.h = canonical.h + 11
 	};
 	vb_copy_for_transport(&destination, &source);
 	assert(destination.box.w == canonical.w);

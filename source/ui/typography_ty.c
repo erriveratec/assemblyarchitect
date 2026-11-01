@@ -11,20 +11,20 @@ static const int CODE_HEIGHT = 40;
 
 int ty_stage_label_height(void)
 {
-	return dm_scale_to_res(STAGE_LABEL_HEIGHT);
+	return STAGE_LABEL_HEIGHT;
 }
 
 int ty_message_height(void)
 {
-	return dm_scale_to_res(MESSAGE_HEIGHT);
+	return MESSAGE_HEIGHT;
 }
 
 int ty_emphasis_height(void)
 {
-	return dm_scale_to_res(EMPHASIS_HEIGHT);
+	return EMPHASIS_HEIGHT;
 }
 
 int ty_code_height(void)
 {
-	return dm_scale_to_res(CODE_HEIGHT);
+	return CODE_HEIGHT;
 }
