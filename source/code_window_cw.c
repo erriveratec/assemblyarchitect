@@ -28,10 +28,11 @@
 #define NOT_FOUND -1
 #define CODE_LINES_SIZE 5
 #define CODE_BOX_HIGHLIGHT_GROWTH_MULTIPLIER 12.0f
-static Uint32 CODE_BOX_W = 350;
+static Uint32 CODE_BOX_W = 355;
 static Uint32 CODE_BOX_Y = 50;
 static const int CODE_COMMA_OFFSET = 15;
 static const int MISSING_OPERAND_WIDTH = 3;
+static const int CODE_CONTENT_X_ADJUSTMENT = -8;
 
 static List *code_list = NULL;
 
@@ -1686,7 +1687,7 @@ static void set_text_box(int x, int y, int w, int h)
 int cw_get_code_line_x(int instruction_id)
 {
 	int x;  
-	int number_ofs = um_padding_horizontal_with_border();
+	int number_ofs = um_padding_horizontal_with_border() + CODE_CONTENT_X_ADJUSTMENT;
 	SDL_Rect sb = cw_get_stage_code_box();
 	int number_h = ty_code_height();
 	int number_w = ax_get_texture_w_fit_h(number_h, g_numbers[0]);
@@ -2107,7 +2108,7 @@ void display_line_number(void)
 		return;
 	}
 
-	int number_ofs = um_padding_horizontal_with_border();
+	int number_ofs = um_padding_horizontal_with_border() + CODE_CONTENT_X_ADJUSTMENT;
 	SDL_Rect sb = cw_get_stage_code_box();
 	int x = sb.x + number_ofs;
 	int y = cw_get_code_line_y(0);
