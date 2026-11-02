@@ -1,0 +1,78 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  native:
+    name: macOS Clang
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/sdl-frameworks
+      - name: Build and execute the full suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/ci
+          make -B all 2>&1 | tee build/ci/build.log
+          make test 2>&1 | tee build/ci/tests.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: macos-clang-logs
+          path: build/ci/*.log
+          retention-days: 7
+  headless:
+    name: Headless SDL
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/sdl-frameworks
+      - name: Execute every test with dummy drivers
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/ci
+          make test-headless 2>&1 | tee build/ci/headless.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: headless-logs
+          path: build/ci/*.log
+          retention-days: 7
+  sanitize:
+    name: ASan and UBSan
+    runs-on: macos-15
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/sdl-frameworks
+      - name: Compile, link and execute with sanitizers
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/ci
+          make test-sanitize 2>&1 | tee build/ci/sanitize.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sanitizer-logs
+          path: build/ci/*.log
+          retention-days: 7
+  infrastructure:
+    name: Infrastructure and Formatting
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate YAML, profiles, paths, real targets, cleanup and format policy
+        run: make check-infrastructure format-check

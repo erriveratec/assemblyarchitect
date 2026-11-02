@@ -171,20 +171,43 @@ This produces:
 
 ### Tests and Warning Policy
 
-Run `make test` for all 15 regression targets, or `make -k test` to collect all
-failures. Tests use SDL software rendering and do not need a display server.
+Run `make test` for all 18 regression targets. This is the authoritative fail-fast
+suite; `make -k test` is optional diagnostic aggregation, not the baseline command.
+Tests use SDL software rendering and do not need a display server or audio device.
 Production and tests enforce `-Wall -Wextra -Wpedantic -Werror`; custom `CFLAGS`
 retain that policy. Third-party SDL headers are system includes.
 
-For AddressSanitizer and UndefinedBehaviorSanitizer:
+For local verification and AddressSanitizer/UndefinedBehaviorSanitizer:
 
 ```sh
-make -B build CFLAGS='-g -O1 -Isource -fsanitize=address,undefined -fno-omit-frame-pointer'
-ASAN_OPTIONS=halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 make -k test \
-  CFLAGS='-g -O1 -Isource -fsanitize=address,undefined -fno-omit-frame-pointer'
-make clean
-make build test
+make -B all
+make test
+make verify
+make test-headless
+make test-sanitize
+make analyze
+make clean-preview
 ```
+
+Run from the repository root with assets present. Sanitizer outputs are isolated
+under `build/sanitize`; normal binaries are preserved. Apple ASan has no supported
+LeakSanitizer, so the target explicitly disables leak detection. Static analysis
+is manual-only and currently reports four pre-existing uninitialized-value
+findings and exits nonzero until bounded triage is completed. Its workflow job
+runs only through dispatch; this is not a passing gate or authorization for
+unrelated repairs.
+
+`make clean` now delegates to an exact-path artifact list. Inspect `make -n clean`
+and `make clean-preview` before authorizing it. It preserves editor files, unrelated
+debug bundles, asset symlinks, legacy root tests, and the app bundle (which can hold
+player progress). It was not executed during bootstrap.
+
+See [architecture](docs/architecture/README.md),
+[quality gates](docs/governance/quality-gates.md), and
+[bootstrap evidence](docs/refactor/bootstrap-report.md) for verified platform facts,
+workflow limitations, manual GitHub settings, and migration boundaries. Hosted CI
+uses the native macOS build; Linux/GCC production support is not claimed. Copilot's
+Ubuntu setup validates infrastructure only, not production build or gameplay.
 
 See [ENGINEERING_BASELINE.md](ENGINEERING_BASELINE.md) for the diagnostic inventory,
 classifications, preserved behavior, and verification procedure.
