@@ -28,6 +28,7 @@ cf_result_t cf_resolve_jump(
 	const code_program_t *program, const code_line_t *jump,
 	code_line_t **target);
 cf_result_t cf_validate_program(const code_program_t *program);
+void cf_reset_execution(code_program_t *program);
 cf_result_t cf_apply_jump_execution(
 	const code_program_t *program, code_line_t *jump);
 

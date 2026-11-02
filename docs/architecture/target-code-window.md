@@ -37,14 +37,16 @@ semantic fix. Compatibility rollback must restore a stage without losing saves.
 
 Current working-tree progress: `code_layout_cly` owns selected pure geometry and
 Current working-tree progress: `code_layout_cly` owns selected pure geometry and
-hit calculations; `code_program_cp` owns ordered lines and lifetime with no raw
+hit calculations, including instruction-window spacing callers; `code_program_cp` owns ordered lines and lifetime with no raw
 List view exposed; `control_flow_cf` owns identity assignment, v1 translation,
 target repair, resolution, validation and jump execution-state intervals;
-`code_edit_ce` owns operand/line mutations, pending-state queries and explicit
-replacement session state; `code_interaction_ci` translates ordered hit results
+`code_edit_ce` owns operand/line mutations, pending-state queries, validated
+operand-slot selection and explicit replacement session state; `code_interaction_ci` translates ordered hit results
 in the production stage dispatcher; and `code_renderer_cr` draws lines, operands,
 labels, commas, line numbers, challenge text and the code box. These partial
 modules do not establish the full dependency boundaries shown above. Semantic
 edit orchestration, remaining geometry, input acquisition, independent contexts,
 wrapper retirement and material controller reduction are outstanding. The
-controller remains above its requested 1,800-line maximum.
+controller remains above its requested 1,800-line maximum. Its reset entry point
+is retained as orchestration because it releases presentation animation claims
+before delegating semantic state reset to `control_flow_cf`.

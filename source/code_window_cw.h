@@ -52,10 +52,6 @@ void cw_add_saved_line(char *line);
 void cw_destroy_code_window_assets(void);
 void cw_destroy_renderer_assets(void);
 int cw_get_instruction_y_coord(int instruction_position); //review usage
-int cw_get_code_line_x(int instruction_id);
-int cw_get_code_line_y(int pos);
-bool cw_ms_rel_in_label(void);
-operand_t *cw_create_jmp_op(code_line_t *addr);
 void cw_update_saved_jump_instructions(void);
 SDL_Rect cw_get_text_box_rect(void);
 float cw_get_challenge_highlight_limit(void);
@@ -65,7 +61,6 @@ bool cw_get_challenge_highlight_progress(float *progress,
 										float animation_limit);
 void cw_init_code_window_texture(void);
 SDL_Rect cw_get_code_line_coord_at_pos(int code_line_element, int pos);
-code_line_t *cw_create_label_code_line(void);
 /* Returns a borrowed held label on success; failure retains no candidate assets.
  * Temporary stage/controller adapter, retired with Stage 10/11 edit migration. */
 code_line_t *cw_create_automatic_jump_label(code_line_t *jump);
@@ -73,7 +68,6 @@ void cw_clear_code_list(void);
 void cw_assign_op_to_line(operand_t *op, code_line_t *line);
 void cw_highlight_code_pending_operand(void);
 SDL_Rect cw_get_stage_code_box(void);
-int cw_get_code_line_spacing(void);
 /* Borrowed model view; callers must not mutate program ordering or ownership. */
 const code_program_t *cw_get_code_program(void);
 #endif

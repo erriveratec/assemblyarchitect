@@ -158,6 +158,10 @@ static operand_t *create_updated_jump_operand(code_line_t *jmp_addr);
 static operand_t *create_saved_jump_operand(int op1_id);
 static SDL_Rect get_scroll_box(void);
 static void reset_button_animation(btn_t *button);
+static int code_line_spacing(void);
+static int get_code_line_x(int instruction_id);
+static int get_code_line_y(int position);
+static code_line_t *create_label_code_line(void);
 
 static void release_button_animation_claim(button_animation_claim_t *claim)
 {
@@ -300,7 +304,7 @@ static bool ensure_label_identity(code_line_t *line)
 		CF_VALID_TARGET;
 }
 
-int cw_get_code_line_spacing(void)
+static int code_line_spacing(void)
 {
 	return cly_code_line_spacing(
 		cl_get_code_button_size().h, um_padding_vertical());
@@ -503,19 +507,8 @@ static void update_jump_instructions(void)
 	return;
 }
 
-/* Function: cw_create_jmp_op
-*------------------------------------------------------------------------------
-* Creates the label operand with the corresponding number that will be shown
-* in the code
-*
-* Arguments:
-* 	None.
-*	
-* Return:
-*	Pointer to the newly created operand
-*
-*/
-operand_t *cw_create_jmp_op(code_line_t *addr)
+/* Creates a display operand for a validated in-program label target. */
+static operand_t *create_jump_operand(code_line_t *addr)
 {
 	if (!cp_contains(g_code_window.program, addr) || addr->ins == NULL ||
 	    addr->ins->id != LABEL || addr->op1 == NULL ||
@@ -554,34 +547,6 @@ operand_t *cw_create_jmp_op(code_line_t *addr)
 
 
 
-/* Function: cw_ms_rel_in_label
-*------------------------------------------------------------------------------
-* This function verifies if a mouse click was released on a label instruction
-* present in the code
-*
-* Arguments:
-* 	Void.
-*	
-* Return:
-*	boolean with the result if a mouse click was performed
-*
-*/
-bool cw_ms_rel_in_label(void)
-{
-	bool selected = false;
-	for (int index = 0; index < cp_count(g_code_window.program); index++) {
-		code_line_t *c = cp_get(g_code_window.program, index);
-		if (c->ins->id == LABEL){
-			ensure_label_identity(c);
-			if (bt_chk_rel_btn(c->ins->b, NULL) == true ||
-				bt_chk_rel_btn(c->op1->b, NULL) == true){
-				selected = true;
-				break;
-			}
-		}
-	}
-	return selected;
-}
 /* Function: update_label_instructions
  * -----------------------------------------------------------------------------
  * Traverses the whole code list and updates all the label instructions
@@ -860,11 +825,11 @@ void cw_add_saved_line(char *line)
 	texture_t *instruction_tex = dw_create_text_tex(
 						  		  ins_text, C_WHITE);
 	
-	int x = cw_get_code_line_x(ins_id);
-	int y = cw_get_code_line_y(0);
+	int x = get_code_line_x(ins_id);
+	int y = get_code_line_y(0);
 
 	for (int i = 0; i <= list_size; i++){
-		y += cw_get_code_line_spacing();
+		y += code_line_spacing();
 	}
 	
 	SDL_Rect r = cl_get_code_button_size();
@@ -1461,7 +1426,7 @@ static void set_text_box(int x, int y, int w, int h)
 }
 
 
-/* Function: cw_get_code_line_x
+/* Function: get_code_line_x
  * -----------------------------------------------------------------------------
  * This function calculates and returns the x position of the lines of code
  * that will be incorporated in the code box. IF it is a label instruction
@@ -1473,7 +1438,7 @@ static void set_text_box(int x, int y, int w, int h)
  * Return:
  *	int with the coordinate of the x coordinates for the lines of code
  */
-int cw_get_code_line_x(int instruction_id)
+static int get_code_line_x(int instruction_id)
 {
 	int x;  
 	int number_ofs = um_padding_horizontal_with_border() + CODE_CONTENT_X_ADJUSTMENT;
@@ -1508,10 +1473,10 @@ static void code_box_height_adjust(void)
 	SDL_Rect codbox = get_scroll_box();
 	SDL_Rect ogcodbox = cw_get_stage_code_box();
 	
-	int y = cw_get_code_line_y(list_size - 1);
+	int y = get_code_line_y(list_size - 1);
 	if ( y > (ogcodbox.h + ogcodbox.y)){
 		
-		int inc = y + cw_get_code_line_spacing() - (codbox.h + codbox.y);
+		int inc = y + code_line_spacing() - (codbox.h + codbox.y);
 		int new_bottom_border = codbox.y + codbox.h + inc;
 		int cur_bottom_border = codbox.h + codbox.y;
 		
@@ -1609,7 +1574,7 @@ void cw_draw_code_window(void)
 		g_stage_name, g_challenge_text, g_code_box_highlight,
 		g_challenge_highlight, animation_limit,
 		&g_code_box_highlight_value, &g_challenge_highlight_value,
-		stage_code_box.x, cw_get_code_line_y(0), cw_get_code_line_spacing(),
+		stage_code_box.x, get_code_line_y(0), code_line_spacing(),
 		ty_code_height(), ty_message_height(), ty_emphasis_height(),
 		um_border_width(), um_padding_horizontal_with_border(),
 		CODE_CONTENT_X_ADJUSTMENT);
@@ -1625,12 +1590,12 @@ void cw_sort_code(void)
 	int op1_ofs = cw_get_operand1_offset();
 	int op2_ofs = cw_get_operand2_offset();
 	
-	int y = cw_get_code_line_y(0);
+	int y = get_code_line_y(0);
 
 	int mdelta = ax_get_cw_move_delta();
 	for (int index = 0; index < list_size; index++) {
 		code_line_t *line = cp_get(g_code_window.program, index);
-		int x = cw_get_code_line_x(line->ins->id);
+		int x = get_code_line_x(line->ins->id);
 		int delta = ax_get_movement_delta(line->ins->b->r.x, x, mdelta);
 
 		if (line->ins->b->r.x < x){
@@ -1653,7 +1618,7 @@ void cw_sort_code(void)
 				line->op2->b->r.x = line->ins->b->r.x + op2_ofs;
 				line->op2->b->r.y = line->ins->b->r.y;
 		}
-		y += cw_get_code_line_spacing();
+		y += code_line_spacing();
 
 	}
 	return ;
@@ -1700,7 +1665,7 @@ void cw_sort_code(void)
 int get_code_line_position(int y)
 {
 	return cly_code_line_position_at_y(
-		cw_get_code_line_y(0), cw_get_code_line_spacing(),
+		get_code_line_y(0), code_line_spacing(),
 		cp_count(g_code_window.program), y);
 }
 
@@ -1765,8 +1730,8 @@ static void add_code_line(code_line_t *line)
 			y = last->ins->b->r.y;
 			int height = last->ins->b->r.h;
 			if (mouse_y < y + height) {
-				int row_y = cw_get_code_line_y(0);
-				int spacing = cw_get_code_line_spacing();
+				int row_y = get_code_line_y(0);
+				int spacing = code_line_spacing();
 				destination = NOT_FOUND;
 				for (int index = 0; index < list_count; index++) {
 					if (mouse_y >= row_y && mouse_y < row_y + spacing) {
@@ -1816,7 +1781,7 @@ static bool chk_sel_line_in_pos(code_line_t *line)
 		return false;
 	}
 	
-	int y = cw_get_code_line_y(0);
+	int y = get_code_line_y(0);
 
 	int mouse_y = ms_get_mouse_y();
 	bool ret = false;
@@ -1831,7 +1796,7 @@ static bool chk_sel_line_in_pos(code_line_t *line)
 					ret =  true;	
 				}
 			}
-			y += cw_get_code_line_spacing();
+			y += code_line_spacing();
 		}
 	}
 	return ret;
@@ -2065,19 +2030,19 @@ bool cw_check_code_sorted(void)
 		return true;
 	}
 	
-	int y = cw_get_code_line_y(0);
+	int y = get_code_line_y(0);
 
 	int retval = true;
 	for (int index = 0; index < list_size; index++) {
 		code_line_t *value = cp_get(g_code_window.program, index);
 		btn_t *b = value->ins->b;
-		int x = cw_get_code_line_x(value->ins->id);
+		int x = get_code_line_x(value->ins->id);
 
 		if (b->r.x < x || b->r.x > x || b->r.y < y || b->r.y > y){
 			retval = false;
 			break;
 		} 
-		y += cw_get_code_line_spacing();
+		y += code_line_spacing();
 	}	
 	return retval;
 }
@@ -2167,24 +2132,17 @@ void cw_change_clicked_code_line_state(void)
 				reset_button_animation(c->op2->b);
 			}
 		}
-		int qty = cl_get_instruction_operand_quantity(c->ins->id);
-		if (qty == TWO_OPERANDS && c->op1 == NULL && c->op2 == NULL){
-			c->state = MISSING_BOTH;
-		} else if (qty != ZERO_OPERANDS && c->op1 == NULL){
-			c->state = MISSING_OP1;
-		} else if (qty == TWO_OPERANDS && c->op2 == NULL){
-			c->state = MISSING_OP2;
-		} else {
-			c->state = COMPLETE;
-		}
 	}
 
 	btn_t *selected_button = selected_operand == OP1 ?
 		selected_line->op1->b : selected_line->op2->b;
-	selected_line->state = selected_operand == OP1 ? CHANGING_OP1 : CHANGING_OP2;
-	ce_begin(&g_code_window.edit_session, selected_line,
-	         selected_operand == OP1 ? CE_REPLACING_OPERAND_1 :
-	                                   CE_REPLACING_OPERAND_2);
+	ce_result_t selection_result = ce_select_operand(
+		g_code_window.program, &g_code_window.edit_session, selected_line,
+		selected_operand == OP1 ? CE_OPERAND_SLOT_1 : CE_OPERAND_SLOT_2);
+	assert(selection_result == CE_OK);
+	if (selection_result != CE_OK) {
+		return;
+	}
 	bool selected_jump_replacement = cw_is_active_jump_operand_replacement(
 		selected_line, cw_get_code_line_pending_operand());
 	if (!selected_jump_replacement) {
@@ -2301,7 +2259,7 @@ code_line_t *cw_create_automatic_jump_label(code_line_t *jump)
 	    jump->op1 != NULL) {
 		return NULL;
 	}
-	code_line_t *label = cw_create_label_code_line();
+	code_line_t *label = create_label_code_line();
 	if (label == NULL) {
 		return NULL;
 	}
@@ -2313,7 +2271,7 @@ code_line_t *cw_create_automatic_jump_label(code_line_t *jump)
 	update_label_instructions();
 	update_jump_instructions();
 	cw_player_holding_instruction(label, false, true);
-	operand = cw_create_jmp_op(label);
+	operand = create_jump_operand(label);
 	if (operand != NULL && try_assign_op_to_line(operand, jump)) {
 		return label;
 	}
@@ -2340,38 +2298,35 @@ rollback:
 * Return:
 *	Void.
 */
-void cw_reset_code_execution(void)
-{
-	release_active_jump_replacement_claims();
-	for (int index = 0; index < cp_count(g_code_window.program); index++) {
-		code_line_t *line = cp_get(g_code_window.program, index);
-		line->state = COMPLETE;
-	}
-}
-
 SDL_Rect cw_get_code_line_coord_at_pos(int code_line_element, int pos)
 {
 	int op1_ofs = cw_get_operand1_offset();
 	int op2_ofs = cw_get_operand2_offset();
-	int x = cw_get_code_line_x(MOV);
-	int y = cw_get_code_line_y(0);
+	int x = get_code_line_x(MOV);
+	int y = get_code_line_y(0);
 	SDL_Rect bwh = cl_get_code_button_size();
 	SDL_Rect base = {.x = x, .y = y, .w = bwh.w, .h = bwh.h};
 	int list_size = cp_count(g_code_window.program);
 	int x_offset = code_line_element == CW_OP1 ? op1_ofs :
 		code_line_element == CW_OP2 ? op2_ofs : 0;
 	return cly_code_line_rect(
-		base, x_offset, cw_get_code_line_spacing(), pos, list_size);
+		base, x_offset, code_line_spacing(), pos, list_size);
 }
 
-int cw_get_code_line_y(int position)
+static int get_code_line_y(int position)
 {
 	int list_size = cp_count(g_code_window.program);
 	int border_offset = um_padding_vertical_with_border() +
 	                    um_padding_vertical();
 	int base_y = g_text_box.y + g_text_box.h + border_offset;
 	return cly_code_line_y(
-		base_y, cw_get_code_line_spacing(), position, list_size);
+		base_y, code_line_spacing(), position, list_size);
+}
+
+void cw_reset_code_execution(void)
+{
+	release_active_jump_replacement_claims();
+	cf_reset_execution(g_code_window.program);
 }
 
 int cw_get_instruction_y_coord(int instruction_position)
@@ -2390,7 +2345,7 @@ bool cw_chk_click_code_op2(int code_line_pos)
 		bt_chk_rel_btn(line->op2->b, NULL);
 }
 
-code_line_t *cw_create_label_code_line(void)
+static code_line_t *create_label_code_line(void)
 {
 	char *text = cl_get_instruction_text(LABEL);
 	texture_t *texture = dw_create_text_tex(text, C_WHITE);

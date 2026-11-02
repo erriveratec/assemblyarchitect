@@ -215,6 +215,17 @@ cf_result_t cf_validate_program(const code_program_t *program)
 	return CF_VALID_TARGET;
 }
 
+void cf_reset_execution(code_program_t *program)
+{
+	if (program == NULL) {
+		return;
+	}
+	for (int index = 0; index < cp_count(program); index++) {
+		code_line_t *line = cp_get(program, index);
+		line->state = COMPLETE;
+	}
+}
+
 cf_result_t cf_apply_jump_execution(
 	const code_program_t *program, code_line_t *jump)
 {

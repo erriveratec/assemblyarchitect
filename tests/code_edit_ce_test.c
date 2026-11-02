@@ -87,6 +87,40 @@ static void test_jump_position_validation(void)
 	}
 }
 
+static void test_operand_selection_state(void)
+{
+	code_program_t *program = cp_create(destroy_line);
+	assert(program != NULL);
+	code_line_t *first = new_line(MOV, COMPLETE);
+	code_line_t *second = new_line(ADD, COMPLETE);
+	first->op1 = new_operand(RAX);
+	first->op2 = new_operand(RBX);
+	second->op1 = new_operand(RCX);
+	second->op2 = new_operand(RDX);
+	assert(cp_insert(program, 0, first) == CP_OK);
+	assert(cp_insert(program, 1, second) == CP_OK);
+	ce_session_t session = {0};
+	assert(ce_select_operand(program, &session, first,
+	                         CE_OPERAND_SLOT_1) == CE_OK);
+	assert(first->state == CHANGING_OP1);
+	assert(session.state == CE_REPLACING_OPERAND_1 && session.line == first);
+	assert(ce_select_operand(program, &session, second,
+	                         CE_OPERAND_SLOT_2) == CE_OK);
+	assert(first->state == COMPLETE && second->state == CHANGING_OP2);
+	assert(session.state == CE_REPLACING_OPERAND_2 && session.line == second);
+	assert(ce_cancel(&session) == CE_OK);
+	assert(second->state == COMPLETE);
+	assert(ce_select_operand(program, &session, second,
+	                         CE_OPERAND_SLOT_1) == CE_OK);
+	second->op1 = NULL;
+	second->state = MISSING_OP2;
+	assert(ce_select_operand(program, &session, first,
+	                         CE_OPERAND_SLOT_2) == CE_OK);
+	assert(second->state == MISSING_OP2 && first->state == CHANGING_OP2);
+	assert(ce_cancel(&session) == CE_OK);
+	cp_destroy(program);
+}
+
 static void test_invalid_jump_targets(void)
 {
 	code_line_t *jump = new_line(JMP, MISSING_OP1);
@@ -119,6 +153,7 @@ int main(void)
 {
         test_jump_position_validation();
         test_invalid_jump_targets();
+	test_operand_selection_state();
 	test_empty_slot_ownership();
 	code_program_t *program = cp_create(destroy_line);
 	assert(program != NULL);

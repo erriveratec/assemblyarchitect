@@ -5,15 +5,15 @@
 | 0 Inventory/bootstrap | Complete | Merged to `main` | Existing cw_* unchanged | Local tests, hosted CI, CodeQL, and manual smoke test | Hosted validation passed on commit `7d29cea`; see bootstrap-report.md |
 | 1 Characterization | Complete | Local working-tree change | Existing cw_* | Full tests, headless, sanitizer | Reorder, shared-label deletion, forward/backward v1 round trip, `_`, repeated lifecycle; renderer has a semantic snapshot non-mutation test |
 | 2 Explicit context | In progress | Local working-tree change | cw_* wrappers annotated for Stage 10/11 | Focused lifecycle, full suite, sanitizer | Private code-window state consolidated; still one legacy owner, no independent public contexts |
-| 3 Pure layout | In progress | Local working-tree change | cw geometry adapters retained | Standalone geometry, resize, boundaries, headless | Rectangle, spacing, offsets, row hit testing and line-position helpers extracted; other geometry remains in cw |
+| 3 Pure layout | In progress | Local working-tree change | Live layout/render adapters retained | Standalone geometry, resize, boundaries, headless | Rectangle, spacing, offsets, row hit testing and line-position helpers extracted; instruction-window spacing now calls cly directly; controller coordinates remaining geometry |
 | 4 Program model | Complete | Local working-tree change | No raw-List compatibility API remains | SDL-independent model tests, full suite, sanitizer | Model owns ordered lines; production and direct-source fixtures use indexed model reads or its read-only iterator |
 | 5 Label identity | In progress | Local working-tree change | v1 positional translation retained | Jump/reorder/save fixtures | In-memory identities assigned and used for execution; production constructors initialize IDs; further path/fixture review remains |
-| 6 Control flow | In progress | Local working-tree change | cw saved-load presentation adapter retained | Delete/invalid target, sanitizer | `control_flow_cf` owns identity assignment, v1 target translation, repair, resolution, validation and jump execution-state intervals; cw still rebuilds SDL label/jump operands |
-| 7 Edit commands | In progress | Local working-tree change | cw mutation adapters retained | Rollback/session tests | `code_edit_ce` owns operand replacement/cancellation, line insertion/removal/movement and pending-state queries; clone creation, semantic drag/delete decisions and presentation remain in cw/stages |
+| 6 Control flow | In progress | Local working-tree change | cw saved-load and reset orchestration retained | Delete/invalid target, sanitizer | `control_flow_cf` owns identity assignment, v1 target translation, repair, resolution, validation, execution-state intervals and semantic reset; cw reset also releases visual animation claims and still rebuilds SDL label/jump operands |
+| 7 Edit commands | In progress | Local working-tree change | cw mutation adapters retained | Rollback/session tests | `code_edit_ce` owns operand replacement/cancellation, validated operand-slot selection/state transitions, line insertion/removal/movement and pending-state queries; UI hit acquisition, animation and drag/delete orchestration remain outside ce |
 | 8 Interaction | In progress | Local working-tree change | cw hit adapters retained | Modal/boundary tests | `code_interaction_ci` translates ordered stage hit results; SDL hit acquisition and some pointer/session state remain in stages/cw |
 | 9 Renderer | In progress | Local working-tree change | cw draw coordinator retained | Non-mutation/phase/pixel checks | `code_renderer_cr` owns line/operand/label/comma/line-number and challenge/code-box presentation; animation claims and scroll/layout coordination remain in cw |
-| 10 Caller migration | In progress | Local working-tree change | Retain remaining presentation/input adapters | Caller integration, saves, smoke | Code-state, game mechanics, serialization, interaction rules, stages, levels, arrows, and direct-source fixtures use `code_program_cp`, `control_flow_cf`, or `code_edit_ce` for migrated model reads and jump/pending queries; layout and input hit acquisition still use cw_* |
-| 11 Wrapper removal | In progress | Local working-tree change | Remaining wrappers require caller inventory | All gates and invariant audit | Removed raw-list access and unused model/query/jump execution wrappers; many geometry, hit-test, load, edit, and orchestration APIs remain |
+| 10 Caller migration | In progress | Local working-tree change | Retain remaining presentation/input adapters | Caller integration, saves, smoke | Code-state, game mechanics, serialization, interaction rules, stages, levels, arrows, instruction-window spacing and direct-source fixtures use owning modules where applicable; SDL hit acquisition and presentation still use cw_* |
+| 11 Wrapper removal | In progress | Local working-tree change | Remaining wrappers have production callers or presentation/orchestration ownership | All gates and invariant audit | Removed unused label-hit API, made candidate factories private, and made code-line x/y/spacing helpers controller-local; 39 public cw_* functions remain. Reset remains a visual-claim coordinator delegating semantic reset to control flow |
 
 Only update a stage after recording actual evidence. The maintainer's task request
 authorizes continuing the remaining migration locally; it does not authorize Git
@@ -46,6 +46,35 @@ layout/model/control-flow/edit/interaction/renderer slices are recorded below.
 
 ## Local Migration Evidence
 
+- Final cleanup continuation (2026-11-02): inventory found 45 public cw declarations
+	at entry; removed the unused `cw_ms_rel_in_label`, made the SDL candidate
+	factories private, and made code-line x/y/spacing helpers controller-local.
+	Migrated instruction-window spacing to `code_layout_cly`; the execution-arrow
+	adapter remains because it returns live button position. Added
+	`ce_select_operand` so edit-session selection and semantic pending-state
+	restoration belong to `code_edit_ce`, while controller hit acquisition and
+	jump-animation claims remain in the UI layer. Added `cf_reset_execution` and
+	retained `cw_reset_code_execution` as orchestration to release visual claims
+	before semantic reset. The final controller is 2,361 lines with 39 public
+	cw_* functions. Production `cw_*` callers remain for initialization/shutdown,
+	stage/event/draw coordination, SDL hit acquisition and presentation, saved-line
+	construction/visual jump repair, and live geometry/accessor adapters; no raw
+	List or model query pass-through was restored. The automatic jump regression
+	was updated to exercise private candidate factories. CE tests now cover slot
+	selection, switching, cancellation restoration, and unrelated incomplete-line
+	state; control-flow tests cover execution reset. Focused model/control-flow/
+	jump/highlight, edit/interaction/selection/modal, layout/renderer/tutorial/
+	animation/arrow groups all passed.
+	`make check-infrastructure`, `make format-check`, `make -B all`, `make test`,
+	`make test-headless`, `make test-sanitize`, `make verify`, and `git diff --check`
+	returned 0. Normal, headless, sanitizer, and verify runs each executed all 25
+	registered tests. `make analyze` returned 2 on four existing
+	`select_level_sl.c` uninitialized-button-pointer findings at lines 98, 581,
+	584, and 587; later translation units were not analyzed, and no findings were
+	suppressed. Protected saves, levels, tutorials, fonts, images, and sounds have
+	no diff. Real interactive gameplay was not repeated for this local cleanup;
+	v1 forward/backward jump loading and all specified automatic-label regressions
+	remain covered by `automatic_jump_label_test`. No commit or push was made.
 - Bounded repeated-label correction (2026-11-02): deterministic production defect
 	in the uncommitted refactor, not a test/environment failure or nondeterminism.
 	Before production changes, a new `test_jump_position_validation` assertion
@@ -191,8 +220,9 @@ layout/model/control-flow/edit/interaction/renderer slices are recorded below.
 - Final `make analyze` stopped at four documented pre-existing findings in
 	`source/ui/screens/select_level_sl.c` (uninitialized sector button pointers);
 	later translation units were not analyzed. No findings were suppressed.
-- `code_window_cw.c` was 3,127 lines at baseline and measured 2,350 lines after
-	this migration. It remains above the request's 1,800-line maximum (and the
+- `code_window_cw.c` was 3,127 lines at the original baseline and measured 2,350
+	at an earlier migration checkpoint; the current cleanup checkpoint measures
+	2,361 lines. It remains above the request's 1,800-line maximum (and the
 	1,200-1,600 aim). Broad pure-layout extraction, semantic edit ownership,
 	remaining caller migration, and wrapper retirement remain incomplete; this is
 	not a completed refactor.

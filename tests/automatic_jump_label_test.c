@@ -194,14 +194,14 @@ static void test_replacement(void)
 	code_line_t *jump = append_line(JMP);
 	code_line_t *old_label = pending_operand_handler();
 	assert(old_label != NULL);
-	code_line_t *new_label = cw_create_label_code_line();
+	code_line_t *new_label = create_label_code_line();
 	assert(new_label != NULL);
 	cw_player_holding_instruction(new_label, false, true);
 	assert(label_count() == 2);
 	int original_count = cp_count(g_code_window.program);
 	replaced_operand = jump->op1;
 	jump->state = CHANGING_OP1;
-	operand_t *replacement = cw_create_jmp_op(new_label);
+	operand_t *replacement = create_jump_operand(new_label);
 	assert(replacement != NULL);
 	assert(try_assign_op_to_line(replacement, jump));
 	assert(replaced_destructions == 1);
@@ -222,7 +222,7 @@ static void test_replacement(void)
 static void test_nonmember_target(void)
 {
 	code_line_t *jump = append_line(JMP);
-	code_line_t *label = cw_create_label_code_line();
+	code_line_t *label = create_label_code_line();
 	assert(label != NULL);
 	operand_t *operand = calloc(1, sizeof(*operand));
 	assert(operand != NULL);
@@ -230,7 +230,7 @@ static void test_nonmember_target(void)
 	assert(!try_assign_op_to_line(operand, jump));
 	assert(jump->state == MISSING_OP1 && jump->op1 == NULL);
 	assert(cp_count(g_code_window.program) == 1 && label_count() == 0);
-	assert(cw_create_jmp_op(label) == NULL);
+	assert(create_jump_operand(label) == NULL);
 	free(operand);
 	cl_destroy_code_line(label);
 	reset_program();

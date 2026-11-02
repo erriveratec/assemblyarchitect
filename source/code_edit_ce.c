@@ -17,6 +17,32 @@ static int ce_line_state_after_edit(const code_line_t *line)
 	return COMPLETE;
 }
 
+ce_result_t ce_select_operand(
+	code_program_t *program, ce_session_t *session, code_line_t *line,
+	ce_operand_slot_t slot)
+{
+	if (program == NULL || session == NULL || line == NULL ||
+	    line->ins == NULL || !cp_contains(program, line) ||
+	    line->ins->id == LABEL ||
+	    (slot != CE_OPERAND_SLOT_1 && slot != CE_OPERAND_SLOT_2) ||
+	    (slot == CE_OPERAND_SLOT_1 && line->op1 == NULL) ||
+	    (slot == CE_OPERAND_SLOT_2 &&
+	     (line->op2 == NULL || cl_is_ins_jmp_type(line->ins->id)))) {
+		return CE_INVALID_ARGUMENT;
+	}
+	for (int index = 0; index < cp_count(program); index++) {
+		code_line_t *candidate = cp_get(program, index);
+		if (candidate != NULL && candidate->ins != NULL &&
+		    (candidate->state == CHANGING_OP1 ||
+		     candidate->state == CHANGING_OP2)) {
+			candidate->state = ce_line_state_after_edit(candidate);
+		}
+	}
+	line->state = slot == CE_OPERAND_SLOT_1 ? CHANGING_OP1 : CHANGING_OP2;
+	return ce_begin(session, line, slot == CE_OPERAND_SLOT_1
+		? CE_REPLACING_OPERAND_1 : CE_REPLACING_OPERAND_2);
+}
+
 ce_result_t ce_begin(
 	ce_session_t *session, code_line_t *line, ce_session_state_t state)
 {

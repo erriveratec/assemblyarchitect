@@ -7,6 +7,7 @@
 #include "list.h"
 #include "ui/button_bt.h"
 #include "code_line_cl.h"
+#include "code_layout_cly.h"
 #include "dbg.h"
 #include "dimensions_dm.h"
 #include "stage_buttons_sb.h"
@@ -288,11 +289,13 @@ void iw_add_instruction_to_list(int id)
 	
 	int x = ib.x + um_padding_horizontal_with_border()+ um_padding_horizontal();
 	int y;
+	int line_spacing = cly_code_line_spacing(
+		cl_get_code_button_size().h, um_padding_vertical());
 	if (list_size == 0){
 		 y = ib.y + um_padding_vertical_with_border() + um_padding_vertical();
 	} else {
 		y = ib.y + um_padding_vertical_with_border()+ um_padding_vertical()
-		    + list_size*cw_get_code_line_spacing();
+		    + list_size*line_spacing;
 	}
 	SDL_Rect r = cl_get_code_button_size();
 	
@@ -327,7 +330,9 @@ void iw_update_ins_box_size(void)
 	g_instruction_box.h = il_get_initial_instruction_bounds().h;
 	if (size > 4){
 		int increase_factor = size - 4;
-		g_instruction_box.h += increase_factor*cw_get_code_line_spacing();
+		int line_spacing = cly_code_line_spacing(
+			cl_get_code_button_size().h, um_padding_vertical());
+		g_instruction_box.h += increase_factor*line_spacing;
 	}
 }
 

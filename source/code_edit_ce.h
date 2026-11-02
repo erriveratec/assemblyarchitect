@@ -22,6 +22,11 @@ typedef enum ce_pending_query_t {
 	CE_PENDING_OPERAND_2
 } ce_pending_query_t;
 
+typedef enum ce_operand_slot_t {
+	CE_OPERAND_SLOT_1,
+	CE_OPERAND_SLOT_2
+} ce_operand_slot_t;
+
 typedef enum ce_result_t {
 	CE_OK,
 	CE_INVALID_ARGUMENT,
@@ -32,6 +37,9 @@ typedef enum ce_result_t {
 
 ce_result_t ce_begin(
 	ce_session_t *session, code_line_t *line, ce_session_state_t state);
+ce_result_t ce_select_operand(
+	code_program_t *program, ce_session_t *session, code_line_t *line,
+	ce_operand_slot_t slot);
 ce_result_t ce_cancel(ce_session_t *session);
 /* On CE_OK the line owns operand; the caller owns non-NULL *replaced and must
  * destroy it. *replaced is NULL for an empty slot. On failure the caller retains

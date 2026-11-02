@@ -90,6 +90,13 @@ static void test_jump_execution_state_ranges(void)
 	assert(label->state == COMPLETE);
 	assert(middle->state == COMPLETE);
 	assert(backward_jump->state == COMPLETE);
+	label->state = EXECUTED;
+	middle->state = MISSING_OP1;
+	backward_jump->state = EXECUTED;
+	cf_reset_execution(program);
+	assert(label->state == COMPLETE);
+	assert(middle->state == COMPLETE);
+	assert(backward_jump->state == COMPLETE);
 	cp_destroy(program);
 }
 

@@ -8,7 +8,7 @@ is proven.
 
 | Existing file | Responsibility |
 | --- | --- |
-| `source/code_window_cw.c` | Orchestration and remaining compatibility implementation: SDL-backed line construction, label/jump operand rebuilding, save entry points, edit coordination, remaining layout, scrolling and animation claims |
+| `source/code_window_cw.c` | Orchestration and remaining compatibility implementation: SDL-backed line construction, label/jump operand rebuilding, save entry points, hit acquisition, layout coordination, scrolling and animation claims |
 | `source/code_program_cp.{c,h}` | Ordered line owner using existing `List`; production and direct-source fixtures use read-only indexed and iterator APIs, with no raw-list compatibility view |
 | `source/control_flow_cf.{c,h}` | Production stable identity assignment, v1 positional target translation, target repair/resolution, validation and jump execution-state intervals; SDL operand presentation remains in `cw_*` |
 | `source/code_layout_cly.{c,h}` | Pure value-based rectangle, spacing, offset, row-position and strict-boundary hit calculations; some geometry remains in `cw_*` |
@@ -34,15 +34,17 @@ state across frames. SDL renderer/font/window globals live in `source/sdl_config
 
 ## APIs and Main Callers
 
-The header exposes list lifecycle; saved-line construction and post-load jump
+The header exposes program lifecycle; saved-line construction and post-load jump
 presentation repair; click/right-click/operand detection; pending-state
 cancellation; held-instruction editing; layout/scroll setters and queries;
-drawing/highlights; sorting and execution reset.
+drawing/highlights and sorting. Semantic execution reset, operand-slot state
+transitions, and pure instruction spacing are delegated to `control_flow_cf`,
+`code_edit_ce`, and `code_layout_cly`; the reset coordinator remains in `cw_*`
+to release presentation animation claims.
 The public API includes `code_line_t *` and `operand_t *`, not opaque model IDs.
 Program membership, ordering, count and indexed reads use `code_program_cp`;
 execution jump transitions use `control_flow_cf` directly.
 
-Stages call editing, sorting, drawing, and cleanup. Level initialization creates
 Stages call editing, sorting, drawing, and cleanup. Level initialization creates
 the program, configures assets, and loads saved code. Storage calls
 `cw_add_saved_line` and `cw_update_saved_jump_instructions`; file serialization
@@ -129,7 +131,8 @@ consume pending/execution/highlight state; stages coordinate frame order and res
 
 All original tests remain registered. Standalone tests cover layout, program,
 control flow, edit, interaction and renderer non-mutation. The code-window
-implementation is currently 2,350 lines versus 3,127 at baseline. Raw-list
+implementation is currently 2,361 lines versus 3,127 at baseline, with 39 public
+`cw_*` functions. Raw-list
 compatibility and model pass-throughs have been removed; challenge/code-box
 presentation and pending-state queries moved to owning modules. It remains above
 the requested 1,800-line maximum, with edit orchestration and substantial layout,

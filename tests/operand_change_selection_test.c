@@ -7,14 +7,12 @@ static void test_destroy_operand(operand_t *operand);
 
 #define rg_chk_rel_in_reg test_reg_selected
 #define bf_ms_rel_in_buf test_buffer_selected
-#define cw_ms_rel_in_label test_label_selected
 #define im_ms_rel_in_upimm test_immediate_selected
 #define im_create_sel_imm_op test_create_selected_immediate
 #define cw_highlight_code_pending_operand test_pending_highlight
 #include "../source/stages.c"
 #undef rg_chk_rel_in_reg
 #undef bf_ms_rel_in_buf
-#undef cw_ms_rel_in_label
 #undef im_ms_rel_in_upimm
 #undef im_create_sel_imm_op
 #undef cw_highlight_code_pending_operand
@@ -36,7 +34,6 @@ static operand_t *selected_immediate;
 
 bool test_reg_selected(void) { return false; }
 bool test_buffer_selected(void) { return false; }
-bool test_label_selected(void) { return false; }
 bool test_immediate_selected(void) { return immediate_selected; }
 operand_t *test_create_selected_immediate(void) { return selected_immediate; }
 void test_pending_highlight(void) {}
