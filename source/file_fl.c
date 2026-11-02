@@ -7,6 +7,7 @@
 #include "dbg.h"
 #include "instruction_window_iw.h"
 #include "code_window_cw.h"
+#include "code_program_cp.h"
 #include "buffers_bf.h"
 #include "registers_rg.h"
 #include "dimensions_dm.h"
@@ -482,17 +483,19 @@ void write_player_code_to_file(FILE *fp)
 {
 	assert(fp != NULL && "The file pointer is NULL");
 
-	int list_size = cw_get_code_list_size();
+	const code_program_t *program = cw_get_code_program();
+	int list_size = cp_count(program);
 	for (int i = 0; i < list_size; i++) {
-		int instruction = cw_get_instruction_at_code_pos(i);
+		code_line_t *code_line = cp_get(program, i);
+		int instruction = code_line->ins->id;
 		int op1         = NO_OPERAND;
 		int op2         = NO_OPERAND;
 
 		if (cl_get_instruction_operand_quantity(instruction) > ZERO_OPERANDS) {
-			op1 = cw_get_instruction_operand(i, FIRST_OP);
+			op1 = code_line->op1 == NULL ? NO_OPERAND : code_line->op1->id;
 		}
 		if (cl_get_instruction_operand_quantity(instruction) == TWO_OPERANDS) {
-			op2 = cw_get_instruction_operand(i, SECOND_OP);
+			op2 = code_line->op2 == NULL ? NO_OPERAND : code_line->op2->id;
 		}
 
 		char *line = cl_create_code_line_text(instruction, op1, op2);

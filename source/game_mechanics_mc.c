@@ -6,6 +6,8 @@
 #include "aux.h"
 #include "draw_dw.h"
 #include "code_window_cw.h"
+#include "code_program_cp.h"
+#include "control_flow_cf.h"
 #include "dimensions_dm.h"
 #include "registers_rg.h" 
 #include "buffers_bf.h"
@@ -1600,7 +1602,7 @@ static bool check_correct_code_size(void)
 {
 	bool within_limit = false;
 	
-	int code_size = cw_get_code_list_size();
+	int code_size = cp_count(cw_get_code_program());
 	int instructions_limit = lv_get_level_instructions_limit();
 
 	if (code_size <= instructions_limit){
@@ -1664,7 +1666,7 @@ static void execute_instruction(code_line_t *line, int line_pos)
 		line->state = EXECUTED;
 		reset_avatar_no_pos();
 	} else if (line->ins->id == JMP && arrow_in_place == true){
-		cw_operate_jump_instruction(line);
+		cf_apply_jump_execution(cw_get_code_program(), line);
 		reset_avatar_no_pos();
 	} else if (buffer_inputs != CW_EMPTY 
 			  || line->state == IN_EXECUTION 
@@ -1694,14 +1696,14 @@ static void execute_instruction(code_line_t *line, int line_pos)
 				}
 			} else if (line->ins->id == JE){
 				if (g_ravatar.mainval.value == 1){
-				cw_operate_jump_instruction(line);
+				cf_apply_jump_execution(cw_get_code_program(), line);
 				} else if (g_ravatar.mainval.value == 0){
 					line->state = EXECUTED;
 				}
 				reset_avatar_no_pos();
 			} else if (line->ins->id == JNE){
 				if (g_ravatar.mainval.value == 0){
-				cw_operate_jump_instruction(line);
+				cf_apply_jump_execution(cw_get_code_program(), line);
 				} else if (g_ravatar.mainval.value == 1){
 					line->state = EXECUTED;
 				}
@@ -1806,10 +1808,11 @@ bool mc_get_step_ended(void)
 void mc_run_code(void)
 {
 	mc_set_run_ended(false);
-	int code_size = cw_get_code_list_size();	
+	const code_program_t *program = cw_get_code_program();
+	int code_size = cp_count(program);
 	
 	for (int i = 0; i < code_size; i++){
-		code_line_t *line = cw_get_code_line_at_pos(i);
+		code_line_t *line = cp_get(program, i);
 		if (line->state != EXECUTED){
 			execute_instruction(line, i);	
 		if (check_finishes_at_OB_correct_size() == true){

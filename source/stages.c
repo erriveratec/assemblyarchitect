@@ -9,6 +9,9 @@
 #include "ui/escape_menu_em.h"
 #include "stages.h"
 #include "code_window_cw.h"
+#include "code_program_cp.h"
+#include "code_interaction_ci.h"
+#include "code_edit_ce.h"
 #include "instruction_window_iw.h"
 #include "instruction_layout_il.h"
 #include "buffers_bf.h"
@@ -198,7 +201,7 @@ void stage_drawings(int level, int operation_id)
 	iw_draw_ins_box();
 	cw_draw_code_window();
 	float animation_limit = cw_get_challenge_highlight_limit();
-	sb_draw_stage_btns(cw_get_code_list_size(), animation_limit);
+	sb_draw_stage_btns(cp_count(cw_get_code_program()), animation_limit);
 	im_draw_imm(animation_limit);
 	ar_display_arrow(AR_EXEC, animation_limit);
 	bf_draw_buffers(animation_limit);
@@ -366,10 +369,7 @@ static code_line_t *pending_operand_handler(void)
 	cw_highlight_code_pending_operand();
 
 	if (cl_is_ins_jmp_type(l->ins->id) == true && l->state == MISSING_OP1) {
-		r = cw_create_label_code_line();
-		cw_player_holding_instruction(r, false, true);
-		operand_t *a = cw_create_jmp_op(r);
-		cw_assign_op_to_line(a, l);
+		r = cw_create_automatic_jump_label(l);
 	} else if (reg_sel == true && lv_is_reg_selectable() == true) {
 		operand_t *r = rg_create_sel_reg_op();
 		cw_assign_op_to_line(r, l);
@@ -415,41 +415,62 @@ static code_line_t *edit_code(int level_id)
 	bool                left_released = ms_left_released();
 	static bool         hold_line     = false;
 
-	if (cw_is_operand_pending() == true && line == NULL &&
+	if (ce_has_pending_operand(cw_get_code_program(), CE_PENDING_ANY) && line == NULL &&
 	    cw_check_code_sorted() == true && cw_chk_click_code() == false &&
 	    cw_chk_click_code_op() == false) {
 		line = pending_operand_handler();
-		if (cw_is_operand_pending() == false) {
+		if (!ce_has_pending_operand(cw_get_code_program(), CE_PENDING_ANY)) {
 			code_updated_actions(level_id);
 		}
 		if (line != NULL) {
 			hold_line = true;
 		}
-	} else if (cw_chk_click_code_op() == true && line == NULL &&
-	           lv_is_code_editable() == true) {
-		cw_change_clicked_code_line_state();
-	} else if (iw_chk_click_ins() == true && line == NULL &&
-	           lv_is_code_editable() == true) {
-		line = cl_new_code_line(iw_get_clicked_instruction());
-	} else if (cw_chk_click_code() == true && line == NULL &&
-	           lv_is_code_editable() == true) {
-		line = cw_get_clicked_code();
-	} else if (cw_chk_rclick_code() == true && line == NULL) {
-		line      = cw_clone_rclicked_line(cw_get_rclicked_code());
-		hold_line = true;
-	} else if ((left_pressed == true || hold_line == true) && line != NULL) {
-		bool arrange = lv_is_arrange_enabled();
-		bool delete  = lv_is_del_enabled();
-		cw_player_holding_instruction(line, arrange, delete);
-		hold_line = (left_released == true) ? false : true;
-	} else if (left_pressed == false && line != NULL) {
-		if (cw_check_if_in_code_list(line) == false) {
-			cl_destroy_code_line(line);
+	} else {
+		ci_hit_results_t hits = {
+			.left_pressed = left_pressed || hold_line,
+			.has_held_line = line != NULL
+		};
+		hits.operand = cw_chk_click_code_op() && line == NULL &&
+			lv_is_code_editable();
+		hits.instruction = !hits.operand && iw_chk_click_ins() &&
+			line == NULL && lv_is_code_editable();
+		hits.code_line = !hits.operand && !hits.instruction &&
+			cw_chk_click_code() && line == NULL && lv_is_code_editable();
+		hits.right_clicked_code_line = !hits.operand && !hits.instruction &&
+			!hits.code_line && cw_chk_rclick_code() && line == NULL;
+		switch (ci_translate_hits(&hits)) {
+		case CI_ACTION_SELECT_OPERAND:
+			cw_change_clicked_code_line_state();
+			break;
+		case CI_ACTION_SELECT_INSTRUCTION:
+			line = cl_new_code_line(iw_get_clicked_instruction());
+			break;
+		case CI_ACTION_SELECT_CODE_LINE:
+			line = cw_get_clicked_code();
+			break;
+		case CI_ACTION_CLONE_CODE_LINE:
+			line = cw_clone_rclicked_line(cw_get_rclicked_code());
+			hold_line = true;
+			break;
+		case CI_ACTION_UPDATE_HELD_LINE: {
+			bool arrange = lv_is_arrange_enabled();
+			bool delete = lv_is_del_enabled();
+			cw_player_holding_instruction(line, arrange, delete);
+			hold_line = !left_released;
+			break;
 		}
-		if (cw_is_operand_pending() == false) {
-			code_updated_actions(level_id);
+		case CI_ACTION_RELEASE_HELD_LINE:
+			if (!cp_contains(cw_get_code_program(), line)) {
+				cl_destroy_code_line(line);
+			}
+			if (!ce_has_pending_operand(cw_get_code_program(), CE_PENDING_ANY)) {
+				code_updated_actions(level_id);
+			}
+			line = NULL;
+			break;
+		case CI_ACTION_NONE:
+			break;
 		}
-		line = NULL;
 	}
 	return line;
 }
@@ -627,7 +648,8 @@ int stage_level(int level_id)
 	}
 	cw_sort_code();
 
-	if (sb_chk_click_stage_btn() == true && cw_is_operand_pending() == false) {
+	if (sb_chk_click_stage_btn() == true &&
+	    !ce_has_pending_operand(cw_get_code_program(), CE_PENDING_ANY)) {
 		flag_handler(&flags, identify_clicked_stage_button());
 	}
 
@@ -635,12 +657,15 @@ int stage_level(int level_id)
 
 	if (flags.stop == true && flags.stop_enabled == true) {
 		reset_level(&flags);
-	} else if (flags.non_stop == false || cw_is_operand_pending() == true) {
+	} else if (flags.non_stop == false ||
+	           ce_has_pending_operand(cw_get_code_program(), CE_PENDING_ANY)) {
 		hold_line = edit_code(level_id);
 		lv_set_hold_line(hold_line);
-	} else if (flags.play == true && cw_is_operand_pending() == false) {
+	} else if (flags.play == true &&
+	           !ce_has_pending_operand(cw_get_code_program(), CE_PENDING_ANY)) {
 		mc_run_code();
-	} else if (flags.step == true && cw_is_operand_pending() == false) {
+	} else if (flags.step == true &&
+	           !ce_has_pending_operand(cw_get_code_program(), CE_PENDING_ANY)) {
 		mc_run_code();
 		flags.step = !mc_get_step_ended();
 	}

@@ -2,6 +2,7 @@
 #define CODE_LINE_CL_H
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "ui/button_bt.h"
 
 typedef struct code_line_t code_line_t;
@@ -9,7 +10,8 @@ typedef struct code_line_t code_line_t;
 typedef struct operand_t{
 	btn_t *b;
 	int id;
-	code_line_t *jptr;
+	code_line_t *jptr; /* Borrowed target; never freed by the operand. */
+	uint64_t target_label_identity;
 } operand_t;
 
 typedef struct instruction_t{
@@ -22,7 +24,11 @@ struct code_line_t{
 	operand_t *op1;
 	operand_t *op2;
 	int state;
+	uint64_t label_identity;
 };
+
+/* A code_program_t owns inserted lines. Each line owns its instruction and
+ * operands; getters and jump targets are borrowed references. */
 
 SDL_Rect cl_get_code_button_size(void);
 
@@ -137,6 +143,7 @@ void cl_destroy_code_line(code_line_t *line);
 instruction_t *cl_create_instruction(int id, btn_t *b);
 operand_t *cl_create_operand(int id, btn_t *b);
 bool cl_is_op_compatible(operand_t *op, code_line_t *line);
+bool cl_is_operand_id_valid(int operand_id);
 int cl_get_instruction_operand_quantity(int instruction_id);
 char *get_operand_text(int operand_id);
 void print_code_line(code_line_t *line);

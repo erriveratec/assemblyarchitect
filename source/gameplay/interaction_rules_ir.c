@@ -1,5 +1,6 @@
 #include "interaction_rules_ir.h"
 #include "code_window_cw.h"
+#include "code_program_cp.h"
 #include "instruction_window_iw.h"
 #include <assert.h>
 
@@ -99,7 +100,8 @@ bool ir_is_code_editable(void)
 	}
 
 	if (exception == IR_OPERAND_2_LAST) {
-		int code_size = cw_get_code_list_size();
+			const code_program_t *program = cw_get_code_program();
+			int code_size = cp_count(program);
 
 		return cw_chk_click_code_op2(code_size);
 	}
@@ -111,7 +113,7 @@ bool ir_is_code_editable(void)
 			return g_current_rules.code_editable;
 		}
 
-		int position = cw_get_code_line_pos_by_ptr(line);
+			int position = cp_index_of(cw_get_code_program(), line);
 
 		position++;
 

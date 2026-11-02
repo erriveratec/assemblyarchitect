@@ -23,7 +23,7 @@
 #include "tutorial_tr.h"
 #include "tutorial_tr_internal.h"
 
-extern tx_styled_text_t *g_challenge_text;
+#define g_challenge_text cw_get_challenge_text_for_testing()
 static SDL_Color fragment_color(const tx_text_fragment_t *fragment);
 static bool fail_challenge_creation;
 static int challenge_factory_calls;

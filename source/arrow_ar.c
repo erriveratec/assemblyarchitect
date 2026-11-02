@@ -11,6 +11,7 @@
 #include"draw_dw.h"
 #include"instruction_window_iw.h"
 #include"code_window_cw.h"
+#include "code_program_cp.h"
 #include"stage_buttons_sb.h"
 #include"buffers_bf.h"
 #include"registers_rg.h"
@@ -192,7 +193,7 @@ static int get_execution_arrow_target_y(int instruction_number)
  */
 bool ar_move_execution_arrow(int instruction_number)
 {
-	int code_size = cw_get_code_list_size();	
+	int code_size = cp_count(cw_get_code_program());
 	assert(code_size > 0  && "Code size is invalid");
 	assert(instruction_number <= code_size && 
 		   "Instruction number is incorrect");
@@ -551,7 +552,7 @@ static void initialize_fast_arrow(void)
 static void initialize_code_line_arrow(void)
 {
 	SDL_Rect a = ar_get_arrow_wh();
-	int pos = cw_get_code_list_size() - 1;
+	int pos = cp_count(cw_get_code_program()) - 1;
 
 	if (pos >= 0){
 		SDL_Rect cl = cw_get_code_line_coord_at_pos(CW_INS, pos);
@@ -617,7 +618,7 @@ static void initialize_op2_arrow(void)
 	int clearance = OP2_ARROW_VERTICAL_CLEARANCE_DESIGN_PX;
 	
 	int pos = 1;
-	int size  = cw_get_code_list_size();
+	int size  = cp_count(cw_get_code_program());
 	if (pos <= (size-1)){
 		SDL_Rect cl = cw_get_code_line_coord_at_pos(CW_OP2, pos);
 		g_arrow_op2.box.x = cl.x + a.w/2;

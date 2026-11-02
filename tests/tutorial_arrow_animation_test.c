@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <SDL_ttf.h>
+#include "code_program_cp.h"
 #include "game_mechanics_mc.h"
 #include "sdl_config.h"
 #include "tutorial_tr.h"
@@ -26,6 +27,7 @@ static void test_draw_rotated_texture(int x, int y, int height, double angle,
 SDL_Rect test_stage_buttons_rect(void);
 SDL_Rect test_stage_button_rect(int member);
 int test_code_list_size(void);
+const code_program_t *test_code_program(void);
 SDL_Rect test_code_line_coord_at_pos(int element, int position);
 bool test_failure_back_button_rect(SDL_Rect *button_rect);
 bool test_instruction_progress(float *progress);
@@ -40,7 +42,7 @@ bool test_button_progress(int button_id, float *progress,
 bool test_immediate_progress(float *progress, float animation_limit);
 #define iw_get_highlight_instruction_progress test_instruction_progress
 #define cw_get_code_box_highlight_progress test_code_box_progress
-#define cw_get_code_list_size test_code_list_size
+#define cw_get_code_program test_code_program
 #define cw_get_code_line_coord_at_pos test_code_line_coord_at_pos
 #define cw_get_challenge_highlight_progress test_challenge_progress
 #define bf_get_input_buffer_highlight_progress test_input_progress
@@ -66,7 +68,7 @@ bool test_immediate_progress(float *progress, float animation_limit);
 #undef bf_get_input_buffer_highlight_progress
 #undef cw_get_challenge_highlight_progress
 #undef cw_get_code_line_coord_at_pos
-#undef cw_get_code_list_size
+#undef cw_get_code_program
 #undef cw_get_code_box_highlight_progress
 #undef iw_get_highlight_instruction_progress
 
@@ -81,6 +83,17 @@ static int arrow_draw_count;
 static int code_box_provider_calls;
 static SDL_Rect op2_line_rect;
 static texture_t g_test_register_arrow;
+static code_program_t *g_test_program;
+
+static void destroy_test_line(code_line_t *line)
+{
+	free(line);
+}
+
+const code_program_t *test_code_program(void)
+{
+	return g_test_program;
+}
 
 static bool load_fixture(const char *fixture_name, const char *text)
 {
@@ -243,7 +256,7 @@ static void assert_progress_equal(float actual, float expected)
 
 int test_code_list_size(void)
 {
-	return 2;
+	return cp_count(test_code_program());
 }
 
 SDL_Rect test_code_line_coord_at_pos(int element, int position)
@@ -1317,6 +1330,13 @@ static void run_isolated_test(void (*test)(void))
 
 int main(void)
 {
+	g_test_program = cp_create(destroy_test_line);
+	assert(g_test_program != NULL);
+	for (int index = 0; index < 2; index++) {
+		code_line_t *line = calloc(1, sizeof(*line));
+		assert(line != NULL);
+		assert(cp_insert(g_test_program, index, line) == CP_OK);
+	}
 	assert(SDL_Init(0) == 0);
 	assert(TTF_Init() == 0);
 	g_screen = SDL_CreateRGBSurfaceWithFormat(0, 1920, 1080, 32,
@@ -1355,6 +1375,7 @@ int main(void)
 	SDL_DestroyTexture(g_test_register_arrow.texture);
 	SDL_DestroyRenderer(g_renderer);
 	SDL_FreeSurface(g_screen);
+	cp_destroy(g_test_program);
 	TTF_Quit();
 	SDL_Quit();
 	return 0;

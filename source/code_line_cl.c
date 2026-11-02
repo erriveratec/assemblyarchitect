@@ -756,6 +756,7 @@ code_line_t *cl_create_code_line(instruction_t *ins)
 	new_line->ins = ins;
 	new_line->op1 = NULL;
 	new_line->op2 = NULL;
+	new_line->label_identity = 0;
 
 	if (cl_get_instruction_operand_quantity(ins->id) == ZERO_OPERANDS){
 		new_line->state = COMPLETE;
@@ -849,6 +850,11 @@ bool check_valid_operand(int id)
 		valid = true;
 	}
 	return valid;
+}
+
+bool cl_is_operand_id_valid(int operand_id)
+{
+	return check_valid_operand(operand_id);
 }
 
 
@@ -956,6 +962,8 @@ operand_t *cl_create_operand(int id, btn_t *b)
 
 	op->b = b;
 	op->id = id;
+	op->jptr = NULL;
+	op->target_label_identity = 0;
 
 error:
 	return op;

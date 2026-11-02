@@ -1,7 +1,8 @@
 # Proposed Code-Window Architecture
 
-Status: target only. None of the proposed modules below is extracted by bootstrap.
-Use ASCII to avoid introducing a diagram-renderer dependency.
+Status: target architecture; partial modules now exist in the working tree.
+See migration-state.md for evidence and uncompleted boundaries. Use ASCII to avoid
+introducing a diagram-renderer dependency.
 
 ```text
 SDL events -> code_interaction_ci -> code_edit_ce -> code_program_cp
@@ -33,3 +34,17 @@ an unapproved disk schema. Run old and new representations against the same test
 during migration, with one authoritative owner at a time. Never duplicate helpers
 to simulate separation, move every caller at once, or combine extraction with a
 semantic fix. Compatibility rollback must restore a stage without losing saves.
+
+Current working-tree progress: `code_layout_cly` owns selected pure geometry and
+Current working-tree progress: `code_layout_cly` owns selected pure geometry and
+hit calculations; `code_program_cp` owns ordered lines and lifetime with no raw
+List view exposed; `control_flow_cf` owns identity assignment, v1 translation,
+target repair, resolution, validation and jump execution-state intervals;
+`code_edit_ce` owns operand/line mutations, pending-state queries and explicit
+replacement session state; `code_interaction_ci` translates ordered hit results
+in the production stage dispatcher; and `code_renderer_cr` draws lines, operands,
+labels, commas, line numbers, challenge text and the code box. These partial
+modules do not establish the full dependency boundaries shown above. Semantic
+edit orchestration, remaining geometry, input acquisition, independent contexts,
+wrapper retirement and material controller reduction are outstanding. The
+controller remains above its requested 1,800-line maximum.

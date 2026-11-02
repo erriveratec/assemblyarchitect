@@ -16,7 +16,6 @@
 #include "gameplay/highlight_animation_ha.h"
 #include "immediates_im.h"
 #include "instruction_window_iw.h"
-#include "list.h"
 #include "mouse_ms.h"
 #include "registers_rg.h"
 #include "sdl_config.h"
@@ -28,8 +27,6 @@
 enum { TARGET_PROGRESS_COUNT = 10 };
 
 static texture_t g_test_input_arrow_texture;
-
-List *get_code_list(void);
 
 static struct {
 	instruction_t instruction;
@@ -996,7 +993,8 @@ static void test_pending_operand_uses_shared_phase(void)
 	};
 	g_pending_fixture.line.ins = &g_pending_fixture.instruction;
 	g_pending_fixture.line.state = COMPLETE;
-	List_push(get_code_list(), &g_pending_fixture.line);
+	assert(cp_insert(cw_get_program_for_testing(), 0,
+	                 &g_pending_fixture.line) == CP_OK);
 
 	ha_reset();
 	clear_highlight_targets();
@@ -1132,7 +1130,9 @@ static void test_pending_operand_uses_shared_phase(void)
 	assert_no_pending_draw(COMPLETE);
 	assert_no_pending_draw(EXECUTED);
 
-	List_pop(get_code_list());
+	code_line_t *removed = NULL;
+	assert(cp_remove(cw_get_program_for_testing(), 0, &removed) == CP_OK);
+	assert(removed == &g_pending_fixture.line);
 	assert_no_pending_draw(MISSING_BOTH);
 	clear_highlight_targets();
 }
@@ -1155,6 +1155,7 @@ int main(void)
 	test_highlight_foregrounds_and_normal_tints();
 	test_pending_rect_geometry_helper();
 	test_pending_operand_uses_shared_phase();
+	cw_destroy_code_window_assets();
 	destroy_test_graphics();
 	puts("highlight animation synchronization tests passed");
 	return 0;

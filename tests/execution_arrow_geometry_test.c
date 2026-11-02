@@ -1,21 +1,29 @@
 #include <assert.h>
+#include <stdlib.h>
 
-#define cw_get_code_list_size test_code_list_size
+#define cw_get_code_program test_code_program
 #define cw_get_instruction_y_coord test_instruction_y
 #define cw_get_stage_code_box test_stage_code_box
 #include "../source/arrow_ar.c"
-#undef cw_get_code_list_size
+#undef cw_get_code_program
 #undef cw_get_instruction_y_coord
 #undef cw_get_stage_code_box
 
-int test_code_list_size(void)
+static code_program_t *g_test_program;
+
+const code_program_t *test_code_program(void)
 {
-	return 4;
+	return g_test_program;
+}
+
+static void destroy_test_line(code_line_t *line)
+{
+	free(line);
 }
 
 int test_instruction_y(int position)
 {
-	assert(position >= 0 && position < test_code_list_size());
+	assert(position >= 0 && position < cp_count(test_code_program()));
 	return 100 + position * cl_get_code_button_size().h;
 }
 
@@ -95,7 +103,15 @@ static void test_canonical_canvas(bool fast)
 
 int main(void)
 {
+	g_test_program = cp_create(destroy_test_line);
+	assert(g_test_program != NULL);
+	for (int index = 0; index < 4; index++) {
+		code_line_t *line = calloc(1, sizeof(*line));
+		assert(line != NULL);
+		assert(cp_insert(g_test_program, index, line) == CP_OK);
+	}
 	test_canonical_canvas(false);
 	test_canonical_canvas(true);
+	cp_destroy(g_test_program);
 	return 0;
 }

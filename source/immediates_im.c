@@ -207,6 +207,8 @@ operand_t *im_create_imm_op_by_id(int op_id)
 			o = malloc(sizeof(operand_t));
 			o->b = b;
 			o->id = op_id; 
+			o->jptr = NULL;
+			o->target_label_identity = 0;
 			break;
 		} 
 	}
@@ -262,6 +264,8 @@ operand_t *im_create_sel_imm_op(void)
 			o = malloc(sizeof(operand_t));
 			o->b = b;
 			o->id = imm_id; 
+			o->jptr = NULL;
+			o->target_label_identity = 0;
 		} 
 		imm_id++;
 	}

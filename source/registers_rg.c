@@ -721,6 +721,8 @@ operand_t *rg_create_register_operand_by_id(int id)
 	
 	op->b = b;
 	op->id = id;
+	op->jptr = NULL;
+	op->target_label_identity = 0;
 
 	return op;
 }
@@ -1109,6 +1111,8 @@ operand_t *rg_create_sel_reg_op(void)
 			o = malloc(sizeof(operand_t));
 			o->b = b;
 			o->id = c->id;
+			o->jptr = NULL;
+			o->target_label_identity = 0;
 			break;
 	   	} 
    	}

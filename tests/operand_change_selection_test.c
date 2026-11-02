@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include "../source/code_window_cw_internal.h"
 
+static int destroyed_operand_count;
+static void test_destroy_operand(operand_t *operand);
+
 #define rg_chk_rel_in_reg test_reg_selected
 #define bf_ms_rel_in_buf test_buffer_selected
 #define cw_ms_rel_in_label test_label_selected
@@ -16,9 +19,17 @@
 #undef im_create_sel_imm_op
 #undef cw_highlight_code_pending_operand
 
-#include "list.h"
+#define cl_destroy_operand test_destroy_operand
+#include "../source/code_window_cw.c"
+#undef cl_destroy_operand
 
-List *get_code_list(void);
+static void test_destroy_operand(operand_t *operand)
+{
+	cl_destroy_operand(operand);
+	destroyed_operand_count++;
+}
+
+#include "code_program_cp.h"
 
 static bool immediate_selected;
 static operand_t *selected_immediate;
@@ -61,7 +72,8 @@ static code_line_t *add_line(int instruction_id, bool has_op1, bool has_op2)
 	}
 	fixture->line.op1 = has_op1 ? &fixture->operands[0] : NULL;
 	fixture->line.op2 = has_op2 ? &fixture->operands[1] : NULL;
-	List_push(get_code_list(), &fixture->line);
+	assert(cp_insert(cw_get_program_for_testing(),
+	                 cp_count(cw_get_program_for_testing()), &fixture->line) == CP_OK);
 	return &fixture->line;
 }
 
@@ -90,8 +102,8 @@ static void select_operand(code_line_t *line, int position)
 	release_at(button->r.x + 5, button->r.y + 5);
 	cw_change_clicked_code_line_state();
 	int changing_count = 0;
-	LIST_FOREACH(get_code_list(), first, next, current) {
-		code_line_t *candidate = current->value;
+	for (int index = 0; index < cp_count(cw_get_program_for_testing()); index++) {
+		code_line_t *candidate = cp_get(cw_get_program_for_testing(), index);
 		if (candidate->state == CHANGING_OP1 || candidate->state == CHANGING_OP2) {
 			changing_count++;
 			assert(candidate == line);
@@ -125,8 +137,11 @@ static void mark_changing_with_stale_animation(code_line_t *line, int state)
 static void reset_fixture(void)
 {
 	cw_cancel_pending_operand_change();
-	while (List_count(get_code_list()) > 0) {
-		List_pop(get_code_list());
+	while (cp_count(cw_get_program_for_testing()) > 0) {
+		code_line_t *removed = NULL;
+		assert(cp_remove(cw_get_program_for_testing(),
+		                 cp_count(cw_get_program_for_testing()) - 1,
+		                 &removed) == CP_OK);
 	}
 	fixture_count = 0;
 	immediate_selected = false;
@@ -155,7 +170,8 @@ static void test_transfer_and_reselection(void)
 	operand_t *selected = second->op2;
 	select_operand(second, OP2);
 	assert(second->op2 == selected && selected->id == IMMUP7);
-	assert(cw_is_operand_pending());
+	assert(ce_has_pending_operand(
+		cw_get_program_for_testing(), CE_PENDING_ANY));
 	assert(cw_get_code_line_pending_operand() == second);
 	reset_fixture();
 }
@@ -240,8 +256,8 @@ static void test_reclick_preserves_pending_replacement(void)
 	assert(cw_get_code_line_pending_operand() == line);
 	assert(line->state == CHANGING_OP1 && line->op1 == original);
 	int changing_count = 0;
-	LIST_FOREACH(get_code_list(), first, next, current) {
-		code_line_t *candidate = current->value;
+	for (int index = 0; index < cp_count(cw_get_program_for_testing()); index++) {
+		code_line_t *candidate = cp_get(cw_get_program_for_testing(), index);
 		if (candidate->state == CHANGING_OP1 ||
 		    candidate->state == CHANGING_OP2) {
 			changing_count++;
@@ -605,6 +621,25 @@ static operand_t *create_test_operand(int operand_id, SDL_Rect bounds)
 	return operand;
 }
 
+static void test_empty_slot_assignment(void)
+{
+	const int states[] = {MISSING_BOTH, MISSING_OP1, MISSING_OP2};
+	for (int index = 0; index < 3; index++) {
+		bool first_slot = states[index] != MISSING_OP2;
+		code_line_t *line = add_line(MOV, !first_slot, states[index] == MISSING_OP1);
+		line->state = states[index];
+		operand_t *operand = create_test_operand(RBX, (SDL_Rect){0});
+		int destroyed_before = destroyed_operand_count;
+		cw_assign_op_to_line(operand, line);
+		assert((first_slot ? line->op1 : line->op2) == operand);
+		assert(line->state == (states[index] == MISSING_BOTH ? MISSING_OP2 : COMPLETE));
+		assert(destroyed_operand_count == destroyed_before);
+		assert_reset(operand->b);
+		reset_fixture();
+		cl_destroy_operand(operand);
+	}
+}
+
 static void test_incomplete_transfer_replacement(void)
 {
 	code_line_t *incomplete = add_line(MOV, true, false);
@@ -710,7 +745,9 @@ static void test_replacement(void)
 		assert(new_operand->b != NULL);
 		new_operand->b->t = calloc(1, sizeof(*new_operand->b->t));
 		assert(new_operand->b->t != NULL);
+		int destroyed_before = destroyed_operand_count;
 		cw_assign_op_to_line(new_operand, line);
+		assert(destroyed_operand_count == destroyed_before + 1);
 		assert((position == OP1 ? line->op1 : line->op2) == new_operand);
 		assert(line->state == COMPLETE);
 		assert(!cw_is_active_operand_replacement_slot(
@@ -718,7 +755,8 @@ static void test_replacement(void)
 			cw_get_code_line_pending_operand()));
 		assert_reset(line->op1->b);
 		assert_reset(line->op2->b);
-		assert(!cw_is_operand_pending());
+		assert(!ce_has_pending_operand(
+			cw_get_program_for_testing(), CE_PENDING_ANY));
 		cl_destroy_operand(new_operand);
 		reset_fixture();
 	}
@@ -782,12 +820,12 @@ static void test_clear_code_list_releases_claims(void)
 	code_line_t *jump = create_heap_line(JMP, true);
 	code_line_t *label = create_heap_line(LABEL, true);
 	jump->op1->jptr = label;
-	List_push(get_code_list(), jump);
-	List_push(get_code_list(), label);
+	assert(cp_insert(cw_get_program_for_testing(), 0, jump) == CP_OK);
+	assert(cp_insert(cw_get_program_for_testing(), 1, label) == CP_OK);
 	select_operand(jump, OP1);
 	assert(jump->op1->b->animated && label->op1->b->animated);
 	cw_clear_code_list();
-	assert(List_count(get_code_list()) == 0);
+	assert(cp_count(cw_get_program_for_testing()) == 0);
 }
 
 int main(void)
@@ -795,11 +833,12 @@ int main(void)
 	cw_create_code_list();
 	ms_init_mouse();
 	add_line(MOV, false, true);
-	assert(cw_get_instruction_operand(0, FIRST_OP) == NO_OPERAND);
-	assert(cw_get_instruction_operand(0, SECOND_OP) == IMMUP7);
+	code_line_t *first_line = cp_get(cw_get_program_for_testing(), 0);
+	assert(first_line->op1 == NULL);
+	assert(first_line->op2 != NULL && first_line->op2->id == IMMUP7);
 	add_line(JMP, false, false);
-	assert(cw_get_instruction_operand(1, FIRST_OP) == NO_OPERAND);
-	assert(cw_get_instruction_operand(1, SECOND_OP) == NO_OPERAND);
+	code_line_t *jump_line = cp_get(cw_get_program_for_testing(), 1);
+	assert(jump_line->op1 == NULL && jump_line->op2 == NULL);
 	reset_fixture();
 	test_transfer_and_reselection();
 	test_active_replacement_render_decision();
@@ -811,13 +850,14 @@ int main(void)
 	test_jump_animation_claim_aliases();
 	test_defensive_jump_click_away();
 	test_click_away();
+	test_empty_slot_assignment();
 	test_replacement();
 	test_jump_replacement_completion();
 	test_pending_lookup_priority();
 	test_incomplete_transfer_click_away();
 	test_incomplete_transfer_replacement();
 	test_clear_code_list_releases_claims();
-	List_destroy(get_code_list());
+	cw_destroy_code_window_assets();
 	puts("operand change selection tests passed");
 	return 0;
 }

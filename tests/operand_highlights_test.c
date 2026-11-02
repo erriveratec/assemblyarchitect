@@ -9,6 +9,7 @@
 #include "aux.h"
 #include "arrow_ar.h"
 #include "draw_dw.h"
+#include "file_fl.h"
 #include "ui/value_box_vb.h"
 #include "code_window_cw.h"
 #include "dimensions_dm.h"
@@ -573,13 +574,133 @@ static void test_saved_operand_states(void)
 		char text[32];
 		snprintf(text, sizeof(text), "%s", cases[index].text);
 		cw_add_saved_line(text);
-		assert(cw_get_code_list_size() == 1);
-		assert(cw_get_code_line_at_pos(0)->state == cases[index].state);
-		assert(cw_get_instruction_operand(0, FIRST_OP) == cases[index].first);
-		assert(cw_get_instruction_operand(0, SECOND_OP) == cases[index].second);
+			assert(cp_count(cw_get_code_program()) == 1);
+			code_line_t *line = cp_get(cw_get_code_program(), 0);
+			assert(line->state == cases[index].state);
+			assert((line->op1 == NULL ? NO_OPERAND : line->op1->id) == cases[index].first);
+			assert((line->op2 == NULL ? NO_OPERAND : line->op2->id) == cases[index].second);
 		cw_clear_code_list();
 	}
 	cw_destroy_code_window_assets();
+}
+
+static void test_shared_jump_target_deletion_characterization(void)
+{
+	cw_create_code_list();
+	cw_init_code_window_texture();
+	char first_jump_text[] = "JMP 2";
+	char second_jump_text[] = "JMP 2";
+	char label_text[] = "line 1";
+	cw_add_saved_line(first_jump_text);
+	cw_add_saved_line(second_jump_text);
+	cw_add_saved_line(label_text);
+	cw_update_saved_jump_instructions();
+
+	code_line_t *first_jump = cp_get(cw_get_code_program(), 0);
+	code_line_t *second_jump = cp_get(cw_get_code_program(), 1);
+	code_line_t *shared_label = cp_get(cw_get_code_program(), 2);
+	assert(first_jump->op1->jptr == shared_label);
+	assert(second_jump->op1->jptr == shared_label);
+
+	cw_player_holding_instruction(first_jump, false, true);
+
+	assert(cp_count(cw_get_code_program()) == 1);
+	assert(cp_get(cw_get_code_program(), 0) == second_jump);
+	assert(second_jump->op1 == NULL);
+	assert(second_jump->state == MISSING_OP1);
+	cw_destroy_code_window_assets();
+}
+
+static void test_positional_jump_save_round_trip(void)
+{
+	cw_create_code_list();
+	cw_init_code_window_texture();
+	char forward_jump[] = "JMP 2";
+	char incomplete_move[] = "MOV rax _";
+	char label[] = "line 1";
+	char backward_jump[] = "JMP 2";
+	cw_add_saved_line(forward_jump);
+	cw_add_saved_line(incomplete_move);
+	cw_add_saved_line(label);
+	cw_add_saved_line(backward_jump);
+	cw_update_saved_jump_instructions();
+
+	FILE *fixture = tmpfile();
+	assert(fixture != NULL);
+	write_player_code_to_file(fixture);
+	assert(fflush(fixture) == 0);
+	assert(fseek(fixture, 0, SEEK_SET) == 0);
+	cw_clear_code_list();
+
+	char saved_line[128];
+	while (fgets(saved_line, sizeof(saved_line), fixture) != NULL) {
+		saved_line[strcspn(saved_line, "\n")] = '\0';
+		cw_add_saved_line(saved_line);
+	}
+	assert(!ferror(fixture));
+	assert(fclose(fixture) == 0);
+	cw_update_saved_jump_instructions();
+
+	code_line_t *target = cp_get(cw_get_code_program(), 2);
+	assert(target->ins->id == LABEL);
+	assert(target->label_identity != 0);
+	assert(cp_get(cw_get_code_program(), 0)->op1->jptr == target);
+	assert(cp_get(cw_get_code_program(), 3)->op1->jptr == target);
+	assert(cp_get(cw_get_code_program(), 0)->op1->target_label_identity ==
+	       target->label_identity);
+	assert(cp_get(cw_get_code_program(), 3)->op1->target_label_identity ==
+	       target->label_identity);
+	assert(cp_get(cw_get_code_program(), 0)->op1->id == 2);
+	assert(cp_get(cw_get_code_program(), 3)->op1->id == 2);
+	assert(cp_get(cw_get_code_program(), 1)->state == MISSING_OP2);
+	assert(cp_get(cw_get_code_program(), 1)->op2 == NULL);
+	cw_destroy_code_window_assets();
+}
+
+static void test_reorder_preserves_saved_jump_target(void)
+{
+	cw_create_code_list();
+	cw_init_code_window_texture();
+	cw_set_scroll_box((SDL_Rect){.x = 0, .y = 0, .w = 1920, .h = 1080});
+	char jump_text[] = "JMP 2";
+	char move_text[] = "MOV rax _";
+	char label_text[] = "line 1";
+	cw_add_saved_line(jump_text);
+	cw_add_saved_line(move_text);
+	cw_add_saved_line(label_text);
+	cw_update_saved_jump_instructions();
+
+	code_line_t *jump = cp_get(cw_get_code_program(), 0);
+	code_line_t *moved_line = cp_get(cw_get_code_program(), 1);
+	code_line_t *target = cp_get(cw_get_code_program(), 2);
+	assert(jump->op1->jptr == target);
+	uint64_t target_identity = target->label_identity;
+	assert(target_identity != 0);
+	int previous_target_position = jump->op1->id;
+	SDL_Event motion = {0};
+	motion.motion.x = 400;
+	motion.motion.y = target->ins->b->r.y + target->ins->b->r.h + 5;
+	ms_mouse_motion_handler(motion);
+	cw_player_holding_instruction(moved_line, true, true);
+
+	assert(cp_get(cw_get_code_program(), 1) == target);
+	assert(jump->op1->jptr == target);
+	assert(target->label_identity == target_identity);
+	assert(jump->op1->target_label_identity == target_identity);
+	assert(jump->op1->id == cp_index_of(cw_get_code_program(), target));
+	assert(jump->op1->id != previous_target_position);
+	cw_destroy_code_window_assets();
+}
+
+static void test_repeated_code_window_lifecycle(void)
+{
+	for (int cycle = 0; cycle < 3; cycle++) {
+		cw_create_code_list();
+			assert(cp_count(cw_get_code_program()) == 0);
+		cw_clear_code_list();
+			assert(cp_count(cw_get_code_program()) == 0);
+		cw_destroy_code_window_assets();
+	}
 }
 
 static void reset_highlight_fixture(void)
@@ -628,6 +749,10 @@ int main(void)
 		free(actual);
 	}
 	run_isolated_test(test_saved_operand_states);
+	run_isolated_test(test_shared_jump_target_deletion_characterization);
+	run_isolated_test(test_positional_jump_save_round_trip);
+	run_isolated_test(test_reorder_preserves_saved_jump_target);
+	test_repeated_code_window_lifecycle();
 	run_isolated_test(test_operand_availability);
 	run_isolated_test(test_highlight_source_composition);
 	run_isolated_test(test_disabled_highlighting_clears_availability);

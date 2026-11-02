@@ -5,6 +5,7 @@
 #include "registers_rg.h"
 #include "instruction_window_iw.h"
 #include "code_window_cw.h"
+#include "code_edit_ce.h"
 #include "code_line_cl.h"
 #include "stage_buttons_sb.h"
 #include "text_tx.h"
@@ -278,7 +279,8 @@ static void draw_contextual_features(float animation_limit)
 static int check_display_buf_arrow(void)
 {
 	int display_ar = NO_OPERAND;
-	if (cw_check_code_sorted() == true && cw_is_operand_pending() == true) {
+	if (cw_check_code_sorted() == true &&
+	    ce_has_pending_operand(cw_get_code_program(), CE_PENDING_ANY)) {
 		code_line_t *l = cw_get_code_line_pending_operand();
 		if (l->ins->id != JMP && l->ins->id != LABEL) {
 			operand_t o;
@@ -334,7 +336,8 @@ static void draw_bufs_arrow(int buf_id)
 static bool check_display_reg_lv_arrow(void)
 {
 	bool display_ar = false;
-	if (cw_check_code_sorted() == true && cw_is_operand_pending() == true) {
+	if (cw_check_code_sorted() == true &&
+	    ce_has_pending_operand(cw_get_code_program(), CE_PENDING_ANY)) {
 		code_line_t *l = cw_get_code_line_pending_operand();
 		if (l->ins->id != JMP && l->ins->id != LABEL) {
 			operand_t o;
@@ -359,7 +362,8 @@ static bool check_display_reg_lv_arrow(void)
 static bool chk_display_imm_up_arrow(void)
 {
 	bool display_ar = false;
-	if (cw_check_code_sorted() == true && cw_is_operand_pending() == true) {
+	if (cw_check_code_sorted() == true &&
+	    ce_has_pending_operand(cw_get_code_program(), CE_PENDING_ANY)) {
 		code_line_t *l = cw_get_code_line_pending_operand();
 		if (l->ins->id != JMP && l->ins->id != LABEL) {
 			operand_t o;

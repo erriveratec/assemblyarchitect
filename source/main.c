@@ -254,5 +254,6 @@ int main(int argc, char *args[])
 	}
 	rr_destroy();
 	im_destroy_imm_assets();
+	cw_destroy_renderer_assets();
 }
 

@@ -2,7 +2,9 @@
 
 ## Status
 
-Proposed. No identity API or save-format change is implemented by bootstrap.
+Accepted by maintainer task authorization for this local migration. The
+implementation remains partial; no disk identity field or save-format change is
+implemented.
 
 ## Context
 
@@ -46,6 +48,16 @@ Stage 1 first characterizes reorder/delete, forward/backward saves, `_` operands
 and reloads. Stage 5 compares logical targets before/after moves and v1 round trips.
 Run the complete suite, sanitizer checks, isolated fixture tests, and manual smoke
 acceptance. These new semantic checks do not exist yet.
+
+The current working-tree tests establish legacy behavior for shared-label
+deletion, reorder target preservation, forward/backward v1 positional round trips,
+and `_` operands. They also verify identity retention through reorder and identity
+reconstruction after v1 round trips. The standalone control-flow test covers
+valid, unresolved, missing, duplicate, and invalid-operand outcomes. Production
+`control_flow_cf` now assigns identities, translates v1 target positions, repairs
+targets after edits, and resolves execution targets. SDL-backed operand
+reconstruction remains in `cw`. Full allocation-failure and gameplay execution
+integration coverage remains open.
 
 ## Rollback or Supersession
 

@@ -52,6 +52,20 @@ DISPLAY_RESIZE_TEST_EXEC = $(TEST_BUILD_DIR)/display_resize_test
 DISPLAY_RESIZE_TEST_SOURCE = tests/display_resize_test.c
 DRAWING_OUTLINE_TEST_EXEC = $(TEST_BUILD_DIR)/drawing_outline_test
 DRAWING_OUTLINE_TEST_SOURCE = tests/drawing_outline_test.c
+CODE_LAYOUT_CLY_TEST_EXEC = $(TEST_BUILD_DIR)/code_layout_cly_test
+CODE_LAYOUT_CLY_TEST_SOURCE = tests/code_layout_cly_test.c
+CODE_PROGRAM_CP_TEST_EXEC = $(TEST_BUILD_DIR)/code_program_cp_test
+CODE_PROGRAM_CP_TEST_SOURCE = tests/code_program_cp_test.c
+CONTROL_FLOW_CF_TEST_EXEC = $(TEST_BUILD_DIR)/control_flow_cf_test
+CONTROL_FLOW_CF_TEST_SOURCE = tests/control_flow_cf_test.c
+CODE_EDIT_CE_TEST_EXEC = $(TEST_BUILD_DIR)/code_edit_ce_test
+CODE_EDIT_CE_TEST_SOURCE = tests/code_edit_ce_test.c
+AUTOMATIC_JUMP_LABEL_TEST_EXEC = $(TEST_BUILD_DIR)/automatic_jump_label_test
+AUTOMATIC_JUMP_LABEL_TEST_SOURCE = tests/automatic_jump_label_test.c
+CODE_INTERACTION_CI_TEST_EXEC = $(TEST_BUILD_DIR)/code_interaction_ci_test
+CODE_INTERACTION_CI_TEST_SOURCE = tests/code_interaction_ci_test.c
+CODE_RENDERER_CR_TEST_EXEC = $(TEST_BUILD_DIR)/code_renderer_cr_test
+CODE_RENDERER_CR_TEST_SOURCE = tests/code_renderer_cr_test.c
 TEST_EXECS := \
 	$(TUTORIAL_TEXT_TEST_EXEC) \
 	$(OPERAND_HIGHLIGHTS_TEST_EXEC) \
@@ -70,7 +84,14 @@ TEST_EXECS := \
 	$(VALUE_BOX_TRANSPORT_TEST_EXEC) \
 	$(REGISTERS_HIGHLIGHT_GEOMETRY_TEST_EXEC) \
 	$(DISPLAY_RESIZE_TEST_EXEC) \
-	$(DRAWING_OUTLINE_TEST_EXEC)
+	$(DRAWING_OUTLINE_TEST_EXEC) \
+	$(CODE_LAYOUT_CLY_TEST_EXEC) \
+	$(CODE_PROGRAM_CP_TEST_EXEC) \
+	$(CONTROL_FLOW_CF_TEST_EXEC) \
+	$(CODE_EDIT_CE_TEST_EXEC) \
+	$(AUTOMATIC_JUMP_LABEL_TEST_EXEC) \
+	$(CODE_INTERACTION_CI_TEST_EXEC) \
+	$(CODE_RENDERER_CR_TEST_EXEC)
 TEST_TARGETS := $(addprefix test-,$(subst _,-,$(patsubst %_test,%,$(notdir $(TEST_EXECS)))))
 LEGACY_ROOT_TEST_EXECS := \
 	$(notdir $(TEST_EXECS)) \
@@ -149,7 +170,7 @@ test: $(TEST_TARGETS)
 	test-highlight-animation-sync test-modal-pointer-capture test-run-result-render-order \
 	test-value-box-transport test-io-rail-geometry test-registers-highlight-geometry
 
-.PHONY: test-display-resize test-drawing-outline
+.PHONY: test-display-resize test-drawing-outline test-code-layout-cly test-code-program-cp test-control-flow-cf test-code-edit-ce test-code-interaction-ci test-code-renderer-cr
 
 .PHONY: test-assets
 test-assets:
@@ -181,7 +202,7 @@ test-registers-highlight-geometry: | $(TEST_BUILD_DIR)
 	./$(REGISTERS_HIGHLIGHT_GEOMETRY_TEST_EXEC)
 
 test-highlight-animation-sync: | $(TEST_BUILD_DIR)
-	$(CC) $(CFLAGS) -DTR_TUTORIAL_TESTING $(HIGHLIGHT_ANIMATION_SYNC_TEST_SOURCE) $(TEST_SOURCES) -o $(HIGHLIGHT_ANIMATION_SYNC_TEST_EXEC) \
+	$(CC) $(CFLAGS) -DTR_TUTORIAL_TESTING -DCW_PROGRAM_TESTING $(HIGHLIGHT_ANIMATION_SYNC_TEST_SOURCE) $(TEST_SOURCES) -o $(HIGHLIGHT_ANIMATION_SYNC_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(HIGHLIGHT_ANIMATION_SYNC_TEST_EXEC)
 
@@ -231,8 +252,8 @@ test-tutorial-text: | $(TEST_BUILD_DIR)
 	./$(TUTORIAL_TEXT_TEST_EXEC)
 
 test-operand-change-selection: | $(TEST_BUILD_DIR)
-	$(CC) $(CFLAGS) $(OPERAND_CHANGE_SELECTION_TEST_SOURCE) \
-	    $(filter-out $(S_DIR)/stages.c,$(TEST_SOURCES)) -o $(OPERAND_CHANGE_SELECTION_TEST_EXEC) \
+	$(CC) $(CFLAGS) -DCW_PROGRAM_TESTING $(OPERAND_CHANGE_SELECTION_TEST_SOURCE) \
+		$(filter-out $(S_DIR)/stages.c $(S_DIR)/code_window_cw.c,$(TEST_SOURCES)) -o $(OPERAND_CHANGE_SELECTION_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(OPERAND_CHANGE_SELECTION_TEST_EXEC)
 
@@ -261,6 +282,41 @@ test-drawing-outline: | $(TEST_BUILD_DIR)
 	$(CC) $(CFLAGS) $(DRAWING_OUTLINE_TEST_SOURCE) $(TEST_SOURCES) -o $(DRAWING_OUTLINE_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(DRAWING_OUTLINE_TEST_EXEC)
+
+test-code-layout-cly: | $(TEST_BUILD_DIR)
+	$(CC) $(CFLAGS) $(CODE_LAYOUT_CLY_TEST_SOURCE) $(S_DIR)/code_layout_cly.c -o $(CODE_LAYOUT_CLY_TEST_EXEC) \
+	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
+	./$(CODE_LAYOUT_CLY_TEST_EXEC)
+
+test-code-program-cp: | $(TEST_BUILD_DIR)
+	$(CC) $(CFLAGS) $(CODE_PROGRAM_CP_TEST_SOURCE) $(S_DIR)/code_program_cp.c $(S_DIR)/list.c -o $(CODE_PROGRAM_CP_TEST_EXEC)
+	./$(CODE_PROGRAM_CP_TEST_EXEC)
+
+test-control-flow-cf: | $(TEST_BUILD_DIR)
+	$(CC) $(CFLAGS) $(SDL_INCLUDES) -F$(FRAMEWORK_DIR) $(CONTROL_FLOW_CF_TEST_SOURCE) $(S_DIR)/control_flow_cf.c $(S_DIR)/code_program_cp.c $(S_DIR)/list.c -o $(CONTROL_FLOW_CF_TEST_EXEC)
+	./$(CONTROL_FLOW_CF_TEST_EXEC)
+
+test-code-edit-ce: | $(TEST_BUILD_DIR)
+	$(CC) $(CFLAGS) $(CODE_EDIT_CE_TEST_SOURCE) $(TEST_SOURCES) -o $(CODE_EDIT_CE_TEST_EXEC) \
+	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
+	./$(CODE_EDIT_CE_TEST_EXEC)
+
+test-automatic-jump-label: | $(TEST_BUILD_DIR)
+	$(CC) $(CFLAGS) $(AUTOMATIC_JUMP_LABEL_TEST_SOURCE) \
+		$(filter-out $(S_DIR)/stages.c $(S_DIR)/code_window_cw.c,$(TEST_SOURCES)) -o $(AUTOMATIC_JUMP_LABEL_TEST_EXEC) \
+		$(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
+	./$(AUTOMATIC_JUMP_LABEL_TEST_EXEC)
+
+.PHONY: test-automatic-jump-label
+
+test-code-interaction-ci: | $(TEST_BUILD_DIR)
+	$(CC) $(CFLAGS) $(CODE_INTERACTION_CI_TEST_SOURCE) $(S_DIR)/code_interaction_ci.c -o $(CODE_INTERACTION_CI_TEST_EXEC)
+	./$(CODE_INTERACTION_CI_TEST_EXEC)
+
+test-code-renderer-cr: | $(TEST_BUILD_DIR)
+	$(CC) $(CFLAGS) $(CODE_RENDERER_CR_TEST_SOURCE) $(TEST_SOURCES) -o $(CODE_RENDERER_CR_TEST_EXEC) \
+	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
+	./$(CODE_RENDERER_CR_TEST_EXEC)
 
 ############################
 # App bundle target

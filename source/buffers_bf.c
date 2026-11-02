@@ -345,10 +345,14 @@ operand_t *bf_create_buffer_operand_by_id(int id)
 		b->b = bt_create_btn(input_buffer->b->r, t);
 
 		b->id = input_buffer->id;
+		b->jptr = NULL;
+		b->target_label_identity = 0;
 	} else if (id == OB){
 		texture_t *t = cl_create_operand_texture(id);
 		b->b = bt_create_btn(output_buffer->b->r, t);
 		b->id = output_buffer->id;
+		b->jptr = NULL;
+		b->target_label_identity = 0;
 	}
 	check_mem(b);
 	error:
@@ -377,6 +381,8 @@ operand_t *bf_create_sel_buf_op(void)
 		b->b = bt_create_btn(input_buffer->b->r, t);
 
 		b->id = input_buffer->id;
+		b->jptr = NULL;
+		b->target_label_identity = 0;
 	} 
    	
 	if (bt_chk_rel_btn(&output_buffer_button, NULL) == true){
@@ -384,6 +390,8 @@ operand_t *bf_create_sel_buf_op(void)
 		texture_t *t = cl_create_operand_texture(OB);
 		b->b = bt_create_btn(output_buffer->b->r, t);
 		b->id = output_buffer->id;
+		b->jptr = NULL;
+		b->target_label_identity = 0;
 	}
 	return b;
 }

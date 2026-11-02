@@ -3,6 +3,8 @@
 
 #include "code_state_cs.h"
 #include "code_window_cw.h"
+#include "code_edit_ce.h"
+#include "code_program_cp.h"
 #include "game_mechanics_mc.h"
 #include "gameplay/win_condition_wc.h"
 
@@ -20,7 +22,8 @@ cs_context_t cs_capture_context(void)
 {
 	cs_context_t context = {0};
 
-	context.code_size           = cw_get_code_list_size();
+	const code_program_t *program = cw_get_code_program();
+	context.code_size           = cp_count(program);
 	context.operation_flag      = mc_get_operation_flag();
 	context.holding_instruction = chk_player_holds_line();
 	context.held_instruction_id = -1;
@@ -36,7 +39,7 @@ cs_context_t cs_capture_context(void)
 	}
 
 	if (context.code_size > 0) {
-		code_line_t *first_line = cw_get_code_line_at_pos(0);
+				code_line_t *first_line = cp_get(program, 0);
 
 		if (first_line != NULL) {
 			if (first_line->op1 != NULL) {
@@ -50,7 +53,7 @@ cs_context_t cs_capture_context(void)
 	}
 
 	if (context.code_size > 0) {
-		code_line_t *last_line = cw_get_code_line_at_pos(context.code_size - 1);
+				code_line_t *last_line = cp_get(program, context.code_size - 1);
 
 		if (last_line != NULL) {
 			context.last_line_state = last_line->state;
@@ -66,9 +69,12 @@ cs_context_t cs_capture_context(void)
 	}
 
 	context.code_sorted       = cw_check_code_sorted();
-	context.operand_pending   = cw_is_operand_pending();
-	context.operand_1_pending = cw_is_operand_1_pending();
-	context.operand_2_pending = cw_is_operand_2_pending();
+	context.operand_pending = ce_has_pending_operand(
+		program, CE_PENDING_ANY);
+	context.operand_1_pending = ce_has_pending_operand(
+		program, CE_PENDING_OPERAND_1);
+	context.operand_2_pending = ce_has_pending_operand(
+		program, CE_PENDING_OPERAND_2);
 	context.playing           = mc_is_executing();
 	context.won 			  = wc_is_satisfied();
 
