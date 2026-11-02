@@ -8,11 +8,11 @@ errors = []
 (source_files + text_files).uniq.each do |path|
   content = File.binread(path)
   errors << "#{path}: CRLF or NUL bytes" if content.include?("\r") || content.include?("\0")
-  next if source_files.include?(path)
   errors << "#{path}: missing final newline" unless content.end_with?("\n")
+  next if source_files.include?(path)
   content.each_line.with_index(1) do |line, number|
     errors << "#{path}:#{number}: trailing whitespace" if line.match?(/[\t ]+\n\z/)
   end
 end
 abort errors.join("\n") unless errors.empty?
-puts "Format policy passed: #{source_files.length} C/header files (LF/NUL), #{text_files.length} infrastructure files (whitespace/newline)"
+puts "Format policy passed: #{source_files.length} C/header files (LF/NUL/final newline), #{text_files.length} infrastructure files (whitespace/newline)"
