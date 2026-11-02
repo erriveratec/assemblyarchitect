@@ -1,8 +1,10 @@
 # Bootstrap Pull-Request Draft and Evidence
 
-Local draft only. No branch, commit, push, issue, pull request, or repository
-setting has been created or changed. The user's explicit restrictions override
-the bootstrap prompt's request to open a PR.
+Stage 0 completion record. The bootstrap was merged and pushed to `main`.
+Local verification, hosted GitHub Actions, CodeQL C/C++ analysis, and the
+manual macOS smoke test completed successfully. No pull request was used,
+and no remote repository protection, security, CODEOWNERS, or administrative
+settings were changed by this work.
 
 ## Bounded Plan (Recorded Before Implementation)
 
@@ -102,10 +104,11 @@ The revised recipe and dry-run must be shown to the user before any execution.
 
 ## Verification Updates
 
-The local implementation is present; Stage 0 remains In progress pending hosted
-validation and review of the analyzer finding baseline. No architecture stage has
-started. Independent read-only review reported no introduced defects; a subsequent
-local integration check caught and fixed Make ignoring FRAMEWORK_DIR from the
+The local implementation was present; hosted validation and review of the analyzer
+finding baseline were still pending at this point in the original local verification
+record. No architecture stage had started. Independent read-only review reported
+no introduced defects; a subsequent local integration check caught and fixed
+Make ignoring FRAMEWORK_DIR from the
 workflow environment. The default framework directory is now a conditional default,
 and alternate paths gain a runtime search path without changing the native default.
 
@@ -236,8 +239,8 @@ created because repository write-access identities cannot be verified locally.
 - During the original bootstrap, no installs, sudo, network calls, commits,
   pushes, merges, new branches, GitHub issues/PRs, or remote settings changes were
   performed. Framework setup was syntax checked only. The subsequently authorized
-  checksum collection below downloaded four exact DMGs without mounting; actual
-  framework staging remains for an authorized hosted run.
+  checksum collection below downloaded four exact DMGs without mounting. Hosted
+  validation subsequently passed on `main` at commit `7d29cea`.
 - No actionlint, clang-tidy, cppcheck, coverage tool, Linux container or CodeQL CLI
   is installed/used. Ruby parses YAML and validates specific repository contracts,
   not the complete GitHub Actions schema/service. Existing machine-specific
@@ -251,16 +254,16 @@ created because repository write-access identities cannot be verified locally.
   invented. Missing model/save seams remain Stage 1 work. Existing complete tests
   and their assertions are all preserved.
 - Apple ASan uses detect_leaks=0 because LeakSanitizer is unsupported. No leak
-  coverage or complete gameplay correctness is claimed. Real display/audio,
-  interactive smoke acceptance, app packaging/signing and save round trips remain
-  unverified manually or await isolated executable fixture coverage.
+  coverage or complete gameplay correctness is claimed. Manual macOS smoke testing
+  passed; app packaging/signing and isolated executable save-round-trip coverage
+  remain unverified.
 
 ### Manual Administrator Actions Remaining
 
-Review/authorize a hosted run and verify framework assets, workflow/check contexts
-and macos-15 behavior. Check for organization-managed CodeQL before enabling this
-workflow; verify plan/policy availability and cloud custom-agent tool interpretation.
-Select emitted status contexts only after successful runs. Configure the main
+Hosted CI and CodeQL passed on `main` at commit `7d29cea`. A human administrator
+should confirm emitted check contexts before selecting them in the ruleset. Check
+for organization-managed CodeQL; verify plan/policy availability and cloud
+custom-agent tool interpretation. Configure the main
 branch ruleset, human approvals, stale-review dismissal, conversation resolution,
 current-branch policy, force-push/deletion blocks, restricted bypass and squash merge.
 Confirm real owner write access and activate CODEOWNERS using the documented proposal.
@@ -271,10 +274,9 @@ have been enabled by this local work.
 
 ### Recommended Next Action
 
-Review this infrastructure-only patch and resolve hosted/environment activation
-and analyzer triage in approved scopes. Then approve Stage 1 characterization,
-especially label reorder/deletion and isolated v1 save round trips. Do not begin
-the architectural extraction automatically.
+Prepare a separately reviewed Stage 1 characterization plan, especially for label
+reorder/deletion and isolated v1 save round trips. Do not begin architectural
+extraction until that plan is reviewed and approved.
 
 ## Approved Pre-Commit Corrections
 
@@ -394,3 +396,49 @@ Hosted workflow execution, actual DMG staging/loading, app packaging, real
 display/audio gameplay and analyzer triage remain unverified in this correction.
 Production source, tests, assets, saves, levels, tutorials and code-window
 architecture are unchanged. No cleanup, staging, commit, push or remote change.
+
+## Hosted Stage 0 Completion
+
+Stage 0 validation completed on commit `7d29cea`.
+
+Local native build, the full 18-test regression suite, the headless 18-test suite,
+and the ASan/UBSan 18-test suite passed.
+
+### Hosted GitHub Actions
+
+- CI / macOS Clang: passed
+- CI / Headless SDL: passed
+- CI / ASan and UBSan: passed
+- CI / Infrastructure and Formatting: passed
+- CodeQL / Analyze C-C++: passed
+
+The successful hosted runs used branch `main` at commit `7d29cea`.
+
+GitHub Actions emitted non-blocking Node.js 20 deprecation annotations for
+`actions/checkout@v4` and `actions/upload-artifact@v4`. These annotations did not
+cause a job failure.
+
+Static Analysis remains manual-only. Four pre-existing findings in
+`source/ui/screens/select_level_sl.c` remain unresolved and were not changed or
+suppressed.
+
+### Manual macOS Smoke Test
+
+Manual smoke testing passed for:
+
+- Native build and application launch
+- Title screen and player selection
+- Existing progress loading
+- Representative introductory and control-flow levels
+- Instruction insertion and movement
+- Operand selection and replacement
+- Program execution and reset
+- Execution arrow and highlight behavior
+- Fonts, images, audio, and menus
+- Application exit and restart
+
+The application launched successfully and reported:
+
+```text
+Adaptive minimum window size set to 1280x720 for display 0
+```
