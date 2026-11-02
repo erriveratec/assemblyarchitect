@@ -1,0 +1,34 @@
+name: Copilot Setup Steps
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+      - scripts/check_*.rb
+      - scripts/clean_artifacts.rb
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+      - scripts/check_*.rb
+      - scripts/clean_artifacts.rb
+permissions:
+  contents: read
+jobs:
+  copilot-setup-steps:
+    name: Copilot infrastructure environment
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect available infrastructure toolchain
+        run: |
+          ruby --version
+          make --version
+          clang --version
+      - name: Verify repository infrastructure
+        run: make check-infrastructure format-check
+      - name: Report native build boundary
+        run: |
+          printf '%s\n' 'Infrastructure checks only: production requires macOS SDL2 frameworks.'
+          printf '%s\n' 'Do not claim build/test verification or begin production work on this Ubuntu environment.'

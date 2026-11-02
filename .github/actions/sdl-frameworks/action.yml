@@ -1,0 +1,8 @@
+name: Native SDL2 Frameworks
+description: Stage version-pinned official SDL2 frameworks in runner temporary storage without privileges.
+runs:
+  using: composite
+  steps:
+    - name: Stage native framework dependencies
+      shell: bash
+      run: bash scripts/ci_frameworks.sh

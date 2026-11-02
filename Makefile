@@ -76,7 +76,7 @@ LEGACY_ROOT_TEST_EXECS := \
 	$(notdir $(TEST_EXECS)) \
 	highligh_animation_sync_test
 
- 
+
 ############################
 # Compiler
 ############################
@@ -89,7 +89,7 @@ override CFLAGS += -Wall -Wextra -Wpedantic -Werror
 # SDL Frameworks
 ############################
 
-FRAMEWORK_DIR = /Library/Frameworks
+FRAMEWORK_DIR ?= /Library/Frameworks
 
 SDL_FRAMEWORKS = \
     SDL2.framework \
@@ -109,6 +109,10 @@ SDL_LINK = \
     -framework SDL2_image \
     -framework SDL2_ttf \
     -framework SDL2_mixer
+
+ifneq ($(FRAMEWORK_DIR),/Library/Frameworks)
+SDL_LINK += -Wl,-rpath,$(FRAMEWORK_DIR)
+endif
 
 ############################
 # App bundle paths
@@ -147,9 +151,11 @@ test: $(TEST_TARGETS)
 
 .PHONY: test-display-resize test-drawing-outline
 
-$(TEST_BUILD_DIR):
-	mkdir -p $@
-	for dir in $(DATA_DIRS); do ln -s ../../$$dir $@/$$dir; done
+.PHONY: test-assets
+test-assets:
+	ruby scripts/test_asset_links.rb "$(TEST_BUILD_DIR)"
+
+$(TEST_BUILD_DIR): test-assets
 
 test-modal-pointer-capture: | $(TEST_BUILD_DIR)
 	$(CC) $(CFLAGS) $(MODAL_POINTER_CAPTURE_TEST_SOURCE) $(TEST_SOURCES) -o $(MODAL_POINTER_CAPTURE_TEST_EXEC) \
@@ -263,7 +269,7 @@ test-drawing-outline: | $(TEST_BUILD_DIR)
 app: build
 	@echo "Creating app bundle..."
 	mkdir -p $(APP_MACOS) $(APP_FRAMEWORKS) $(APP_RESOURCES)
-	
+
 	@echo "Copying app icon..."
 	cp $(APP_ICON) $(APP_RESOURCES)/
 
@@ -276,36 +282,36 @@ app: build
 
 	@echo "Copying executable..."
 	cp $(EXEC) $(APP_MACOS)/$(APP_NAME)
-	
+
 	@echo "Copying SDL frameworks..."
 	for fw in $(SDL_FRAMEWORKS); do \
 	    cp -R $(FRAMEWORK_DIR)/$$fw $(APP_FRAMEWORKS)/ ; \
 	done
-	
+
 	@echo "Fixing framework paths..."
 	install_name_tool -add_rpath "@executable_path/../Frameworks" \
 	    $(APP_MACOS)/$(APP_NAME)
-	
+
 	install_name_tool -change \
 	$(FRAMEWORK_DIR)/SDL2.framework/SDL2 \
 	@executable_path/../Frameworks/SDL2.framework/SDL2 \
 	$(APP_MACOS)/$(APP_NAME)
-	
+
 	install_name_tool -change \
 	$(FRAMEWORK_DIR)/SDL2_image.framework/SDL2_image \
 	@executable_path/../Frameworks/SDL2_image.framework/SDL2_image \
 	$(APP_MACOS)/$(APP_NAME)
-	
+
 	install_name_tool -change \
 	$(FRAMEWORK_DIR)/SDL2_ttf.framework/SDL2_ttf \
 	@executable_path/../Frameworks/SDL2_ttf.framework/SDL2_ttf \
 	$(APP_MACOS)/$(APP_NAME)
-	
+
 	install_name_tool -change \
 	$(FRAMEWORK_DIR)/SDL2_mixer.framework/SDL2_mixer \
 	@executable_path/../Frameworks/SDL2_mixer.framework/SDL2_mixer \
 	$(APP_MACOS)/$(APP_NAME)
-	
+
 	@echo "Writing Info.plist..."
 	printf '%s\n' \
 	'<?xml version="1.0" encoding="UTF-8"?>' \
@@ -326,7 +332,7 @@ app: build
 	'</dict>' \
 	'</plist>' \
 	> $(APP_CONTENTS)/Info.plist
-	
+
 	@echo "App bundle created: $(APP_BUNDLE)"
 
 	@echo "Signing app bundle..."
@@ -339,10 +345,36 @@ app: build
 # Clean
 ############################
 
+.PHONY: clean-preview check-clean test-headless test-sanitize analyze format-check check-infrastructure verify
+
+clean-preview:
+	ruby scripts/clean_artifacts.rb --preview
+
+check-clean:
+	ruby scripts/clean_artifacts.rb --check
+
 clean:
-	rm -rf $(EXEC) $(APP_BUNDLE) $(TEST_BUILD_DIR)
-	rm -f $(LEGACY_ROOT_TEST_EXECS)
-	find . -type d -name '*.dSYM' -prune -exec rm -rf {} +
-	rm -rf assemblyArchitect*
-	rm -f source/.*.swp
-	rm -f data/.*.swp
+	ruby scripts/clean_artifacts.rb --execute
+
+test-headless:
+	SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy $(MAKE) test
+
+test-sanitize:
+	mkdir -p build/sanitize
+	$(MAKE) -B all EXEC=build/sanitize/assemblyArchitect CFLAGS='-g -O1 -Isource -fsanitize=address,undefined -fno-omit-frame-pointer'
+	ASAN_OPTIONS=halt_on_error=1:abort_on_error=1:detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 $(MAKE) test TEST_BUILD_DIR=build/sanitize/tests CFLAGS='-g -O1 -Isource -fsanitize=address,undefined -fno-omit-frame-pointer'
+
+analyze:
+	@set -e; for source in $(S_FILES); do \
+		printf 'Analyzing %s\n' "$$source"; \
+		$(CC) --analyze $(CFLAGS) $(SDL_INCLUDES) -F$(FRAMEWORK_DIR) \
+			-Xanalyzer -analyzer-werror -Xanalyzer -analyzer-output=text "$$source" -o /dev/null; \
+	done
+
+format-check:
+	ruby scripts/check_format.rb
+
+check-infrastructure: check-clean
+	ruby scripts/check_infrastructure.rb
+
+verify: check-infrastructure format-check all test

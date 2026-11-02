@@ -1,0 +1,107 @@
+name: Bounded Refactor Stage
+description: Propose one code-window migration stage for human scope approval.
+title: '[Refactor Stage N] '
+body:
+  - type: markdown
+    attributes:
+      value: Read docs/refactor/master-plan.md and the invariant catalog before proposing work. This form does not authorize implementation or merge.
+  - type: textarea
+    id: purpose
+    attributes:
+      label: Purpose and migration stage
+      description: Explain one bounded goal and its stage number.
+    validations:
+      required: true
+  - type: textarea
+    id: current
+    attributes:
+      label: Current behavior
+      description: Verified implementation, headers, callers, ownership, and evidence.
+    validations:
+      required: true
+  - type: textarea
+    id: learning
+    attributes:
+      label: Learning or assembly-semantic relevance
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: In scope
+    validations:
+      required: true
+  - type: textarea
+    id: exclusions
+    attributes:
+      label: Out of scope
+    validations:
+      required: true
+  - type: textarea
+    id: invariants
+    attributes:
+      label: Relevant architecture invariant IDs
+      description: Name AA-* IDs and evidence/uncertainty.
+    validations:
+      required: true
+  - type: textarea
+    id: files
+    attributes:
+      label: Expected files and modules
+    validations:
+      required: true
+  - type: textarea
+    id: api
+    attributes:
+      label: Public API and ownership impact
+      description: Include pointer lifetimes, compatibility wrappers and removal stage, or explain no impact.
+    validations:
+      required: true
+  - type: textarea
+    id: saves
+    attributes:
+      label: Save compatibility impact
+      description: Assess v1 fixtures and positional jump translation; no implicit format migration.
+    validations:
+      required: true
+  - type: textarea
+    id: tests
+    attributes:
+      label: Required tests
+      description: Real Make commands, characterization, sanitizer, headless, analysis and manual coverage.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      value: |
+        - [ ] Non-destructive clean-equivalent forced build passes.
+        - [ ] Existing full test suite passes without skips or weakened assertions.
+        - [ ] New tests detect the intended regression.
+        - [ ] Relevant sanitizer checks pass.
+        - [ ] Static analysis findings are reported and triaged; no Critical/Major findings remain.
+        - [ ] Architecture and migration documentation are updated.
+        - [ ] Save compatibility is assessed with appropriate evidence.
+        - [ ] No unresolved Critical or Major review findings remain.
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks
+    validations:
+      required: true
+  - type: textarea
+    id: rollback
+    attributes:
+      label: Rollback strategy
+      description: Restore the prior stage without rewriting user saves.
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies and approval prerequisites
+    validations:
+      required: true

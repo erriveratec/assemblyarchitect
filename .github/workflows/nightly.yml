@@ -1,0 +1,51 @@
+name: Nightly
+on:
+  schedule:
+    - cron: '23 5 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: nightly-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  headless-sanitizers:
+    name: Full Headless and Sanitizers
+    runs-on: macos-15
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/sdl-frameworks
+      - name: Run existing deterministic checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/ci
+          make test-headless 2>&1 | tee build/ci/headless.log
+          make test-sanitize 2>&1 | tee build/ci/sanitize.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nightly-regression-logs
+          path: build/ci/*.log
+          retention-days: 14
+  analysis:
+    name: Static Analysis
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/sdl-frameworks
+      - name: Analyze production C and fail on findings
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/ci
+          make analyze 2>&1 | tee build/ci/analysis.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nightly-analysis-logs
+          path: build/ci/*.log
+          retention-days: 14
