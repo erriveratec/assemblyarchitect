@@ -131,10 +131,12 @@ code_begin
 line 01
 MOV rbx, [ib]
 CMP rbx, IMMUP0
-JE 06
+JE 08
+JE 07
 MOV [ob], rbx
 JMP 00
-line 06
+line 07
+line 07
 code_end
 
 [level 14]
