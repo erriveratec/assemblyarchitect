@@ -57,10 +57,12 @@ ce_result_t ce_cancel(ce_session_t *session);
  * owning-program membership because the session has no program reference. */
 ce_result_t ce_replace_operand(
 	ce_session_t *session, operand_t *operand, operand_t **replaced);
-/* On CE_OK, *clone is a complete independent line owned by the caller. On
- * failure, *clone is NULL and all objects created for the clone are destroyed.
- * Jump operands own their presentation but borrow the same stable target LABEL
- * through jptr. LABEL lines are intentionally not cloneable. */
+/* On CE_OK, *clone is an independent line owned by the caller. Ordinary
+ * instructions deep-copy present operands and preserve missing slots. JMP/JE/JNE
+ * clones restart destination selection as MISSING_OP1 with no operand, target
+ * pointer, or target identity; placement uses the normal automatic-label flow.
+ * On failure, *clone is NULL and partial clone objects are destroyed. LABEL
+ * lines are intentionally not cloneable. */
 ce_result_t ce_clone_line(
 	const code_line_t *source,
 	ce_clone_instruction_factory_fn create_instruction,

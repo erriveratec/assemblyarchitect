@@ -4,6 +4,7 @@
 
 #include "code_window_cw_internal.h"
 #include "buffers_bf.h"
+#include "file_fl.h"
 #include "mouse_ms.h"
 #include "registers_rg.h"
 
@@ -220,6 +221,17 @@ static code_line_t *add_saved_line(const char *text)
 	return cp_get(g_code_window.program, cp_count(g_code_window.program) - 1);
 }
 
+static void release_at(int x, int y)
+{
+	SDL_Event event = {0};
+	event.type = SDL_MOUSEBUTTONUP;
+	event.button.button = SDL_BUTTON_LEFT;
+	event.button.state = SDL_RELEASED;
+	event.button.x = x;
+	event.button.y = y;
+	ms_mouse_button_handler(event);
+}
+
 static void assert_independent_operand(
 	const operand_t *source, const operand_t *clone)
 {
@@ -316,17 +328,6 @@ static int label_count(void)
 	return count;
 }
 
-static void release_at(int x, int y)
-{
-	SDL_Event event = {0};
-	event.type = SDL_MOUSEBUTTONUP;
-	event.button.button = SDL_BUTTON_LEFT;
-	event.button.state = SDL_RELEASED;
-	event.button.x = x;
-	event.button.y = y;
-	ms_mouse_button_handler(event);
-}
-
 static void test_jump_clones(void)
 {
 	const int jump_ids[] = {JMP, JE, JNE};
@@ -341,43 +342,131 @@ static void test_jump_clones(void)
 		uint64_t identity = target->label_identity;
 		assert(identity != 0 &&
 		       source->op1->target_label_identity == identity);
+		operand_t *source_operand = source->op1;
 		int labels_before = label_count();
+		source->ins->b->animated = true;
+		source_operand->b->animated = true;
+		code_line_t *cancelled_clone = NULL;
+		assert(cw_clone_rclicked_line(source, &cancelled_clone) == CE_OK);
+		assert(cancelled_clone->state == MISSING_OP1 &&
+		       cancelled_clone->op1 == NULL);
+		cl_destroy_code_line(cancelled_clone);
+		assert(label_count() == labels_before);
+		assert(source->op1 == source_operand && source->op1->jptr == target);
+		source->ins->b->animated = false;
+		source_operand->b->animated = false;
+
 		code_line_t *clone = NULL;
 		assert(cw_clone_rclicked_line(source, &clone) == CE_OK);
-		assert(clone->state == COMPLETE && clone->op1 != NULL);
-		assert(clone->op1 != source->op1 && clone->op1->b != source->op1->b);
-		assert(clone->op1->b->t != source->op1->b->t);
-		assert(clone->op1->id == source->op1->id);
-		assert(clone->op1->jptr == target);
-		assert(clone->op1->target_label_identity == identity);
+		assert(clone->ins != source->ins && clone->ins->id == jump_ids[index]);
+		assert(!clone->ins->b->animated);
+		assert(clone->state == MISSING_OP1 && clone->op1 == NULL);
+		assert(clone->op2 == NULL && clone->label_identity == 0);
+		assert(g_code_window.edit_session.state == CE_IDLE &&
+		       g_code_window.edit_session.line != source);
+		assert(source->state == COMPLETE && source->op1 == source_operand);
+		assert(source->op1->jptr == target);
+		assert(source->op1->target_label_identity == identity);
 		assert(label_count() == labels_before);
 		assert(!ce_has_pending_operand(
 			g_code_window.program, CE_PENDING_ANY));
 
-		operand_t *placed_operand = clone->op1;
-		btn_t *placed_button = clone->op1->b;
 		cw_player_holding_instruction(clone, false, false);
 		assert(cp_contains(g_code_window.program, clone));
-		assert(clone->state == COMPLETE && clone->op1 == placed_operand);
-		assert(clone->op1->b == placed_button && clone->op1->jptr == target);
-		assert(clone->op1->target_label_identity == identity);
+		assert(clone->state == MISSING_OP1 && clone->op1 == NULL);
+		assert(source->op1->jptr == target);
+		assert(source->op1->target_label_identity == identity);
 		assert(label_count() == labels_before);
-		for (int frame = 0; frame < 5; frame++) {
+		assert(cw_get_code_line_pending_operand() == clone);
+		assert(ce_has_pending_operand(
+			g_code_window.program, CE_PENDING_OPERAND_1));
+		code_line_t *new_target = pending_operand_handler();
+		assert(new_target != NULL && new_target != target);
+		assert(new_target->ins->id == LABEL);
+		assert(new_target->label_identity != 0 &&
+		       new_target->label_identity != identity);
+		assert(label_count() == labels_before + 1);
+		assert(clone->state == COMPLETE && clone->op1 != NULL);
+		assert(clone->op1->jptr == new_target);
+		assert(clone->op1->target_label_identity == new_target->label_identity);
+		assert(source->state == COMPLETE && source->op1 == source_operand);
+		assert(source->op1->jptr == target);
+		assert(source->op1->target_label_identity == identity);
+		assert(cf_resolve_jump(
+			g_code_window.program, source, NULL) == CF_VALID_TARGET);
+		code_line_t *resolved_clone_target = NULL;
+		assert(cf_resolve_jump(g_code_window.program, clone,
+		                       &resolved_clone_target) == CF_VALID_TARGET);
+		assert(resolved_clone_target == new_target);
+		for (int frame = 0; frame < 10; frame++) {
 			assert(pending_operand_handler() == NULL);
-			assert(label_count() == labels_before);
-			assert(clone->state == COMPLETE && clone->op1 != NULL);
-			assert(clone->op1->jptr == target);
-			assert(clone->op1->target_label_identity == identity);
+			assert(label_count() == labels_before + 1);
+			assert(clone->op1->jptr == new_target);
+			assert(source->op1->jptr == target);
 		}
+
+		release_at(source->op1->b->r.x + 5, source->op1->b->r.y + 5);
+		cw_change_clicked_code_line_state();
+		assert(source->state == CHANGING_OP1);
+		assert(source->op1->b->animated);
+		assert(target->ins->b->animated && target->op1->b->animated);
+		assert(!new_target->ins->b->animated && !new_target->op1->b->animated);
+		cw_cancel_pending_operand_change();
 
 		release_at(clone->op1->b->r.x + 5, clone->op1->b->r.y + 5);
 		cw_change_clicked_code_line_state();
 		assert(clone->state == CHANGING_OP1);
 		assert(clone->op1->b->animated);
-		assert(target->ins->b->animated && target->op1->b->animated);
-		assert(source->op1->jptr == target &&
-		       source->op1->target_label_identity == identity);
+		assert(new_target->ins->b->animated && new_target->op1->b->animated);
+		assert(!target->ins->b->animated && !target->op1->b->animated);
 		cw_cancel_pending_operand_change();
+
+		assert(ce_move_line(g_code_window.program, target,
+		                    cp_count(g_code_window.program) - 1) == CE_OK);
+		assert(ce_move_line(g_code_window.program, new_target, 0) == CE_OK);
+		assert(cf_repair_program_targets(
+			g_code_window.program, &g_code_window.next_label_identity) ==
+			CF_VALID_TARGET);
+		update_label_instructions();
+		update_jump_instructions();
+		assert(source->op1->jptr == target);
+		assert(source->op1->target_label_identity == identity);
+		assert(clone->op1->jptr == new_target);
+		assert(clone->op1->target_label_identity == new_target->label_identity);
+		assert(new_target->label_identity != identity);
+
+		int source_position = cp_index_of(g_code_window.program, source);
+		int clone_position = cp_index_of(g_code_window.program, clone);
+		int original_target_position = cp_index_of(g_code_window.program, target);
+		int cloned_target_position = cp_index_of(g_code_window.program, new_target);
+		FILE *fixture = tmpfile();
+		assert(fixture != NULL);
+		write_player_code_to_file(fixture);
+		rewind(fixture);
+		clear_program();
+		char saved_line[128];
+		while (fgets(saved_line, sizeof(saved_line), fixture) != NULL) {
+			saved_line[strcspn(saved_line, "\n")] = '\0';
+			cw_add_saved_line(saved_line);
+		}
+		fclose(fixture);
+		cw_update_saved_jump_instructions();
+		code_line_t *reloaded_source = cp_get(
+			g_code_window.program, source_position);
+		code_line_t *reloaded_clone = cp_get(
+			g_code_window.program, clone_position);
+		code_line_t *reloaded_original_target = cp_get(
+			g_code_window.program, original_target_position);
+		code_line_t *reloaded_cloned_target = cp_get(
+			g_code_window.program, cloned_target_position);
+		assert(reloaded_source->op1->jptr == reloaded_original_target);
+		assert(reloaded_clone->op1->jptr == reloaded_cloned_target);
+		assert(reloaded_source->op1->target_label_identity ==
+		       reloaded_original_target->label_identity);
+		assert(reloaded_clone->op1->target_label_identity ==
+		       reloaded_cloned_target->label_identity);
+		assert(reloaded_source->op1->target_label_identity !=
+		       reloaded_clone->op1->target_label_identity);
 		clear_program();
 	}
 }
@@ -480,6 +569,36 @@ static void test_allocation_rollback(void)
 	clear_program();
 }
 
+static void test_jump_clone_allocation_rollback(void)
+{
+	clear_program();
+	code_line_t *source = add_saved_line("JMP 1");
+	code_line_t *target = add_saved_line("line 1");
+	cw_update_saved_jump_instructions();
+	assert(source->state == COMPLETE && source->op1->jptr == target);
+	operand_t *source_operand = source->op1;
+	uint64_t source_identity = target->label_identity;
+	int original_count = cp_count(g_code_window.program);
+	reset_failure_counts();
+	clone_failure = CLONE_FAIL_LINE_OBJECT;
+	clone_active = true;
+	code_line_t *clone = NULL;
+	ce_result_t result = cw_clone_rclicked_line(source, &clone);
+	clone_active = false;
+	clone_failure = CLONE_FAIL_NONE;
+	assert(result == CE_ALLOCATION_FAILED && clone == NULL);
+	assert(clone_operand_factory_calls == 0);
+	assert(destroyed_lines == 0 && destroyed_instructions == 1);
+	assert(destroyed_operands == 0);
+	assert(cp_count(g_code_window.program) == original_count);
+	assert(label_count() == 1);
+	assert(source->state == COMPLETE && source->op1 == source_operand);
+	assert(source_operand->jptr == target);
+	assert(source_operand->target_label_identity == source_identity);
+	assert(target->label_identity == source_identity);
+	clear_program();
+}
+
 static void test_label_copy_restriction(void)
 {
 	clear_program();
@@ -519,6 +638,7 @@ int main(void)
 	test_jump_clones();
 	test_clone_independence();
 	test_allocation_rollback();
+	test_jump_clone_allocation_rollback();
 	test_label_copy_restriction();
 
 	cw_destroy_code_window_assets();

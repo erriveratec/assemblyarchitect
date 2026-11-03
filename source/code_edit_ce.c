@@ -90,7 +90,8 @@ ce_result_t ce_clone_line(
 	if (quantity < ZERO_OPERANDS || quantity > TWO_OPERANDS) {
 		return CE_INVALID_ARGUMENT;
 	}
-	if (cl_is_ins_jmp_type(source->ins->id) && source->op1 != NULL &&
+	bool is_jump = cl_is_ins_jmp_type(source->ins->id);
+	if (is_jump && source->op1 != NULL &&
 	    (source->op1->b == NULL || source->op1->jptr == NULL ||
 	     source->op1->jptr->ins == NULL ||
 	     source->op1->jptr->ins->id != LABEL ||
@@ -120,7 +121,7 @@ ce_result_t ce_clone_line(
 	copy->label_identity = 0;
 	operand_t *source_operands[] = {source->op1, source->op2};
 	operand_t **copy_operands[] = {&copy->op1, &copy->op2};
-	int slot_count = quantity == TWO_OPERANDS ? 2 :
+	int slot_count = is_jump ? 0 : quantity == TWO_OPERANDS ? 2 :
 		quantity == ONE_OPERAND ? 1 : 0;
 	for (int slot = 0; slot < slot_count; slot++) {
 		const operand_t *source_operand = source_operands[slot];
@@ -133,7 +134,6 @@ ce_result_t ce_clone_line(
 			cl_destroy_code_line(copy);
 			return CE_INVALID_ARGUMENT;
 		}
-		bool is_jump = cl_is_ins_jmp_type(source->ins->id);
 		operand_t *operand = create_operand(source_operand, is_jump, context);
 		if (operand == NULL) {
 			cl_destroy_code_line(copy);
@@ -154,7 +154,7 @@ ce_result_t ce_clone_line(
 		operand->b->r = source_operand->b->r;
 		*copy_operands[slot] = operand;
 	}
-	copy->state = ce_line_state_after_edit(copy);
+	copy->state = is_jump ? MISSING_OP1 : ce_line_state_after_edit(copy);
 	*clone = copy;
 	return CE_OK;
 }

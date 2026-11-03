@@ -189,6 +189,34 @@ static void test_rollback(int failure)
 	reset_program();
 }
 
+static void test_clone_rollback(int failure)
+{
+	code_line_t *source = append_line(JMP);
+	code_line_t *source_label = pending_operand_handler();
+	assert(source_label != NULL && source->state == COMPLETE);
+	uint64_t source_identity = source_label->label_identity;
+	assert(source_identity != 0 && source->op1->jptr == source_label);
+
+	code_line_t *clone = NULL;
+	assert(cw_clone_rclicked_line(source, &clone) == CE_OK);
+	assert(clone != NULL && clone->state == MISSING_OP1 && clone->op1 == NULL);
+	assert(cp_insert(g_code_window.program, cp_count(g_code_window.program),
+	                 clone) == CP_OK);
+	int original_count = cp_count(g_code_window.program);
+	reject_insertion = failure == 0;
+	reject_operand_allocation = failure == 1;
+	reject_assignment = failure == 2;
+	assert(pending_operand_handler() == NULL);
+	assert(cp_count(g_code_window.program) == original_count);
+	assert(label_count() == 1 && label_destructions == 1);
+	assert(candidate_destructions == (failure == 2 ? 1 : 0));
+	assert(clone->state == MISSING_OP1 && clone->op1 == NULL);
+	assert(source->state == COMPLETE && source->op1->jptr == source_label);
+	assert(source->op1->target_label_identity == source_identity);
+	assert(cp_contains(g_code_window.program, source_label));
+	reset_program();
+}
+
 static void test_replacement(void)
 {
 	code_line_t *jump = append_line(JMP);
@@ -281,6 +309,9 @@ int main(void)
 	test_single_label(64);
 	for (int failure = 0; failure < 3; failure++) {
 		test_rollback(failure);
+	}
+	for (int failure = 0; failure < 3; failure++) {
+		test_clone_rollback(failure);
 	}
 	test_replacement();
 	test_nonmember_target();
