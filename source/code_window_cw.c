@@ -162,6 +162,10 @@ static int code_line_spacing(void);
 static int get_code_line_x(int instruction_id);
 static int get_code_line_y(int position);
 static code_line_t *create_label_code_line(void);
+static instruction_t *create_clone_instruction(
+	const instruction_t *source, void *context);
+static operand_t *create_clone_operand(
+	const operand_t *source, bool is_jump, void *context);
 
 static void release_button_animation_claim(button_animation_claim_t *claim)
 {
@@ -489,15 +493,39 @@ static void update_jump_instructions(void)
 		if (cl_is_ins_jmp_type(c->ins->id) == true){
 			if (c->op1 != NULL){
 				code_line_t *jmp_addr = c->op1->jptr;
-				cl_destroy_operand(c->op1);	
 				if (jmp_addr != NULL &&
 				    cp_contains(g_code_window.program, jmp_addr)){
 					ensure_label_identity(jmp_addr);
-					c->op1 = create_updated_jump_operand(jmp_addr);
-					c->op1->target_label_identity = jmp_addr->label_identity;
+					char *label_number = ax_number_to_string_two_digits(
+						jmp_addr->op1->id);
+					if (label_number != NULL && c->op1->b != NULL) {
+						size_t text_size = strlen(label_text) +
+							strlen(ax_char_space) + strlen(label_number) + 1;
+						char *operand_text = malloc(text_size);
+						if (operand_text != NULL) {
+							strcpy(operand_text, label_text);
+							strcat(operand_text, ax_char_space);
+							strcat(operand_text, label_number);
+							texture_t *texture = dw_create_text_tex(
+								operand_text, C_WHITE);
+							if (texture != NULL) {
+								texture_t *previous = c->op1->b->t;
+								c->op1->b->t = texture;
+								dw_free_texture(previous);
+							}
+							free(operand_text);
+						}
+						free(label_number);
+					}
+					c->op1->id = cp_index_of(
+						g_code_window.program, jmp_addr);
+					c->op1->jptr = jmp_addr;
+					c->op1->target_label_identity =
+						jmp_addr->label_identity;
 					c->op1->b->r.x = c->ins->b->r.x + op1_ofs;
 					c->op1->b->r.y = c->ins->b->r.y;
 				} else {
+					cl_destroy_operand(c->op1);
 					c->op1 = NULL;
 					c->state = MISSING_OP1;
 				}
@@ -515,30 +543,43 @@ static operand_t *create_jump_operand(code_line_t *addr)
 	    !ensure_label_identity(addr)) {
 		return NULL;
 	}
-	operand_t *op = malloc(sizeof(*op));
-	if (op == NULL) {
+	char *line_text = ax_number_to_string_two_digits(addr->op1->id);
+	if (line_text == NULL) {
 		return NULL;
 	}
-
-	int addr_label_id = addr->op1->id;
-	char *line_text = ax_number_to_string_two_digits(addr_label_id);
-	char *op_text = malloc(strlen(label_text) + strlen(ax_char_space) +
-						strlen(line_text) + 1);
-	
+	size_t text_size = strlen(label_text) + strlen(ax_char_space) +
+		strlen(line_text) + 1;
+	char *op_text = malloc(text_size);
+	if (op_text == NULL) {
+		free(line_text);
+		return NULL;
+	}
 	strcpy(op_text, label_text);
 	strcat(op_text, ax_char_space);
 	strcat(op_text, line_text);
 	texture_t *t = dw_create_text_tex(op_text, C_WHITE);
+	free(line_text);
+	free(op_text);
+	if (t == NULL) {
+		return NULL;
+	}
 
 	SDL_Rect cb = cl_get_code_button_size();
 	SDL_Rect r = {.x = 0, .y = 0, .w = 2*cb.w, .h = cb.h};
-	op->b = bt_create_btn(r, t);
+	btn_t *button = bt_create_btn(r, t);
+	if (button == NULL) {
+		dw_free_texture(t);
+		return NULL;
+	}
+	operand_t *op = malloc(sizeof(*op));
+	if (op == NULL) {
+		bt_destroy_button(button);
+		return NULL;
+	}
+	op->b = button;
 	op->id = cp_index_of(g_code_window.program, addr);
 	op->jptr = addr;
 	op->target_label_identity = addr->label_identity;
-
-	free(line_text);
-	free(op_text);
 
 	return op;
 } 
@@ -735,46 +776,50 @@ error:
  *	The cloned code_line_object
  *
  */
-code_line_t *cw_clone_rclicked_line(code_line_t *line)
+static instruction_t *create_clone_instruction(
+	const instruction_t *source, void *context)
 {
-	texture_t *t = cl_create_instruction_texture(line->ins->id);	
-	btn_t *b = bt_create_btn(line->ins->b->r, t);
-
-	instruction_t *i = cl_create_instruction(line->ins->id, b);
-	
-	code_line_t *new = cl_create_code_line(i);
-
-	int operand_quantity = cl_get_instruction_operand_quantity(line->ins->id);
-	
-	if (operand_quantity == ONE_OPERAND || operand_quantity == TWO_OPERANDS){
-		operand_t *op1;
-		if (cl_is_ins_jmp_type(line->ins->id) == true){
-		} else if (line->op1->id > REG_MIN && line->op1->id < REG_MAX){
-			op1 = rg_create_register_operand_by_id(line->op1->id);
-			cw_assign_op_to_line(op1, new);
-		} else if (line->op1->id > BUF_MIN && line->op1->id < BUF_MAX){
-			op1 = bf_create_buffer_operand_by_id(line->op1->id);
-			cw_assign_op_to_line(op1, new);
-		} else {
-			printf("Error: no operand 1 determined\n");
-		}
+	(void)context;
+	texture_t *texture = cl_create_instruction_texture(source->id);
+	if (texture == NULL) {
+		return NULL;
 	}
-	if (operand_quantity == TWO_OPERANDS){
-		operand_t *op2;
-		if (line->op2->id > REG_MIN && line->op2->id < REG_MAX){
-			op2 = rg_create_register_operand_by_id(line->op2->id);
-			cw_assign_op_to_line(op2, new);
-		} else if (line->op2->id > BUF_MIN && line->op2->id < BUF_MAX){
-			op2 = bf_create_buffer_operand_by_id(line->op2->id);
-			cw_assign_op_to_line(op2, new);
-		} else if (line->op2->id > IMM_MIN && line->op2->id < IMM_MAX){
-			op2 = im_create_imm_op_by_id(line->op2->id);
-			cw_assign_op_to_line(op2, new);
-		} else {
-			printf("Error: no operand 2 determined\n");
-		}
+	btn_t *button = bt_create_btn(source->b->r, texture);
+	if (button == NULL) {
+		dw_free_texture(texture);
+		return NULL;
 	}
-	return new;
+	instruction_t *instruction = cl_create_instruction(source->id, button);
+	if (instruction == NULL) {
+		bt_destroy_button(button);
+		return NULL;
+	}
+	return instruction;
+}
+
+static operand_t *create_clone_operand(
+	const operand_t *source, bool is_jump, void *context)
+{
+	(void)context;
+	if (is_jump) {
+		return create_jump_operand(source->jptr);
+	}
+	if (source->id > REG_MIN && source->id < REG_MAX) {
+		return rg_create_register_operand_by_id(source->id);
+	}
+	if (source->id > BUF_MIN && source->id < BUF_MAX) {
+		return bf_create_buffer_operand_by_id(source->id);
+	}
+	if (source->id > IMM_MIN && source->id < IMM_MAX) {
+		return im_create_imm_op_by_id(source->id);
+	}
+	return NULL;
+}
+
+ce_result_t cw_clone_rclicked_line(code_line_t *line, code_line_t **clone)
+{
+	return ce_clone_line(line, create_clone_instruction, create_clone_operand,
+	                     NULL, clone);
 }
 
 

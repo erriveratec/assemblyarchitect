@@ -449,8 +449,12 @@ static code_line_t *edit_code(int level_id)
 			line = cw_get_clicked_code();
 			break;
 		case CI_ACTION_CLONE_CODE_LINE:
-			line = cw_clone_rclicked_line(cw_get_rclicked_code());
-			hold_line = true;
+			if (cw_clone_rclicked_line(cw_get_rclicked_code(), &line) == CE_OK) {
+				hold_line = true;
+			} else {
+				line = NULL;
+				hold_line = false;
+			}
 			break;
 		case CI_ACTION_UPDATE_HELD_LINE: {
 			bool arrange = lv_is_arrange_enabled();

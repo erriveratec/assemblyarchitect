@@ -141,6 +141,7 @@ extern char *ob_text;
 
 void cl_destroy_code_line(code_line_t *line);
 instruction_t *cl_create_instruction(int id, btn_t *b);
+void cl_destroy_instruction(instruction_t *instruction);
 operand_t *cl_create_operand(int id, btn_t *b);
 bool cl_is_op_compatible(operand_t *op, code_line_t *line);
 bool cl_is_operand_id_valid(int operand_id);

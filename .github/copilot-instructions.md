@@ -1,5 +1,22 @@
 # Assembly Architect Repository Instructions
 
+## Required Repository Context
+
+Before significant implementation, refactoring, save-system, gameplay-semantic,
+or architecture work, read:
+
+1. `docs/PROJECT_CONTEXT.md`
+2. `docs/architecture/README.md`
+3. `docs/architecture/invariants.md`
+4. `docs/governance/quality-gates.md`
+5. The implementation, headers, callers, and tests for the affected subsystem
+
+Use `scripts/create_copilot_context_bundle.sh` when an external review needs a
+complete committed-project snapshot or a working-tree diff.
+
+Do not treat generated context dumps as repository documentation. Context dumps
+are temporary review artifacts and must not be committed.
+
 ## Mission and Safety
 
 This C/SDL2 game teaches x86-inspired assembly. Educational correctness is a

@@ -17,6 +17,148 @@ static int ce_line_state_after_edit(const code_line_t *line)
 	return COMPLETE;
 }
 
+static void ce_discard_invalid_instruction(
+	instruction_t *instruction, const instruction_t *source)
+{
+	if (instruction == NULL || instruction == source) {
+		return;
+	}
+	if (instruction->b == NULL) {
+		free(instruction);
+	} else if (instruction->b == source->b) {
+		free(instruction);
+	} else if (instruction->b->t == NULL) {
+		free(instruction->b);
+		free(instruction);
+	} else if (instruction->b->t == source->b->t) {
+		free(instruction->b);
+		free(instruction);
+	} else {
+		cl_destroy_instruction(instruction);
+	}
+}
+
+static void ce_discard_invalid_operand(
+	operand_t *operand, const operand_t *source)
+{
+	if (operand == NULL || operand == source) {
+		return;
+	}
+	if (operand->b == NULL) {
+		free(operand);
+	} else if (operand->b == source->b) {
+		free(operand);
+	} else if (operand->b->t == NULL) {
+		free(operand->b);
+		free(operand);
+	} else if (operand->b->t == source->b->t) {
+		free(operand->b);
+		free(operand);
+	} else {
+		cl_destroy_operand(operand);
+	}
+}
+
+ce_result_t ce_clone_line(
+	const code_line_t *source,
+	ce_clone_instruction_factory_fn create_instruction,
+	ce_clone_operand_factory_fn create_operand,
+	void *context,
+	code_line_t **clone)
+{
+	if (clone != NULL) {
+		*clone = NULL;
+	}
+	if (source == NULL || source->ins == NULL || source->ins->b == NULL ||
+	    source->ins->b->t == NULL ||
+	    create_instruction == NULL || create_operand == NULL || clone == NULL ||
+	    source->ins->id <= INSTRUCTION_MIN ||
+	    source->ins->id >= INSTRUCTION_MAX || source->ins->id == LABEL) {
+		return CE_INVALID_ARGUMENT;
+	}
+	int quantity = cl_get_instruction_operand_quantity(source->ins->id);
+	if (quantity == ZERO_OPERANDS &&
+	    (source->op1 != NULL || source->op2 != NULL)) {
+		return CE_INVALID_ARGUMENT;
+	}
+	if (quantity == ONE_OPERAND && source->op2 != NULL) {
+		return CE_INVALID_ARGUMENT;
+	}
+	if (quantity == TWO_OPERANDS && cl_is_ins_jmp_type(source->ins->id)) {
+		return CE_INVALID_ARGUMENT;
+	}
+	if (quantity < ZERO_OPERANDS || quantity > TWO_OPERANDS) {
+		return CE_INVALID_ARGUMENT;
+	}
+	if (cl_is_ins_jmp_type(source->ins->id) && source->op1 != NULL &&
+	    (source->op1->b == NULL || source->op1->jptr == NULL ||
+	     source->op1->jptr->ins == NULL ||
+	     source->op1->jptr->ins->id != LABEL ||
+	     source->op1->jptr->label_identity == 0 ||
+	     source->op1->target_label_identity == 0 ||
+	     source->op1->target_label_identity !=
+	         source->op1->jptr->label_identity)) {
+		return CE_INVALID_ARGUMENT;
+	}
+
+	instruction_t *instruction = create_instruction(source->ins, context);
+	if (instruction == NULL) {
+		return CE_FACTORY_FAILED;
+	}
+	if (instruction->id != source->ins->id || instruction->b == NULL ||
+	    instruction->b->t == NULL ||
+	    instruction->b == source->ins->b ||
+	    instruction->b->t == source->ins->b->t) {
+		ce_discard_invalid_instruction(instruction, source->ins);
+		return CE_FACTORY_FAILED;
+	}
+	code_line_t *copy = cl_create_code_line(instruction);
+	if (copy == NULL) {
+		cl_destroy_instruction(instruction);
+		return CE_ALLOCATION_FAILED;
+	}
+	copy->label_identity = 0;
+	operand_t *source_operands[] = {source->op1, source->op2};
+	operand_t **copy_operands[] = {&copy->op1, &copy->op2};
+	int slot_count = quantity == TWO_OPERANDS ? 2 :
+		quantity == ONE_OPERAND ? 1 : 0;
+	for (int slot = 0; slot < slot_count; slot++) {
+		const operand_t *source_operand = source_operands[slot];
+		if (source_operand == NULL) {
+			continue;
+		}
+		if (source_operand->b == NULL || source_operand->b->t == NULL ||
+		    (!cl_is_ins_jmp_type(source->ins->id) &&
+		     !cl_is_operand_id_valid(source_operand->id))) {
+			cl_destroy_code_line(copy);
+			return CE_INVALID_ARGUMENT;
+		}
+		bool is_jump = cl_is_ins_jmp_type(source->ins->id);
+		operand_t *operand = create_operand(source_operand, is_jump, context);
+		if (operand == NULL) {
+			cl_destroy_code_line(copy);
+			return CE_FACTORY_FAILED;
+		}
+		if (operand == source_operand || operand->b == NULL ||
+		    operand->b->t == NULL ||
+		    operand->b == source_operand->b ||
+		    operand->b->t == source_operand->b->t) {
+			ce_discard_invalid_operand(operand, source_operand);
+			cl_destroy_code_line(copy);
+			return CE_FACTORY_FAILED;
+		}
+		operand->id = source_operand->id;
+		operand->jptr = is_jump ? source_operand->jptr : NULL;
+		operand->target_label_identity = is_jump
+			? source_operand->target_label_identity : 0;
+		operand->b->r = source_operand->b->r;
+		*copy_operands[slot] = operand;
+	}
+	copy->state = ce_line_state_after_edit(copy);
+	*clone = copy;
+	return CE_OK;
+}
+
 ce_result_t ce_select_operand(
 	code_program_t *program, ce_session_t *session, code_line_t *line,
 	ce_operand_slot_t slot)

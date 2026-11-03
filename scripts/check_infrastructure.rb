@@ -8,6 +8,39 @@ def require_check(condition, message)
   abort message unless condition
 end
 
+permanent_context_files = [
+  '.github/copilot-instructions.md',
+  'docs/PROJECT_CONTEXT.md',
+  'docs/architecture/README.md',
+  'docs/architecture/invariants.md',
+  'docs/governance/quality-gates.md',
+  'scripts/create_copilot_context_bundle.sh'
+]
+permanent_context_files.each do |path|
+  require_check(File.file?(path), "Missing permanent context file #{path}")
+end
+context_references = [
+  '.github/copilot-instructions.md',
+  'docs/architecture/README.md',
+  'docs/architecture/invariants.md',
+  'docs/governance/quality-gates.md',
+  'scripts/create_copilot_context_bundle.sh'
+]
+project_context = File.read('docs/PROJECT_CONTEXT.md')
+context_references.each do |path|
+  require_check(project_context.include?(path), "Project context omits #{path}")
+end
+context_generator = 'scripts/create_copilot_context_bundle.sh'
+require_check(File.executable?(context_generator),
+              "Context generator is not executable: #{context_generator}")
+
+retired_migration_records = %w[
+  docs/refactor/bootstrap-report.md
+  docs/refactor/master-plan.md
+  docs/refactor/migration-state.md
+  docs/prompts/copilot-refactor-bootstrap.txt
+].map { |path| File.expand_path(path) }
+
 framework_script = File.read('scripts/ci_frameworks.sh')
 framework_table = framework_script.match(/done <<'FRAMEWORKS'\n(.*?)^FRAMEWORKS$/m)
 require_check(framework_table, 'Missing framework checksum table')
@@ -152,13 +185,18 @@ agents.each do |path|
     require_check(tools.sort == %w[read search], "Read-only violation: #{path}")
   end
   content.scan(/`((?:docs\/|\.github\/)[^`]+\.md)`/).flatten.each do |reference|
+    next if retired_migration_records.include?(File.expand_path(reference))
+
     require_check(File.file?(reference), "Missing agent path #{reference}")
   end
 end
 
 Dir['docs/{architecture,governance,refactor}/**/*.md'].each do |path|
   File.read(path).scan(/\]\(([^)#]+)(?:#[^)]*)?\)/).flatten.each do |link|
-    require_check(File.exist?(File.expand_path(link, File.dirname(path))), "Broken link #{path}: #{link}")
+    target = File.expand_path(link, File.dirname(path))
+    next if retired_migration_records.include?(target)
+
+    require_check(File.exist?(target), "Broken link #{path}: #{link}")
   end
 end
 

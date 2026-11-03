@@ -727,6 +727,9 @@ instruction_t *cl_create_instruction(int id, btn_t *b)
 		   "Invalid instruction id");
 	
 	instruction_t *ins = malloc(sizeof(instruction_t));	
+	if (ins == NULL) {
+		return NULL;
+	}
 
 	ins->b = b;
 	ins->id = id;
@@ -751,7 +754,9 @@ code_line_t *cl_create_code_line(instruction_t *ins)
 	assert(NULL != ins && "The instruction pointer is NULL");
 	
 	code_line_t *new_line = malloc(sizeof(code_line_t));	
-	check_mem(new_line);
+	if (new_line == NULL) {
+		return NULL;
+	}
 
 	new_line->ins = ins;
 	new_line->op1 = NULL;
@@ -768,8 +773,14 @@ code_line_t *cl_create_code_line(instruction_t *ins)
 		assert("Invalid instruction operand quantity");
 	}
 
-error:
 	return new_line;
+}
+
+void cl_destroy_instruction(instruction_t *instruction)
+{
+	assert(instruction != NULL && "The instruction pointer is NULL");
+	bt_destroy_button(instruction->b);
+	free(instruction);
 }
 
 /* Function: cl_destroy_code_line
@@ -785,8 +796,8 @@ error:
  */
 void cl_destroy_code_line(code_line_t *line)
 {
-	bt_destroy_button(line->ins->b);
-	free(line->ins);
+	assert(line != NULL && "The code line pointer is NULL");
+	cl_destroy_instruction(line->ins);
 
 	if (line->op1 != NULL){
 		bt_destroy_button(line->op1->b);

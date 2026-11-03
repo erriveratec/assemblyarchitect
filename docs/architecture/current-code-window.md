@@ -8,11 +8,11 @@ is proven.
 
 | Existing file | Responsibility |
 | --- | --- |
-| `source/code_window_cw.c` | Orchestration and remaining compatibility implementation: SDL-backed line construction, label/jump operand rebuilding, save entry points, hit acquisition, layout coordination, scrolling and animation claims |
+| `source/code_window_cw.c` | Orchestration and remaining compatibility implementation: SDL-backed line construction and clone factories, label/jump operand rebuilding, save entry points, hit acquisition, layout coordination, scrolling and animation claims |
 | `source/code_program_cp.{c,h}` | Ordered line owner using existing `List`; production and direct-source fixtures use read-only indexed and iterator APIs, with no raw-list compatibility view |
 | `source/control_flow_cf.{c,h}` | Production stable identity assignment, v1 positional target translation, target repair/resolution, validation and jump execution-state intervals; SDL operand presentation remains in `cw_*` |
 | `source/code_layout_cly.{c,h}` | Pure value-based rectangle, spacing, offset, row-position and strict-boundary hit calculations; some geometry remains in `cw_*` |
-| `source/code_edit_ce.{c,h}` | Explicit edit-session state, result-valued operand/line mutations, and pending-operand queries used by production callers |
+| `source/code_edit_ce.{c,h}` | Explicit edit-session state, result-valued operand/line mutations, reusable result-valued deep cloning, and pending-operand queries used by production callers |
 | `source/code_interaction_ci.{c,h}` | Pure ordered hit-result-to-action translation, used by the stage edit dispatcher |
 | `source/code_renderer_cr.{c,h}` | Line/operand/grouped-label/comma/line-number, challenge/code-box and stage-title presentation with explicit renderer texture ownership |
 | `source/code_window_cw.h` | Public `cw_*` compatibility surface, SDL rectangles, borrowed line pointers; MAX_CODE_LINES 99 |
@@ -53,6 +53,12 @@ through `control_flow_cf`. Tutorials, operand highlights, arrows, and code state
 use owning model/edit modules for migrated reads, while geometry and hit acquisition
 still use controller adapters.
 
+Right-click cloning routes through `cw_clone_rclicked_line` to
+`ce_clone_line`. The edit-layer API owns rollback and editable-state derivation;
+the controller factories construct fresh SDL-backed instruction and operand
+objects. The stage only enters held-line placement after `CE_OK`. LABEL lines
+remain ineligible for right-click cloning, matching `cw_chk_rclick_code`.
+
 ## Ownership and Lifetime
 
 `code_program_cp` owns inserted line values and destroys them through the registered
@@ -73,6 +79,18 @@ slots return NULL. On failure, the caller retains the new operand. The
 on success it destroys only a non-NULL displaced operand. `cl_destroy_operand`
 continues to require a non-NULL argument. Edit and controller-selection tests
 cover empty slots, state transitions and exactly-once replacement cleanup.
+
+`ce_clone_line` returns `CE_OK` with one complete, independent line owned by the
+caller. On failure it returns an explicit status, leaves the output NULL, and
+destroys all successfully constructed clone objects. Its presentation factories
+must return fresh instruction/operand objects with independent buttons and
+textures. Present operands are copied; missing slots remain missing, and
+execution/selection presentation state is normalized from the cloned slots.
+Ordinary operands have no jump metadata. Jump operands own their UI objects but
+borrow the source's same LABEL through `jptr` and copy its stable target identity;
+insertion preserves the jump operand and button while refreshing its owned label
+texture and positional display ID. Clone coverage is in
+`code_line_clone_test`, including factory-failure rollback and held-line placement.
 
 Jump replacement validates the target LABEL and its nonzero stable identity,
 not the positional operand `id`; ordinary REG/BUF/IMM validation is unchanged.

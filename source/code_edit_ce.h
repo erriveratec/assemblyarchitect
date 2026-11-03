@@ -32,8 +32,17 @@ typedef enum ce_result_t {
 	CE_INVALID_ARGUMENT,
 	CE_INVALID_SESSION,
 	CE_INCOMPATIBLE_OPERAND,
-	CE_PROGRAM_ERROR
+	CE_PROGRAM_ERROR,
+	CE_ALLOCATION_FAILED,
+	CE_FACTORY_FAILED
 } ce_result_t;
+
+/* Factories return newly allocated, independent objects and transfer ownership
+ * to ce_clone_line on success. A NULL result means factory failure. */
+typedef instruction_t *(*ce_clone_instruction_factory_fn)(
+	const instruction_t *source, void *context);
+typedef operand_t *(*ce_clone_operand_factory_fn)(
+	const operand_t *source, bool is_jump, void *context);
 
 ce_result_t ce_begin(
 	ce_session_t *session, code_line_t *line, ce_session_state_t state);
@@ -48,6 +57,16 @@ ce_result_t ce_cancel(ce_session_t *session);
  * owning-program membership because the session has no program reference. */
 ce_result_t ce_replace_operand(
 	ce_session_t *session, operand_t *operand, operand_t **replaced);
+/* On CE_OK, *clone is a complete independent line owned by the caller. On
+ * failure, *clone is NULL and all objects created for the clone are destroyed.
+ * Jump operands own their presentation but borrow the same stable target LABEL
+ * through jptr. LABEL lines are intentionally not cloneable. */
+ce_result_t ce_clone_line(
+	const code_line_t *source,
+	ce_clone_instruction_factory_fn create_instruction,
+	ce_clone_operand_factory_fn create_operand,
+	void *context,
+	code_line_t **clone);
 ce_result_t ce_insert_line(
 	code_program_t *program, int index, code_line_t *line);
 ce_result_t ce_remove_line(

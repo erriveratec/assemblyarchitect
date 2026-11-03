@@ -338,25 +338,31 @@ bool bf_ms_rel_in_buf(void)
 operand_t *bf_create_buffer_operand_by_id(int id)
 {
 	assert(id > BUF_MIN && id < BUF_MAX && "Incorrect buffer id");
-   	
-	operand_t *b = malloc(sizeof(operand_t));
-	if (id == IB){
-		texture_t *t = cl_create_operand_texture(id);
-		b->b = bt_create_btn(input_buffer->b->r, t);
-
-		b->id = input_buffer->id;
-		b->jptr = NULL;
-		b->target_label_identity = 0;
-	} else if (id == OB){
-		texture_t *t = cl_create_operand_texture(id);
-		b->b = bt_create_btn(output_buffer->b->r, t);
-		b->id = output_buffer->id;
-		b->jptr = NULL;
-		b->target_label_identity = 0;
+	if ((id != IB && id != OB) || input_buffer == NULL ||
+	    output_buffer == NULL || input_buffer->b == NULL ||
+	    output_buffer->b == NULL) {
+		return NULL;
 	}
-	check_mem(b);
-	error:
-	return b;
+	texture_t *texture = cl_create_operand_texture(id);
+	if (texture == NULL) {
+		return NULL;
+	}
+	SDL_Rect bounds = id == IB ? input_buffer->b->r : output_buffer->b->r;
+	btn_t *button = bt_create_btn(bounds, texture);
+	if (button == NULL) {
+		dw_free_texture(texture);
+		return NULL;
+	}
+	operand_t *operand = malloc(sizeof(*operand));
+	if (operand == NULL) {
+		bt_destroy_button(button);
+		return NULL;
+	}
+	operand->b = button;
+	operand->id = id;
+	operand->jptr = NULL;
+	operand->target_label_identity = 0;
+	return operand;
 }
 
 /* Function: bf_create_sel_buf_op

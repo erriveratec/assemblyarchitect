@@ -66,6 +66,8 @@ CODE_INTERACTION_CI_TEST_EXEC = $(TEST_BUILD_DIR)/code_interaction_ci_test
 CODE_INTERACTION_CI_TEST_SOURCE = tests/code_interaction_ci_test.c
 CODE_RENDERER_CR_TEST_EXEC = $(TEST_BUILD_DIR)/code_renderer_cr_test
 CODE_RENDERER_CR_TEST_SOURCE = tests/code_renderer_cr_test.c
+CODE_LINE_CLONE_TEST_EXEC = $(TEST_BUILD_DIR)/code_line_clone_test
+CODE_LINE_CLONE_TEST_SOURCE = tests/code_line_clone_test.c
 TEST_EXECS := \
 	$(TUTORIAL_TEXT_TEST_EXEC) \
 	$(OPERAND_HIGHLIGHTS_TEST_EXEC) \
@@ -91,7 +93,8 @@ TEST_EXECS := \
 	$(CODE_EDIT_CE_TEST_EXEC) \
 	$(AUTOMATIC_JUMP_LABEL_TEST_EXEC) \
 	$(CODE_INTERACTION_CI_TEST_EXEC) \
-	$(CODE_RENDERER_CR_TEST_EXEC)
+	$(CODE_RENDERER_CR_TEST_EXEC) \
+	$(CODE_LINE_CLONE_TEST_EXEC)
 TEST_TARGETS := $(addprefix test-,$(subst _,-,$(patsubst %_test,%,$(notdir $(TEST_EXECS)))))
 LEGACY_ROOT_TEST_EXECS := \
 	$(notdir $(TEST_EXECS)) \
@@ -317,6 +320,14 @@ test-code-renderer-cr: | $(TEST_BUILD_DIR)
 	$(CC) $(CFLAGS) $(CODE_RENDERER_CR_TEST_SOURCE) $(TEST_SOURCES) -o $(CODE_RENDERER_CR_TEST_EXEC) \
 	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
 	./$(CODE_RENDERER_CR_TEST_EXEC)
+
+test-code-line-clone: | $(TEST_BUILD_DIR)
+	$(CC) $(CFLAGS) $(CODE_LINE_CLONE_TEST_SOURCE) \
+	    $(filter-out $(S_DIR)/stages.c $(S_DIR)/code_window_cw.c $(S_DIR)/code_edit_ce.c,$(TEST_SOURCES)) -o $(CODE_LINE_CLONE_TEST_EXEC) \
+	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
+	./$(CODE_LINE_CLONE_TEST_EXEC)
+
+.PHONY: test-code-line-clone
 
 ############################
 # App bundle target

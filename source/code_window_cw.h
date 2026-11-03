@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include "code_line_cl.h"
 #include "code_program_cp.h"
+#include "code_edit_ce.h"
 
 #define CW_EMPTY 0
 #define MAX_CODE_LINES 99
@@ -37,7 +38,7 @@ bool cw_chk_rclick_code(void);
 
 code_line_t *cw_get_clicked_code(void);
 code_line_t *cw_get_rclicked_code(void);
-code_line_t *cw_clone_rclicked_line(code_line_t *line);
+ce_result_t cw_clone_rclicked_line(code_line_t *line, code_line_t **clone);
 
 bool cw_check_code_sorted(void);
 void cw_sort_code(void);

@@ -199,12 +199,26 @@ operand_t *im_create_imm_op_by_id(int op_id)
 			} else {
 	   			num = ax_number_to_string(-(i - IMMUP10));
 			}	
+			if (num == NULL) {
+				return NULL;
+			}
 			texture_t *t = dw_create_text_tex(num, C_WHITE);
 			free(num);
+			if (t == NULL) {
+				return NULL;
+			}
 			SDL_Rect cb = cl_get_code_button_size();
 			SDL_Rect r = {.x = 0, .y = 0, .w = cb.w, .h = cb.h};
 			btn_t *b = bt_create_btn(r, t);
+			if (b == NULL) {
+				dw_free_texture(t);
+				return NULL;
+			}
 			o = malloc(sizeof(operand_t));
+			if (o == NULL) {
+				bt_destroy_button(b);
+				return NULL;
+			}
 			o->b = b;
 			o->id = op_id; 
 			o->jptr = NULL;
