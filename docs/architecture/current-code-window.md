@@ -80,17 +80,19 @@ on success it destroys only a non-NULL displaced operand. `cl_destroy_operand`
 continues to require a non-NULL argument. Edit and controller-selection tests
 cover empty slots, state transitions and exactly-once replacement cleanup.
 
-`ce_clone_line` returns `CE_OK` with one complete, independent line owned by the
-caller. On failure it returns an explicit status, leaves the output NULL, and
-destroys all successfully constructed clone objects. Its presentation factories
-must return fresh instruction/operand objects with independent buttons and
-textures. Present operands are copied; missing slots remain missing, and
-execution/selection presentation state is normalized from the cloned slots.
-Ordinary operands have no jump metadata. Jump operands own their UI objects but
-borrow the source's same LABEL through `jptr` and copy its stable target identity;
-insertion preserves the jump operand and button while refreshing its owned label
-texture and positional display ID. Clone coverage is in
-`code_line_clone_test`, including factory-failure rollback and held-line placement.
+`ce_clone_line` returns an independent line owned by the caller. On failure it
+returns an explicit status, leaves the output NULL, and destroys all successfully
+constructed clone objects. Its presentation factories construct fresh instruction
+and operand objects with independent buttons and textures. Ordinary instructions
+deep-copy every present operand, preserve missing slots, and derive completeness
+from those slots. JMP/JE/JNE clones contain a fresh instruction only and start as
+`MISSING_OP1`; they never copy `op1`, `jptr`, or target identity, even when the
+source jump is complete. After the copy is placed, the existing automatic-label
+workflow creates and assigns one independent target LABEL. The source jump and
+LABEL remain unchanged. LABEL lines remain ineligible for right-click cloning.
+Clone coverage is in `code_line_clone_test` and `automatic_jump_label_test`,
+including construction and automatic-label transaction rollback, held placement,
+highlight independence, reordering, and v1 code serialization/reconstruction.
 
 Jump replacement validates the target LABEL and its nonzero stable identity,
 not the positional operand `id`; ordinary REG/BUF/IMM validation is unchanged.
