@@ -4,7 +4,10 @@ set -u
 
 # The project root is the directory that contains this script.
 PROJECT_ROOT="$(cd "$(dirname "$0")" && pwd)"
-OUTPUT_FILE="$HOME/Desktop/assemblyarchitect_project_dump.txt"
+# Capture one instant so the filename and the header timestamp agree.
+DUMP_EPOCH="$(date '+%s')"
+DUMP_TIMESTAMP="$(date -r "$DUMP_EPOCH" '+%Y-%m-%d_%H-%M-%S')"
+OUTPUT_FILE="$HOME/Desktop/assemblyarchitect_project_dump_${DUMP_TIMESTAMP}.txt"
 
 SOURCE_DIR="$PROJECT_ROOT/source"
 DATA_DIR="$PROJECT_ROOT/data"
@@ -67,7 +70,7 @@ find_project_paths() {
 
 {
     printf 'ASSEMBLY ARCHITECT PROJECT DUMP\n'
-    printf 'Generated: %s\n' "$(date '+%Y-%m-%d %H:%M:%S %Z')"
+    printf 'Generated: %s\n' "$(date -r "$DUMP_EPOCH" '+%Y-%m-%d %H:%M:%S %Z')"
     printf 'Project root: %s\n' "$PROJECT_ROOT"
     printf '\n'
     printf '============================================================\n'
