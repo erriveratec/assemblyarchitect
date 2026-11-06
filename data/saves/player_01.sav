@@ -79,6 +79,8 @@ line 01
 MOV rax, [ib]
 MOV [ob], rax
 JMP 00
+MOV [ob], rax
+MOV rax, [ib]
 code_end
 
 [level 09]
