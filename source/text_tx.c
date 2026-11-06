@@ -42,11 +42,13 @@ char *SYSTEM_MESSAGE = "SYSTEM MESSAGE";
 char *SYSTEM_NOTICE  = "SYSTEM NOTICE";
 char *SYSTEM_WARNING = "SYSTEM WARNING";
 char *INSTRUCTION    = "INSTRUCTION";
+static char *INSTRUCTION_FEEDBACK = "INSTRUCTION FEEDBACK";
 
 texture_t *g_system_message = NULL;
 texture_t *g_system_notice  = NULL;
 texture_t *g_system_warning = NULL;
 texture_t *g_instruction    = NULL;
+static texture_t *g_instruction_feedback = NULL;
 
 int               g_lvl_msgs_size;
 texture_array_t **g_lvl_msgs = NULL;
@@ -542,8 +544,13 @@ void tx_set_styled_text_alpha(tx_styled_text_t *message, Uint8 alpha)
  */
 void tx_init_global_msgs(void)
 {
+	tx_destroy_global_msgs();
 	g_gbl_msgs_size = 3;
-	g_gbl_msgs      = malloc(sizeof(texture_array_t *) * g_gbl_msgs_size);
+	g_gbl_msgs      = calloc((size_t)g_gbl_msgs_size, sizeof(*g_gbl_msgs));
+	if (g_gbl_msgs == NULL) {
+		g_gbl_msgs_size = 0;
+		return;
+	}
 
 	int text_h = get_h_bottom_msg();
 
@@ -560,6 +567,29 @@ void tx_init_global_msgs(void)
 	g_system_notice  = dw_create_text_tex(SYSTEM_NOTICE, C_GREY);
 	g_system_warning = dw_create_text_tex(SYSTEM_WARNING, C_GREY);
 	g_instruction    = dw_create_text_tex(INSTRUCTION, C_GREY);
+	g_instruction_feedback = dw_create_text_tex(INSTRUCTION_FEEDBACK, C_GREY);
+}
+
+void tx_destroy_global_msgs(void)
+{
+	if (g_gbl_msgs != NULL) {
+		for (int index = 0; index < g_gbl_msgs_size; index++) {
+			dw_free_texture_array(g_gbl_msgs[index]);
+		}
+		free(g_gbl_msgs);
+		g_gbl_msgs = NULL;
+	}
+	g_gbl_msgs_size = 0;
+	dw_free_texture(g_system_message);
+	g_system_message = NULL;
+	dw_free_texture(g_system_notice);
+	g_system_notice = NULL;
+	dw_free_texture(g_system_warning);
+	g_system_warning = NULL;
+	dw_free_texture(g_instruction);
+	g_instruction = NULL;
+	dw_free_texture(g_instruction_feedback);
+	g_instruction_feedback = NULL;
 }
 
 /* Function: tx_free_level_text_texture
@@ -625,6 +655,70 @@ void tx_bottom_msg(const tx_text_box_options_t *options, int msg_id)
 		b.y += b.h / 2 - 2 * text_h;
 	}
 	dw_draw_wrapped_texture_by_h(b, text_h, a);
+}
+
+bool tx_get_bottom_msg_bounds(
+	const tx_text_box_options_t *options, int msg_id, SDL_Rect *bounds)
+{
+	if (options == NULL || bounds == NULL || msg_id < 0 ||
+	    msg_id >= g_gbl_msgs_size || g_gbl_msgs == NULL ||
+	    g_gbl_msgs[msg_id] == NULL) {
+		return false;
+	}
+	texture_array_t *array = g_gbl_msgs[msg_id];
+	SDL_Rect area;
+	SDL_Rect content;
+	int layout_text_height = 0;
+	int text_height = get_h_bottom_msg();
+	if (options->position == TX_ERROR_BOX) {
+		area = get_error_box_bounds();
+		area.y += area.h * 4 / 6;
+		area.h /= 6;
+	} else {
+		if (!tx_get_text_box_rects(options, &area, &content,
+		                           &layout_text_height)) {
+			return false;
+		}
+		if (options->position == TX_STAGEBUTTON_BOX) {
+			text_height = ty_message_height();
+		}
+		area.y += area.h / 2 - 2 * text_height;
+	}
+	if (array->size <= 0 || text_height <= 0 || area.w <= 0 || area.h <= 0) {
+		return false;
+	}
+	int y = area.y + (area.h - array->size * text_height) / 2;
+	SDL_Rect result = {0};
+	bool found_texture = false;
+	for (int index = 0; index < array->size; index++) {
+		texture_t *texture = array->t[index];
+		if (texture == NULL) {
+			continue;
+		}
+		int width = ax_get_texture_w_fit_h(text_height, texture);
+		if (width <= 0) {
+			return false;
+		}
+		int x = area.x + (area.w - width) / 2;
+		if (!found_texture) {
+			result = (SDL_Rect){.x = x, .y = y, .w = width,
+			                    .h = text_height};
+			found_texture = true;
+		} else {
+			int right = x + width;
+			int result_right = result.x + result.w;
+			if (x < result.x) result.x = x;
+			if (right > result_right) result_right = right;
+			result.w = result_right - result.x;
+			result.h = y + text_height - result.y;
+		}
+		y += text_height;
+	}
+	if (!found_texture) {
+		return false;
+	}
+	*bounds = result;
+	return true;
 }
 
 bool tx_get_text_box_rects(
@@ -756,7 +850,7 @@ bool tx_get_text_box_rects(
 	return true;
 }
 
-static texture_t *tx_get_header_texture(int header)
+texture_t *tx_get_header_texture(int header)
 {
 	switch (header) {
 	case TX_NONE:
@@ -773,6 +867,9 @@ static texture_t *tx_get_header_texture(int header)
 
 	case TX_INS:
 		return g_instruction;
+
+	case TX_INS_FEEDBACK:
+		return g_instruction_feedback;
 
 	default:
 		return NULL;

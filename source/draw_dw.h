@@ -70,6 +70,8 @@ void dw_draw_iface_box(SDL_Rect r, texture_t *header);
 void dw_draw_iface_box_with_status(SDL_Rect r, texture_t *header,
 								   bool success);
 SDL_Rect dw_get_iface_content_box(SDL_Rect b);
+/* Header area used by dw_draw_iface_box for centered title placement. */
+SDL_Rect dw_get_iface_header_box(SDL_Rect b);
 
 void dw_draw_inner_shadow_lines(SDL_Rect r, 
 								SDL_Color top_left, 

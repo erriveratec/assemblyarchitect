@@ -13,13 +13,15 @@ is proven.
 | `source/control_flow_cf.{c,h}` | Production stable identity assignment, v1 positional target translation, target repair/resolution, validation and jump execution-state intervals; SDL operand presentation remains in `cw_*` |
 | `source/code_layout_cly.{c,h}` | Pure value-based rectangle, spacing, offset, row-position and strict-boundary hit calculations; some geometry remains in `cw_*` |
 | `source/code_edit_ce.{c,h}` | Explicit edit-session state, result-valued operand/line mutations, reusable result-valued deep cloning, and pending-operand queries used by production callers |
+| `source/gameplay/operand_feedback_of.{c,h}` | Strict CFG repository for stable operand-feedback diagnostics; owns parsed definition text and returns borrowed read-only definitions |
+| `source/ui/instruction_feedback_if.{c,h}` | Instruction Feedback controller; caches tutorial-styled text textures, captures modal pointer input, and preserves the pending edit session |
 | `source/code_interaction_ci.{c,h}` | Pure ordered hit-result-to-action translation, used by the stage edit dispatcher |
 | `source/code_renderer_cr.{c,h}` | Line/operand/grouped-label/comma/line-number, challenge/code-box and stage-title presentation with explicit renderer texture ownership |
 | `source/code_window_cw.h` | Public `cw_*` compatibility surface, SDL rectangles, borrowed line pointers; MAX_CODE_LINES 99 |
 | `source/code_window_cw_internal.h` | Pure rectangle/highlight helpers and CW_CHALLENGE_TEXT_TESTING factory seam |
 | `source/code_line_cl.{c,h}` | Instruction/operand/line allocation, destruction, IDs, state, button ownership |
 | `source/list.{c,h}` | Generic nodes; values are managed by callers |
-| `source/stages.c` | Edit/input sequencing, held-line state, stage initialization/destruction, run/reset/result orchestration |
+| `source/stages.c` | Edit/input sequencing, held-line state, stage initialization/destruction, run/reset/result orchestration, and modal frame priority |
 | `source/storage/save_sv.c`, `source/file_fl.c` | Text saves, level configuration, code serialization and storage delegation |
 | `source/game_mechanics_mc.c` | Execution, register/buffer transfers, jump dispatch |
 | `source/gameplay/code_state_cs.c` | Held-line and code-state queries for tutorial/interaction decisions |
@@ -44,6 +46,13 @@ to release presentation animation claims.
 The public API includes `code_line_t *` and `operand_t *`, not opaque model IDs.
 Program membership, ordering, count and indexed reads use `code_program_cp`;
 execution jump transitions use `control_flow_cf` directly.
+
+`ce_replace_operand_with_diagnostic` remains a domain operation: CE asks
+`cl_is_op_compatible` for the final validity decision, then classifies a rejected
+candidate by instruction, slot, attempted operand, and selected counterpart.
+Stages pass selected operands through that API and open feedback only for
+`CE_INCOMPATIBLE_OPERAND`. The feedback repository resolves stable diagnostic
+IDs from `data/operand_feedback.cfg`; it does not duplicate compatibility rules.
 
 Stages call editing, sorting, drawing, and cleanup. Level initialization creates
 the program, configures assets, and loads saved code. Storage calls
@@ -79,6 +88,22 @@ slots return NULL. On failure, the caller retains the new operand. The
 on success it destroys only a non-NULL displaced operand. `cl_destroy_operand`
 continues to require a non-NULL argument. Edit and controller-selection tests
 cover empty slots, state transitions and exactly-once replacement cleanup.
+
+The stage diagnostic adapter also consumes every attempted operand: successful
+selection transfers it to the line; rejection destroys only the candidate and
+leaves the selected operand and active CE session unchanged. The feedback
+repository owns its parsed strings and is loaded once after font setup. The UI
+controller borrows repository definitions and owns cached styled-text rows and
+their SDL textures until shutdown; dismissal only clears the active definition.
+It does not own or mutate code lines, operands, or the CE session.
+
+During a normal level frame, result and reset/escape UI retain priority. An active
+Instruction Feedback modal captures pointer events before gameplay dispatch,
+renders after level/tutorial guidance, and remains below run-result and system
+menus. The closing left-press is consumed with held-release suppression; right
+presses are consumed but do not dismiss, matching tutorial mouse-press behavior.
+The large centered box, styled directives, and `TX_MSG_CLICKANY` dismissal hint
+reuse the tutorial text APIs and logical-canvas geometry.
 
 `ce_clone_line` returns an independent line owned by the caller. On failure it
 returns an explicit status, leaves the output NULL, and destroys all successfully

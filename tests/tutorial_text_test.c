@@ -22,6 +22,8 @@
 #include "code_window_cw_internal.h"
 #include "tutorial_tr.h"
 #include "tutorial_tr_internal.h"
+#include "gameplay/operand_feedback_of.h"
+#include "ui/instruction_feedback_if.h"
 
 #define g_challenge_text cw_get_challenge_text_for_testing()
 static SDL_Color fragment_color(const tx_text_fragment_t *fragment);
@@ -425,7 +427,7 @@ static void test_generic_mixed_color_messages(void)
 static SDL_Color fragment_color(const tx_text_fragment_t *fragment)
 {
 	const SDL_Color candidates[] = {
-		C_WHITE, C_SILVERGREY, C_GREY, C_TERMINAL_GREEN};
+		C_WHITE, C_SILVERGREY, C_GREY, C_TERMINAL_GREEN, C_AMBER, C_ORANGE};
 	for (size_t index = 0; index < sizeof(candidates) / sizeof(candidates[0]);
 	     index++) {
 		if (fragment_has_color(fragment, candidates[index])) {
@@ -1094,6 +1096,185 @@ static void test_execution_control_highlights(void)
 
 }
 
+static void test_operand_feedback_styled_layout(void)
+{
+	tx_init_global_msgs();
+	texture_t *legacy_instruction_header = tx_get_header_texture(TX_INS);
+	texture_t *feedback_header = tx_get_header_texture(TX_INS_FEEDBACK);
+	assert(legacy_instruction_header != NULL &&
+	       legacy_instruction_header->texture != NULL);
+	assert(feedback_header != NULL && feedback_header->texture != NULL);
+	assert(feedback_header != legacy_instruction_header);
+
+	FILE *tutorial_fixture = tmpfile();
+	assert(tutorial_fixture != NULL);
+	static const char tutorial_text[] =
+		"[tutorial]\nformat = 1\n[legacy_instruction]\n"
+		"box = center\nheader = instruction\ndismiss = none\n"
+		"text_begin\nLegacy tutorial header\ntext_end\n";
+	assert(fwrite(tutorial_text, 1, sizeof(tutorial_text) - 1,
+	              tutorial_fixture) == sizeof(tutorial_text) - 1);
+	rewind(tutorial_fixture);
+	assert(tr_load_tutorial_stream_for_testing(
+		tutorial_fixture, "legacy-instruction-header-test"));
+	fclose(tutorial_fixture);
+	const tutorial_step_t *legacy_step = tr_get_named_step("legacy_instruction");
+	assert(legacy_step != NULL);
+	assert(legacy_step->header == TUTORIAL_HEADER_INSTRUCTION);
+	assert(tx_get_header_texture(TX_NONE + legacy_step->header) ==
+	       legacy_instruction_header);
+	SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
+	assert(SDL_RenderClear(g_renderer) == 0);
+	tr_render_step("legacy_instruction");
+	tr_clear();
+
+	char error[512];
+	of_repository_t *repository = of_load_file(
+		"data/operand_feedback.cfg", error, sizeof(error));
+	assert(repository != NULL && error[0] == '\0');
+	for (size_t index = 0; index < of_definition_count(repository); index++) {
+		const of_definition_t *definition = of_definition_at(repository, index);
+		assert(definition != NULL);
+		tx_text_box_options_t options = {
+			.position = definition->box,
+			.large_box = definition->large_box,
+			.large_text = definition->large_text
+		};
+		assert(options.position == TX_CENTER_BOX);
+		assert(options.large_box);
+		assert(!options.large_text);
+		assert(definition->header == TX_INS_FEEDBACK);
+		SDL_Rect box;
+		SDL_Rect content;
+		int text_height = 0;
+		assert(tx_get_text_box_rects(&options, &box, &content, &text_height));
+		assert(box.w == 600 && box.h == 440);
+		assert(box.x == (dm_get_logical_width() - box.w) / 2);
+		assert(box.y == (dm_get_logical_height() - box.h) / 2);
+		assert(box.x >= 0 && box.y >= 0);
+		assert(box.x + box.w <= dm_get_logical_width());
+		assert(box.y + box.h <= dm_get_logical_height());
+		SDL_Rect header_box = dw_get_iface_header_box(box);
+		int header_height = dw_get_h_iface_header_txt();
+		int header_width = ax_get_texture_w_fit_h(
+			header_height, feedback_header);
+		assert(header_box.w > 0 && header_box.h > 0);
+		assert(header_width > 0 && header_width <= header_box.w);
+		int header_x = header_box.x + (header_box.w - header_width) / 2;
+		int header_y = header_box.y + (header_box.h - header_height) / 2;
+		assert(header_x >= header_box.x);
+		assert(header_x + header_width <= header_box.x + header_box.w);
+		assert(header_x * 2 + header_width == header_box.x * 2 + header_box.w ||
+		       header_x * 2 + header_width + 1 == header_box.x * 2 + header_box.w);
+		assert(header_y >= header_box.y);
+		assert(header_y + header_height <= header_box.y + header_box.h);
+		assert(text_height == ty_message_height());
+		tx_text_layout_info_t layout = {0};
+		tx_styled_text_t *message = tx_create_styled_text_box_message(
+			&options, definition->text, &layout);
+		assert(message != NULL);
+		assert(!layout.overflowed);
+		assert(layout.overflow_rows == 0);
+		assert(layout.required_rows <= 7);
+		SDL_Rect hint_bounds;
+		assert(tx_get_bottom_msg_bounds(
+			&options, TX_MSG_CLICKANY, &hint_bounds));
+		int body_bottom = content.y +
+			(content.h - message->row_count * text_height) / 2 +
+			message->row_count * text_height;
+		assert(body_bottom <= hint_bounds.y);
+		char reconstructed[2048];
+		assert(reconstruct_styled_rows(message, reconstructed,
+		                               sizeof(reconstructed)));
+		const char *expected_warning = NULL;
+		switch (definition->diagnostic_id) {
+		case CE_OPERAND_FEEDBACK_MOV_OUTPUT_BUFFER_AS_SOURCE:
+			expected_warning = "INVALID SOURCE OPERAND";
+			assert(strstr(reconstructed, "write-only") != NULL);
+			assert(strstr(reconstructed, "MOV [ob], rax") != NULL);
+			break;
+		case CE_OPERAND_FEEDBACK_MOV_INPUT_BUFFER_AS_DESTINATION:
+			expected_warning = "INVALID DESTINATION OPERAND";
+			assert(strstr(reconstructed, "read-only") != NULL);
+			assert(strstr(reconstructed, "MOV rax, [ib]") != NULL);
+			break;
+		case CE_OPERAND_FEEDBACK_MOV_BUFFER_TO_BUFFER:
+			expected_warning = "DIRECT BUFFER MOV NOT ALLOWED";
+			assert(strstr(reconstructed, "transfer [ib] to [ob]") != NULL);
+			assert(strstr(reconstructed, "MOV rax, [ib]") != NULL);
+			assert(strstr(reconstructed, "MOV [ob], rax") != NULL);
+			break;
+		case CE_OPERAND_FEEDBACK_INCOMPATIBLE_OPERAND_GENERIC:
+			expected_warning = "OPERAND COMBINATION NOT ALLOWED";
+			assert(strstr(reconstructed, "selected position") != NULL);
+			break;
+		default:
+			assert(false);
+		}
+		assert(strstr(reconstructed, expected_warning) != NULL);
+		bool found_warning = false;
+		bool found_syntax = false;
+		bool found_directive = false;
+		bool found_body = false;
+		for (int row = 0; row < message->row_count; row++) {
+			assert(message->rows[row].rendered_width <= content.w);
+			for (int fragment = 0;
+			     fragment < message->rows[row].fragment_count; fragment++) {
+				SDL_Color color = fragment_color(
+					&message->rows[row].fragments[fragment]);
+				found_body |= color.r == C_WHITE.r && color.g == C_WHITE.g &&
+					color.b == C_WHITE.b;
+				found_warning |= color.r == C_ORANGE.r &&
+					color.g == C_ORANGE.g && color.b == C_ORANGE.b;
+				found_syntax |= color.r == C_TERMINAL_GREEN.r &&
+					color.g == C_TERMINAL_GREEN.g &&
+					color.b == C_TERMINAL_GREEN.b;
+				found_directive |= color.r == C_AMBER.r &&
+					color.g == C_AMBER.g && color.b == C_AMBER.b;
+			}
+		}
+		assert(found_body && found_warning && found_directive);
+		assert(found_syntax == (strstr(definition->text, "@syntax") != NULL));
+		if (definition->diagnostic_id ==
+		    CE_OPERAND_FEEDBACK_MOV_BUFFER_TO_BUFFER) {
+			assert(strstr(reconstructed, "MOV rax, [ib]") != NULL);
+			assert(strstr(reconstructed, "MOV [ob], rax") != NULL);
+		}
+		SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
+		assert(SDL_RenderClear(g_renderer) == 0);
+		tx_draw_styled_text_box_message(&options, message, definition->header);
+		assert_no_text_outside_content(content);
+		tx_bottom_msg(&options, TX_MSG_CLICKANY);
+		assert(definition->header == TX_INS_FEEDBACK);
+		tx_free_styled_text(message);
+	}
+	SDL_Rect large_box = dw_get_iface_big_center_box();
+	SDL_Rect header_box = dw_get_iface_header_box(large_box);
+	int header_height = dw_get_h_iface_header_txt();
+	int feedback_header_width = ax_get_texture_w_fit_h(
+		header_height, feedback_header);
+	SDL_Rect feedback_title_rect = {
+		.x = header_box.x + (header_box.w - feedback_header_width) / 2,
+		.y = header_box.y + (header_box.h - header_height) / 2,
+		.w = feedback_header_width,
+		.h = header_height
+	};
+	dw_draw_iface_box(large_box, feedback_header);
+	assert(feedback_title_rect.x >= header_box.x);
+	assert(feedback_title_rect.x + feedback_title_rect.w <=
+	       header_box.x + header_box.w);
+	tx_destroy_global_msgs();
+	assert(tx_get_header_texture(TX_INS_FEEDBACK) == NULL);
+	assert(tx_get_header_texture(TX_INS) == NULL);
+	tx_destroy_global_msgs();
+	tx_init_global_msgs();
+	assert(tx_get_header_texture(TX_INS_FEEDBACK) != NULL);
+	tx_destroy_global_msgs();
+	assert(ifb_init("data/operand_feedback.cfg"));
+	ifb_destroy();
+	of_destroy(repository);
+}
+
 int main(void)
 {
 	assert(SDL_Init(0) == 0);
@@ -1115,6 +1296,7 @@ int main(void)
 	test_challenge_and_hover_policies();
 	test_pulsed_challenge_geometry();
 	test_blank_wrap_and_overflow();
+	test_operand_feedback_styled_layout();
 
 	TTF_CloseFont(g_font);
 	SDL_DestroyRenderer(g_renderer);

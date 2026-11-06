@@ -59,6 +59,54 @@ static void ce_discard_invalid_operand(
 	}
 }
 
+static ce_result_t ce_return_result(
+	ce_diagnostic_t *diagnostic, ce_result_t result)
+{
+	if (diagnostic != NULL) {
+		diagnostic->result = result;
+	}
+	return result;
+}
+
+static ce_operand_feedback_id_t ce_classify_incompatible_operand(
+	const code_line_t *line, ce_operand_slot_t slot, const operand_t *operand)
+{
+	if (line != NULL && line->ins != NULL && operand != NULL &&
+	    line->ins->id == MOV) {
+		const operand_t *other = slot == CE_OPERAND_SLOT_1
+			? line->op2 : line->op1;
+		if (other != NULL &&
+		    ((operand->id == IB && other->id == OB) ||
+		     (operand->id == OB && other->id == IB))) {
+			return CE_OPERAND_FEEDBACK_MOV_BUFFER_TO_BUFFER;
+		}
+		if (slot == CE_OPERAND_SLOT_2 && operand->id == OB) {
+			return CE_OPERAND_FEEDBACK_MOV_OUTPUT_BUFFER_AS_SOURCE;
+		}
+		if (slot == CE_OPERAND_SLOT_1 && operand->id == IB) {
+			return CE_OPERAND_FEEDBACK_MOV_INPUT_BUFFER_AS_DESTINATION;
+		}
+	}
+	return CE_OPERAND_FEEDBACK_INCOMPATIBLE_OPERAND_GENERIC;
+}
+
+static void ce_fill_incompatibility_diagnostic(
+	ce_diagnostic_t *diagnostic, const code_line_t *line,
+	ce_operand_slot_t slot, const operand_t *operand)
+{
+	if (diagnostic == NULL) {
+		return;
+	}
+	const operand_t *other = slot == CE_OPERAND_SLOT_1
+		? line->op2 : line->op1;
+	diagnostic->feedback_id = ce_classify_incompatible_operand(
+		line, slot, operand);
+	diagnostic->instruction_id = line->ins->id;
+	diagnostic->operand_slot = slot;
+	diagnostic->attempted_operand_id = operand->id;
+	diagnostic->current_other_operand_id = other != NULL ? other->id : 0;
+}
+
 ce_result_t ce_clone_line(
 	const code_line_t *source,
 	ce_clone_instruction_factory_fn create_instruction,
@@ -217,24 +265,36 @@ ce_result_t ce_cancel(ce_session_t *session)
 ce_result_t ce_replace_operand(
 	ce_session_t *session, operand_t *operand, operand_t **replaced)
 {
+	return ce_replace_operand_with_diagnostic(session, operand, replaced, NULL);
+}
+
+ce_result_t ce_replace_operand_with_diagnostic(
+	ce_session_t *session, operand_t *operand, operand_t **replaced,
+	ce_diagnostic_t *diagnostic)
+{
+	if (diagnostic != NULL) {
+		*diagnostic = (ce_diagnostic_t){.result = CE_INVALID_ARGUMENT};
+	}
 	if (session == NULL || operand == NULL || replaced == NULL) {
-		return CE_INVALID_ARGUMENT;
+		return ce_return_result(diagnostic, CE_INVALID_ARGUMENT);
 	}
 	*replaced = NULL;
 	code_line_t *line = session->line;
 	if (line == NULL || line->ins == NULL ||
 	    (session->state != CE_REPLACING_OPERAND_1 &&
 	     session->state != CE_REPLACING_OPERAND_2)) {
-		return CE_INVALID_SESSION;
+		return ce_return_result(diagnostic, CE_INVALID_SESSION);
 	}
 	bool replacing_first = session->state == CE_REPLACING_OPERAND_1;
+	ce_operand_slot_t slot = replacing_first
+		? CE_OPERAND_SLOT_1 : CE_OPERAND_SLOT_2;
 	if (replacing_first && line->state != MISSING_BOTH &&
 	    line->state != MISSING_OP1 && line->state != CHANGING_OP1) {
-		return CE_INVALID_SESSION;
+		return ce_return_result(diagnostic, CE_INVALID_SESSION);
 	}
 	if (!replacing_first && line->state != MISSING_OP2 &&
 	    line->state != CHANGING_OP2) {
-		return CE_INVALID_SESSION;
+		return ce_return_result(diagnostic, CE_INVALID_SESSION);
 	}
 	if (cl_is_ins_jmp_type(line->ins->id)) {
 		if (!replacing_first || operand->jptr == NULL ||
@@ -242,12 +302,15 @@ ce_result_t ce_replace_operand(
 		    operand->jptr->label_identity == 0 ||
 		    (operand->target_label_identity != 0 &&
 		     operand->target_label_identity != operand->jptr->label_identity)) {
-			return CE_INCOMPATIBLE_OPERAND;
+			ce_fill_incompatibility_diagnostic(
+				diagnostic, line, slot, operand);
+			return ce_return_result(diagnostic, CE_INCOMPATIBLE_OPERAND);
 		}
 		operand->target_label_identity = operand->jptr->label_identity;
 	} else if (!cl_is_operand_id_valid(operand->id) ||
 	           !cl_is_op_compatible(operand, line)) {
-		return CE_INCOMPATIBLE_OPERAND;
+		ce_fill_incompatibility_diagnostic(diagnostic, line, slot, operand);
+		return ce_return_result(diagnostic, CE_INCOMPATIBLE_OPERAND);
 	}
 	if (replacing_first) {
 		*replaced = line->op1;
@@ -259,7 +322,7 @@ ce_result_t ce_replace_operand(
 	line->state = ce_line_state_after_edit(line);
 	session->state = CE_IDLE;
 	session->line = NULL;
-	return CE_OK;
+	return ce_return_result(diagnostic, CE_OK);
 }
 
 ce_result_t ce_insert_line(

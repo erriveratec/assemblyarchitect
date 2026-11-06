@@ -149,10 +149,82 @@ static void test_invalid_jump_targets(void)
 	destroy_line(label);
 }
 
+static void assert_feedback_diagnostic(
+	int instruction_id, int line_state, int first_operand_id,
+	int second_operand_id, ce_session_state_t session_state,
+	int attempted_operand_id, ce_operand_feedback_id_t expected_feedback)
+{
+	code_line_t *line = new_line(instruction_id, line_state);
+	if (first_operand_id != 0) line->op1 = new_operand(first_operand_id);
+	if (second_operand_id != 0) line->op2 = new_operand(second_operand_id);
+	operand_t *original_first = line->op1;
+	operand_t *original_second = line->op2;
+	ce_session_t session = {0};
+	assert(ce_begin(&session, line, session_state) == CE_OK);
+	operand_t *candidate = new_operand(attempted_operand_id);
+	operand_t *replaced = NULL;
+	ce_diagnostic_t diagnostic = {0};
+	assert(ce_replace_operand_with_diagnostic(
+	           &session, candidate, &replaced, &diagnostic) ==
+	       CE_INCOMPATIBLE_OPERAND);
+	assert(diagnostic.result == CE_INCOMPATIBLE_OPERAND);
+	assert(diagnostic.feedback_id == expected_feedback);
+	assert(diagnostic.instruction_id == instruction_id);
+	assert(diagnostic.attempted_operand_id == attempted_operand_id);
+	assert(replaced == NULL);
+	assert(session.state == session_state && session.line == line);
+	assert(line->state == line_state);
+	assert(line->op1 == original_first && line->op2 == original_second);
+	free(candidate);
+	destroy_line(line);
+}
+
+static void test_operand_feedback_classification(void)
+{
+	assert_feedback_diagnostic(MOV, CHANGING_OP2, RAX, 0,
+	    CE_REPLACING_OPERAND_2, OB,
+	    CE_OPERAND_FEEDBACK_MOV_OUTPUT_BUFFER_AS_SOURCE);
+	assert_feedback_diagnostic(MOV, CHANGING_OP1, 0, RAX,
+	    CE_REPLACING_OPERAND_1, IB,
+	    CE_OPERAND_FEEDBACK_MOV_INPUT_BUFFER_AS_DESTINATION);
+	assert_feedback_diagnostic(MOV, CHANGING_OP2, OB, 0,
+	    CE_REPLACING_OPERAND_2, IB,
+	    CE_OPERAND_FEEDBACK_MOV_BUFFER_TO_BUFFER);
+	assert_feedback_diagnostic(MOV, CHANGING_OP1, 0, OB,
+	    CE_REPLACING_OPERAND_1, IB,
+	    CE_OPERAND_FEEDBACK_MOV_BUFFER_TO_BUFFER);
+	assert_feedback_diagnostic(MOV, CHANGING_OP2, IB, 0,
+	    CE_REPLACING_OPERAND_2, IMMUP7,
+	    CE_OPERAND_FEEDBACK_INCOMPATIBLE_OPERAND_GENERIC);
+
+	code_line_t *line = new_line(MOV, CHANGING_OP2);
+	line->op1 = new_operand(RAX);
+	ce_session_t session = {0};
+	assert(ce_begin(&session, line, CE_REPLACING_OPERAND_2) == CE_OK);
+	operand_t *candidate = new_operand(IB);
+	operand_t *replaced = NULL;
+	ce_diagnostic_t diagnostic = {0};
+	assert(ce_replace_operand_with_diagnostic(
+	           &session, candidate, &replaced, &diagnostic) == CE_OK);
+	assert(diagnostic.feedback_id == CE_OPERAND_FEEDBACK_NONE);
+	assert(line->op2 == candidate && session.state == CE_IDLE);
+	destroy_line(line);
+
+	line = new_line(MOV, MISSING_BOTH);
+	assert(ce_begin(&session, line, CE_REPLACING_OPERAND_1) == CE_OK);
+	candidate = new_operand(OB);
+	assert(ce_replace_operand_with_diagnostic(
+	           &session, candidate, &replaced, &diagnostic) == CE_OK);
+	assert(diagnostic.feedback_id == CE_OPERAND_FEEDBACK_NONE);
+	assert(line->op1 == candidate && line->state == MISSING_OP2);
+	destroy_line(line);
+}
+
 int main(void)
 {
         test_jump_position_validation();
         test_invalid_jump_targets();
+		test_operand_feedback_classification();
 	test_operand_selection_state();
 	test_empty_slot_ownership();
 	code_program_t *program = cp_create(destroy_line);

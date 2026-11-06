@@ -78,8 +78,13 @@ bool tx_get_text_box_rects(const tx_text_box_options_t *options,
 						   int *text_height);
 
 void tx_init_global_msgs(void);
+/* Frees shared dismissal-message and header textures; safe to call repeatedly. */
+void tx_destroy_global_msgs(void);
 void tx_text_box(int pos, int msg_id, int header);
 void tx_bottom_msg(const tx_text_box_options_t *options, int msg_id);
+/* Returns bounds occupied by the shared bottom-message glyphs. */
+bool tx_get_bottom_msg_bounds(
+	const tx_text_box_options_t *options, int msg_id, SDL_Rect *bounds);
 void tx_free_level_text_textures(void);
 void tx_set_and_allocate_msgs_array(int size);
 /* Historical monochrome APIs retained for source compatibility. */
@@ -150,7 +155,17 @@ void tx_text_box_texture(const tx_text_box_options_t *options,
 
 enum gbl_msgs { TX_MSG_CLICKANY, TX_MSG_PRESSPLAY, TX_MSG_PRESSBACK };
 
-enum header { TX_NONE, TX_SYSMES, TX_SYSNOT, TX_SYSWAR, TX_INS };
+enum header {
+	TX_NONE,
+	TX_SYSMES,
+	TX_SYSNOT,
+	TX_SYSWAR,
+	TX_INS,
+	TX_INS_FEEDBACK
+};
+
+/* Returns a borrowed shared header texture. The caller must not mutate or free it. */
+texture_t *tx_get_header_texture(int header);
 
 enum msgs {
 	MSG0,

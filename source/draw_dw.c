@@ -67,7 +67,7 @@ static const Uint32 IFACE_HEADER_TEXT_H = 30;
 static int      get_ofs_iface_inner_border(void);
 static int      get_h_iface_header(void);
 static SDL_Rect get_iface_box_big_wh(void);
-static SDL_Rect get_iface_header_box(SDL_Rect b);
+SDL_Rect dw_get_iface_header_box(SDL_Rect b);
 static void     draw_status_symbol(SDL_Rect box, bool success);
 
 static void set_draw_color(SDL_Color color)
@@ -215,7 +215,7 @@ SDL_Rect dw_get_iface_big_center_box(void)
 	return b;
 }
 
-static SDL_Rect get_iface_header_box(SDL_Rect b)
+SDL_Rect dw_get_iface_header_box(SDL_Rect b)
 {
 	int offset = dw_get_ofs_iface_filled_border();
 	int inner_border = get_ofs_iface_inner_border();
@@ -414,7 +414,7 @@ void dw_draw_iface_box(SDL_Rect b, texture_t *header)
 	in = ax_pad_rectangle(in, inner_border, true);
 	dw_draw_thick_rect(in, inner_border, C_SOFTBLACK);
 
-	SDL_Rect header_box = get_iface_header_box(b);
+	SDL_Rect header_box = dw_get_iface_header_box(b);
 
 	in = ax_pad_rectangle(in, inner_border, true);
 
@@ -452,7 +452,7 @@ void dw_draw_iface_box_with_status(SDL_Rect b, texture_t *header,
 	assert(header != NULL && "The result header texture cannot be NULL");
 	dw_draw_iface_box(b, NULL);
 
-	SDL_Rect header_box = get_iface_header_box(b);
+	SDL_Rect header_box = dw_get_iface_header_box(b);
 	int text_h = dw_get_h_iface_header_txt();
 	int text_w = ax_get_texture_w_fit_h(text_h, header);
 	int icon_size = 28;

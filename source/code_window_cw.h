@@ -67,6 +67,10 @@ SDL_Rect cw_get_code_line_coord_at_pos(int code_line_element, int pos);
 code_line_t *cw_create_automatic_jump_label(code_line_t *jump);
 void cw_clear_code_list(void);
 void cw_assign_op_to_line(operand_t *op, code_line_t *line);
+/* Consumes op on success or failure. On incompatibility, diagnostic describes
+ * the rejected candidate while the pending edit session is retained. */
+ce_result_t cw_assign_op_to_line_with_diagnostic(
+	operand_t *op, code_line_t *line, ce_diagnostic_t *diagnostic);
 void cw_highlight_code_pending_operand(void);
 SDL_Rect cw_get_stage_code_box(void);
 /* Borrowed model view; callers must not mutate program ordering or ownership. */

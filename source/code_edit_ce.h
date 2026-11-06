@@ -37,6 +37,23 @@ typedef enum ce_result_t {
 	CE_FACTORY_FAILED
 } ce_result_t;
 
+typedef enum ce_operand_feedback_id_t {
+	CE_OPERAND_FEEDBACK_NONE,
+	CE_OPERAND_FEEDBACK_MOV_OUTPUT_BUFFER_AS_SOURCE,
+	CE_OPERAND_FEEDBACK_MOV_INPUT_BUFFER_AS_DESTINATION,
+	CE_OPERAND_FEEDBACK_MOV_BUFFER_TO_BUFFER,
+	CE_OPERAND_FEEDBACK_INCOMPATIBLE_OPERAND_GENERIC
+} ce_operand_feedback_id_t;
+
+typedef struct ce_diagnostic_t {
+	ce_result_t result;
+	ce_operand_feedback_id_t feedback_id;
+	int instruction_id;
+	ce_operand_slot_t operand_slot;
+	int attempted_operand_id;
+	int current_other_operand_id;
+} ce_diagnostic_t;
+
 /* Factories return newly allocated, independent objects and transfer ownership
  * to ce_clone_line on success. A NULL result means factory failure. */
 typedef instruction_t *(*ce_clone_instruction_factory_fn)(
@@ -57,6 +74,11 @@ ce_result_t ce_cancel(ce_session_t *session);
  * owning-program membership because the session has no program reference. */
 ce_result_t ce_replace_operand(
 	ce_session_t *session, operand_t *operand, operand_t **replaced);
+/* Diagnostic variant of ce_replace_operand. On incompatibility, the operand
+ * remains caller-owned and the active edit session and line are unchanged. */
+ce_result_t ce_replace_operand_with_diagnostic(
+	ce_session_t *session, operand_t *operand, operand_t **replaced,
+	ce_diagnostic_t *diagnostic);
 /* On CE_OK, *clone is an independent line owned by the caller. Ordinary
  * instructions deep-copy present operands and preserve missing slots. JMP/JE/JNE
  * clones restart destination selection as MISSING_OP1 with no operand, target

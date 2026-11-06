@@ -7,6 +7,7 @@
 #include "ui/button_bt.h"
 #include "ui/reset_menu_rm.h"
 #include "ui/escape_menu_em.h"
+#include "ui/instruction_feedback_if.h"
 #include "stages.h"
 #include "code_window_cw.h"
 #include "code_program_cp.h"
@@ -210,6 +211,7 @@ void stage_drawings(int level, int operation_id)
 	sb_draw_ret_btn();
 	sb_draw_rst_btn();
 	lv_level_drawings(level);
+	ifb_draw();
 	/*
 	 * Results are the final gameplay layer, above contextual and tutorial UI.
 	 * Application reset/escape menus retain priority in stage_level().
@@ -372,18 +374,24 @@ static code_line_t *pending_operand_handler(void)
 		r = cw_create_automatic_jump_label(l);
 	} else if (reg_sel == true && lv_is_reg_selectable() == true) {
 		operand_t *r = rg_create_sel_reg_op();
-		cw_assign_op_to_line(r, l);
+		ce_diagnostic_t diagnostic = {0};
+		if (cw_assign_op_to_line_with_diagnostic(r, l, &diagnostic) ==
+		    CE_INCOMPATIBLE_OPERAND) {
+			(void)ifb_open(&diagnostic);
+		}
 	} else if (buf_sel == true && lv_is_buf_selectable() == true) {
 		operand_t *b = bf_create_sel_buf_op();
-		if (cl_is_op_compatible(b, l) == true) {
-			cw_assign_op_to_line(b, l);
-		} else {
-			cl_destroy_operand(b);
+		ce_diagnostic_t diagnostic = {0};
+		if (cw_assign_op_to_line_with_diagnostic(b, l, &diagnostic) ==
+		    CE_INCOMPATIBLE_OPERAND) {
+			(void)ifb_open(&diagnostic);
 		}
 	} else if (imm_sel == true) {
 		operand_t *i = im_create_sel_imm_op();
-		if (cl_is_op_compatible(i, l) == true) {
-			cw_assign_op_to_line(i, l);
+		ce_diagnostic_t diagnostic = {0};
+		if (cw_assign_op_to_line_with_diagnostic(i, l, &diagnostic) ==
+		    CE_INCOMPATIBLE_OPERAND) {
+			(void)ifb_open(&diagnostic);
 		}
 	} else if (rel == true && reg_sel == false && buf_sel == false &&
 	           imm_sel == false) {
@@ -627,6 +635,10 @@ int stage_level(int level_id)
 			ms_consume_pointer_input(result_action != RUN_RESULT_ACTION_NONE);
 		}
 	}
+	bool feedback_frame_owned = ifb_update(
+		!rm_chk_rst_menu_state() && !em_get_escape_state() &&
+		!rr_is_valid_operation(operation_id) &&
+		result_action == RUN_RESULT_ACTION_NONE);
 	bool                 back_to_level_selection = sb_chck_rel_ret_btn();
 
 	lv_set_hold_line(hold_line);
@@ -652,14 +664,19 @@ int stage_level(int level_id)
 	}
 	cw_sort_code();
 
-	if (sb_chk_click_stage_btn() == true &&
+	if (!feedback_frame_owned && !ifb_is_active() &&
+	    sb_chk_click_stage_btn() == true &&
 	    !ce_has_pending_operand(cw_get_code_program(), CE_PENDING_ANY)) {
 		flag_handler(&flags, identify_clicked_stage_button());
 	}
 
-	mc_start_execution(flags.play);
+	if (!feedback_frame_owned && !ifb_is_active()) {
+		mc_start_execution(flags.play);
+	}
 
-	if (flags.stop == true && flags.stop_enabled == true) {
+	if (feedback_frame_owned || ifb_is_active()) {
+		/* Keep the pending edit and execution state unchanged for this modal frame. */
+	} else if (flags.stop == true && flags.stop_enabled == true) {
 		reset_level(&flags);
 	} else if (flags.non_stop == false ||
 	           ce_has_pending_operand(cw_get_code_program(), CE_PENDING_ANY)) {

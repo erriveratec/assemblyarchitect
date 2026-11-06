@@ -68,6 +68,10 @@ CODE_RENDERER_CR_TEST_EXEC = $(TEST_BUILD_DIR)/code_renderer_cr_test
 CODE_RENDERER_CR_TEST_SOURCE = tests/code_renderer_cr_test.c
 CODE_LINE_CLONE_TEST_EXEC = $(TEST_BUILD_DIR)/code_line_clone_test
 CODE_LINE_CLONE_TEST_SOURCE = tests/code_line_clone_test.c
+OPERAND_FEEDBACK_TEST_EXEC = $(TEST_BUILD_DIR)/operand_feedback_test
+OPERAND_FEEDBACK_TEST_SOURCE = tests/operand_feedback_test.c
+INSTRUCTION_FEEDBACK_MODAL_TEST_EXEC = $(TEST_BUILD_DIR)/instruction_feedback_modal_test
+INSTRUCTION_FEEDBACK_MODAL_TEST_SOURCE = tests/instruction_feedback_modal_test.c
 TEST_EXECS := \
 	$(TUTORIAL_TEXT_TEST_EXEC) \
 	$(OPERAND_HIGHLIGHTS_TEST_EXEC) \
@@ -94,7 +98,9 @@ TEST_EXECS := \
 	$(AUTOMATIC_JUMP_LABEL_TEST_EXEC) \
 	$(CODE_INTERACTION_CI_TEST_EXEC) \
 	$(CODE_RENDERER_CR_TEST_EXEC) \
-	$(CODE_LINE_CLONE_TEST_EXEC)
+	$(CODE_LINE_CLONE_TEST_EXEC) \
+	$(OPERAND_FEEDBACK_TEST_EXEC) \
+	$(INSTRUCTION_FEEDBACK_MODAL_TEST_EXEC)
 TEST_TARGETS := $(addprefix test-,$(subst _,-,$(patsubst %_test,%,$(notdir $(TEST_EXECS)))))
 LEGACY_ROOT_TEST_EXECS := \
 	$(notdir $(TEST_EXECS)) \
@@ -173,7 +179,7 @@ test: $(TEST_TARGETS)
 	test-highlight-animation-sync test-modal-pointer-capture test-run-result-render-order \
 	test-value-box-transport test-io-rail-geometry test-registers-highlight-geometry
 
-.PHONY: test-display-resize test-drawing-outline test-code-layout-cly test-code-program-cp test-control-flow-cf test-code-edit-ce test-code-interaction-ci test-code-renderer-cr
+.PHONY: test-display-resize test-drawing-outline test-code-layout-cly test-code-program-cp test-control-flow-cf test-code-edit-ce test-code-interaction-ci test-code-renderer-cr test-operand-feedback test-instruction-feedback-modal
 
 .PHONY: test-assets
 test-assets:
@@ -248,6 +254,7 @@ test-sector-completion-navigation: | $(TEST_BUILD_DIR)
 test-tutorial-text: | $(TEST_BUILD_DIR)
 	# Test-only row source enables content assertions without production metadata.
 	$(CC) $(CFLAGS) \
+	    -DTR_TUTORIAL_TESTING \
 	    -DTX_STYLED_TEXT_TESTING \
 	    -DCW_CHALLENGE_TEXT_TESTING \
 	    $(TUTORIAL_TEXT_TEST_SOURCE) $(TEST_SOURCES) -o $(TUTORIAL_TEXT_TEST_EXEC) \
@@ -328,6 +335,16 @@ test-code-line-clone: | $(TEST_BUILD_DIR)
 	./$(CODE_LINE_CLONE_TEST_EXEC)
 
 .PHONY: test-code-line-clone
+
+test-operand-feedback: | $(TEST_BUILD_DIR)
+	$(CC) $(CFLAGS) $(OPERAND_FEEDBACK_TEST_SOURCE) $(TEST_SOURCES) -o $(OPERAND_FEEDBACK_TEST_EXEC) \
+	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
+	./$(OPERAND_FEEDBACK_TEST_EXEC)
+
+test-instruction-feedback-modal: | $(TEST_BUILD_DIR)
+	$(CC) $(CFLAGS) $(INSTRUCTION_FEEDBACK_MODAL_TEST_SOURCE) -o $(INSTRUCTION_FEEDBACK_MODAL_TEST_EXEC) \
+	    $(SDL_INCLUDES) $(SDL_LINK) -Wl,-rpath,/Library/Frameworks
+	./$(INSTRUCTION_FEEDBACK_MODAL_TEST_EXEC)
 
 ############################
 # App bundle target

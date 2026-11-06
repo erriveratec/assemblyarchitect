@@ -18,6 +18,7 @@
 #include "immediates_im.h"
 #include "ui/escape_menu_em.h"
 #include "ui/reset_menu_rm.h"
+#include "ui/instruction_feedback_if.h"
 #include "ui/screens/title_screen_ts.h"
 #include "ui/screens/select_player_sp.h"
 #include "ui/screens/select_sector_ss.h"
@@ -55,6 +56,9 @@ static bool initialize_game_assets(void)
 	}
 	cw_init_code_window_texture();
 	im_init_imm_assets();
+	if (!ifb_init("data/operand_feedback.cfg")) {
+		return false;
+	}
 	return true;
 }
 
@@ -253,6 +257,8 @@ int main(int argc, char *args[])
 		}
 	}
 	rr_destroy();
+	ifb_destroy();
+	tx_destroy_global_msgs();
 	im_destroy_imm_assets();
 	cw_destroy_renderer_assets();
 }

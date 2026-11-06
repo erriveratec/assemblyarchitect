@@ -2240,16 +2240,17 @@ void cw_cancel_pending_operand_change(void)
  *	void.
  *
  */
-static bool try_assign_op_to_line(operand_t *op, code_line_t *line)
+static ce_result_t try_assign_op_to_line_with_diagnostic(
+	operand_t *op, code_line_t *line, ce_diagnostic_t *diagnostic)
 {
 	if (op == NULL || line == NULL || line->ins == NULL ||
 	    !cp_contains(g_code_window.program, line)) {
-		return false;
+		return CE_INVALID_ARGUMENT;
 	}
 	if (cl_is_ins_jmp_type(line->ins->id) &&
 	    (!cp_contains(g_code_window.program, op->jptr) ||
 	     !ensure_label_identity(op->jptr))) {
-		return false;
+		return CE_INCOMPATIBLE_OPERAND;
 	}
 	release_active_jump_replacement_claims();
 
@@ -2265,15 +2266,19 @@ static bool try_assign_op_to_line(operand_t *op, code_line_t *line)
 		state = CE_REPLACING_OPERAND_2;
 		break;
 	default:
-		return false;
+		return CE_INVALID_SESSION;
 	}
 	if (g_code_window.edit_session.line != line ||
 	    g_code_window.edit_session.state != state) {
 		ce_begin(&g_code_window.edit_session, line, state);
 	}
 	operand_t *replaced = NULL;
-	if (ce_replace_operand(&g_code_window.edit_session, op, &replaced) != CE_OK) {
-		return false;
+	ce_result_t result = diagnostic != NULL
+		? ce_replace_operand_with_diagnostic(
+			&g_code_window.edit_session, op, &replaced, diagnostic)
+		: ce_replace_operand(&g_code_window.edit_session, op, &replaced);
+	if (result != CE_OK) {
+		return result;
 	}
 	int offset = state == CE_REPLACING_OPERAND_1
 		? cw_get_operand1_offset() : cw_get_operand2_offset();
@@ -2285,16 +2290,30 @@ static bool try_assign_op_to_line(operand_t *op, code_line_t *line)
 	if (replaced != NULL) {
 		cl_destroy_operand(replaced);
 	}
-	return true;
+	return CE_OK;
+}
+
+static bool try_assign_op_to_line(operand_t *op, code_line_t *line)
+{
+	return try_assign_op_to_line_with_diagnostic(op, line, NULL) == CE_OK;
+}
+
+ce_result_t cw_assign_op_to_line_with_diagnostic(
+	operand_t *op, code_line_t *line, ce_diagnostic_t *diagnostic)
+{
+	assert(NULL != op && "The operand cannot be NULL");
+	assert(NULL != line && "The line cannot be NULL");
+	ce_result_t result = try_assign_op_to_line_with_diagnostic(
+		op, line, diagnostic);
+	if (result != CE_OK) {
+		cl_destroy_operand(op);
+	}
+	return result;
 }
 
 void cw_assign_op_to_line(operand_t *op, code_line_t *line)
 {
-	assert(NULL != op && "The operand cannot be NULL");
-	assert(NULL != line && "The line cannot be NULL");
-	if (!try_assign_op_to_line(op, line)) {
-		cl_destroy_operand(op);
-	}
+	(void)cw_assign_op_to_line_with_diagnostic(op, line, NULL);
 }
 
 code_line_t *cw_create_automatic_jump_label(code_line_t *jump)

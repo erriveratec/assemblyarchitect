@@ -759,6 +759,44 @@ static void test_replacement(void)
 	}
 }
 
+static void test_invalid_replacement_keeps_session_and_ownership(void)
+{
+	code_line_t *line = add_line(MOV, true, true);
+	operand_t *original = line->op2;
+	line->state = CHANGING_OP2;
+	operand_t *invalid = create_test_operand(OB, original->b->r);
+	ce_diagnostic_t diagnostic = {0};
+	int destroyed_before = destroyed_operand_count;
+	assert(cw_assign_op_to_line_with_diagnostic(invalid, line, &diagnostic) ==
+	       CE_INCOMPATIBLE_OPERAND);
+	assert(diagnostic.feedback_id ==
+	       CE_OPERAND_FEEDBACK_MOV_OUTPUT_BUFFER_AS_SOURCE);
+	assert(destroyed_operand_count == destroyed_before + 1);
+	assert(line->op2 == original && line->state == CHANGING_OP2);
+	assert(cw_get_code_line_pending_operand() == line);
+	assert(ce_has_pending_operand(
+		cw_get_program_for_testing(), CE_PENDING_OPERAND_2));
+	reset_fixture();
+
+	line = add_line(MOV, true, false);
+	line->state = CHANGING_OP2;
+	invalid = create_test_operand(OB, (SDL_Rect){0});
+	destroyed_before = destroyed_operand_count;
+	assert(cw_assign_op_to_line_with_diagnostic(invalid, line, &diagnostic) ==
+	       CE_INCOMPATIBLE_OPERAND);
+	assert(line->op2 == NULL && line->state == CHANGING_OP2);
+	assert(cw_get_code_line_pending_operand() == line);
+
+	operand_t *valid = create_test_operand(IB, (SDL_Rect){0});
+	assert(cw_assign_op_to_line_with_diagnostic(valid, line, &diagnostic) == CE_OK);
+	assert(line->op2 == valid && line->state == COMPLETE);
+	assert(diagnostic.feedback_id == CE_OPERAND_FEEDBACK_NONE);
+	assert(destroyed_operand_count == destroyed_before + 1);
+	line->op2 = NULL;
+	test_destroy_operand(valid);
+	reset_fixture();
+}
+
 static void test_jump_replacement_completion(void)
 {
 	code_line_t *jump = add_line(JNE, true, false);
@@ -849,6 +887,7 @@ int main(void)
 	test_click_away();
 	test_empty_slot_assignment();
 	test_replacement();
+	test_invalid_replacement_keeps_session_and_ownership();
 	test_jump_replacement_completion();
 	test_pending_lookup_priority();
 	test_incomplete_transfer_click_away();
