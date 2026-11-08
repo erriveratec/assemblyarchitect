@@ -34,6 +34,44 @@ context_generator = 'scripts/create_copilot_context_bundle.sh'
 require_check(File.executable?(context_generator),
               "Context generator is not executable: #{context_generator}")
 
+context_inventory = File.read(context_generator).match(
+  /^section "\$review_tmp" 'WORKTREE FILE INVENTORY'\n(.*?)^section "\$review_tmp" 'REVIEW CHECKLIST'\n/m
+)
+require_check(context_inventory, 'Missing context bundle inventory block')
+inventory_setup = <<'BASH'
+set -euo pipefail
+section() { :; }
+git() {
+  case "$1" in
+    diff) if [[ "$TEST_CASE" != empty ]]; then printf 'path with spaces.txt\0'; fi ;;
+    ls-files) if [[ "$TEST_CASE" == multiple ]]; then printf 'second.txt\0path with spaces.txt\0'; fi ;;
+    status) printf '?? %s\n' "${@: -1}" ;;
+  esac
+}
+print_worktree_file() { printf 'CONTENT: %s\n' "$2" >> "$1"; }
+BASH
+Dir.mktmpdir('assemblyarchitect-context-inventory-') do |temporary|
+  {
+    'empty' => [],
+    'single' => ['path with spaces.txt'],
+    'multiple' => ['path with spaces.txt', 'second.txt']
+  }.each do |name, paths|
+    output = File.join(temporary, "#{name}.txt")
+    stdout, stderr, result = Open3.capture3(
+      { 'TEST_CASE' => name, 'review_tmp' => output },
+      '/bin/bash', '-c', inventory_setup + context_inventory[1], chdir: temporary
+    )
+    require_check(result.success?, "Context inventory #{name} failed: #{stderr}#{stdout}")
+    text = File.read(output)
+    require_check(text.lines.grep(/^CONTENT:/).map(&:chomp) == paths.map { |path| "CONTENT: #{path}" },
+                  "Context inventory #{name} lost, split, or duplicated paths")
+    require_check(text.lines.grep(/^GONE /).length == paths.length,
+                  "Context inventory #{name} has an incorrect file count")
+    require_check(text.include?('[working tree has no changed or untracked files]') == paths.empty?,
+                  "Context inventory #{name} has an incorrect clean-worktree message")
+  end
+end
+
 retired_migration_records = %w[
   docs/refactor/bootstrap-report.md
   docs/refactor/master-plan.md

@@ -287,12 +287,14 @@ run_capture "$review_tmp" 'PROTECTED-PATH CHANGE CHECK' git -c color.ui=false di
 section "$review_tmp" 'WORKTREE FILE INVENTORY'
 printf '%-5s %-8s %-12s %s\n' 'TYPE' 'STATUS' 'BYTES' 'PATH' >> "$review_tmp"
 changed_paths=()
+changed_path_count=0
 while IFS= read -r -d '' path; do
   [[ -n "$path" ]] || continue
   changed_paths+=("$path")
+  changed_path_count=$((changed_path_count + 1))
 done < <({ git diff --name-only -z HEAD; git ls-files --others --exclude-standard -z; } | sort -zu)
 
-for path in "${changed_paths[@]}"; do
+for path in ${changed_paths[@]+"${changed_paths[@]}"}; do
   status="$(git status --short --untracked-files=all -- "$path" | head -n 1 | cut -c1-2)"
   if [[ -L "$path" ]]; then
     kind='LINK'; bytes='-'
@@ -307,7 +309,7 @@ for path in "${changed_paths[@]}"; do
 done
 
 section "$review_tmp" 'CURRENT CONTENTS OF CREATED OR MODIFIED TEXT FILES'
-if (( ${#changed_paths[@]} == 0 )); then
+if (( changed_path_count == 0 )); then
   printf '[working tree has no changed or untracked files]\n' >> "$review_tmp"
 else
   for path in "${changed_paths[@]}"; do
