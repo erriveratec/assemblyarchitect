@@ -1,115 +1,114 @@
 # Assembly Architect Repository Instructions
 
-## Required Repository Context
+## Repository Context
 
-Before significant implementation, refactoring, save-system, gameplay-semantic,
-or architecture work, read:
+For significant changes, read the project context, architecture index, invariant
+catalog, quality gates, and the affected implementation, header, callers, and tests:
 
-1. `docs/PROJECT_CONTEXT.md`
-2. `docs/architecture/README.md`
-3. `docs/architecture/invariants.md`
-4. `docs/governance/quality-gates.md`
-5. The implementation, headers, callers, and tests for the affected subsystem
+- `docs/PROJECT_CONTEXT.md`
+- `docs/architecture/README.md`
+- `docs/architecture/invariants.md`
+- `docs/governance/quality-gates.md`
 
 Use `scripts/create_copilot_context_bundle.sh` when an external review needs a
-complete committed-project snapshot or a working-tree diff.
+committed-project snapshot and working-tree diff. Do not treat generated context
+dumps as repository documentation or commit them.
 
-Do not treat generated context dumps as repository documentation. Context dumps
-are temporary review artifacts and must not be committed.
+For work that changes an active ownership or compatibility boundary, consult
+`docs/architecture/current-code-window.md`, the relevant proposal, and applicable
+ADRs. Update migration records only when the task changes or completes a tracked
+migration boundary. Unrelated maintenance does not require migration-state work.
+
+Path-specific guidance under `.github/instructions` supplements this file.
+Player-facing text and presentation for matching paths are governed by
+`.github/instructions/ui-language.instructions.md`; keep its terminology and
+presentation rules there rather than duplicating them here.
 
 ## Mission and Safety
 
 This C/SDL2 game teaches x86-inspired assembly. Educational correctness is a
-functional requirement. Preserve represented assembly semantics, deterministic
-execution, player-visible behavior, existing saves, levels, tutorials, supported
-macOS behavior, and the relationship between labels, jumps, execution, highlights,
-and instructional feedback. Compilation alone does not demonstrate gameplay.
-
-Read `docs/architecture/README.md`, the affected implementations, headers,
-callers, tests, and `docs/refactor/migration-state.md` before working. Identify
-behavior and ownership, establish a baseline, add or identify characterization
-coverage, make one bounded change, run the documented checks, update relevant
-architecture/migration records, and report checks not run with reasons.
+functional requirement. Preserve the implemented assembly semantics, deterministic
+execution, player-visible behavior, version-1 save compatibility, levels, tutorials,
+and the relationship between labels, jumps, execution state, highlights, and
+instructional feedback. Compilation alone does not demonstrate gameplay.
 
 ## Verified Conventions
 
-- The Makefile is authoritative. macOS with Clang and SDL2, SDL2_image,
-  SDL2_ttf, SDL2_mixer frameworks is the verified platform. Do not invent Linux
-  or Windows support. There are no included Make fragments.
-- No `-std` is currently specified; the verified Apple Clang default is GNU C17
-  (`__STDC_VERSION__=201710L`). Do not silently change the dialect.
-- Preserve enforced `-Wall -Wextra -Wpedantic -Werror`, including CFLAGS overrides.
+- The Makefile is authoritative. The verified platform is macOS with Apple Clang
+  and SDL2, SDL2_image, SDL2_ttf, and SDL2_mixer frameworks. Do not claim other
+  production platforms without verification.
+- No `-std` is specified; preserve the verified Apple Clang GNU C17 default.
+  Preserve `-Wall -Wextra -Wpedantic -Werror`, including CFLAGS overrides.
 - Match neighboring tabs, braces, explicit state structures, and prefixes such
   as `cw_`, `cl_`, `sv_`, `mc_`, and `ha_`. Avoid speculative abstractions,
   duplicated helpers, and new mutable globals or singletons.
-- Check allocations and error paths; use structured status values for expected
-  failures. Document whether pointers are owned, borrowed, or transferred.
-  Partial initialization must be safe to destroy.
-- Tests can include production `.c` files with macro doubles. Preserve the
-  Makefile's excluded translation units and test-only defines.
-- Run from the repository root. Asset lookup also depends on executable location;
-  preserve test asset symlinks. Do not relocate binaries casually.
+- Check allocation/error paths, use structured statuses for expected failures,
+  and make ownership (owned, borrowed, or transferred) explicit. Partial
+  initialization must be safe to destroy.
+- Tests may include production `.c` files with macro doubles. Preserve Makefile
+  test exclusions, test-only defines, and asset symlinks. Run from the repository
+  root; asset lookup depends on executable location.
 
-## Target, Not Current Architecture
+## Current Ownership
 
-| Proposed module | Responsibility |
+| Module | Current responsibility |
 | --- | --- |
-| `code_window_cw` | Orchestration and temporary compatibility API |
-| `code_program_cp` | SDL-independent program ownership |
-| `control_flow_cf` | Stable labels, jump targets, validation |
-| `code_edit_ce` | Commands and explicit edit-session state |
-| `code_layout_cly` | Pure geometry |
-| `code_interaction_ci` | Input-to-action translation |
-| `code_renderer_cr` | Presentation-only SDL rendering |
+| `code_program_cp` | Owns the ordered instruction lines and exposes borrowed indexed/iterator views. |
+| `control_flow_cf` | Assigns stable label identities, translates version-1 positional targets, repairs/resolves/validates jumps, and applies jump execution-state changes. |
+| `code_edit_ce` | Owns edit-session state and result-valued operand/line operations, cloning, and pending-operand queries. |
+| `code_layout_cly` | Computes selected code-window geometry and hit-test values. |
+| `code_interaction_ci` | Maps already-computed hit results to prioritized edit actions. |
+| `code_renderer_cr` | Draws code lines and code-window presentation; owns its comma and line-number assets. |
+| `code_window_cw` | SDL-aware singleton coordinator and compatibility API; retains line/operand construction, save adapters, hit acquisition, held-line edit orchestration, presentation repair, and some geometry. |
 
-Desired flow: SDL events -> interaction -> edit commands -> program/control flow;
-program + layout + visual state -> renderer; code_window coordinates these.
-Model, control flow, and editing must eventually be testable without SDL video
-initialization or renderer creation. This bootstrap does not implement these
-modules. Compatibility wrappers must name their removal stage.
+These are partial boundaries, not proof that the full controller extraction is
+complete. `stages.c` still sequences input/edit actions; `code_window_cw` still
+owns active compatibility adapters and remains a singleton. Do not remove or
+reclassify wrappers merely because a corresponding module exists. Verify callers
+and tests before changing ownership. The architecture documents describe the
+remaining work; do not turn their proposed end-state into a claim about current
+behavior.
 
 ## Mandatory Invariants
 
-See `docs/architecture/invariants.md` for evidence and outstanding coverage.
+See `docs/architecture/invariants.md` for evidence and known coverage gaps. These
+are requirements, not claims that current code or tests prove them.
 
 - Every jump resolves to exactly one valid label identity.
 - Reordering cannot silently retarget a jump.
 - Referenced-label removal has a defined outcome and leaves no dangling pointer.
-- Forward and backward jumps load deterministically.
+- Forward and backward jumps load deterministically; existing version-1 saves
+  remain readable.
 - A failed edit leaves the program unchanged.
 - Rendering and hit testing do not mutate semantic program state.
-- Ownership is explicit; partial initialization can be safely destroyed.
-- Existing save fixtures remain readable; highlights reflect actual state.
-- Tests are deterministic, with controlled clocks rather than arbitrary sleeps.
-
-These are obligations for migration, not claims that current code proves them.
+- Ownership is explicit and partial initialization can be safely destroyed.
+- Highlights reflect actual pending/execution state.
+- Tests are deterministic; use controlled clocks/phases, not arbitrary sleeps.
 
 ## Verification and Prohibitions
 
-Use the real commands and limitations in `docs/governance/quality-gates.md`.
-Preserve `make all`, `make test`, every existing test and assertion. Never skip,
-delete, weaken, or hide failing tests, warning policies, analysis, or sanitizer
-findings. Classify pre-existing failures separately from introduced defects.
-Do not suppress findings without documented root-cause analysis.
+Use the commands and limitations in `docs/governance/quality-gates.md`; run focused
+checks first and all applicable required gates before completion. Preserve
+`make all`, `make test`, every existing test/assertion, warning policy, analysis,
+and sanitizer findings. Classify known baseline failures separately; never hide,
+weaken, or suppress findings without documented root-cause analysis.
 
-Do not change saves without an approved migration, auto-update visual goldens,
-change gameplay/educational design outside approved scope, or begin architectural
-extraction during infrastructure work. Do not add a build system when Make fits.
-Never delete editor files, recursively find/delete debug bundles, or use broad
-cleanup wildcards. Inspect dry runs before cleanup; this bootstrap must not run
-`make clean` without the user's additional approval.
+Do not change save formats without an approved migration, auto-update visual
+baselines, change gameplay/educational design outside scope, or add a build system
+when Make fits. Use only documented, exact-path cleanup procedures after preview;
+never delete editor files or use recursive discovery/broad cleanup wildcards.
 
-Never commit, push, create branches/PRs/issues, install software, use privileges,
-or change remote settings without explicit task authorization. Never merge,
-approve your own work, bypass CI, or push directly to a protected default branch.
-No agent may acquire merge/approval authority. Treat PR code as untrusted; never
-build it using `pull_request_target` or privileged write tokens. Keep Actions
-least-privilege and version-pinned; do not claim remote checks ran locally.
+Do not commit, push, create branches/PRs/issues, install software, use privileges,
+or change remote settings without explicit authorization. Do not merge, approve
+your own work, bypass CI, or push to a protected default branch. Treat PR code as
+untrusted; never build it with `pull_request_target` or privileged write tokens.
+Keep Actions least-privilege and version-pinned, and do not claim remote checks ran
+locally.
 
 ## Completion
 
-All required checks pass; new behavior has tests and preserved behavior has
-characterization coverage. Public API/ownership changes and migration state are
-documented. Include risks, rollback, exact command outcomes, and manual checks.
-No unresolved Critical or Major findings may remain before human approval.
-Only a human maintainer performs final approval and merge.
+Add focused coverage for behavior changes and identify characterization coverage
+for preserved behavior. Document public API/ownership changes and update
+architecture or migration records only when the change affects those boundaries.
+Report exact checks, checks not run and why, relevant risks, rollback, and required
+manual gameplay checks. Only a human maintainer performs final approval and merge.

@@ -11,6 +11,8 @@ OUTPUT_FILE="$HOME/Desktop/assemblyarchitect_project_dump_${DUMP_TIMESTAMP}.txt"
 
 SOURCE_DIR="$PROJECT_ROOT/source"
 DATA_DIR="$PROJECT_ROOT/data"
+INSTRUCTIONS_DIR="$PROJECT_ROOT/.github/instructions"
+COPILOT_INSTRUCTIONS_PATH="$PROJECT_ROOT/.github/copilot-instructions.md"
 MAKEFILE_PATH="$PROJECT_ROOT/Makefile"
 DUMP_SCRIPT_PATH="$PROJECT_ROOT/create_project_dump.sh"
 TESTS_DIR="$PROJECT_ROOT/tests"
@@ -22,6 +24,17 @@ fi
 
 if [ ! -d "$DATA_DIR" ]; then
     printf 'Error: data directory not found: %s\n' "$DATA_DIR" >&2
+    exit 1
+fi
+
+if [ ! -d "$INSTRUCTIONS_DIR" ]; then
+    printf 'Error: instructions directory not found: %s\n' "$INSTRUCTIONS_DIR" >&2
+    exit 1
+fi
+
+if [ ! -f "$COPILOT_INSTRUCTIONS_PATH" ]; then
+    printf 'Error: Copilot instructions file not found or not a regular file: %s\n' \
+        "$COPILOT_INSTRUCTIONS_PATH" >&2
     exit 1
 fi
 
@@ -44,6 +57,8 @@ fi
 INPUT_PATHS=(
     "$MAKEFILE_PATH"
     "$DUMP_SCRIPT_PATH"
+    "$COPILOT_INSTRUCTIONS_PATH"
+    "$INSTRUCTIONS_DIR"
     "$SOURCE_DIR"
     "$DATA_DIR"
     "$TESTS_DIR"
